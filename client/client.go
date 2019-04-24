@@ -39,6 +39,9 @@ func PublishEvent(event auditlog.Event) error {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
 
 	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
 		return fmt.Errorf("Received a %d", resp.StatusCode)
