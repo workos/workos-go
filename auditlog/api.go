@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	EventsPath = "/audit-log/events"
+	eventsPath = "/audit-log/events"
 )
 
 // EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
@@ -25,18 +25,9 @@ type EventResponse struct {
 	AppID           string `json:"app_id"`
 }
 
-type EventRequestResponse struct {
-	Ok               bool            `json:"ok"`
-	Events           []EventResponse `json:"events"`
-	ResponseMetadata struct {
-		NextCursor     string `json:"next_cursor"`
-		PreviousCursor string `json:"previous_cursor"`
-	} `json:"response_metadata"`
-}
-
 // Find looks up a single WorkOS Audit Log event.
 func Find(id string) (EventResponse, error) {
-	path := fmt.Sprintf("%s/%s", EventsPath, id)
+	path := fmt.Sprintf("%s/%s", eventsPath, id)
 	resp, err := get(path)
 	if err != nil {
 		return EventResponse{}, err
@@ -53,14 +44,28 @@ func Find(id string) (EventResponse, error) {
 	return event, nil
 }
 
-type EventRequestParams struct {
+// EventsResponse represents a set of Audit Log events returned from WorkOS.
+type EventsResponse struct {
+	Ok               bool            `json:"ok"`
+	Events           []EventResponse `json:"events"`
+	ResponseMetadata struct {
+		NextCursor     string `json:"next_cursor"`
+		PreviousCursor string `json:"previous_cursor"`
+	} `json:"response_metadata"`
+}
+
+// EventsRequestParams allows you to configure the FindAll request to find
+// Audit Log entries after & before a given time or by a specific action.
+type EventsRequestParams struct {
 	Start  time.Time
 	End    time.Time
 	Action Action
 }
 
-func FindAll(params EventRequestParams) (EventRequestResponse, error) {
-	path := EventsPath
+// FindAll returns a paginated set of Audit Log entries matching the search
+// query.
+func FindAll(params EventsRequestParams) (EventsResponse, error) {
+	path := eventsPath
 	q := url.Values{}
 	if !params.Start.IsZero() {
 		q.Add("start", params.Start.UTC().Format(time.RFC3339))
@@ -81,12 +86,12 @@ func FindAll(params EventRequestParams) (EventRequestResponse, error) {
 
 	resp, err := get(path)
 	if err != nil {
-		return EventRequestResponse{}, err
+		return EventsResponse{}, err
 	}
 
 	defer resp.Body.Close()
 
-	events := EventRequestResponse{}
+	events := EventsResponse{}
 	decoder := json.NewDecoder(resp.Body)
 	decoder.Decode(&events)
 

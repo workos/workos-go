@@ -57,7 +57,7 @@ func main() {
 	})
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := auditlog.FindAll(auditlog.EventRequestParams{
+		resp, err := auditlog.FindAll(auditlog.EventsRequestParams{
 			End:    time.Now(),
 			Action: "user.login",
 		})
