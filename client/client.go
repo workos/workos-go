@@ -18,6 +18,8 @@ func PublishEvent(event auditlog.Event) error {
 		return err
 	}
 
+	// Add retry logic
+	// Ensure http.Client connection re-use
 	client := http.Client{
 		Timeout: 10 * time.Second,
 	}
