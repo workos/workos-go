@@ -65,16 +65,25 @@ type EventsRequestParams struct {
 	Limit  int
 }
 
+func (p EventsRequestParams) limit() int {
+	if p.Limit > 1000 {
+		return 1000
+	}
+
+	if p.Limit < 0 {
+		return 50
+	}
+
+	return p.Limit
+}
+
 // FindAll returns a paginated set of Audit Log entries matching the search
 // query.
 func FindAll(params EventsRequestParams) (EventsResponse, error) {
 	path := eventsPath
 	q := url.Values{}
 
-	if params.Limit < 0 || params.Limit <= 1000 {
-		params.Limit = 50
-	}
-	q.Add("limit", strconv.Itoa(params.Limit))
+	q.Add("limit", strconv.Itoa(params.limit()))
 
 	if !params.Start.IsZero() {
 		q.Add("start", params.Start.UTC().Format(time.RFC3339))
