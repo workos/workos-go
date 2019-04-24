@@ -31,9 +31,7 @@ func main() {
 			DatabaseID: 1,
 		}
 
-		// We could maybe have a event.NewHTTPEvent() that takes the request
-		// and populates it.
-		event := auditlog.NewHTTPEvent("user.login", auditlog.Create, r)
+		event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, r)
 		event.SetActor(u)
 		event.SetTarget(u)
 

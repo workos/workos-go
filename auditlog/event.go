@@ -104,9 +104,9 @@ func NewEvent(action Action, actionType ActionType) Event {
 	}
 }
 
-// NewHTTPEvent iniitalizes a new event populated with default information about
-// the environment and HTTP request.
-func NewHTTPEvent(action Action, actionType ActionType, r *http.Request) Event {
+// NewEventWithHTTP iniitalizes a new event populated with default information
+// about the environment and HTTP request.
+func NewEventWithHTTP(action Action, actionType ActionType, r *http.Request) Event {
 	event := NewEvent(action, actionType)
 	event.SetLocation(r.RemoteAddr)
 
