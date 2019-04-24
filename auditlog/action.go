@@ -7,7 +7,7 @@ import (
 // Action is the type to represent an Audit Log action name.
 type Action string
 
-// Category returns the given action category.
+// Category returns the action category without the environment or action name.
 func (a Action) Category() string {
 	index := 0
 	if a.Environment() != "" {
@@ -22,7 +22,7 @@ func (a Action) Category() string {
 	return parts[index]
 }
 
-// Name returns the given action name.
+// Name returns the action name without the environment or category.
 func (a Action) Name() string {
 	index := 1
 	if a.Environment() != "" {
