@@ -31,16 +31,16 @@ const (
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {
-	Group      string            `json:"group"`
-	Action     Action            `json:"action"`
-	ActionType ActionType        `json:"action_type"`
-	ActorName  string            `json:"actor_name"`
-	ActorID    string            `json:"actor_id"`
-	Location   string            `json:"location"`
-	OccuredAt  time.Time         `json:"occured_at"`
-	TargetName string            `json:"target_name"`
-	TargetID   string            `json:"target_id"`
-	Metadata   map[string]string `json:"metadata"`
+	Group      string                 `json:"group"`
+	Action     Action                 `json:"action"`
+	ActionType ActionType             `json:"action_type"`
+	ActorName  string                 `json:"actor_name"`
+	ActorID    string                 `json:"actor_id"`
+	Location   string                 `json:"location"`
+	OccuredAt  time.Time              `json:"occured_at"`
+	TargetName string                 `json:"target_name"`
+	TargetID   string                 `json:"target_id"`
+	Metadata   map[string]interface{} `json:"metadata"`
 }
 
 // NewEvent initializes a new event populated with default information about
@@ -57,7 +57,7 @@ func NewEvent(action Action, actionType ActionType) Event {
 		ActionType: actionType,
 		Location:   location,
 		OccuredAt:  time.Now().UTC(),
-		Metadata:   map[string]string{},
+		Metadata:   map[string]interface{}{},
 	}
 }
 
@@ -85,7 +85,7 @@ func NewEventWithHTTP(action Action, actionType ActionType, r *http.Request) Eve
 // NewEventWithMetadata initializes a new event populated with default
 // information about the environment with a default of user supplied
 // information.
-func NewEventWithMetadata(action Action, actionType ActionType, metadata map[string]string) Event {
+func NewEventWithMetadata(action Action, actionType ActionType, metadata map[string]interface{}) Event {
 	event := NewEvent(action, actionType)
 	event.Metadata = metadata
 	return event
@@ -114,7 +114,7 @@ func (e *Event) SetLocation(location string) {
 // If a particular bit of metadata surrounding the event may change at any time
 // in the future and it is important you can trace what its value at a
 // particular time is, you should consider adding it to the event.
-func (e Event) AddMetadata(key, value string) error {
+func (e Event) AddMetadata(key string, value interface{}) error {
 	if len(e.Metadata) >= 500 {
 		return errors.New("attempted to add over 500 properties to metadata, ignoring")
 	}

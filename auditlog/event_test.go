@@ -18,7 +18,7 @@ func TestNewEvent(t *testing.T) {
 }
 
 func TestNewEventWithMetadata(t *testing.T) {
-	event := NewEventWithMetadata("user.login", Create, map[string]string{
+	event := NewEventWithMetadata("user.login", Create, map[string]interface{}{
 		"user_agent": "Mozilla",
 	})
 
@@ -58,7 +58,7 @@ func TestEventAddingMetadataLimit(t *testing.T) {
 
 	event.AddMetadata("key", "value")
 
-	if event.Metadata["key"] != "" {
+	if event.Metadata["key"] != nil {
 		t.Error("event.Metadata should not have added entries for key/value")
 	}
 
