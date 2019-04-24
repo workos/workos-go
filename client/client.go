@@ -2,22 +2,14 @@ package client
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/dewski/workos/auditlog"
 )
 
 // PublishEvent delivers the Audit Log event to WorkOS.
-func PublishEvent(event auditlog.Event) error {
-	body, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
+func PublishEvent(body []byte) error {
 	// Add retry logic
 	// Ensure http.Client connection re-use
 	client := http.Client{

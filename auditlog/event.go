@@ -1,10 +1,13 @@
 package auditlog
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/dewski/workos/client"
 )
 
 // Auditable is an interface to assist in representing how a given struct
@@ -119,4 +122,13 @@ func (e Event) AddMetadata(key, value string) error {
 	e.Metadata[key] = value
 
 	return nil
+}
+
+// Publish delivers the event to WorkOS.
+func (e Event) Publish() error {
+	body, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+	return client.PublishEvent(body)
 }

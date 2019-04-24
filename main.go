@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/dewski/workos/auditlog"
-	"github.com/dewski/workos/client"
 )
 
 type user struct {
@@ -25,18 +24,18 @@ func (u user) ToAuditableID() string {
 }
 
 func main() {
-	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 		u := user{
 			Email:      "me@domain.com",
 			DatabaseID: 1,
 		}
 
-		event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, r)
+		event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
 		event.SetActor(u)
 		event.SetTarget(u)
-
-		err := client.PublishEvent(event)
+		err := event.Publish()
 		if err != nil {
+			// Call out to sentry
 			fmt.Println("Had a problem writing this event")
 		}
 
