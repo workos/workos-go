@@ -115,7 +115,10 @@ func FindAll(params EventsRequestParams) (EventsResponse, error) {
 
 	events := EventsResponse{}
 	decoder := json.NewDecoder(resp.Body)
-	decoder.Decode(&events)
+	err = decoder.Decode(&events)
+	if err != nil {
+		return EventsResponse{}, err
+	}
 
 	return events, nil
 }
