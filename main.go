@@ -42,5 +42,28 @@ func main() {
 		body, _ := json.Marshal(event)
 		fmt.Fprintf(w, string(body))
 	})
+
+	http.HandleFunc("/event", func(w http.ResponseWriter, req *http.Request) {
+		resp, err := auditlog.Find("someid")
+		if err != nil {
+			// Call out to sentry
+			fmt.Println("Had a problem with request")
+			fmt.Println(err)
+		}
+
+		body, _ := json.Marshal(resp)
+		fmt.Fprintf(w, string(body))
+	})
+
+	http.HandleFunc("/events", func(w http.ResponseWriter, req *http.Request) {
+		resp, err := auditlog.FindAll(auditlog.EventRequestParams{})
+		if err != nil {
+			// Call out to sentry
+			fmt.Println("Had a problem with request")
+		}
+
+		body, _ := json.Marshal(resp)
+		fmt.Fprintf(w, string(body))
+	})
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
