@@ -18,7 +18,7 @@ func PublishEvent(body []byte) error {
 
 	endpoint := os.Getenv("WORKOS_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "http://localhost:4567/receive"
+		endpoint = "http://localhost:4567/audit-logs/events"
 	}
 
 	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(body))
