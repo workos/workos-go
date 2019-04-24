@@ -1,7 +1,7 @@
 package auditlog
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -20,14 +20,44 @@ type Action string
 
 // Category returns the given action category.
 func (a Action) Category() string {
+	index := 0
+	if a.Environment() != "" {
+		index = 1
+	}
 	parts := strings.Split(string(a), ".")
-	return parts[0]
+
+	if len(parts) <= index {
+		return ""
+	}
+
+	return parts[index]
 }
 
 // Name returns the given action name.
 func (a Action) Name() string {
+	index := 1
+	if a.Environment() != "" {
+		index = 2
+	}
 	parts := strings.Split(string(a), ".")
-	return parts[1]
+
+	if len(parts) <= index {
+		return ""
+	}
+
+	return parts[index]
+}
+
+// Environment returns the target environment the Audit Log event will reside in
+// WorkOS.
+func (a Action) Environment() string {
+	parts := strings.Split(string(a), ".")
+	switch parts[0] {
+	case "dev", "test", "internal":
+		return parts[0]
+	default:
+		return ""
+	}
 }
 
 // ActionType is the type that holds the CRUD action used for the WorkOS
@@ -44,16 +74,16 @@ const (
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {
-	Group      string                 `json:"group"`
-	Action     Action                 `json:"action"`
-	ActionType ActionType             `json:"action_type"`
-	ActorName  string                 `json:"actor_name"`
-	ActorID    string                 `json:"actor_id"`
-	Location   string                 `json:"location"`
-	OccuredAt  time.Time              `json:"occured_at"`
-	TargetName string                 `json:"target_name"`
-	TargetID   string                 `json:"target_id"`
-	Metadata   map[string]interface{} `json:"metadata"`
+	Group      string            `json:"group"`
+	Action     Action            `json:"action"`
+	ActionType ActionType        `json:"action_type"`
+	ActorName  string            `json:"actor_name"`
+	ActorID    string            `json:"actor_id"`
+	Location   string            `json:"location"`
+	OccuredAt  time.Time         `json:"occured_at"`
+	TargetName string            `json:"target_name"`
+	TargetID   string            `json:"target_id"`
+	Metadata   map[string]string `json:"metadata"`
 }
 
 // NewEvent initializes a new event populated with default information about
@@ -70,7 +100,7 @@ func NewEvent(action Action, actionType ActionType) Event {
 		ActionType: actionType,
 		Location:   location,
 		OccuredAt:  time.Now().UTC(),
-		Metadata:   map[string]interface{}{},
+		Metadata:   map[string]string{},
 	}
 }
 
@@ -98,7 +128,7 @@ func NewHTTPEvent(action Action, actionType ActionType, r *http.Request) Event {
 // NewEventWithMetadata initializes a new event populated with default
 // information about the environment with a default of user supplied
 // information.
-func NewEventWithMetadata(action Action, actionType ActionType, metadata map[string]interface{}) Event {
+func NewEventWithMetadata(action Action, actionType ActionType, metadata map[string]string) Event {
 	event := NewEvent(action, actionType)
 	event.Metadata = metadata
 	return event
@@ -128,10 +158,11 @@ func (e *Event) SetLocation(location string) {
 // in the future and it is important you can trace what its value at a
 // particular time is, you should consider adding it to the event.
 func (e Event) AddMetadata(key, value string) error {
-	if e.Metadata[key] != nil && e.Metadata[key] != value {
-		return fmt.Errorf("cannot set event metadata for '%s' to '%s' as it is already '%s'", key, value, e.Metadata[key])
+	if len(e.Metadata) >= 500 {
+		return errors.New("attempted to add over 500 properties to metadata, ignoring")
 	}
 
 	e.Metadata[key] = value
+
 	return nil
 }
