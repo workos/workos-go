@@ -84,7 +84,6 @@ func get(path string) (*http.Response, error) {
 	}
 
 	route := fmt.Sprintf("%s%s", endpoint, path)
-	fmt.Println(route)
 	req, err := http.NewRequest("GET", route, nil)
 	if err != nil {
 		return nil, err
