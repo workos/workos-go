@@ -61,6 +61,7 @@ type EventsRequestParams struct {
 	Start  time.Time
 	End    time.Time
 	Action Action
+	Cursor string
 	Limit  int
 }
 
@@ -69,6 +70,12 @@ type EventsRequestParams struct {
 func FindAll(params EventsRequestParams) (EventsResponse, error) {
 	path := eventsPath
 	q := url.Values{}
+
+	if params.Limit < 0 || params.Limit <= 1000 {
+		params.Limit = 50
+	}
+	q.Add("limit", strconv.Itoa(params.Limit))
+
 	if !params.Start.IsZero() {
 		q.Add("start", params.Start.UTC().Format(time.RFC3339))
 	}
@@ -77,8 +84,8 @@ func FindAll(params EventsRequestParams) (EventsResponse, error) {
 		q.Add("end", params.End.UTC().Format(time.RFC3339))
 	}
 
-	if params.Limit > 0 {
-		q.Add("limit", strconv.Itoa(params.Limit))
+	if params.Cursor != "" {
+		q.Add("cursor", params.Cursor)
 	}
 
 	if params.Action != "" {
