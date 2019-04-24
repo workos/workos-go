@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -60,6 +61,7 @@ type EventsRequestParams struct {
 	Start  time.Time
 	End    time.Time
 	Action Action
+	Limit  int
 }
 
 // FindAll returns a paginated set of Audit Log entries matching the search
@@ -73,6 +75,10 @@ func FindAll(params EventsRequestParams) (EventsResponse, error) {
 
 	if !params.End.IsZero() {
 		q.Add("end", params.End.UTC().Format(time.RFC3339))
+	}
+
+	if params.Limit > 0 {
+		q.Add("limit", strconv.Itoa(params.Limit))
 	}
 
 	if params.Action != "" {
