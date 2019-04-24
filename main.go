@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/dewski/workos/auditlog"
 )
@@ -56,7 +57,11 @@ func main() {
 	})
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := auditlog.FindAll(auditlog.EventRequestParams{})
+		resp, err := auditlog.FindAll(auditlog.EventRequestParams{
+			End:    time.Now(),
+			Action: "user.login",
+		})
+
 		if err != nil {
 			// Call out to sentry
 			fmt.Println("Had a problem with request")

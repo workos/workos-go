@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
@@ -53,13 +54,32 @@ func Find(id string) (EventResponse, error) {
 }
 
 type EventRequestParams struct {
-	Start  string
-	End    string
+	Start  time.Time
+	End    time.Time
 	Action Action
 }
 
 func FindAll(params EventRequestParams) (EventRequestResponse, error) {
-	resp, err := get(EventsPath)
+	path := EventsPath
+	q := url.Values{}
+	if !params.Start.IsZero() {
+		q.Add("start", params.Start.UTC().Format(time.RFC3339))
+	}
+
+	if !params.End.IsZero() {
+		q.Add("end", params.End.UTC().Format(time.RFC3339))
+	}
+
+	if params.Action != "" {
+		q.Add("action", string(params.Action))
+	}
+
+	query := q.Encode()
+	if query != "" {
+		path = fmt.Sprintf("%s?%s", path, query)
+	}
+
+	resp, err := get(path)
 	if err != nil {
 		return EventRequestResponse{}, err
 	}
