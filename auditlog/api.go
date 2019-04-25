@@ -53,6 +53,42 @@ type EventsResponse struct {
 		NextCursor     string `json:"next_cursor"`
 		PreviousCursor string `json:"previous_cursor"`
 	} `json:"response_metadata"`
+
+	requestParams EventsRequestParams
+}
+
+// HasNextPage determines if there is a next page of Audit Log events to load.
+func (er EventsResponse) HasNextPage() bool {
+	return er.ResponseMetadata.NextCursor != ""
+}
+
+// NextPage returns the next page of paginated Audit Log entries using the same
+// query from the original response.
+func (er EventsResponse) NextPage() (EventsResponse, error) {
+	if !er.HasNextPage() {
+		return EventsResponse{}, fmt.Errorf("there is no next page")
+	}
+
+	params := er.requestParams
+	params.Cursor = er.ResponseMetadata.NextCursor
+	return FindAll(params)
+}
+
+// HasPreviousPage determines if there is a previous page of Audit Log events to load.
+func (er EventsResponse) HasPreviousPage() bool {
+	return er.ResponseMetadata.PreviousCursor != ""
+}
+
+// PreviousPage returns the next page of paginated Audit Log entries using the same
+// query from the original response.
+func (er EventsResponse) PreviousPage() (EventsResponse, error) {
+	if !er.HasPreviousPage() {
+		return EventsResponse{}, fmt.Errorf("there is no previous page")
+	}
+
+	params := er.requestParams
+	params.Cursor = er.ResponseMetadata.PreviousCursor
+	return FindAll(params)
 }
 
 // EventsRequestParams allows you to configure the FindAll request to find
@@ -113,7 +149,7 @@ func FindAll(params EventsRequestParams) (EventsResponse, error) {
 
 	defer resp.Body.Close()
 
-	events := EventsResponse{}
+	events := EventsResponse{requestParams: params}
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&events)
 	if err != nil {
