@@ -40,6 +40,10 @@ type Event struct {
 	OccuredAt  time.Time              `json:"occured_at"`
 	TargetName string                 `json:"target_name"`
 	TargetID   string                 `json:"target_id"`
+
+	// TODO: Using interface{} means we can have nested interface{}'s which isn't
+	// ideal schema wise. Supporting primitives like string, bool, int, or arrays
+	// of primitives is likely fine. Before validations are enforced learn more.
 	Metadata   map[string]interface{} `json:"metadata"`
 }
 
