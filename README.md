@@ -77,12 +77,12 @@ You can add metadata directly to events
 
 ```go
 user := User{
-  ID: 1,
-  Email: "user@email.com",
+	ID: 1,
+	Email: "user@email.com",
 }
 tweet := Tweet{
-  ID: 5,
-  Body: "What time is the event",
+	ID: 5,
+	Body: "What time is the event",
 }
 bodyWas := comment.Body
 tweet.Body = "What time is the event?"
@@ -92,12 +92,12 @@ event.SetActor(user)
 event.SetTarget(tweet)
 event.SetLocation("1.1.1.1")
 event.AddMetadata(map[string]interface{}{
-  "body_was": bodyWas,
-  "body": comment.Body,
+	"body_was": bodyWas,
+	"body": comment.Body,
 })
 err := event.Publish()
 if err != nil {
-  fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
+	fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
 }
 ```
 
@@ -137,16 +137,16 @@ import (
 )
 
 func main() {
-  location, err := os.Hostname()
-  if err != nil {
-    location = ""
-  }
+	location, err := os.Hostname()
+	if err != nil {
+		location = ""
+	}
 
-  auditlog.SetMetadata(map[string]interface{}{
-    "hostname": location,
-  })
+	auditlog.SetMetadata(map[string]interface{}{
+		"hostname": location,
+	})
 
-  // Your code goes here
+	// Your code goes here
 }
 ```
 
@@ -177,21 +177,21 @@ When creating an Audit Log event that was triggered as a result of an HTTP reque
 
 ```go
 http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
-  user := User{
-    Email:      "me@domain.com",
-    DatabaseID: 1,
-  }
+	user := User{
+		Email:      "me@domain.com",
+		DatabaseID: 1,
+	}
 
-  event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
-  event.SetActor(user)
-  event.SetTarget(user)
-  err := event.Publish()
-  if err != nil {
-    fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
-  }
+	event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
+	event.SetActor(user)
+	event.SetTarget(user)
+	err := event.Publish()
+	if err != nil {
+		fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
+	}
 
-  body, _ := json.Marshal(event)
-  fmt.Fprintf(w, string(body))
+	body, _ := json.Marshal(event)
+	fmt.Fprintf(w, string(body))
 })
 ```
 
