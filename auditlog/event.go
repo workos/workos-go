@@ -71,18 +71,22 @@ func NewEvent(action Action, actionType ActionType) Event {
 func NewEventWithHTTP(action Action, actionType ActionType, r *http.Request) Event {
 	event := NewEvent(action, actionType)
 	event.SetLocation(r.RemoteAddr)
-	event.AddMetadata("http_method", r.Method)
-	event.AddMetadata("request_url", r.URL.String())
+	metadata := map[string]interface{}{
+		"http_method": r.Method,
+		"request_url": r.URL.String(),
+	}
 
 	userAgent := r.Header.Get("User-Agent")
 	if userAgent != "" {
-		event.AddMetadata("user_agent", userAgent)
+		metadata["user_agent"] = userAgent
 	}
 
 	requestID := r.Header.Get("X-Request-ID")
 	if requestID != "" {
-		event.AddMetadata("request_id", requestID)
+		metadata["request_id"] = requestID
 	}
+
+	event.AddMetadata(metadata)
 
 	return event
 }
@@ -119,7 +123,18 @@ func (e *Event) SetLocation(location string) {
 // If a particular bit of metadata surrounding the event may change at any time
 // in the future and it is important you can trace what its value at a
 // particular time is, you should consider adding it to the event.
-func (e Event) AddMetadata(key string, value interface{}) error {
+func (e Event) AddMetadata(metadata map[string]interface{}) (err error) {
+	for k, v := range metadata {
+		err = e.addMetadata(k, v)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (e Event) addMetadata(key string, value interface{}) error {
 	if len(e.Metadata) >= 500 {
 		return errors.New("attempted to add over 500 properties to metadata, ignoring")
 	}

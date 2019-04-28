@@ -37,7 +37,9 @@ func TestEventAddingMetadata(t *testing.T) {
 		t.Error("event.Metadata should be empty")
 	}
 
-	event.AddMetadata("key", "value")
+	event.AddMetadata(map[string]interface{}{
+		"key": "value",
+	})
 
 	if len(event.Metadata) != 1 {
 		t.Error("event.Metadata should contain key/value")
@@ -53,10 +55,14 @@ func TestEventAddingMetadataLimit(t *testing.T) {
 
 	buffer := make([]int, 500)
 	for i := range buffer {
-		event.AddMetadata(string(i), string(i))
+		event.AddMetadata(map[string]interface{}{
+			string(i): string(i),
+		})
 	}
 
-	event.AddMetadata("key", "value")
+	event.AddMetadata(map[string]interface{}{
+		"key": "value",
+	})
 
 	if event.Metadata["key"] != nil {
 		t.Error("event.Metadata should not have added entries for key/value")
