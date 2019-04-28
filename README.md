@@ -50,7 +50,7 @@ Notice you didn't need to set the group name or the time it occurred. These fiel
 
 ## Configuring An Auditable Interface
 
-In the previous example notice how we configured the actor and target to the User struct. Given that the struct supports the `Auditable` interface the Audit Log can be populated with a human and machine representation of it. To support the `Auditable` interface you must have a `ToAuditableName` and `ToAuditableID` function with the same function signatures:
+In the previous example notice how we configured the actor and target to be the `User` struct. Given that the struct supports the `Auditable` interface the Audit Log can be populated with a human and machine readable version of its values. To support the `Auditable` interface you must have a `ToAuditableName` and `ToAuditableID` function with the same function signatures as shown below:
 
 ```go
 type user struct {
@@ -71,9 +71,9 @@ As long as your structs support the `Auditable` interface you can pass your stru
 
 ## Adding Metadata To Events
 
-Metadata provides added context directly to your events that would be helpful in the future when looking at an Audit Log event.
+Metadata provides additional context for your Audit Log events that would be helpful to you or others in the future when looking at an Audit Log event.
 
-You can add metadata directly to events
+You can add metadata directly to events by using `AddMetadata`:
 
 ```go
 user := User{
@@ -121,11 +121,11 @@ Resulting in the following being sent to WorkOS:
 }
 ```
 
-By adding supportive metadata in the future you can not only see who updated the tweet, which tweet, but also what the original tweet body was and what the body was updated to. For something like a tweet which could get updated multiple times, you can't always depend on the database representation. Good Audit Log events log all the supporting information surrounding the event which could be used to inform the reader in the future what exactly happened and how it happened.
+By adding supportive metadata when you create the event you can see what the original tweet body was and what the body was updated to. For something like a tweet which could get updated multiple times over the course of time, you can't always depend on the database representation to tell you what the body has always been. Without logging it right when the change occures, you'll forever lose all the individual changes along the way. Good Audit Log events attach all supporting information surrounding the event which could be used to inform the reader in the future what exactly happened, how it happened, and when it happened.
 
 ## Configuring Global Metadata
 
-As mentioned before, a good Audit Log event contains all the supporting information surrounding the event. If you wanted to attach the hostname this particular event took place on for debugging purposes you'd use `auditlog.SetMetadata`:
+As mentioned before, a good Audit Log event contains all the supporting information surrounding the event at the time it took place. If you wanted to attach the hostname this particular event took place on for debugging purposes you'd use `auditlog.SetMetadata`:
 
 ```go
 package main
@@ -173,7 +173,7 @@ Using the previous example the event sent to WorkOS would look like:
 
 ## Using With HTTP Request
 
-When creating an Audit Log event that was triggered as a result of an HTTP request you can use the `NewEventWithHTTP` function to automatically populate the event with helpful information about the request. The request's IP address, user agent, request ID, and request URL will all automatically be added to the event for you.
+When creating an Audit Log event that was triggered as a result of an HTTP request you can use the `NewEventWithHTTP` function to automatically populate the event with helpful information about the request. The request's IP address, user agent, request ID, HTTP method, and request URL will all automatically be added to the event for you.
 
 ```go
 http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
@@ -198,17 +198,15 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 ```json
 {
   "group": "twitter",
-  "action": "tweet.update",
+  "action": "user.login",
   "action_type": "U",
   "actor_name": "user@email.com",
   "actor_id": "user_1",
   "target_name": "user@email.com",
-  "target_id": "tweet_5",
+  "target_id": "user_1",
   "location": "172.31.255.255",
   "occured_at": "2019-05-01T01:15:55.619355Z",
   "metadata": {
-    "body_was": "What time is the event",
-    "body": "What time is the event?",
     "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36",
     "request_url": "http://localhost/tweet/update",
     "request_id": "f9ed4675f1c53513c61a3b3b4e25b4c0",
