@@ -71,6 +71,8 @@ func NewEvent(action Action, actionType ActionType) Event {
 func NewEventWithHTTP(action Action, actionType ActionType, r *http.Request) Event {
 	event := NewEvent(action, actionType)
 	event.SetLocation(r.RemoteAddr)
+	event.AddMetadata("http_method", r.Method)
+	event.AddMetadata("request_url", r.URL.String())
 
 	userAgent := r.Header.Get("User-Agent")
 	if userAgent != "" {
@@ -81,8 +83,6 @@ func NewEventWithHTTP(action Action, actionType ActionType, r *http.Request) Eve
 	if requestID != "" {
 		event.AddMetadata("request_id", requestID)
 	}
-
-	event.AddMetadata("request_url", r.URL.String())
 
 	return event
 }
