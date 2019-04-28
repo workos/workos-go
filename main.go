@@ -25,6 +25,10 @@ func (u user) ToAuditableID() string {
 }
 
 func main() {
+	auditlog.SetMetadata(map[string]interface{}{
+		"environment": "development",
+	})
+
 	http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 		u := user{
 			Email:      "me@domain.com",

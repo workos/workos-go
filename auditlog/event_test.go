@@ -66,3 +66,40 @@ func TestEventAddingMetadataLimit(t *testing.T) {
 		t.Error("event.Metadata should not contain over 500 entries")
 	}
 }
+
+func TestEventPublishMergesGlobalMetadata(t *testing.T) {
+	SetMetadata(map[string]interface{}{
+		"environment": "testing",
+	})
+
+	event := NewEvent("user.login", Create)
+
+	if event.Metadata["environment"] == "testing" {
+		t.Errorf("expected event to not have any metadata for environment, got %q", event.Metadata["environment"])
+	}
+
+	event.Publish()
+
+	if event.Metadata["environment"] != "testing" {
+		t.Errorf("expected event to have metadata for environment, got %q", event.Metadata["environment"])
+	}
+}
+func TestEventGlobalMetadataOverridesLocalMetadata(t *testing.T) {
+	SetMetadata(map[string]interface{}{
+		"environment": "testing",
+	})
+
+	event := NewEventWithMetadata("user.login", Create, map[string]interface{}{
+		"environment": "production",
+	})
+
+	if event.Metadata["environment"] != "production" {
+		t.Errorf("expected event to have metadata for environment set to production, got %q", event.Metadata["environment"])
+	}
+
+	event.Publish()
+
+	if event.Metadata["environment"] != "testing" {
+		t.Errorf("expected event to have had metadata overrwritten for environment, got %q", event.Metadata["environment"])
+	}
+}
