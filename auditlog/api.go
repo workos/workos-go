@@ -122,11 +122,11 @@ func FindAll(params EventsRequestParams) (EventsResponse, error) {
 	q.Add("limit", strconv.Itoa(params.limit()))
 
 	if !params.Start.IsZero() {
-		q.Add("start", params.Start.UTC().Format(time.RFC3339))
+		q.Add("start", params.Start.UTC().Format(time.RFC3339Nano))
 	}
 
 	if !params.End.IsZero() {
-		q.Add("end", params.End.UTC().Format(time.RFC3339))
+		q.Add("end", params.End.UTC().Format(time.RFC3339Nano))
 	}
 
 	if params.Cursor != "" {
