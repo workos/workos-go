@@ -147,12 +147,12 @@ user := User{
 }
 parentTweet := Tweet{
 	ID: 5,
-  Body: "What time is the event",
+	Body: "What time is the event",
 }
 tweet := Tweet{
 	ID: 6,
-  Body: "It's at 6:30 PM",
-  ParentTweet: parentTweet,
+	Body: "It's at 6:30 PM",
+	ParentTweet: parentTweet,
 }
 
 event := auditlog.NewEvent("tweet.create", auditlog.Update)
