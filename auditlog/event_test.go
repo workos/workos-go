@@ -63,16 +63,12 @@ func TestEventAddingMetadataLimit(t *testing.T) {
 		})
 	}
 
-	event.AddMetadata(map[string]interface{}{
+	err := event.AddMetadata(map[string]interface{}{
 		"key": "value",
 	})
 
-	if event.Metadata["key"] != nil {
+	if err != ErrMaximumMetadataProperties {
 		t.Error("event.Metadata should not have added entries for key/value")
-	}
-
-	if len(event.Metadata) != 500 {
-		t.Error("event.Metadata should not contain over 500 entries")
 	}
 }
 

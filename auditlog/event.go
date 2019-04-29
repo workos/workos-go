@@ -11,6 +11,12 @@ import (
 	"github.com/dewski/workos/client"
 )
 
+var (
+	// ErrMaximumMetadataProperties is for when an event adds more metadata than
+	// WorkOS can support.
+	ErrMaximumMetadataProperties = errors.New("attempted to add over 500 properties to metadata, ignoring")
+)
+
 // Auditable is an interface to assist in representing how a given struct
 // should be represented in the WorkOS Audit Log.
 type Auditable interface {
@@ -144,7 +150,7 @@ func (e Event) AddMetadata(metadata map[string]interface{}) (err error) {
 
 func (e Event) addMetadata(key string, value interface{}) error {
 	if len(e.Metadata) >= 500 {
-		return errors.New("attempted to add over 500 properties to metadata, ignoring")
+		return ErrMaximumMetadataProperties
 	}
 
 	// The value implements the Auditable interface and should be expanded.
