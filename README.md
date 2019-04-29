@@ -55,7 +55,7 @@ The time the event occured is automatically populated for you when the event is 
 
 ## Configuring An Auditable Interface
 
-In the previous example notice how we configured the actor and target to be the `User` struct and the group to the `Organization` struct. As long as your structs support the `Auditable` interface the Audit Log can be populated with a human and machine readable version of its values. To support the `Auditable` interface you must have a `ToAuditableName` and `ToAuditableID` function with the same signatures as shown below:
+In the previous example notice how we configured the actor and target to be the `User` struct and the group to the `Organization` struct. As long as your structs support the `auditlog.Auditable` interface the Audit Log can be populated with a human and machine readable version of its values. To support the `auditlog.Auditable` interface you must have a `ToAuditableName` and `ToAuditableID` function with the same signatures as shown below:
 
 ```go
 type user struct {
@@ -83,9 +83,9 @@ Metadata provides additional context for your Audit Log events that would be hel
 - time.Time
 - err
 
-_You're allowed to have maps with its elements being one of the primitive types._
+_You're allowed to have maps with its elements being any one of the primitive types._
 
-You can add metadata directly to events by using `AddMetadata`:
+You can add metadata directly to events by using `auditlog.AddMetadata`:
 
 ```go
 user := User{
@@ -138,7 +138,7 @@ By adding supportive metadata when you create the event you can see what the or
 
 ## Adding Other Structs To Metadata
 
-While the event's actor and target are first-class properties of the event, you can also use any struct that implements the `Auditable` interface in your metadata. When you add it to your event's metadata it will automatically be expanded for you based on the original key name.
+While the event's actor and target are first-class properties of the event, you can also use any struct that implements the `auditlog.Auditable` interface in your metadata. When you add it to your event's metadata it will automatically be expanded for you based on the original key name.
 
 ```go
 user := User{
@@ -239,7 +239,7 @@ Using the previous example the event sent to WorkOS would look like:
 
 ## Using With HTTP Request
 
-When creating an Audit Log event that was triggered as a result of an HTTP request you can use the `NewEventWithHTTP` function to automatically populate the event with helpful information about the request. The request's IP address, user agent, request ID, HTTP method, and request URL will all automatically be added to the event for you.
+When creating an Audit Log event that was triggered as a result of an HTTP request you can use the `auditlog.NewEventWithHTTP` function to automatically populate the event with helpful information about the request. The request's IP address, user agent, request ID, HTTP method, and request URL will all automatically be added to the event for you.
 
 ```go
 http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
