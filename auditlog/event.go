@@ -162,17 +162,26 @@ func (e Event) addMetadata(key string, value interface{}) error {
 	return nil
 }
 
-// Publish delivers the event to WorkOS.
-func (e Event) Publish() error {
+// Publish delivers the event to WorkOS asyncronously.
+func (e Event) Publish() chan error {
 	// Add the global metadata to the Event's metadata
 	for k, v := range globalMetadata {
 		e.Metadata[k] = v
 	}
 
-	body, err := json.Marshal(e)
-	if err != nil {
-		return err
-	}
+	ch := make(chan error, 1)
 
-	return client.PublishEvent(body)
+	// Caller can decide if it wants an async event or sync
+	go func() {
+		body, err := json.Marshal(e)
+		if err != nil {
+			ch <- err
+			return
+		}
+
+		err = client.PublishEvent(body)
+		ch <- err
+	}()
+
+	return ch
 }

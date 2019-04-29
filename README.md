@@ -28,10 +28,7 @@ event.SetGroup(organization)
 event.SetActor(user)
 event.SetTarget(user)
 event.SetLocation("1.1.1.1")
-err := event.Publish()
-if err != nil {
-  fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
-}
+event.Publish()
 ```
 
 The resulting event being sent to WorkOS looks like:
@@ -52,6 +49,29 @@ The resulting event being sent to WorkOS looks like:
 ```
 
 The time the event occured is automatically populated for you when the event is created.
+
+All events are published to WorkOS asyncronously by default. `auditlog.Publish` returns an error channel for you so you can wait for a response from WorkOS should you need a blocking operation.
+
+```go
+user := User{
+  ID: 1,
+  Email: "user@email.com",
+}
+organization := Organization{
+  ID: 1,
+  Name: "workos",
+}
+event := auditlog.NewEvent("user.login", auditlog.Create)
+event.SetGroup(organization)
+event.SetActor(user)
+event.SetTarget(user)
+event.SetLocation("1.1.1.1")
+ch := event.Publish()
+err := <-ch
+if err != nil {
+  fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
+}
+```
 
 ## Configuring An Auditable Interface
 

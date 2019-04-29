@@ -38,10 +38,12 @@ func main() {
 		event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
 		event.SetActor(u)
 		event.SetTarget(u)
-		err := event.Publish()
+		ch := event.Publish()
+		err := <-ch
 		if err != nil {
 			// Call out to sentry
-			fmt.Println("Had a problem writing this event")
+			fmt.Fprintf(w, "Had a problem writing this event")
+			return
 		}
 
 		body, _ := json.Marshal(event)
