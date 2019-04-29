@@ -14,7 +14,15 @@ import (
 var (
 	// ErrMaximumMetadataProperties is for when an event adds more metadata than
 	// WorkOS can support.
-	ErrMaximumMetadataProperties = errors.New("attempted to add over 500 properties to metadata, ignoring")
+	ErrMaximumMetadataProperties = errors.New("exceeded maximum number of properties for metadata")
+
+	// ErrMetadataKeyLength is for when the key for a metadata property exceeds
+	// the limit for WorkOS to ingest.
+	ErrMetadataKeyLength = errors.New("exceeded 40 character limit for metadata key")
+
+	// ErrMetadataValueLength is for when the value for a metadata property exceeds
+	// the limit for WorkOS to ingest.
+	ErrMetadataValueLength = errors.New("exceeded 500 character limit for metadata value")
 )
 
 // Auditable is an interface to assist in representing how a given struct
@@ -149,8 +157,18 @@ func (e Event) AddMetadata(metadata map[string]interface{}) (err error) {
 }
 
 func (e Event) addMetadata(key string, value interface{}) error {
-	if len(e.Metadata) >= 500 {
+	if len(e.Metadata) >= 50 {
 		return ErrMaximumMetadataProperties
+	}
+
+	if len(key) > 40 {
+		return ErrMetadataKeyLength
+	}
+
+	// A string was passed, need to make sure it doesn't exceed 500 character limit.
+	vs, ok := value.(string)
+	if ok && len(vs) > 500 {
+		return ErrMetadataValueLength
 	}
 
 	// The value implements the Auditable interface and should be expanded.

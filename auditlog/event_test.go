@@ -56,11 +56,15 @@ func TestEventAddingMetadata(t *testing.T) {
 func TestEventAddingMetadataLimit(t *testing.T) {
 	event := NewEvent("user.login", Create)
 
-	buffer := make([]int, 500)
+	buffer := make([]int, 50)
 	for i := range buffer {
-		event.AddMetadata(map[string]interface{}{
+		err := event.AddMetadata(map[string]interface{}{
 			string(i): string(i),
 		})
+
+		if err != nil {
+			t.Error(err)
+		}
 	}
 
 	err := event.AddMetadata(map[string]interface{}{
@@ -69,6 +73,26 @@ func TestEventAddingMetadataLimit(t *testing.T) {
 
 	if err != ErrMaximumMetadataProperties {
 		t.Error("event.Metadata should not have added entries for key/value")
+	}
+}
+
+func TestEventAddingLargeMetadataKey(t *testing.T) {
+	_, err := NewEventWithMetadata("user.login", Create, map[string]interface{}{
+		"thiskeyisreallylongkeynameandshouldntwork": "value",
+	})
+
+	if err != ErrMetadataKeyLength {
+		t.Error("event.Metadata should not allow key length to be larger than 40 bytes")
+	}
+}
+
+func TestEventAddingLargeMetadataValue(t *testing.T) {
+	_, err := NewEventWithMetadata("user.login", Create, map[string]interface{}{
+		"key": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop pu",
+	})
+
+	if err != ErrMetadataValueLength {
+		t.Error("event.Metadata should not allow key length to be larger than 500 bytes")
 	}
 }
 
