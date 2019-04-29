@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	userAgent  = "workos-go/0.1"
 	eventsPath = "/audit-log/events"
 )
 
@@ -177,6 +178,7 @@ func get(path string) (*http.Response, error) {
 
 	// Should error if not present
 	apiKey := os.Getenv("WORKOS_API_KEY")
+	req.Header.Set("User-Agent", userAgent)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp, err := client.Do(req)
