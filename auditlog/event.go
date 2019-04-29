@@ -143,8 +143,14 @@ func (e Event) addMetadata(key string, value interface{}) error {
 		return errors.New("attempted to add over 500 properties to metadata, ignoring")
 	}
 
-	if globalMetadata[key] != nil {
-		return fmt.Errorf("SetMetadata has already set a value for '%s'", key)
+	// The value implements the Auditable interface and should be expanded.
+	if _, ok := value.(Auditable); ok {
+		nameKey := fmt.Sprintf("%s_name", key)
+		idKey := fmt.Sprintf("%s_id", key)
+		e.Metadata[nameKey] = value.(Auditable).ToAuditableName()
+		e.Metadata[idKey] = value.(Auditable).ToAuditableID()
+
+		return nil
 	}
 
 	e.Metadata[key] = value
