@@ -152,6 +152,7 @@ func TestEventSerializesToJSONAndBack(t *testing.T) {
 		"user": user,
 	})
 
+	source.SetGroup(user)
 	source.SetActor(user)
 	source.SetTarget(user)
 	source.SetLocation("1.1.1.1")
@@ -165,6 +166,10 @@ func TestEventSerializesToJSONAndBack(t *testing.T) {
 	err = json.Unmarshal(body, &event)
 	if err != nil {
 		t.Error(err)
+	}
+
+	if event.Group != "user_1" {
+		t.Errorf("expected event group to be %q, got %q", source.Group, event.Group)
 	}
 
 	if event.Action != "user.login" {

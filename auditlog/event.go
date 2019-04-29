@@ -57,7 +57,6 @@ func NewEvent(action Action, actionType ActionType) Event {
 	}
 
 	return Event{
-		Group:      os.Getenv("WORKOS_GROUP"),
 		Action:     action,
 		ActionType: actionType,
 		Location:   location,
@@ -102,6 +101,11 @@ func NewEventWithMetadata(action Action, actionType ActionType, metadata map[str
 	}
 
 	return event, nil
+}
+
+// SetGroup sets the Event Group based on the provided interface.
+func (e *Event) SetGroup(group Auditable) {
+	e.Group = group.ToAuditableID()
 }
 
 // SetActor sets the Event ActorName and ActorID based on the provided interface.
