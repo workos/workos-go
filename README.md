@@ -248,8 +248,8 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 		DatabaseID: 1,
 	}
 
-  event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
-  event.SetGroup(user)
+	event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
+	event.SetGroup(user)
 	event.SetActor(user)
 	event.SetTarget(user)
 	err := event.Publish()
