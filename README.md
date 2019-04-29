@@ -74,7 +74,16 @@ func (u user) ToAuditableID() string {
 
 ## Adding Metadata To Events
 
-Metadata provides additional context for your Audit Log events that would be helpful to you or others in the future when looking at an Audit Log event.
+Metadata provides additional context for your Audit Log events that would be helpful to you or others in the future when looking at an Audit Log event. Values for your metadata are expected to be primitive types:
+
+- string
+- bool
+- int, int8, int16, int32, int64
+- float32, float64
+- time.Time
+- err
+
+_You're allowed to have maps with its elements being one of the primitive types._
 
 You can add metadata directly to events by using `AddMetadata`:
 
