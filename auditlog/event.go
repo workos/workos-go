@@ -164,6 +164,7 @@ func (e Event) addMetadata(key string, value interface{}) error {
 
 // Publish delivers the event to WorkOS.
 func (e Event) Publish() error {
+	// Add the global metadata to the Event's metadata
 	for k, v := range globalMetadata {
 		e.Metadata[k] = v
 	}
@@ -172,5 +173,6 @@ func (e Event) Publish() error {
 	if err != nil {
 		return err
 	}
+
 	return client.PublishEvent(body)
 }

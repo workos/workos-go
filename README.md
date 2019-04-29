@@ -1,10 +1,10 @@
 # WorkOS
 
-A WorkOS client for your Go applications making it easy to publish Audit Log.
+A WorkOS client for Go applications in your organization to control and monitor the access of information within your organization.
 
 ## Installation
 
-You can install the WorkOS library in your local environment by running:
+You can install the WorkOS Go client in your local environment by running:
 
 ```
 go get -u github.com/dewski/workos
@@ -19,7 +19,12 @@ user := User{
   ID: 1,
   Email: "user@email.com",
 }
+organization := Organization{
+  ID: 1,
+  Name: "workos",
+}
 event := auditlog.NewEvent("user.login", auditlog.Create)
+event.SetGroup(organization)
 event.SetActor(user)
 event.SetTarget(user)
 event.SetLocation("1.1.1.1")
@@ -29,11 +34,11 @@ if err != nil {
 }
 ```
 
-This event being sent to WorkOS would look like:
+The resulting event being sent to WorkOS looks like:
 
 ```json
 {
-  "group": "twitter",
+  "group": "organization_1",
   "action": "user.login",
   "action_type": "C",
   "actor_name": "user@email.com",
@@ -46,11 +51,11 @@ This event being sent to WorkOS would look like:
 }
 ```
 
-Notice you didn't need to set the group name or the time it occurred. These fields are automatically populated for you at the time the event is created. Should you want to configure what the group name is set the `WORKOS_GROUP` environment variable.
+The time the event occured is automatically populated for you when the event is created.
 
 ## Configuring An Auditable Interface
 
-In the previous example notice how we configured the actor and target to be the `User` struct. Given that the struct supports the `Auditable` interface the Audit Log can be populated with a human and machine readable version of its values. To support the `Auditable` interface you must have a `ToAuditableName` and `ToAuditableID` function with the same function signatures as shown below:
+In the previous example notice how we configured the actor and target to be the `User` struct and the group to the `Organization` struct. As long as your structs support the `Auditable` interface the Audit Log can be populated with a human and machine readable version of its values. To support the `Auditable` interface you must have a `ToAuditableName` and `ToAuditableID` function with the same signatures as shown below:
 
 ```go
 type user struct {
@@ -66,8 +71,6 @@ func (u user) ToAuditableID() string {
 	return strconv.Itoa(u.DatabaseID)
 }
 ```
-
-As long as your structs support the `Auditable` interface you can pass your structs to `SetActor` and `SetTarget` and it will automatically be included in the published event.
 
 ## Adding Metadata To Events
 
@@ -88,6 +91,7 @@ bodyWas := comment.Body
 tweet.Body = "What time is the event?"
 
 event := auditlog.NewEvent("tweet.update", auditlog.Update)
+event.SetGroup(user)
 event.SetActor(user)
 event.SetTarget(tweet)
 event.SetLocation("1.1.1.1")
@@ -105,7 +109,7 @@ Resulting in the following being sent to WorkOS:
 
 ```json
 {
-  "group": "twitter",
+  "group": "user_1",
   "action": "tweet.update",
   "action_type": "U",
   "actor_name": "user@email.com",
@@ -122,6 +126,59 @@ Resulting in the following being sent to WorkOS:
 ```
 
 By adding supportive metadata when you create the event you can see what the original tweet body was and what the body was updated to. For something like a tweet which could get updated multiple times over the course of time, you can't always depend on the database representation to tell you what the body has always been. Without logging it right when the change occures, you'll forever lose all the individual changes along the way. Good Audit Log events attach all supporting information surrounding the event which could be used to inform the reader in the future what exactly happened, how it happened, and when it happened.
+
+## Adding Other Structs To Metadata
+
+While the event's actor and target are first-class properties of the event, you can also use any struct that implements the `Auditable` interface in your metadata. When you add it to your event's metadata it will automatically be expanded for you based on the original key name.
+
+```go
+user := User{
+	ID: 1,
+	Email: "user@email.com",
+}
+parentTweet := Tweet{
+	ID: 5,
+  Body: "What time is the event",
+}
+tweet := Tweet{
+	ID: 6,
+  Body: "It's at 6:30 PM",
+  ParentTweet: parentTweet,
+}
+
+event := auditlog.NewEvent("tweet.create", auditlog.Update)
+event.SetGroup(user)
+event.SetActor(user)
+event.SetTarget(tweet)
+event.SetLocation("1.1.1.1")
+event.AddMetadata(map[string]interface{}{
+	"parent_tweet": tweet.ParentTweet,
+})
+err := event.Publish()
+if err != nil {
+	fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
+}
+```
+
+Resulting in the following being sent to WorkOS:
+
+```json
+{
+  "group": "user_1",
+  "action": "tweet.create",
+  "action_type": "C",
+  "actor_name": "user@email.com",
+  "actor_id": "user_1",
+  "target_name": "It's at 6:30 PM",
+  "target_id": "tweet_6",
+  "location": "1.1.1.1",
+  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "metadata": {
+    "parent_tweet_name": "What time is the event",
+    "parent_tweet_id": "tweet_5"
+  }
+}
+```
 
 ## Configuring Global Metadata
 
@@ -182,7 +239,8 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 		DatabaseID: 1,
 	}
 
-	event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
+  event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
+  event.SetGroup(user)
 	event.SetActor(user)
 	event.SetTarget(user)
 	err := event.Publish()
