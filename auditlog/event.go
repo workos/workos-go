@@ -94,10 +94,14 @@ func NewEventWithHTTP(action Action, actionType ActionType, r *http.Request) Eve
 // NewEventWithMetadata initializes a new event populated with default
 // information about the environment with a default of user supplied
 // information.
-func NewEventWithMetadata(action Action, actionType ActionType, metadata map[string]interface{}) Event {
+func NewEventWithMetadata(action Action, actionType ActionType, metadata map[string]interface{}) (Event, error) {
 	event := NewEvent(action, actionType)
-	event.Metadata = metadata
-	return event
+	err := event.AddMetadata(metadata)
+	if err != nil {
+		return Event{}, err
+	}
+
+	return event, nil
 }
 
 // SetActor sets the Event ActorName and ActorID based on the provided interface.
