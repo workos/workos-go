@@ -51,7 +51,7 @@ type Event struct {
 	// TODO: Using interface{} means we can have nested interface{}'s which isn't
 	// ideal schema wise. Supporting primitives like string, bool, int, or arrays
 	// of primitives is likely fine. Before validations are enforced learn more.
-	Metadata map[string]interface{} `json:"metadata"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // NewEvent initializes a new event populated with default information about
