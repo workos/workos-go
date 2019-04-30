@@ -37,12 +37,14 @@ func main() {
 
 		event := auditlog.NewEventWithHTTP("user.login", auditlog.Create, req)
 		event.SetActor(u)
+		event.SetGroup(u)
 		event.SetTarget(u)
+		event.SetLocation("1.1.1.1")
 		ch := event.Publish()
 		err := <-ch
 		if err != nil {
 			// Call out to sentry
-			fmt.Fprintf(w, "Had a problem writing this event")
+			fmt.Fprintf(w, err.Error())
 			return
 		}
 
@@ -54,8 +56,8 @@ func main() {
 		resp, err := auditlog.Find("someid")
 		if err != nil {
 			// Call out to sentry
-			fmt.Println("Had a problem with request")
-			fmt.Println(err)
+			fmt.Fprintf(w, err.Error())
+			return
 		}
 
 		body, _ := json.Marshal(resp)
@@ -70,7 +72,8 @@ func main() {
 
 		if err != nil {
 			// Call out to sentry
-			fmt.Println("Had a problem with request")
+			fmt.Fprintf(w, err.Error())
+			return
 		}
 
 		body, _ := json.Marshal(resp)
