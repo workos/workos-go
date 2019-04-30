@@ -20,7 +20,7 @@ func PublishEvent(body []byte) error {
 
 	endpoint := os.Getenv("WORKOS_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "http://localhost:4567/audit-logs/events"
+		endpoint = "https://api.workos.com/events"
 	}
 
 	// Depending on size of body, look to encode with zlib
