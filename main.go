@@ -39,7 +39,6 @@ func main() {
 		event.SetActor(u)
 		event.SetGroup(u)
 		event.SetTarget(u)
-		event.SetLocation("1.1.1.1")
 		ch := event.Publish()
 		err := <-ch
 		if err != nil {
