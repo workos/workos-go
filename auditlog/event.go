@@ -52,7 +52,7 @@ type Event struct {
 	ActorName  string     `json:"actor_name"`
 	ActorID    string     `json:"actor_id"`
 	Location   string     `json:"location"`
-	OccuredAt  time.Time  `json:"occured_at"`
+	OccurredAt time.Time  `json:"occurred_at"`
 	TargetName string     `json:"target_name"`
 	TargetID   string     `json:"target_id"`
 
@@ -74,7 +74,7 @@ func NewEvent(action Action, actionType ActionType) Event {
 		Action:     action,
 		ActionType: actionType,
 		Location:   location,
-		OccuredAt:  time.Now().UTC(),
+		OccurredAt: time.Now().UTC(),
 		Metadata:   map[string]interface{}{},
 	}
 }

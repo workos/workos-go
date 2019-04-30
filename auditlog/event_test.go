@@ -216,8 +216,8 @@ func TestEventSerializesToJSONAndBack(t *testing.T) {
 		t.Errorf("expected event target_id to be %q, got %q", source.TargetID, event.TargetID)
 	}
 
-	if event.OccuredAt != source.OccuredAt {
-		t.Errorf("expected event occured_at to be %q, got %q", source.OccuredAt, event.OccuredAt)
+	if event.OccurredAt != source.OccurredAt {
+		t.Errorf("expected event occurred_at to be %q, got %q", source.OccurredAt, event.OccurredAt)
 	}
 
 	if event.Location != "1.1.1.1" {
