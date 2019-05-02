@@ -12,7 +12,7 @@ import (
 
 const (
 	userAgent  = "workos-go/0.1"
-	eventsPath = "/audit-log/events"
+	eventsPath = "/events"
 )
 
 // EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
