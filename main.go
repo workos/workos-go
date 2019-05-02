@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dewski/workos/auditlog"
+	"github.com/workos-inc/workos-go/auditlog"
 )
 
 type user struct {
