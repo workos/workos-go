@@ -13,6 +13,7 @@ blocks:
         commands:
           - checkout
           - sem-version go 1.12
+          - go get -d -v ./...
 
   - name: Check code style
     task:
