@@ -10,6 +10,28 @@ You can install the WorkOS Go client in your local environment by running:
 go get -u github.com/dewski/workos
 ```
 
+## Configuration
+
+To use the client you must provide an API key located from the WorkOS dashboard either as an environment variable `WORKOS_API_KEY`:
+
+```sh
+WORKOS_API_KEY="sk_1234" ./app
+```
+
+Or you can set it on your own before your application starts:
+
+```go
+package main
+
+import "github.com/workos-inc/workos-go/auditlog"
+
+func main() {
+	auditlog.SetAPIKey("sk_1234")
+
+	// application code
+}
+```
+
 ## Usage
 
 Creating an Audit Log event requires a descriptive action name and annotating the event with its CRUD identifier. The action name must contain an action category and an action name seperated by a period, for example, `user.login`.
