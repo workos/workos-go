@@ -7,7 +7,7 @@ A WorkOS client for Go applications in your organization to control and monitor 
 You can install the WorkOS Go client in your local environment by running:
 
 ```
-go get -u github.com/dewski/workos
+go get -u github.com/workos-inc/workos-go
 ```
 
 ## Usage
@@ -219,7 +219,7 @@ package main
 import (
 	"os"
 
-	"github.com/dewski/workos/auditlog"
+	"github.com/workos-inc/workos-go/auditlog"
 )
 
 func main() {
