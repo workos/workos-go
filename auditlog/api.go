@@ -15,6 +15,19 @@ const (
 	eventsPath = "/events"
 )
 
+var (
+	apiKey = ""
+)
+
+func init() {
+	apiKey = os.Getenv("WORKOS_API_KEY")
+}
+
+// SetAPIKey allows you to set the clients API key for all API requests.
+func SetAPIKey(key string) {
+	apiKey = key
+}
+
 // EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
 type EventResponse struct {
 	Event
@@ -167,7 +180,7 @@ func get(path string) (*http.Response, error) {
 
 	endpoint := os.Getenv("WORKOS_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "http://localhost:4567"
+		endpoint = "https://api.workos.com"
 	}
 
 	route := fmt.Sprintf("%s%s", endpoint, path)
@@ -177,7 +190,6 @@ func get(path string) (*http.Response, error) {
 	}
 
 	// Should error if not present
-	apiKey := os.Getenv("WORKOS_API_KEY")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
