@@ -1,17 +1,20 @@
 package auditlog
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/dewski/workos/client"
 )
 
 var (
+	alpha = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789"
+
 	// ErrMaximumMetadataProperties is for when an event adds more metadata than
 	// WorkOS can support.
 	ErrMaximumMetadataProperties = errors.New("exceeded maximum number of properties for metadata")
@@ -24,6 +27,10 @@ var (
 	// the limit for WorkOS to ingest.
 	ErrMetadataValueLength = errors.New("exceeded 500 character limit for metadata value")
 )
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
 
 // Auditable is an interface to assist in representing how a given struct
 // should be represented in the WorkOS Audit Log.
@@ -60,6 +67,10 @@ type Event struct {
 	// ideal schema wise. Supporting primitives like string, bool, int, or arrays
 	// of primitives is likely fine. Before validations are enforced learn more.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+
+	// The unique key to an Event to ensure the same generated event cannot be
+	// logged more than once in WorkOS.
+	idempotencyKey string
 }
 
 // NewEvent initializes a new event populated with default information about
@@ -71,11 +82,12 @@ func NewEvent(action Action, actionType ActionType) Event {
 	}
 
 	return Event{
-		Action:     action,
-		ActionType: actionType,
-		Location:   location,
-		OccurredAt: time.Now().UTC(),
-		Metadata:   map[string]interface{}{},
+		idempotencyKey: generateIdempotencyKey(25),
+		Action:         action,
+		ActionType:     actionType,
+		Location:       location,
+		OccurredAt:     time.Now().UTC(),
+		Metadata:       map[string]interface{}{},
 	}
 }
 
@@ -203,9 +215,61 @@ func (e Event) Publish() chan error {
 			return
 		}
 
-		err = client.PublishEvent(body)
+		err = e.publishEvent(body)
 		ch <- err
 	}()
 
 	return ch
+}
+
+// PublishEvent delivers the Audit Log event to WorkOS.
+func (e Event) publishEvent(body []byte) error {
+	// Add retry logic
+	// Ensure http.Client connection re-use
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	endpoint := os.Getenv("WORKOS_ENDPOINT")
+	if endpoint == "" {
+		endpoint = "https://api.workos.com/events"
+	}
+
+	// Depending on size of body, look to encode with zlib
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	// Should error if not present
+	apiKey := os.Getenv("WORKOS_API_KEY")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Idempotency-Key", e.idempotencyKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		return errors.New(string(bodyBytes))
+	}
+
+	return nil
+}
+
+func generateIdempotencyKey(size int) string {
+	buffer := make([]byte, size)
+	alphaLen := len(alpha)
+	for i := 0; i < size; i++ {
+		buffer[i] = alpha[rand.Intn(alphaLen)]
+	}
+
+	return string(buffer)
 }

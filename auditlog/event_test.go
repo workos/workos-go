@@ -18,6 +18,10 @@ func TestNewEvent(t *testing.T) {
 	if event.Location == "" {
 		t.Error("event.Location should not be empty")
 	}
+
+	if event.idempotencyKey == "" || len(event.idempotencyKey) != 25 {
+		t.Error("event.idempotencyKey should be generated")
+	}
 }
 
 func TestNewEventWithMetadata(t *testing.T) {
@@ -230,5 +234,9 @@ func TestEventSerializesToJSONAndBack(t *testing.T) {
 
 	if event.Metadata["user_id"] != "user_1" {
 		t.Errorf("expected event metadata user_id to be %q, got %q", source.Metadata["user_name"], event.Metadata["user_name"])
+	}
+
+	if event.idempotencyKey == source.idempotencyKey {
+		t.Errorf("expected event idempotency key not be the same but %q was == %q", source.idempotencyKey, event.idempotencyKey)
 	}
 }
