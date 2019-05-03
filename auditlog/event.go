@@ -68,8 +68,8 @@ type Event struct {
 	// of primitives is likely fine. Before validations are enforced learn more.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 
-	// The unique key to an Event to ensure the same generated event cannot be
-	// logged more than once in WorkOS.
+	// A unique key per event to ensure WorkOS does not store the same event more
+	// than once.
 	idempotencyKey string
 }
 
