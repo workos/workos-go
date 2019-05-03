@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dewski/workos/client"
+	"github.com/workos-inc/workos-go/client"
 )
 
 var (
