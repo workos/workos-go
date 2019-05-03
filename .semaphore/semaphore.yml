@@ -1,0 +1,34 @@
+version: v1.0
+name: workos-go pipeline
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: Build project
+    task:
+      jobs:
+      - name: Get Go packages
+        commands:
+          - checkout
+          - sem-version go 1.12
+
+  - name: Check code style
+    task:
+      jobs:
+      - name: gofmt
+        commands:
+          - checkout
+          - sem-version go 1.12
+          - yes | sudo apt install gccgo-go
+          - diff -u <(echo -n) <(gofmt -d ./)
+
+  - name: Smoke tests
+    task:
+      jobs:
+      - name: go test
+        commands:
+          - checkout
+          - sem-version go 1.12
+          - go test ./... -v
