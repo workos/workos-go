@@ -32,4 +32,5 @@ blocks:
         commands:
           - checkout
           - sem-version go 1.12
-          - go test ./... -v
+          - go get -d -v ./...
+          - go test -v ./...
