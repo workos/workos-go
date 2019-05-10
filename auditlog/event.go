@@ -1,14 +1,14 @@
 package auditlog
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/workos-inc/workos-go/client"
 )
 
 var (
@@ -203,9 +203,51 @@ func (e Event) Publish() chan error {
 			return
 		}
 
-		err = client.PublishEvent(body)
+		err = e.publishEvent(body)
 		ch <- err
 	}()
 
 	return ch
+}
+
+// PublishEvent delivers the Audit Log event to WorkOS.
+func (e Event) publishEvent(body []byte) error {
+	// Add retry logic
+	// Ensure http.Client connection re-use
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	endpoint := os.Getenv("WORKOS_ENDPOINT")
+	if endpoint == "" {
+		endpoint = "https://api.workos.com"
+	}
+
+	path := fmt.Sprintf("%s%s", endpoint, eventsPath)
+
+	// Depending on size of body, look to encode with zlib
+	req, err := http.NewRequest("POST", path, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	// Should error if not present
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		return errors.New(string(bodyBytes))
+	}
+
+	return nil
 }
