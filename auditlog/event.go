@@ -232,11 +232,13 @@ func (e Event) publishEvent(body []byte) error {
 
 	endpoint := os.Getenv("WORKOS_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "https://api.workos.com/events"
+		endpoint = "https://api.workos.com"
 	}
 
+	path := fmt.Sprintf("%s%s", endpoint, eventsPath)
+
 	// Depending on size of body, look to encode with zlib
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", path, bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
