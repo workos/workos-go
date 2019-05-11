@@ -244,7 +244,6 @@ func (e Event) publishEvent(body []byte) error {
 	}
 
 	// Should error if not present
-	apiKey := os.Getenv("WORKOS_API_KEY")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Idempotency-Key", e.idempotencyKey)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
