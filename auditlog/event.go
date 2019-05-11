@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
 )
 
 var (
+	alpha = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789"
+
 	// ErrMaximumMetadataProperties is for when an event adds more metadata than
 	// WorkOS can support.
 	ErrMaximumMetadataProperties = errors.New("exceeded maximum number of properties for metadata")
@@ -24,6 +27,10 @@ var (
 	// the limit for WorkOS to ingest.
 	ErrMetadataValueLength = errors.New("exceeded 500 character limit for metadata value")
 )
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
 
 // Auditable is an interface to assist in representing how a given struct
 // should be represented in the WorkOS Audit Log.
@@ -60,6 +67,10 @@ type Event struct {
 	// ideal schema wise. Supporting primitives like string, bool, int, or arrays
 	// of primitives is likely fine. Before validations are enforced learn more.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+
+	// A unique key per event to ensure WorkOS does not store the same event more
+	// than once.
+	idempotencyKey string
 }
 
 // NewEvent initializes a new event populated with default information about
@@ -71,11 +82,12 @@ func NewEvent(action Action, actionType ActionType) Event {
 	}
 
 	return Event{
-		Action:     action,
-		ActionType: actionType,
-		Location:   location,
-		OccurredAt: time.Now().UTC(),
-		Metadata:   map[string]interface{}{},
+		idempotencyKey: generateIdempotencyKey(25),
+		Action:         action,
+		ActionType:     actionType,
+		Location:       location,
+		OccurredAt:     time.Now().UTC(),
+		Metadata:       map[string]interface{}{},
 	}
 }
 
@@ -233,6 +245,7 @@ func (e Event) publishEvent(body []byte) error {
 
 	// Should error if not present
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Idempotency-Key", e.idempotencyKey)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp, err := client.Do(req)
@@ -250,4 +263,14 @@ func (e Event) publishEvent(body []byte) error {
 	}
 
 	return nil
+}
+
+func generateIdempotencyKey(size int) string {
+	buffer := make([]byte, size)
+	alphaLen := len(alpha)
+	for i := 0; i < size; i++ {
+		buffer[i] = alpha[rand.Intn(alphaLen)]
+	}
+
+	return string(buffer)
 }
