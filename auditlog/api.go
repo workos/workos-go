@@ -1,12 +1,9 @@
 package auditlog
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -16,16 +13,50 @@ const (
 )
 
 var (
-	apiKey = ""
+	ApiKey = ""
 )
 
 func init() {
-	apiKey = os.Getenv("WORKOS_API_KEY")
+	ApiKey = os.Getenv("WORKOS_API_KEY")
 }
 
 // SetAPIKey allows you to set the clients API key for all API requests.
 func SetAPIKey(key string) {
-	apiKey = key
+	ApiKey = key
+}
+
+// Get exucutes a get request to a provided resource
+func Get(path string) (*http.Response, error) {
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	endpoint := os.Getenv("WORKOS_ENDPOINT")
+	if endpoint == "" {
+		endpoint = "https://max.workos.dev"
+	}
+
+	route := fmt.Sprintf("%s%s", endpoint, path)
+	req, err := http.NewRequest("GET", route, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Should error if not present
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", ApiKey))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("Received a %d", resp.StatusCode)
+	}
+
+	return resp, nil
 }
 
 // EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
@@ -40,168 +71,19 @@ type EventResponse struct {
 	AppID           string `json:"app_id"`
 }
 
-// Find looks up a single WorkOS Audit Log event.
-func Find(id string) (EventResponse, error) {
-	path := fmt.Sprintf("%s/%s", eventsPath, id)
-	resp, err := get(path)
-	if err != nil {
-		return EventResponse{}, err
-	}
-	defer resp.Body.Close()
-
-	event := EventResponse{}
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&event)
-	if err != nil {
-		return EventResponse{}, err
-	}
-
-	return event, nil
-}
-
 // EventsResponse represents a set of Audit Log events returned from WorkOS.
 type EventsResponse struct {
-	Ok               bool            `json:"ok"`
-	Events           []EventResponse `json:"events"`
-	ResponseMetadata struct {
-		NextCursor     string `json:"next_cursor"`
-		PreviousCursor string `json:"previous_cursor"`
-	} `json:"response_metadata"`
-
+	Object        string  `json:"object"`
+	URL           string  `json:"url"`
+	HasMore       bool    `json:"has_more"`
+	Data          []Event `json:"data"`
 	requestParams EventsRequestParams
 }
 
-// HasNextPage determines if there is a next page of Audit Log events to load.
-func (er EventsResponse) HasNextPage() bool {
-	return er.ResponseMetadata.NextCursor != ""
-}
-
-// NextPage returns the next page of paginated Audit Log entries using the same
-// query from the original response.
-func (er EventsResponse) NextPage() (EventsResponse, error) {
-	if !er.HasNextPage() {
-		return EventsResponse{}, fmt.Errorf("there is no next page")
-	}
-
-	params := er.requestParams
-	params.Cursor = er.ResponseMetadata.NextCursor
-	return FindAll(params)
-}
-
-// HasPreviousPage determines if there is a previous page of Audit Log events to load.
-func (er EventsResponse) HasPreviousPage() bool {
-	return er.ResponseMetadata.PreviousCursor != ""
-}
-
-// PreviousPage returns the next page of paginated Audit Log entries using the same
-// query from the original response.
-func (er EventsResponse) PreviousPage() (EventsResponse, error) {
-	if !er.HasPreviousPage() {
-		return EventsResponse{}, fmt.Errorf("there is no previous page")
-	}
-
-	params := er.requestParams
-	params.Cursor = er.ResponseMetadata.PreviousCursor
-	return FindAll(params)
-}
-
 // EventsRequestParams allows you to configure the FindAll request to find
-// Audit Log entries after & before a given time or by a specific action.
+// any entries after & before a given time or by a specific action.
 type EventsRequestParams struct {
-	Start  time.Time
-	End    time.Time
-	Action Action
-	Cursor string
-	Limit  int
-}
-
-func (p EventsRequestParams) limit() int {
-	if p.Limit > 1000 {
-		return 1000
-	}
-
-	if p.Limit < 0 {
-		return 50
-	}
-
-	return p.Limit
-}
-
-// FindAll returns a paginated set of Audit Log entries matching the search
-// query.
-func FindAll(params EventsRequestParams) (EventsResponse, error) {
-	path := eventsPath
-	q := url.Values{}
-
-	q.Add("limit", strconv.Itoa(params.limit()))
-
-	if !params.Start.IsZero() {
-		q.Add("start", params.Start.UTC().Format(time.RFC3339Nano))
-	}
-
-	if !params.End.IsZero() {
-		q.Add("end", params.End.UTC().Format(time.RFC3339Nano))
-	}
-
-	if params.Cursor != "" {
-		q.Add("cursor", params.Cursor)
-	}
-
-	if params.Action != "" {
-		q.Add("action", string(params.Action))
-	}
-
-	query := q.Encode()
-	if query != "" {
-		path = fmt.Sprintf("%s?%s", path, query)
-	}
-
-	resp, err := get(path)
-	if err != nil {
-		return EventsResponse{}, err
-	}
-
-	defer resp.Body.Close()
-
-	events := EventsResponse{requestParams: params}
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&events)
-	if err != nil {
-		return EventsResponse{}, err
-	}
-
-	return events, nil
-}
-
-func get(path string) (*http.Response, error) {
-	client := http.Client{
-		Timeout: 10 * time.Second,
-	}
-
-	endpoint := os.Getenv("WORKOS_ENDPOINT")
-	if endpoint == "" {
-		endpoint = "https://api.workos.com"
-	}
-
-	route := fmt.Sprintf("%s%s", endpoint, path)
-	req, err := http.NewRequest("GET", route, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	// Should error if not present
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", userAgent)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("Received a %d", resp.StatusCode)
-	}
-
-	return resp, nil
+	StartingAfter string
+	EndingBefore  string
+	Limit         int
 }

@@ -53,6 +53,7 @@ const (
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {
+	ID         string     `json:"id"`
 	Group      string     `json:"group"`
 	Action     Action     `json:"action"`
 	ActionType ActionType `json:"action_type"`
@@ -246,7 +247,7 @@ func (e Event) publishEvent(body []byte) error {
 	// Should error if not present
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Idempotency-Key", e.idempotencyKey)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", ApiKey))
 
 	resp, err := client.Do(req)
 	if err != nil {
