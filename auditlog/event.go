@@ -50,6 +50,12 @@ const (
 	Delete ActionType = "D"
 )
 
+// EventList represents a set of Audit Log events returned from WorkOS.
+type EventList struct {
+	ListMeta
+	Data []*Event `json:"data"`
+}
+
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {

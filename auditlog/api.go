@@ -71,19 +71,20 @@ type EventResponse struct {
 	AppID           string `json:"app_id"`
 }
 
-// EventsResponse represents a set of Audit Log events returned from WorkOS.
-type EventsResponse struct {
-	Object        string  `json:"object"`
-	URL           string  `json:"url"`
-	HasMore       bool    `json:"has_more"`
-	Data          []Event `json:"data"`
-	requestParams EventsRequestParams
-}
-
-// EventsRequestParams allows you to configure the FindAll request to find
+// ListRequestParams allows you to confire FindAll, or List request to paginate
 // any entries after & before a given time or by a specific action.
-type EventsRequestParams struct {
+type ListRequestParams struct {
 	StartingAfter string
 	EndingBefore  string
 	Limit         int
+}
+
+func (p ListRequestParams) limit() int {
+	return p.Limit
+}
+
+type ListMeta struct {
+	HasMore    bool   `json:"has_more"`
+	TotalCount uint32 `json:"total_count"`
+	URL        string `json:"url"`
 }

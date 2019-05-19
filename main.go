@@ -64,9 +64,8 @@ func main() {
 	})
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := events.FindAll(auditlog.EventsRequestParams{
-			// End:    time.Now(),
-			// Action: "user.login",
+		resp, err := events.FindAll(auditlog.ListRequestParams{
+			Limit: 20,
 		})
 
 		if err != nil {

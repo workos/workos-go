@@ -14,15 +14,26 @@ const (
 	eventsPath = "/events"
 )
 
-// List returns an iteration given a parameter
-func List(params auditlog.EventsRequestParams) *auditlog.EventItr {
-	return auditlog.GetEventItr(params, FindAll)
+// List returns a list of events.
+func List(params auditlog.ListRequestParams) *Iter {
+	return &Iter{auditlog.GetIter(params, func(params auditlog.ListRequestParams) ([]interface{}, auditlog.ListMeta, error) {
+		list := auditlog.EventList{}
+		list, err := FindAll(params)
+
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
+			ret[i] = v
+		}
+
+		return ret, list.ListMeta, err
+	})}
 }
 
 // FindAll returns a paginated set of Audit Log entries matching the search
 // query.
-func FindAll(params auditlog.EventsRequestParams) (auditlog.EventsResponse, error) {
+func FindAll(params auditlog.ListRequestParams) (auditlog.EventList, error) {
 	path := eventsPath
+
 	q := url.Values{}
 
 	q.Add("limit", strconv.Itoa(params.Limit))
@@ -36,18 +47,19 @@ func FindAll(params auditlog.EventsRequestParams) (auditlog.EventsResponse, erro
 
 	resp, err := auditlog.Get(path)
 	if err != nil {
-		return auditlog.EventsResponse{}, err
+		return auditlog.EventList{}, err
 	}
 
 	defer resp.Body.Close()
 
-	eventResponse := auditlog.EventsResponse{}
+	list := auditlog.EventList{}
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&eventResponse)
+	err = decoder.Decode(&list)
 	if err != nil {
-		return auditlog.EventsResponse{}, err
+		return auditlog.EventList{}, err
 	}
-	return eventResponse, nil
+
+	return list, nil
 }
 
 // Find looks up a single WorkOS Audit Log event.
@@ -67,4 +79,14 @@ func Find(id string) (auditlog.EventResponse, error) {
 	}
 
 	return event, nil
+}
+
+// Iter is an iterator for events.
+type Iter struct {
+	*auditlog.Iter
+}
+
+// Event returns the event which the iterator is currently pointing to.
+func (i *Iter) Event() *auditlog.Event {
+	return i.Current().(*auditlog.Event)
 }

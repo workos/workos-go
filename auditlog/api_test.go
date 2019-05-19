@@ -10,15 +10,13 @@ var limits = []struct {
 	out int
 }{
 	{1, 1},
-	{-1, 50},
-	{1001, 1000},
 	{100, 100},
 }
 
 func TestEventsRequestParamsLimit(t *testing.T) {
 	for _, tt := range limits {
 		t.Run(strconv.Itoa(tt.in), func(t *testing.T) {
-			params := EventsRequestParams{
+			params := ListRequestParams{
 				Limit: tt.in,
 			}
 			if params.limit() != tt.out {
