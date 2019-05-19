@@ -16,10 +16,6 @@ const (
 
 // List returns a list of events.
 func List(params auditlog.ListRequestParams) *Iter {
-	if params.EndingBefore != "" && params.StartingAfter != "" {
-		params.StartingAfter = ""
-	}
-
 	return &Iter{auditlog.GetIter(params, func(params auditlog.ListRequestParams) ([]interface{}, auditlog.ListMeta, error) {
 		list := auditlog.EventList{}
 		list, err := FindAll(params)
@@ -36,22 +32,13 @@ func List(params auditlog.ListRequestParams) *Iter {
 // FindAll returns a paginated set of Audit Log entries matching the search
 // query.
 func FindAll(params auditlog.ListRequestParams) (auditlog.EventList, error) {
-	if params.EndingBefore != "" && params.StartingAfter != "" {
-		params.StartingAfter = ""
-	}
-
 	path := eventsPath
 
 	q := url.Values{}
 
-	limit := params.Limit
-	if limit <= 0 {
-		limit = 10
-	}
-
-	q.Add("limit", strconv.Itoa(params.Limit))
-	q.Add("starting_after", params.StartingAfter)
-	q.Add("ending_before", params.EndingBefore)
+	q.Add("limit", strconv.Itoa(params.GetLimit()))
+	q.Add("starting_after", params.GetStartingAfter())
+	q.Add("ending_before", params.GetEndingBefore())
 
 	query := q.Encode()
 	if query != "" {

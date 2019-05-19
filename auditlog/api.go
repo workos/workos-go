@@ -2,6 +2,7 @@ package auditlog
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -37,6 +38,7 @@ func Get(path string) (*http.Response, error) {
 	}
 
 	route := fmt.Sprintf("%s%s", endpoint, path)
+	log.Println(route)
 	req, err := http.NewRequest("GET", route, nil)
 	if err != nil {
 		return nil, err
@@ -79,7 +81,21 @@ type ListRequestParams struct {
 	Limit         int
 }
 
-func (p ListRequestParams) limit() int {
+func (p ListRequestParams) GetStartingAfter() string {
+	if p.EndingBefore != "" && p.StartingAfter != "" {
+		return ""
+	}
+	return p.StartingAfter
+}
+
+func (p ListRequestParams) GetEndingBefore() string {
+	return p.EndingBefore
+}
+
+func (p ListRequestParams) GetLimit() int {
+	if p.Limit <= 0 {
+		return 10
+	}
 	return p.Limit
 }
 

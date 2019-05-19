@@ -10,6 +10,8 @@ var limits = []struct {
 	out int
 }{
 	{1, 1},
+	{-1, 10},
+	{0, 10},
 	{100, 100},
 }
 
@@ -19,8 +21,8 @@ func TestEventsRequestParamsLimit(t *testing.T) {
 			params := ListRequestParams{
 				Limit: tt.in,
 			}
-			if params.limit() != tt.out {
-				t.Errorf("got %q, wanted %q", params.limit(), tt.out)
+			if params.GetLimit() != tt.out {
+				t.Errorf("got %q, wanted %q", params.GetLimit(), tt.out)
 			}
 		})
 	}
