@@ -20,7 +20,7 @@ blocks:
     task:
       prologue:
         commands:
-          - export "SEMAPHORE_GIT_DIR=$(go env GOPATH)/src/github.com/${SEMAPHORE_PROJECT_NAME}"
+          - export "SEMAPHORE_GIT_DIR=$(go env GOPATH)/src/github.com/workos-inc/${SEMAPHORE_PROJECT_NAME}"
           - export "PATH=$(go env GOPATH)/bin:${PATH}"
           - mkdir -vp "${SEMAPHORE_GIT_DIR}" "$(go env GOPATH)/bin"
       jobs:
