@@ -28,5 +28,5 @@ blocks:
         commands:
           - checkout
           - sem-version go 1.12
-          - go get -d -v ./...
+          - go get github.com/stretchr/testify/assert
           - go test -v ./...
