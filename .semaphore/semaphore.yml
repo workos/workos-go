@@ -18,11 +18,15 @@ blocks:
 
   - name: Run tests
     task:
+      prologue:
+        commands:
+          - export "SEMAPHORE_GIT_DIR=$(go env GOPATH)/src/github.com/${SEMAPHORE_PROJECT_NAME}"
+          - export "PATH=$(go env GOPATH)/bin:${PATH}"
+          - mkdir -vp "${SEMAPHORE_GIT_DIR}" "$(go env GOPATH)/bin"
       jobs:
       - name: go test
         commands:
           - checkout
           - sem-version go 1.12
           - go get -d -v ./...
-          - go get github.com/workos-inc/workos-go/auditlog/events
           - go test -v ./...
