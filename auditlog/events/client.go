@@ -10,14 +10,12 @@ import (
 )
 
 const (
-	userAgent  = "workos-go/0.1"
 	eventsPath = "/events"
 )
 
 // List returns a list of events.
 func List(params auditlog.ListRequestParams) *Iter {
 	return &Iter{auditlog.GetIter(params, func(params auditlog.ListRequestParams) ([]interface{}, auditlog.ListMeta, error) {
-		list := auditlog.EventList{}
 		list, err := FindAll(params)
 
 		ret := make([]interface{}, len(list.Data))
@@ -33,7 +31,6 @@ func List(params auditlog.ListRequestParams) *Iter {
 // query.
 func FindAll(params auditlog.ListRequestParams) (auditlog.EventList, error) {
 	path := eventsPath
-
 	q := url.Values{}
 
 	q.Add("limit", strconv.Itoa(params.GetLimit()))

@@ -1,4 +1,4 @@
-package workos
+package main
 
 import (
 	"encoding/json"

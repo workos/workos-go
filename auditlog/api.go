@@ -2,7 +2,6 @@ package auditlog
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,19 +13,19 @@ const (
 )
 
 var (
-	ApiKey = ""
+	apiKey = ""
 )
 
 func init() {
-	ApiKey = os.Getenv("WORKOS_API_KEY")
+	apiKey = os.Getenv("WORKOS_API_KEY")
 }
 
 // SetAPIKey allows you to set the clients API key for all API requests.
 func SetAPIKey(key string) {
-	ApiKey = key
+	apiKey = key
 }
 
-// Get exucutes a get request to a provided resource
+// Get executes a get request to a provided resource
 func Get(path string) (*http.Response, error) {
 	client := http.Client{
 		Timeout: 10 * time.Second,
@@ -34,11 +33,10 @@ func Get(path string) (*http.Response, error) {
 
 	endpoint := os.Getenv("WORKOS_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "https://max.workos.dev"
+		endpoint = "https://api.workos.com"
 	}
 
 	route := fmt.Sprintf("%s%s", endpoint, path)
-	log.Println(route)
 	req, err := http.NewRequest("GET", route, nil)
 	if err != nil {
 		return nil, err
@@ -47,7 +45,7 @@ func Get(path string) (*http.Response, error) {
 	// Should error if not present
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", ApiKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -73,8 +71,8 @@ type EventResponse struct {
 	AppID           string `json:"app_id"`
 }
 
-// ListRequestParams allows you to confire FindAll, or List request to paginate
-// any entries after & before a given time or by a specific action.
+// ListRequestParams allows you to confire FindAll or List request to paginate
+// any entries after & before a given index.
 type ListRequestParams struct {
 	StartingAfter string
 	EndingBefore  string
@@ -93,9 +91,14 @@ func (p ListRequestParams) GetEndingBefore() string {
 }
 
 func (p ListRequestParams) GetLimit() int {
+	if p.Limit > 1000 {
+		return 1000
+	}
+
 	if p.Limit <= 0 {
 		return 10
 	}
+
 	return p.Limit
 }
 
