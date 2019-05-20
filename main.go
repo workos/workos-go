@@ -39,15 +39,16 @@ func main() {
 		event.SetActor(u)
 		event.SetGroup(u)
 		event.SetTarget(u)
-		ch := event.Publish()
-		err := <-ch
+		errCh, eventCh := event.Publish()
+		err := <-errCh
+		newEvent := <-eventCh
 		if err != nil {
 			// Call out to sentry
 			fmt.Fprintf(w, err.Error())
 			return
 		}
 
-		body, _ := json.Marshal(event)
+		body, _ := json.Marshal(newEvent)
 		fmt.Fprintf(w, string(body))
 	})
 

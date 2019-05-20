@@ -53,6 +53,7 @@ const (
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {
+	ID         string     `json:"id"`
 	Group      string     `json:"group"`
 	Action     Action     `json:"action"`
 	ActionType ActionType `json:"action_type"`
@@ -199,31 +200,34 @@ func (e Event) addMetadata(key string, value interface{}) error {
 }
 
 // Publish delivers the event to WorkOS asyncronously.
-func (e Event) Publish() chan error {
+func (e Event) Publish() (chan error, chan *Event) {
 	// Add the global metadata to the Event's metadata
 	for k, v := range globalMetadata {
 		e.Metadata[k] = v
 	}
 
-	ch := make(chan error, 1)
+	errCh := make(chan error, 1)
+	eventCh := make(chan *Event, 1)
 
 	// Caller can decide if it wants an async event or sync
 	go func() {
 		body, err := json.Marshal(e)
 		if err != nil {
-			ch <- err
+			errCh <- err
+			eventCh <- nil
 			return
 		}
 
-		err = e.publishEvent(body)
-		ch <- err
+		event, err := e.publishEvent(body)
+		errCh <- err
+		eventCh <- event
 	}()
 
-	return ch
+	return errCh, eventCh
 }
 
 // PublishEvent delivers the Audit Log event to WorkOS.
-func (e Event) publishEvent(body []byte) error {
+func (e Event) publishEvent(body []byte) (*Event, error) {
 	// Add retry logic
 	// Ensure http.Client connection re-use
 	client := http.Client{
@@ -240,7 +244,7 @@ func (e Event) publishEvent(body []byte) error {
 	// Depending on size of body, look to encode with zlib
 	req, err := http.NewRequest("POST", path, bytes.NewBuffer(body))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Should error if not present
@@ -250,19 +254,26 @@ func (e Event) publishEvent(body []byte) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return errors.New(string(bodyBytes))
+		return nil, errors.New(string(bodyBytes))
 	}
 
-	return nil
+	event := &Event{}
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
 }
 
 func generateIdempotencyKey(size int) string {

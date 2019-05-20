@@ -72,7 +72,7 @@ The resulting event being sent to WorkOS looks like:
 
 The time the event occured is automatically populated for you when the event is created.
 
-All events are published to WorkOS asyncronously by default. `auditlog.Publish` returns an error channel for you so you can wait for a response from WorkOS should you need a blocking operation.
+All events are published to WorkOS asyncronously by default. `auditlog.Publish` returns an event and error channel for you so you can wait for a response from WorkOS should you need a blocking operation.
 
 ```go
 user := User{
@@ -88,11 +88,13 @@ event.SetGroup(organization)
 event.SetActor(user)
 event.SetTarget(user)
 event.SetLocation("1.1.1.1")
-ch := event.Publish()
-err := <-ch
+errCh, eventCh := event.Publish()
+err := <-errCh
+postedEvent := <-eventCh
 if err != nil {
   fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
 }
+fmt.Println(postedEvent.ID)
 ```
 
 ## Configuring An Auditable Interface
@@ -150,7 +152,9 @@ event.AddMetadata(map[string]interface{}{
 	"body_was": bodyWas,
 	"body": comment.Body,
 })
-err := event.Publish()
+errCh, eventCh := event.Publish()
+err := <-errCh
+postedEvent := <-eventCh
 if err != nil {
 	fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
 }
@@ -205,7 +209,9 @@ event.SetLocation("1.1.1.1")
 event.AddMetadata(map[string]interface{}{
 	"parent_tweet": tweet.ParentTweet,
 })
-err := event.Publish()
+errCh, eventCh := event.Publish()
+err := <-errCh
+postedEvent := <-eventCh
 if err != nil {
 	fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
 }
@@ -294,7 +300,9 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 	event.SetGroup(user)
 	event.SetActor(user)
 	event.SetTarget(user)
-	err := event.Publish()
+	errCh, eventCh := event.Publish()
+  err := <-errCh
+  postedEvent := <-eventCh
 	if err != nil {
 		fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
 	}
