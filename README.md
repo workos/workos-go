@@ -301,7 +301,7 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 	event.SetActor(user)
 	event.SetTarget(user)
 	errCh, eventCh := event.Publish()
-  err := <-errCh
+	err := <-errCh
   postedEvent := <-eventCh
 	if err != nil {
 		fmt.Printf("Had a problem writing the event: %q %q\n", event, err)
