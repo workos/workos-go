@@ -74,20 +74,20 @@ type EventResponse struct {
 // ListRequestParams allows you to confire FindAll or List request to paginate
 // any entries after & before a given index.
 type ListRequestParams struct {
-	StartingAfter string
-	EndingBefore  string
-	Limit         int
+	After  string
+	Before string
+	Limit  int
 }
 
 func (p ListRequestParams) GetStartingAfter() string {
-	if p.EndingBefore != "" && p.StartingAfter != "" {
+	if p.Before != "" && p.After != "" {
 		return ""
 	}
-	return p.StartingAfter
+	return p.After
 }
 
 func (p ListRequestParams) GetEndingBefore() string {
-	return p.EndingBefore
+	return p.Before
 }
 
 func (p ListRequestParams) GetLimit() int {

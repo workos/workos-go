@@ -21,9 +21,9 @@ type Iter struct {
 func (it *Iter) Next() bool {
 	if len(it.values) == 0 && it.meta.HasMore {
 		if it.params.GetStartingAfter() != "" {
-			it.params.StartingAfter = listItemID(it.current)
+			it.params.After = listItemID(it.current)
 		} else {
-			it.params.EndingBefore = listItemID(it.current)
+			it.params.Before = listItemID(it.current)
 		}
 		it.getPage()
 	}
