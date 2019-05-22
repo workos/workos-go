@@ -223,7 +223,7 @@ func (e Event) Publish() (chan *Event, chan error) {
 		eventCh <- event
 	}()
 
-	return errCh, eventCh
+	return eventCh, errCh
 }
 
 // PublishEvent delivers the Audit Log event to WorkOS.

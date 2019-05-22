@@ -39,7 +39,7 @@ func main() {
 		event.SetActor(u)
 		event.SetGroup(u)
 		event.SetTarget(u)
-		errCh, eventCh := event.Publish()
+		eventCh, errCh := event.Publish()
 		err := <-errCh
 		newEvent := <-eventCh
 		if err != nil {
