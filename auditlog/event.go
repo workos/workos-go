@@ -200,7 +200,7 @@ func (e Event) addMetadata(key string, value interface{}) error {
 }
 
 // Publish delivers the event to WorkOS asyncronously.
-func (e Event) Publish() (chan error, chan *Event) {
+func (e Event) Publish() (chan *Event, chan error) {
 	// Add the global metadata to the Event's metadata
 	for k, v := range globalMetadata {
 		e.Metadata[k] = v
