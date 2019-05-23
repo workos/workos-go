@@ -34,7 +34,9 @@ func FindAll(params auditlog.ListRequestParams) (auditlog.EventList, error) {
 	q := url.Values{}
 
 	q.Add("limit", strconv.Itoa(params.GetLimit()))
-	q.Add("after", params.GetStartingAfter())
+	if params.GetStartingAfter() != "" {
+		q.Add("after", params.GetStartingAfter())
+	}
 	q.Add("before", params.GetEndingBefore())
 
 	query := q.Encode()
