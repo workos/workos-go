@@ -79,14 +79,14 @@ type ListRequestParams struct {
 	Limit  int
 }
 
-func (p ListRequestParams) GetStartingAfter() string {
+func (p ListRequestParams) GetAfter() string {
 	if p.Before != "" && p.After != "" {
 		return ""
 	}
 	return p.After
 }
 
-func (p ListRequestParams) GetEndingBefore() string {
+func (p ListRequestParams) GetBefore() string {
 	return p.Before
 }
 

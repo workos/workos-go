@@ -20,7 +20,7 @@ type Iter struct {
 // Next returns the next event in the set
 func (it *Iter) Next() bool {
 	if len(it.values) == 0 && it.meta.HasMore {
-		if it.params.GetStartingAfter() != "" {
+		if it.params.GetAfter() != "" {
 			it.params.After = listItemID(it.current)
 		} else {
 			it.params.Before = listItemID(it.current)
