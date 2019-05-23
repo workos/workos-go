@@ -63,7 +63,6 @@ func Get(path string) (*http.Response, error) {
 type EventResponse struct {
 	Event
 
-	ID              string `json:"id"`
 	Object          string `json:"object"`
 	LocationCity    string `json:"location_city"`
 	LocationState   string `json:"location_state"`

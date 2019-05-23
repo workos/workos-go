@@ -1,29 +1,29 @@
 package auditlog
 
-import (
-	"reflect"
-)
+type Iterable interface {
+	GetID() string
+}
 
 // Query is the function used to get a page listing.
-type Query func(ListRequestParams) ([]interface{}, ListMeta, error)
+type Query func(ListRequestParams) ([]Iterable, ListMeta, error)
 
 // Itr provides a convenient interface for reading a list of interfaces. It stops when there are no more interfaces to iterate over.
 type Iter struct {
-	values  []interface{}
-	current interface{}
+	values  []Iterable
+	current Iterable
 	err     error
 	params  ListRequestParams
 	meta    ListMeta
 	query   Query
 }
 
-// Next returns the next event in the set
+// Next returns the next value in the set
 func (it *Iter) Next() bool {
 	if len(it.values) == 0 && it.meta.HasMore {
 		if it.params.GetAfter() != "" {
-			it.params.After = listItemID(it.current)
+			it.params.After = it.current.GetID()
 		} else {
-			it.params.Before = listItemID(it.current)
+			it.params.Before = it.current.GetID()
 		}
 		it.getPage()
 	}
@@ -38,7 +38,7 @@ func (it *Iter) Next() bool {
 	return true
 }
 
-func (it Iter) Current() interface{} {
+func (it Iter) Current() Iterable {
 	return it.current
 }
 
@@ -60,8 +60,4 @@ func GetIter(params ListRequestParams, query Query) *Iter {
 	iter.getPage()
 
 	return iter
-}
-
-func listItemID(x interface{}) string {
-	return reflect.ValueOf(x).Elem().FieldByName("ID").String()
 }

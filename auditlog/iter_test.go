@@ -23,30 +23,12 @@ func TestIterEmptyErr(t *testing.T) {
 	assert.Equal(t, errTest, gerr)
 }
 
-func TestIterOne(t *testing.T) {
-	tq := testQuery{{[]interface{}{1}, ListMeta{}, nil}}
-	want := []interface{}{1}
-	g, gerr := collect(GetIter(ListRequestParams{}, tq.query))
-	assert.Equal(t, 0, len(tq))
-	assert.Equal(t, want, g)
-	assert.NoError(t, gerr)
-}
-
-func TestIterOneErr(t *testing.T) {
-	tq := testQuery{{[]interface{}{1}, ListMeta{}, errTest}}
-	want := []interface{}{1}
-	g, gerr := collect(GetIter(ListRequestParams{}, tq.query))
-	assert.Equal(t, 0, len(tq))
-	assert.Equal(t, want, g)
-	assert.Equal(t, errTest, gerr)
-}
-
 func TestIterPage2Empty(t *testing.T) {
 	tq := testQuery{
-		{[]interface{}{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
+		{[]Iterable{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
 		{nil, ListMeta{}, nil},
 	}
-	want := []interface{}{&item{"x"}}
+	want := []Iterable{&item{"x"}}
 	g, gerr := collect(GetIter(ListRequestParams{}, tq.query))
 	assert.Equal(t, 0, len(tq))
 	assert.Equal(t, want, g)
@@ -55,34 +37,10 @@ func TestIterPage2Empty(t *testing.T) {
 
 func TestIterPage2EmptyErr(t *testing.T) {
 	tq := testQuery{
-		{[]interface{}{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
+		{[]Iterable{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
 		{nil, ListMeta{}, errTest},
 	}
-	want := []interface{}{&item{"x"}}
-	g, gerr := collect(GetIter(ListRequestParams{}, tq.query))
-	assert.Equal(t, 0, len(tq))
-	assert.Equal(t, want, g)
-	assert.Equal(t, errTest, gerr)
-}
-
-func TestIterTwoPages(t *testing.T) {
-	tq := testQuery{
-		{[]interface{}{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
-		{[]interface{}{2}, ListMeta{HasMore: false, TotalCount: 0, URL: ""}, nil},
-	}
-	want := []interface{}{&item{"x"}, 2}
-	g, gerr := collect(GetIter(ListRequestParams{}, tq.query))
-	assert.Equal(t, 0, len(tq))
-	assert.Equal(t, want, g)
-	assert.NoError(t, gerr)
-}
-
-func TestIterTwoPagesErr(t *testing.T) {
-	tq := testQuery{
-		{[]interface{}{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
-		{[]interface{}{2}, ListMeta{HasMore: false, TotalCount: 0, URL: ""}, errTest},
-	}
-	want := []interface{}{&item{"x"}, 2}
+	want := []Iterable{&item{"x"}}
 	g, gerr := collect(GetIter(ListRequestParams{}, tq.query))
 	assert.Equal(t, 0, len(tq))
 	assert.Equal(t, want, g)
@@ -95,20 +53,24 @@ type item struct {
 	ID string
 }
 
+func (i item) GetID() string {
+	return i.ID
+}
+
 type testQuery []struct {
-	v []interface{}
+	v []Iterable
 	m ListMeta
 	e error
 }
 
-func (tq *testQuery) query(ListRequestParams) ([]interface{}, ListMeta, error) {
+func (tq *testQuery) query(ListRequestParams) ([]Iterable, ListMeta, error) {
 	x := (*tq)[0]
 	*tq = (*tq)[1:]
 	return x.v, x.m, x.e
 }
 
-func collect(it *Iter) ([]interface{}, error) {
-	var g []interface{}
+func collect(it *Iter) ([]Iterable, error) {
+	var g []Iterable
 	for it.Next() {
 		g = append(g, it.Current())
 	}

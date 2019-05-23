@@ -15,10 +15,10 @@ const (
 
 // List returns a list of events.
 func List(params auditlog.ListRequestParams) *Iter {
-	return &Iter{auditlog.GetIter(params, func(params auditlog.ListRequestParams) ([]interface{}, auditlog.ListMeta, error) {
+	return &Iter{auditlog.GetIter(params, func(params auditlog.ListRequestParams) ([]auditlog.Iterable, auditlog.ListMeta, error) {
 		list, err := FindAll(params)
 
-		ret := make([]interface{}, len(list.Data))
+		ret := make([]auditlog.Iterable, len(list.Data))
 		for i, v := range list.Data {
 			ret[i] = v
 		}
@@ -29,7 +29,7 @@ func List(params auditlog.ListRequestParams) *Iter {
 
 // FindAll returns a paginated set of Audit Log entries matching the search
 // query.
-func FindAll(params auditlog.ListRequestParams) (auditlog.EventList, error) {
+func FindAll(params auditlog.ListRequestParams) (EventList, error) {
 	path := eventsPath
 	q := url.Values{}
 
@@ -46,15 +46,15 @@ func FindAll(params auditlog.ListRequestParams) (auditlog.EventList, error) {
 
 	resp, err := auditlog.Get(path)
 	if err != nil {
-		return auditlog.EventList{}, err
+		return EventList{}, err
 	}
 	defer resp.Body.Close()
 
-	list := auditlog.EventList{}
+	list := EventList{}
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&list)
 	if err != nil {
-		return auditlog.EventList{}, err
+		return EventList{}, err
 	}
 
 	return list, nil
@@ -87,4 +87,10 @@ type Iter struct {
 // Event returns the event which the iterator is currently pointing to.
 func (i *Iter) Event() *auditlog.Event {
 	return i.Current().(*auditlog.Event)
+}
+
+// EventList represents a set of Audit Log events returned from WorkOS.
+type EventList struct {
+	auditlog.ListMeta
+	Data []*auditlog.Event `json:"data"`
 }

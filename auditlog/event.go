@@ -50,12 +50,6 @@ const (
 	Delete ActionType = "D"
 )
 
-// EventList represents a set of Audit Log events returned from WorkOS.
-type EventList struct {
-	ListMeta
-	Data []*Event `json:"data"`
-}
-
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {
@@ -134,6 +128,11 @@ func NewEventWithMetadata(action Action, actionType ActionType, metadata map[str
 	}
 
 	return event, nil
+}
+
+// GetID gets the Event's ID
+func (e Event) GetID() string {
+	return e.ID
 }
 
 // SetGroup sets the Event Group based on the provided interface.
