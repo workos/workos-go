@@ -7,7 +7,7 @@ import (
 // Query is the function used to get a page listing.
 type Query func(ListRequestParams) ([]interface{}, ListMeta, error)
 
-// EventItr represents and iterative event
+// Itr provides a convenient interface for reading a list of interfaces. It stops when there are no more interfaces to iterate over.
 type Iter struct {
 	values  []interface{}
 	current interface{}
