@@ -243,7 +243,6 @@ func (e Event) publishEvent(body []byte) error {
 		return err
 	}
 
-	// Should error if not present
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Idempotency-Key", e.idempotencyKey)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
