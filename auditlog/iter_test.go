@@ -25,7 +25,7 @@ func TestIterEmptyErr(t *testing.T) {
 
 func TestIterPage2Empty(t *testing.T) {
 	tq := testQuery{
-		{[]Iterable{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
+		{[]Iterable{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0}, nil},
 		{nil, ListMeta{}, nil},
 	}
 	want := []Iterable{&item{"x"}}
@@ -37,7 +37,7 @@ func TestIterPage2Empty(t *testing.T) {
 
 func TestIterPage2EmptyErr(t *testing.T) {
 	tq := testQuery{
-		{[]Iterable{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0, URL: ""}, nil},
+		{[]Iterable{&item{"x"}}, ListMeta{HasMore: true, TotalCount: 0}, nil},
 		{nil, ListMeta{}, errTest},
 	}
 	want := []Iterable{&item{"x"}}

@@ -93,5 +93,4 @@ func (p ListRequestParams) GetLimit() int {
 type ListMeta struct {
 	HasMore    bool   `json:"has_more"`
 	TotalCount uint32 `json:"total_count"`
-	URL        string `json:"url"`
 }
