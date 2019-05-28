@@ -53,7 +53,6 @@ const (
 // Event represents the structure of a Audit Log event with all the necessary
 // metadata needed to describe an event properly.
 type Event struct {
-	ID         string     `json:"id"`
 	Group      string     `json:"group"`
 	Action     Action     `json:"action"`
 	ActionType ActionType `json:"action_type"`
@@ -72,6 +71,22 @@ type Event struct {
 	// A unique key per event to ensure WorkOS does not store the same event more
 	// than once.
 	idempotencyKey string
+}
+
+// EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
+type EventResponse struct {
+	Event
+	ID              string `json:"id"`
+	Object          string `json:"object"`
+	LocationCity    string `json:"location_city"`
+	LocationState   string `json:"location_state"`
+	LocationCountry string `json:"location_country"`
+	AppID           string `json:"app_id"`
+}
+
+// GetID gets the Event's ID
+func (e EventResponse) GetID() string {
+	return e.ID
 }
 
 // NewEvent initializes a new event populated with default information about
@@ -128,11 +143,6 @@ func NewEventWithMetadata(action Action, actionType ActionType, metadata map[str
 	}
 
 	return event, nil
-}
-
-// GetID gets the Event's ID
-func (e Event) GetID() string {
-	return e.ID
 }
 
 // SetGroup sets the Event Group based on the provided interface.

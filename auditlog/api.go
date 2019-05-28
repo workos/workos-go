@@ -59,17 +59,6 @@ func Get(path string) (*http.Response, error) {
 	return resp, nil
 }
 
-// EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
-type EventResponse struct {
-	Event
-
-	Object          string `json:"object"`
-	LocationCity    string `json:"location_city"`
-	LocationState   string `json:"location_state"`
-	LocationCountry string `json:"location_country"`
-	AppID           string `json:"app_id"`
-}
-
 // ListRequestParams allows you to confire FindAll or List request to paginate
 // any entries after & before a given index.
 type ListRequestParams struct {

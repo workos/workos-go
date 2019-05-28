@@ -85,12 +85,12 @@ type Iter struct {
 }
 
 // Event returns the event which the iterator is currently pointing to.
-func (i *Iter) Event() *auditlog.Event {
-	return i.Current().(*auditlog.Event)
+func (i *Iter) Event() *auditlog.EventResponse {
+	return i.Current().(*auditlog.EventResponse)
 }
 
 // EventList represents a set of Audit Log events returned from WorkOS.
 type EventList struct {
 	auditlog.ListMeta
-	Data []*auditlog.Event `json:"data"`
+	Data []auditlog.EventResponse `json:"data"`
 }
