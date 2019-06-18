@@ -59,7 +59,7 @@ func Get(path string) (*http.Response, error) {
 	return resp, nil
 }
 
-// ListRequestParams allows you to confire FindAll or List request to paginate
+// ListRequestParams allows you to configure FindAll or List request to paginate
 // any entries after & before a given index.
 type ListRequestParams struct {
 	After  string
