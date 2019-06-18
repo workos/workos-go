@@ -73,6 +73,22 @@ type Event struct {
 	idempotencyKey string
 }
 
+// EventResponse represents an Audit Log event stored in your WorkOS Audit Log.
+type EventResponse struct {
+	Event
+	ID              string `json:"id"`
+	Object          string `json:"object"`
+	LocationCity    string `json:"location_city"`
+	LocationState   string `json:"location_state"`
+	LocationCountry string `json:"location_country"`
+	AppID           string `json:"app_id"`
+}
+
+// GetID gets the Event's ID
+func (e EventResponse) GetID() string {
+	return e.ID
+}
+
 // NewEvent initializes a new event populated with default information about
 // the environment.
 func NewEvent(action Action, actionType ActionType) Event {

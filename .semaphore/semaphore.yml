@@ -9,19 +9,25 @@ blocks:
   - name: Check code style
     task:
       jobs:
-      - name: gofmt
-        commands:
-          - checkout
-          - sem-version go 1.12
-          - yes | sudo apt install gccgo-go
-          - diff -u <(echo -n) <(gofmt -d ./)
+        - name: gofmt
+          commands:
+            - checkout
+            - sem-version go 1.12
+            - yes | sudo apt update
+            - yes | sudo apt install gccgo-go
+            - diff -u <(echo -n) <(gofmt -d ./)
 
   - name: Run tests
     task:
-      jobs:
-      - name: go test
+      prologue:
         commands:
-          - checkout
-          - sem-version go 1.12
-          - go get -d -v ./...
-          - go test -v ./...
+          - export "SEMAPHORE_GIT_DIR=$(go env GOPATH)/src/github.com/workos-inc/${SEMAPHORE_PROJECT_NAME}"
+          - export "PATH=$(go env GOPATH)/bin:${PATH}"
+          - mkdir -vp "${SEMAPHORE_GIT_DIR}" "$(go env GOPATH)/bin"
+      jobs:
+        - name: go test
+          commands:
+            - checkout
+            - sem-version go 1.12
+            - go get github.com/stretchr/testify/assert
+            - go test -v ./...
