@@ -326,7 +326,7 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
 
 ## Paginating Events
 
-This client provides auto pagination when querying events. This feature easily handles fetching large lists of events without having to manually paginate results and perform subsequent requests. Optional parameters `Limit`, `StartingAfter`, and `EndingBefore` can be provided to query. If both `StartingAfter` and `EndingBefore` are provided, the client will default to using only `EndingBefore`.
+This client provides auto pagination when querying events. This feature easily handles fetching large lists of events without having to manually paginate results and perform subsequent requests. Optional parameters `Limit`, `After`, and `Before` can be provided to query. If both `After` and `Before` are provided, the client will default to using only `Before`.
 
 ```go
   i := events.List(auditlog.ListRequestParams{Limit: 20, EndingBefore: "evt_01DARZVVM933M93J6XREKWS436"})
