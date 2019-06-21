@@ -9,19 +9,20 @@ blocks:
   - name: Check code style
     task:
       jobs:
-      - name: gofmt
-        commands:
-          - checkout
-          - sem-version go 1.12
-          - yes | sudo apt install gccgo-go
-          - diff -u <(echo -n) <(gofmt -d ./)
+        - name: gofmt
+          commands:
+            - checkout
+            - sem-version go 1.12
+            - yes | sudo apt update
+            - yes | sudo apt install gccgo-go
+            - diff -u <(echo -n) <(gofmt -d ./)
 
   - name: Run tests
     task:
       jobs:
-      - name: go test
-        commands:
-          - checkout
-          - sem-version go 1.12
-          - go get -d -v ./...
-          - go test -v ./...
+        - name: go test
+          commands:
+            - checkout
+            - sem-version go 1.12
+            - go get -d -v ./...
+            - go test -v ./...
