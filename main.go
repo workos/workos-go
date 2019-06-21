@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/workos-inc/workos-go/auditlog"
+	"github.com/workos-inc/workos-go/auditlog/events"
 )
 
 type user struct {
@@ -52,7 +52,7 @@ func main() {
 	})
 
 	http.HandleFunc("/event", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := auditlog.Find("someid")
+		resp, err := events.Find("someid")
 		if err != nil {
 			// Call out to sentry
 			fmt.Fprintf(w, err.Error())
@@ -64,9 +64,8 @@ func main() {
 	})
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := auditlog.FindAll(auditlog.EventsRequestParams{
-			End:    time.Now(),
-			Action: "user.login",
+		resp, err := events.FindAll(auditlog.ListRequestParams{
+			Limit: 20,
 		})
 
 		if err != nil {
