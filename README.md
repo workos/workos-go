@@ -65,12 +65,12 @@ The resulting event being sent to WorkOS looks like:
   "target_name": "user@email.com",
   "target_id": "user_1",
   "location": "1.1.1.1",
-  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "occurred_at": "2019-05-01T01:15:55.619355Z",
   "metadata": {}
 }
 ```
 
-The time the event occured is automatically populated for you when the event is created.
+The time the event occurred is automatically populated for you when the event is created.
 
 All events are published to WorkOS asyncronously by default. `auditlog.Publish` returns an error channel for you so you can wait for a response from WorkOS should you need a blocking operation.
 
@@ -168,7 +168,7 @@ Resulting in the following being sent to WorkOS:
   "target_name": "user@email.com",
   "target_id": "tweet_5",
   "location": "1.1.1.1",
-  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "occurred_at": "2019-05-01T01:15:55.619355Z",
   "metadata": {
     "body_was": "What time is the event",
     "body": "What time is the event?"
@@ -223,7 +223,7 @@ Resulting in the following being sent to WorkOS:
   "target_name": "It's at 6:30 PM",
   "target_id": "tweet_6",
   "location": "1.1.1.1",
-  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "occurred_at": "2019-05-01T01:15:55.619355Z",
   "metadata": {
     "parent_tweet_name": "What time is the event",
     "parent_tweet_id": "tweet_5"
@@ -270,7 +270,7 @@ Using the previous example the event sent to WorkOS would look like:
   "target_name": "user@email.com",
   "target_id": "tweet_5",
   "location": "1.1.1.1",
-  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "occurred_at": "2019-05-01T01:15:55.619355Z",
   "metadata": {
     "body_was": "What time is the event",
     "body": "What time is the event?",
@@ -314,7 +314,7 @@ http.HandleFunc("/login", func(w http.ResponseWriter, req *http.Request) {
   "target_name": "user@email.com",
   "target_id": "user_1",
   "location": "172.31.255.255",
-  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "occurred_at": "2019-05-01T01:15:55.619355Z",
   "metadata": {
     "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36",
     "request_url": "http://localhost/tweet/update",
