@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/workos-inc/workos-go/auditlog"
-	"github.com/workos-inc/workos-go/auditlog/events"
 )
 
 type user struct {
@@ -51,31 +50,5 @@ func main() {
 		fmt.Fprintf(w, string(body))
 	})
 
-	http.HandleFunc("/event", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := events.Find("someid")
-		if err != nil {
-			// Call out to sentry
-			fmt.Fprintf(w, err.Error())
-			return
-		}
-
-		body, _ := json.Marshal(resp)
-		fmt.Fprintf(w, string(body))
-	})
-
-	http.HandleFunc("/events", func(w http.ResponseWriter, req *http.Request) {
-		resp, err := events.FindAll(auditlog.ListRequestParams{
-			Limit: 20,
-		})
-
-		if err != nil {
-			// Call out to sentry
-			fmt.Fprintf(w, err.Error())
-			return
-		}
-
-		body, _ := json.Marshal(resp)
-		fmt.Fprintf(w, string(body))
-	})
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
