@@ -41,10 +41,10 @@ type Publisher struct {
 	// The size of the internal queue. Defaults to 1.
 	QueueSize int
 
-	queue chan job
-	stop  chan struct{}
-	once  sync.Once
-	wait  sync.WaitGroup
+	queue     chan job
+	stop      chan struct{}
+	once      sync.Once
+	waitGroup sync.WaitGroup
 }
 
 // Publish enqueues the given events to be published to WorkOS.
@@ -88,8 +88,11 @@ func (p *Publisher) init() {
 
 func (p *Publisher) loop() {
 	for j := range p.queue {
-		p.wait.Add(1)
-		j := j
+		// This is to capture j value in order to not have the same value passed
+		// in difference goroutines.
+		job := j
+
+		p.waitGroup.Add(1)
 
 		// The time to post events 1 by 1 bring the risk of blocking enqueueing
 		// new events, which could disrupt the flow of the customer that uses
@@ -99,21 +102,22 @@ func (p *Publisher) loop() {
 		// We are creating a goroutine that process the publish job in order
 		// to avoid blocking the caller in case of the queue channel is full.
 		go func() {
-			defer p.wait.Done()
+			defer p.waitGroup.Done()
 
-			if err := p.publish(j); err != nil {
-				p.Log("publishing %+v failed: %s", j.event, err)
+			if err := p.publish(job); err != nil {
+				p.Log("publishing %+v failed: %s", job.event, err)
 
-				j.retries++
-				if j.retries > p.Retries {
-					p.Log("reenqueuing event: %+v: retry %v", j.event, j.retries)
-					p.queue <- j
+				job.retries++
+				if job.retries > p.Retries {
+					p.Log("reenqueuing event: %+v: retry %v", job.event, job.retries)
+					p.queue <- job
 				}
 			}
 		}()
 	}
 
-	p.wait.Wait()
+	p.waitGroup.Wait()
+	p.stop <- struct{}{}
 }
 
 func (p *Publisher) publish(j job) error {
