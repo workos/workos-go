@@ -50,6 +50,7 @@ func (p *Publisher) Publish(events ...Event) {
 
 	for _, e := range events {
 		e.Location = defaultLocation(e.Location)
+		e.OccurredAt = defaultTime(e.OccurredAt)
 		p.queue <- e
 	}
 }

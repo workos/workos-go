@@ -13,7 +13,7 @@ go get -u github.com/workos-inc/workos-go/pkg/auditlog
 ```go
 package main
 
-import "github.com/workos-inc/workos-go/auditlog"
+import "github.com/workos-inc/workos-go/pkg/auditlog"
 
 func main() {
     alog.SetAPIKey("my_api_key")

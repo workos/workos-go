@@ -79,3 +79,10 @@ func defaultLocation(location string) string {
 	}
 	return location
 }
+
+func defaultTime(t time.Time) time.Time {
+	if t == (time.Time{}) {
+		t = time.Now()
+	}
+	return t
+}
