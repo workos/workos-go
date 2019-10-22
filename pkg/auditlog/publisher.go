@@ -148,7 +148,6 @@ func (p *Publisher) publish(ctx context.Context, e Event) error {
 }
 
 // Close stops publishings audit log events and releases allocated resources.
-// It waits for pending events to be sent before returning.
 func (p *Publisher) Close() {
 	if p.queue != nil {
 		p.cancel()
