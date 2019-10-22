@@ -1,11 +1,8 @@
-# WorkOS
+# alog
 
-A WorkOS client for Go applications in your organization to control and monitor
-the access of information within your organization.
+A Go package to asynchronously send audit logs events to WorkOS.
 
 ## Install
-
-You can install the WorkOS Go client in your local environment by running:
 
 ```sh
 go get -u github.com/workos-inc/workos-go/pkg/auditlog
