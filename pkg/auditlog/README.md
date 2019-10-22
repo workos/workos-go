@@ -1,5 +1,7 @@
 # auditlog
 
+[![godoc](https://godoc.org/github.com/workos-inc/workos-go/pkg/auditlog?status.svg)](https://godoc.org/github.com/workos-inc/workos-go/pkg/auditlog)
+
 A Go package to asynchronously send audit logs events to WorkOS.
 
 ## Install
