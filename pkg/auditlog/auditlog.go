@@ -1,12 +1,12 @@
-// Package alog is a package to send audit logs events to WorkOS.
+// Package auditlog is a package to send audit logs events to WorkOS.
 //
 // Example:
 //   func main() {
-//       alog.SetAPIKey("my_api_key")
-//       defer alog.Close()
+//       auditlog.SetAPIKey("my_api_key")
+//       defer auditlog.Close()
 //
 //       // Wherever you need to publish an audit log event:
-//       alog.Publish(alog.Event{
+//       auditlog.Publish(auditlog.Event{
 //           Action:     "document.viewed",
 //           ActionType: "r",
 //           ActorName:  "Jairo Kunde",
@@ -18,7 +18,7 @@
 //           TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
 //       })
 //   }
-package alog
+package auditlog
 
 import (
 	"os"

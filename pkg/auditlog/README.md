@@ -1,4 +1,4 @@
-# alog
+# auditlog
 
 A Go package to asynchronously send audit logs events to WorkOS.
 
@@ -16,11 +16,11 @@ package main
 import "github.com/workos-inc/workos-go/pkg/auditlog"
 
 func main() {
-    alog.SetAPIKey("my_api_key")
-    defer alog.Close()
+    auditlog.SetAPIKey("my_api_key")
+    defer auditlog.Close()
 
     // Wherever you need to publish an audit log event:
-    alog.Publish(alog.Event{
+    auditlog.Publish(auditlog.Event{
         Action:     "document.viewed",
         ActionType: "r",
         ActorName:  "Jairo Kunde",

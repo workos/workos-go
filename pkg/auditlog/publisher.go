@@ -1,4 +1,4 @@
-package alog
+package auditlog
 
 import (
 	"bytes"
