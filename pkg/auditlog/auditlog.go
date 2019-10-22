@@ -82,7 +82,7 @@ func defaultLocation(location string) string {
 
 func defaultTime(t time.Time) time.Time {
 	if t == (time.Time{}) {
-		t = time.Now()
+		t = time.Now().UTC()
 	}
 	return t
 }
