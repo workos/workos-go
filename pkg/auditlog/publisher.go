@@ -2,8 +2,9 @@ package alog
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -34,17 +35,13 @@ type Publisher struct {
 	// The function used to log errors. Defaults to log.Printf.
 	Log func(format string, v ...interface{})
 
-	// The amount of time an event is retried when an error occurs while being
-	// published. Defaults to 0.
-	Retries int
-
-	// The size of the internal queue. Defaults to 1.
+	// The size of the internal queue. Defaults to 512.
 	QueueSize int
 
-	queue     chan job
-	stop      chan struct{}
-	once      sync.Once
-	waitGroup sync.WaitGroup
+	queue  chan Event
+	cancel func()
+	stop   chan struct{}
+	once   sync.Once
 }
 
 // Publish enqueues the given events to be published to WorkOS.
@@ -52,10 +49,7 @@ func (p *Publisher) Publish(events ...Event) {
 	p.once.Do(p.init)
 
 	for _, e := range events {
-		p.queue <- job{
-			event:           e,
-			indempotencyKey: uuid.New().String(),
-		}
+		p.queue <- e
 	}
 }
 
@@ -77,51 +71,49 @@ func (p *Publisher) init() {
 	}
 
 	if p.QueueSize < 1 {
-		p.QueueSize = 1
+		p.QueueSize = 512
 	}
 
-	p.queue = make(chan job, p.QueueSize)
+	p.queue = make(chan Event, p.QueueSize)
 	p.stop = make(chan struct{})
 
-	go p.loop()
+	ctx := context.Background()
+	ctx, p.cancel = context.WithCancel(ctx)
+
+	go p.loop(ctx)
 }
 
-func (p *Publisher) loop() {
-	for j := range p.queue {
-		// This is to capture j value in order to not have the same value passed
-		// in difference goroutines.
-		job := j
+func (p *Publisher) loop(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			p.stop <- struct{}{}
+			return
 
-		p.waitGroup.Add(1)
+		case e := <-p.queue:
+			// This is to capture e value in order to not have the same value passed
+			// in difference goroutines.
+			event := e
+			event.indempotencyKey = uuid.New().String()
 
-		// The time to post events 1 by 1 bring the risk of blocking enqueueing
-		// new events, which could disrupt the flow of the customer that uses
-		// this package.
-		//
-		// Until we have an api call that allows to send events by batch,
-		// We are creating a goroutine that process the publish job in order
-		// to avoid blocking the caller in case of the queue channel is full.
-		go func() {
-			defer p.waitGroup.Done()
-
-			if err := p.publish(job); err != nil {
-				p.Log("publishing %+v failed: %s", job.event, err)
-
-				job.retries++
-				if job.retries > p.Retries {
-					p.Log("reenqueuing event: %+v: retry %v", job.event, job.retries)
-					p.queue <- job
+			// The time to post events 1 by 1 bring the risk of blocking enqueueing
+			// new events, which could disrupt the flow of the customer that uses
+			// this package.
+			//
+			// Until we have an api call that allows to send events by batch,
+			// We are creating a goroutine that process the publish job in order
+			// to avoid blocking the caller in case of the queue channel is full.
+			go func() {
+				if err := p.publish(ctx, event); err != nil {
+					p.Log("publishing %+v failed: %s", event, err)
 				}
-			}
-		}()
+			}()
+		}
 	}
-
-	p.waitGroup.Wait()
-	p.stop <- struct{}{}
 }
 
-func (p *Publisher) publish(j job) error {
-	data, err := p.JSONEncode(j.event)
+func (p *Publisher) publish(ctx context.Context, e Event) error {
+	data, err := p.JSONEncode(e)
 	if err != nil {
 		return err
 	}
@@ -130,8 +122,9 @@ func (p *Publisher) publish(j job) error {
 	if err != nil {
 		return err
 	}
+	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Idempotency-Key", j.indempotencyKey)
+	req.Header.Set("Idempotency-Key", e.indempotencyKey)
 	req.Header.Set("Authorization", "Bearer "+p.APIKey)
 
 	res, err := p.Client.Do(req)
@@ -143,9 +136,9 @@ func (p *Publisher) publish(j job) error {
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s: %s", res.Status, err)
 		}
-		return errors.New(string(body))
+		return fmt.Errorf("%s: %s", res.Status, body)
 	}
 
 	return nil
@@ -155,14 +148,9 @@ func (p *Publisher) publish(j job) error {
 // It waits for pending events to be sent before returning.
 func (p *Publisher) Close() {
 	if p.queue != nil {
-		close(p.queue)
+		p.cancel()
 		<-p.stop
 		close(p.stop)
+		close(p.queue)
 	}
-}
-
-type job struct {
-	event           Event
-	indempotencyKey string
-	retries         int
 }

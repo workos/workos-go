@@ -31,7 +31,6 @@ var (
 	DefaultPublisher = &Publisher{
 		APIKey:    os.Getenv("WORKOS_API_KEY"),
 		Endpoint:  "https://api.workos.com/events",
-		Retries:   3,
 		QueueSize: 512,
 	}
 )
@@ -48,6 +47,8 @@ type Event struct {
 	OccurredAt time.Time              `json:"occurred_at"`
 	TargetName string                 `json:"target_name"`
 	TargetID   string                 `json:"target_id"`
+
+	indempotencyKey string
 }
 
 // SetAPIKey sets the WorkOS API key to use when using Publish.
