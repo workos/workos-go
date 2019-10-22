@@ -93,18 +93,19 @@ func (p *Publisher) loop(ctx context.Context) {
 			return
 
 		case e := <-p.queue:
-			// This is to capture e value in order to not have the same value passed
-			// in difference goroutines.
+			// This is to capture e value in order to not have the same value
+			// passed in different goroutines.
 			event := e
 			event.indempotencyKey = uuid.New().String()
 
-			// The time to post events 1 by 1 bring the risk of blocking enqueueing
-			// new events, which could disrupt the flow of the customer that uses
-			// this package.
+			// The time to post events 1 by 1 bring the risk of blocking
+			// enqueueing new events, which could disrupt the flow of the
+			// customer that uses this package.
 			//
 			// Until we have an api call that allows to send events by batch,
 			// We are creating a goroutine that process the publish job in order
-			// to avoid blocking the caller in case of the queue channel is full.
+			// to avoid blocking the caller in case of the queue channel is
+			// full.
 			go func() {
 				if err := p.publish(ctx, event); err != nil {
 					p.Log("publishing %+v failed: %s", event, err)
