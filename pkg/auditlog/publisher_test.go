@@ -126,3 +126,25 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+// Unit test to hit the prod api directly. Uncomment and provide an APIKey to
+// test.
+//
+// func TestPublisherPublishLive(t *testing.T) {
+// 	pub := &Publisher{
+// 		APIKey: "xxxxxx",
+// 	}
+// 	pub.init()
+
+// 	err := pub.publish(context.TODO(), Event{
+// 		Action:     "gosdk.publish",
+// 		ActionType: "w",
+// 		ActorName:  "Maxence Charriere",
+// 		Group:      "workos.com",
+// 		// Location:        "55.27.223.42",
+// 		OccurredAt:      time.Now(),
+// 		indempotencyKey: uuid.New().String(),
+// 	})
+
+// 	require.NoError(t, err)
+// }

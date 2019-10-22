@@ -33,7 +33,29 @@ var (
 		Endpoint:  "https://api.workos.com/events",
 		QueueSize: 512,
 	}
+
+	currentLocation string
 )
+
+func init() {
+	currentLocation, _ = os.Hostname()
+}
+
+// SetAPIKey sets the WorkOS API key to use when using Publish.
+func SetAPIKey(k string) {
+	DefaultPublisher.APIKey = k
+}
+
+// Publish publishes the given events.
+func Publish(events ...Event) {
+	DefaultPublisher.Publish(events...)
+}
+
+// Close stops publishings audit log events and releases allocated resources.
+// It waits for pending events to be sent before returning.
+func Close() {
+	DefaultPublisher.Close()
+}
 
 // Event represents an Audit Log event.
 type Event struct {
@@ -51,18 +73,9 @@ type Event struct {
 	indempotencyKey string
 }
 
-// SetAPIKey sets the WorkOS API key to use when using Publish.
-func SetAPIKey(k string) {
-	DefaultPublisher.APIKey = k
-}
-
-// Publish publishes the given events.
-func Publish(events ...Event) {
-	DefaultPublisher.Publish(events...)
-}
-
-// Close stops publishings audit log events and releases allocated resources.
-// It waits for pending events to be sent before returning.
-func Close() {
-	DefaultPublisher.Close()
+func defaultLocation(location string) string {
+	if location == "" {
+		location = currentLocation
+	}
+	return location
 }

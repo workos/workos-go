@@ -49,6 +49,7 @@ func (p *Publisher) Publish(events ...Event) {
 	p.once.Do(p.init)
 
 	for _, e := range events {
+		e.Location = defaultLocation(e.Location)
 		p.queue <- e
 	}
 }
