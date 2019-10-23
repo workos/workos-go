@@ -70,7 +70,7 @@ type Event struct {
 	TargetName string                 `json:"target_name"`
 	TargetID   string                 `json:"target_id"`
 
-	indempotencyKey string
+	idempotencyKey string
 }
 
 func defaultLocation(location string) string {

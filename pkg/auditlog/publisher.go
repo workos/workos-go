@@ -96,7 +96,7 @@ func (p *Publisher) loop(ctx context.Context) {
 			// This is to capture e value in order to not have the same value
 			// passed in different goroutines.
 			event := e
-			event.indempotencyKey = uuid.New().String()
+			event.idempotencyKey = uuid.New().String()
 
 			// The time to post events 1 by 1 bring the risk of blocking
 			// enqueueing new events, which could disrupt the flow of the
@@ -127,7 +127,7 @@ func (p *Publisher) publish(ctx context.Context, e Event) error {
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Idempotency-Key", e.indempotencyKey)
+	req.Header.Set("Idempotency-Key", e.idempotencyKey)
 	req.Header.Set("Authorization", "Bearer "+p.APIKey)
 
 	res, err := p.Client.Do(req)

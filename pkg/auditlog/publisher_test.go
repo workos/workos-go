@@ -22,7 +22,7 @@ func TestPublisherPublish(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"func": func() {},
 				},
-				indempotencyKey: "test",
+				idempotencyKey: "test",
 			},
 			err: true,
 		},
@@ -32,14 +32,14 @@ func TestPublisherPublish(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"err": "simulated 400",
 				},
-				indempotencyKey: "test",
+				idempotencyKey: "test",
 			},
 			err: true,
 		},
 		{
 			scenario: "event is published",
 			event: Event{
-				indempotencyKey: "test",
+				idempotencyKey: "test",
 			},
 		},
 	}
@@ -143,7 +143,7 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 		Group:      "workos.com",
 // 		// Location:        "55.27.223.42",
 // 		OccurredAt:      time.Now(),
-// 		indempotencyKey: uuid.New().String(),
+// 		idempotencyKey: uuid.New().String(),
 // 	})
 
 // 	require.NoError(t, err)
