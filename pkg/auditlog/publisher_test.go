@@ -40,7 +40,7 @@ func TestPublisherPublish(t *testing.T) {
 			scenario: "event is published",
 			event: Event{
 				Action:         "gosdk.publish",
-				ActionType:     "w",
+				ActionType:     Create,
 				idempotencyKey: "test",
 			},
 		},
@@ -140,7 +140,7 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // 	err := pub.publish(context.TODO(), Event{
 // 		Action:     "gosdk.publish",
-// 		ActionType: "w",
+// 		ActionType: Create,
 // 		ActorName:  "Maxence Charriere",
 // 		Group:      "workos.com",
 // 		// Location:        "55.27.223.42",

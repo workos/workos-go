@@ -24,7 +24,7 @@ func main() {
     // Wherever you need to publish an audit log event:
     auditlog.Publish(auditlog.Event{
         Action:     "document.viewed",
-        ActionType: "r",
+        ActionType: auditlog.Create,
         ActorName:  "Jairo Kunde",
         ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
         Group:      "abstract.com",

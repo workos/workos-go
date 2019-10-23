@@ -8,7 +8,7 @@
 //       // Wherever you need to publish an audit log event:
 //       auditlog.Publish(auditlog.Event{
 //           Action:     "document.viewed",
-//           ActionType: "r",
+//           ActionType: auditlog.Create,
 //           ActorName:  "Jairo Kunde",
 //           ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
 //           Group:      "abstract.com",
@@ -60,7 +60,7 @@ func Close() {
 // Event represents an Audit Log event.
 type Event struct {
 	Action     string                 `json:"action"`
-	ActionType string                 `json:"action_type"`
+	ActionType ActionType             `json:"action_type"`
 	ActorName  string                 `json:"actor_name"`
 	ActorID    string                 `json:"actor_id"`
 	Group      string                 `json:"group"`
@@ -72,6 +72,18 @@ type Event struct {
 
 	idempotencyKey string
 }
+
+// ActionType is the type that holds the CRUD action used for the WorkOS Audit
+// Log.
+type ActionType string
+
+// Constants that enumerate the different action types.
+const (
+	Create ActionType = "C"
+	Read   ActionType = "R"
+	Update ActionType = "U"
+	Delete ActionType = "D"
+)
 
 func defaultLocation(location string) string {
 	if location == "" {
