@@ -39,6 +39,8 @@ func TestPublisherPublish(t *testing.T) {
 		{
 			scenario: "event is published",
 			event: Event{
+				Action:         "gosdk.publish",
+				ActionType:     "w",
 				idempotencyKey: "test",
 			},
 		},
