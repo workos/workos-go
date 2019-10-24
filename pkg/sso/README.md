@@ -1,3 +1,3 @@
 # sso
 
-TODO at the next PR!
+A go package to request WorkOS SSO API.
