@@ -40,10 +40,6 @@ func (c *Client) init() {
 	if c.HTTPClient == nil {
 		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
 	}
-
-	if c.JSONEncode == nil {
-		c.JSONEncode = json.Marshal
-	}
 }
 
 type AuthorizationURLOptions struct {
