@@ -67,7 +67,7 @@ type AuthorizationURLOptions struct {
 func (c *Client) AuthorizationURL(opts AuthorizationURLOptions) (*url.URL, error) {
 	c.once.Do(c.init)
 
-	query := make(url.Values)
+	query := make(url.Values, 5)
 	query.Set("domain", opts.Domain)
 	query.Set("client_id", opts.ProjectID)
 	query.Set("redirect_uri", opts.RedirectURI)
@@ -128,7 +128,7 @@ type Profile struct {
 func (c *Client) Profile(ctx context.Context, opts ProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
-	query := make(url.Values)
+	query := make(url.Values, 5)
 	query.Set("client_id", opts.ProjectID)
 	query.Set("client_secret", c.APIKey)
 	query.Set("redirect_uri", opts.RedirectURI)
