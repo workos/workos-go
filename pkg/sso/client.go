@@ -104,12 +104,23 @@ type ProfileOptions struct {
 
 // Profile contains information about a user authentication.
 type Profile struct {
-	ID             string
-	IdpID          string
+	// The user ID.
+	ID string
+
+	// An unique alphanumeric identifier for a Profile’s identity provider.
+	IdpID string
+
+	// The connection type.
 	ConnectionType ConnectionType
-	Email          string
-	FirstName      string
-	LastName       string
+
+	// The user email.
+	Email string
+
+	// The user first name. Can be empty.
+	FirstName string
+
+	// The user last name. Can be empty.
+	LastName string
 }
 
 // Profile returns a profile describing the user that authenticated with the
