@@ -1,4 +1,4 @@
-// Package sso ...
+// Package sso provide functions and client to communicate with WorkOS SSO API.
 package sso
 
 const (

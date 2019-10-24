@@ -42,11 +42,24 @@ func (c *Client) init() {
 	}
 }
 
+// AuthorizationURLOptions contains the options to pass in order to generate
+// an authorization url.
 type AuthorizationURLOptions struct {
-	Domain      string
-	ProjectID   string
+	// The app/company domain without without protocol (eg. example.com).
+	Domain string
+
+	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
+	ProjectID string
+
+	// The callback URL where your app redirects the user-agent after an
+	// authorization code is granted (eg. https://foo.com/callback).
 	RedirectURI string
-	State       string
+
+	// A unique identifier used to manage state across authorization
+	// transactions (eg. 1234zyx).
+	//
+	// Optional.
+	State string
 }
 
 // AuthorizationURL returns an authorization url generated with the given
@@ -73,12 +86,23 @@ func (c *Client) AuthorizationURL(opts AuthorizationURLOptions) (*url.URL, error
 	return u, nil
 }
 
+// ProfileOptions contains the options to pass in order to get a user profile.
 type ProfileOptions struct {
-	Code        string
-	ProjectID   string
+	// An opaque string provided by the authorization server. It will be
+	// exchanged for an Access Token when the user’s profile is sent.
+	Code string
+
+	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ). Must be
+	// the one used to generate the authorization url.
+	ProjectID string
+
+	// The callback URL where your app redirects the user-agent after an
+	// authorization code is granted (eg. https://foo.com/callback). Must be the
+	// one used to generate the authorization url.
 	RedirectURI string
 }
 
+// Profile contains information about a user authentication.
 type Profile struct {
 	ID             string
 	IdpID          string
@@ -88,6 +112,8 @@ type Profile struct {
 	LastName       string
 }
 
+// Profile returns a profile describing the user that authenticated with the
+// WorkOS SSO.
 func (c *Client) Profile(ctx context.Context, opts ProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
@@ -106,6 +132,7 @@ func (c *Client) Profile(ctx context.Context, opts ProfileOptions) (Profile, err
 	if err != nil {
 		return Profile{}, err
 	}
+	req = req.WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "workos-go/"+version)
