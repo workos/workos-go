@@ -11,6 +11,15 @@ import (
 	"time"
 )
 
+// ConnectionType represents a connection type.
+type ConnectionType string
+
+// Constants that enumerate the available connection types.
+const (
+	AzureSAML ConnectionType = "AzureSAML"
+	OktaSAML  ConnectionType = "OktaSAML"
+)
+
 // Client represents a client that fetch SSO data from WorkOS API.
 type Client struct {
 	// The WorkOS api key. It can be found in
@@ -42,9 +51,9 @@ func (c *Client) init() {
 	}
 }
 
-// AuthorizationURLOptions contains the options to pass in order to generate
+// GetAuthorizationURLOptions contains the options to pass in order to generate
 // an authorization url.
-type AuthorizationURLOptions struct {
+type GetAuthorizationURLOptions struct {
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
@@ -62,9 +71,9 @@ type AuthorizationURLOptions struct {
 	State string
 }
 
-// AuthorizationURL returns an authorization url generated with the given
+// GetAuthorizationURL returns an authorization url generated with the given
 // options.
-func (c *Client) AuthorizationURL(opts AuthorizationURLOptions) (*url.URL, error) {
+func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL, error) {
 	c.once.Do(c.init)
 
 	query := make(url.Values, 5)
@@ -86,8 +95,8 @@ func (c *Client) AuthorizationURL(opts AuthorizationURLOptions) (*url.URL, error
 	return u, nil
 }
 
-// ProfileOptions contains the options to pass in order to get a user profile.
-type ProfileOptions struct {
+// GetProfileOptions contains the options to pass in order to get a user profile.
+type GetProfileOptions struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	Code string
@@ -123,9 +132,9 @@ type Profile struct {
 	LastName string
 }
 
-// Profile returns a profile describing the user that authenticated with the
+// GetProfile returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func (c *Client) Profile(ctx context.Context, opts ProfileOptions) (Profile, error) {
+func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
 	query := make(url.Values, 5)

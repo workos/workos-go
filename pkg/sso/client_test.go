@@ -15,12 +15,12 @@ import (
 func TestClientAuthorizeURL(t *testing.T) {
 	tests := []struct {
 		scenario string
-		options  AuthorizationURLOptions
+		options  GetAuthorizationURLOptions
 		expected string
 	}{
 		{
 			scenario: "generate url",
-			options: AuthorizationURLOptions{
+			options: GetAuthorizationURLOptions{
 				Domain:      "lyft.com",
 				ProjectID:   "proj_123",
 				RedirectURI: "https://example.com/sso/workos/callback",
@@ -29,7 +29,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with state",
-			options: AuthorizationURLOptions{
+			options: GetAuthorizationURLOptions{
 				Domain:      "lyft.com",
 				ProjectID:   "proj_123",
 				RedirectURI: "https://example.com/sso/workos/callback",
@@ -42,18 +42,18 @@ func TestClientAuthorizeURL(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
 			client := Client{}
-			u, err := client.AuthorizationURL(test.options)
+			u, err := client.GetAuthorizationURL(test.options)
 			require.NoError(t, err)
 			require.Equal(t, test.expected, u.String())
 		})
 	}
 }
 
-func TestClientProfile(t *testing.T) {
+func TestClientGetProfile(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  ProfileOptions
+		options  GetProfileOptions
 		expected Profile
 		err      bool
 	}{
@@ -65,7 +65,7 @@ func TestClientProfile(t *testing.T) {
 		{
 			scenario: "request returns a profile",
 			client:   &Client{APIKey: "test"},
-			options: ProfileOptions{
+			options: GetProfileOptions{
 				Code:        "authorization_code",
 				ProjectID:   "proj_123",
 				RedirectURI: "https://exmaple.com/sso/workos/callback",
@@ -90,7 +90,7 @@ func TestClientProfile(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			profile, err := client.Profile(context.Background(), test.options)
+			profile, err := client.GetProfile(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
