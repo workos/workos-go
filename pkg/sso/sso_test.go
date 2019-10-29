@@ -32,7 +32,6 @@ func TestLogin(t *testing.T) {
 
 	mux.Handle("/login", Login(GetAuthorizationURLOptions{
 		Domain:      "lyft.com",
-		ProjectID:   "proj_123",
 		RedirectURI: redirectURI,
 	}))
 
@@ -52,7 +51,6 @@ func TestLogin(t *testing.T) {
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		p, err := GetProfile(context.Background(), GetProfileOptions{
 			Code:        "authorization_code",
-			ProjectID:   "proj_123",
 			RedirectURI: redirectURI,
 		})
 		if err != nil {
@@ -71,7 +69,7 @@ func TestLogin(t *testing.T) {
 		Endpoint:   server.URL,
 		HTTPClient: server.Client(),
 	}
-	SetAPIKey("test")
+	Init("test", "proj_123")
 
 	res, err := server.Client().Get(server.URL + "/login")
 	require.NoError(t, err)

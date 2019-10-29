@@ -25,7 +25,14 @@ const (
 type Client struct {
 	// The WorkOS api key. It can be found in
 	// https://dashboard.workos.com/api-keys.
+	//
+	// Client panics when there is no api key set.
 	APIKey string
+
+	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
+	//
+	// Client panics when there is no project id set.
+	ProjectID string
 
 	// The endpoint to WorkOS API. Defaults to https://api.workos.com.
 	Endpoint string
@@ -58,9 +65,6 @@ type GetAuthorizationURLOptions struct {
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
-	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
-	ProjectID string
-
 	// The callback URL where your app redirects the user-agent after an
 	// authorization code is granted (eg. https://foo.com/callback).
 	RedirectURI string
@@ -79,7 +83,7 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 
 	query := make(url.Values, 5)
 	query.Set("domain", opts.Domain)
-	query.Set("client_id", opts.ProjectID)
+	query.Set("client_id", c.ProjectID)
 	query.Set("redirect_uri", opts.RedirectURI)
 	query.Set("response_type", "code")
 
@@ -101,10 +105,6 @@ type GetProfileOptions struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	Code string
-
-	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ). Must be
-	// the one used to generate the authorization url.
-	ProjectID string
 
 	// The callback URL where your app redirects the user-agent after an
 	// authorization code is granted (eg. https://foo.com/callback). Must be the
@@ -146,7 +146,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	req.Header.Set("User-Agent", "workos-go/"+version)
 
 	query := make(url.Values, 5)
-	query.Set("client_id", opts.ProjectID)
+	query.Set("client_id", c.ProjectID)
 	query.Set("client_secret", c.APIKey)
 	query.Set("redirect_uri", opts.RedirectURI)
 	query.Set("grant_type", "authorization_code")

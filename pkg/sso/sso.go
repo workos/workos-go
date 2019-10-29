@@ -47,9 +47,12 @@ var (
 	DefaultClient = &Client{}
 )
 
-// SetAPIKey set the api key to use with
-func SetAPIKey(apiKey string) {
+// Init initializes default client api key and project id.
+//
+// Must be called before using GetAuthorizationURL, GetProfile or Login.
+func Init(apiKey, projectID string) {
 	DefaultClient.APIKey = apiKey
+	DefaultClient.ProjectID = projectID
 }
 
 // GetAuthorizationURL returns an authorization url generated with the given
