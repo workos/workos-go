@@ -38,7 +38,7 @@ import (
 )
 
 const (
-	version = "0.0.1"
+	version = "0.0.2"
 )
 
 var (
@@ -70,7 +70,7 @@ func Login(opts GetAuthorizationURLOptions) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		u, err := GetAuthorizationURL(opts)
 		if err != nil {
-			w.WriteHeader(http.StatusInsufficientStorage)
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
 		}
