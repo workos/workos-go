@@ -3,7 +3,8 @@ package sso
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -114,22 +115,22 @@ type GetProfileOptions struct {
 // Profile contains information about a user authentication.
 type Profile struct {
 	// The user ID.
-	ID string
+	ID string `json:"id"`
 
 	// An unique alphanumeric identifier for a Profile’s identity provider.
-	IdpID string
+	IdpID string `json:"idp_id"`
 
 	// The connection type.
-	ConnectionType ConnectionType
+	ConnectionType ConnectionType `json:"connection_type"`
 
 	// The user email.
-	Email string
+	Email string `json:"email"`
 
 	// The user first name. Can be empty.
-	FirstName string
+	FirstName string `json:"first_name"`
 
 	// The user last name. Can be empty.
-	LastName string
+	LastName string `json:"last_name"`
 }
 
 // GetProfile returns a profile describing the user that authenticated with
@@ -137,25 +138,24 @@ type Profile struct {
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.profileEndpoint,
+		nil,
+	)
+	if err != nil {
+		return Profile{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+version)
+
 	query := make(url.Values, 5)
 	query.Set("client_id", opts.ProjectID)
 	query.Set("client_secret", c.APIKey)
 	query.Set("redirect_uri", opts.RedirectURI)
 	query.Set("grant_type", "authorization_code")
 	query.Set("code", opts.Code)
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.profileEndpoint,
-		strings.NewReader(query.Encode()),
-	)
-	if err != nil {
-		return Profile{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("User-Agent", "workos-go/"+version)
+	req.URL.RawQuery = query.Encode()
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -164,11 +164,19 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	defer res.Body.Close()
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		return Profile{}, errors.New(res.Status)
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return Profile{}, fmt.Errorf("%s: %s", res.Status, err)
+		}
+		return Profile{}, fmt.Errorf("%s: %s", res.Status, body)
 	}
 
-	var profile Profile
+	var body struct {
+		Profile     Profile `json:"profile"`
+		AccessToken string  `json:"access_token"`
+	}
 	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&profile)
-	return profile, err
+	err = dec.Decode(&body)
+
+	return body.Profile, err
 }
