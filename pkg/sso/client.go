@@ -138,11 +138,7 @@ type Profile struct {
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.profileEndpoint,
-		nil,
-	)
+	req, err := http.NewRequest(http.MethodPost, c.profileEndpoint, nil)
 	if err != nil {
 		return Profile{}, err
 	}
