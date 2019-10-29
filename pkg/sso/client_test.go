@@ -112,13 +112,8 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if auth := r.Header.Get("Authorization"); auth != "Bearer test" {
+	if clientSecret := r.URL.Query().Get("client_secret"); clientSecret != "test" {
 		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	if contentType := r.Header.Get("Content-Type"); contentType != "application/x-www-form-urlencoded" {
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -127,13 +122,17 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(Profile{
-		ID:             "proj_123",
-		IdpID:          "123",
-		ConnectionType: OktaSAML,
-		Email:          "foo@test.com",
-		FirstName:      "foo",
-		LastName:       "bar",
+	b, err := json.Marshal(struct {
+		Profile Profile `json:"profile"`
+	}{
+		Profile: Profile{
+			ID:             "proj_123",
+			IdpID:          "123",
+			ConnectionType: OktaSAML,
+			Email:          "foo@test.com",
+			FirstName:      "foo",
+			LastName:       "bar",
+		},
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
