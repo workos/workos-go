@@ -3,9 +3,9 @@
 // Example:
 //   func main() {
 //       sso.Configure(
-//           "xxxxx",							// WorkOS api key
-//           "project_xxxxx",					// WorkOS project id
-//           "https://mydomain.com/callback",	// Redirect URI
+//           "xxxxx",                         // WorkOS api key
+//           "project_xxxxx",                 // WorkOS project id
+//           "https://mydomain.com/callback", // Redirect URI
 //       )
 //
 //       http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
