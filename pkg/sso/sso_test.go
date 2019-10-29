@@ -31,8 +31,7 @@ func TestLogin(t *testing.T) {
 	wg.Add(1)
 
 	mux.Handle("/login", Login(GetAuthorizationURLOptions{
-		Domain:      "lyft.com",
-		RedirectURI: redirectURI,
+		Domain: "lyft.com",
 	}))
 
 	mux.HandleFunc("/sso/authorize", func(w http.ResponseWriter, r *http.Request) {
@@ -50,8 +49,7 @@ func TestLogin(t *testing.T) {
 
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		p, err := GetProfile(context.Background(), GetProfileOptions{
-			Code:        "authorization_code",
-			RedirectURI: redirectURI,
+			Code: "authorization_code",
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -69,7 +67,7 @@ func TestLogin(t *testing.T) {
 		Endpoint:   server.URL,
 		HTTPClient: server.Client(),
 	}
-	Init("test", "proj_123")
+	Configure("test", "proj_123", redirectURI)
 
 	res, err := server.Client().Get(server.URL + "/login")
 	require.NoError(t, err)

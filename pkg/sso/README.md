@@ -16,17 +16,19 @@ import (
 )
 
 func main() {
-    sso.Init("my_api_key", "my_workos_project_id")
+    sso.Configure(
+        "xxxxx",                            // WorkOS api key
+        "project_xxxxx",                    // WorkOS project id
+        "https://mydomain.com/callback",    // Redirect URI
+    )
 
     http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
-        Domain:      "mydomain.com",
-        RedirectURI: "https://mydomain.com/callback",
+        Domain: "mydomain.com",
     }))
 
     http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
         profile, err := sso.GetProfile(context.Background(), sso.GetProfileOptions{
-            Code:        r.URL.Query().Get("code"),
-            RedirectURI: "https://mydomain.com/callback",
+            Code:   r.URL.Query().Get("code"),
         })
         if err != nil {
             // Handle the error ...
