@@ -4,7 +4,17 @@
 
 A go package to request WorkOS SSO API.
 
+## Install
+
+```sh
+go get -u github.com/workos-inc/workos-go/pkg/sso
+```
+
 ## How it works
+
+You first need to setup an SSO connection on [workos.com](https://dashboard.workos.com/sso/connections).
+
+Then implement the `/login` and `/callback` handlers on your server:
 
 ```go
 import (
