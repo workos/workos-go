@@ -1,6 +1,9 @@
 // Package sso provide functions and client to communicate with WorkOS SSO API.
 //
-// Example:
+// You first need to set up an SSO connection on
+// https://dashboard.workos.com/sso/connections.
+//
+// Then implement the `/login` and `/callback` handlers on your server:
 //   func main() {
 //       sso.Configure(
 //           "xxxxx",                         // WorkOS api key
