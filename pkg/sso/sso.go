@@ -1,6 +1,6 @@
 // Package sso provide functions and client to communicate with WorkOS SSO API.
 //
-// You first need to set up an SSO connection on
+// You first need to setup an SSO connection on
 // https://dashboard.workos.com/sso/connections.
 //
 // Then implement the `/login` and `/callback` handlers on your server:
