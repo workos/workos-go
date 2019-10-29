@@ -25,13 +25,29 @@ const (
 type Client struct {
 	// The WorkOS api key. It can be found in
 	// https://dashboard.workos.com/api-keys.
+	//
+	// REQUIRED.
 	APIKey string
 
-	// The endpoint to WorkOS API. Defaults to https://api.workos.com.
+	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
+	//
+	// REQUIRED.
+	ProjectID string
+
+	// The callback URL where your app redirects the user-agent after an
+	// authorization code is granted (eg. https://foo.com/callback).
+	//
+	// REQUIRED.
+	RedirectURI string
+
+	// The endpoint to WorkOS API.
+	//
+	// Defaults to https://api.workos.com.
 	Endpoint string
 
-	// The http.Client that is used to send request to WorkOS. Defaults to
-	// http.Client.
+	// The http.Client that is used to send request to WorkOS.
+	//
+	// Defaults to http.Client.
 	HTTPClient *http.Client
 
 	once                     sync.Once
@@ -58,17 +74,10 @@ type GetAuthorizationURLOptions struct {
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
-	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
-	ProjectID string
-
-	// The callback URL where your app redirects the user-agent after an
-	// authorization code is granted (eg. https://foo.com/callback).
-	RedirectURI string
-
 	// A unique identifier used to manage state across authorization
 	// transactions (eg. 1234zyx).
 	//
-	// Optional.
+	// OPTIONAL.
 	State string
 }
 
@@ -79,8 +88,8 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 
 	query := make(url.Values, 5)
 	query.Set("domain", opts.Domain)
-	query.Set("client_id", opts.ProjectID)
-	query.Set("redirect_uri", opts.RedirectURI)
+	query.Set("client_id", c.ProjectID)
+	query.Set("redirect_uri", c.RedirectURI)
 	query.Set("response_type", "code")
 
 	if opts.State != "" {
@@ -101,15 +110,6 @@ type GetProfileOptions struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	Code string
-
-	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ). Must be
-	// the one used to generate the authorization url.
-	ProjectID string
-
-	// The callback URL where your app redirects the user-agent after an
-	// authorization code is granted (eg. https://foo.com/callback). Must be the
-	// one used to generate the authorization url.
-	RedirectURI string
 }
 
 // Profile contains information about a user authentication.
@@ -146,9 +146,9 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	req.Header.Set("User-Agent", "workos-go/"+version)
 
 	query := make(url.Values, 5)
-	query.Set("client_id", opts.ProjectID)
+	query.Set("client_id", c.ProjectID)
 	query.Set("client_secret", c.APIKey)
-	query.Set("redirect_uri", opts.RedirectURI)
+	query.Set("redirect_uri", c.RedirectURI)
 	query.Set("grant_type", "authorization_code")
 	query.Set("code", opts.Code)
 	req.URL.RawQuery = query.Encode()

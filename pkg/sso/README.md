@@ -4,7 +4,17 @@
 
 A go package to request WorkOS SSO API.
 
+## Install
+
+```sh
+go get -u github.com/workos-inc/workos-go/pkg/sso
+```
+
 ## How it works
+
+You first need to setup an SSO connection on [workos.com](https://dashboard.workos.com/sso/connections).
+
+Then implement the `/login` and `/callback` handlers on your server:
 
 ```go
 import (
@@ -16,19 +26,19 @@ import (
 )
 
 func main() {
-    sso.SetAPIKey("my_api_key")
+    sso.Configure(
+        "xxxxx",                            // WorkOS api key
+        "project_xxxxx",                    // WorkOS project id
+        "https://mydomain.com/callback",    // Redirect URI
+    )
 
     http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
-        Domain:      "mydomain.com",
-        ProjectID:   "my_workos_project_id",
-        RedirectURI: "https://mydomain.com/callback",
+        Domain: "mydomain.com",
     }))
 
     http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
         profile, err := sso.GetProfile(context.Background(), sso.GetProfileOptions{
-            Code:        r.URL.Query().Get("code"),
-            ProjectID:   "my_workos_project_id",
-            RedirectURI: "https://mydomain.com/callback",
+            Code:   r.URL.Query().Get("code"),
         })
         if err != nil {
             // Handle the error ...
