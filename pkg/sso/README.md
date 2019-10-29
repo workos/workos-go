@@ -4,8 +4,7 @@
 
 A go package to request WorkOS SSO API.
 
-
-## install
+## Install
 
 ```sh
 go get -u github.com/workos-inc/workos-go/pkg/sso
