@@ -17,6 +17,15 @@ func TestClientPublish(t *testing.T) {
 		err      bool
 	}{
 		{
+			scenario: "event with invalid metadata returns an error",
+			event: Event{
+				Metadata: map[string]interface{}{
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "",
+				},
+			},
+			err: true,
+		},
+		{
 			scenario: "encoding to json is returning an error",
 			event: Event{
 				Metadata: map[string]interface{}{

@@ -49,8 +49,11 @@ func (c *Client) init() {
 func (c *Client) Publish(ctx context.Context, e Event) error {
 	c.once.Do(c.init)
 
+	if err := e.Metadata.validate(); err != nil {
+		return err
+	}
+
 	e.IdempotencyKey = defaultIdempotencyKey(e.IdempotencyKey)
-	e.Location = defaultLocation(e.Location)
 	e.OccurredAt = defaultTime(e.OccurredAt)
 
 	data, err := c.JSONEncode(e)

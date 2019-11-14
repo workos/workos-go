@@ -24,6 +24,8 @@ package auditlog
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -37,12 +39,11 @@ var (
 		Endpoint: "https://api.workos.com/events",
 	}
 
-	currentLocation string
-)
+	// GlobalMetadata are metadata that are injected in every audit log events.
+	GlobalMetadata Metadata
 
-func init() {
-	currentLocation, _ = os.Hostname()
-}
+	errTooMuchMetadataKeys = errors.New("too much metadata key")
+)
 
 // SetAPIKey sets the WorkOS API key to use when using Publish.
 func SetAPIKey(k string) {
@@ -56,17 +57,33 @@ func Publish(ctx context.Context, e Event) error {
 
 // Event represents an Audit Log event.
 type Event struct {
-	Action         string                 `json:"action"`
-	ActionType     ActionType             `json:"action_type"`
-	ActorName      string                 `json:"actor_name"`
-	ActorID        string                 `json:"actor_id"`
-	Group          string                 `json:"group"`
-	IdempotencyKey string                 `json:"-"`
-	Location       string                 `json:"location"`
-	Metadata       map[string]interface{} `json:"metadata,omitempty"`
-	OccurredAt     time.Time              `json:"occurred_at"`
-	TargetName     string                 `json:"target_name"`
-	TargetID       string                 `json:"target_id"`
+	Action     string     `json:"action"`
+	ActionType ActionType `json:"action_type"`
+	ActorName  string     `json:"actor_name"`
+	ActorID    string     `json:"actor_id"`
+	Group      string     `json:"group"`
+
+	// A key that ensures that an same event is not processed multiple time.
+	// Once the event is sent for the first time, the lock on the key expires
+	// after 24 hours.
+	//
+	// An idempotency key is automatically generated if not set.
+	IdempotencyKey string `json:"-"`
+
+	// An ip address that locates where the audit log occured.
+	Location string `json:"location"`
+
+	// The event metadata. It can't contain more than 50 keys. A key can't
+	// exeed 40 characters.
+	Metadata Metadata `json:"metadata,omitempty"`
+
+	// The time when the audit log occured.
+	//
+	// Defaults to time.Now().
+	OccurredAt time.Time `json:"occurred_at"`
+
+	TargetName string `json:"target_name"`
+	TargetID   string `json:"target_id"`
 }
 
 // ActionType is the type that holds the CRUD action used for the WorkOS Audit
@@ -81,11 +98,31 @@ const (
 	Delete ActionType = "D"
 )
 
-func defaultLocation(location string) string {
-	if location == "" {
-		location = currentLocation
+// Metadata represents metadata to be attached to an audit log event.
+type Metadata map[string]interface{}
+
+// Merges the given metadata. Values from m are not overridden by the ones from
+// other.
+func (m Metadata) merge(other Metadata) {
+	for k, v := range other {
+		if _, ok := m[k]; !ok {
+			m[k] = v
+		}
 	}
-	return location
+}
+
+func (m Metadata) validate() error {
+	if len(m) > 50 {
+		return errTooMuchMetadataKeys
+	}
+
+	for k := range m {
+		if l := len(k); l > 40 {
+			return fmt.Errorf("metadata key %q exceed 40 characters: %d", k, l)
+		}
+	}
+
+	return nil
 }
 
 func defaultTime(t time.Time) time.Time {
