@@ -19,10 +19,9 @@ import "github.com/workos-inc/workos-go/pkg/auditlog"
 
 func main() {
     auditlog.SetAPIKey("my_api_key")
-    defer auditlog.Close()
 
     // Wherever you need to publish an audit log event:
-    auditlog.Publish(auditlog.Event{
+    err := auditlog.Publish(ctx.Background(), auditlog.Event{
         Action:     "document.viewed",
         ActionType: auditlog.Create,
         ActorName:  "Jairo Kunde",
@@ -33,5 +32,8 @@ func main() {
         TargetName: "central.class",
         TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
     })
+    if err != nil {
+        // Handle error.
+    }
 }
 ```
