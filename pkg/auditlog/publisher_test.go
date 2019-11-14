@@ -22,7 +22,7 @@ func TestPublisherPublish(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"func": func() {},
 				},
-				idempotencyKey: "test",
+				IdempotencyKey: "test",
 			},
 			err: true,
 		},
@@ -32,7 +32,7 @@ func TestPublisherPublish(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"err": "simulated 400",
 				},
-				idempotencyKey: "test",
+				IdempotencyKey: "test",
 			},
 			err: true,
 		},
@@ -41,7 +41,7 @@ func TestPublisherPublish(t *testing.T) {
 			event: Event{
 				Action:         "gosdk.publish",
 				ActionType:     Create,
-				idempotencyKey: "test",
+				IdempotencyKey: "test",
 			},
 		},
 	}
@@ -56,10 +56,8 @@ func TestPublisherPublish(t *testing.T) {
 			pub.Endpoint = server.URL
 			pub.APIKey = "test"
 			pub.Client = server.Client()
-			pub.Log = t.Logf
-			defer pub.Close()
 
-			err := pub.publish(context.TODO(), test.event)
+			err := pub.Publish(context.TODO(), test.event)
 			if test.err {
 				require.Error(t, err)
 				t.Log(err)

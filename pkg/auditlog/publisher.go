@@ -6,12 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // Publisher represents an audit log events publisher that posts events to
@@ -32,27 +29,7 @@ type Publisher struct {
 	// The function used to encode in JSON. Defaults to json.Marshal.
 	JSONEncode func(v interface{}) ([]byte, error)
 
-	// The function used to log errors. Defaults to log.Printf.
-	Log func(format string, v ...interface{})
-
-	// The size of the internal queue. Defaults to 512.
-	QueueSize int
-
-	queue  chan Event
-	cancel func()
-	stop   chan struct{}
-	once   sync.Once
-}
-
-// Publish enqueues the given events to be published to WorkOS.
-func (p *Publisher) Publish(events ...Event) {
-	p.once.Do(p.init)
-
-	for _, e := range events {
-		e.Location = defaultLocation(e.Location)
-		e.OccurredAt = defaultTime(e.OccurredAt)
-		p.queue <- e
-	}
+	once sync.Once
 }
 
 func (p *Publisher) init() {
@@ -67,55 +44,16 @@ func (p *Publisher) init() {
 	if p.JSONEncode == nil {
 		p.JSONEncode = json.Marshal
 	}
-
-	if p.Log == nil {
-		p.Log = log.Printf
-	}
-
-	if p.QueueSize < 1 {
-		p.QueueSize = 512
-	}
-
-	p.queue = make(chan Event, p.QueueSize)
-	p.stop = make(chan struct{})
-
-	ctx := context.Background()
-	ctx, p.cancel = context.WithCancel(ctx)
-
-	go p.loop(ctx)
 }
 
-func (p *Publisher) loop(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			p.stop <- struct{}{}
-			return
+// Publish publishes the given event.
+func (p *Publisher) Publish(ctx context.Context, e Event) error {
+	p.once.Do(p.init)
 
-		case e := <-p.queue:
-			// This is to capture e value in order to not have the same value
-			// passed in different goroutines.
-			event := e
-			event.idempotencyKey = uuid.New().String()
+	e.IdempotencyKey = defaultIdempotencyKey(e.IdempotencyKey)
+	e.Location = defaultLocation(e.Location)
+	e.OccurredAt = defaultTime(e.OccurredAt)
 
-			// The time to post events 1 by 1 bring the risk of blocking
-			// enqueueing new events, which could disrupt the flow of the
-			// customer that uses this package.
-			//
-			// Until we have an api call that allows to send events by batch,
-			// We are creating a goroutine that process the publish job in order
-			// to avoid blocking the caller in case of the queue channel is
-			// full.
-			go func() {
-				if err := p.publish(ctx, event); err != nil {
-					p.Log("publishing %+v failed: %s", event, err)
-				}
-			}()
-		}
-	}
-}
-
-func (p *Publisher) publish(ctx context.Context, e Event) error {
 	data, err := p.JSONEncode(e)
 	if err != nil {
 		return err
@@ -127,7 +65,7 @@ func (p *Publisher) publish(ctx context.Context, e Event) error {
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Idempotency-Key", e.idempotencyKey)
+	req.Header.Set("Idempotency-Key", e.IdempotencyKey)
 	req.Header.Set("Authorization", "Bearer "+p.APIKey)
 
 	res, err := p.Client.Do(req)
@@ -145,14 +83,4 @@ func (p *Publisher) publish(ctx context.Context, e Event) error {
 	}
 
 	return nil
-}
-
-// Close stops publishings audit log events and releases allocated resources.
-func (p *Publisher) Close() {
-	if p.queue != nil {
-		p.cancel()
-		<-p.stop
-		close(p.stop)
-		close(p.queue)
-	}
 }

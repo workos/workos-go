@@ -21,17 +21,19 @@
 package auditlog
 
 import (
+	"context"
 	"os"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var (
 	// DefaultPublisher is the publisher used by SetAPIKey, Publish and Close
 	// functions.
 	DefaultPublisher = &Publisher{
-		APIKey:    os.Getenv("WORKOS_API_KEY"),
-		Endpoint:  "https://api.workos.com/events",
-		QueueSize: 512,
+		APIKey:   os.Getenv("WORKOS_API_KEY"),
+		Endpoint: "https://api.workos.com/events",
 	}
 
 	currentLocation string
@@ -46,31 +48,24 @@ func SetAPIKey(k string) {
 	DefaultPublisher.APIKey = k
 }
 
-// Publish publishes the given events.
-func Publish(events ...Event) {
-	DefaultPublisher.Publish(events...)
-}
-
-// Close stops publishings audit log events and releases allocated resources.
-// It waits for pending events to be sent before returning.
-func Close() {
-	DefaultPublisher.Close()
+// Publish publishes the given event.
+func Publish(ctx context.Context, e Event) error {
+	return DefaultPublisher.Publish(ctx, e)
 }
 
 // Event represents an Audit Log event.
 type Event struct {
-	Action     string                 `json:"action"`
-	ActionType ActionType             `json:"action_type"`
-	ActorName  string                 `json:"actor_name"`
-	ActorID    string                 `json:"actor_id"`
-	Group      string                 `json:"group"`
-	Location   string                 `json:"location"`
-	Metadata   map[string]interface{} `json:"metadata,omitempty"`
-	OccurredAt time.Time              `json:"occurred_at"`
-	TargetName string                 `json:"target_name"`
-	TargetID   string                 `json:"target_id"`
-
-	idempotencyKey string
+	Action         string                 `json:"action"`
+	ActionType     ActionType             `json:"action_type"`
+	ActorName      string                 `json:"actor_name"`
+	ActorID        string                 `json:"actor_id"`
+	Group          string                 `json:"group"`
+	IdempotencyKey string                 `json:"-"`
+	Location       string                 `json:"location"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	OccurredAt     time.Time              `json:"occurred_at"`
+	TargetName     string                 `json:"target_name"`
+	TargetID       string                 `json:"target_id"`
 }
 
 // ActionType is the type that holds the CRUD action used for the WorkOS Audit
@@ -97,4 +92,11 @@ func defaultTime(t time.Time) time.Time {
 		t = time.Now().UTC()
 	}
 	return t
+}
+
+func defaultIdempotencyKey(key string) string {
+	if key == "" {
+		return uuid.New().String()
+	}
+	return key
 }
