@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPublisherPublish(t *testing.T) {
+func TestClientPublish(t *testing.T) {
 	tests := []struct {
 		scenario string
 		event    Event
@@ -51,13 +51,13 @@ func TestPublisherPublish(t *testing.T) {
 			server := httptest.NewServer(&defaultTestHandler{})
 			defer server.Close()
 
-			pub := Publisher{}
-			pub.init()
-			pub.Endpoint = server.URL
-			pub.APIKey = "test"
-			pub.Client = server.Client()
+			client := Client{}
+			client.init()
+			client.Endpoint = server.URL
+			client.APIKey = "test"
+			client.HTTPClient = server.Client()
 
-			err := pub.Publish(context.TODO(), test.event)
+			err := client.Publish(context.TODO(), test.event)
 			if test.err {
 				require.Error(t, err)
 				t.Log(err)
@@ -130,13 +130,13 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Unit test to hit the prod api directly. Uncomment and provide an APIKey to
 // test.
 //
-// func TestPublisherPublishLive(t *testing.T) {
-// 	pub := &Publisher{
+// func TestClientPubliPublishLive(t *testing.T) {
+// 	client := &Client{
 // 		APIKey: "xxxxxx",
 // 	}
-// 	pub.init()
+// 	client.init()
 
-// 	err := pub.publish(context.TODO(), Event{
+// 	err := client.Publish(context.TODO(), Event{
 // 		Action:     "gosdk.publish",
 // 		ActionType: Create,
 // 		ActorName:  "Maxence Charriere",

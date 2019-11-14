@@ -31,9 +31,8 @@ import (
 )
 
 var (
-	// DefaultPublisher is the publisher used by SetAPIKey, Publish and Close
-	// functions.
-	DefaultPublisher = &Publisher{
+	// DefaultClient is the client used by SetAPIKey and Publish functions.
+	DefaultClient = &Client{
 		APIKey:   os.Getenv("WORKOS_API_KEY"),
 		Endpoint: "https://api.workos.com/events",
 	}
@@ -47,12 +46,12 @@ func init() {
 
 // SetAPIKey sets the WorkOS API key to use when using Publish.
 func SetAPIKey(k string) {
-	DefaultPublisher.APIKey = k
+	DefaultClient.APIKey = k
 }
 
 // Publish publishes the given event.
 func Publish(ctx context.Context, e Event) error {
-	return DefaultPublisher.Publish(ctx, e)
+	return DefaultClient.Publish(ctx, e)
 }
 
 // Event represents an Audit Log event.

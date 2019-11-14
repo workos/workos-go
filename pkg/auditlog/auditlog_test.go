@@ -18,9 +18,9 @@ func TestAuditLog(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(handlerFunc))
 	defer server.Close()
 
-	DefaultPublisher = &Publisher{
-		Client:   server.Client(),
-		Endpoint: server.URL,
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
 	}
 
 	SetAPIKey("test")

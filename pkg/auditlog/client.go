@@ -11,16 +11,15 @@ import (
 	"time"
 )
 
-// Publisher represents an audit log events publisher that posts events to
-// WorkOS asynchronously.
-type Publisher struct {
+// Client represents a client that performs auditlog request to WorkOS API.
+type Client struct {
 	// The WorkOS api key. It can be found in
 	// https://dashboard.workos.com/api-keys.
 	APIKey string
 
 	// The http.Client that is used to post audit log events to WorkOS. Defaults
 	// to http.Client.
-	Client *http.Client
+	HTTPClient *http.Client
 
 	// The endpoint used to request Workos. Defaults to
 	// https://api.workos.com/events.
@@ -32,43 +31,43 @@ type Publisher struct {
 	once sync.Once
 }
 
-func (p *Publisher) init() {
-	if p.Client == nil {
-		p.Client = &http.Client{Timeout: 10 * time.Second}
+func (c *Client) init() {
+	if c.HTTPClient == nil {
+		c.HTTPClient = &http.Client{Timeout: 10 * time.Second}
 	}
 
-	if p.Endpoint == "" {
-		p.Endpoint = "https://api.workos.com/events"
+	if c.Endpoint == "" {
+		c.Endpoint = "https://api.workos.com/events"
 	}
 
-	if p.JSONEncode == nil {
-		p.JSONEncode = json.Marshal
+	if c.JSONEncode == nil {
+		c.JSONEncode = json.Marshal
 	}
 }
 
 // Publish publishes the given event.
-func (p *Publisher) Publish(ctx context.Context, e Event) error {
-	p.once.Do(p.init)
+func (c *Client) Publish(ctx context.Context, e Event) error {
+	c.once.Do(c.init)
 
 	e.IdempotencyKey = defaultIdempotencyKey(e.IdempotencyKey)
 	e.Location = defaultLocation(e.Location)
 	e.OccurredAt = defaultTime(e.OccurredAt)
 
-	data, err := p.JSONEncode(e)
+	data, err := c.JSONEncode(e)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, p.Endpoint, bytes.NewBuffer(data))
+	req, err := http.NewRequest(http.MethodPost, c.Endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Idempotency-Key", e.IdempotencyKey)
-	req.Header.Set("Authorization", "Bearer "+p.APIKey)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 
-	res, err := p.Client.Do(req)
+	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
