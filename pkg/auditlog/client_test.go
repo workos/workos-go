@@ -146,13 +146,13 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 	client.init()
 
 // 	err := client.Publish(context.TODO(), Event{
-// 		Action:     "gosdk.publish",
-// 		ActionType: Create,
-// 		ActorName:  "Maxence Charriere",
-// 		Group:      "workos.com",
-// 		// Location:        "55.27.223.42",
-// 		OccurredAt:      time.Now(),
-// 		idempotencyKey: uuid.New().String(),
+// 		Action:         "gosdk.publish",
+// 		ActionType:     Create,
+// 		ActorName:      "Jonhy Maxoo",
+// 		Group:          "workos.com",
+// 		Location:       "55.27.223.42",
+// 		OccurredAt:     time.Now(),
+// 		IdempotencyKey: uuid.New().String(),
 // 	})
 
 // 	require.NoError(t, err)
