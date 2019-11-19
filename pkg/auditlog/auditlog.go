@@ -70,14 +70,14 @@ type Event struct {
 	// An idempotency key is automatically generated if not set.
 	IdempotencyKey string `json:"-"`
 
-	// An ip address that locates where the audit log occured.
+	// An ip address that locates where the audit log occurred.
 	Location string `json:"location"`
 
 	// The event metadata. It can't contain more than 50 keys. A key can't
 	// exeed 40 characters.
 	Metadata Metadata `json:"metadata,omitempty"`
 
-	// The time when the audit log occured.
+	// The time when the audit log occurred.
 	//
 	// Defaults to time.Now().
 	OccurredAt time.Time `json:"occurred_at"`
