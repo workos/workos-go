@@ -3,7 +3,7 @@
 # 
 <p align="center">
 	<a href="https://workos.semaphoreci.com/projects/workos-go"><img src="https://workos.semaphoreci.com/badges/workos-go.svg" alt="Semaphore Go build"></a>
-    <a href="https://goreportcard.com/report/github.com/workos/workos-go"><img src="https://goreportcard.com/badge/github.com/workos-inc/workos-go" alt="Go Report Card"></a>
+    <a href="https://goreportcard.com/report/github.com/workos-inc/workos-go"><img src="https://goreportcard.com/badge/github.com/workos-inc/workos-go" alt="Go Report Card"></a>
 </p>
 
 A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
