@@ -66,9 +66,8 @@ func TestClientGetProfile(t *testing.T) {
 		{
 			scenario: "request returns a profile",
 			client: &Client{
-				APIKey:      "test",
-				ProjectID:   "proj_123",
-				RedirectURI: "https://exmaple.com/sso/workos/callback",
+				APIKey:    "test",
+				ProjectID: "proj_123",
 			},
 			options: GetProfileOptions{
 				Code: "authorization_code",
