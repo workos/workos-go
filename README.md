@@ -14,3 +14,8 @@ A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
 go get -u github.com/workos-inc/workos-go/...
 ```
 
+# Release Notes
+
+### December 27, 2019
+
+- Removed the `redirect_uri` query parameter from the `POST /sso/token` request. No code migration is necessary.
