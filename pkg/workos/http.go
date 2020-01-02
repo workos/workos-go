@@ -8,7 +8,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// TryGetHTTPError returns an error when the http response contrains invalid
+// TryGetHTTPError returns an error when the http response contains invalid
 // status code.
 func TryGetHTTPError(r *http.Response) error {
 	if r.StatusCode >= 200 && r.StatusCode < 300 {
