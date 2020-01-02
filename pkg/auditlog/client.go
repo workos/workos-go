@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/workos-inc/workos-go/pkg/workos"
 )
 
 // Client represents a client that performs auditlog request to WorkOS API.
@@ -76,13 +76,5 @@ func (c *Client) Publish(ctx context.Context, e Event) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("%s: %s", res.Status, err)
-		}
-		return fmt.Errorf("%s: %s", res.Status, body)
-	}
-
-	return nil
+	return workos.TryGetHTTPError(res)
 }

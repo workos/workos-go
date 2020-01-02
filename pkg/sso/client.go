@@ -3,13 +3,13 @@ package sso
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/workos-inc/workos-go/pkg/workos"
 )
 
 // ConnectionType represents a connection type.
@@ -158,12 +158,8 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return Profile{}, fmt.Errorf("%s: %s", res.Status, err)
-		}
-		return Profile{}, fmt.Errorf("%s: %s", res.Status, body)
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Profile{}, err
 	}
 
 	var body struct {
