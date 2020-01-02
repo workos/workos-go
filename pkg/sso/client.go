@@ -148,7 +148,6 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	query := make(url.Values, 5)
 	query.Set("client_id", c.ProjectID)
 	query.Set("client_secret", c.APIKey)
-	query.Set("redirect_uri", c.RedirectURI)
 	query.Set("grant_type", "authorization_code")
 	query.Set("code", opts.Code)
 	req.URL.RawQuery = query.Encode()
