@@ -13,4 +13,3 @@ A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
 ```sh
 go get -u github.com/workos-inc/workos-go/...
 ```
-
