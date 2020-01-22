@@ -28,8 +28,6 @@ import (
 	"fmt"
 	"os"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var (
@@ -63,12 +61,13 @@ type Event struct {
 	ActorID    string     `json:"actor_id"`
 	Group      string     `json:"group"`
 
-	// A key that ensures that an same event is not processed multiple time.
+	// A key that ensures that the same event is not processed multiple times.
 	// Once the event is sent for the first time, the lock on the key expires
 	// after 24 hours.
-	//
-	// An idempotency key is automatically generated if not set.
-	IdempotencyKey string `json:"-"`
+
+	// If no key is provided or the key is empty, the key will not be attached
+	// to the request.
+	IdempotencyKey string
 
 	// An ip address that locates where the audit log occurred.
 	Location string `json:"location"`
@@ -130,11 +129,4 @@ func defaultTime(t time.Time) time.Time {
 		t = time.Now().UTC()
 	}
 	return t
-}
-
-func defaultIdempotencyKey(key string) string {
-	if key == "" {
-		return uuid.New().String()
-	}
-	return key
 }
