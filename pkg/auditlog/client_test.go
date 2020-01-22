@@ -95,30 +95,18 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	requiredHeaders := map[string]string{
-		"Content-Type":    "application/json",
-		"Idempotency-Key": "test",
-		"Authorization":   "Bearer test",
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer test",
 	}
 
 	for k, v := range requiredHeaders {
 		val := r.Header.Get(k)
 
-		switch k {
-		case "Idempotency-Key":
-			if val == "" {
-				h.errors++
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("no indempotency key found"))
-				return
-			}
-
-		default:
-			if val != v {
-				h.errors++
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("bad header value for " + k))
-				return
-			}
+		if val != v {
+			h.errors++
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("bad header value for " + k))
+			return
 		}
 	}
 
