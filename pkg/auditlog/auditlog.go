@@ -67,7 +67,7 @@ type Event struct {
 
 	// If no key is provided or the key is empty, the key will not be attached
 	// to the request.
-	IdempotencyKey string
+	IdempotencyKey string `json:"-"`
 
 	// An ip address that locates where the audit log occurred.
 	Location string `json:"location"`
