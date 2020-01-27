@@ -68,7 +68,7 @@ func (c *Client) Publish(ctx context.Context, e Event) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 
-	if len(e.IdempotencyKey) > 0 {
+	if e.IdempotencyKey != "" {
 		req.Header.Set("Idempotency-Key", e.IdempotencyKey)
 	}
 
