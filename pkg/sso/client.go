@@ -78,7 +78,7 @@ type GetAuthorizationURLOptions struct {
 	Domain string
 
 	// Authentication service provider descriptor.
-	// Currently only used for Google.
+	// Currently only used for ConnectionType.GoogleOAuth
 	Provider ConnectionType
 
 	// A unique identifier used to manage state across authorization
@@ -99,7 +99,7 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	query.Set("response_type", "code")
 
 	if opts.Domain == "" && opts.Provider == "" {
-		return nil, errors.New("incomplete arguments. Need to specify either a 'domain' or 'provider'")
+		return nil, errors.New("incomplete arguments: missing domain or provider")
 	} else if opts.Provider != "" {
 		query.Set("provider", string(opts.Provider))
 	} else {

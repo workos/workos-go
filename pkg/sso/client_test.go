@@ -60,27 +60,19 @@ func TestClientAuthorizeURL(t *testing.T) {
 }
 
 func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
-	test := struct {
-		scenario string
-		options  GetAuthorizationURLOptions
-		expected *url.URL
-	}{
-		scenario: "error with missing domain and provider",
-		options: GetAuthorizationURLOptions{
-			State: "state",
-		},
-		expected: nil,
-	}
-
 	client := Client{
 		APIKey:      "test",
 		ProjectID:   "proj_123",
 		RedirectURI: "https://example.com/sso/workos/callback",
 	}
 
-	u, err := client.GetAuthorizationURL(test.options)
+	u, err := client.GetAuthorizationURL(GetAuthorizationURLOptions{
+		State: "state",
+	})
+
+	var expectedURL *url.URL = nil
 	require.Error(t, err)
-	require.Equal(t, test.expected, u)
+	require.Equal(t, expectedURL, u)
 }
 
 func TestClientGetProfile(t *testing.T) {
