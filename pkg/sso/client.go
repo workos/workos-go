@@ -78,7 +78,7 @@ type GetAuthorizationURLOptions struct {
 	Domain string
 
 	// Authentication service provider descriptor.
-	// Currently only used for ConnectionType.GoogleOAuth
+	// Provider is currently only used when the connection type is GoogleOAuth.
 	Provider ConnectionType
 
 	// A unique identifier used to manage state across authorization
