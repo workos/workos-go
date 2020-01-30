@@ -3,6 +3,7 @@ package sso
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,8 +18,10 @@ type ConnectionType string
 
 // Constants that enumerate the available connection types.
 const (
-	AzureSAML ConnectionType = "AzureSAML"
-	OktaSAML  ConnectionType = "OktaSAML"
+	ADFSSAML    ConnectionType = "ADFSSAML"
+	AzureSAML   ConnectionType = "AzureSAML"
+	GoogleOAuth ConnectionType = "GoogleOAuth"
+	OktaSAML    ConnectionType = "OktaSAML"
 )
 
 // Client represents a client that fetch SSO data from WorkOS API.
@@ -74,6 +77,10 @@ type GetAuthorizationURLOptions struct {
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
+	// Authentication service provider descriptor.
+	// Provider is currently only used when the connection type is GoogleOAuth.
+	Provider ConnectionType
+
 	// A unique identifier used to manage state across authorization
 	// transactions (eg. 1234zyx).
 	//
@@ -87,10 +94,17 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	c.once.Do(c.init)
 
 	query := make(url.Values, 5)
-	query.Set("domain", opts.Domain)
 	query.Set("client_id", c.ProjectID)
 	query.Set("redirect_uri", c.RedirectURI)
 	query.Set("response_type", "code")
+
+	if opts.Domain == "" && opts.Provider == "" {
+		return nil, errors.New("incomplete arguments: missing domain or provider")
+	} else if opts.Provider != "" {
+		query.Set("provider", string(opts.Provider))
+	} else {
+		query.Set("domain", opts.Domain)
+	}
 
 	if opts.State != "" {
 		query.Set("state", opts.State)
