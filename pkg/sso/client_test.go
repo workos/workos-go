@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -33,6 +34,14 @@ func TestClientAuthorizeURL(t *testing.T) {
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
+		{
+			scenario: "generate url with state",
+			options: GetAuthorizationURLOptions{
+				Provider: "Google",
+				State:    "custom state",
+			},
+			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
 	}
 
 	for _, test := range tests {
@@ -48,6 +57,30 @@ func TestClientAuthorizeURL(t *testing.T) {
 			require.Equal(t, test.expected, u.String())
 		})
 	}
+}
+
+func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
+	test := struct {
+		scenario string
+		options  GetAuthorizationURLOptions
+		expected *url.URL
+	}{
+		scenario: "error with missing domain and provider",
+		options: GetAuthorizationURLOptions{
+			State: "state",
+		},
+		expected: nil,
+	}
+
+	client := Client{
+		APIKey:      "test",
+		ProjectID:   "proj_123",
+		RedirectURI: "https://example.com/sso/workos/callback",
+	}
+
+	u, err := client.GetAuthorizationURL(test.options)
+	require.Error(t, err)
+	require.Equal(t, test.expected, u)
 }
 
 func TestClientGetProfile(t *testing.T) {

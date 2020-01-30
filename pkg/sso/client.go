@@ -3,6 +3,7 @@ package sso
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -74,6 +75,9 @@ type GetAuthorizationURLOptions struct {
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
+	// Authentication service provider descriptor.
+	Provider string
+
 	// A unique identifier used to manage state across authorization
 	// transactions (eg. 1234zyx).
 	//
@@ -87,10 +91,17 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	c.once.Do(c.init)
 
 	query := make(url.Values, 5)
-	query.Set("domain", opts.Domain)
 	query.Set("client_id", c.ProjectID)
 	query.Set("redirect_uri", c.RedirectURI)
 	query.Set("response_type", "code")
+
+	if opts.Domain == "" && opts.Provider == "" {
+		return nil, errors.New("Incomplete arguments. Need to specify either a 'domain' or 'provider'")
+	} else if opts.Domain == "" {
+		query.Set("provider", opts.Provider)
+	} else {
+		query.Set("domain", opts.Domain)
+	}
 
 	if opts.State != "" {
 		query.Set("state", opts.State)
