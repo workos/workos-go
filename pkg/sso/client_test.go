@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -35,7 +34,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
-			scenario: "generate url with state",
+			scenario: "generate url with provider",
 			options: GetAuthorizationURLOptions{
 				Provider: "GoogleOAuth",
 				State:    "custom state",
@@ -70,9 +69,8 @@ func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
 		State: "state",
 	})
 
-	var expectedURL *url.URL = nil
 	require.Error(t, err)
-	require.Equal(t, expectedURL, u)
+	require.Nil(t, u)
 }
 
 func TestClientGetProfile(t *testing.T) {
