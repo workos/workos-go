@@ -18,8 +18,10 @@ type ConnectionType string
 
 // Constants that enumerate the available connection types.
 const (
-	AzureSAML ConnectionType = "AzureSAML"
-	OktaSAML  ConnectionType = "OktaSAML"
+	ADFSSAML    ConnectionType = "ADFSSAML"
+	AzureSAML   ConnectionType = "AzureSAML"
+	GoogleOAuth ConnectionType = "GoogleOAuth"
+	OktaSAML    ConnectionType = "OktaSAML"
 )
 
 // Client represents a client that fetch SSO data from WorkOS API.
@@ -76,7 +78,8 @@ type GetAuthorizationURLOptions struct {
 	Domain string
 
 	// Authentication service provider descriptor.
-	Provider string
+	// Currently only used for Google.
+	Provider ConnectionType
 
 	// A unique identifier used to manage state across authorization
 	// transactions (eg. 1234zyx).
@@ -96,9 +99,9 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	query.Set("response_type", "code")
 
 	if opts.Domain == "" && opts.Provider == "" {
-		return nil, errors.New("Incomplete arguments. Need to specify either a 'domain' or 'provider'")
-	} else if opts.Domain == "" {
-		query.Set("provider", opts.Provider)
+		return nil, errors.New("incomplete arguments. Need to specify either a 'domain' or 'provider'")
+	} else if opts.Provider != "" {
+		query.Set("provider", string(opts.Provider))
 	} else {
 		query.Set("domain", opts.Domain)
 	}

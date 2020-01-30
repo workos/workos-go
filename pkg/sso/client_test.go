@@ -37,10 +37,10 @@ func TestClientAuthorizeURL(t *testing.T) {
 		{
 			scenario: "generate url with state",
 			options: GetAuthorizationURLOptions{
-				Provider: "Google",
+				Provider: "GoogleOAuth",
 				State:    "custom state",
 			},
-			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 	}
 
