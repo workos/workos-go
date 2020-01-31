@@ -33,6 +33,14 @@ func TestClientAuthorizeURL(t *testing.T) {
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
+		{
+			scenario: "generate url with provider",
+			options: GetAuthorizationURLOptions{
+				Provider: "GoogleOAuth",
+				State:    "custom state",
+			},
+			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
 	}
 
 	for _, test := range tests {
@@ -48,6 +56,21 @@ func TestClientAuthorizeURL(t *testing.T) {
 			require.Equal(t, test.expected, u.String())
 		})
 	}
+}
+
+func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
+	client := Client{
+		APIKey:      "test",
+		ProjectID:   "proj_123",
+		RedirectURI: "https://example.com/sso/workos/callback",
+	}
+
+	u, err := client.GetAuthorizationURL(GetAuthorizationURLOptions{
+		State: "state",
+	})
+
+	require.Error(t, err)
+	require.Nil(t, u)
 }
 
 func TestClientGetProfile(t *testing.T) {
