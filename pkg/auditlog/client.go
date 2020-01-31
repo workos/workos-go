@@ -53,7 +53,6 @@ func (c *Client) Publish(ctx context.Context, e Event) error {
 		return err
 	}
 
-	e.IdempotencyKey = defaultIdempotencyKey(e.IdempotencyKey)
 	e.OccurredAt = defaultTime(e.OccurredAt)
 
 	data, err := c.JSONEncode(e)
@@ -67,8 +66,11 @@ func (c *Client) Publish(ctx context.Context, e Event) error {
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Idempotency-Key", e.IdempotencyKey)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+
+	if e.IdempotencyKey != "" {
+		req.Header.Set("Idempotency-Key", e.IdempotencyKey)
+	}
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
