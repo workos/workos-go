@@ -7,7 +7,7 @@ ifdef VERSION
 	git branch ${VERSION}
 	git checkout ${VERSION}
 	@perl -i -pe 's/Version = "v[0-9]+.[0-9]+.[0-9]+"/Version = "${VERSION}"/g' internal/workos/workos.go
-    git add internal/workos/workos.go
+	git add internal/workos/workos.go
 	git commit -m ${VERSION}
 	git push --set-upstream origin ${VERSION}
 	open https://github.com/maxence-charriere/app/compare/${VERSION}?expand=1
