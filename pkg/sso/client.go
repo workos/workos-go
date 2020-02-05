@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos-inc/workos-go/pkg/workos"
+	"github.com/workos-inc/workos-go/internal/workos"
 )
 
 // ConnectionType represents a connection type.
@@ -157,7 +157,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 		return Profile{}, err
 	}
 	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+version)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	query := make(url.Values, 5)
 	query.Set("client_id", c.ProjectID)
