@@ -16,6 +16,7 @@ go get -u github.com/workos-inc/workos-go/...
 
 ## Release
 
+- Ensure your are on `master` branch
 - Modify and create a PR with the new version number:
   ```sh
   # Replace v0.0.0 with the desired version number.
