@@ -4,7 +4,7 @@ test:
 
 release: test
 ifdef VERSION
-	git branch ${VERSION}
+	-git branch ${VERSION}
 	git checkout ${VERSION}
 	@perl -i -pe 's/Version = "v[0-9]+.[0-9]+.[0-9]+"/Version = "${VERSION}"/g' internal/workos/workos.go
 	git add internal/workos/workos.go
