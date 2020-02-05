@@ -16,4 +16,3 @@ else
 	@echo "\033[91mVERSION is not defided\033[00m"
 	@echo "~> make VERSION=\033[90mv0.0.0\033[00m release"
 endif
-
