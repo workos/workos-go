@@ -40,10 +40,6 @@ import (
 	"net/url"
 )
 
-const (
-	version = "0.0.2"
-)
-
 var (
 	// DefaultClient is the client used by GetAuthorizationURL, GetProfile and
 	// Login functions.

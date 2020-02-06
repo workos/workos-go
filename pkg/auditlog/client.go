@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos-inc/workos-go/pkg/workos"
+	"github.com/workos-inc/workos-go/internal/workos"
 )
 
 // Client represents a client that performs auditlog request to WorkOS API.
@@ -67,6 +67,7 @@ func (c *Client) Publish(ctx context.Context, e Event) error {
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	if e.IdempotencyKey != "" {
 		req.Header.Set("Idempotency-Key", e.IdempotencyKey)
