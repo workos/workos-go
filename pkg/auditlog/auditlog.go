@@ -26,14 +26,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 )
 
 var (
 	// DefaultClient is the client used by SetAPIKey and Publish functions.
 	DefaultClient = &Client{
-		APIKey:   os.Getenv("WORKOS_API_KEY"),
 		Endpoint: "https://api.workos.com/events",
 	}
 
