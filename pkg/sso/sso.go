@@ -38,15 +38,12 @@ import (
 	"context"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 var (
 	// DefaultClient is the client used by GetAuthorizationURL, GetProfile and
 	// Login functions.
-	DefaultClient = &Client{
-		APIKey: os.Getenv("WORKOS_API_KEY"),
-	}
+	DefaultClient = &Client{}
 )
 
 // Configure configures the default client that is used by GetAuthorizationURL,
