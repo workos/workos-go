@@ -100,9 +100,11 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 
 	if opts.Domain == "" && opts.Provider == "" {
 		return nil, errors.New("incomplete arguments: missing domain or provider")
-	} else if opts.Provider != "" {
+	}
+	if opts.Provider != "" {
 		query.Set("provider", string(opts.Provider))
-	} else {
+	}
+	if opts.Domain != "" {
 		query.Set("domain", opts.Domain)
 	}
 
