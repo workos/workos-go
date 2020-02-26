@@ -223,8 +223,9 @@ func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftCo
 		return err
 	}
 	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
