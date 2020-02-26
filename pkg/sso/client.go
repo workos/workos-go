@@ -1,6 +1,7 @@
 package sso
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -53,9 +54,13 @@ type Client struct {
 	// Defaults to http.Client.
 	HTTPClient *http.Client
 
-	once                     sync.Once
-	authorizationURLEndpoint string
-	profileEndpoint          string
+	// The function used to encode in JSON. Defaults to json.Marshal.
+	JSONEncode func(v interface{}) ([]byte, error)
+
+	once                           sync.Once
+	authorizationURLEndpoint       string
+	profileEndpoint                string
+	promoteDraftConnectionEndpoint string
 }
 
 func (c *Client) init() {
@@ -65,9 +70,14 @@ func (c *Client) init() {
 	c.Endpoint = strings.TrimSuffix(c.Endpoint, "/")
 	c.authorizationURLEndpoint = c.Endpoint + "/sso/authorize"
 	c.profileEndpoint = c.Endpoint + "/sso/token"
+	c.promoteDraftConnectionEndpoint = c.Endpoint + "/draft_connections/convert"
 
 	if c.HTTPClient == nil {
 		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
+	}
+
+	if c.JSONEncode == nil {
+		c.JSONEncode = json.Marshal
 	}
 }
 
@@ -186,4 +196,41 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	err = dec.Decode(&body)
 
 	return body.Profile, err
+}
+
+// PromoteDraftConnectionOptions contains the options to pass in order to
+// promote a draft connection.
+type PromoteDraftConnectionOptions struct {
+	ID string `json:"id"`
+}
+
+// PromoteDraftConnection promotes a draft connection created via IdP Link Embed
+// such that the Enterprise users can begin signing into your application.
+func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
+	c.once.Do(c.init)
+
+	body, err := c.JSONEncode(opts)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.promoteDraftConnectionEndpoint,
+		bytes.NewReader(body),
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos.TryGetHTTPError(res)
 }
