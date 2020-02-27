@@ -201,6 +201,7 @@ func TestPromoteDraftConnectionUnauthorized(t *testing.T) {
 		Token: "wOrkOStoKeN",
 	})
 	require.Error(t, err)
+	t.Log(err)
 }
 
 func TestPromoteDraftBadToken(t *testing.T) {
@@ -216,6 +217,7 @@ func TestPromoteDraftBadToken(t *testing.T) {
 		Token: "wOrkOStoKeNfoo",
 	})
 	require.Error(t, err)
+	t.Log(err)
 }
 
 func promoteDraftConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
