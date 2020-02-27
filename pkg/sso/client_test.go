@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -171,4 +172,83 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
+}
+
+func TestPromoteDraftConnection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(promoteDraftConnectionTestHandler))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:   "test",
+		Endpoint: server.URL,
+	}
+
+	err := client.PromoteDraftConnection(context.TODO(), PromoteDraftConnectionOptions{
+		Token: "wOrkOStoKeN",
+	})
+	require.NoError(t, err)
+}
+
+func TestPromoteDraftConnectionUnauthorized(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(promoteDraftConnectionTestHandler))
+	defer server.Close()
+
+	client := &Client{
+		Endpoint: server.URL,
+	}
+
+	err := client.PromoteDraftConnection(context.TODO(), PromoteDraftConnectionOptions{
+		Token: "wOrkOStoKeN",
+	})
+	require.Error(t, err)
+	t.Log(err)
+}
+
+func TestPromoteDraftBadToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(promoteDraftConnectionTestHandler))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:   "test",
+		Endpoint: server.URL,
+	}
+
+	err := client.PromoteDraftConnection(context.TODO(), PromoteDraftConnectionOptions{
+		Token: "wOrkOStoKeNfoo",
+	})
+	require.Error(t, err)
+	t.Log(err)
+}
+
+func promoteDraftConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
+	contentType := r.Header.Get("Content-Type")
+	if contentType != "application/json" {
+		http.Error(w, "invalid content type", http.StatusBadRequest)
+		return
+	}
+
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	userAgent := r.Header.Get("User-Agent")
+	if !strings.HasPrefix(userAgent, "workos-go/") {
+		http.Error(w, "bad user agent", http.StatusBadRequest)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if string(body) != `{"id":"wOrkOStoKeN"}` {
+		http.Error(w, "bad token", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
