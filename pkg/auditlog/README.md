@@ -1,6 +1,6 @@
 # auditlog
 
-[![godoc](https://godoc.org/github.com/workos-inc/workos-go/pkg/auditlog?status.svg)](https://godoc.org/github.com/workos-inc/workos-go/pkg/auditlog)
+[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos-inc/workos-go/pkg/auditlog)
 
 A Go package to send audit logs events to WorkOS.
 

@@ -2,6 +2,7 @@
 
 [![Semaphore Go build](https://workos.semaphoreci.com/badges/workos-go.svg)](https://workos.semaphoreci.com/projects/workos-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/workos-inc/workos-go)](https://goreportcard.com/report/github.com/workos-inc/workos-go)
+[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos-inc/workos-go?tab=subdirectories)
 
 A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
 
@@ -27,3 +28,4 @@ go get -u github.com/workos-inc/workos-go/...
 - Enter a title
 - Enter a description
 - Click on the `Publish release` button
+
