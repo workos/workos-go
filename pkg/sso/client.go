@@ -1,7 +1,6 @@
 package sso
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -57,10 +56,7 @@ type Client struct {
 	// The function used to encode in JSON. Defaults to json.Marshal.
 	JSONEncode func(v interface{}) ([]byte, error)
 
-	once                           sync.Once
-	authorizationURLEndpoint       string
-	profileEndpoint                string
-	promoteDraftConnectionEndpoint string
+	once sync.Once
 }
 
 func (c *Client) init() {
@@ -68,9 +64,6 @@ func (c *Client) init() {
 		c.Endpoint = "https://api.workos.com"
 	}
 	c.Endpoint = strings.TrimSuffix(c.Endpoint, "/")
-	c.authorizationURLEndpoint = c.Endpoint + "/sso/authorize"
-	c.profileEndpoint = c.Endpoint + "/sso/token"
-	c.promoteDraftConnectionEndpoint = c.Endpoint + "/draft_connections/convert"
 
 	if c.HTTPClient == nil {
 		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
@@ -122,7 +115,7 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 		query.Set("state", opts.State)
 	}
 
-	u, err := url.ParseRequestURI(c.authorizationURLEndpoint)
+	u, err := url.ParseRequestURI(c.Endpoint + "/sso/authorize")
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +157,11 @@ type Profile struct {
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
-	req, err := http.NewRequest(http.MethodPost, c.profileEndpoint, nil)
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/sso/token",
+		nil,
+	)
 	if err != nil {
 		return Profile{}, err
 	}
@@ -201,7 +198,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 // PromoteDraftConnectionOptions contains the options to pass in order to
 // promote a draft connection.
 type PromoteDraftConnectionOptions struct {
-	Token string `json:"id"`
+	ID string `json:"id"`
 }
 
 // PromoteDraftConnection promotes a draft connection created via IdP Link Embed
@@ -209,21 +206,15 @@ type PromoteDraftConnectionOptions struct {
 func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
 	c.once.Do(c.init)
 
-	body, err := c.JSONEncode(opts)
-	if err != nil {
-		return err
-	}
-
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.promoteDraftConnectionEndpoint,
-		bytes.NewReader(body),
+		c.Endpoint+"/draft_connections/"+opts.ID+"/activate",
+		nil,
 	)
 	if err != nil {
 		return err
 	}
 	req = req.WithContext(ctx)
-	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
