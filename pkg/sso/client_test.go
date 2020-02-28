@@ -239,8 +239,13 @@ func promoteDraftConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if path[1] != "draft_connections" || path[3] != "activate" {
+		http.Error(w, "invalid path: "+r.URL.Path, http.StatusNotFound)
+		return
+	}
+
 	if token := path[2]; token != "wOrkOStoKeN" {
-		http.Error(w, "bad token", http.StatusBadRequest)
+		http.Error(w, "token not found", http.StatusNotFound)
 		return
 	}
 
