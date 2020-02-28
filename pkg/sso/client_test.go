@@ -183,7 +183,7 @@ func TestPromoteDraftConnection(t *testing.T) {
 	}
 
 	err := client.PromoteDraftConnection(context.TODO(), PromoteDraftConnectionOptions{
-		Token: "wOrkOStoKeN",
+		ID: "wOrkOStoKeN",
 	})
 	require.NoError(t, err)
 }
@@ -197,7 +197,7 @@ func TestPromoteDraftConnectionUnauthorized(t *testing.T) {
 	}
 
 	err := client.PromoteDraftConnection(context.TODO(), PromoteDraftConnectionOptions{
-		Token: "wOrkOStoKeN",
+		ID: "wOrkOStoKeN",
 	})
 	require.Error(t, err)
 	t.Log(err)
@@ -213,7 +213,7 @@ func TestPromoteDraftBadToken(t *testing.T) {
 	}
 
 	err := client.PromoteDraftConnection(context.TODO(), PromoteDraftConnectionOptions{
-		Token: "wOrkOStoKeNfoo",
+		ID: "wOrkOStoKeNfoo",
 	})
 	require.Error(t, err)
 	t.Log(err)
