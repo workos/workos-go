@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -221,12 +220,6 @@ func TestPromoteDraftBadToken(t *testing.T) {
 }
 
 func promoteDraftConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
-	contentType := r.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		http.Error(w, "invalid content type", http.StatusBadRequest)
-		return
-	}
-
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -239,13 +232,14 @@ func promoteDraftConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	path := strings.Split(r.URL.Path, "/")
+
+	if len(path) != 4 {
+		http.Error(w, "path does not have 3 elements", http.StatusNotFound)
 		return
 	}
 
-	if string(body) != `{"id":"wOrkOStoKeN"}` {
+	if token := path[2]; token != "wOrkOStoKeN" {
 		http.Error(w, "bad token", http.StatusBadRequest)
 		return
 	}

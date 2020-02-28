@@ -81,3 +81,9 @@ func Login(opts GetAuthorizationURLOptions) http.Handler {
 		http.Redirect(w, r, u.String(), http.StatusSeeOther)
 	})
 }
+
+// PromoteDraftConnection promotes a draft connection created via IdP Link Embed
+// such that the Enterprise users can begin signing into your application.
+func PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
+	return DefaultClient.PromoteDraftConnection(ctx, opts)
+}
