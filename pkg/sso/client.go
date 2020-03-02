@@ -198,7 +198,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 // PromoteDraftConnectionOptions contains the options to pass in order to
 // promote a draft connection.
 type PromoteDraftConnectionOptions struct {
-	ID string `json:"id"`
+	Token string `json:"id"`
 }
 
 // PromoteDraftConnection promotes a draft connection created via IdP Link Embed
@@ -208,7 +208,7 @@ func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftCo
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/draft_connections/"+opts.ID+"/activate",
+		c.Endpoint+"/draft_connections/"+opts.Token+"/activate",
 		nil,
 	)
 	if err != nil {
