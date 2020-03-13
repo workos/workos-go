@@ -82,7 +82,7 @@ func Login(opts GetAuthorizationURLOptions) http.Handler {
 	})
 }
 
-// PromoteDraftConnection promotes a draft connection created via IdP Link Embed
+// PromoteDraftConnection promotes a draft connection created via the WorkOS.js Embed
 // such that the Enterprise users can begin signing into your application.
 func PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
 	return DefaultClient.PromoteDraftConnection(ctx, opts)

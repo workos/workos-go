@@ -201,7 +201,7 @@ type PromoteDraftConnectionOptions struct {
 	Token string `json:"token"`
 }
 
-// PromoteDraftConnection promotes a draft connection created via IdP Link Embed
+// PromoteDraftConnection promotes a draft connection created via the WorkOS.js Embed
 // such that the Enterprise users can begin signing into your application.
 func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
 	c.once.Do(c.init)
