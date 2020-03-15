@@ -1,13 +1,13 @@
-// Package auditlog is a package to send audit logs events to WorkOS.
+// Package audittrail is a package to send audit trail events to WorkOS.
 //
 // Example:
 //   func main() {
-//       auditlog.SetAPIKey("my_api_key")
+//       audittrail.SetAPIKey("my_api_key")
 //
-//       // Wherever you need to publish an audit log event:
-//       err := auditlog.Publish(context.Background(), auditlog.Event{
+//       // Wherever you need to publish an audit trail event:
+//       err := audittrail.Publish(context.Background(), audittrail.Event{
 //           Action:     "document.viewed",
-//           ActionType: auditlog.Create,
+//           ActionType: audittrail.Create,
 //           ActorName:  "Jairo Kunde",
 //           ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
 //           Group:      "abstract.com",
@@ -20,7 +20,7 @@
 //           // Handle error.
 //       }
 //   }
-package auditlog
+package audittrail
 
 import (
 	"context"
@@ -35,7 +35,7 @@ var (
 		Endpoint: "https://api.workos.com/events",
 	}
 
-	// GlobalMetadata are metadata that are injected in every audit log events.
+	// GlobalMetadata are metadata that are injected in every audit trail events.
 	GlobalMetadata Metadata
 
 	errTooMuchMetadataKeys = errors.New("too much metadata key")
@@ -51,7 +51,7 @@ func Publish(ctx context.Context, e Event) error {
 	return DefaultClient.Publish(ctx, e)
 }
 
-// Event represents an Audit Log event.
+// Event represents an Audit Trail event.
 type Event struct {
 	Action     string     `json:"action"`
 	ActionType ActionType `json:"action_type"`
@@ -67,14 +67,14 @@ type Event struct {
 	// to the request.
 	IdempotencyKey string `json:"-"`
 
-	// An ip address that locates where the audit log occurred.
+	// An ip address that locates where the audit trail occurred.
 	Location string `json:"location"`
 
 	// The event metadata. It can't contain more than 50 keys. A key can't
 	// exeed 40 characters.
 	Metadata Metadata `json:"metadata,omitempty"`
 
-	// The time when the audit log occurred.
+	// The time when the audit trail occurred.
 	//
 	// Defaults to time.Now().
 	OccurredAt time.Time `json:"occurred_at"`
@@ -95,7 +95,7 @@ const (
 	Delete ActionType = "D"
 )
 
-// Metadata represents metadata to be attached to an audit log event.
+// Metadata represents metadata to be attached to an audit trail event.
 type Metadata map[string]interface{}
 
 // Merges the given metadata. Values from m are not overridden by the ones from

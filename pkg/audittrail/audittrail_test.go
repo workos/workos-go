@@ -1,4 +1,4 @@
-package auditlog
+package audittrail
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAuditLog(t *testing.T) {
+func TestAuditTrail(t *testing.T) {
 	handler := &defaultTestHandler{}
 	handlerFunc := func(w http.ResponseWriter, r *http.Request) {
 		handler.ServeHTTP(w, r)
