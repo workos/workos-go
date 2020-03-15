@@ -6,7 +6,7 @@
 
 A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
 
-- [Auditlog](https://github.com/workos-inc/workos-go/tree/master/pkg/auditlog)
+- [AuditTrail](https://github.com/workos-inc/workos-go/tree/master/pkg/audittrail)
 - [SSO](https://github.com/workos-inc/workos-go/tree/master/pkg/sso)
 
 ## Install
@@ -28,4 +28,3 @@ go get -u github.com/workos-inc/workos-go/...
 - Enter a title
 - Enter a description
 - Click on the `Publish release` button
-

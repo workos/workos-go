@@ -1,4 +1,4 @@
-package auditlog
+package audittrail
 
 import (
 	"bytes"
@@ -11,13 +11,13 @@ import (
 	"github.com/workos-inc/workos-go/internal/workos"
 )
 
-// Client represents a client that performs auditlog request to WorkOS API.
+// Client represents a client that performs audittrail request to WorkOS API.
 type Client struct {
 	// The WorkOS api key. It can be found in
 	// https://dashboard.workos.com/api-keys.
 	APIKey string
 
-	// The http.Client that is used to post audit log events to WorkOS. Defaults
+	// The http.Client that is used to post audit trail events to WorkOS. Defaults
 	// to http.Client.
 	HTTPClient *http.Client
 

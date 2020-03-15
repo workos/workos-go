@@ -1,4 +1,4 @@
-package auditlog
+package audittrail
 
 import (
 	"context"
@@ -127,7 +127,7 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Unit test to hit the prod api directly. Uncomment and provide an APIKey to
 // test.
 //
-// func TestClientPubliPublishLive(t *testing.T) {
+// func TestClientPublishLive(t *testing.T) {
 // 	client := &Client{
 // 		APIKey: "xxxxxx",
 // 	}
