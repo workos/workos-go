@@ -142,7 +142,9 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if clientSecret := r.URL.Query().Get("client_secret"); clientSecret != "test" {
+	r.ParseForm()
+
+	if clientSecret := r.Form.Get("client_secret"); clientSecret != "test" {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
