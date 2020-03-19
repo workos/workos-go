@@ -168,12 +168,13 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
-	query := make(url.Values, 5)
-	query.Set("client_id", c.ProjectID)
-	query.Set("client_secret", c.APIKey)
-	query.Set("grant_type", "authorization_code")
-	query.Set("code", opts.Code)
-	req.URL.RawQuery = query.Encode()
+	form := make(url.Values, 5)
+	form.Set("client_id", c.ProjectID)
+	form.Set("client_secret", c.APIKey)
+	form.Set("grant_type", "authorization_code")
+	form.Set("code", opts.Code)
+	req.PostForm = form
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
