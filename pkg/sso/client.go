@@ -157,10 +157,16 @@ type Profile struct {
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	c.once.Do(c.init)
 
+	form := make(url.Values, 5)
+	form.Set("client_id", c.ProjectID)
+	form.Set("client_secret", c.APIKey)
+	form.Set("grant_type", "authorization_code")
+	form.Set("code", opts.Code)
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/sso/token",
-		nil,
+		strings.NewReader(form.Encode()),
 	)
 	if err != nil {
 		return Profile{}, err
@@ -168,12 +174,6 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
-	form := make(url.Values, 5)
-	form.Set("client_id", c.ProjectID)
-	form.Set("client_secret", c.APIKey)
-	form.Set("grant_type", "authorization_code")
-	form.Set("code", opts.Code)
-	req.PostForm = form
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := c.HTTPClient.Do(req)
