@@ -157,7 +157,7 @@ func TestDirectorySyncGetDirectories(t *testing.T) {
 			DirectoryEndpoint{
 				ID:          "directory_edp_id",
 				Name:        "Ri Jeong Hyeok",
-				Domain:      "crashlanding@you.com",
+				Domain:      "crashlandingyou.com",
 				ExternalKey: "fried_chicken",
 				State:       "linked",
 				Type:        "gsuite directory",

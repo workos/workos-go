@@ -409,7 +409,7 @@ func TestGetDirectories(t *testing.T) {
 					DirectoryEndpoint{
 						ID:          "directory_edp_id",
 						Name:        "Ri Jeong Hyeok",
-						Domain:      "crashlanding@you.com",
+						Domain:      "crashlandingyou.com",
 						ExternalKey: "fried_chicken",
 						State:       "linked",
 						Type:        "gsuite directory",
@@ -461,7 +461,7 @@ func getDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 			DirectoryEndpoint{
 				ID:          "directory_edp_id",
 				Name:        "Ri Jeong Hyeok",
-				Domain:      "crashlanding@you.com",
+				Domain:      "crashlandingyou.com",
 				ExternalKey: "fried_chicken",
 				State:       "linked",
 				Type:        "gsuite directory",
