@@ -8,9 +8,9 @@
 //	func main() {
 //		directorysync.SetAPIKey("my_api_key")
 //
-//		directoryUsers, err := directorysync.GetDirectoryUsers(
+//		directoryUsers, err := directorysync.ListDirectoryUsers(
 //			context.Background(),
-//			directorysync.GetDirectoryUsersOpts{
+//			directorysync.ListDirectoryUsersOpts{
 //				DirectoryEndpointID: "directory_edp_id",
 //			},
 //		)
@@ -33,20 +33,20 @@ func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
-// GetDirectoryUsers gets a list of provisioned Users for a Directory Endpoint.
-func GetDirectoryUsers(
+// ListDirectoryUsers gets a list of provisioned Users for a Directory Endpoint.
+func ListDirectoryUsers(
 	ctx context.Context,
-	opts GetDirectoryUsersOpts,
-) (GetDirectoryUsersResponse, error) {
-	return DefaultClient.GetDirectoryUsers(ctx, opts)
+	opts ListDirectoryUsersOpts,
+) (ListDirectoryUsersResponse, error) {
+	return DefaultClient.ListDirectoryUsers(ctx, opts)
 }
 
-// GetDirectoryGroups gets a list of provisioned Groups for a Directory Endpoint.
-func GetDirectoryGroups(
+// ListDirectoryGroups gets a list of provisioned Groups for a Directory Endpoint.
+func ListDirectoryGroups(
 	ctx context.Context,
-	opts GetDirectoryGroupsOpts,
-) (GetDirectoryGroupsResponse, error) {
-	return DefaultClient.GetDirectoryGroups(ctx, opts)
+	opts ListDirectoryGroupsOpts,
+) (ListDirectoryGroupsResponse, error) {
+	return DefaultClient.ListDirectoryGroups(ctx, opts)
 }
 
 // GetDirectoryUser gets a provisioned User for a Directory Endpoint.
@@ -57,18 +57,18 @@ func GetDirectoryUser(
 	return DefaultClient.GetDirectoryUser(ctx, opts)
 }
 
-// GetDirectoryUserGroups gets details of a provisioned User's Groups for a Directory Endpoint.
-func GetDirectoryUserGroups(
+// ListDirectoryUserGroups gets details of a provisioned User's Groups for a Directory Endpoint.
+func ListDirectoryUserGroups(
 	ctx context.Context,
-	opts GetDirectoryUserGroupsOpts,
+	opts ListDirectoryUserGroupsOpts,
 ) ([]DirectoryGroup, error) {
-	return DefaultClient.GetDirectoryUserGroups(ctx, opts)
+	return DefaultClient.ListDirectoryUserGroups(ctx, opts)
 }
 
-// GetDirectories gets details of a Project's Directory Endpoints.
-func GetDirectories(
+// ListDirectories gets details of a Project's Directory Endpoints.
+func ListDirectories(
 	ctx context.Context,
-	opts GetDirectoriesOpts,
-) (GetDirectoriesResponse, error) {
-	return DefaultClient.GetDirectories(ctx, opts)
+	opts ListDirectoriesOpts,
+) (ListDirectoriesResponse, error) {
+	return DefaultClient.ListDirectories(ctx, opts)
 }

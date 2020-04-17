@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDirectorySyncGetUsers(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getDirectoryUsersTestHandler))
+func TestDirectorySyncListUsers(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listDirectoryUsersTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -20,7 +20,7 @@ func TestDirectorySyncGetUsers(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := GetDirectoryUsersResponse{
+	expectedResponse := ListDirectoryUsersResponse{
 		Data: []DirectoryUser{
 			DirectoryUser{
 				ID:        "directory_usr_id",
@@ -41,7 +41,7 @@ func TestDirectorySyncGetUsers(t *testing.T) {
 			After:  "",
 		},
 	}
-	directoryUsersResponse, err := GetDirectoryUsers(context.Background(), GetDirectoryUsersOpts{
+	directoryUsersResponse, err := ListDirectoryUsers(context.Background(), ListDirectoryUsersOpts{
 		DirectoryEndpointID: "directory_edp_id",
 	})
 
@@ -49,8 +49,8 @@ func TestDirectorySyncGetUsers(t *testing.T) {
 	require.Equal(t, expectedResponse, directoryUsersResponse)
 }
 
-func TestDirectorySyncGetGroups(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getDirectoryGroupsTestHandler))
+func TestDirectorySyncListGroups(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listDirectoryGroupsTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -59,7 +59,7 @@ func TestDirectorySyncGetGroups(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := GetDirectoryGroupsResponse{
+	expectedResponse := ListDirectoryGroupsResponse{
 		Data: []DirectoryGroup{
 			DirectoryGroup{
 				ID:   "directory_grp_id",
@@ -71,9 +71,9 @@ func TestDirectorySyncGetGroups(t *testing.T) {
 			After:  "",
 		},
 	}
-	directoryGroupsResponse, err := GetDirectoryGroups(
+	directoryGroupsResponse, err := ListDirectoryGroups(
 		context.Background(),
-		GetDirectoryGroupsOpts{
+		ListDirectoryGroupsOpts{
 			DirectoryEndpointID: "directory_edp_id",
 		},
 	)
@@ -114,8 +114,8 @@ func TestDirectorySyncGetUser(t *testing.T) {
 	require.Equal(t, expectedResponse, directoryUserResponse)
 }
 
-func TestDirectorySyncGetUserGroups(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getDirectoryUserGroupsTestHandler))
+func TestDirectorySyncListUserGroups(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listDirectoryUserGroupsTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -130,9 +130,9 @@ func TestDirectorySyncGetUserGroups(t *testing.T) {
 			Name: "Scientists",
 		},
 	}
-	directoryUserGroupsResponse, err := GetDirectoryUserGroups(
+	directoryUserGroupsResponse, err := ListDirectoryUserGroups(
 		context.Background(),
-		GetDirectoryUserGroupsOpts{
+		ListDirectoryUserGroupsOpts{
 			DirectoryEndpointID: "directory_edp_id",
 			DirectoryUserID:     "directory_usr_id",
 		},
@@ -142,8 +142,8 @@ func TestDirectorySyncGetUserGroups(t *testing.T) {
 	require.Equal(t, expectedResponse, directoryUserGroupsResponse)
 }
 
-func TestDirectorySyncGetDirectories(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getDirectoriesTestHandler))
+func TestDirectorySyncListDirectories(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listDirectoriesTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -152,7 +152,7 @@ func TestDirectorySyncGetDirectories(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := GetDirectoriesResponse{
+	expectedResponse := ListDirectoriesResponse{
 		Data: []DirectoryEndpoint{
 			DirectoryEndpoint{
 				ID:          "directory_edp_id",
@@ -169,9 +169,9 @@ func TestDirectorySyncGetDirectories(t *testing.T) {
 			After:  "",
 		},
 	}
-	directoriesResponse, err := GetDirectories(
+	directoriesResponse, err := ListDirectories(
 		context.Background(),
-		GetDirectoriesOpts{},
+		ListDirectoriesOpts{},
 	)
 
 	require.NoError(t, err)

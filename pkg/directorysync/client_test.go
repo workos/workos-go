@@ -11,12 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetDirectoryUsers(t *testing.T) {
+func TestListDirectoryUsers(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetDirectoryUsersOpts
-		expected GetDirectoryUsersResponse
+		options  ListDirectoryUsersOpts
+		expected ListDirectoryUsersResponse
 		err      bool
 	}{
 		{
@@ -29,10 +29,10 @@ func TestGetDirectoryUsers(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetDirectoryUsersOpts{
+			options: ListDirectoryUsersOpts{
 				DirectoryEndpointID: "directory_edp_test",
 			},
-			expected: GetDirectoryUsersResponse{
+			expected: ListDirectoryUsersResponse{
 				Data: []DirectoryUser{
 					DirectoryUser{
 						ID:        "directory_usr_id",
@@ -58,14 +58,14 @@ func TestGetDirectoryUsers(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getDirectoryUsersTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listDirectoryUsersTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			directoryUsers, err := client.GetDirectoryUsers(context.Background(), test.options)
+			directoryUsers, err := client.ListDirectoryUsers(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -76,7 +76,7 @@ func TestGetDirectoryUsers(t *testing.T) {
 	}
 }
 
-func getDirectoryUsersTestHandler(w http.ResponseWriter, r *http.Request) {
+func listDirectoryUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -89,9 +89,9 @@ func getDirectoryUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(struct {
-		GetDirectoryUsersResponse
+		ListDirectoryUsersResponse
 	}{
-		GetDirectoryUsersResponse: GetDirectoryUsersResponse{
+		ListDirectoryUsersResponse: ListDirectoryUsersResponse{
 			Data: []DirectoryUser{
 				DirectoryUser{
 					ID:        "directory_usr_id",
@@ -122,12 +122,12 @@ func getDirectoryUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestGetDirectoryGroups(t *testing.T) {
+func TestListDirectoryGroups(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetDirectoryGroupsOpts
-		expected GetDirectoryGroupsResponse
+		options  ListDirectoryGroupsOpts
+		expected ListDirectoryGroupsResponse
 		err      bool
 	}{
 		{
@@ -140,10 +140,10 @@ func TestGetDirectoryGroups(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetDirectoryGroupsOpts{
+			options: ListDirectoryGroupsOpts{
 				DirectoryEndpointID: "directory_edp_test",
 			},
-			expected: GetDirectoryGroupsResponse{
+			expected: ListDirectoryGroupsResponse{
 				Data: []DirectoryGroup{
 					DirectoryGroup{
 						ID:   "directory_grp_id",
@@ -160,14 +160,14 @@ func TestGetDirectoryGroups(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getDirectoryGroupsTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listDirectoryGroupsTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			directoryUsers, err := client.GetDirectoryGroups(context.Background(), test.options)
+			directoryUsers, err := client.ListDirectoryGroups(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -178,7 +178,7 @@ func TestGetDirectoryGroups(t *testing.T) {
 	}
 }
 
-func getDirectoryGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
+func listDirectoryGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -191,9 +191,9 @@ func getDirectoryGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(struct {
-		GetDirectoryGroupsResponse
+		ListDirectoryGroupsResponse
 	}{
-		GetDirectoryGroupsResponse: GetDirectoryGroupsResponse{
+		ListDirectoryGroupsResponse: ListDirectoryGroupsResponse{
 			Data: []DirectoryGroup{
 				DirectoryGroup{
 					ID:   "directory_grp_id",
@@ -307,11 +307,11 @@ func getDirectoryUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestGetDirectoryUserGroups(t *testing.T) {
+func TestListDirectoryUserGroups(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetDirectoryUserGroupsOpts
+		options  ListDirectoryUserGroupsOpts
 		expected []DirectoryGroup
 		err      bool
 	}{
@@ -325,7 +325,7 @@ func TestGetDirectoryUserGroups(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetDirectoryUserGroupsOpts{
+			options: ListDirectoryUserGroupsOpts{
 				DirectoryEndpointID: "directory_edp_id",
 				DirectoryUserID:     "directory_usr_id",
 			},
@@ -340,14 +340,14 @@ func TestGetDirectoryUserGroups(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getDirectoryUserGroupsTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listDirectoryUserGroupsTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			directoryUsers, err := client.GetDirectoryUserGroups(context.Background(), test.options)
+			directoryUsers, err := client.ListDirectoryUserGroups(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -358,7 +358,7 @@ func TestGetDirectoryUserGroups(t *testing.T) {
 	}
 }
 
-func getDirectoryUserGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
+func listDirectoryUserGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -385,12 +385,12 @@ func getDirectoryUserGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestGetDirectories(t *testing.T) {
+func TestListDirectories(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetDirectoriesOpts
-		expected GetDirectoriesResponse
+		options  ListDirectoriesOpts
+		expected ListDirectoriesResponse
 		err      bool
 	}{
 		{
@@ -403,8 +403,8 @@ func TestGetDirectories(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetDirectoriesOpts{},
-			expected: GetDirectoriesResponse{
+			options: ListDirectoriesOpts{},
+			expected: ListDirectoriesResponse{
 				Data: []DirectoryEndpoint{
 					DirectoryEndpoint{
 						ID:          "directory_edp_id",
@@ -426,14 +426,14 @@ func TestGetDirectories(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getDirectoriesTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listDirectoriesTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			directoryUsers, err := client.GetDirectories(context.Background(), test.options)
+			directoryUsers, err := client.ListDirectories(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -444,7 +444,7 @@ func TestGetDirectories(t *testing.T) {
 	}
 }
 
-func getDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
+func listDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -456,7 +456,7 @@ func getDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(GetDirectoriesResponse{
+	body, err := json.Marshal(ListDirectoriesResponse{
 		Data: []DirectoryEndpoint{
 			DirectoryEndpoint{
 				ID:          "directory_edp_id",
