@@ -11,7 +11,7 @@ import (
 )
 
 func TestDirectorySyncListUsers(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listDirectoryUsersTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(listUsersTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -20,7 +20,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := ListDirectoryUsersResponse{
+	expectedResponse := ListUsersResponse{
 		Data: []DirectoryUser{
 			DirectoryUser{
 				ID:        "directory_usr_id",
@@ -41,7 +41,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 			After:  "",
 		},
 	}
-	directoryUsersResponse, err := ListDirectoryUsers(context.Background(), ListDirectoryUsersOpts{
+	directoryUsersResponse, err := ListUsers(context.Background(), ListUsersOpts{
 		DirectoryEndpointID: "directory_edp_id",
 	})
 
@@ -50,7 +50,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 }
 
 func TestDirectorySyncListGroups(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listDirectoryGroupsTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(listGroupsTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -59,7 +59,7 @@ func TestDirectorySyncListGroups(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := ListDirectoryGroupsResponse{
+	expectedResponse := ListGroupsResponse{
 		Data: []DirectoryGroup{
 			DirectoryGroup{
 				ID:   "directory_grp_id",
@@ -71,9 +71,9 @@ func TestDirectorySyncListGroups(t *testing.T) {
 			After:  "",
 		},
 	}
-	directoryGroupsResponse, err := ListDirectoryGroups(
+	directoryGroupsResponse, err := ListGroups(
 		context.Background(),
-		ListDirectoryGroupsOpts{
+		ListGroupsOpts{
 			DirectoryEndpointID: "directory_edp_id",
 		},
 	)
@@ -83,7 +83,7 @@ func TestDirectorySyncListGroups(t *testing.T) {
 }
 
 func TestDirectorySyncGetUser(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getDirectoryUserTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(getUserTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -105,7 +105,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		},
 		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 	}
-	directoryUserResponse, err := GetDirectoryUser(context.Background(), GetDirectoryUserOpts{
+	directoryUserResponse, err := GetUser(context.Background(), GetUserOpts{
 		DirectoryEndpointID: "directory_edp_id",
 		DirectoryUserID:     "directory_usr_id",
 	})
@@ -115,7 +115,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 }
 
 func TestDirectorySyncListUserGroups(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listDirectoryUserGroupsTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(listUserGroupsTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -130,9 +130,9 @@ func TestDirectorySyncListUserGroups(t *testing.T) {
 			Name: "Scientists",
 		},
 	}
-	directoryUserGroupsResponse, err := ListDirectoryUserGroups(
+	directoryUserGroupsResponse, err := ListUserGroups(
 		context.Background(),
-		ListDirectoryUserGroupsOpts{
+		ListUserGroupsOpts{
 			DirectoryEndpointID: "directory_edp_id",
 			DirectoryUserID:     "directory_usr_id",
 		},

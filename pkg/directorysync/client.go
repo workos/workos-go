@@ -82,8 +82,8 @@ type ListMetadata struct {
 	After string `json:"after"`
 }
 
-// ListDirectoryUsersOpts contains the options to request provisioned Directory Users.
-type ListDirectoryUsersOpts struct {
+// ListUsersOpts contains the options to request provisioned Directory Users.
+type ListUsersOpts struct {
 	// Directory Endpoint unique identifier.
 	DirectoryEndpointID string
 
@@ -97,9 +97,9 @@ type ListDirectoryUsersOpts struct {
 	After string
 }
 
-// ListDirectoryUsersResponse describes the response structure when requesting
+// ListUsersResponse describes the response structure when requesting
 // provisioned Directory Users.
-type ListDirectoryUsersResponse struct {
+type ListUsersResponse struct {
 	// List of provisioned Users.
 	Data []DirectoryUser `json:"data"`
 
@@ -107,11 +107,11 @@ type ListDirectoryUsersResponse struct {
 	ListMetadata ListMetadata `json:"listMetadata"`
 }
 
-// ListDirectoryUsers gets a list of provisioned Users for a Directory Endpoint.
-func (c *Client) ListDirectoryUsers(
+// ListUsers gets a list of provisioned Users for a Directory Endpoint.
+func (c *Client) ListUsers(
 	ctx context.Context,
-	opts ListDirectoryUsersOpts,
-) (ListDirectoryUsersResponse, error) {
+	opts ListUsersOpts,
+) (ListUsersResponse, error) {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf("%s/directories/%s/users", c.Endpoint, opts.DirectoryEndpointID)
@@ -121,7 +121,7 @@ func (c *Client) ListDirectoryUsers(
 		nil,
 	)
 	if err != nil {
-		return ListDirectoryUsersResponse{}, err
+		return ListUsersResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -141,15 +141,15 @@ func (c *Client) ListDirectoryUsers(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ListDirectoryUsersResponse{}, err
+		return ListUsersResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos.TryGetHTTPError(res); err != nil {
-		return ListDirectoryUsersResponse{}, err
+		return ListUsersResponse{}, err
 	}
 
-	var body ListDirectoryUsersResponse
+	var body ListUsersResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -164,8 +164,8 @@ type DirectoryGroup struct {
 	Name string `json:"name"`
 }
 
-// ListDirectoryGroupsOpts contains the options to request provisioned Directory Groups.
-type ListDirectoryGroupsOpts struct {
+// ListGroupsOpts contains the options to request provisioned Directory Groups.
+type ListGroupsOpts struct {
 	// Directory Endpoint unique identifier.
 	DirectoryEndpointID string
 
@@ -179,9 +179,9 @@ type ListDirectoryGroupsOpts struct {
 	After string
 }
 
-// ListDirectoryGroupsResponse describes the response structure when requesting
+// ListGroupsResponse describes the response structure when requesting
 // provisioned Directory Groups.
-type ListDirectoryGroupsResponse struct {
+type ListGroupsResponse struct {
 	// List of provisioned Users.
 	Data []DirectoryGroup `json:"data"`
 
@@ -189,11 +189,11 @@ type ListDirectoryGroupsResponse struct {
 	ListMetadata ListMetadata `json:"listMetadata"`
 }
 
-// ListDirectoryGroups gets a list of provisioned Groups for a Directory Endpoint.
-func (c *Client) ListDirectoryGroups(
+// ListGroups gets a list of provisioned Groups for a Directory Endpoint.
+func (c *Client) ListGroups(
 	ctx context.Context,
-	opts ListDirectoryGroupsOpts,
-) (ListDirectoryGroupsResponse, error) {
+	opts ListGroupsOpts,
+) (ListGroupsResponse, error) {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf("%s/directories/%s/groups", c.Endpoint, opts.DirectoryEndpointID)
@@ -203,7 +203,7 @@ func (c *Client) ListDirectoryGroups(
 		nil,
 	)
 	if err != nil {
-		return ListDirectoryGroupsResponse{}, err
+		return ListGroupsResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -223,22 +223,22 @@ func (c *Client) ListDirectoryGroups(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ListDirectoryGroupsResponse{}, err
+		return ListGroupsResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos.TryGetHTTPError(res); err != nil {
-		return ListDirectoryGroupsResponse{}, err
+		return ListGroupsResponse{}, err
 	}
 
-	var body ListDirectoryGroupsResponse
+	var body ListGroupsResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 }
 
-// GetDirectoryUserOpts contains the options to request details for a provisioned Directory User.
-type GetDirectoryUserOpts struct {
+// GetUserOpts contains the options to request details for a provisioned Directory User.
+type GetUserOpts struct {
 	// Directory Endpoint unique identifier.
 	DirectoryEndpointID string
 
@@ -246,10 +246,10 @@ type GetDirectoryUserOpts struct {
 	DirectoryUserID string
 }
 
-// GetDirectoryUser gets a provisioned User for a Directory Endpoint.
-func (c *Client) GetDirectoryUser(
+// GetUser gets a provisioned User for a Directory Endpoint.
+func (c *Client) GetUser(
 	ctx context.Context,
-	opts GetDirectoryUserOpts,
+	opts GetUserOpts,
 ) (DirectoryUser, error) {
 	c.once.Do(c.init)
 
@@ -289,9 +289,9 @@ func (c *Client) GetDirectoryUser(
 	return body, err
 }
 
-// ListDirectoryUserGroupsOpts contains the options to request details for a
+// ListUserGroupsOpts contains the options to request details for a
 // provisioned Directory User's Groups.
-type ListDirectoryUserGroupsOpts struct {
+type ListUserGroupsOpts struct {
 	// Directory Endpoint unique identifier.
 	DirectoryEndpointID string
 
@@ -299,10 +299,10 @@ type ListDirectoryUserGroupsOpts struct {
 	DirectoryUserID string
 }
 
-// ListDirectoryUserGroups gets details of a provisioned User's Groups for a Directory Endpoint.
-func (c *Client) ListDirectoryUserGroups(
+// ListUserGroups gets details of a provisioned User's Groups for a Directory Endpoint.
+func (c *Client) ListUserGroups(
 	ctx context.Context,
-	opts ListDirectoryUserGroupsOpts,
+	opts ListUserGroupsOpts,
 ) ([]DirectoryGroup, error) {
 	c.once.Do(c.init)
 
