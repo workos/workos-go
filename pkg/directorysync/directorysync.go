@@ -53,7 +53,7 @@ func ListGroups(
 func GetUser(
 	ctx context.Context,
 	opts GetUserOpts,
-) (DirectoryUser, error) {
+) (User, error) {
 	return DefaultClient.GetUser(ctx, opts)
 }
 
@@ -61,7 +61,7 @@ func GetUser(
 func GetGroup(
 	ctx context.Context,
 	opts GetGroupOpts,
-) (DirectoryGroup, error) {
+) (Group, error) {
 	return DefaultClient.GetGroup(ctx, opts)
 }
 

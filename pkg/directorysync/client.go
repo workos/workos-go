@@ -40,8 +40,8 @@ func (c *Client) init() {
 	}
 }
 
-// DirectoryUserEmail contains data about a Directory User's e-mail address.
-type DirectoryUserEmail struct {
+// UserEmail contains data about a Directory User's e-mail address.
+type UserEmail struct {
 	// Flag to indicate if this e-mail is primary.
 	Primary bool
 
@@ -52,8 +52,8 @@ type DirectoryUserEmail struct {
 	Type string
 }
 
-// DirectoryUser contains data about a provisioned Directory User.
-type DirectoryUser struct {
+// User contains data about a provisioned Directory User.
+type User struct {
 	// The User's unique identifier.
 	ID string `json:"id"`
 
@@ -61,7 +61,7 @@ type DirectoryUser struct {
 	Username string `json:"username"`
 
 	// The User's e-mails.
-	Emails []DirectoryUserEmail `json:"emails"`
+	Emails []UserEmail `json:"emails"`
 
 	// The User's first name.
 	FirstName string `json:"first_name"`
@@ -104,7 +104,7 @@ type ListUsersOpts struct {
 // provisioned Directory Users.
 type ListUsersResponse struct {
 	// List of provisioned Users.
-	Data []DirectoryUser `json:"data"`
+	Data []User `json:"data"`
 
 	// Cursor pagination options.
 	ListMetadata ListMetadata `json:"listMetadata"`
@@ -164,8 +164,8 @@ func (c *Client) ListUsers(
 	return body, err
 }
 
-// DirectoryGroup contains data about a provisioned Directory Group.
-type DirectoryGroup struct {
+// Group contains data about a provisioned Directory Group.
+type Group struct {
 	// The Group's unique identifier.
 	ID string `json:"id"`
 
@@ -195,7 +195,7 @@ type ListGroupsOpts struct {
 // provisioned Directory Groups.
 type ListGroupsResponse struct {
 	// List of provisioned Users.
-	Data []DirectoryGroup `json:"data"`
+	Data []Group `json:"data"`
 
 	// Cursor pagination options.
 	ListMetadata ListMetadata `json:"listMetadata"`
@@ -265,7 +265,7 @@ type GetUserOpts struct {
 func (c *Client) GetUser(
 	ctx context.Context,
 	opts GetUserOpts,
-) (DirectoryUser, error) {
+) (User, error) {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
@@ -279,7 +279,7 @@ func (c *Client) GetUser(
 		nil,
 	)
 	if err != nil {
-		return DirectoryUser{}, err
+		return User{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -289,15 +289,15 @@ func (c *Client) GetUser(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return DirectoryUser{}, err
+		return User{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos.TryGetHTTPError(res); err != nil {
-		return DirectoryUser{}, err
+		return User{}, err
 	}
 
-	var body DirectoryUser
+	var body User
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -313,7 +313,7 @@ type GetGroupOpts struct {
 func (c *Client) GetGroup(
 	ctx context.Context,
 	opts GetGroupOpts,
-) (DirectoryGroup, error) {
+) (Group, error) {
 	c.once.Do(c.init)
 
 	fmt.Printf("%+v\n", opts)
@@ -328,7 +328,7 @@ func (c *Client) GetGroup(
 		nil,
 	)
 	if err != nil {
-		return DirectoryGroup{}, err
+		return Group{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -338,15 +338,15 @@ func (c *Client) GetGroup(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return DirectoryGroup{}, err
+		return Group{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos.TryGetHTTPError(res); err != nil {
-		return DirectoryGroup{}, err
+		return Group{}, err
 	}
 
-	var body DirectoryGroup
+	var body Group
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err

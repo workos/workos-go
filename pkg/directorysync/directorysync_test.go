@@ -21,13 +21,13 @@ func TestDirectorySyncListUsers(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := ListUsersResponse{
-		Data: []DirectoryUser{
-			DirectoryUser{
+		Data: []User{
+			User{
 				ID:        "directory_usr_id",
 				FirstName: "Rick",
 				LastName:  "Sanchez",
-				Emails: []DirectoryUserEmail{
-					DirectoryUserEmail{
+				Emails: []UserEmail{
+					UserEmail{
 						Primary: true,
 						Type:    "work",
 						Value:   "rick@sanchez.com",
@@ -60,8 +60,8 @@ func TestDirectorySyncListGroups(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := ListGroupsResponse{
-		Data: []DirectoryGroup{
-			DirectoryGroup{
+		Data: []Group{
+			Group{
 				ID:   "directory_grp_id",
 				Name: "Scientists",
 			},
@@ -92,12 +92,12 @@ func TestDirectorySyncGetUser(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := DirectoryUser{
+	expectedResponse := User{
 		ID:        "directory_usr_id",
 		FirstName: "Rick",
 		LastName:  "Sanchez",
-		Emails: []DirectoryUserEmail{
-			DirectoryUserEmail{
+		Emails: []UserEmail{
+			UserEmail{
 				Primary: true,
 				Type:    "work",
 				Value:   "rick@sanchez.com",
@@ -123,7 +123,7 @@ func TestDirectorySyncGetGroup(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := DirectoryGroup{
+	expectedResponse := Group{
 		ID:   "directory_grp_id",
 		Name: "Scientists",
 	}

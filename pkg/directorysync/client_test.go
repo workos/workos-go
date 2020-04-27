@@ -33,13 +33,13 @@ func TestListUsers(t *testing.T) {
 				Directory: "directory_test",
 			},
 			expected: ListUsersResponse{
-				Data: []DirectoryUser{
-					DirectoryUser{
+				Data: []User{
+					User{
 						ID:        "directory_usr_id",
 						FirstName: "Rick",
 						LastName:  "Sanchez",
-						Emails: []DirectoryUserEmail{
-							DirectoryUserEmail{
+						Emails: []UserEmail{
+							UserEmail{
 								Primary: true,
 								Type:    "work",
 								Value:   "rick@sanchez.com",
@@ -92,13 +92,13 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListUsersResponse
 	}{
 		ListUsersResponse: ListUsersResponse{
-			Data: []DirectoryUser{
-				DirectoryUser{
+			Data: []User{
+				User{
 					ID:        "directory_usr_id",
 					FirstName: "Rick",
 					LastName:  "Sanchez",
-					Emails: []DirectoryUserEmail{
-						DirectoryUserEmail{
+					Emails: []UserEmail{
+						UserEmail{
 							Primary: true,
 							Type:    "work",
 							Value:   "rick@sanchez.com",
@@ -144,8 +144,8 @@ func TestListGroups(t *testing.T) {
 				Directory: "directory_test",
 			},
 			expected: ListGroupsResponse{
-				Data: []DirectoryGroup{
-					DirectoryGroup{
+				Data: []Group{
+					Group{
 						ID:   "directory_grp_id",
 						Name: "Scientists",
 					},
@@ -194,8 +194,8 @@ func listGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListGroupsResponse
 	}{
 		ListGroupsResponse: ListGroupsResponse{
-			Data: []DirectoryGroup{
-				DirectoryGroup{
+			Data: []Group{
+				Group{
 					ID:   "directory_grp_id",
 					Name: "Scientists",
 				},
@@ -220,7 +220,7 @@ func TestGetUser(t *testing.T) {
 		scenario string
 		client   *Client
 		options  GetUserOpts
-		expected DirectoryUser
+		expected User
 		err      bool
 	}{
 		{
@@ -236,12 +236,12 @@ func TestGetUser(t *testing.T) {
 			options: GetUserOpts{
 				User: "directory_usr_id",
 			},
-			expected: DirectoryUser{
+			expected: User{
 				ID:        "directory_usr_id",
 				FirstName: "Rick",
 				LastName:  "Sanchez",
-				Emails: []DirectoryUserEmail{
-					DirectoryUserEmail{
+				Emails: []UserEmail{
+					UserEmail{
 						Primary: true,
 						Type:    "work",
 						Value:   "rick@sanchez.com",
@@ -284,12 +284,12 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(DirectoryUser{
+	body, err := json.Marshal(User{
 		ID:        "directory_usr_id",
 		FirstName: "Rick",
 		LastName:  "Sanchez",
-		Emails: []DirectoryUserEmail{
-			DirectoryUserEmail{
+		Emails: []UserEmail{
+			UserEmail{
 				Primary: true,
 				Type:    "work",
 				Value:   "rick@sanchez.com",
@@ -311,7 +311,7 @@ func TestGetGroup(t *testing.T) {
 		scenario string
 		client   *Client
 		options  GetGroupOpts
-		expected DirectoryGroup
+		expected Group
 		err      bool
 	}{
 		{
@@ -327,7 +327,7 @@ func TestGetGroup(t *testing.T) {
 			options: GetGroupOpts{
 				Group: "directory_grp_id",
 			},
-			expected: DirectoryGroup{
+			expected: Group{
 				ID:   "directory_grp_id",
 				Name: "Scientists",
 			},
@@ -366,7 +366,7 @@ func getGroupTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(DirectoryGroup{
+	body, err := json.Marshal(Group{
 		ID:   "directory_grp_id",
 		Name: "Scientists",
 	})
