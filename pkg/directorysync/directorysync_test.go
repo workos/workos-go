@@ -42,7 +42,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 		},
 	}
 	directoryUsersResponse, err := ListUsers(context.Background(), ListUsersOpts{
-		DirectoryEndpointID: "directory_edp_id",
+		Directory: "directory_id",
 	})
 
 	require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestDirectorySyncListGroups(t *testing.T) {
 	directoryGroupsResponse, err := ListGroups(
 		context.Background(),
 		ListGroupsOpts{
-			DirectoryEndpointID: "directory_edp_id",
+			Directory: "directory_id",
 		},
 	)
 
@@ -106,16 +106,15 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 	}
 	directoryUserResponse, err := GetUser(context.Background(), GetUserOpts{
-		DirectoryEndpointID: "directory_edp_id",
-		DirectoryUserID:     "directory_usr_id",
+		User: "directory_usr_id",
 	})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, directoryUserResponse)
 }
 
-func TestDirectorySyncListUserGroups(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listUserGroupsTestHandler))
+func TestDirectorySyncGetGroup(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getGroupTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -124,22 +123,16 @@ func TestDirectorySyncListUserGroups(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := []DirectoryGroup{
-		DirectoryGroup{
-			ID:   "directory_grp_id",
-			Name: "Scientists",
-		},
+	expectedResponse := DirectoryGroup{
+		ID:   "directory_grp_id",
+		Name: "Scientists",
 	}
-	directoryUserGroupsResponse, err := ListUserGroups(
-		context.Background(),
-		ListUserGroupsOpts{
-			DirectoryEndpointID: "directory_edp_id",
-			DirectoryUserID:     "directory_usr_id",
-		},
-	)
+	directoryGroupResponse, err := GetGroup(context.Background(), GetGroupOpts{
+		Group: "directory_grp_id",
+	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, directoryUserGroupsResponse)
+	require.Equal(t, expectedResponse, directoryGroupResponse)
 }
 
 func TestDirectorySyncListDirectories(t *testing.T) {
@@ -153,9 +146,9 @@ func TestDirectorySyncListDirectories(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := ListDirectoriesResponse{
-		Data: []DirectoryEndpoint{
-			DirectoryEndpoint{
-				ID:          "directory_edp_id",
+		Data: []Directory{
+			Directory{
+				ID:          "directory_id",
 				Name:        "Ri Jeong Hyeok",
 				Domain:      "crashlandingyou.com",
 				ExternalKey: "fried_chicken",

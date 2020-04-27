@@ -1,7 +1,7 @@
 // Package directorysync is a package to fetch Directory information from
 // WorkOS.
 //
-// You first need to setup a Directory Endpoint on
+// You first need to setup a Directory on
 // https://dashboard.workos.com/directory-sync.
 //
 // Example:
@@ -11,7 +11,7 @@
 //		directoryUsers, err := directorysync.ListUsers(
 //			context.Background(),
 //			directorysync.ListUsersOpts{
-//				DirectoryEndpointID: "directory_edp_id",
+//				Directory: "directory_id",
 //			},
 //		)
 //	}
@@ -57,12 +57,12 @@ func GetUser(
 	return DefaultClient.GetUser(ctx, opts)
 }
 
-// ListUserGroups gets details of a provisioned User's Groups for a Directory Endpoint.
-func ListUserGroups(
+// GetGroup gets a provisioned Group for a Directory Endpoint.
+func GetGroup(
 	ctx context.Context,
-	opts ListUserGroupsOpts,
-) ([]DirectoryGroup, error) {
-	return DefaultClient.ListUserGroups(ctx, opts)
+	opts GetGroupOpts,
+) (DirectoryGroup, error) {
+	return DefaultClient.GetGroup(ctx, opts)
 }
 
 // ListDirectories gets details of a Project's Directory Endpoints.
