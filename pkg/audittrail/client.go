@@ -11,7 +11,7 @@ import (
 	"github.com/workos-inc/workos-go/internal/workos"
 )
 
-// Client represents a client that performs audittrail request to WorkOS API.
+// Client represents a client that performs audittrail requests to WorkOS API.
 type Client struct {
 	// The WorkOS api key. It can be found in
 	// https://dashboard.workos.com/api-keys.
