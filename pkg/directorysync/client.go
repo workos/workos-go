@@ -110,7 +110,7 @@ type ListUsersResponse struct {
 	ListMetadata ListMetadata `json:"listMetadata"`
 }
 
-// ListUsers gets a list of provisioned Users for a Directory Endpoint.
+// ListUsers gets a list of provisioned Users for a Directory.
 func (c *Client) ListUsers(
 	ctx context.Context,
 	opts ListUsersOpts,
@@ -309,7 +309,7 @@ type GetGroupOpts struct {
 	Group string
 }
 
-// GetGroup gets a provisioned Group for a Directory Endpoint.
+// GetGroup gets a provisioned Group for a Directory.
 func (c *Client) GetGroup(
 	ctx context.Context,
 	opts GetGroupOpts,
