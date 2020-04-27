@@ -78,7 +78,7 @@ type ListMetadata struct {
 	// Pagination cursor to receive records before a provided ID.
 	Before string `json:"before"`
 
-	// Pagination cursor to receive records before a provided ID.
+	// Pagination cursor to receive records after a provided ID.
 	After string `json:"after"`
 }
 
@@ -316,7 +316,6 @@ func (c *Client) GetGroup(
 ) (Group, error) {
 	c.once.Do(c.init)
 
-	fmt.Printf("%+v\n", opts)
 	endpoint := fmt.Sprintf(
 		"%s/directory_groups/%s",
 		c.Endpoint,
@@ -401,7 +400,7 @@ type Directory struct {
 	State DirectoryState `json:"state"`
 }
 
-// ListDirectoriesOpts contains the options to request a project's Directories.
+// ListDirectoriesOpts contains the options to request a Project's Directories.
 type ListDirectoriesOpts struct {
 	// Domain of a Directory. Can be empty.
 	Domain string
