@@ -284,7 +284,7 @@ func TestClientCreateConnection(t *testing.T) {
 				OAuthSecret:               "",
 				OAuthRedirectURI:          "",
 				SamlEntityID:              "http://www.okta.com/rijeonghyeok",
-				SamlIdpURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
+				SamlIDPURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
 				SamlRelyingPartyTrustCert: "",
 				SamlX509Certs: []string{
 					"-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
@@ -340,7 +340,7 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		OAuthSecret:               "",
 		OAuthRedirectURI:          "",
 		SamlEntityID:              "http://www.okta.com/rijeonghyeok",
-		SamlIdpURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
+		SamlIDPURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
 		SamlRelyingPartyTrustCert: "",
 		SamlX509Certs: []string{
 			"-----BEGIN CERTIFICATE----------END CERTIFICATE-----",

@@ -282,7 +282,7 @@ type Connection struct {
 	SamlEntityID string `json:"saml_entity_id"`
 
 	// Identity Provider SSO URL.
-	SamlIdpURL string `json:"saml_idp_url"`
+	SamlIDPURL string `json:"saml_idp_url"`
 
 	// Certificate that describes where to expect valid SAML claims to come from.
 	SamlRelyingPartyTrustCert string `json:"saml_relying_party_trust_cert"`
