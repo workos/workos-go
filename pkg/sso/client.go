@@ -1,6 +1,7 @@
 package sso
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -18,10 +19,13 @@ type ConnectionType string
 
 // Constants that enumerate the available connection types.
 const (
-	ADFSSAML    ConnectionType = "ADFSSAML"
-	AzureSAML   ConnectionType = "AzureSAML"
-	GoogleOAuth ConnectionType = "GoogleOAuth"
-	OktaSAML    ConnectionType = "OktaSAML"
+	ADFSSAML     ConnectionType = "ADFSSAML"
+	AzureSAML    ConnectionType = "AzureSAML"
+	GenericSAML  ConnectionType = "GenericSAML"
+	GoogleOAuth  ConnectionType = "GoogleOAuth"
+	OktaSAML     ConnectionType = "OktaSAML"
+	OneLoginSAML ConnectionType = "OneLoginSAML"
+	VMwareSAML   ConnectionType = "VMwareSAML"
 )
 
 // Client represents a client that fetch SSO data from WorkOS API.
@@ -226,4 +230,105 @@ func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftCo
 	defer res.Body.Close()
 
 	return workos.TryGetHTTPError(res)
+}
+
+// CreateConnectionOpts contains the options to activate a Draft Connection.
+type CreateConnectionOpts struct {
+	Source string `json:"source"`
+}
+
+// ConnectionDomain represents the domain records associated with a Connection.
+type ConnectionDomain struct {
+	// Connection Domain unique identifier.
+	ID string `json:"id"`
+
+	// Domain for a Connection record.
+	Domain string `json:"domain"`
+}
+
+// ConnectionStatus represents a Connection's linked status.
+type ConnectionStatus string
+
+// Constants that enumerate the available Connection's linked statuses.
+const (
+	Linked   ConnectionStatus = "linked"
+	Unlinked ConnectionStatus = "unlinked"
+)
+
+// Connection represents a Connection record.
+type Connection struct {
+	// Connection unique identifier.
+	ID string `json:"id"`
+
+	// Connection linked status.
+	Status ConnectionStatus `json:"status"`
+
+	// Connection name.
+	Name string `json:"name"`
+
+	// Connection provider type.
+	ConnectionType ConnectionType `json:"connection_type"`
+
+	// OAuth Client ID.
+	OAuthUID string `json:"oauth_uid"`
+
+	// OAuth Client Secret.
+	OAuthSecret string `json:"oauth_secret"`
+
+	// OAuth Client Redirect URI.
+	OAuthRedirectURI string `json:"oauth_redirect_uri"`
+
+	// Identity Provider Issuer.
+	SamlEntityID string `json:"saml_entity_id"`
+
+	// Identity Provider SSO URL.
+	SamlIdpURL string `json:"saml_idp_url"`
+
+	// Certificate that describes where to expect valid SAML claims to come from.
+	SamlRelyingPartyTrustCert string `json:"saml_relying_party_trust_cert"`
+
+	// Certificates used to authenticate SAML assertions.
+	SamlX509Certs []string `json:"saml_x509_certs"`
+
+	// Domain records for the Connection.
+	Domains []ConnectionDomain `json:"domains"`
+}
+
+// CreateConnection activates a Draft Connection created via the WorkOS.js widget.
+func (c *Client) CreateConnection(ctx context.Context, opts CreateConnectionOpts) (Connection, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return Connection{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/connections",
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return Connection{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Connection{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Connection{}, err
+	}
+
+	var body Connection
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }

@@ -253,3 +253,105 @@ func promoteDraftConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func TestClientCreateConnection(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreateConnectionOpts
+		expected Connection
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request with valid API Key and Draft Connection",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CreateConnectionOpts{
+				Source: "source",
+			},
+			expected: Connection{
+				ID:                        "connection",
+				Name:                      "Terrace House",
+				Status:                    Unlinked,
+				ConnectionType:            OktaSAML,
+				OAuthUID:                  "",
+				OAuthSecret:               "",
+				OAuthRedirectURI:          "",
+				SamlEntityID:              "http://www.okta.com/rijeonghyeok",
+				SamlIdpURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
+				SamlRelyingPartyTrustCert: "",
+				SamlX509Certs: []string{
+					"-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
+				},
+			},
+			err: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(createConnectionTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			connection, err := client.CreateConnection(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, connection)
+		})
+	}
+}
+
+func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/connections" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	connection, err := json.Marshal(Connection{
+		ID:                        "connection",
+		Name:                      "Terrace House",
+		Status:                    Unlinked,
+		ConnectionType:            OktaSAML,
+		OAuthUID:                  "",
+		OAuthSecret:               "",
+		OAuthRedirectURI:          "",
+		SamlEntityID:              "http://www.okta.com/rijeonghyeok",
+		SamlIdpURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
+		SamlRelyingPartyTrustCert: "",
+		SamlX509Certs: []string{
+			"-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
+		},
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(connection)
+}

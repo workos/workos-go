@@ -84,6 +84,13 @@ func Login(opts GetAuthorizationURLOptions) http.Handler {
 
 // PromoteDraftConnection promotes a draft connection created via the WorkOS.js Embed
 // such that the Enterprise users can begin signing into your application.
+//
+// Deprecated: Use `CreateConnection` instead.
 func PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
 	return DefaultClient.PromoteDraftConnection(ctx, opts)
+}
+
+// CreateConnection promotes a Draft Connection created via the WorkOS.js widget.
+func CreateConnection(ctx context.Context, opts CreateConnectionOpts) (Connection, error) {
+	return DefaultClient.CreateConnection(ctx, opts)
 }
