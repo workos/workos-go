@@ -12,20 +12,21 @@
 //       )
 //
 //       http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
-// 	         Domain:	"mydomain.com",
+//           Domain:	"mydomain.com",
+//           RedirectURI: "https://mydomain.com/callback",
 //       }))
 //
-// 	     http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-// 	         profile, err := sso.GetProfile(context.Background(), sso.GetProfileOptions{
-// 	             Code:	r.URL.Query().Get("code"),
-// 	         })
-// 	         if err != nil {
-// 	             // Handle the error ...
-// 	             return
-// 	         }
+//       http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+//           profile, err := sso.GetProfile(context.Background(), sso.GetProfileOptions{
+//               Code:	r.URL.Query().Get("code"),
+//           })
+//           if err != nil {
+//               // Handle the error ...
+//               return
+//           }
 //
-// 	         // Handle the profile ...
-// 	         fmt.Println(profile)
+//           // Handle the profile ...
+//           fmt.Println(profile)
 //       })
 //
 //       if err := http.ListenAndServe("your_server_addr", nil); err != nil {

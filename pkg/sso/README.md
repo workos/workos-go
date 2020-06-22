@@ -34,6 +34,7 @@ func main() {
 
     http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
         Domain: "mydomain.com",
+        RedirectURI: "https://mydomain.com/callback",
     }))
 
     http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
