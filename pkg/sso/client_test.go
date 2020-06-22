@@ -21,32 +21,36 @@ func TestClientAuthorizeURL(t *testing.T) {
 		{
 			scenario: "generate url",
 			options: GetAuthorizationURLOptions{
-				Domain: "lyft.com",
+				Domain:      "lyft.com",
+				RedirectURI: "https://example.com/sso/workos/callback",
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
 		},
 		{
 			scenario: "generate url with state",
 			options: GetAuthorizationURLOptions{
-				Domain: "lyft.com",
-				State:  "custom state",
+				Domain:      "lyft.com",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				State:       "custom state",
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with provider",
 			options: GetAuthorizationURLOptions{
-				Provider: "GoogleOAuth",
-				State:    "custom state",
+				Provider:    "GoogleOAuth",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				State:       "custom state",
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with provider and domain",
 			options: GetAuthorizationURLOptions{
-				Domain:   "lyft.com",
-				Provider: "GoogleOAuth",
-				State:    "custom state",
+				Domain:      "lyft.com",
+				Provider:    "GoogleOAuth",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				State:       "custom state",
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
@@ -55,9 +59,8 @@ func TestClientAuthorizeURL(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
 			client := Client{
-				APIKey:      "test",
-				ProjectID:   "proj_123",
-				RedirectURI: "https://example.com/sso/workos/callback",
+				APIKey:    "test",
+				ProjectID: "proj_123",
 			}
 
 			u, err := client.GetAuthorizationURL(test.options)
@@ -69,13 +72,13 @@ func TestClientAuthorizeURL(t *testing.T) {
 
 func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
 	client := Client{
-		APIKey:      "test",
-		ProjectID:   "proj_123",
-		RedirectURI: "https://example.com/sso/workos/callback",
+		APIKey:    "test",
+		ProjectID: "proj_123",
 	}
 
 	u, err := client.GetAuthorizationURL(GetAuthorizationURLOptions{
-		State: "state",
+		RedirectURI: "https://example.com/sso/workos/callback",
+		State:       "state",
 	})
 
 	require.Error(t, err)
