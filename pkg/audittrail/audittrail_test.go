@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestAuditTrail(t *testing.T) {
@@ -26,7 +27,7 @@ func TestAuditTrail(t *testing.T) {
 
 	SetAPIKey("test")
 
-	err := Publish(context.TODO(), Event{})
+	err := Publish(context.TODO(), EventOpts{})
 	require.NoError(t, err)
 }
 
@@ -90,4 +91,49 @@ func TestMetadataValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func TestAuditTrailListEvents(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listEventsTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListEventsResponse{
+		Data: []Event{
+			Event{
+				ID:         "event_0",
+				Group:      "foo-corp.com",
+				Latitude:   "",
+				Longitude:  "",
+				Location:   "::1",
+				Type:       "r",
+				ActorName:  "demo@foo-corp.com",
+				ActorID:    "user_0",
+				TargetName: "http_request",
+				TargetID:   "",
+				Metadata:   Metadata{},
+				OccurredAt: "",
+				Action: EventAction{
+					ID:   "evt_action_0",
+					Name: "user.searched_directories",
+				},
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	eventsResponse, err := ListEvents(
+		context.Background(),
+		ListEventsOpts{},
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, eventsResponse)
 }

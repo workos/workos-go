@@ -5,20 +5,23 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestClientPublish(t *testing.T) {
 	tests := []struct {
 		scenario string
-		event    Event
+		event    EventOpts
 		err      bool
 	}{
 		{
 			scenario: "event with invalid metadata returns an error",
-			event: Event{
+			event: EventOpts{
 				Metadata: map[string]interface{}{
 					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "",
 				},
@@ -27,7 +30,7 @@ func TestClientPublish(t *testing.T) {
 		},
 		{
 			scenario: "encoding to json is returning an error",
-			event: Event{
+			event: EventOpts{
 				Metadata: map[string]interface{}{
 					"func": func() {},
 				},
@@ -37,7 +40,7 @@ func TestClientPublish(t *testing.T) {
 		},
 		{
 			scenario: "server is returning an 400",
-			event: Event{
+			event: EventOpts{
 				Metadata: map[string]interface{}{
 					"err": "simulated 400",
 				},
@@ -47,9 +50,9 @@ func TestClientPublish(t *testing.T) {
 		},
 		{
 			scenario: "event is published",
-			event: Event{
+			event: EventOpts{
 				Action:         "gosdk.publish",
-				ActionType:     Create,
+				ActionType:     "c",
 				IdempotencyKey: "test",
 			},
 		},
@@ -85,7 +88,7 @@ type defaultTestHandler struct {
 func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.requests++
 
-	var event Event
+	var event EventOpts
 
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&event); err != nil {
@@ -124,6 +127,125 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func TestListEvents(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListEventsOpts
+		expected ListEventsResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Audit Trail Events",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListEventsOpts{},
+			expected: ListEventsResponse{
+				Data: []Event{
+					Event{
+						ID:         "event_0",
+						Group:      "foo-corp.com",
+						Latitude:   "",
+						Longitude:  "",
+						Location:   "::1",
+						Type:       "r",
+						ActorName:  "demo@foo-corp.com",
+						ActorID:    "user_0",
+						TargetName: "http_request",
+						TargetID:   "",
+						Metadata:   Metadata{},
+						OccurredAt: "",
+						Action: EventAction{
+							ID:   "evt_action_0",
+							Name: "user.searched_directories",
+						},
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listEventsTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			events, err := client.ListEvents(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, events)
+		})
+	}
+}
+
+func listEventsTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "Authentication error", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListEventsResponse
+	}{
+		ListEventsResponse: ListEventsResponse{
+			Data: []Event{
+				Event{
+					ID:         "event_0",
+					Group:      "foo-corp.com",
+					Latitude:   "",
+					Longitude:  "",
+					Location:   "::1",
+					Type:       "r",
+					ActorName:  "demo@foo-corp.com",
+					ActorID:    "user_0",
+					TargetName: "http_request",
+					TargetID:   "",
+					Metadata:   Metadata{},
+					OccurredAt: "",
+					Action: EventAction{
+						ID:   "evt_action_0",
+						Name: "user.searched_directories",
+					},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 // Unit test to hit the prod api directly. Uncomment and provide an APIKey to
 // test.
 //
@@ -133,7 +255,7 @@ func (h *defaultTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 	}
 // 	client.init()
 
-// 	err := client.Publish(context.TODO(), Event{
+// 	err := client.Publish(context.TODO(), EventOpts{
 // 		Action:         "gosdk.publish",
 // 		ActionType:     Create,
 // 		ActorName:      "Jonhy Maxoo",

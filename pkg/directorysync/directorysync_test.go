@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestDirectorySyncListUsers(t *testing.T) {
@@ -36,7 +37,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
-		ListMetadata: ListMetadata{
+		ListMetadata: common.ListMetadata{
 			Before: "",
 			After:  "",
 		},
@@ -66,7 +67,7 @@ func TestDirectorySyncListGroups(t *testing.T) {
 				Name: "Scientists",
 			},
 		},
-		ListMetadata: ListMetadata{
+		ListMetadata: common.ListMetadata{
 			Before: "",
 			After:  "",
 		},
@@ -157,7 +158,7 @@ func TestDirectorySyncListDirectories(t *testing.T) {
 				ProjectID:   "project_id",
 			},
 		},
-		ListMetadata: ListMetadata{
+		ListMetadata: common.ListMetadata{
 			Before: "",
 			After:  "",
 		},
