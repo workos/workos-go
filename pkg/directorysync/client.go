@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/workos-inc/workos-go/internal/workos"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -73,15 +74,6 @@ type User struct {
 	RawAttributes json.RawMessage `json:"raw_attributes"`
 }
 
-// ListMetadata contains pagination options for Directory records.
-type ListMetadata struct {
-	// Pagination cursor to receive records before a provided ID.
-	Before string `json:"before"`
-
-	// Pagination cursor to receive records after a provided ID.
-	After string `json:"after"`
-}
-
 // ListUsersOpts contains the options to request provisioned Directory Users.
 type ListUsersOpts struct {
 	// Directory unique identifier.
@@ -107,7 +99,7 @@ type ListUsersResponse struct {
 	Data []User `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListUsers gets a list of provisioned Users for a Directory.
@@ -198,7 +190,7 @@ type ListGroupsResponse struct {
 	Data []Group `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListGroups gets a list of provisioned Groups for a Directory Endpoint.
@@ -425,7 +417,7 @@ type ListDirectoriesResponse struct {
 	Data []Directory `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListDirectories gets details of existing Directories.
