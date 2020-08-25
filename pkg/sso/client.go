@@ -165,6 +165,9 @@ type Profile struct {
 
 	// The user last name. Can be empty.
 	LastName string `json:"last_name"`
+
+	// The raw response of Profile attributes from the identity provider
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
 }
 
 // GetProfile returns a profile describing the user that authenticated with

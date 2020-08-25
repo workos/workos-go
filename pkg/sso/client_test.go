@@ -114,6 +114,12 @@ func TestClientGetProfile(t *testing.T) {
 				Email:          "foo@test.com",
 				FirstName:      "foo",
 				LastName:       "bar",
+				RawAttributes: map[string]interface{}{
+					"idp_id":     "123",
+					"email":      "foo@test.com",
+					"first_name": "foo",
+					"last_name":  "bar",
+				},
 			},
 		},
 	}
@@ -167,6 +173,12 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 			Email:          "foo@test.com",
 			FirstName:      "foo",
 			LastName:       "bar",
+			RawAttributes: map[string]interface{}{
+				"idp_id":     "123",
+				"email":      "foo@test.com",
+				"first_name": "foo",
+				"last_name":  "bar",
+			},
 		},
 	})
 	if err != nil {
