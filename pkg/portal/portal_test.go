@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos-inc/workos-go/pkg/common"
-
 )
 
 func TestPortalListOrganizations(t *testing.T) {
