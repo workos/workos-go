@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestListOrganizations(t *testing.T) {
@@ -46,7 +47,7 @@ func TestListOrganizations(t *testing.T) {
 						},
 					},
 				},
-				ListMetadata: ListMetadata{
+				ListMetadata: common.ListMetadata{
 					Before: "",
 					After:  "",
 				},
@@ -102,7 +103,7 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 					},
 				},
 			},
-			ListMetadata: ListMetadata{
+			ListMetadata: common.ListMetadata{
 				Before: "",
 				After:  "",
 			},

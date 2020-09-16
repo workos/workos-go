@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/workos-inc/workos-go/internal/workos"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -61,15 +62,6 @@ type Organization struct {
 	Domains []OrganizationDomain `json:"domains"`
 }
 
-// ListMetadata contains pagination options for organization records.
-type ListMetadata struct {
-	// Pagination cursor to receive records before a provided ID.
-	Before string `json:"before"`
-
-	// Pagination cursor to receive records after a provided ID.
-	After string `json:"after"`
-}
-
 // ListOrganizationsOpts contains the options to request Organizations.
 type ListOrganizationsOpts struct {
 	// Domains of the Organization.
@@ -92,7 +84,7 @@ type ListOrganizationsResponse struct {
 	Data []Organization `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListOrganizations gets a list of WorkOS Organizations.

@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/workos-inc/workos-go/pkg/common"
+
 )
 
 func TestPortalListOrganizations(t *testing.T) {
@@ -32,7 +34,7 @@ func TestPortalListOrganizations(t *testing.T) {
 				},
 			},
 		},
-		ListMetadata: ListMetadata{
+		ListMetadata: common.ListMetadata{
 			Before: "",
 			After:  "",
 		},
