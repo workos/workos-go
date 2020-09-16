@@ -39,3 +39,11 @@ func ListOrganizations(
 ) (ListOrganizationsResponse, error) {
 	return DefaultClient.ListOrganizations(ctx, opts)
 }
+
+// GenerateLink generates an ephemeral link to the Admin Portal
+func GenerateLink(
+	ctx context.Context,
+	opts GenerateLinkOpts,
+) (string, error) {
+	return DefaultClient.GenerateLink(ctx, opts)
+}
