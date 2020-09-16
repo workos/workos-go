@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
 	"github.com/workos-inc/workos-go/internal/workos"
 	"github.com/workos-inc/workos-go/pkg/common"
 )
@@ -65,16 +65,16 @@ type Organization struct {
 // ListOrganizationsOpts contains the options to request Organizations.
 type ListOrganizationsOpts struct {
 	// Domains of the Organization.
-	Domains []string
+	Domains []string `url:"domains,brackets,omitempty"`
 
 	// Maximum number of records to return.
-	Limit int
+	Limit int `url:"limit,omitempty"`
 
 	// Pagination cursor to receive records before a provided Organization ID.
-	Before string
+	Before string `url:"before,omitempty"`
 
 	// Pagination cursor to receive records after a provided Organization ID.
-	After string
+	After string `url:"after,omitempty"`
 }
 
 // ListOrganizationsResponse describes the response structure when requesting
@@ -109,20 +109,15 @@ func (c *Client) ListOrganizations(
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
-	limit := ResponseLimit
-	if opts.Limit != 0 {
-		limit = opts.Limit
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
 	}
-	q := req.URL.Query()
 
-	if len(opts.Domains) > 0 {
-		for _, domain := range opts.Domains {
-			q.Add("domains", domain)
-		}
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListOrganizationsResponse{}, err
 	}
-	q.Add("before", opts.Before)
-	q.Add("after", opts.After)
-	q.Add("limit", strconv.Itoa(limit))
+
 	req.URL.RawQuery = q.Encode()
 
 	res, err := c.HTTPClient.Do(req)
