@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestListUsers(t *testing.T) {
@@ -48,7 +49,7 @@ func TestListUsers(t *testing.T) {
 						RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 					},
 				},
-				ListMetadata: ListMetadata{
+				ListMetadata: common.ListMetadata{
 					Before: "",
 					After:  "",
 				},
@@ -107,7 +108,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 				},
 			},
-			ListMetadata: ListMetadata{
+			ListMetadata: common.ListMetadata{
 				Before: "",
 				After:  "",
 			},
@@ -150,7 +151,7 @@ func TestListGroups(t *testing.T) {
 						Name: "Scientists",
 					},
 				},
-				ListMetadata: ListMetadata{
+				ListMetadata: common.ListMetadata{
 					Before: "",
 					After:  "",
 				},
@@ -200,7 +201,7 @@ func listGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 					Name: "Scientists",
 				},
 			},
-			ListMetadata: ListMetadata{
+			ListMetadata: common.ListMetadata{
 				Before: "",
 				After:  "",
 			},
@@ -410,7 +411,7 @@ func TestListDirectories(t *testing.T) {
 						ProjectID:   "project_id",
 					},
 				},
-				ListMetadata: ListMetadata{
+				ListMetadata: common.ListMetadata{
 					Before: "",
 					After:  "",
 				},
@@ -462,7 +463,7 @@ func listDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 				ProjectID:   "project_id",
 			},
 		},
-		ListMetadata: ListMetadata{
+		ListMetadata: common.ListMetadata{
 			Before: "",
 			After:  "",
 		},

@@ -25,13 +25,20 @@ func TestLogin(t *testing.T) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
+		RawAttributes: map[string]interface{}{
+			"idp_id":     "123",
+			"email":      "foo@test.com",
+			"first_name": "foo",
+			"last_name":  "bar",
+		},
 	}
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
 	mux.Handle("/login", Login(GetAuthorizationURLOptions{
-		Domain: "lyft.com",
+		Domain:      "lyft.com",
+		RedirectURI: redirectURI,
 	}))
 
 	mux.HandleFunc("/sso/authorize", func(w http.ResponseWriter, r *http.Request) {

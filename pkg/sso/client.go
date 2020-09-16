@@ -44,7 +44,7 @@ type Client struct {
 	// The callback URL where your app redirects the user-agent after an
 	// authorization code is granted (eg. https://foo.com/callback).
 	//
-	// REQUIRED.
+	// Deprecated: Use `GetAuthorizationURLOptions.RedirectURI` instead.
 	RedirectURI string
 
 	// The endpoint to WorkOS API.
@@ -88,6 +88,12 @@ type GetAuthorizationURLOptions struct {
 	// Provider is currently only used when the connection type is GoogleOAuth.
 	Provider ConnectionType
 
+	// The callback URL where your app redirects the user-agent after an
+	// authorization code is granted (eg. https://foo.com/callback).
+	//
+	// REQUIRED.
+	RedirectURI string
+
 	// A unique identifier used to manage state across authorization
 	// transactions (eg. 1234zyx).
 	//
@@ -100,9 +106,14 @@ type GetAuthorizationURLOptions struct {
 func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL, error) {
 	c.once.Do(c.init)
 
+	redirectURI := opts.RedirectURI
+	if redirectURI == "" {
+		redirectURI = c.RedirectURI
+	}
+
 	query := make(url.Values, 5)
 	query.Set("client_id", c.ProjectID)
-	query.Set("redirect_uri", c.RedirectURI)
+	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
 
 	if opts.Domain == "" && opts.Provider == "" {
@@ -154,6 +165,9 @@ type Profile struct {
 
 	// The user last name. Can be empty.
 	LastName string `json:"last_name"`
+
+	// The raw response of Profile attributes from the identity provider
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
 }
 
 // GetProfile returns a profile describing the user that authenticated with
