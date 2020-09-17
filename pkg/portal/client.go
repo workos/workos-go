@@ -95,6 +95,32 @@ type ListOrganizationsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
+// GenerateLinkIntent represents the intent of an Admin Portal.
+type GenerateLinkIntent string
+
+// Constants that enumerate the available GenerateLinkIntent types.
+const (
+	SSO GenerateLinkIntent = "sso"
+)
+
+// GenerateLinkOpts contains the options to request Organizations.
+type GenerateLinkOpts struct {
+	// Intent of the Admin Portal
+	Intent GenerateLinkIntent `json:"intent"`
+
+	// Organization identifier to scope the Portal Session
+	Organization string `json:"organization"`
+
+	// The URL to which users will return to when finished with the Admin Portal.
+	ReturnURL string `json:"return_url"`
+}
+
+// generatedLinkResponse represents the generated Portal Link
+type generateLinkResponse struct {
+	// Generated Portal Link
+	Link string `json:"link"`
+}
+
 // CreateOrganizationsOpts contains the options to create an Organization.
 type CreateOrganizationsOpts struct {
 	// Domains of the Organization.
@@ -186,4 +212,43 @@ func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganization
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
+}
+
+// GenerateLink generates a link to the Admin Portal
+func (c *Client) GenerateLink(
+	ctx context.Context,
+	opts GenerateLinkOpts,
+) (string, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return "", err
+	}
+
+	endpoint := fmt.Sprintf("%s/portal/generate_link", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return "", err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return "", err
+	}
+
+	var body generateLinkResponse
+
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body.Link, err
 }
