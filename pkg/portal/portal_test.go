@@ -46,3 +46,34 @@ func TestPortalListOrganizations(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, organizationsResponse)
 }
+
+func TestPortalCreateOrganizations(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createOrganizationsTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse :=
+		Organization{
+			ID:   "organization_id",
+			Name: "Foo Corp",
+			Domains: []OrganizationDomain{
+				OrganizationDomain{
+					ID:     "organization_domain_id",
+					Domain: "foo-corp.com",
+				},
+			},
+		}
+
+	organization, err := CreateOrganization(context.Background(), CreateOrganizationsOpts{
+		Name:    "Foo Corp",
+		Domains: []string{"foo-corp.com"},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, organization)
+}

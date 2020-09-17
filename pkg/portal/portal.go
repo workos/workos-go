@@ -39,3 +39,11 @@ func ListOrganizations(
 ) (ListOrganizationsResponse, error) {
 	return DefaultClient.ListOrganizations(ctx, opts)
 }
+
+// CreateOrganization creates an Organization.
+func CreateOrganization(
+	ctx context.Context,
+	opts CreateOrganizationsOpts,
+) (Organization, error) {
+	return DefaultClient.CreateOrganization(ctx, opts)
+}
