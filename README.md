@@ -9,6 +9,7 @@ A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
 - [AuditTrail](https://github.com/workos-inc/workos-go/tree/master/pkg/audittrail)
 - [DirectorySync](https://github.com/workos-inc/workos-go/tree/master/pkg/directorysync)
 - [SSO](https://github.com/workos-inc/workos-go/tree/master/pkg/sso)
+- [Portal](https://github.com/workos-inc/workos-go/tree/master/pkg/portal)
 
 ## Install
 
