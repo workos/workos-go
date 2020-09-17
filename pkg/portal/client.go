@@ -121,6 +121,15 @@ type generateLinkResponse struct {
 	Link string `json:"link"`
 }
 
+// CreateOrganizationsOpts contains the options to create an Organization.
+type CreateOrganizationsOpts struct {
+	// Domains of the Organization.
+	Domains []string `json:"domains"`
+
+	// Name of the Organization.
+	Name string `json:"name"`
+}
+
 // ListOrganizations gets a list of WorkOS Organizations.
 func (c *Client) ListOrganizations(
 	ctx context.Context,
@@ -165,6 +174,41 @@ func (c *Client) ListOrganizations(
 	}
 
 	var body ListOrganizationsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// CreateOrganization creates an Organization.
+func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganizationsOpts) (Organization, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return Organization{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/organizations", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return Organization{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Organization{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Organization{}, err
+	}
+
+	var body Organization
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
