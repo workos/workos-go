@@ -110,6 +110,7 @@ func TestClientGetProfile(t *testing.T) {
 			expected: Profile{
 				ID:             "proj_123",
 				IdpID:          "123",
+				ConnectionID:   "conn_123",
 				ConnectionType: OktaSAML,
 				Email:          "foo@test.com",
 				FirstName:      "foo",
@@ -169,6 +170,7 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		Profile: Profile{
 			ID:             "proj_123",
 			IdpID:          "123",
+			ConnectionID:   "conn_123",
 			ConnectionType: OktaSAML,
 			Email:          "foo@test.com",
 			FirstName:      "foo",
