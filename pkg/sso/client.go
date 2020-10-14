@@ -156,7 +156,7 @@ type Profile struct {
 
 	// The connection ID.
 	ConnectionID string `json:"connection_id"`
-	
+
 	// The connection type.
 	ConnectionType ConnectionType `json:"connection_type"`
 
