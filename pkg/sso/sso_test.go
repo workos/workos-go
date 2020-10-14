@@ -21,6 +21,7 @@ func TestLogin(t *testing.T) {
 	expectedProfile := Profile{
 		ID:             "proj_123",
 		IdpID:          "123",
+		ConnectionID:   "conn_123",
 		ConnectionType: OktaSAML,
 		Email:          "foo@test.com",
 		FirstName:      "foo",
