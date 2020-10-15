@@ -41,12 +41,6 @@ type Client struct {
 	// REQUIRED.
 	ProjectID string
 
-	// The callback URL where your app redirects the user-agent after an
-	// authorization code is granted (eg. https://foo.com/callback).
-	//
-	// Deprecated: Use `GetAuthorizationURLOptions.RedirectURI` instead.
-	RedirectURI string
-
 	// The endpoint to WorkOS API.
 	//
 	// Defaults to https://api.workos.com.
@@ -107,9 +101,6 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	c.once.Do(c.init)
 
 	redirectURI := opts.RedirectURI
-	if redirectURI == "" {
-		redirectURI = c.RedirectURI
-	}
 
 	query := make(url.Values, 5)
 	query.Set("client_id", c.ProjectID)

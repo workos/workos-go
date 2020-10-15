@@ -8,7 +8,6 @@
 //       sso.Configure(
 //           "xxxxx",                         // WorkOS api key
 //           "project_xxxxx",                 // WorkOS project id
-//           "https://mydomain.com/callback", // Redirect URI
 //       )
 //
 //       http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
@@ -50,10 +49,9 @@ var (
 // Configure configures the default client that is used by GetAuthorizationURL,
 // GetProfile and Login.
 // It must be called before using those functions.
-func Configure(apiKey, projectID, redirectURI string) {
+func Configure(apiKey, projectID string) {
 	DefaultClient.APIKey = apiKey
 	DefaultClient.ProjectID = projectID
-	DefaultClient.RedirectURI = redirectURI
 }
 
 // GetAuthorizationURL returns an authorization url generated with the given
