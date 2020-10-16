@@ -19,13 +19,17 @@ type ConnectionType string
 
 // Constants that enumerate the available connection types.
 const (
-	ADFSSAML     ConnectionType = "ADFSSAML"
-	AzureSAML    ConnectionType = "AzureSAML"
-	GenericSAML  ConnectionType = "GenericSAML"
-	GoogleOAuth  ConnectionType = "GoogleOAuth"
-	OktaSAML     ConnectionType = "OktaSAML"
-	OneLoginSAML ConnectionType = "OneLoginSAML"
-	VMwareSAML   ConnectionType = "VMwareSAML"
+	ADFSSAML         ConnectionType = "ADFSSAML"
+	AzureSAML        ConnectionType = "AzureSAML"
+	GenericOIDC      ConnectionType = "GenericOIDC"
+	GenericSAML      ConnectionType = "GenericSAML"
+	GoogleOAuth      ConnectionType = "GoogleOAuth"
+	MagicLink        ConnectionType = "MagicLink"
+	OktaSAML         ConnectionType = "OktaSAML"
+	OneLoginSAML     ConnectionType = "OneLoginSAML"
+	PingFederateSAML ConnectionType = "PingFederateSAML"
+	PingOneSAML      ConnectionType = "PingOneSAML"
+	VMwareSAML       ConnectionType = "VMwareSAML"
 )
 
 // Client represents a client that fetch SSO data from WorkOS API.
