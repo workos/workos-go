@@ -75,7 +75,7 @@ func TestLogin(t *testing.T) {
 		Endpoint:   server.URL,
 		HTTPClient: server.Client(),
 	}
-	Configure("test", "proj_123", redirectURI)
+	Configure("test", "proj_123")
 
 	res, err := server.Client().Get(server.URL + "/login")
 	require.NoError(t, err)
