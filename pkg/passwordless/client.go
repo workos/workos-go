@@ -140,7 +140,7 @@ func (c *Client) SendSession(
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	endpoint := fmt.Sprintf(
@@ -150,7 +150,7 @@ func (c *Client) SendSession(
 	)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return "", err
+		return err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
@@ -159,7 +159,7 @@ func (c *Client) SendSession(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer res.Body.Close()
 

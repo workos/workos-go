@@ -98,7 +98,7 @@ func TestSendSession(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  SendeSessionOpts
+		options  SendSessionOpts
 		expected string
 		err      bool
 	}{
