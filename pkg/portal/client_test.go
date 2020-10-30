@@ -166,7 +166,7 @@ func TestCreateOrganization(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createOrganizationsTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(createOrganizationTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -184,7 +184,7 @@ func TestCreateOrganization(t *testing.T) {
 	}
 }
 
-func createOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
+func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)

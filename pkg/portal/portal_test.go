@@ -47,8 +47,8 @@ func TestPortalListOrganizations(t *testing.T) {
 	require.Equal(t, expectedResponse, organizationsResponse)
 }
 
-func TestPortalCreateOrganizations(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createOrganizationsTestHandler))
+func TestPortalCreateOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createOrganizationTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{

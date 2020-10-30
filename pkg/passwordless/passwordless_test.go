@@ -10,7 +10,7 @@ import (
 	"github.com/workos-inc/workos-go/pkg/common"
 )
 
-func TestPasswordlessCreateOrganizations(t *testing.T) {
+func TestPasswordlessCreateSession(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(createSessionTestHandler))
 	defer server.Close()
 

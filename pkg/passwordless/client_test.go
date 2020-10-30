@@ -83,7 +83,7 @@ func createSessionTestHandler(w http.ResponseWriter, r *http.Request) {
 			ID:   "session_id",
 			Email: "sasa@foo-corp.com",
 			ExpiresAt: "",
-			Link: "https://id.workos.test/passwordless/1234/confirm"
+			Link: "https://id.workos.test/passwordless/1234/confirm",
 		})
 
 	if err != nil {
