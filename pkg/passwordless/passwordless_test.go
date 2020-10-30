@@ -46,8 +46,6 @@ func TestPasswordlessSendSession(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedLink := "https://id.workos.test/portal/launch?secret=1234"
-
 	err := SendSession(context.Background(), SendSessionOpts{
 		ID: "session_id",
 	})
