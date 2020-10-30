@@ -1,37 +1,4 @@
-// Package sso provide functions and client to communicate with WorkOS SSO API.
-//
-// You first need to setup an SSO connection on
-// https://dashboard.workos.com/sso/connections.
-//
-// Then implement the `/login` and `/callback` handlers on your server:
-//   func main() {
-//       sso.Configure(
-//           "xxxxx",                         // WorkOS api key
-//           "project_xxxxx",                 // WorkOS project id
-//       )
-//
-//       http.Handle("/login", sso.Login(sso.GetAuthorizationURLOptions{
-//           Domain:	"mydomain.com",
-//           RedirectURI: "https://mydomain.com/callback",
-//       }))
-//
-//       http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-//           profile, err := sso.GetProfile(context.Background(), sso.GetProfileOptions{
-//               Code:	r.URL.Query().Get("code"),
-//           })
-//           if err != nil {
-//               // Handle the error ...
-//               return
-//           }
-//
-//           // Handle the profile ...
-//           fmt.Println(profile)
-//       })
-//
-//       if err := http.ListenAndServe("your_server_addr", nil); err != nil {
-//           panic(err)
-//       }
-//   }
+// Package `sso` provides a client wrapping the WorkOS SSO API.
 package sso
 
 import (

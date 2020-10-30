@@ -1,33 +1,18 @@
-// Package portal is a package to manage the WorkOS Admin Portal
-//
-// You first need to configure your Admin Portal settings at
-// https://dashboard.workos.com/admin-portal.
-//
-// Example:
-//	func main() {
-//		portal.SetAPIKey("my_api_key")
-//
-//		organizations, err := portal.ListOrganizations(
-//			context.Background(),
-//			portal.ListOrganizationsOpts{
-//				Domains: []string{"foo-corp.com"}
-//			},
-//		)
-//	}
+// Package `portal` provides a client wrapping the WorkOS Admin Portal API.
 package portal
 
 import (
 	"context"
 )
 
-// DefaultClient is the client used by SetAPIKey and Directory Sync functions.
+// DefaultClient is the client used by SetAPIKey and Admin Portal functions.
 var (
 	DefaultClient = &Client{
 		Endpoint: "https://api.workos.com",
 	}
 )
 
-// SetAPIKey sets the WorkOS API key for Directory Sync requests.
+// SetAPIKey sets the WorkOS API key for Admin Portal requests.
 func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
@@ -43,7 +28,7 @@ func ListOrganizations(
 // CreateOrganization creates an Organization.
 func CreateOrganization(
 	ctx context.Context,
-	opts CreateOrganizationsOpts,
+	opts CreateOrganizationOpts,
 ) (Organization, error) {
 	return DefaultClient.CreateOrganization(ctx, opts)
 }

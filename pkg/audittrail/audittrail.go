@@ -1,4 +1,4 @@
-// Package audittrail is a package to send audit trail events to WorkOS.
+// Package `audittrail` provides a client wrapping the WorkOS Audit Trail API.
 //
 // Example:
 //   func main() {

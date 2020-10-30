@@ -121,8 +121,8 @@ type generateLinkResponse struct {
 	Link string `json:"link"`
 }
 
-// CreateOrganizationsOpts contains the options to create an Organization.
-type CreateOrganizationsOpts struct {
+// CreateOrganizationOpts contains the options to create an Organization.
+type CreateOrganizationOpts struct {
 	// Domains of the Organization.
 	Domains []string `json:"domains"`
 
@@ -180,7 +180,7 @@ func (c *Client) ListOrganizations(
 }
 
 // CreateOrganization creates an Organization.
-func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganizationsOpts) (Organization, error) {
+func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganizationOpts) (Organization, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)

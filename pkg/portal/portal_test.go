@@ -69,7 +69,7 @@ func TestPortalCreateOrganizations(t *testing.T) {
 			},
 		}
 
-	organization, err := CreateOrganization(context.Background(), CreateOrganizationsOpts{
+	organization, err := CreateOrganization(context.Background(), CreateOrganizationOpts{
 		Name:    "Foo Corp",
 		Domains: []string{"foo-corp.com"},
 	})

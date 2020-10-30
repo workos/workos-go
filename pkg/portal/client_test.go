@@ -122,7 +122,7 @@ func TestCreateOrganizations(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateOrganizationsOpts
+		options  CreateOrganizationsOpt
 		expected Organization
 		err      bool
 	}{
@@ -136,7 +136,7 @@ func TestCreateOrganizations(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateOrganizationsOpts{
+			options: CreateOrganizationsOpt{
 				Name:    "Foo Corp",
 				Domains: []string{"foo-corp.com"},
 			},
@@ -157,7 +157,7 @@ func TestCreateOrganizations(t *testing.T) {
 				APIKey: "test",
 			},
 			err: true,
-			options: CreateOrganizationsOpts{
+			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"duplicate.com"},
 			},
@@ -191,7 +191,7 @@ func createOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var opts CreateOrganizationsOpts
+	var opts CreateOrganizationOpts
 	json.NewDecoder(r.Body).Decode(&opts)
 	for _, domain := range opts.Domains {
 		if domain == "duplicate.com" {
