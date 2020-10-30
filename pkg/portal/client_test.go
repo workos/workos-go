@@ -118,11 +118,11 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCreateOrganizations(t *testing.T) {
+func TestCreateOrganization(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateOrganizationsOpt
+		options  CreateOrganizationOpt
 		expected Organization
 		err      bool
 	}{
@@ -136,7 +136,7 @@ func TestCreateOrganizations(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateOrganizationsOpt{
+			options: CreateOrganizationOpt{
 				Name:    "Foo Corp",
 				Domains: []string{"foo-corp.com"},
 			},

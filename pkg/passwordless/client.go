@@ -1,0 +1,169 @@
+package package
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"sync"
+	"time"
+
+	"github.com/google/go-querystring/query"
+	"github.com/workos-inc/workos-go/internal/workos"
+	"github.com/workos-inc/workos-go/pkg/common"
+)
+
+// Client represents a client that performs Passwordless requests to the WorkOS API.
+type Client struct {
+	// The WorkOS API Key.
+	// It can be found in https://dashboard.workos.com/api-keys.
+	//
+	// REQURIED
+	APIKey string
+
+	// The http.Client that is used to send request to WorkOS.
+	//
+	// Defaults to http.Client.
+	HTTPClient *http.Client
+
+	// The endpoint to WorkOS API.
+	//
+	// Defaults to https://api.workos.com.
+	Endpoint string
+
+	// The function used to encode in JSON. Defaults to json.Marshal.
+	JSONEncode func(v interface{}) ([]byte, error)
+
+	once sync.Once
+}
+
+func (c *Client) init() {
+	if c.HTTPClient == nil {
+		c.HTTPClient = &http.Client{Timeout: 10 * time.Second}
+	}
+
+	if c.Endpoint == "" {
+		c.Endpoint = "https://api.workos.com"
+	}
+
+	if c.JSONEncode == nil {
+		c.JSONEncode = json.Marshal
+	}
+}
+
+// PasswordlessSession contains data about a WorkOS Passwordless Session.
+type PasswordlessSession struct {
+	// The Passwordless Session's unique identifier.
+	ID string `json:"id"`
+
+	// The email of the user to authenticate.
+	Email string `json:"name"`
+
+	// ISO-8601 datetime at which the Passwordless Session link expires.
+	ExpiresAt string `json:"expires_at"`
+
+	// The link for the user to authenticate with.
+	Link string `json:"link"`
+}
+
+// CreateSessionType represents the type of a Passwordless Session.
+type PasswordlessSessionType string
+
+// Constants that enumerate the available PasswordlessSessionType values.
+const (
+	MagicLink PasswordlessSessionType = "MagicLink"
+)
+
+// CreateSessionOpts contains the options to create a Passowordless Session.
+type CreateSessionOpts struct {
+	// The email of the user to authenticate.
+	//
+	// REQUIRED
+	Email string `json:"email"`
+
+	// The type of Passwordless Session to create.
+	//
+	// REQUIRED
+	Type PasswordlessSessionType `json:"type"`
+
+	// Optional string value used to manage application state
+	// between authorization transactions.
+	State string `json:"state"`
+}
+
+// CreateSession creates a a PasswordlessSession.
+func (c *Client) CreateSession(ctx context.Context, opts CreateSessionOpts) (PasswordlessSession, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return Organization{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/passwordless/sessions", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return Organization{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return PasswordlessSession{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return PasswordlessSession{}, err
+	}
+
+	var body PasswordlessSession
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// SendSessionOpts contains the options to send a Passwordless Session via email.
+type SendSessionOpts struct {
+	// Passwordless Session unique identifier.
+	ID string
+}
+
+// SendSession sends a Passwordless Session via email
+func (c *Client) SendSession(
+	ctx context.Context,
+	opts SendSessionOpts,
+) (string, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return "", err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/passwordless/sessions/%s/send",
+		c.Endpoint,
+		opts.ID,
+	)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return "", err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	return workos.TryGetHTTPError(res)
+}
