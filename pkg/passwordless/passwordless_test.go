@@ -21,7 +21,7 @@ func TestPasswordlessCreateSession(t *testing.T) {
 
 	expectedResponse :=
 		PasswordlessSession{
-			ID:        "organization_id",
+			ID:        "session_id",
 			Email:     "sasa@foo-corp.com",
 			ExpiresAt: "",
 			Link:      "https://id.workos.test/passwordless/1234/confirm",
