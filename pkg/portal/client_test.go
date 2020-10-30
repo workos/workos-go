@@ -122,7 +122,7 @@ func TestCreateOrganization(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateOrganizationOpt
+		options  CreateOrganizationOpts
 		expected Organization
 		err      bool
 	}{
@@ -136,7 +136,7 @@ func TestCreateOrganization(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateOrganizationOpt{
+			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"foo-corp.com"},
 			},
