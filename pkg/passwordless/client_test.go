@@ -31,14 +31,14 @@ func TestCreateSession(t *testing.T) {
 				APIKey: "test",
 			},
 			options: CreateSessionOpts{
-				Email:    "sasa@foo-corp.com",
-				Type: MagicLink,
+				Email: "sasa@foo-corp.com",
+				Type:  MagicLink,
 			},
 			expected: PasswordlessSession{
-				ID:   "session_id",
-				Email: "sasa@foo-corp.com",
+				ID:        "session_id",
+				Email:     "sasa@foo-corp.com",
 				ExpiresAt: "",
-				Link: "https://id.workos.test/passwordless/1234/confirm",
+				Link:      "https://id.workos.test/passwordless/1234/confirm",
 			},
 		},
 	}
@@ -80,10 +80,10 @@ func createSessionTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		PasswordlessSession{
-			ID:   "session_id",
-			Email: "sasa@foo-corp.com",
+			ID:        "session_id",
+			Email:     "sasa@foo-corp.com",
 			ExpiresAt: "",
-			Link: "https://id.workos.test/passwordless/1234/confirm",
+			Link:      "https://id.workos.test/passwordless/1234/confirm",
 		})
 
 	if err != nil {
