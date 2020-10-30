@@ -22,16 +22,16 @@ func TestPasswordlessCreateSession(t *testing.T) {
 
 	expectedResponse :=
 		PasswordlessSession{
-			ID:   "organization_id",
-			Email: "sasa@foo-corp.com",
+			ID:        "organization_id",
+			Email:     "sasa@foo-corp.com",
 			ExpiresAt: "",
-			Link: "https://id.workos.test/passwordless/1234/confirm",
+			Link:      "https://id.workos.test/passwordless/1234/confirm",
 
 		}
 
 	session, err := CreateSession(context.Background(), CreateSessionOpts{
 		Email: "sasa@foo-corp.com",
-		Type: MagicLink,
+		Type:  MagicLink,
 	})
 
 	require.NoError(t, err)

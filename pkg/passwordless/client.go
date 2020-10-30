@@ -9,9 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/go-querystring/query"
 	"github.com/workos-inc/workos-go/internal/workos"
-	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 // Client represents a client that performs Passwordless requests to the WorkOS API.
@@ -137,7 +135,7 @@ type SendSessionOpts struct {
 func (c *Client) SendSession(
 	ctx context.Context,
 	opts SendSessionOpts,
-) (string, error) {
+) error {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)

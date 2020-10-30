@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestCreateSession(t *testing.T) {
