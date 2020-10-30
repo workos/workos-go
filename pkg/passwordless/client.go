@@ -96,13 +96,13 @@ func (c *Client) CreateSession(ctx context.Context, opts CreateSessionOpts) (Pas
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return Organization{}, err
+		return PasswordlessSession{}, err
 	}
 
 	endpoint := fmt.Sprintf("%s/passwordless/sessions", c.Endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return Organization{}, err
+		return PasswordlessSession{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")

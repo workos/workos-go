@@ -127,7 +127,7 @@ func TestSendSession(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			link, err := client.SendSession(context.Background(), test.options)
+			err := client.SendSession(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
