@@ -141,7 +141,7 @@ type GetProfileOptions struct {
 	Code string
 }
 
-// Profile contains information about a user authentication.
+// Profile contains information about an authenticated user.
 type Profile struct {
 	// The user ID.
 	ID string `json:"id"`

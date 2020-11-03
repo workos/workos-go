@@ -10,6 +10,7 @@ A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
 - [DirectorySync](https://github.com/workos-inc/workos-go/tree/master/pkg/directorysync)
 - [SSO](https://github.com/workos-inc/workos-go/tree/master/pkg/sso)
 - [Portal](https://github.com/workos-inc/workos-go/tree/master/pkg/portal)
+- [Passwordless](https://github.com/workos-inc/workos-go/tree/master/pkg/passwordless)(i.e. Magic Link)
 
 ## Install
 

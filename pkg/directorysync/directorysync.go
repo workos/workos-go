@@ -1,20 +1,4 @@
-// Package directorysync is a package to fetch Directory information from
-// WorkOS.
-//
-// You first need to setup a Directory on
-// https://dashboard.workos.com/directory-sync.
-//
-// Example:
-//	func main() {
-//		directorysync.SetAPIKey("my_api_key")
-//
-//		directoryUsers, err := directorysync.ListUsers(
-//			context.Background(),
-//			directorysync.ListUsersOpts{
-//				Directory: "directory_id",
-//			},
-//		)
-//	}
+// Package `directorysync` provides a client wrapping the WorkOS Directory Sync API.
 package directorysync
 
 import (
