@@ -1,4 +1,4 @@
-# portal
+# passwordless
 
 [![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos-inc/workos-go/pkg/passwordless)
 
