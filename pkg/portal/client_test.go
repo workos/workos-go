@@ -118,11 +118,11 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCreateOrganizations(t *testing.T) {
+func TestCreateOrganization(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateOrganizationsOpts
+		options  CreateOrganizationOpts
 		expected Organization
 		err      bool
 	}{
@@ -136,7 +136,7 @@ func TestCreateOrganizations(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateOrganizationsOpts{
+			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"foo-corp.com"},
 			},
@@ -157,7 +157,7 @@ func TestCreateOrganizations(t *testing.T) {
 				APIKey: "test",
 			},
 			err: true,
-			options: CreateOrganizationsOpts{
+			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"duplicate.com"},
 			},
@@ -166,7 +166,7 @@ func TestCreateOrganizations(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createOrganizationsTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(createOrganizationTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -184,14 +184,14 @@ func TestCreateOrganizations(t *testing.T) {
 	}
 }
 
-func createOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
+func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
 		return
 	}
 
-	var opts CreateOrganizationsOpts
+	var opts CreateOrganizationOpts
 	json.NewDecoder(r.Body).Decode(&opts)
 	for _, domain := range opts.Domains {
 		if domain == "duplicate.com" {
