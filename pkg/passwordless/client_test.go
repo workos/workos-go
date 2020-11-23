@@ -30,8 +30,8 @@ func TestCreateSession(t *testing.T) {
 				APIKey: "test",
 			},
 			options: CreateSessionOpts{
-				Email: "sasa@foo-corp.com",
-				Type:  MagicLink,
+				Email:       "sasa@foo-corp.com",
+				Type:        MagicLink,
 				RedirectURI: "https://example.com/passwordless/callback",
 			},
 			expected: PasswordlessSession{
