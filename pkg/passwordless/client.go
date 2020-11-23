@@ -86,7 +86,7 @@ type CreateSessionOpts struct {
 	Type PasswordlessSessionType `json:"type"`
 
 	// The location that the user will be redirected to after authenticating
-  RedirectURI string `json:"redirectURI"`
+	RedirectURI string `json:"redirectURI"`
 
 	// Optional string value used to manage application state
 	// between authorization transactions.
