@@ -17,7 +17,7 @@ type Client struct {
 	// The WorkOS API Key.
 	// It can be found in https://dashboard.workos.com/api-keys.
 	//
-	// REQURIED
+	// REQUIRED
 	APIKey string
 
 	// The http.Client that is used to send request to WorkOS.
@@ -84,6 +84,10 @@ type CreateSessionOpts struct {
 	//
 	// REQUIRED
 	Type PasswordlessSessionType `json:"type"`
+
+	// Optional string value used to set the location
+	// that the user will be redirected to after authenticating
+	RedirectURI string `json:"redirect_uri"`
 
 	// Optional string value used to manage application state
 	// between authorization transactions.
