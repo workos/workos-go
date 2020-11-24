@@ -87,7 +87,7 @@ type CreateSessionOpts struct {
 
 	// Optional string value used to set the location
 	// that the user will be redirected to after authenticating
-	RedirectURI string `json:"redirectURI"`
+	RedirectURI string `json:"redirect_uri"`
 
 	// Optional string value used to manage application state
 	// between authorization transactions.
