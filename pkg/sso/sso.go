@@ -16,9 +16,10 @@ var (
 // Configure configures the default client that is used by GetAuthorizationURL,
 // GetProfile and Login.
 // It must be called before using those functions.
-func Configure(apiKey, projectID string) {
+func Configure(apiKey, projectID string, clientID string) {
 	DefaultClient.APIKey = apiKey
 	DefaultClient.ProjectID = projectID
+	DefaultClient.ClientID = clientID
 }
 
 // GetAuthorizationURL returns an authorization url generated with the given
