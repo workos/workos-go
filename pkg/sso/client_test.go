@@ -60,7 +60,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		t.Run(test.scenario, func(t *testing.T) {
 			client := Client{
 				APIKey:    "test",
-				ProjectID: "proj_123",
+				ClientID: "client_123",
 			}
 
 			u, err := client.GetAuthorizationURL(test.options)
@@ -73,7 +73,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
 	client := Client{
 		APIKey:    "test",
-		ProjectID: "proj_123",
+		ClientID: "client_123",
 	}
 
 	u, err := client.GetAuthorizationURL(GetAuthorizationURLOptions{
@@ -102,13 +102,13 @@ func TestClientGetProfile(t *testing.T) {
 			scenario: "request returns a profile",
 			client: &Client{
 				APIKey:    "test",
-				ProjectID: "proj_123",
+				ClientID: "client_123",
 			},
 			options: GetProfileOptions{
 				Code: "authorization_code",
 			},
 			expected: Profile{
-				ID:             "proj_123",
+				ID:             "client_123",
 				IdpID:          "123",
 				ConnectionID:   "conn_123",
 				ConnectionType: OktaSAML,
@@ -168,7 +168,7 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		Profile Profile `json:"profile"`
 	}{
 		Profile: Profile{
-			ID:             "proj_123",
+			ID:             "client_123",
 			IdpID:          "123",
 			ConnectionID:   "conn_123",
 			ConnectionType: OktaSAML,
