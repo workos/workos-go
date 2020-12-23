@@ -385,6 +385,9 @@ type Directory struct {
 	// Identifier for the Directory's Project.
 	ProjectID string `json:"project_id"`
 
+	// Identifier for the Directory's Environment.
+	EnvironmentID string `json:"environment_id"`
+
 	// Type of the directory.
 	Type DirectoryType `json:"type"`
 

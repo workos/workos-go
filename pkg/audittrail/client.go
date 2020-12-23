@@ -197,6 +197,9 @@ type EventAction struct {
 
 	// Identifier for the project the Event Action belongs to.
 	ProjectID string `json:"project_id"`
+
+	// Identifier for the environment the Event Action belongs to.
+	EnvironmentID string `json:"environment_id"`
 }
 
 // Event describes an Audit Trail Event record.
