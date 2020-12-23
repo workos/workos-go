@@ -194,9 +194,6 @@ type EventAction struct {
 
 	// Event Action name.
 	Name string `json:"name"`
-
-	// Identifier for the project the Event Action belongs to.
-	ProjectID string `json:"project_id"`
 }
 
 // Event describes an Audit Trail Event record.

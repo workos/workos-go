@@ -155,7 +155,6 @@ func TestDirectorySyncListDirectories(t *testing.T) {
 				ExternalKey: "fried_chicken",
 				State:       "linked",
 				Type:        "gsuite directory",
-				ProjectID:   "project_id",
 			},
 		},
 		ListMetadata: common.ListMetadata{
