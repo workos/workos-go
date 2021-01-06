@@ -402,12 +402,13 @@ func TestListDirectories(t *testing.T) {
 			expected: ListDirectoriesResponse{
 				Data: []Directory{
 					Directory{
-						ID:          "directory_id",
-						Name:        "Ri Jeong Hyeok",
-						Domain:      "crashlandingyou.com",
-						ExternalKey: "fried_chicken",
-						State:       "linked",
-						Type:        "gsuite directory",
+						ID:            "directory_id",
+						Name:          "Ri Jeong Hyeok",
+						Domain:        "crashlandingyou.com",
+						ExternalKey:   "fried_chicken",
+						State:         "linked",
+						Type:          "gsuite directory",
+						EnvironmentID: "environment_id",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -453,12 +454,13 @@ func listDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(ListDirectoriesResponse{
 		Data: []Directory{
 			Directory{
-				ID:          "directory_id",
-				Name:        "Ri Jeong Hyeok",
-				Domain:      "crashlandingyou.com",
-				ExternalKey: "fried_chicken",
-				State:       "linked",
-				Type:        "gsuite directory",
+				ID:            "directory_id",
+				Name:          "Ri Jeong Hyeok",
+				Domain:        "crashlandingyou.com",
+				ExternalKey:   "fried_chicken",
+				State:         "linked",
+				Type:          "gsuite directory",
+				EnvironmentID: "environment_id",
 			},
 		},
 		ListMetadata: common.ListMetadata{
