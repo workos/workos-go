@@ -42,7 +42,7 @@ type Client struct {
 
 	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
 	//
-	// Either ProjectID or ClientID is REQUIRED while we deprecate ProjectID.
+	// Deprecated: Please use ClientID instead.
 	ProjectID string
 
 	// The WorkOS Client ID (eg. client_01JG3BCPTRTSTTWQR4VSHXGWCQ).
