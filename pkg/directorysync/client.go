@@ -382,9 +382,6 @@ type Directory struct {
 	// Bearer Token used to authenticate requests.
 	BearerToken string `json:"bearer_token"`
 
-	// Identifier for the Directory's Project.
-	ProjectID string `json:"project_id"`
-
 	// Identifier for the Directory's Environment.
 	EnvironmentID string `json:"environment_id"`
 
