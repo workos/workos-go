@@ -108,7 +108,7 @@ func TestClientGetProfile(t *testing.T) {
 				Code: "authorization_code",
 			},
 			expected: Profile{
-				ID:             "client_123",
+				ID:             "profile_123",
 				IdpID:          "123",
 				ConnectionID:   "conn_123",
 				ConnectionType: OktaSAML,
@@ -168,7 +168,7 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		Profile Profile `json:"profile"`
 	}{
 		Profile: Profile{
-			ID:             "client_123",
+			ID:             "profile_123",
 			IdpID:          "123",
 			ConnectionID:   "conn_123",
 			ConnectionType: OktaSAML,

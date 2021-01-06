@@ -47,7 +47,7 @@ type Client struct {
 
 	// The WorkOS Client ID (eg. client_01JG3BCPTRTSTTWQR4VSHXGWCQ).
 	//
-	// Either ProjectID or ClientID is REQUIRED while we deprecate ProjectID..
+	// Either ProjectID or ClientID is REQUIRED while we deprecate ProjectID.
 	ClientID string
 
 	// The endpoint to WorkOS API.

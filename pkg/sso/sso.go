@@ -17,9 +17,8 @@ var (
 // GetProfile and Login.
 // It must be called before using those functions.
 // Deprecated: Please pass clientID as an argument, not projectID.
-func Configure(apiKey, projectID string, clientID string) {
+func Configure(apiKey, clientID string) {
 	DefaultClient.APIKey = apiKey
-	DefaultClient.ProjectID = projectID
 	DefaultClient.ClientID = clientID
 }
 
