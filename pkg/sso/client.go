@@ -180,8 +180,11 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	c.once.Do(c.init)
 
 	form := make(url.Values, 5)
-	form.Set("client_id", c.ClientID)
-	form.Set("project_id", c.ProjectID)
+	if c.ClientID != "" {
+		form.Set("client_id", c.ClientID)
+	} else if c.ProjectID != "" {
+		form.Set("project_id", c.ProjectID)
+	}
 	form.Set("client_secret", c.APIKey)
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", opts.Code)
