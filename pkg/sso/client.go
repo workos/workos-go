@@ -112,8 +112,11 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	redirectURI := opts.RedirectURI
 
 	query := make(url.Values, 5)
-	query.Set("client_id", c.ClientID)
-	query.Set("project_id", c.ProjectID)
+	if c.ClientID != "" {
+		query.Set("client_id", c.ClientID)
+	} else if c.ProjectID != "" {
+		query.Set("project_id", c.ProjectID)
+	}
 	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
 
