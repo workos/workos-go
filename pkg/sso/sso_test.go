@@ -19,7 +19,7 @@ func TestLogin(t *testing.T) {
 
 	profile := Profile{}
 	expectedProfile := Profile{
-		ID:             "proj_123",
+		ID:             "profile_123",
 		IdpID:          "123",
 		ConnectionID:   "conn_123",
 		ConnectionType: OktaSAML,
@@ -75,7 +75,7 @@ func TestLogin(t *testing.T) {
 		Endpoint:   server.URL,
 		HTTPClient: server.Client(),
 	}
-	Configure("test", "proj_123")
+	Configure("test", "client_123")
 
 	res, err := server.Client().Get(server.URL + "/login")
 	require.NoError(t, err)

@@ -42,8 +42,13 @@ type Client struct {
 
 	// The WorkOS Project ID (eg. project_01JG3BCPTRTSTTWQR4VSHXGWCQ).
 	//
-	// REQUIRED.
+	// Deprecated: Please use ClientID instead.
 	ProjectID string
+
+	// The WorkOS Client ID (eg. client_01JG3BCPTRTSTTWQR4VSHXGWCQ).
+	//
+	// Either ProjectID or ClientID is REQUIRED while we deprecate ProjectID.
+	ClientID string
 
 	// The endpoint to WorkOS API.
 	//
@@ -107,7 +112,11 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	redirectURI := opts.RedirectURI
 
 	query := make(url.Values, 5)
-	query.Set("client_id", c.ProjectID)
+	if c.ClientID != "" {
+		query.Set("client_id", c.ClientID)
+	} else if c.ProjectID != "" {
+		query.Set("project_id", c.ProjectID)
+	}
 	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
 
@@ -174,7 +183,11 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	c.once.Do(c.init)
 
 	form := make(url.Values, 5)
-	form.Set("client_id", c.ProjectID)
+	if c.ClientID != "" {
+		form.Set("client_id", c.ClientID)
+	} else if c.ProjectID != "" {
+		form.Set("project_id", c.ProjectID)
+	}
 	form.Set("client_secret", c.APIKey)
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", opts.Code)
