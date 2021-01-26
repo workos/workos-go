@@ -375,7 +375,7 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth:= r.Header.Get("Authorization")
+	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
 		return
@@ -389,23 +389,23 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(ListConnectionsResponse{
 		Data: []Connection{
 			Connection{
-				ID:   "conn_id",
-				 ConnectionType: "GoogleOAuth",
-				 Name: "Foo Corp",
-				 OAuthRedirectURI: "uri",
-				 OAuthSecret: "secret",
-				 OAuthUID: "uid",
-				 SamlEntityID: "null",
-				 SamlIDPURL: "null",
-				 SamlRelyingPartyTrustCert: "null",
-				 SamlX509Certs: []string{},
-				 Status: "linked",
+				ID:                        "conn_id",
+				ConnectionType:            "GoogleOAuth",
+				Name:                      "Foo Corp",
+				OAuthRedirectURI:          "uri",
+				OAuthSecret:               "secret",
+				OAuthUID:                  "uid",
+				SamlEntityID:              "null",
+				SamlIDPURL:                "null",
+				SamlRelyingPartyTrustCert: "null",
+				SamlX509Certs:             []string{},
+				Status:                    "linked",
 			},
 		},
-			ListMetadata: common.ListMetadata{
-				Before: "",
-				After:  "",
-			},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
