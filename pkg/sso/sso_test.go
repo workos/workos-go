@@ -87,7 +87,7 @@ func TestLogin(t *testing.T) {
 	require.Equal(t, expectedProfile, profile)
 }
 
-func TestListConnections(t *testing.T) {
+func TestSsoListConnections(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listConnectionsTestHandler))
 	defer server.Close()
 
