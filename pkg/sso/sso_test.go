@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestLogin(t *testing.T) {
@@ -115,4 +116,44 @@ func TestSsoGetConnection(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, connectionResponse)
+}
+
+func TestSsoListConnections(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listConnectionsTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	Configure("test", "client_123")
+
+	expectedResponse := ListConnectionsResponse{
+		Data: []Connection{
+			Connection{
+				ID:                        "conn_id",
+				ConnectionType:            "GoogleOAuth",
+				Name:                      "Foo Corp",
+				OAuthRedirectURI:          "uri",
+				OAuthSecret:               "secret",
+				OAuthUID:                  "uid",
+				SamlEntityID:              "null",
+				SamlIDPURL:                "null",
+				SamlRelyingPartyTrustCert: "null",
+				SamlX509Certs:             []string{},
+				Status:                    "linked",
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	connectionsResponse, err := ListConnections(
+		context.Background(),
+		ListConnectionsOpts{},
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, connectionsResponse)
 }

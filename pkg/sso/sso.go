@@ -68,3 +68,11 @@ func GetConnection(
 ) (Connection, error) {
 	return DefaultClient.GetConnection(ctx, opts)
 }
+
+// ListConnections gets a list of existing Connections.
+func ListConnections(
+	ctx context.Context,
+	opts ListConnectionsOpts,
+) (ListConnectionsResponse, error) {
+	return DefaultClient.ListConnections(ctx, opts)
+}

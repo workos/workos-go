@@ -8,12 +8,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/workos-inc/workos-go/internal/workos"
+	"github.com/workos-inc/workos-go/pkg/common"
 )
+
+// ResponseLimit is the default number of records to limit a response to.
+const ResponseLimit = 10
 
 // ConnectionType represents a connection type.
 type ConnectionType string
@@ -402,6 +407,84 @@ func (c *Client) GetConnection(
 	}
 
 	var body Connection
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// ListConnectionsOpts contains the options to request a list of Connections.
+type ListConnectionsOpts struct {
+	// Authentication service provider descriptor. Can be empty.
+	ConnectionType ConnectionType
+
+	// Domain of a Connection. Can be empty.
+	Domain string
+
+	// Maximum number of records to return.
+	Limit int
+
+	// Pagination cursor to receive records before a provided Connection ID.
+	Before string
+
+	// Pagination cursor to receive records after a provided Connection ID.
+	After string
+}
+
+// ListConnectionsResponse describes the response structure when requesting
+// existing Connections.
+type ListConnectionsResponse struct {
+	// List of Connections
+	Data []Connection `json:"data"`
+
+	// Cursor pagination options.
+	ListMetadata common.ListMetadata `json:"listMetadata"`
+}
+
+// ListConnections gets details of existing Connections.
+func (c *Client) ListConnections(
+	ctx context.Context,
+	opts ListConnectionsOpts,
+) (ListConnectionsResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/connections", c.Endpoint)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListConnectionsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	limit := ResponseLimit
+	if opts.Limit != 0 {
+		limit = opts.Limit
+	}
+	q := req.URL.Query()
+	q.Add("before", opts.Before)
+	q.Add("after", opts.After)
+	q.Add("connection_type", string(opts.ConnectionType))
+	q.Add("domain", opts.Domain)
+	q.Add("Limit", strconv.Itoa(limit))
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListConnectionsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return ListConnectionsResponse{}, err
+	}
+
+	var body ListConnectionsResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
