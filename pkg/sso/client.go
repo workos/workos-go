@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -340,6 +341,54 @@ func (c *Client) CreateConnection(ctx context.Context, opts CreateConnectionOpts
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Connection{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Connection{}, err
+	}
+
+	var body Connection
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// GetConnectionOpts contains the options to request details for a Connection.
+type GetConnectionOpts struct {
+	// Connection unique identifier.
+	Connection string
+}
+
+// GetConnection gets a Connection.
+func (c *Client) GetConnection(
+	ctx context.Context,
+	opts GetConnectionOpts,
+) (Connection, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/connections/%s",
+		c.Endpoint,
+		opts.Connection,
+	)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return Connection{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	res, err := c.HTTPClient.Do(req)

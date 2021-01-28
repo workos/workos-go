@@ -85,3 +85,34 @@ func TestLogin(t *testing.T) {
 	wg.Wait()
 	require.Equal(t, expectedProfile, profile)
 }
+
+func TestSsoGetConnection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getConnectionTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	Configure("test", "client_123")
+
+	expectedResponse := Connection{
+		ID:                        "conn_id",
+		ConnectionType:            "GoogleOAuth",
+		Name:                      "Foo Corp",
+		OAuthRedirectURI:          "uri",
+		OAuthSecret:               "secret",
+		OAuthUID:                  "uid",
+		SamlEntityID:              "null",
+		SamlIDPURL:                "null",
+		SamlRelyingPartyTrustCert: "null",
+		SamlX509Certs:             []string{},
+		Status:                    "linked",
+	}
+	connectionResponse, err := GetConnection(context.Background(), GetConnectionOpts{
+		Connection: "connection_id",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, connectionResponse)
+}

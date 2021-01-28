@@ -61,3 +61,10 @@ func PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOpti
 func CreateConnection(ctx context.Context, opts CreateConnectionOpts) (Connection, error) {
 	return DefaultClient.CreateConnection(ctx, opts)
 }
+
+func GetConnection(
+	ctx context.Context,
+	opts GetConnectionOpts,
+) (Connection, error) {
+	return DefaultClient.GetConnection(ctx, opts)
+}
