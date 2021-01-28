@@ -374,6 +374,92 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(connection)
 }
 
+func TestGetConnection(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetConnectionOpts
+		expected Connection
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns a Connection",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GetConnectionOpts{
+				Connection: "connection_id",
+			},
+			expected: Connection{
+				ID:                        "conn_id",
+				ConnectionType:            "GoogleOAuth",
+				Name:                      "Foo Corp",
+				OAuthRedirectURI:          "uri",
+				OAuthSecret:               "secret",
+				OAuthUID:                  "uid",
+				SamlEntityID:              "null",
+				SamlIDPURL:                "null",
+				SamlRelyingPartyTrustCert: "null",
+				SamlX509Certs:             []string{},
+				Status:                    "linked",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getConnectionTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			connection, err := client.GetConnection(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, connection)
+		})
+	}
+}
+
+func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := json.Marshal(Connection{
+		ID:                        "conn_id",
+		ConnectionType:            "GoogleOAuth",
+		Name:                      "Foo Corp",
+		OAuthRedirectURI:          "uri",
+		OAuthSecret:               "secret",
+		OAuthUID:                  "uid",
+		SamlEntityID:              "null",
+		SamlIDPURL:                "null",
+		SamlRelyingPartyTrustCert: "null",
+		SamlX509Certs:             []string{},
+		Status:                    "linked",
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestListConnections(t *testing.T) {
 	tests := []struct {
 		scenario string
