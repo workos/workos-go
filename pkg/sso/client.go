@@ -300,6 +300,9 @@ type Connection struct {
 	// Connection provider type.
 	ConnectionType ConnectionType `json:"connection_type"`
 
+	// Organization ID.
+	OrganizationID string `json:"organization_id"`
+
 	// OAuth Client ID.
 	OAuthUID string `json:"oauth_uid"`
 
