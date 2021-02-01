@@ -492,3 +492,44 @@ func (c *Client) ListConnections(
 	err = dec.Decode(&body)
 	return body, err
 }
+
+// DeleteConnectionOpts contains the options to delete a Connection.
+type DeleteConnectionOpts struct {
+	// Connection unique identifier.
+	Connection string
+}
+
+// DeleteConnection deletes a Connection.
+func (c *Client) DeleteConnection(
+	ctx context.Context,
+	opts DeleteConnectionOpts,
+) (error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/connections/%s",
+		c.Endpoint,
+		opts.Connection,
+	)
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos.TryGetHTTPError(res)
+}

@@ -62,6 +62,7 @@ func CreateConnection(ctx context.Context, opts CreateConnectionOpts) (Connectio
 	return DefaultClient.CreateConnection(ctx, opts)
 }
 
+// GetConnection gets a Connection.
 func GetConnection(
 	ctx context.Context,
 	opts GetConnectionOpts,
@@ -75,4 +76,11 @@ func ListConnections(
 	opts ListConnectionsOpts,
 ) (ListConnectionsResponse, error) {
 	return DefaultClient.ListConnections(ctx, opts)
+}
+
+func DeleteConnection(
+	ctx context.Context,
+	opts DeleteConnectionOpts,
+) error {
+	return DefaultClient.DeleteConnection(ctx, opts)
 }
