@@ -503,7 +503,7 @@ type DeleteConnectionOpts struct {
 func (c *Client) DeleteConnection(
 	ctx context.Context,
 	opts DeleteConnectionOpts,
-) (error) {
+) error {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
