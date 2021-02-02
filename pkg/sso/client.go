@@ -286,13 +286,26 @@ const (
 	Unlinked ConnectionStatus = "unlinked"
 )
 
+// ConnectionState indicates whether a Connection is able to authenticate users.
+type ConnectionState string
+
+// Constants that enumerate a Connection's possible states.
+const (
+	Draft    ConnectionState = "draft"
+	Active   ConnectionState = "active"
+	Inactive ConnectionState = "inactive"
+)
+
 // Connection represents a Connection record.
 type Connection struct {
 	// Connection unique identifier.
 	ID string `json:"id"`
 
-	// Connection linked status.
+	// Connection linked status. Deprecated; use State instead.
 	Status ConnectionStatus `json:"status"`
+
+	// Connection linked state.
+	State ConnectionState `json:"state"`
 
 	// Connection name.
 	Name string `json:"name"`
@@ -491,4 +504,45 @@ func (c *Client) ListConnections(
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
+}
+
+// DeleteConnectionOpts contains the options to delete a Connection.
+type DeleteConnectionOpts struct {
+	// Connection unique identifier.
+	Connection string
+}
+
+// DeleteConnection deletes a Connection.
+func (c *Client) DeleteConnection(
+	ctx context.Context,
+	opts DeleteConnectionOpts,
+) error {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/connections/%s",
+		c.Endpoint,
+		opts.Connection,
+	)
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos.TryGetHTTPError(res)
 }
