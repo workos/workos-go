@@ -78,6 +78,7 @@ func ListConnections(
 	return DefaultClient.ListConnections(ctx, opts)
 }
 
+// DeleteConnection deletes a Connection.
 func DeleteConnection(
 	ctx context.Context,
 	opts DeleteConnectionOpts,
