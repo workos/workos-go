@@ -286,13 +286,26 @@ const (
 	Unlinked ConnectionStatus = "unlinked"
 )
 
+// ConnectionState indicates whether a Connection is able to authenticate users.
+type ConnectionState string
+
+// Constants that enumerate a Connection's possible states.
+const (
+	Draft    ConnectionState = "draft"
+	Active   ConnectionState = "active"
+	Inactive ConnectionState = "inactive"
+)
+
 // Connection represents a Connection record.
 type Connection struct {
 	// Connection unique identifier.
 	ID string `json:"id"`
 
-	// Connection linked status.
+	// Connection linked status. Deprecated; use State instead.
 	Status ConnectionStatus `json:"status"`
+
+	// Connection linked state.
+	State ConnectionState `json:"state"`
 
 	// Connection name.
 	Name string `json:"name"`
