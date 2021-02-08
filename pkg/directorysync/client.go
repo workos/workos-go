@@ -379,9 +379,6 @@ type Directory struct {
 	// Externally used identifier for the Directory.
 	ExternalKey string `json:"external_key"`
 
-	// Bearer Token used to authenticate requests.
-	BearerToken string `json:"bearer_token"`
-
 	// Identifier for the Directory's Environment.
 	EnvironmentID string `json:"environment_id"`
 
