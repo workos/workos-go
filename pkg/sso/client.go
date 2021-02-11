@@ -436,6 +436,9 @@ type ListConnectionsOpts struct {
 	// Domain of a Connection. Can be empty.
 	Domain string
 
+	// Unique identifier of an Organization. Can be empty.
+	OrganizationID string
+
 	// Maximum number of records to return.
 	Limit int
 
