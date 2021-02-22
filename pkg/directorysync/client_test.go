@@ -36,7 +36,7 @@ func TestListUsers(t *testing.T) {
 			expected: ListUsersResponse{
 				Data: []User{
 					User{
-						ID:        "directory_usr_id",
+						ID:        "directory_user_id",
 						FirstName: "Rick",
 						LastName:  "Sanchez",
 						Emails: []UserEmail{
@@ -46,6 +46,7 @@ func TestListUsers(t *testing.T) {
 								Value:   "rick@sanchez.com",
 							},
 						},
+						State:         Active,
 						RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 					},
 				},
@@ -95,7 +96,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListUsersResponse: ListUsersResponse{
 			Data: []User{
 				User{
-					ID:        "directory_usr_id",
+					ID:        "directory_user_id",
 					FirstName: "Rick",
 					LastName:  "Sanchez",
 					Emails: []UserEmail{
@@ -105,6 +106,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 							Value:   "rick@sanchez.com",
 						},
 					},
+					State:         Active,
 					RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 				},
 			},
@@ -147,7 +149,7 @@ func TestListGroups(t *testing.T) {
 			expected: ListGroupsResponse{
 				Data: []Group{
 					Group{
-						ID:   "directory_grp_id",
+						ID:   "directory_group_id",
 						Name: "Scientists",
 					},
 				},
@@ -197,7 +199,7 @@ func listGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListGroupsResponse: ListGroupsResponse{
 			Data: []Group{
 				Group{
-					ID:   "directory_grp_id",
+					ID:   "directory_group_id",
 					Name: "Scientists",
 				},
 			},
@@ -235,10 +237,10 @@ func TestGetUser(t *testing.T) {
 				APIKey: "test",
 			},
 			options: GetUserOpts{
-				User: "directory_usr_id",
+				User: "directory_user_id",
 			},
 			expected: User{
-				ID:        "directory_usr_id",
+				ID:        "directory_user_id",
 				FirstName: "Rick",
 				LastName:  "Sanchez",
 				Emails: []UserEmail{
@@ -248,6 +250,7 @@ func TestGetUser(t *testing.T) {
 						Value:   "rick@sanchez.com",
 					},
 				},
+				State:         Active,
 				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
@@ -286,7 +289,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(User{
-		ID:        "directory_usr_id",
+		ID:        "directory_user_id",
 		FirstName: "Rick",
 		LastName:  "Sanchez",
 		Emails: []UserEmail{
@@ -296,6 +299,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 				Value:   "rick@sanchez.com",
 			},
 		},
+		State:         Active,
 		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 	})
 	if err != nil {
@@ -326,10 +330,10 @@ func TestGetGroup(t *testing.T) {
 				APIKey: "test",
 			},
 			options: GetGroupOpts{
-				Group: "directory_grp_id",
+				Group: "directory_group_id",
 			},
 			expected: Group{
-				ID:   "directory_grp_id",
+				ID:   "directory_group_id",
 				Name: "Scientists",
 			},
 		},
@@ -368,7 +372,7 @@ func getGroupTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(Group{
-		ID:   "directory_grp_id",
+		ID:   "directory_group_id",
 		Name: "Scientists",
 	})
 	if err != nil {
