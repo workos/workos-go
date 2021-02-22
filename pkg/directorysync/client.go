@@ -53,6 +53,15 @@ type UserEmail struct {
 	Type string
 }
 
+// UserState represents the active state of a Directory User.
+type UserState string
+
+// Constants that enumerate the state of a Directory User.
+const (
+	Active    UserState = "active"
+	Suspended UserState = "suspended"
+)
+
 // User contains data about a provisioned Directory User.
 type User struct {
 	// The User's unique identifier.
@@ -69,6 +78,9 @@ type User struct {
 
 	// The User's last name.
 	LastName string `json:"last_name"`
+
+	// The User's state.
+	State UserState `json:"state"`
 
 	// The User's raw attributes in raw encoded JSON.
 	RawAttributes json.RawMessage `json:"raw_attributes"`
