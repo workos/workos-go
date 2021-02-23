@@ -24,7 +24,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 	expectedResponse := ListUsersResponse{
 		Data: []User{
 			User{
-				ID:        "directory_usr_id",
+				ID:        "directory_user_id",
 				FirstName: "Rick",
 				LastName:  "Sanchez",
 				Emails: []UserEmail{
@@ -34,6 +34,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 						Value:   "rick@sanchez.com",
 					},
 				},
+				State:         Active,
 				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
@@ -63,7 +64,7 @@ func TestDirectorySyncListGroups(t *testing.T) {
 	expectedResponse := ListGroupsResponse{
 		Data: []Group{
 			Group{
-				ID:   "directory_grp_id",
+				ID:   "directory_group_id",
 				Name: "Scientists",
 			},
 		},
@@ -94,7 +95,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:        "directory_usr_id",
+		ID:        "directory_user_id",
 		FirstName: "Rick",
 		LastName:  "Sanchez",
 		Emails: []UserEmail{
@@ -104,10 +105,11 @@ func TestDirectorySyncGetUser(t *testing.T) {
 				Value:   "rick@sanchez.com",
 			},
 		},
+		State:         Active,
 		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 	}
 	directoryUserResponse, err := GetUser(context.Background(), GetUserOpts{
-		User: "directory_usr_id",
+		User: "directory_user_id",
 	})
 
 	require.NoError(t, err)
@@ -125,11 +127,11 @@ func TestDirectorySyncGetGroup(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Group{
-		ID:   "directory_grp_id",
+		ID:   "directory_group_id",
 		Name: "Scientists",
 	}
 	directoryGroupResponse, err := GetGroup(context.Background(), GetGroupOpts{
-		Group: "directory_grp_id",
+		Group: "directory_group_id",
 	})
 
 	require.NoError(t, err)
