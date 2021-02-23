@@ -456,6 +456,8 @@ func (c *Client) ListDirectories(
 		limit = opts.Limit
 	}
 	q := req.URL.Query()
+	q.Add("domain", opts.Domain)
+	q.Add("search", opts.Search)
 	q.Add("before", opts.Before)
 	q.Add("after", opts.After)
 	q.Add("limit", strconv.Itoa(limit))
