@@ -485,7 +485,9 @@ func (c *Client) ListConnections(
 	q := req.URL.Query()
 	q.Add("before", opts.Before)
 	q.Add("after", opts.After)
-	q.Add("connection_type", string(opts.ConnectionType))
+	if opts.ConnectionType != "" {
+		q.Add("connection_type", string(opts.ConnectionType))
+	}
 	q.Add("domain", opts.Domain)
 	q.Add("Limit", strconv.Itoa(limit))
 	req.URL.RawQuery = q.Encode()
