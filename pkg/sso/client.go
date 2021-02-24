@@ -433,6 +433,9 @@ type ListConnectionsOpts struct {
 	// Authentication service provider descriptor. Can be empty.
 	ConnectionType ConnectionType
 
+	// Organization ID of the Connection(s). Can be empty.
+	OrganizationID string
+
 	// Domain of a Connection. Can be empty.
 	Domain string
 
@@ -486,6 +489,7 @@ func (c *Client) ListConnections(
 	q.Add("before", opts.Before)
 	q.Add("after", opts.After)
 	q.Add("connection_type", string(opts.ConnectionType))
+	q.Add("organization_id", string(opts.OrganizationID))
 	q.Add("domain", opts.Domain)
 	q.Add("Limit", strconv.Itoa(limit))
 	req.URL.RawQuery = q.Encode()
