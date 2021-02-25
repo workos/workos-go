@@ -373,8 +373,9 @@ type DirectoryState string
 
 // Constants that enumerate the linked status of a Directory.
 const (
-	Linked   DirectoryState = "linked"
-	Unlinked DirectoryState = "unlinked"
+	Linked             DirectoryState = "linked"
+	Unlinked           DirectoryState = "unlinked"
+	InvalidCredentials DirectoryState = "invalid_credentials"
 )
 
 // Directory contains data about a project's directory.
