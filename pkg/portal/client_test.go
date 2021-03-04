@@ -240,12 +240,24 @@ func TestGenerateLink(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns link",
+			scenario: "Request returns link with sso intent",
 			client: &Client{
 				APIKey: "test",
 			},
 			options: GenerateLinkOpts{
 				Intent:       SSO,
+				Organization: "organization_id",
+				ReturnURL:    "https://foo-corp.app.com/settings",
+			},
+			expected: "https://id.workos.test/portal/launch?secret=1234",
+		},
+		{
+			scenario: "Request returns link with dsync intent",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GenerateLinkOpts{
+				Intent:       DSync,
 				Organization: "organization_id",
 				ReturnURL:    "https://foo-corp.app.com/settings",
 			},
