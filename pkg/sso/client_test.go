@@ -46,6 +46,15 @@ func TestClientAuthorizeURL(t *testing.T) {
 			expected: "https://api.workos.com/sso/authorize?client_id=client_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
+			scenario: "generate url with connection",
+			options: GetAuthorizationURLOptions{
+				Connection:  "connection_123",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				State:       "custom state",
+			},
+			expected: "https://api.workos.com/sso/authorize?client_id=client_123&connection=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
 			scenario: "generate url with provider and domain",
 			options: GetAuthorizationURLOptions{
 				Domain:      "lyft.com",
@@ -71,7 +80,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 	}
 }
 
-func TestClientAuthorizeURLWithNoDomainAndProvider(t *testing.T) {
+func TestClientAuthorizeURLWithNoConnectionDomainAndProvider(t *testing.T) {
 	client := Client{
 		APIKey:   "test",
 		ClientID: "client_123",
