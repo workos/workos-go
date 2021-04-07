@@ -97,6 +97,9 @@ type GetAuthorizationURLOptions struct {
 	// Provider is currently only used when the connection type is GoogleOAuth.
 	Provider ConnectionType
 
+	// The unique identifier for a WorkOS Connection.
+	Connection string
+
 	// The callback URL where your app redirects the user-agent after an
 	// authorization code is granted (eg. https://foo.com/callback).
 	//
@@ -126,14 +129,17 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
 
-	if opts.Domain == "" && opts.Provider == "" {
-		return nil, errors.New("incomplete arguments: missing domain or provider")
+	if opts.Domain == "" && opts.Provider == "" && opts.Connection == "" {
+		return nil, errors.New("incomplete arguments: missing connection, domain, or provider")
 	}
 	if opts.Provider != "" {
 		query.Set("provider", string(opts.Provider))
 	}
 	if opts.Domain != "" {
 		query.Set("domain", opts.Domain)
+	}
+	if opts.Connection != "" {
+		query.Set("connection", opts.Connection)
 	}
 
 	if opts.State != "" {
