@@ -480,13 +480,13 @@ func (c *Client) ListDirectories(
 	return body, err
 }
 
-// DeleteConnectionOpts contains the options to delete a Connection.
+// DeleteDirectoryOpts contains the options to delete a Connection.
 type DeleteDirectoryOpts struct {
-	// Connection unique identifier.
+	// Directory unique identifier.
 	Directory string
 }
 
-// DeleteConnection deletes a Connection.
+// DeleteDirectory deletes a Connection.
 func (c *Client) DeleteDirectory(
 	ctx context.Context,
 	opts DeleteDirectoryOpts,
