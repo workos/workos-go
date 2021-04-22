@@ -479,3 +479,44 @@ func (c *Client) ListDirectories(
 	err = dec.Decode(&body)
 	return body, err
 }
+
+// DeleteConnectionOpts contains the options to delete a Connection.
+type DeleteDirectoryOpts struct {
+	// Connection unique identifier.
+	Directory string
+}
+
+// DeleteConnection deletes a Connection.
+func (c *Client) DeleteDirectory(
+	ctx context.Context,
+	opts DeleteDirectoryOpts,
+) error {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/directories/%s",
+		c.Endpoint,
+		opts.Directory,
+	)
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos.TryGetHTTPError(res)
+}

@@ -56,3 +56,10 @@ func ListDirectories(
 ) (ListDirectoriesResponse, error) {
 	return DefaultClient.ListDirectories(ctx, opts)
 }
+
+func DeleteDirectory(
+	ctx context.Context,
+	opts DeleteDirectoryOpts,
+) error {
+	return DefaultClient.DeleteDirectory(ctx, opts)
+}
