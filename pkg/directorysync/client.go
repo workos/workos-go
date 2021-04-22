@@ -480,14 +480,14 @@ func (c *Client) ListDirectories(
 	return body, err
 }
 
-// DeleteDirectoryOpts contains the options to delete a Directory.
+// DeleteConnectionOpts contains the options to delete a Connection.
 type DeleteDirectoryOpts struct {
-	// Directory unique identifier.
+	// Connection unique identifier.
 	Directory string
 }
 
 // DeleteConnection deletes a Connection.
-func (c *Client) DeleteDirectoryOpts(
+func (c *Client) DeleteDirectory(
 	ctx context.Context,
 	opts DeleteDirectoryOpts,
 ) error {
@@ -496,7 +496,7 @@ func (c *Client) DeleteDirectoryOpts(
 	endpoint := fmt.Sprintf(
 		"%s/directories/%s",
 		c.Endpoint,
-		opts.Connection,
+		opts.Directory,
 	)
 	req, err := http.NewRequest(
 		http.MethodDelete,

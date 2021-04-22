@@ -57,11 +57,7 @@ func ListDirectories(
 	return DefaultClient.ListDirectories(ctx, opts)
 }
 
-// DeleteDirectory deletes a directory
-
-
 func DeleteDirectory(
-This conversation was marked as resolved by jthodge
 	ctx context.Context,
 	opts DeleteDirectoryOpts,
 ) error {
