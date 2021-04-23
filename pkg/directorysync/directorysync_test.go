@@ -173,3 +173,23 @@ func TestDirectorySyncListDirectories(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, directoriesResponse)
 }
+
+func TestDirectorySyncDeleteDirectory(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteDirectoryTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	err := DeleteDirectory(
+		context.Background(),
+		DeleteDirectoryOpts{
+			Directory: "dir_12345",
+		},
+	)
+
+	require.NoError(t, err)
+}
