@@ -480,3 +480,50 @@ func listDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestDeleteDirectory(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteDirectoryTestHandler))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:   "test",
+		Endpoint: server.URL,
+	}
+
+	err := client.DeleteDirectory(context.TODO(), DeleteDirectoryOpts{
+		Directory: "dir_12345",
+	})
+	require.NoError(t, err)
+}
+
+func TestDeleteDirectoryUnauthorized(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteDirectoryTestHandler))
+	defer server.Close()
+
+	client := &Client{
+		Endpoint: server.URL,
+	}
+
+	err := client.DeleteDirectory(context.TODO(), DeleteDirectoryOpts{
+		Directory: "dir_12345",
+	})
+	require.Error(t, err)
+	t.Log(err)
+}
+
+func deleteDirectoryTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	userAgent := r.Header.Get("User-Agent")
+	if !strings.HasPrefix(userAgent, "workos-go/") {
+		http.Error(w, "bad user agent", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+
+}
