@@ -400,6 +400,9 @@ type Directory struct {
 
 	// Linked status for the Directory.
 	State DirectoryState `json:"state"`
+
+ // The user's directory provider's Identifier
+	IdpID string `json:"idp_id"`
 }
 
 // ListDirectoriesOpts contains the options to request a Project's Directories.
