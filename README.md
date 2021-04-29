@@ -1,33 +1,48 @@
-# workos-go
+# WorkOS Go Library
 
-[![Semaphore Go build](https://workos.semaphoreci.com/badges/workos-go.svg)](https://workos.semaphoreci.com/projects/workos-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/workos-inc/workos-go)](https://goreportcard.com/report/github.com/workos-inc/workos-go)
-[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos-inc/workos-go/pkg)
+The WorkOS library for Go provides convenient access to the WorkOS API from applications written in Go.
 
-A Golang SDK to interact with [WorkOS](https://workos.com) APIs.
+## Documentation
 
-- [AuditTrail](https://github.com/workos-inc/workos-go/tree/master/pkg/audittrail)
-- [DirectorySync](https://github.com/workos-inc/workos-go/tree/master/pkg/directorysync)
-- [SSO](https://github.com/workos-inc/workos-go/tree/master/pkg/sso)
-- [Portal](https://github.com/workos-inc/workos-go/tree/master/pkg/portal)
-- [Passwordless](https://github.com/workos-inc/workos-go/tree/master/pkg/passwordless)(i.e. Magic Link)
+See the [API Reference](https://workos.com/docs/reference/client-libraries) for Go usage examples.
+
+## Installation
+
+Install the package with:
+
+```
+go get -u github.com/workos-inc/workos-go/...
+```
+
+## Configuration
+
+To use the library you must provide an API key, located in the WorkOS dashboard, as an environment variable `WORKOS_API_KEY`:
+
+```sh
+WORKOS_API_KEY="sk_1234"
+```
+
+Or, you can set it on your own before your application starts:
+
+```ts
+sso.Configure(
+  "<WORKOS_API_KEY>",
+  "<CLIENT_ID>",
+  "https://foo-corp.com/redirect-uri",
+)
+
+directorysync.SetAPIKey("<WORKOS_API_KEY>")
+```
+
+## More Information
+
+* [Single Sign-On Guide](https://workos.com/docs/sso/guide)
+* [Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
+* [Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
+* [Magic Link Guide](https://workos.com/docs/magic-link/guide)
 
 ## Install
 
 ```sh
 go get -u github.com/workos-inc/workos-go/...
 ```
-
-## Release
-
-- Ensure your are on `master` branch
-- Modify and create a PR with the new version number:
-  ```sh
-  # Replace v0.0.0 with the desired version number.
-  $ make VERSION=v0.0.0 release
-  ```
-- Once the PR is approved and merged, go the [repository new release screen](https://github.com/workos-inc/workos-go/releases/new)
-- Enter the tag version: `v0.0.0` _(replace with the desired version number)_
-- Enter a title
-- Enter a description
-- Click on the `Publish release` button
