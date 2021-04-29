@@ -40,9 +40,3 @@ directorysync.SetAPIKey("<WORKOS_API_KEY>")
 * [Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
 * [Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
 * [Magic Link Guide](https://workos.com/docs/magic-link/guide)
-
-## Install
-
-```sh
-go get -u github.com/workos-inc/workos-go/...
-```
