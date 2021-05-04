@@ -306,7 +306,7 @@ func TestClientCreateConnection(t *testing.T) {
 				ID:                        "connection",
 				Name:                      "Terrace House",
 				ConnectionType:            OktaSAML,
-				State:                     Draft,
+				State:                     Inactive,
 				OAuthUID:                  "",
 				OAuthSecret:               "",
 				OAuthRedirectURI:          "",
