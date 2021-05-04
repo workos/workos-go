@@ -100,7 +100,7 @@ func TestSsoGetConnection(t *testing.T) {
 	expectedResponse := Connection{
 		ID:                        "conn_id",
 		ConnectionType:            "GoogleOAuth",
-		State:										 Active,
+		State:                     Active,
 		Name:                      "Foo Corp",
 		OAuthRedirectURI:          "uri",
 		OAuthSecret:               "secret",
@@ -133,7 +133,7 @@ func TestSsoListConnections(t *testing.T) {
 			Connection{
 				ID:                        "conn_id",
 				ConnectionType:            "GoogleOAuth",
-				State:										 Active,
+				State:                     Active,
 				Name:                      "Foo Corp",
 				OAuthRedirectURI:          "uri",
 				OAuthSecret:               "secret",
