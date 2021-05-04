@@ -306,6 +306,7 @@ func TestClientCreateConnection(t *testing.T) {
 				ID:                        "connection",
 				Name:                      "Terrace House",
 				ConnectionType:            OktaSAML,
+				State:										 Draft,
 				OAuthUID:                  "",
 				OAuthSecret:               "",
 				OAuthRedirectURI:          "",
@@ -361,6 +362,7 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		ID:                        "connection",
 		Name:                      "Terrace House",
 		ConnectionType:            OktaSAML,
+		State:										 Inactive,
 		OAuthUID:                  "",
 		OAuthSecret:               "",
 		OAuthRedirectURI:          "",
@@ -405,6 +407,7 @@ func TestGetConnection(t *testing.T) {
 			expected: Connection{
 				ID:                        "conn_id",
 				ConnectionType:            "GoogleOAuth",
+				State:										 Active,
 				Name:                      "Foo Corp",
 				OAuthRedirectURI:          "uri",
 				OAuthSecret:               "secret",
@@ -447,6 +450,7 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(Connection{
 		ID:                        "conn_id",
 		ConnectionType:            "GoogleOAuth",
+		State:										 Active,
 		Name:                      "Foo Corp",
 		OAuthRedirectURI:          "uri",
 		OAuthSecret:               "secret",
@@ -489,6 +493,7 @@ func TestListConnections(t *testing.T) {
 					Connection{
 						ID:                        "conn_id",
 						ConnectionType:            "GoogleOAuth",
+						State:										 Active,
 						Name:                      "Foo Corp",
 						OAuthRedirectURI:          "uri",
 						OAuthSecret:               "secret",
@@ -544,6 +549,7 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 			Connection{
 				ID:                        "conn_id",
 				ConnectionType:            "GoogleOAuth",
+				State:										 Active,
 				Name:                      "Foo Corp",
 				OAuthRedirectURI:          "uri",
 				OAuthSecret:               "secret",
