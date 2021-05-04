@@ -305,7 +305,6 @@ func TestClientCreateConnection(t *testing.T) {
 			expected: Connection{
 				ID:                        "connection",
 				Name:                      "Terrace House",
-				Status:                    Unlinked,
 				ConnectionType:            OktaSAML,
 				OAuthUID:                  "",
 				OAuthSecret:               "",
@@ -361,7 +360,6 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := json.Marshal(Connection{
 		ID:                        "connection",
 		Name:                      "Terrace House",
-		Status:                    Unlinked,
 		ConnectionType:            OktaSAML,
 		OAuthUID:                  "",
 		OAuthSecret:               "",
@@ -415,7 +413,6 @@ func TestGetConnection(t *testing.T) {
 				SamlIDPURL:                "null",
 				SamlRelyingPartyTrustCert: "null",
 				SamlX509Certs:             []string{},
-				Status:                    "linked",
 			},
 		},
 	}
@@ -458,7 +455,6 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		SamlIDPURL:                "null",
 		SamlRelyingPartyTrustCert: "null",
 		SamlX509Certs:             []string{},
-		Status:                    "linked",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -501,7 +497,6 @@ func TestListConnections(t *testing.T) {
 						SamlIDPURL:                "null",
 						SamlRelyingPartyTrustCert: "null",
 						SamlX509Certs:             []string{},
-						Status:                    "linked",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -557,7 +552,6 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 				SamlIDPURL:                "null",
 				SamlRelyingPartyTrustCert: "null",
 				SamlX509Certs:             []string{},
-				Status:                    "linked",
 			},
 		},
 		ListMetadata: common.ListMetadata{
