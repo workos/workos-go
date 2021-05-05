@@ -326,7 +326,7 @@ func TestUpdateOrganization(t *testing.T) {
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
-				Domains:      []string{"foo-corp.io"},
+				Domains:      []string{"foo-corp.com", "foo-corp.io"},
 			},
 			expected: Organization{
 				ID:   "organization_id",

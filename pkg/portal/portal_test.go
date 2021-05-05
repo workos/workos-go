@@ -129,7 +129,7 @@ func TestPortalUpdateOrganization(t *testing.T) {
 	organization, err := UpdateOrganization(context.Background(), UpdateOrganizationOpts{
 		Organization: "organization_id",
 		Name:         "Foo Corp",
-		Domains:      []string{"foo-corp.io"},
+		Domains:      []string{"foo-corp.com", "foo-corp.io"},
 	})
 
 	require.NoError(t, err)
