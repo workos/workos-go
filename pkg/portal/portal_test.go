@@ -99,3 +99,39 @@ func TestPortalGenerateLink(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedLink, link)
 }
+
+func TestPortalUpdateOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateOrganizationTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse :=
+		Organization{
+			ID:   "organization_id",
+			Name: "Foo Corp",
+			Domains: []OrganizationDomain{
+				OrganizationDomain{
+					ID:     "organization_domain_id",
+					Domain: "foo-corp.com",
+				},
+				OrganizationDomain{
+					ID:     "organization_domain_id_2",
+					Domain: "foo-corp.io",
+				},
+			},
+		}
+
+	organization, err := UpdateOrganization(context.Background(), UpdateOrganizationOpts{
+		Organization: "organization_id",
+		Name:         "Foo Corp",
+		Domains:      []string{"foo-corp.io"},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, organization)
+}

@@ -40,3 +40,11 @@ func GenerateLink(
 ) (string, error) {
 	return DefaultClient.GenerateLink(ctx, opts)
 }
+
+// UpdateOrganization creates an Organization.
+func UpdateOrganization(
+	ctx context.Context,
+	opts UpdateOrganizationOpts,
+) (Organization, error) {
+	return DefaultClient.UpdateOrganization(ctx, opts)
+}
