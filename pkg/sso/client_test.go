@@ -303,11 +303,11 @@ func TestClientCreateConnection(t *testing.T) {
 				Source: "source",
 			},
 			expected: Connection{
-				ID:                        "connection",
-				Name:                      "Terrace House",
-				ConnectionType:            OktaSAML,
-				State:                     Inactive,
-				Status:                    Unlinked,
+				ID:             "connection",
+				Name:           "Terrace House",
+				ConnectionType: OktaSAML,
+				State:          Inactive,
+				Status:         Unlinked,
 			},
 			err: false,
 		},
@@ -351,11 +351,11 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	connection, err := json.Marshal(Connection{
-		ID:                        "connection",
-		Name:                      "Terrace House",
-		ConnectionType:            OktaSAML,
-		State:                     Inactive,
-		Status:                    Unlinked,
+		ID:             "connection",
+		Name:           "Terrace House",
+		ConnectionType: OktaSAML,
+		State:          Inactive,
+		Status:         Unlinked,
 	})
 
 	if err != nil {
@@ -389,11 +389,11 @@ func TestGetConnection(t *testing.T) {
 				Connection: "connection_id",
 			},
 			expected: Connection{
-				ID:                        "conn_id",
-				ConnectionType:            "GoogleOAuth",
-				State:                     Active,
-				Status:                    Linked,
-				Name:                      "Foo Corp",
+				ID:             "conn_id",
+				ConnectionType: "GoogleOAuth",
+				State:          Active,
+				Status:         Linked,
+				Name:           "Foo Corp",
 			},
 		},
 	}
@@ -426,11 +426,11 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(Connection{
-		ID:                        "conn_id",
-		ConnectionType:            "GoogleOAuth",
-		State:                     Active,
-		Status:                    Linked,
-		Name:                      "Foo Corp",
+		ID:             "conn_id",
+		ConnectionType: "GoogleOAuth",
+		State:          Active,
+		Status:         Linked,
+		Name:           "Foo Corp",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -463,11 +463,11 @@ func TestListConnections(t *testing.T) {
 			expected: ListConnectionsResponse{
 				Data: []Connection{
 					Connection{
-						ID:                        "conn_id",
-						ConnectionType:            "GoogleOAuth",
-						State:                     Active,
-						Status:                    Linked,
-						Name:                      "Foo Corp",
+						ID:             "conn_id",
+						ConnectionType: "GoogleOAuth",
+						State:          Active,
+						Status:         Linked,
+						Name:           "Foo Corp",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -513,11 +513,11 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(ListConnectionsResponse{
 		Data: []Connection{
 			Connection{
-				ID:                        "conn_id",
-				ConnectionType:            "GoogleOAuth",
-				State:                     Active,
-				Status:                    Linked,
-				Name:                      "Foo Corp",
+				ID:             "conn_id",
+				ConnectionType: "GoogleOAuth",
+				State:          Active,
+				Status:         Linked,
+				Name:           "Foo Corp",
 			},
 		},
 		ListMetadata: common.ListMetadata{
