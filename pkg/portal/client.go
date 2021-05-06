@@ -131,6 +131,18 @@ type CreateOrganizationOpts struct {
 	Name string `json:"name"`
 }
 
+// UpdateOrganizationOpts contains the options to update an Organization.
+type UpdateOrganizationOpts struct {
+	// Organization unique identifier.
+	Organization string
+
+	// Domains of the Organization.
+	Domains []string
+
+	// Name of the Organization.
+	Name string
+}
+
 // ListOrganizations gets a list of WorkOS Organizations.
 func (c *Client) ListOrganizations(
 	ctx context.Context,
@@ -252,4 +264,50 @@ func (c *Client) GenerateLink(
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body.Link, err
+}
+
+// UpdateOrganization updates an Organization.
+func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganizationOpts) (Organization, error) {
+	c.once.Do(c.init)
+
+	// UpdateOrganizationChangeOpts contains the options to update an Organization minus the org ID
+	type UpdateOrganizationChangeOpts struct {
+		// Domains of the Organization.
+		Domains []string `json:"domains"`
+
+		// Name of the Organization.
+		Name string `json:"name"`
+	}
+
+	update_opts := UpdateOrganizationChangeOpts{opts.Domains, opts.Name}
+
+	data, err := c.JSONEncode(update_opts)
+	if err != nil {
+		return Organization{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/organizations/%s", c.Endpoint, opts.Organization)
+	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return Organization{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Organization{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Organization{}, err
+	}
+
+	var body Organization
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
