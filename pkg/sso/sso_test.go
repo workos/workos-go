@@ -103,13 +103,6 @@ func TestSsoGetConnection(t *testing.T) {
 		State:                     Active,
 		Status:                    Linked,
 		Name:                      "Foo Corp",
-		OAuthRedirectURI:          "uri",
-		OAuthSecret:               "secret",
-		OAuthUID:                  "uid",
-		SamlEntityID:              "null",
-		SamlIDPURL:                "null",
-		SamlRelyingPartyTrustCert: "null",
-		SamlX509Certs:             []string{},
 	}
 	connectionResponse, err := GetConnection(context.Background(), GetConnectionOpts{
 		Connection: "connection_id",
@@ -137,13 +130,6 @@ func TestSsoListConnections(t *testing.T) {
 				State:                     Active,
 				Status:                    Linked,
 				Name:                      "Foo Corp",
-				OAuthRedirectURI:          "uri",
-				OAuthSecret:               "secret",
-				OAuthUID:                  "uid",
-				SamlEntityID:              "null",
-				SamlIDPURL:                "null",
-				SamlRelyingPartyTrustCert: "null",
-				SamlX509Certs:             []string{},
 			},
 		},
 		ListMetadata: common.ListMetadata{
