@@ -283,6 +283,17 @@ type ConnectionDomain struct {
 	Domain string `json:"domain"`
 }
 
+// ConnectionStatus represents a Connection's linked status.
+//
+// Deprecated: Please use ConnectionState instead.
+type ConnectionStatus string
+
+// Constants that enumerate the available Connection's linked statuses.
+const (
+	Linked   ConnectionStatus = "linked"
+	Unlinked ConnectionStatus = "unlinked"
+)
+
 // ConnectionState indicates whether a Connection is able to authenticate users.
 type ConnectionState string
 
@@ -297,6 +308,9 @@ const (
 type Connection struct {
 	// Connection unique identifier.
 	ID string `json:"id"`
+
+	// Connection linked status. Deprecated; use State instead.
+	Status ConnectionStatus `json:"status"`
 
 	// Connection linked state.
 	State ConnectionState `json:"state"`
