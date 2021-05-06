@@ -324,27 +324,6 @@ type Connection struct {
 	// Organization ID.
 	OrganizationID string `json:"organization_id"`
 
-	// OAuth Client ID.
-	OAuthUID string `json:"oauth_uid"`
-
-	// OAuth Client Secret.
-	OAuthSecret string `json:"oauth_secret"`
-
-	// OAuth Client Redirect URI.
-	OAuthRedirectURI string `json:"oauth_redirect_uri"`
-
-	// Identity Provider Issuer.
-	SamlEntityID string `json:"saml_entity_id"`
-
-	// Identity Provider SSO URL.
-	SamlIDPURL string `json:"saml_idp_url"`
-
-	// Certificate that describes where to expect valid SAML claims to come from.
-	SamlRelyingPartyTrustCert string `json:"saml_relying_party_trust_cert"`
-
-	// Certificates used to authenticate SAML assertions.
-	SamlX509Certs []string `json:"saml_x509_certs"`
-
 	// Domain records for the Connection.
 	Domains []ConnectionDomain `json:"domains"`
 }

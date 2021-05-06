@@ -308,15 +308,6 @@ func TestClientCreateConnection(t *testing.T) {
 				ConnectionType:            OktaSAML,
 				State:                     Inactive,
 				Status:                    Unlinked,
-				OAuthUID:                  "",
-				OAuthSecret:               "",
-				OAuthRedirectURI:          "",
-				SamlEntityID:              "http://www.okta.com/rijeonghyeok",
-				SamlIDPURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
-				SamlRelyingPartyTrustCert: "",
-				SamlX509Certs: []string{
-					"-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
-				},
 			},
 			err: false,
 		},
@@ -365,15 +356,6 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		ConnectionType:            OktaSAML,
 		State:                     Inactive,
 		Status:                    Unlinked,
-		OAuthUID:                  "",
-		OAuthSecret:               "",
-		OAuthRedirectURI:          "",
-		SamlEntityID:              "http://www.okta.com/rijeonghyeok",
-		SamlIDPURL:                "https://foo.okta.com/app/fried/chicken/sso/saml",
-		SamlRelyingPartyTrustCert: "",
-		SamlX509Certs: []string{
-			"-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
-		},
 	})
 
 	if err != nil {
@@ -412,13 +394,6 @@ func TestGetConnection(t *testing.T) {
 				State:                     Active,
 				Status:                    Linked,
 				Name:                      "Foo Corp",
-				OAuthRedirectURI:          "uri",
-				OAuthSecret:               "secret",
-				OAuthUID:                  "uid",
-				SamlEntityID:              "null",
-				SamlIDPURL:                "null",
-				SamlRelyingPartyTrustCert: "null",
-				SamlX509Certs:             []string{},
 			},
 		},
 	}
@@ -456,13 +431,6 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		State:                     Active,
 		Status:                    Linked,
 		Name:                      "Foo Corp",
-		OAuthRedirectURI:          "uri",
-		OAuthSecret:               "secret",
-		OAuthUID:                  "uid",
-		SamlEntityID:              "null",
-		SamlIDPURL:                "null",
-		SamlRelyingPartyTrustCert: "null",
-		SamlX509Certs:             []string{},
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -500,13 +468,6 @@ func TestListConnections(t *testing.T) {
 						State:                     Active,
 						Status:                    Linked,
 						Name:                      "Foo Corp",
-						OAuthRedirectURI:          "uri",
-						OAuthSecret:               "secret",
-						OAuthUID:                  "uid",
-						SamlEntityID:              "null",
-						SamlIDPURL:                "null",
-						SamlRelyingPartyTrustCert: "null",
-						SamlX509Certs:             []string{},
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -557,13 +518,6 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 				State:                     Active,
 				Status:                    Linked,
 				Name:                      "Foo Corp",
-				OAuthRedirectURI:          "uri",
-				OAuthSecret:               "secret",
-				OAuthUID:                  "uid",
-				SamlEntityID:              "null",
-				SamlIDPURL:                "null",
-				SamlRelyingPartyTrustCert: "null",
-				SamlX509Certs:             []string{},
 			},
 		},
 		ListMetadata: common.ListMetadata{
