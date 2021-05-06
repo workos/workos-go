@@ -284,6 +284,8 @@ type ConnectionDomain struct {
 }
 
 // ConnectionStatus represents a Connection's linked status.
+//
+// Deprecated: Please use ConnectionState instead.
 type ConnectionStatus string
 
 // Constants that enumerate the available Connection's linked statuses.

@@ -305,8 +305,9 @@ func TestClientCreateConnection(t *testing.T) {
 			expected: Connection{
 				ID:                        "connection",
 				Name:                      "Terrace House",
-				Status:                    Unlinked,
 				ConnectionType:            OktaSAML,
+				State:                     Inactive,
+				Status:                    Unlinked,
 				OAuthUID:                  "",
 				OAuthSecret:               "",
 				OAuthRedirectURI:          "",
@@ -361,8 +362,9 @@ func createConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := json.Marshal(Connection{
 		ID:                        "connection",
 		Name:                      "Terrace House",
-		Status:                    Unlinked,
 		ConnectionType:            OktaSAML,
+		State:                     Inactive,
+		Status:                    Unlinked,
 		OAuthUID:                  "",
 		OAuthSecret:               "",
 		OAuthRedirectURI:          "",
@@ -407,6 +409,8 @@ func TestGetConnection(t *testing.T) {
 			expected: Connection{
 				ID:                        "conn_id",
 				ConnectionType:            "GoogleOAuth",
+				State:                     Active,
+				Status:                    Linked,
 				Name:                      "Foo Corp",
 				OAuthRedirectURI:          "uri",
 				OAuthSecret:               "secret",
@@ -415,7 +419,6 @@ func TestGetConnection(t *testing.T) {
 				SamlIDPURL:                "null",
 				SamlRelyingPartyTrustCert: "null",
 				SamlX509Certs:             []string{},
-				Status:                    "linked",
 			},
 		},
 	}
@@ -450,6 +453,8 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(Connection{
 		ID:                        "conn_id",
 		ConnectionType:            "GoogleOAuth",
+		State:                     Active,
+		Status:                    Linked,
 		Name:                      "Foo Corp",
 		OAuthRedirectURI:          "uri",
 		OAuthSecret:               "secret",
@@ -458,7 +463,6 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		SamlIDPURL:                "null",
 		SamlRelyingPartyTrustCert: "null",
 		SamlX509Certs:             []string{},
-		Status:                    "linked",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -493,6 +497,8 @@ func TestListConnections(t *testing.T) {
 					Connection{
 						ID:                        "conn_id",
 						ConnectionType:            "GoogleOAuth",
+						State:                     Active,
+						Status:                    Linked,
 						Name:                      "Foo Corp",
 						OAuthRedirectURI:          "uri",
 						OAuthSecret:               "secret",
@@ -501,7 +507,6 @@ func TestListConnections(t *testing.T) {
 						SamlIDPURL:                "null",
 						SamlRelyingPartyTrustCert: "null",
 						SamlX509Certs:             []string{},
-						Status:                    "linked",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -549,6 +554,8 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 			Connection{
 				ID:                        "conn_id",
 				ConnectionType:            "GoogleOAuth",
+				State:                     Active,
+				Status:                    Linked,
 				Name:                      "Foo Corp",
 				OAuthRedirectURI:          "uri",
 				OAuthSecret:               "secret",
@@ -557,7 +564,6 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 				SamlIDPURL:                "null",
 				SamlRelyingPartyTrustCert: "null",
 				SamlX509Certs:             []string{},
-				Status:                    "linked",
 			},
 		},
 		ListMetadata: common.ListMetadata{
