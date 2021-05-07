@@ -98,18 +98,11 @@ func TestSsoGetConnection(t *testing.T) {
 	Configure("test", "client_123")
 
 	expectedResponse := Connection{
-		ID:                        "conn_id",
-		ConnectionType:            "GoogleOAuth",
-		State:                     Active,
-		Status:                    Linked,
-		Name:                      "Foo Corp",
-		OAuthRedirectURI:          "uri",
-		OAuthSecret:               "secret",
-		OAuthUID:                  "uid",
-		SamlEntityID:              "null",
-		SamlIDPURL:                "null",
-		SamlRelyingPartyTrustCert: "null",
-		SamlX509Certs:             []string{},
+		ID:             "conn_id",
+		ConnectionType: "GoogleOAuth",
+		State:          Active,
+		Status:         Linked,
+		Name:           "Foo Corp",
 	}
 	connectionResponse, err := GetConnection(context.Background(), GetConnectionOpts{
 		Connection: "connection_id",
@@ -132,18 +125,11 @@ func TestSsoListConnections(t *testing.T) {
 	expectedResponse := ListConnectionsResponse{
 		Data: []Connection{
 			Connection{
-				ID:                        "conn_id",
-				ConnectionType:            "GoogleOAuth",
-				State:                     Active,
-				Status:                    Linked,
-				Name:                      "Foo Corp",
-				OAuthRedirectURI:          "uri",
-				OAuthSecret:               "secret",
-				OAuthUID:                  "uid",
-				SamlEntityID:              "null",
-				SamlIDPURL:                "null",
-				SamlRelyingPartyTrustCert: "null",
-				SamlX509Certs:             []string{},
+				ID:             "conn_id",
+				ConnectionType: "GoogleOAuth",
+				State:          Active,
+				Status:         Linked,
+				Name:           "Foo Corp",
 			},
 		},
 		ListMetadata: common.ListMetadata{
