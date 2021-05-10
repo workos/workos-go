@@ -10,6 +10,34 @@ import (
 	"github.com/workos-inc/workos-go/pkg/common"
 )
 
+func TestPortalGetOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getOrganizationTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := Organization{
+		ID:   "organization_id",
+		Name: "Foo Corp",
+		Domains: []OrganizationDomain{
+			OrganizationDomain{
+				ID:     "organization_domain_id",
+				Domain: "foo-corp.com",
+			},
+		},
+	}
+	organizationResponse, err := GetOrganization(context.Background(), GetOrganizationOpts{
+		Organization: "organization_id",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, organizationResponse)
+}
+
 func TestPortalListOrganizations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listOrganizationsTestHandler))
 	defer server.Close()

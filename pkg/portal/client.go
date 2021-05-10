@@ -70,6 +70,12 @@ type Organization struct {
 	Domains []OrganizationDomain `json:"domains"`
 }
 
+// GetOrganizationOpts contains the options to request details for an Organization.
+type GetOrganizationOpts struct {
+	// Organization unique identifier.
+	Organization string
+}
+
 // ListOrganizationsOpts contains the options to request Organizations.
 type ListOrganizationsOpts struct {
 	// Domains of the Organization.
@@ -141,6 +147,48 @@ type UpdateOrganizationOpts struct {
 
 	// Name of the Organization.
 	Name string
+}
+
+// GetOrganization gets an Organization.
+func (c *Client) GetOrganization(
+	ctx context.Context,
+	opts GetOrganizationOpts,
+) (Organization, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/organizations/%s",
+		c.Endpoint,
+		opts.Organization,
+	)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return Organization{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Organization{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Organization{}, err
+	}
+
+	var body Organization
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListOrganizations gets a list of WorkOS Organizations.
