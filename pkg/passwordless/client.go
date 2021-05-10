@@ -85,6 +85,9 @@ type CreateSessionOpts struct {
 	// REQUIRED
 	Type PasswordlessSessionType `json:"type"`
 
+	// Optional The unique identifier for a WorkOS Connection.
+	Connection string `json:"connection"`
+
 	// Optional string value used to set the location
 	// that the user will be redirected to after authenticating
 	RedirectURI string `json:"redirect_uri"`
