@@ -17,6 +17,14 @@ func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
+// GetOrganization gets an Organization.
+func GetOrganization(
+	ctx context.Context,
+	opts GetOrganizationOpts,
+) (Organization, error) {
+	return DefaultClient.GetOrganization(ctx, opts)
+}
+
 // ListOrganizations gets a list of Organizations.
 func ListOrganizations(
 	ctx context.Context,
