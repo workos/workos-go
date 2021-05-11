@@ -16,7 +16,6 @@ var (
 // Configure configures the default client that is used by GetAuthorizationURL,
 // GetProfile and Login.
 // It must be called before using those functions.
-// Deprecated: Please pass clientID as an argument, not projectID.
 func Configure(apiKey, clientID string) {
 	DefaultClient.APIKey = apiKey
 	DefaultClient.ClientID = clientID
