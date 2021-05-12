@@ -17,12 +17,12 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
-// Client represents a client that performs Admin Portal requests to the WorkOS API.
+// Client represents a client that performs Organization requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
 	APIKey string
 
-	// The http.Client that is used to manage Admin Portal records from WorkOS.
+	// The http.Client that is used to manage Organization records from WorkOS.
 	// Defaults to http.Client.
 	HTTPClient *http.Client
 
@@ -51,7 +51,7 @@ func (c *Client) init() {
 
 // OrganizationDomain contains data about an Organization's Domains.
 type OrganizationDomain struct {
-	// The Organization Domains's unique identifier.
+	// The Organization Domain's unique identifier.
 	ID string `json:"id"`
 
 	// The domain value
