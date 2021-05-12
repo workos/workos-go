@@ -1,7 +1,6 @@
 package sso
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -229,43 +228,6 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 	return body, err
 }
 
-// PromoteDraftConnectionOptions contains the options to pass in order to
-// promote a draft connection.
-type PromoteDraftConnectionOptions struct {
-	Token string `json:"token"`
-}
-
-// PromoteDraftConnection promotes a draft connection created via the WorkOS.js Embed
-// such that the Enterprise users can begin signing into your application.
-func (c *Client) PromoteDraftConnection(ctx context.Context, opts PromoteDraftConnectionOptions) error {
-	c.once.Do(c.init)
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.Endpoint+"/draft_connections/"+opts.Token+"/activate",
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	return workos.TryGetHTTPError(res)
-}
-
-// CreateConnectionOpts contains the options to activate a Draft Connection.
-type CreateConnectionOpts struct {
-	Source string `json:"source"`
-}
-
 // ConnectionDomain represents the domain records associated with a Connection.
 type ConnectionDomain struct {
 	// Connection Domain unique identifier.
@@ -318,45 +280,6 @@ type Connection struct {
 
 	// Domain records for the Connection.
 	Domains []ConnectionDomain `json:"domains"`
-}
-
-// CreateConnection activates a Draft Connection created via the WorkOS.js widget.
-func (c *Client) CreateConnection(ctx context.Context, opts CreateConnectionOpts) (Connection, error) {
-	c.once.Do(c.init)
-
-	data, err := c.JSONEncode(opts)
-	if err != nil {
-		return Connection{}, err
-	}
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.Endpoint+"/connections",
-		bytes.NewBuffer(data),
-	)
-	if err != nil {
-		return Connection{}, err
-	}
-
-	req = req.WithContext(ctx)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return Connection{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos.TryGetHTTPError(res); err != nil {
-		return Connection{}, err
-	}
-
-	var body Connection
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-	return body, err
 }
 
 // GetConnectionOpts contains the options to request details for a Connection.
