@@ -17,42 +17,10 @@ func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
-// GetOrganization gets an Organization.
-func GetOrganization(
-	ctx context.Context,
-	opts GetOrganizationOpts,
-) (Organization, error) {
-	return DefaultClient.GetOrganization(ctx, opts)
-}
-
-// ListOrganizations gets a list of Organizations.
-func ListOrganizations(
-	ctx context.Context,
-	opts ListOrganizationsOpts,
-) (ListOrganizationsResponse, error) {
-	return DefaultClient.ListOrganizations(ctx, opts)
-}
-
-// CreateOrganization creates an Organization.
-func CreateOrganization(
-	ctx context.Context,
-	opts CreateOrganizationOpts,
-) (Organization, error) {
-	return DefaultClient.CreateOrganization(ctx, opts)
-}
-
 // GenerateLink generates an ephemeral link to the Admin Portal
 func GenerateLink(
 	ctx context.Context,
 	opts GenerateLinkOpts,
 ) (string, error) {
 	return DefaultClient.GenerateLink(ctx, opts)
-}
-
-// UpdateOrganization creates an Organization.
-func UpdateOrganization(
-	ctx context.Context,
-	opts UpdateOrganizationOpts,
-) (Organization, error) {
-	return DefaultClient.UpdateOrganization(ctx, opts)
 }
