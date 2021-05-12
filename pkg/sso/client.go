@@ -1,7 +1,6 @@
 package sso
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
