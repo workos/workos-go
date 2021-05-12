@@ -95,11 +95,11 @@ func TestClientAuthorizeURLWithNoConnectionDomainAndProvider(t *testing.T) {
 	require.Nil(t, u)
 }
 
-func TestClientGetProfile(t *testing.T) {
+func TestClientGetProfileAndToken(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetProfileOptions
+		options  GetProfileAndTokenOptions
 		expected Profile
 		err      bool
 	}{
@@ -114,7 +114,7 @@ func TestClientGetProfile(t *testing.T) {
 				APIKey:   "test",
 				ClientID: "client_123",
 			},
-			options: GetProfileOptions{
+			options: GetProfileAndTokenOptions{
 				Code: "authorization_code",
 			},
 			expected: Profile{
@@ -144,13 +144,13 @@ func TestClientGetProfile(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			profile, err := client.GetProfile(context.Background(), test.options)
+			profileAndToken, err := client.GetProfileAndToken(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, profile)
+			require.Equal(t, test.expected, profileAndToken.Profile)
 		})
 	}
 }

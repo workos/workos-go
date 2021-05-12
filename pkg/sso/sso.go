@@ -8,13 +8,13 @@ import (
 )
 
 var (
-	// DefaultClient is the client used by GetAuthorizationURL, GetProfile and
+	// DefaultClient is the client used by GetAuthorizationURL, GetProfileAndToken and
 	// Login functions.
 	DefaultClient = &Client{}
 )
 
 // Configure configures the default client that is used by GetAuthorizationURL,
-// GetProfile and Login.
+// GetProfileAndToken and Login.
 // It must be called before using those functions.
 func Configure(apiKey, clientID string) {
 	DefaultClient.APIKey = apiKey
@@ -27,10 +27,10 @@ func GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL, error) {
 	return DefaultClient.GetAuthorizationURL(opts)
 }
 
-// GetProfile returns a profile describing the user that authenticated with
+// GetProfileAndToken returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
-	return DefaultClient.GetProfile(ctx, opts)
+func GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOptions) (ProfileAndToken, error) {
+	return DefaultClient.GetProfileAndToken(ctx, opts)
 }
 
 // Login return a http.Handler that redirects client to the appropriate
