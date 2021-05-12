@@ -57,14 +57,14 @@ func TestLogin(t *testing.T) {
 	})
 
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-		p, err := GetProfile(context.Background(), GetProfileOptions{
+		p, err := GetProfileAndToken(context.Background(), GetProfileAndTokenOptions{
 			Code: "authorization_code",
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		profile = p
+		profile = p.Profile
 
 		w.WriteHeader(http.StatusOK)
 		wg.Done()

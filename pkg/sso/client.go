@@ -146,8 +146,8 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	return u, nil
 }
 
-// GetProfileOptions contains the options to pass in order to get a user profile.
-type GetProfileOptions struct {
+// GetProfileAndTokenOptions contains the options to pass in order to get a user profile and access token.
+type GetProfileAndTokenOptions struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	Code string
@@ -180,9 +180,17 @@ type Profile struct {
 	RawAttributes map[string]interface{} `json:"raw_attributes"`
 }
 
-// GetProfile returns a profile describing the user that authenticated with
+type ProfileAndToken struct {
+	// An access token corresponding to the Profile.
+	AccessToken string `json:"access_token"`
+
+	// The user Profile.
+	Profile Profile `json:"profile"`
+}
+
+// GetProfileAndToken returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
+func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOptions) (ProfileAndToken, error) {
 	c.once.Do(c.init)
 
 	form := make(url.Values, 5)
@@ -197,7 +205,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 		strings.NewReader(form.Encode()),
 	)
 	if err != nil {
-		return Profile{}, err
+		return ProfileAndToken{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -206,22 +214,19 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return Profile{}, err
+		return ProfileAndToken{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos.TryGetHTTPError(res); err != nil {
-		return Profile{}, err
+		return ProfileAndToken{}, err
 	}
 
-	var body struct {
-		Profile     Profile `json:"profile"`
-		AccessToken string  `json:"access_token"`
-	}
+	var body ProfileAndToken
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
-	return body.Profile, err
+	return body, err
 }
 
 // PromoteDraftConnectionOptions contains the options to pass in order to
