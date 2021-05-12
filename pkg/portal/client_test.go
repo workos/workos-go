@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos-inc/workos-go/pkg/common"
 )
 
 func TestGenerateLink(t *testing.T) {
