@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func ErrIsBadRequest(err error) bool {
+func IsBadRequest(err error) bool {
 	var httpError workos.HTTPError
 	return errors.As(err, &httpError) && httpError.Code == http.StatusBadRequest
 }
