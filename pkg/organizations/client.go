@@ -296,7 +296,7 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 
 // deleteOrganizationOpts contains the options to delete a Connection.
 type DeleteOrganizationOpts struct {
-	// Directory unique identifier.
+	// Organization unique identifier.
 	Organization string
 }
 
