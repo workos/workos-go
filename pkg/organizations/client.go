@@ -300,7 +300,7 @@ type DeleteOrganizationOpts struct {
 	Organization string
 }
 
-// deleteOrganization deletes a Connection.
+// DeleteOrganization deletes an Organization.
 func (c *Client) DeleteOrganization(
 	ctx context.Context,
 	opts DeleteOrganizationOpts,
