@@ -293,3 +293,44 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 	err = dec.Decode(&body)
 	return body, err
 }
+
+// DeleteOrganizationOpts contains the options to delete an Organization.
+type DeleteOrganizationOpts struct {
+	// Organization unique identifier.
+	Organization string
+}
+
+// deleteOrganization deletes a Connection.
+func (c *Client) DeleteOrganization(
+	ctx context.Context,
+	opts DeleteOrganizationOpts,
+) error {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/Organizations/%s",
+		c.Endpoint,
+		opts.Organization,
+	)
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos.TryGetHTTPError(res)
+}
