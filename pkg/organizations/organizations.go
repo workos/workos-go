@@ -48,3 +48,11 @@ func UpdateOrganization(
 ) (Organization, error) {
 	return DefaultClient.UpdateOrganization(ctx, opts)
 }
+
+// DeleteOrganization deletes an Organization.
+func DeleteOrganization(
+	ctx context.Context,
+	opts DeleteOrganizationOpts,
+) error {
+	return DefaultClient.DeleteOrganization(ctx, opts)
+}
