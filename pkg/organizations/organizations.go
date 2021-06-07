@@ -49,7 +49,7 @@ func UpdateOrganization(
 	return DefaultClient.UpdateOrganization(ctx, opts)
 }
 
-//DeleteOrganization deletes a directory
+// DeleteOrganization deletes an Organization.
 func DeleteOrganization(
 	ctx context.Context,
 	opts DeleteOrganizationOpts,
