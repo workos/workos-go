@@ -70,7 +70,7 @@ func TestLogin(t *testing.T) {
 		wg.Done()
 	})
 
-	mux.HandleFunc("/sso/token", profileTestHandler)
+	mux.HandleFunc("/sso/token", profileAndTokenTestHandler)
 
 	DefaultClient = &Client{
 		Endpoint:   server.URL,
@@ -144,4 +144,36 @@ func TestSsoListConnections(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, connectionsResponse)
+}
+
+func TestSsoGetProfile(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(profileTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+
+	expectedResponse := Profile{
+		ID:             "profile_123",
+		IdpID:          "123",
+		ConnectionID:   "conn_123",
+		ConnectionType: OktaSAML,
+		Email:          "foo@test.com",
+		FirstName:      "foo",
+		LastName:       "bar",
+		RawAttributes: map[string]interface{}{
+			"idp_id":     "123",
+			"email":      "foo@test.com",
+			"first_name": "foo",
+			"last_name":  "bar",
+		},
+	}
+	profileResponse, err := GetProfile(context.Background(), GetProfileOptions{
+		AccessToken: "access_token",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, profileResponse)
 }
