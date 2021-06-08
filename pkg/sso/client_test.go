@@ -137,7 +137,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(profileTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(profileAndTokenTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -155,7 +155,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 	}
 }
 
-func profileTestHandler(w http.ResponseWriter, r *http.Request) {
+func profileAndTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/sso/token" {
 		fmt.Println("path:", r.URL.Path)
 		w.WriteHeader(http.StatusNotFound)
@@ -193,6 +193,98 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
+func TestClientGetProfile(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetProfileOptions
+		expected Profile
+		err      bool
+	}{
+		{
+			scenario: "request returns a profile",
+			client: &Client{
+				APIKey:   "test",
+				ClientID: "client_123",
+			},
+			options: GetProfileOptions{
+				AccessToken: "access_token",
+			},
+			expected: Profile{
+				ID:             "profile_123",
+				IdpID:          "123",
+				ConnectionID:   "conn_123",
+				ConnectionType: OktaSAML,
+				Email:          "foo@test.com",
+				FirstName:      "foo",
+				LastName:       "bar",
+				RawAttributes: map[string]interface{}{
+					"idp_id":     "123",
+					"email":      "foo@test.com",
+					"first_name": "foo",
+					"last_name":  "bar",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(profileTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			profile, err := client.GetProfile(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, profile)
+		})
+	}
+}
+
+func profileTestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/sso/profile" {
+		fmt.Println("path:", r.URL.Path)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	b, err := json.Marshal(Profile{
+		ID:             "profile_123",
+		IdpID:          "123",
+		ConnectionID:   "conn_123",
+		ConnectionType: OktaSAML,
+		Email:          "foo@test.com",
+		FirstName:      "foo",
+		LastName:       "bar",
+		RawAttributes: map[string]interface{}{
+			"idp_id":     "123",
+			"email":      "foo@test.com",
+			"first_name": "foo",
+			"last_name":  "bar",
+		},
+	},
+	)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

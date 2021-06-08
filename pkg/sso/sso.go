@@ -33,6 +33,12 @@ func GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOptions) (Pr
 	return DefaultClient.GetProfileAndToken(ctx, opts)
 }
 
+// GetProfile returns a profile describing the user that authenticated with
+// WorkOS SSO.
+func GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
+	return DefaultClient.GetProfile(ctx, opts)
+}
+
 // Login return a http.Handler that redirects client to the appropriate
 // login provider.
 func Login(opts GetAuthorizationURLOptions) http.Handler {
