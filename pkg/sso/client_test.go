@@ -269,25 +269,22 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(struct {
-		Profile Profile `json:"profile"`
-	}{
-		Profile: Profile{
-			ID:             "profile_123",
-			IdpID:          "123",
-			ConnectionID:   "conn_123",
-			ConnectionType: OktaSAML,
-			Email:          "foo@test.com",
-			FirstName:      "foo",
-			LastName:       "bar",
-			RawAttributes: map[string]interface{}{
-				"idp_id":     "123",
-				"email":      "foo@test.com",
-				"first_name": "foo",
-				"last_name":  "bar",
-			},
+	b, err := json.Marshal(Profile{
+		ID:             "profile_123",
+		IdpID:          "123",
+		ConnectionID:   "conn_123",
+		ConnectionType: OktaSAML,
+		Email:          "foo@test.com",
+		FirstName:      "foo",
+		LastName:       "bar",
+		RawAttributes: map[string]interface{}{
+			"idp_id":     "123",
+			"email":      "foo@test.com",
+			"first_name": "foo",
+			"last_name":  "bar",
 		},
-	})
+	},
+	)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
