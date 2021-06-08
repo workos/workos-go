@@ -228,6 +228,47 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 	return body, err
 }
 
+// GetProfile contains the options to pass in order to get a user profile.
+type GetProfileOptions struct {
+	// An opaque string provided by the authorization server. It will be
+	// exchanged for an Access Token when the user’s profile is sent.
+	AccessToken string
+}
+
+// GetProfile returns a profile describing the user that authenticated with
+// WorkOS SSO.
+func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
+	c.once.Do(c.init)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		c.Endpoint+"/sso/profile",
+		nil,
+	)
+	if err != nil {
+		return Profile{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+opts.AccessToken)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Profile{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Profile{}, err
+	}
+
+	var body Profile
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // ConnectionDomain represents the domain records associated with a Connection.
 type ConnectionDomain struct {
 	// Connection Domain unique identifier.
