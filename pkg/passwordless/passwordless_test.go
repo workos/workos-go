@@ -24,6 +24,7 @@ func TestPasswordlessCreateSession(t *testing.T) {
 			ID:        "session_id",
 			Email:     "sasa@foo-corp.com",
 			ExpiresAt: "",
+			ExpiresIn: 0,
 			Link:      "https://id.workos.test/passwordless/1234/confirm",
 		}
 
