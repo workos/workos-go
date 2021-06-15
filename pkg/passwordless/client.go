@@ -61,7 +61,7 @@ type PasswordlessSession struct {
 	// ISO-8601 datetime at which the Passwordless Session link expires.
 	ExpiresAt string `json:"expires_at"`
 
-	//Remaining duration of a passwordless session link.
+	// Remaining duration of a Passwordless Session link.
 	ExpiresIn int `json:"expires_in"`
 
 	// The link for the user to authenticate with.
