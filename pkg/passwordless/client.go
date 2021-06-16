@@ -95,6 +95,10 @@ type CreateSessionOpts struct {
 	// Optional string value used to manage application state
 	// between authorization transactions.
 	State string `json:"state"`
+
+	// Optional The number of seconds the Passwordless Session
+	// should live before expiring.
+	ExpiresIn int `json:"expires_in"`
 }
 
 // CreateSession creates a a PasswordlessSession.
