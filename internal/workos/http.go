@@ -56,10 +56,10 @@ type HTTPError struct {
 
 func (e HTTPError) Error() string {
 	if e.Err != "" && e.ErrorDescription != "" {
-		return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, "", e.Err, e.ErrorDescription)
+		return fmt.Sprintf("%s: request id %q: %s %s", e.Status, e.RequestID, e.Err, e.ErrorDescription)
 	} else if e.Err != "" {
-		return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, "", e.Err, "")
+		return fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Err)
 	} else {
-		return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, e.Message, "", "")
+		return fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Message)
 	}
 }
