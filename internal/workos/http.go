@@ -35,25 +35,31 @@ func TryGetHTTPError(r *http.Response) error {
 	}
 
 	return HTTPError{
-		Code:           r.StatusCode,
-		Status:         r.Status,
-		RequestID:      r.Header.Get("X-Request-ID"),
-		Message:        msg,
-		Err:            error,
-		ErrDescription: description,
+		Code:             r.StatusCode,
+		Status:           r.Status,
+		RequestID:        r.Header.Get("X-Request-ID"),
+		Message:          msg,
+		Err:              error,
+		ErrorDescription: description,
 	}
 }
 
 // HTTPError represents an http error.
 type HTTPError struct {
-	Code           int
-	Status         string
-	RequestID      string
-	Message        string
-	Err            string
-	ErrDescription string
+	Code             int
+	Status           string
+	RequestID        string
+	Message          string
+	Err              string
+	ErrorDescription string
 }
 
 func (e HTTPError) Error() string {
-	return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, e.Message, e.Err, e.ErrDescription)
+	if e.Err != "" && e.ErrorDescription != "" {
+		return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, "", e.Err, e.ErrorDescription)
+	} else if e.Err != "" {
+		return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, "", e.Err, "")
+	} else {
+		return fmt.Sprintf("%s: request id %q: %s %s %s", e.Status, e.RequestID, e.Message, "", "")
+	}
 }
