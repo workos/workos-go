@@ -78,8 +78,8 @@ func TestGetHTTPErrorWithoutErrorOrErrorDescription(t *testing.T) {
 	require.Equal(t, "401 Unauthorized", httperr.Status)
 	require.Equal(t, "GOrOXx", httperr.RequestID)
 	require.Equal(t, "unauthorized", httperr.Message)
-	require.Equal(t, "", httperr.Err)
-	require.Equal(t, "", httperr.ErrorDescription)
+	require.Empty(t, httperr.Err)
+	require.Empty(t, httperr.ErrorDescription)
 
 	t.Log(httperr)
 }
