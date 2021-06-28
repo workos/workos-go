@@ -49,7 +49,7 @@ func TestListUsers(t *testing.T) {
 						Groups: []UserGroup{
 							UserGroup{
 								Object: "user_group_object",
-								ID:    "directory_group_123",
+								ID:     "directory_group_123",
 								Name:   "Group Name",
 							},
 						},
@@ -116,7 +116,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					Groups: []UserGroup{
 						UserGroup{
 							Object: "user_group_object",
-							ID:    "directory_group_123",
+							ID:     "directory_group_123",
 							Name:   "Group Name",
 						},
 					},
@@ -267,7 +267,7 @@ func TestGetUser(t *testing.T) {
 				Groups: []UserGroup{
 					UserGroup{
 						Object: "user_group_object",
-						ID:    "directory_group_123",
+						ID:     "directory_group_123",
 						Name:   "Group Name",
 					},
 				},
@@ -323,7 +323,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 		Groups: []UserGroup{
 			UserGroup{
 				Object: "user_group_object",
-				ID:    "directory_group_123",
+				ID:     "directory_group_123",
 				Name:   "Group Name",
 			},
 		},

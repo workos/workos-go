@@ -37,7 +37,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				Groups: []UserGroup{
 					UserGroup{
 						Object: "user_group_object",
-						ID:    "directory_group_123",
+						ID:     "directory_group_123",
 						Name:   "Group Name",
 					},
 				},
@@ -115,7 +115,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		Groups: []UserGroup{
 			UserGroup{
 				Object: "user_group_object",
-				ID:    "directory_group_123",
+				ID:     "directory_group_123",
 				Name:   "Group Name",
 			},
 		},
