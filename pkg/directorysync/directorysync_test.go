@@ -34,6 +34,13 @@ func TestDirectorySyncListUsers(t *testing.T) {
 						Value:   "rick@sanchez.com",
 					},
 				},
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:    "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
 				State:         Active,
 				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
@@ -103,6 +110,13 @@ func TestDirectorySyncGetUser(t *testing.T) {
 				Primary: true,
 				Type:    "work",
 				Value:   "rick@sanchez.com",
+			},
+		},
+		Groups: []UserGroup{
+			UserGroup{
+				Object: "user_group_object",
+				ID:    "directory_group_123",
+				Name:   "Group Name",
 			},
 		},
 		State:         Active,

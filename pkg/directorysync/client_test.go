@@ -46,6 +46,13 @@ func TestListUsers(t *testing.T) {
 								Value:   "rick@sanchez.com",
 							},
 						},
+						Groups: []UserGroup{
+							UserGroup{
+								Object: "user_group_object",
+								ID:    "directory_group_123",
+								Name:   "Group Name",
+							},
+						},
 						State:         Active,
 						RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 					},
@@ -104,6 +111,13 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 							Primary: true,
 							Type:    "work",
 							Value:   "rick@sanchez.com",
+						},
+					},
+					Groups: []UserGroup{
+						UserGroup{
+							Object: "user_group_object",
+							ID:    "directory_group_123",
+							Name:   "Group Name",
 						},
 					},
 					State:         Active,
@@ -250,6 +264,13 @@ func TestGetUser(t *testing.T) {
 						Value:   "rick@sanchez.com",
 					},
 				},
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:    "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
 				State:         Active,
 				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
@@ -297,6 +318,13 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 				Primary: true,
 				Type:    "work",
 				Value:   "rick@sanchez.com",
+			},
+		},
+		Groups: []UserGroup{
+			UserGroup{
+				Object: "user_group_object",
+				ID:    "directory_group_123",
+				Name:   "Group Name",
 			},
 		},
 		State:         Active,
