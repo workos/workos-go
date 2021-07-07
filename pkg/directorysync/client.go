@@ -403,6 +403,9 @@ type Directory struct {
 
 	// The user's directory provider's Identifier
 	IdpID string `json:"idp_id"`
+
+	// Identifier for the Directory's Organization.
+	OrganizationID string `json:"organization_id"`
 }
 
 // ListDirectoriesOpts contains the options to request a Project's Directories.
