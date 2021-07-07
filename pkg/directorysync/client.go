@@ -53,6 +53,18 @@ type UserEmail struct {
 	Type string
 }
 
+// UserGroup contains data about a Directory User's groups.
+type UserGroup struct {
+	// Description of the record.
+	Object string
+
+	// The Group's identifier.
+	ID string
+
+	// The Group's Name.
+	Name string
+}
+
 // UserState represents the active state of a Directory User.
 type UserState string
 
@@ -72,6 +84,9 @@ type User struct {
 
 	// The User's e-mails.
 	Emails []UserEmail `json:"emails"`
+
+	// The User's groups.
+	Groups []UserGroup `json:"groups"`
 
 	// The User's first name.
 	FirstName string `json:"first_name"`
