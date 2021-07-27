@@ -32,5 +32,4 @@ blocks:
             - go get github.com/stretchr/testify
             - go get github.com/google/go-querystring
             - go get github.com/google/uuid
-            - go get github.com/tidwall/gjson
             - go test -v ./...
