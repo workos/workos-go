@@ -53,8 +53,9 @@ func TestListUsers(t *testing.T) {
 								Name:   "Group Name",
 							},
 						},
-						State:         Active,
-						RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+						State:            Active,
+						RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+						CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -120,8 +121,9 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 							Name:   "Group Name",
 						},
 					},
-					State:         Active,
-					RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+					State:            Active,
+					RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+					CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -271,8 +273,9 @@ func TestGetUser(t *testing.T) {
 						Name:   "Group Name",
 					},
 				},
-				State:         Active,
-				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+				State:            Active,
+				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
 	}
@@ -327,8 +330,9 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 				Name:   "Group Name",
 			},
 		},
-		State:         Active,
-		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+		State:            Active,
+		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
