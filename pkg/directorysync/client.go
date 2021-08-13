@@ -99,6 +99,9 @@ type User struct {
 
 	// The User's raw attributes in raw encoded JSON.
 	RawAttributes json.RawMessage `json:"raw_attributes"`
+
+	// The User's custom attributes in raw encoded JSON.
+	CustomAttributes json.RawMessage `json:"custom_attributes"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
