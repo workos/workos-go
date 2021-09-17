@@ -15,60 +15,50 @@ func TryGetHTTPError(r *http.Response) error {
 	}
 
 	var msg string
-	var error string
-	var description string
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg = err.Error()
-	} else if m := getJsonErrorMessage(body); m != "" {
-		msg = m
 	} else {
-		msg = string(body)
-	}
-	if e := gjson.GetBytes(body, "error").Str; e != "" {
-		error = e
-	}
-	if d := gjson.GetBytes(body, "error_description").Str; d != "" {
-		description = d
+		msg = getJsonErrorMessage(body)
 	}
 
 	return HTTPError{
-		Code:             r.StatusCode,
-		Status:           r.Status,
-		RequestID:        r.Header.Get("X-Request-ID"),
-		Message:          msg,
-		Err:              error,
-		ErrorDescription: description,
+		Code:      r.StatusCode,
+		Status:    r.Status,
+		RequestID: r.Header.Get("X-Request-ID"),
+		Message:   msg,
 	}
 }
 
 func getJsonErrorMessage(b []byte) string {
-	var response struct{ Message string }
-
-	if err := json.Unmarshal(b, &response); err != nil {
-		return ""
+	var r struct {
+		Message          string `json:"message"`
+		Error            string `json:"error"`
+		ErrorDescription string `json:"error_description"`
 	}
 
-	return response.Message
+	if err := json.Unmarshal(b, &r); err != nil {
+		return string(b)
+	}
+
+	if r.Error != "" && r.ErrorDescription != "" {
+		return fmt.Sprintf("%s %s", r.Error, r.ErrorDescription)
+	} else if r.Message != "" {
+		return r.Message
+	}
+
+	return string(b)
 }
 
 // HTTPError represents an http error.
 type HTTPError struct {
-	Code             int
-	Status           string
-	RequestID        string
-	Message          string
-	Err              string
-	ErrorDescription string
+	Code      int
+	Status    string
+	RequestID string
+	Message   string
 }
 
 func (e HTTPError) Error() string {
-	if e.Err != "" && e.ErrorDescription != "" {
-		return fmt.Sprintf("%s: request id %q: %s %s", e.Status, e.RequestID, e.Err, e.ErrorDescription)
-	} else if e.Err != "" {
-		return fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Err)
-	} else {
-		return fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Message)
-	}
+	return fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Message)
 }
