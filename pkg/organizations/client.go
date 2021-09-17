@@ -68,6 +68,12 @@ type Organization struct {
 
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
+
+	//Created At
+	CreatedAt string `json:"created_at"`
+
+	//Updated At
+	UpdatedAt string `json:"updated_at"`
 }
 
 // GetOrganizationOpts contains the options to request details for an Organization.
