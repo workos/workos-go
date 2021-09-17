@@ -39,20 +39,20 @@ func isJsonResponse(r *http.Response) bool {
 }
 
 func getJsonErrorMessage(b []byte) string {
-	var r struct {
+	var payload struct {
 		Message          string `json:"message"`
 		Error            string `json:"error"`
 		ErrorDescription string `json:"error_description"`
 	}
 
-	if err := json.Unmarshal(b, &r); err != nil {
+	if err := json.Unmarshal(b, &payload); err != nil {
 		return err.Error()
 	}
 
-	if r.Error != "" && r.ErrorDescription != "" {
-		return fmt.Sprintf("%s %s", r.Error, r.ErrorDescription)
-	} else if r.Message != "" {
-		return r.Message
+	if payload.Error != "" && payload.ErrorDescription != "" {
+		return fmt.Sprintf("%s %s", payload.Error, payload.ErrorDescription)
+	} else if payload.Message != "" {
+		return payload.Message
 	}
 
 	return string(b)
