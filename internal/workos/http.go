@@ -1,11 +1,10 @@
 package workos
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/tidwall/gjson"
 )
 
 // TryGetHTTPError returns an error when the http response contains invalid
@@ -22,7 +21,7 @@ func TryGetHTTPError(r *http.Response) error {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg = err.Error()
-	} else if m := gjson.GetBytes(body, "message").Str; m != "" {
+	} else if m := getJsonErrorMessage(body); m != "" {
 		msg = m
 	} else {
 		msg = string(body)
@@ -42,6 +41,16 @@ func TryGetHTTPError(r *http.Response) error {
 		Err:              error,
 		ErrorDescription: description,
 	}
+}
+
+func getJsonErrorMessage(b []byte) string {
+	var response struct{ Message string }
+
+	if err := json.Unmarshal(b, &response); err != nil {
+		return ""
+	}
+
+	return response.Message
 }
 
 // HTTPError represents an http error.

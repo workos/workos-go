@@ -46,8 +46,16 @@ func TestListUsers(t *testing.T) {
 								Value:   "rick@sanchez.com",
 							},
 						},
-						State:         Active,
-						RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+						Groups: []UserGroup{
+							UserGroup{
+								Object: "user_group_object",
+								ID:     "directory_group_123",
+								Name:   "Group Name",
+							},
+						},
+						State:            Active,
+						RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+						CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -106,8 +114,16 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 							Value:   "rick@sanchez.com",
 						},
 					},
-					State:         Active,
-					RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+					Groups: []UserGroup{
+						UserGroup{
+							Object: "user_group_object",
+							ID:     "directory_group_123",
+							Name:   "Group Name",
+						},
+					},
+					State:            Active,
+					RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+					CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -250,8 +266,16 @@ func TestGetUser(t *testing.T) {
 						Value:   "rick@sanchez.com",
 					},
 				},
-				State:         Active,
-				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:     "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
+				State:            Active,
+				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
 	}
@@ -299,8 +323,16 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 				Value:   "rick@sanchez.com",
 			},
 		},
-		State:         Active,
-		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+		Groups: []UserGroup{
+			UserGroup{
+				Object: "user_group_object",
+				ID:     "directory_group_123",
+				Name:   "Group Name",
+			},
+		},
+		State:            Active,
+		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

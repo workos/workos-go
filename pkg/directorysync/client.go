@@ -53,6 +53,18 @@ type UserEmail struct {
 	Type string
 }
 
+// UserGroup contains data about a Directory User's groups.
+type UserGroup struct {
+	// Description of the record.
+	Object string
+
+	// The Group's identifier.
+	ID string
+
+	// The Group's Name.
+	Name string
+}
+
 // UserState represents the active state of a Directory User.
 type UserState string
 
@@ -73,6 +85,9 @@ type User struct {
 	// The User's e-mails.
 	Emails []UserEmail `json:"emails"`
 
+	// The User's groups.
+	Groups []UserGroup `json:"groups"`
+
 	// The User's first name.
 	FirstName string `json:"first_name"`
 
@@ -84,6 +99,9 @@ type User struct {
 
 	// The User's raw attributes in raw encoded JSON.
 	RawAttributes json.RawMessage `json:"raw_attributes"`
+
+	// The User's custom attributes in raw encoded JSON.
+	CustomAttributes json.RawMessage `json:"custom_attributes"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
@@ -403,6 +421,9 @@ type Directory struct {
 
 	// The user's directory provider's Identifier
 	IdpID string `json:"idp_id"`
+
+	// Identifier for the Directory's Organization.
+	OrganizationID string `json:"organization_id"`
 }
 
 // ListDirectoriesOpts contains the options to request a Project's Directories.
