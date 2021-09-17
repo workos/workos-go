@@ -46,7 +46,7 @@ func getJsonErrorMessage(b []byte) string {
 	}
 
 	if err := json.Unmarshal(b, &payload); err != nil {
-		return err.Error()
+		return string(b)
 	}
 
 	if payload.Error != "" && payload.ErrorDescription != "" {

@@ -40,7 +40,7 @@ func TestGetHTTPErrorWithInvalidJSONPayload(t *testing.T) {
 	require.Equal(t, http.StatusUnauthorized, httperr.Code)
 	require.Equal(t, "401 Unauthorized", httperr.Status)
 	require.Equal(t, "GOrOXx", httperr.RequestID)
-	require.Equal(t, "invalid character 'u' looking for beginning of value", httperr.Message)
+	require.Equal(t, "unauthorized", httperr.Message)
 
 	t.Log(httperr)
 }
