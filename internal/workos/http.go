@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // TryGetHTTPError returns an error when the http response contains invalid
@@ -19,8 +20,10 @@ func TryGetHTTPError(r *http.Response) error {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg = err.Error()
-	} else {
+	} else if isJsonResponse(r) {
 		msg = getJsonErrorMessage(body)
+	} else {
+		msg = string(body)
 	}
 
 	return HTTPError{
@@ -31,6 +34,10 @@ func TryGetHTTPError(r *http.Response) error {
 	}
 }
 
+func isJsonResponse(r *http.Response) bool {
+	return strings.Contains(r.Header.Get("Content-Type"), "application/json")
+}
+
 func getJsonErrorMessage(b []byte) string {
 	var r struct {
 		Message          string `json:"message"`
@@ -39,7 +46,7 @@ func getJsonErrorMessage(b []byte) string {
 	}
 
 	if err := json.Unmarshal(b, &r); err != nil {
-		return string(b)
+		return err.Error()
 	}
 
 	if r.Error != "" && r.ErrorDescription != "" {
