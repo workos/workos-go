@@ -422,10 +422,10 @@ type Directory struct {
 	// Identifier for the Directory's Organization.
 	OrganizationID string `json:"organization_id"`
 
-	//Created At
+	// The timestamp of when the Directory was created.
 	CreatedAt string `json:"created_at"`
 
-	//Updated At
+	// The timestamp of when the Directory was updated.
 	UpdatedAt string `json:"updated_at"`
 }
 
