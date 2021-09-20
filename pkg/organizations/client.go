@@ -69,10 +69,10 @@ type Organization struct {
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
 
-	//Created At
+	// The timestamp of when the Directory was created.
 	CreatedAt string `json:"created_at"`
 
-	//Updated At
+	// The timestamp of when the Directory was updated.
 	UpdatedAt string `json:"updated_at"`
 }
 
