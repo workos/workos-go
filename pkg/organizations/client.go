@@ -72,7 +72,7 @@ type Organization struct {
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
 
-	// The timestamp of when the Directory was updated.
+	// The timestamp of when the Organization was updated.
 	UpdatedAt string `json:"updated_at"`
 }
 
