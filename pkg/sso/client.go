@@ -325,7 +325,7 @@ type Connection struct {
 	// The timestamp of when the Connection was created.
 	CreatedAt string `json:"created_at"`
 
-	// The timestamp of when the Directory was updated.
+	// The timestamp of when the Connection was updated.
 	UpdatedAt string `json:"updated_at"`
 }
 
