@@ -321,6 +321,12 @@ type Connection struct {
 
 	// Domain records for the Connection.
 	Domains []ConnectionDomain `json:"domains"`
+
+	// The timestamp of when the Connection was created.
+	CreatedAt string `json:"created_at"`
+
+	// The timestamp of when the Connection was updated.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // GetConnectionOpts contains the options to request details for a Connection.
