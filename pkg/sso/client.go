@@ -322,7 +322,7 @@ type Connection struct {
 	// Domain records for the Connection.
 	Domains []ConnectionDomain `json:"domains"`
 
-	// The timestamp of when the Directory was created.
+	// The timestamp of when the Connection was created.
 	CreatedAt string `json:"created_at"`
 
 	// The timestamp of when the Directory was updated.
