@@ -424,6 +424,12 @@ type Directory struct {
 
 	// Identifier for the Directory's Organization.
 	OrganizationID string `json:"organization_id"`
+
+	// The timestamp of when the Directory was created.
+	CreatedAt string `json:"created_at"`
+
+	// The timestamp of when the Directory was updated.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // ListDirectoriesOpts contains the options to request a Project's Directories.
