@@ -1,10 +1,11 @@
 package workos
 
 import (
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetHTTPErrorWithJSONPayload(t *testing.T) {
