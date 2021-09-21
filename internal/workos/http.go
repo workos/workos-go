@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // TryGetHTTPError returns an error when the http response contains invalid
@@ -19,8 +20,8 @@ func TryGetHTTPError(r *http.Response) error {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg = err.Error()
-	} else if m := getJsonErrorMessage(body); m != "" {
-		msg = m
+	} else if isJsonResponse(r) {
+		msg = getJsonErrorMessage(body)
 	} else {
 		msg = string(body)
 	}
@@ -33,14 +34,28 @@ func TryGetHTTPError(r *http.Response) error {
 	}
 }
 
-func getJsonErrorMessage(b []byte) string {
-	var response struct{ Message string }
+func isJsonResponse(r *http.Response) bool {
+	return strings.Contains(r.Header.Get("Content-Type"), "application/json")
+}
 
-	if err := json.Unmarshal(b, &response); err != nil {
-		return ""
+func getJsonErrorMessage(b []byte) string {
+	var payload struct {
+		Message          string `json:"message"`
+		Error            string `json:"error"`
+		ErrorDescription string `json:"error_description"`
 	}
 
-	return response.Message
+	if err := json.Unmarshal(b, &payload); err != nil {
+		return string(b)
+	}
+
+	if payload.Error != "" && payload.ErrorDescription != "" {
+		return fmt.Sprintf("%s %s", payload.Error, payload.ErrorDescription)
+	} else if payload.Message != "" {
+		return payload.Message
+	}
+
+	return string(b)
 }
 
 // HTTPError represents an http error.
