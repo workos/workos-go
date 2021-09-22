@@ -66,6 +66,10 @@ type Organization struct {
 	// The Organization's name.
 	Name string `json:"name"`
 
+	// Whether Connections within the Organization allow profiles that are
+	// outside of the Organization's configured User Email Domains.
+	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
+
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
 
@@ -109,11 +113,15 @@ type ListOrganizationsResponse struct {
 
 // CreateOrganizationOpts contains the options to create an Organization.
 type CreateOrganizationOpts struct {
-	// Domains of the Organization.
-	Domains []string `json:"domains"`
-
 	// Name of the Organization.
 	Name string `json:"name"`
+
+	// Whether Connections within the Organization allow profiles that are
+	// outside of the Organization's configured User Email Domains.
+	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
+
+	// Domains of the Organization.
+	Domains []string `json:"domains"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
@@ -121,11 +129,15 @@ type UpdateOrganizationOpts struct {
 	// Organization unique identifier.
 	Organization string
 
-	// Domains of the Organization.
-	Domains []string
-
 	// Name of the Organization.
 	Name string
+
+	// Whether Connections within the Organization allow profiles that are
+	// outside of the Organization's configured User Email Domains.
+	AllowProfilesOutsideOrganization bool
+
+	// Domains of the Organization.
+	Domains []string
 }
 
 // GetOrganization gets an Organization.
@@ -260,14 +272,18 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 
 	// UpdateOrganizationChangeOpts contains the options to update an Organization minus the org ID
 	type UpdateOrganizationChangeOpts struct {
-		// Domains of the Organization.
-		Domains []string `json:"domains"`
-
 		// Name of the Organization.
 		Name string `json:"name"`
+
+		// Whether Connections within the Organization allow profiles that are
+		// outside of the Organization's configured User Email Domains.
+		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
+
+		// Domains of the Organization.
+		Domains []string `json:"domains"`
 	}
 
-	update_opts := UpdateOrganizationChangeOpts{opts.Domains, opts.Name}
+	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.Domains}
 
 	data, err := c.JSONEncode(update_opts)
 	if err != nil {
