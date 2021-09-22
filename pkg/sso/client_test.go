@@ -120,6 +120,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 			expected: Profile{
 				ID:             "profile_123",
 				IdpID:          "123",
+				OrganizationID: "org_123",
 				ConnectionID:   "conn_123",
 				ConnectionType: OktaSAML,
 				Email:          "foo@test.com",
@@ -180,6 +181,7 @@ func profileAndTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 		Profile: Profile{
 			ID:             "profile_123",
 			IdpID:          "123",
+			OrganizationID: "org_123",
 			ConnectionID:   "conn_123",
 			ConnectionType: OktaSAML,
 			Email:          "foo@test.com",
@@ -222,6 +224,7 @@ func TestClientGetProfile(t *testing.T) {
 			expected: Profile{
 				ID:             "profile_123",
 				IdpID:          "123",
+				OrganizationID: "org_123",
 				ConnectionID:   "conn_123",
 				ConnectionType: OktaSAML,
 				Email:          "foo@test.com",
@@ -272,6 +275,7 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(Profile{
 		ID:             "profile_123",
 		IdpID:          "123",
+		OrganizationID: "org_123",
 		ConnectionID:   "conn_123",
 		ConnectionType: OktaSAML,
 		Email:          "foo@test.com",

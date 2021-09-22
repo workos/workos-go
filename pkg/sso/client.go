@@ -160,6 +160,9 @@ type Profile struct {
 	// An unique alphanumeric identifier for a Profile’s identity provider.
 	IdpID string `json:"idp_id"`
 
+	// The organization ID.
+	OrganizationID string `json:"organization_id"`
+
 	// The connection ID.
 	ConnectionID string `json:"connection_id"`
 
