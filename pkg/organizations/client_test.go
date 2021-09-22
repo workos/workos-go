@@ -36,6 +36,7 @@ func TestGetOrganization(t *testing.T) {
 			expected: Organization{
 				ID:   "organization_id",
 				Name: "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
 						ID:     "organization_domain_id",
@@ -76,6 +77,7 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(Organization{
 		ID:   "organization_id",
 		Name: "Foo Corp",
+		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
 			OrganizationDomain{
 				ID:     "organization_domain_id",
@@ -119,6 +121,7 @@ func TestListOrganizations(t *testing.T) {
 					Organization{
 						ID:   "organization_id",
 						Name: "Foo Corp",
+						AllowProfilesOutsideOrganization: false,
 						Domains: []OrganizationDomain{
 							OrganizationDomain{
 								ID:     "organization_domain_id",
@@ -175,6 +178,7 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 				Organization{
 					ID:   "organization_id",
 					Name: "Foo Corp",
+					AllowProfilesOutsideOrganization: false,
 					Domains: []OrganizationDomain{
 						OrganizationDomain{
 							ID:     "organization_domain_id",
@@ -223,6 +227,7 @@ func TestCreateOrganization(t *testing.T) {
 			expected: Organization{
 				ID:   "organization_id",
 				Name: "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
 						ID:     "organization_domain_id",
@@ -289,6 +294,7 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		Organization{
 			ID:   "organization_id",
 			Name: "Foo Corp",
+			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
 					ID:     "organization_domain_id",
@@ -332,6 +338,7 @@ func TestUpdateOrganization(t *testing.T) {
 			expected: Organization{
 				ID:   "organization_id",
 				Name: "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
 						ID:     "organization_domain_id",
@@ -403,6 +410,7 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		Organization{
 			ID:   "organization_id",
 			Name: "Foo Corp",
+			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
 					ID:     "organization_domain_id",
