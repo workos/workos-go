@@ -21,8 +21,8 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Organization{
-		ID:                               "organization_id",
-		Name:                             "Foo Corp",
+		ID:   "organization_id",
+		Name: "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
 			OrganizationDomain{
@@ -52,8 +52,8 @@ func TestOrganizationsListOrganizations(t *testing.T) {
 	expectedResponse := ListOrganizationsResponse{
 		Data: []Organization{
 			Organization{
-				ID:                               "organization_id",
-				Name:                             "Foo Corp",
+				ID:   "organization_id",
+				Name: "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
@@ -89,8 +89,8 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 
 	expectedResponse :=
 		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
+			ID:   "organization_id",
+			Name: "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
@@ -121,8 +121,8 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 
 	expectedResponse :=
 		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
+			ID:   "organization_id",
+			Name: "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
