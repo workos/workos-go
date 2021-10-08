@@ -2,11 +2,20 @@ package webhooks
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 )
 
 // Sets default Tolerance to 3 minutes
 const DefaultTolerance time.Duration = 180 * time.Second
+
+// Define signedHeader
+type signedHeader struct {
+	timestamp int64
+	signature string
+}
 
 // This represents the list of errors that could be raised when using the webhook package.
 var (
@@ -17,30 +26,10 @@ var (
 	ErrOutsideTolerance = errors.New("webhook has a timestamp that is out of tolerance")
 )
 
-testSignature = "t=1633109865253, v1=5d5d02e5baab3bc1376c0ee603534104605f8a4fbaa3afeed60bde9a9bd7cebc"
+const testSignature string = "t=1633109865253, v1=5d5d02e5baab3bc1376c0ee603534104605f8a4fbaa3afeed60bde9a9bd7cebc"
 
-testData = {
-    "id": "wh_01FGYEXWQJXJXWQZ5WW2QRFNK7",
-    "data": {
-        "id": "conn_01EHWNC0FCBHZ3BJ7EGKYXK0E6",
-        "name": "Foo Corp's Connection",
-        "state": "active",
-        "object": "connection",
-        "domains": [
-            {
-                "id": "conn_domain_01EHWNFTAFCF3CQAE5A9Q0P1YB",
-                "domain": "foo-corp.com",
-                "object": "connection_domain"
-            }
-        ],
-        "connection_type": "OktaSAML",
-        "organization_id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY"
-    },
-    "event": "connection.activated"
-}
-
-func parseSignatureHeader(header string) (signedHeader, error) {
-	sh := {}
+func parseSignatureHeader(header string) (*signedHeader, error) {
+	sh := &signedHeader{}
 
 	if header == "" {
 		return sh, ErrNotSigned
@@ -55,21 +44,48 @@ func parseSignatureHeader(header string) (signedHeader, error) {
 
 	// Turn the timestamp into Unix time
 	rawTimestamp := s[0][2:len(s[0])]
-	timestamp, err := strconv.ParseInt(rawTimestamp, 10, 64) 
+	timestamp, err := strconv.ParseInt(rawTimestamp, 10, 64)
 	if err != nil {
 		return sh, ErrInvalidHeader
-	} 
-	sh.timesstamp = time.Unix(intTimestamp/1000, 0)
+	}
+	sh.timestamp = timestamp
 
 	// Create the signature and check that it exists
-	sh.signature := (s[1][4:len(s[1])])
-	if len(sh.signature)) == 0 {
+	sh.signature = (s[1][4:len(s[1])])
+	if len(sh.signature) == 0 {
 		return sh, ErrNoValidSignature
 	}
 
 	return sh, nil
 }
 
-func verifyHeader () {
-	header, err := parseSignatureHeader(sigHeader)
+func checkTimestamp(intTimestamp int64) error {
+	formattedTime := time.Unix(intTimestamp/1000, 0)
+	//get current time
+	currentTime := time.Now().Round(0)
+	//calculate the difference between current time and the formatted time
+	diff := currentTime.Sub(formattedTime)
+
+	if diff < DefaultTolerance {
+		return nil
+	} else {
+		return ErrInvalidTimestamp
+	}
+}
+
+func verifyHeader(testSignature string) error {
+	header, err := parseSignatureHeader(testSignature)
+	if err != nil {
+		return err
+	}
+	fmt.Println(header)
+
+	//check timestamp tolerance
+	if err := checkTimestamp(header.timestamp); err != nil {
+		return err
+	}
+
+	//check signatures
+
+	return ErrNoValidSignature
 }
