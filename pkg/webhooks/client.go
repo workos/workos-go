@@ -1,19 +1,18 @@
 package webhooks
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// Sets default Tolerance to 3 minutes
-const DefaultTolerance time.Duration = 180 * time.Second
-
 // Define signedHeader
 type signedHeader struct {
-	timestamp int64
+	timestamp string
 	signature string
 }
 
@@ -26,29 +25,21 @@ var (
 	ErrOutsideTolerance = errors.New("webhook has a timestamp that is out of tolerance")
 )
 
-const testSignature string = "t=1633109865253, v1=5d5d02e5baab3bc1376c0ee603534104605f8a4fbaa3afeed60bde9a9bd7cebc"
-
 func parseSignatureHeader(header string) (*signedHeader, error) {
 	sh := &signedHeader{}
-
 	if header == "" {
 		return sh, ErrNotSigned
 	}
 
-	//Parse Workos-Signature
+	// Parse Workos-Signature
 	s := strings.Split(header, ",")
-
 	if len(s) != 2 {
 		return sh, ErrInvalidHeader
 	}
 
 	// Turn the timestamp into Unix time
 	rawTimestamp := s[0][2:len(s[0])]
-	timestamp, err := strconv.ParseInt(rawTimestamp, 10, 64)
-	if err != nil {
-		return sh, ErrInvalidHeader
-	}
-	sh.timestamp = timestamp
+	sh.timestamp = rawTimestamp
 
 	// Create the signature and check that it exists
 	sh.signature = (s[1][4:len(s[1])])
@@ -59,33 +50,57 @@ func parseSignatureHeader(header string) (*signedHeader, error) {
 	return sh, nil
 }
 
-func checkTimestamp(intTimestamp int64) error {
+func checkTimestamp(timestamp string, defaultTolerance time.Duration) error {
+	intTimestamp, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		return ErrInvalidHeader
+	}
+	// Transform Timestamp into unix time in seconds
 	formattedTime := time.Unix(intTimestamp/1000, 0)
-	//get current time
+	// Get current time
 	currentTime := time.Now().Round(0)
-	//calculate the difference between current time and the formatted time
+	// Calculate the difference between current time and the formatted time
 	diff := currentTime.Sub(formattedTime)
-
-	if diff < DefaultTolerance {
+	// Compare the difference in the time to the default tolerance
+	if diff < defaultTolerance {
 		return nil
 	} else {
 		return ErrInvalidTimestamp
 	}
 }
 
-func verifyHeader(testSignature string) error {
-	header, err := parseSignatureHeader(testSignature)
+func checkSignature(bodyString string, rawTimestamp string, signature string, secret string) error {
+	// Create the digest
+	unhashedDigest := (rawTimestamp + "." + bodyString)
+	h := hmac.New(sha256.New, []byte(secret))
+
+	// Write Data to it
+	h.Write([]byte(unhashedDigest))
+
+	// Get result and encode as hexadecimal string
+	digest := hex.EncodeToString(h.Sum(nil))
+
+	// Return an error if the signature and digest aren't equal
+	if signature == digest {
+		return nil
+	} else {
+		return ErrNoValidSignature
+	}
+}
+
+func validatePayload(workosHeader string, bodyString string, secret string, defaultTolerance time.Duration) (string, error) {
+	header, err := parseSignatureHeader(workosHeader)
 	if err != nil {
-		return err
-	}
-	fmt.Println(header)
-
-	//check timestamp tolerance
-	if err := checkTimestamp(header.timestamp); err != nil {
-		return err
+		return "", err
 	}
 
-	//check signatures
+	if err := checkTimestamp(header.timestamp, defaultTolerance); err != nil {
+		return "", err
+	}
 
-	return ErrNoValidSignature
+	if err := checkSignature(bodyString, header.timestamp, header.signature, secret); err != nil {
+		return "", err
+	}
+
+	return bodyString, nil
 }
