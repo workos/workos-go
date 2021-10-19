@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// Define signedHeader
 type signedHeader struct {
 	timestamp string
 	signature string
@@ -26,28 +25,28 @@ var (
 )
 
 func parseSignatureHeader(header string) (*signedHeader, error) {
-	sh := &signedHeader{}
+	signedHeader := &signedHeader{}
 	if header == "" {
-		return sh, ErrNotSigned
+		return signedHeader, ErrNotSigned
 	}
 
 	// Parse Workos-Signature
-	s := strings.Split(header, ",")
-	if len(s) != 2 {
-		return sh, ErrInvalidHeader
+	signatureParts := strings.Split(header, ",")
+	if len(signatureParts) != 2 {
+		return signedHeader, ErrInvalidHeader
 	}
 
 	// Turn the timestamp into Unix time
-	rawTimestamp := s[0][2:len(s[0])]
-	sh.timestamp = rawTimestamp
+	rawTimestamp := signatureParts[0][2:len(signatureParts[0])]
+	signedHeader.timestamp = rawTimestamp
 
 	// Create the signature and check that it exists
-	sh.signature = (s[1][4:len(s[1])])
-	if len(sh.signature) == 0 {
-		return sh, ErrNoValidSignature
+	signedHeader.signature = (signatureParts[1][4:len(signatureParts[1])])
+	if len(signedHeader.signature) == 0 {
+		return signedHeader, ErrNoValidSignature
 	}
 
-	return sh, nil
+	return signedHeader, nil
 }
 
 func checkTimestamp(timestamp string, defaultTolerance time.Duration) error {
@@ -72,13 +71,13 @@ func checkTimestamp(timestamp string, defaultTolerance time.Duration) error {
 func checkSignature(bodyString string, rawTimestamp string, signature string, secret string) error {
 	// Create the digest
 	unhashedDigest := (rawTimestamp + "." + bodyString)
-	h := hmac.New(sha256.New, []byte(secret))
+	hash := hmac.New(sha256.New, []byte(secret))
 
 	// Write Data to it
-	h.Write([]byte(unhashedDigest))
+	hash.Write([]byte(unhashedDigest))
 
 	// Get result and encode as hexadecimal string
-	digest := hex.EncodeToString(h.Sum(nil))
+	digest := hex.EncodeToString(hash.Sum(nil))
 
 	// Return an error if the signature and digest aren't equal
 	if signature == digest {
