@@ -23,7 +23,7 @@ func TestWebhooks(t *testing.T) {
 
 	actual, err := validatePayload(header, payload, secret, defaultTolerance)
 	if err != nil {
-		t.Errorf("expected no error, but go %v", err)
+		t.Errorf("expected no error, but got %v", err)
 	}
 
 	if actual != payload {
