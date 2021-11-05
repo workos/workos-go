@@ -510,6 +510,54 @@ func (c *Client) ListDirectories(
 	return body, err
 }
 
+// GetDirectoryOpts contains the options to request details for an Directory.
+type GetDirectoryOpts struct {
+	// Directory unique identifier.
+	Directory string
+}
+
+// GetDirectory gets an Directory.
+func (c *Client) GetDirectory(
+	ctx context.Context,
+	opts GetDirectoryOpts,
+) (Directory, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/Directorys/%s",
+		c.Endpoint,
+		opts.Directory,
+	)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return Directory{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Directory{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos.TryGetHTTPError(res); err != nil {
+		return Directory{}, err
+	}
+
+	var body Directory
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
 // DeleteDirectoryOpts contains the options to delete a Connection.
 type DeleteDirectoryOpts struct {
 	// Directory unique identifier.
