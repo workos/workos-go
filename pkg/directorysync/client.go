@@ -422,8 +422,8 @@ type Directory struct {
 	// The user's directory provider's Identifier
 	IdpID string `json:"idp_id"`
 
-	// Identifier for the Directory's Directory.
-	DirectoryID string `json:"Directory_id"`
+	// Identifier for the Directory's Organization.
+	OrganizationID string `json:"Organization_id"`
 
 	// The timestamp of when the Directory was created.
 	CreatedAt string `json:"created_at"`
