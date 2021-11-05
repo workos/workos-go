@@ -57,6 +57,14 @@ func ListDirectories(
 	return DefaultClient.ListDirectories(ctx, opts)
 }
 
+// GetDirectory gets an Directory.
+func GetDirectory(
+	ctx context.Context,
+	opts GetDirectoryOpts,
+) (Directory, error) {
+	return DefaultClient.GetDirectory(ctx, opts)
+}
+
 //DeleteDirectory deletes a directory
 func DeleteDirectory(
 	ctx context.Context,
