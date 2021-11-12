@@ -56,7 +56,7 @@ type PasswordlessSession struct {
 	ID string `json:"id"`
 
 	// The email of the user to authenticate.
-	Email string `json:"name"`
+	Email string `json:"email"`
 
 	// ISO-8601 datetime at which the Passwordless Session link expires.
 	ExpiresAt string `json:"expires_at"`
