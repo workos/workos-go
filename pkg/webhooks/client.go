@@ -41,7 +41,7 @@ func parseSignatureHeader(header string) (*signedHeader, error) {
 	signedHeader.timestamp = rawTimestamp
 
 	// Create the signature and check that it exists
-	signedHeader.signature = (signatureParts[1][4:len(signatureParts[1])])
+	signedHeader.signature = signatureParts[1][4:len(signatureParts[1])]
 	if len(signedHeader.signature) == 0 {
 		return signedHeader, ErrNoValidSignature
 	}
@@ -70,7 +70,7 @@ func checkTimestamp(timestamp string, defaultTolerance time.Duration) error {
 
 func checkSignature(bodyString string, rawTimestamp string, signature string, secret string) error {
 	// Create the digest
-	unhashedDigest := (rawTimestamp + "." + bodyString)
+	unhashedDigest := rawTimestamp + "." + bodyString
 	hash := hmac.New(sha256.New, []byte(secret))
 
 	// Write Data to it
@@ -87,7 +87,7 @@ func checkSignature(bodyString string, rawTimestamp string, signature string, se
 	}
 }
 
-func validatePayload(workosHeader string, bodyString string, secret string, defaultTolerance time.Duration) (string, error) {
+func ValidatePayload(workosHeader string, bodyString string, secret string, defaultTolerance time.Duration) (string, error) {
 	header, err := parseSignatureHeader(workosHeader)
 	if err != nil {
 		return "", err
