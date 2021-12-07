@@ -25,15 +25,24 @@ type ConnectionType string
 // Constants that enumerate the available connection types.
 const (
 	ADFSSAML         ConnectionType = "ADFSSAML"
+	ADPOIDC          ConnectionType = "ADPOIDC"
+	Auth0SAML        ConnectionType = "Auth0SAML"
 	AzureSAML        ConnectionType = "AzureSAML"
+	CyberArkSAML     ConnectionType = "CyberArkSAML"
+	DuoSAML          ConnectionType = "DuoSAML"
 	GenericOIDC      ConnectionType = "GenericOIDC"
 	GenericSAML      ConnectionType = "GenericSAML"
 	GoogleOAuth      ConnectionType = "GoogleOAuth"
+	GoogleSAML       ConnectionType = "GoogleSAML"
+	JumpCloudSAML    ConnectionType = "JumpCloudSAML"
 	MagicLink        ConnectionType = "MagicLink"
+	MicrosoftOAuth   ConnectionType = "MicrosoftOAuth"
 	OktaSAML         ConnectionType = "OktaSAML"
 	OneLoginSAML     ConnectionType = "OneLoginSAML"
 	PingFederateSAML ConnectionType = "PingFederateSAML"
 	PingOneSAML      ConnectionType = "PingOneSAML"
+	SalesforceSAML   ConnectionType = "SalesforceSAML"
+	ShibbolethSAML   ConnectionType = "ShibbolethSAML"
 	VMwareSAML       ConnectionType = "VMwareSAML"
 )
 
