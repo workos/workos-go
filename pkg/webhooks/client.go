@@ -37,7 +37,7 @@ func (c *Client) SetNow(now func() time.Time) {
 	c.now = now
 }
 
-// Sets the maximum time tolerance between now and when the webhook timestmap
+// Sets the maximum time tolerance between now and when the webhook timestamp
 // was issued.
 func (c *Client) SetTolerance(tolerance time.Duration) {
 	c.tolerance = tolerance
