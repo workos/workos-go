@@ -106,10 +106,6 @@ func checkSignature(bodyString string, rawTimestamp string, signature string, se
 	}
 }
 
-func ValidatePayload(workosHeader string, bodyString string, secret string, defaultTolerance time.Duration) (string, error) {
-	return NewClient(secret, defaultTolerance).ValidatePayload(workosHeader, bodyString)
-}
-
 func (c Client) ValidatePayload(workosHeader string, bodyString string) (string, error) {
 	header, err := parseSignatureHeader(workosHeader)
 	if err != nil {
