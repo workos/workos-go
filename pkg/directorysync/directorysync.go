@@ -57,7 +57,7 @@ func ListDirectories(
 	return DefaultClient.ListDirectories(ctx, opts)
 }
 
-// GetDirectory gets an Directory.
+// GetDirectory gets a Directory.
 func GetDirectory(
 	ctx context.Context,
 	opts GetDirectoryOpts,

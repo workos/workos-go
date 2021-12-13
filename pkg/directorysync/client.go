@@ -516,7 +516,7 @@ type GetDirectoryOpts struct {
 	Directory string
 }
 
-// GetDirectory gets an Directory.
+// GetDirectory gets a Directory.
 func (c *Client) GetDirectory(
 	ctx context.Context,
 	opts GetDirectoryOpts,
