@@ -68,27 +68,27 @@ func parseSignatureHeader(header string) (*signedHeader, error) {
 	return signedHeader, nil
 }
 
-func checkTimestamp(timestamp string, defaultTolerance time.Duration, now time.Time) error {
+func (c Client) checkTimestamp(timestamp string) error {
 	intTimestamp, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
 		return ErrInvalidHeader
 	}
 
 	formattedTime := time.Unix(intTimestamp/1000, 0)
-	currentTime := now.Round(0)
+	currentTime := c.now().Round(0)
 
 	diff := currentTime.Sub(formattedTime)
 
-	if diff < defaultTolerance {
+	if diff < c.defaultTolerance {
 		return nil
 	} else {
 		return ErrInvalidTimestamp
 	}
 }
 
-func checkSignature(bodyString string, rawTimestamp string, signature string, secret string) error {
+func (c Client) checkSignature(bodyString string, rawTimestamp string, signature string) error {
 	unhashedDigest := rawTimestamp + "." + bodyString
-	hash := hmac.New(sha256.New, []byte(secret))
+	hash := hmac.New(sha256.New, []byte(c.secret))
 
 	hash.Write([]byte(unhashedDigest))
 
@@ -107,11 +107,11 @@ func (c Client) ValidatePayload(workosHeader string, bodyString string) (string,
 		return "", err
 	}
 
-	if err := checkTimestamp(header.timestamp, c.defaultTolerance, c.now()); err != nil {
+	if err := c.checkTimestamp(header.timestamp); err != nil {
 		return "", err
 	}
 
-	if err := checkSignature(bodyString, header.timestamp, header.signature, c.secret); err != nil {
+	if err := c.checkSignature(bodyString, header.timestamp, header.signature); err != nil {
 		return "", err
 	}
 
