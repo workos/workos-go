@@ -19,16 +19,20 @@ var (
 	ErrOutsideTolerance = errors.New("webhook has a timestamp that is out of tolerance")
 )
 
+// The Client used to interact with Webhooks.
 type Client struct {
 	now              func() time.Time
 	defaultTolerance time.Duration
 	secret           string
 }
 
+// Constructs a new Client.
 func NewClient(secret string, defaultTolerance time.Duration) *Client {
 	return &Client{now: time.Now, defaultTolerance: defaultTolerance, secret: secret}
 }
 
+// Sets the function used to determine the current time. Usually you'll only
+// need to call this for testing purposes.
 func (c Client) SetNow(now func() time.Time) Client {
 	c.now = now
 	return c
