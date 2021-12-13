@@ -10,25 +10,127 @@ import (
 	"time"
 )
 
-func TestWebhooks(t *testing.T) {
-	const defaultTolerance = 180 * time.Second
-	now := time.Now().Round(0).Unix()
-	payload := "{'id':'wh_01FHTNQPSYGA4Z25QSZYPY4659','data':{'id':'conn_01EHWNC0FCBHZ3BJ7EGKYXK0E6','name':'Foo Corp's Connection','state':'active','object':'connection','domains':[{'id':'conn_domain_01EHWNFTAFCF3CQAE5A9Q0P1YB','domain':'foo-corp.com','object':'connection_domain'}],'connection_type':'OktaSAML','organization_id':'org_01EHWNCE74X7JSDV0X3SZ3KJNY'},'event':'connection.activated'}"
+func TestWebhookWithValidHeader(t *testing.T) {
 	secret := "secret"
-	stringTime := strconv.FormatInt(now*1000, 10)
-	signedPayload := stringTime + "." + payload
-	convertedSecret := hmac.New(sha256.New, []byte(secret))
-	convertedSecret.Write([]byte(signedPayload))
-	expectedSignature := hex.EncodeToString(convertedSecret.Sum(nil))
-	header := "t=" + stringTime + ", v1=" + expectedSignature
 
-	actual, err := webhooks.ValidatePayload(header, payload, secret, defaultTolerance)
+	client := webhooks.NewClient(secret)
+
+	now := time.Now()
+	body := "{'data': 'foobar'}"
+	header := mockWebhookHeader(now, secret, body)
+
+	actual, err := client.ValidatePayload(header, body)
 	if err != nil {
 		t.Errorf("expected no error, but got %v", err)
 	}
 
-	if actual != payload {
-		t.Errorf("expected output to be %s, but got %s", payload, actual)
+	if actual != body {
+		t.Errorf("expected output to be '%s', but got '%s'", body, actual)
+	}
+}
+
+func TestWebhookWithInvalidSecret(t *testing.T) {
+	secret := "secret"
+
+	client := webhooks.NewClient(secret)
+
+	now := time.Now()
+	body := "{'data': 'foobar'}"
+	header := mockWebhookHeader(now, "other_secret", body)
+
+	_, err := client.ValidatePayload(header, body)
+	if err != webhooks.ErrNoValidSignature {
+		t.Errorf("expected a '%s' error, but got a '%s'", webhooks.ErrNoValidSignature, err)
+	}
+}
+
+func TestWebhookWithEmptySecret(t *testing.T) {
+	secret := "secret"
+
+	client := webhooks.NewClient(secret)
+
+	now := time.Now()
+	body := "{'data': 'foobar'}"
+	header := mockWebhookHeader(now, "", body)
+
+	_, err := client.ValidatePayload(header, body)
+	if err != webhooks.ErrNoValidSignature {
+		t.Errorf("expected a '%s' error, but got a '%s'", webhooks.ErrNoValidSignature, err)
+	}
+}
+
+func TestWebhookWithInvalidHeader(t *testing.T) {
+	secret := "secret"
+
+	client := webhooks.NewClient(secret)
+	body := "{'data': 'foobar'}"
+
+	_, err := client.ValidatePayload("some_junk", body)
+	if err != webhooks.ErrInvalidHeader {
+		t.Errorf("expected a '%s' error, but got a '%s'", webhooks.ErrInvalidHeader, err)
+	}
+}
+
+func TestWebhookWithTimestampOlderThanTolerance(t *testing.T) {
+	tolerance := 180 * time.Second
+	secret := "secret"
+	now := time.Unix(0, 0)
+
+	client := webhooks.NewClient(secret).
+		SetNow(func() time.Time { return now.Add(tolerance + time.Second) })
+
+	body := "{'data': 'foobar'}"
+	header := mockWebhookHeader(now, secret, body)
+
+	_, err := client.ValidatePayload(header, body)
+	if err != webhooks.ErrInvalidTimestamp {
+		t.Errorf("expected a '%s' error, but got a '%s'", webhooks.ErrInvalidTimestamp, err)
+	}
+}
+
+func TestWebhookWithCustomTolerance(t *testing.T) {
+	tolerance := 240 * time.Second
+	secret := "secret"
+	now := time.Unix(0, 0)
+
+	client := webhooks.NewClient(secret).
+		SetNow(func() time.Time { return now.Add(200 * time.Second) }).
+		SetTolerance(tolerance)
+
+	body := "{'data': 'foobar'}"
+	header := mockWebhookHeader(now, secret, body)
+
+	actual, err := client.ValidatePayload(header, body)
+	if err != nil {
+		t.Errorf("expected no error, but got '%s'", err)
 	}
 
+	if actual != body {
+		t.Errorf("expected output to be '%s', but got '%s'", body, actual)
+	}
+}
+
+func TestWebhookWithInvalidSignature(t *testing.T) {
+	secret := "secret"
+
+	client := webhooks.NewClient(secret)
+
+	now := time.Now()
+	body := "{'data': 'foobar'}"
+	header := mockWebhookHeader(now, secret, body)
+
+	_, err := client.ValidatePayload(header, "{'data': 'bazbiz'}")
+	if err != webhooks.ErrNoValidSignature {
+		t.Errorf("expected a '%s' error, but got a '%s'", webhooks.ErrNoValidSignature, err)
+	}
+}
+
+func mockWebhookHeader(now time.Time, secret string, body string) string {
+	stringTime := strconv.FormatInt(now.Round(0).Unix()*1000, 10)
+	signedBody := stringTime + "." + body
+	convertedSecret := hmac.New(sha256.New, []byte(secret))
+	convertedSecret.Write([]byte(signedBody))
+	expectedSignature := hex.EncodeToString(convertedSecret.Sum(nil))
+
+	return "t=" + stringTime + ", v1=" + expectedSignature
 }
