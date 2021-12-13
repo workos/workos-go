@@ -27,14 +27,21 @@ type Client struct {
 }
 
 // Constructs a new Client.
-func NewClient(secret string, tolerance time.Duration) *Client {
-	return &Client{now: time.Now, tolerance: tolerance, secret: secret}
+func NewClient(secret string) *Client {
+	return &Client{now: time.Now, tolerance: 180 * time.Second, secret: secret}
 }
 
 // Sets the function used to determine the current time. Usually you'll only
 // need to call this for testing purposes.
 func (c Client) SetNow(now func() time.Time) Client {
 	c.now = now
+	return c
+}
+
+// Sets the maximum time tolerance between now and when the webhook timestmap
+// was issued.
+func (c Client) SetTolerance(tolerance time.Duration) Client {
+	c.tolerance = tolerance
 	return c
 }
 
