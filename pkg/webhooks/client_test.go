@@ -11,10 +11,10 @@ import (
 )
 
 func TestWebhookWithValidHeader(t *testing.T) {
-	defaultTolerance := 180 * time.Second
+	tolerance := 180 * time.Second
 	secret := "secret"
 
-	client := webhooks.NewClient(secret, defaultTolerance)
+	client := webhooks.NewClient(secret, tolerance)
 
 	now := time.Now()
 	body := "{'data': 'foobar'}"
@@ -31,10 +31,10 @@ func TestWebhookWithValidHeader(t *testing.T) {
 }
 
 func TestWebhookWithInvalidSecret(t *testing.T) {
-	defaultTolerance := 180 * time.Second
+	tolerance := 180 * time.Second
 	secret := "secret"
 
-	client := webhooks.NewClient(secret, defaultTolerance)
+	client := webhooks.NewClient(secret, tolerance)
 
 	now := time.Now()
 	body := "{'data': 'foobar'}"
@@ -47,10 +47,10 @@ func TestWebhookWithInvalidSecret(t *testing.T) {
 }
 
 func TestWebhookWithEmptySecret(t *testing.T) {
-	defaultTolerance := 180 * time.Second
+	tolerance := 180 * time.Second
 	secret := "secret"
 
-	client := webhooks.NewClient(secret, defaultTolerance)
+	client := webhooks.NewClient(secret, tolerance)
 
 	now := time.Now()
 	body := "{'data': 'foobar'}"
@@ -63,10 +63,10 @@ func TestWebhookWithEmptySecret(t *testing.T) {
 }
 
 func TestWebhookWithInvalidHeader(t *testing.T) {
-	defaultTolerance := 180 * time.Second
+	tolerance := 180 * time.Second
 	secret := "secret"
 
-	client := webhooks.NewClient(secret, defaultTolerance)
+	client := webhooks.NewClient(secret, tolerance)
 	body := "{'data': 'foobar'}"
 
 	_, err := client.ValidatePayload("some_junk", body)
@@ -76,15 +76,15 @@ func TestWebhookWithInvalidHeader(t *testing.T) {
 }
 
 func TestWebhookWithTimestampOlderThanTolerance(t *testing.T) {
-	defaultTolerance := 180 * time.Second
+	tolerance := 180 * time.Second
 	secret := "secret"
 	now := time.Unix(0, 0)
 
-	client := webhooks.NewClient(secret, defaultTolerance)
+	client := webhooks.NewClient(secret, tolerance)
 	client.SetNow(func() time.Time { return now })
 
 	body := "{'data': 'foobar'}"
-	header := mockWebhookHeader(now.Add(defaultTolerance+time.Second), "", body)
+	header := mockWebhookHeader(now.Add(tolerance+time.Second), "", body)
 
 	_, err := client.ValidatePayload(header, body)
 	if err != webhooks.ErrInvalidTimestamp {
@@ -93,10 +93,10 @@ func TestWebhookWithTimestampOlderThanTolerance(t *testing.T) {
 }
 
 func TestWebhookWithInvalidSignature(t *testing.T) {
-	defaultTolerance := 180 * time.Second
+	tolerance := 180 * time.Second
 	secret := "secret"
 
-	client := webhooks.NewClient(secret, defaultTolerance)
+	client := webhooks.NewClient(secret, tolerance)
 
 	now := time.Now()
 	body := "{'data': 'foobar'}"

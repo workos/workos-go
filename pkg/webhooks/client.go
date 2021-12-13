@@ -21,14 +21,14 @@ var (
 
 // The Client used to interact with Webhooks.
 type Client struct {
-	now              func() time.Time
-	defaultTolerance time.Duration
-	secret           string
+	now       func() time.Time
+	tolerance time.Duration
+	secret    string
 }
 
 // Constructs a new Client.
-func NewClient(secret string, defaultTolerance time.Duration) *Client {
-	return &Client{now: time.Now, defaultTolerance: defaultTolerance, secret: secret}
+func NewClient(secret string, tolerance time.Duration) *Client {
+	return &Client{now: time.Now, tolerance: tolerance, secret: secret}
 }
 
 // Sets the function used to determine the current time. Usually you'll only
@@ -79,7 +79,7 @@ func (c Client) checkTimestamp(timestamp string) error {
 
 	diff := currentTime.Sub(formattedTime)
 
-	if diff < c.defaultTolerance {
+	if diff < c.tolerance {
 		return nil
 	} else {
 		return ErrInvalidTimestamp
