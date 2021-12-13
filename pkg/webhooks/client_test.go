@@ -34,9 +34,8 @@ func TestWebhookWithInvalidSecret(t *testing.T) {
 
 	client := webhooks.NewClient(secret)
 
-	now := time.Now()
 	body := "{'data': 'foobar'}"
-	header := mockWebhookHeader(now, "other_secret", body)
+	header := mockWebhookHeader(time.Now(), "other_secret", body)
 
 	_, err := client.ValidatePayload(header, body)
 	if err != webhooks.ErrNoValidSignature {
@@ -49,9 +48,8 @@ func TestWebhookWithEmptySecret(t *testing.T) {
 
 	client := webhooks.NewClient(secret)
 
-	now := time.Now()
 	body := "{'data': 'foobar'}"
-	header := mockWebhookHeader(now, "", body)
+	header := mockWebhookHeader(time.Now(), "", body)
 
 	_, err := client.ValidatePayload(header, body)
 	if err != webhooks.ErrNoValidSignature {
@@ -115,9 +113,8 @@ func TestWebhookWithInvalidSignature(t *testing.T) {
 
 	client := webhooks.NewClient(secret)
 
-	now := time.Now()
 	body := "{'data': 'foobar'}"
-	header := mockWebhookHeader(now, secret, body)
+	header := mockWebhookHeader(time.Now(), secret, body)
 
 	_, err := client.ValidatePayload(header, "{'data': 'bazbiz'}")
 	if err != webhooks.ErrNoValidSignature {
