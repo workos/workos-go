@@ -73,13 +73,12 @@ func checkTimestamp(timestamp string, defaultTolerance time.Duration, now time.T
 	if err != nil {
 		return ErrInvalidHeader
 	}
-	// Transform Timestamp into unix time in seconds
+
 	formattedTime := time.Unix(intTimestamp/1000, 0)
-	// Get current time
 	currentTime := now.Round(0)
-	// Calculate the difference between current time and the formatted time
+
 	diff := currentTime.Sub(formattedTime)
-	// Compare the difference in the time to the default tolerance
+
 	if diff < defaultTolerance {
 		return nil
 	} else {
@@ -88,17 +87,13 @@ func checkTimestamp(timestamp string, defaultTolerance time.Duration, now time.T
 }
 
 func checkSignature(bodyString string, rawTimestamp string, signature string, secret string) error {
-	// Create the digest
 	unhashedDigest := rawTimestamp + "." + bodyString
 	hash := hmac.New(sha256.New, []byte(secret))
 
-	// Write Data to it
 	hash.Write([]byte(unhashedDigest))
 
-	// Get result and encode as hexadecimal string
 	digest := hex.EncodeToString(hash.Sum(nil))
 
-	// Return an error if the signature and digest aren't equal
 	if signature == digest {
 		return nil
 	} else {
