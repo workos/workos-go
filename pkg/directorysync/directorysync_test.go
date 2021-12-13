@@ -209,3 +209,81 @@ func TestDirectorySyncDeleteDirectory(t *testing.T) {
 
 	require.NoError(t, err)
 }
+
+func TestGetDirectory(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetDirectoryOpts
+		expected Directory
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns an Directory",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GetDirectoryOpts{
+				Directory: "Directory_id",
+			},
+			expected: Directory{
+				ID:            "directory_id",
+				Name:          "Ri Jeong Hyeok",
+				Domain:        "crashlandingyou.com",
+				ExternalKey:   "fried_chicken",
+				State:         "linked",
+				Type:          "gsuite directory",
+				EnvironmentID: "environment_id",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getDirectoryTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			Directory, err := client.GetDirectory(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, Directory)
+		})
+	}
+}
+
+func getDirectoryTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := json.Marshal(Directory{
+		ID:            "directory_id",
+		Name:          "Ri Jeong Hyeok",
+		Domain:        "crashlandingyou.com",
+		ExternalKey:   "fried_chicken",
+		State:         "linked",
+		Type:          "gsuite directory",
+		EnvironmentID: "environment_id",
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
