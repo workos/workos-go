@@ -74,8 +74,8 @@ func TestWebhookWithTimestampOlderThanTolerance(t *testing.T) {
 	secret := "secret"
 	now := time.Unix(0, 0)
 
-	client := webhooks.NewClient(secret).
-		SetNow(func() time.Time { return now.Add(tolerance + time.Second) })
+	client := webhooks.NewClient(secret)
+	client.SetNow(func() time.Time { return now.Add(tolerance + time.Second) })
 
 	body := "{'data': 'foobar'}"
 	header := mockWebhookHeader(now, secret, body)
@@ -91,9 +91,9 @@ func TestWebhookWithCustomTolerance(t *testing.T) {
 	secret := "secret"
 	now := time.Unix(0, 0)
 
-	client := webhooks.NewClient(secret).
-		SetNow(func() time.Time { return now.Add(200 * time.Second) }).
-		SetTolerance(tolerance)
+	client := webhooks.NewClient(secret)
+	client.SetNow(func() time.Time { return now.Add(200 * time.Second) })
+	client.SetTolerance(tolerance)
 
 	body := "{'data': 'foobar'}"
 	header := mockWebhookHeader(now, secret, body)

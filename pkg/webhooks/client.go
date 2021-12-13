@@ -33,16 +33,14 @@ func NewClient(secret string) *Client {
 
 // Sets the function used to determine the current time. Usually you'll only
 // need to call this for testing purposes.
-func (c Client) SetNow(now func() time.Time) Client {
+func (c *Client) SetNow(now func() time.Time) {
 	c.now = now
-	return c
 }
 
 // Sets the maximum time tolerance between now and when the webhook timestmap
 // was issued.
-func (c Client) SetTolerance(tolerance time.Duration) Client {
+func (c *Client) SetTolerance(tolerance time.Duration) {
 	c.tolerance = tolerance
-	return c
 }
 
 type signedHeader struct {
@@ -75,7 +73,7 @@ func parseSignatureHeader(header string) (*signedHeader, error) {
 	return signedHeader, nil
 }
 
-func (c Client) checkTimestamp(timestamp string) error {
+func (c *Client) checkTimestamp(timestamp string) error {
 	intTimestamp, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
 		return ErrInvalidHeader
@@ -93,7 +91,7 @@ func (c Client) checkTimestamp(timestamp string) error {
 	}
 }
 
-func (c Client) checkSignature(bodyString string, rawTimestamp string, signature string) error {
+func (c *Client) checkSignature(bodyString string, rawTimestamp string, signature string) error {
 	unhashedDigest := rawTimestamp + "." + bodyString
 	hash := hmac.New(sha256.New, []byte(c.secret))
 
@@ -108,7 +106,7 @@ func (c Client) checkSignature(bodyString string, rawTimestamp string, signature
 	}
 }
 
-func (c Client) ValidatePayload(workosHeader string, bodyString string) (string, error) {
+func (c *Client) ValidatePayload(workosHeader string, bodyString string) (string, error) {
 	header, err := parseSignatureHeader(workosHeader)
 	if err != nil {
 		return "", err
