@@ -96,6 +96,14 @@ type GetAuthorizationURLOptions struct {
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
+	// Domain hint that will be passed as a parameter to the IdP login page.
+	// OPTIONAL.
+	DomainHint string
+
+	// Username/email hint that will be passed as a parameter to the to IdP login page.
+	// OPTIONAL.
+	LoginHint string
+
 	// Authentication service provider descriptor.
 	// Provider is currently only used when the connection type is GoogleOAuth.
 	Provider ConnectionType
@@ -136,6 +144,12 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	}
 	if opts.Domain != "" {
 		query.Set("domain", opts.Domain)
+	}
+	if opts.DomainHint != "" {
+		query.Set("domain_hint", opts.DomainHint)
+	}
+	if opts.LoginHint != "" {
+		query.Set("login_hint", opts.LoginHint)
 	}
 	if opts.Connection != "" {
 		query.Set("connection", opts.Connection)
