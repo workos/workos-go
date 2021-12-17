@@ -71,6 +71,7 @@ type UserState string
 // Constants that enumerate the state of a Directory User.
 const (
 	Active    UserState = "active"
+	Inactive  UserState = "inactive"
 	Suspended UserState = "suspended"
 )
 
@@ -78,6 +79,12 @@ const (
 type User struct {
 	// The User's unique identifier.
 	ID string `json:"id"`
+
+	// The User's unique identifier assigned by the Directory Provider.
+	IdpID string `json:"idp_id"`
+
+	// The identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
 
 	// The User's username.
 	Username string `json:"username"`
