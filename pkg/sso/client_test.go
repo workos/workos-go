@@ -72,7 +72,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 				State:        "custom state",
 			},
 			//CHECK THIS EXPECTED URL
-			expected: "https://api.workos.dev/sso/authorize?client_id=proj_123&organization=organization_123&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
+			expected: "https://api.workos.com/sso/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with DomainHint",
