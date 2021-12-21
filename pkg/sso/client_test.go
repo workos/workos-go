@@ -65,6 +65,16 @@ func TestClientAuthorizeURL(t *testing.T) {
 			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
+			scenario: "generate url with organization",
+			options: GetAuthorizationURLOptions{
+				Organization: "organization_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+				State:        "custom state",
+			},
+			//CHECK THIS EXPECTED URL
+			expected: "https://api.workos.dev/sso/authorize?client_id=proj_123&organization=organization_123&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
+		},
+		{
 			scenario: "generate url with DomainHint",
 			options: GetAuthorizationURLOptions{
 				Connection:  "connection_123",
