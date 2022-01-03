@@ -93,7 +93,7 @@ func (c *Client) init() {
 // GetAuthorizationURLOptions contains the options to pass in order to generate
 // an authorization url.
 type GetAuthorizationURLOptions struct {
-	// DEPRECATED please use oranization parameter instead
+	// Deprecated: Please use `Organization` parameter instead.
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
 
