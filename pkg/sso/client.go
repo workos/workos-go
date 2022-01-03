@@ -112,7 +112,7 @@ type GetAuthorizationURLOptions struct {
 	// The unique identifier for a WorkOS Connection.
 	Connection string
 
-	//  The organization Id can be used to initiate SSO.
+	//  The unique identifier for a WorkOS Organization.
 	Organization string
 
 	// The callback URL where your app redirects the user-agent after an
