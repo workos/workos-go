@@ -71,7 +71,6 @@ func TestClientAuthorizeURL(t *testing.T) {
 				RedirectURI:  "https://example.com/sso/workos/callback",
 				State:        "custom state",
 			},
-			//CHECK THIS EXPECTED URL
 			expected: "https://api.workos.com/sso/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
