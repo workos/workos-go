@@ -112,7 +112,7 @@ type GetAuthorizationURLOptions struct {
 	// The unique identifier for a WorkOS Connection.
 	Connection string
 
-	//  The unique identifier for a WorkOS Organization.
+	// The unique identifier for a WorkOS Organization.
 	Organization string
 
 	// The callback URL where your app redirects the user-agent after an
