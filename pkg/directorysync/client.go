@@ -531,7 +531,7 @@ func (c *Client) GetDirectory(
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
-		"%s/Directorys/%s",
+		"%s/directories/%s",
 		c.Endpoint,
 		opts.Directory,
 	)
