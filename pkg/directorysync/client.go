@@ -447,6 +447,9 @@ type ListDirectoriesOpts struct {
 	// Searchable text for a Directory. Can be empty.
 	Search string
 
+	// Organization ID of a Directory. Can be empty.
+	OrganizationID string
+
 	// Maximum number of records to return.
 	Limit int
 
