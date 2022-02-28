@@ -501,7 +501,7 @@ func (c *Client) ListDirectories(
 	q.Add("search", opts.Search)
 	q.Add("before", opts.Before)
 	q.Add("after", opts.After)
-	q.Add("organization", opts.OrganizationID)
+	q.Add("organization_id", opts.OrganizationID)
 	q.Add("limit", strconv.Itoa(limit))
 	req.URL.RawQuery = q.Encode()
 
