@@ -106,27 +106,39 @@ type ChallengeOpts struct {
 }
 
 type ChallengeResponse struct {
-	ID                     string `json:"id"`
-	Object                 string `json:"object"`
-	CreatedAt              string `json:"created_at"`
-	UpdatedAt              string `json:"updated_at"`
+	// The authentication challenge's unique ID
+	ID string `json:"id"`
+
+	// The name of the response type.
+	Object string `json:"object"`
+
+	// The timestamp of when the request was created.
+	CreatedAt string `json:"created_at"`
+
+	// The timestamp of when the request was updated.
+	UpdatedAt string `json:"updated_at"`
+
+	// The authentication factor Id used to create the request.
 	AuthenticationFactorID string `json:"authentication_factor_id"`
 }
 
 type VerifyOpts struct {
+	// The ID of the authentication challenge that provided the user the verification code.
 	AuthenticationChallengeID string
-	Code                      string
+
+	// The verification code sent to and provided by the end user.
+	Code string
 }
 
 type VerifyResponse struct {
+	// Return details of the request
 	Challenge map[string]interface{} `json:"challenge"`
-	Valid     bool                   `json:"valid"`
+
+	// Boolean returning if request is valid
+	Valid bool `json:"valid"`
 }
 
-type VerifyResponseChallenge struct {
-	Object string `json:"object"`
-}
-
+// Create an Authentication Factor.
 func (c *Client) EnrollFactor(
 	ctx context.Context,
 	opts GetEnrollOpts,
