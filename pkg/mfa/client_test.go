@@ -206,7 +206,7 @@ func TestVerifyFactor(t *testing.T) {
 			},
 			options: VerifyOpts{
 				AuthenticationChallengeID: "auth_challenge_test123",
-				Code:                      "0000000",
+				Code: "0000000",
 			},
 			expected: VerifyResponse{
 				Valid: true,
