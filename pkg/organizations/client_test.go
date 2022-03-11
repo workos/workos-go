@@ -34,12 +34,12 @@ func TestGetOrganization(t *testing.T) {
 				Organization: "organization_id",
 			},
 			expected: Organization{
-				ID:   "organization_id",
-				Name: "Foo Corp",
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
-						ID:     "organization_domain_id",
+						ID: "organization_domain_id",
 						Domain: "foo-corp.com",
 					},
 				},
@@ -75,12 +75,12 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(Organization{
-		ID:   "organization_id",
-		Name: "Foo Corp",
+		ID:                               "organization_id",
+		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
 			OrganizationDomain{
-				ID:     "organization_domain_id",
+				ID: "organization_domain_id",
 				Domain: "foo-corp.com",
 			},
 		},
@@ -119,12 +119,12 @@ func TestListOrganizations(t *testing.T) {
 			expected: ListOrganizationsResponse{
 				Data: []Organization{
 					Organization{
-						ID:   "organization_id",
+						ID: "organization_id",
 						Name: "Foo Corp",
 						AllowProfilesOutsideOrganization: false,
 						Domains: []OrganizationDomain{
 							OrganizationDomain{
-								ID:     "organization_domain_id",
+								ID: "organization_domain_id",
 								Domain: "foo-corp.com",
 							},
 						},
@@ -176,7 +176,7 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListOrganizationsResponse: ListOrganizationsResponse{
 			Data: []Organization{
 				Organization{
-					ID:   "organization_id",
+					ID: "organization_id",
 					Name: "Foo Corp",
 					AllowProfilesOutsideOrganization: false,
 					Domains: []OrganizationDomain{
@@ -225,7 +225,7 @@ func TestCreateOrganization(t *testing.T) {
 				Domains: []string{"foo-corp.com"},
 			},
 			expected: Organization{
-				ID:   "organization_id",
+				ID: "organization_id",
 				Name: "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
@@ -243,7 +243,7 @@ func TestCreateOrganization(t *testing.T) {
 			},
 			err: true,
 			options: CreateOrganizationOpts{
-				Name:    "Foo Corp",
+				Name: "Foo Corp",
 				Domains: []string{"duplicate.com"},
 			},
 		},
@@ -292,12 +292,12 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		Organization{
-			ID:   "organization_id",
+			ID: "organization_id",
 			Name: "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
-					ID:     "organization_domain_id",
+					ID: "organization_domain_id",
 					Domain: "foo-corp.com",
 				},
 			},
@@ -336,16 +336,16 @@ func TestUpdateOrganization(t *testing.T) {
 				Domains:      []string{"foo-corp.com", "foo-corp.io"},
 			},
 			expected: Organization{
-				ID:   "organization_id",
+				ID: "organization_id",
 				Name: "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
-						ID:     "organization_domain_id",
+						ID: "organization_domain_id",
 						Domain: "foo-corp.com",
 					},
 					OrganizationDomain{
-						ID:     "organization_domain_id_2",
+						ID: "organization_domain_id_2",
 						Domain: "foo-corp.io",
 					},
 				},
@@ -359,8 +359,8 @@ func TestUpdateOrganization(t *testing.T) {
 			err: true,
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
-				Name:         "Foo Corp",
-				Domains:      []string{"duplicate.com"},
+				Name: "Foo Corp",
+				Domains: []string{"duplicate.com"},
 			},
 		},
 	}
@@ -408,16 +408,16 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		Organization{
-			ID:   "organization_id",
+			ID: "organization_id",
 			Name: "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
-					ID:     "organization_domain_id",
+					ID: "organization_domain_id",
 					Domain: "foo-corp.com",
 				},
 				OrganizationDomain{
-					ID:     "organization_domain_id_2",
+					ID: "organization_domain_id_2",
 					Domain: "foo-corp.io",
 				},
 			},
