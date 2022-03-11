@@ -146,7 +146,7 @@ func (c *Client) ListUsers(
 ) (ListUsersResponse, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/directory_users", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/auth/factors/enroll", c.Endpoint)
 	req, err := http.NewRequest(
 		http.MethodGet,
 		endpoint,
