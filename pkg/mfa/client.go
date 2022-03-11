@@ -172,6 +172,7 @@ func (c *Client) EnrollFactor(
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
