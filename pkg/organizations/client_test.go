@@ -34,8 +34,8 @@ func TestGetOrganization(t *testing.T) {
 				Organization: "organization_id",
 			},
 			expected: Organization{
-				ID:   "organization_id",
-				Name: "Foo Corp",
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
@@ -75,8 +75,8 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(Organization{
-		ID:   "organization_id",
-		Name: "Foo Corp",
+		ID:                               "organization_id",
+		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
 			OrganizationDomain{
@@ -119,8 +119,8 @@ func TestListOrganizations(t *testing.T) {
 			expected: ListOrganizationsResponse{
 				Data: []Organization{
 					Organization{
-						ID:   "organization_id",
-						Name: "Foo Corp",
+						ID:                               "organization_id",
+						Name:                             "Foo Corp",
 						AllowProfilesOutsideOrganization: false,
 						Domains: []OrganizationDomain{
 							OrganizationDomain{
@@ -176,8 +176,8 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListOrganizationsResponse: ListOrganizationsResponse{
 			Data: []Organization{
 				Organization{
-					ID:   "organization_id",
-					Name: "Foo Corp",
+					ID:                               "organization_id",
+					Name:                             "Foo Corp",
 					AllowProfilesOutsideOrganization: false,
 					Domains: []OrganizationDomain{
 						OrganizationDomain{
@@ -225,8 +225,8 @@ func TestCreateOrganization(t *testing.T) {
 				Domains: []string{"foo-corp.com"},
 			},
 			expected: Organization{
-				ID:   "organization_id",
-				Name: "Foo Corp",
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
@@ -292,8 +292,8 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		Organization{
-			ID:   "organization_id",
-			Name: "Foo Corp",
+			ID:                               "organization_id",
+			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
@@ -336,8 +336,8 @@ func TestUpdateOrganization(t *testing.T) {
 				Domains:      []string{"foo-corp.com", "foo-corp.io"},
 			},
 			expected: Organization{
-				ID:   "organization_id",
-				Name: "Foo Corp",
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
 					OrganizationDomain{
@@ -408,8 +408,8 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		Organization{
-			ID:   "organization_id",
-			Name: "Foo Corp",
+			ID:                               "organization_id",
+			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
 				OrganizationDomain{
