@@ -11,7 +11,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 Install the package with:
 
 ```
-go get -u github.com/workos-inc/workos-go/...
+go get -u github.com/workos/workos-go/...
 ```
 
 ## Configuration
