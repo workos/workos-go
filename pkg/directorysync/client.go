@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos-inc/workos-go/internal/workos"
-	"github.com/workos-inc/workos-go/pkg/common"
+	"github.com/workos/workos-go/internal/workos"
+	"github.com/workos/workos-go/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
