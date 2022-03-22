@@ -2,7 +2,7 @@ package workos_errors
 
 import (
 	"errors"
-	"github.com/workos-inc/workos-go/internal/workos"
+	"github.com/workos/workos-go/internal/workos"
 	"net/http"
 )
 
