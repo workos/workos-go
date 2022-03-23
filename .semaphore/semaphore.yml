@@ -12,7 +12,7 @@ blocks:
         - name: gofmt
           commands:
             - checkout
-            - sem-version go 1.14
+            - sem-version go 1.17.5
             - yes | sudo apt update
             - yes | sudo apt install gccgo-go
             - diff -u <(echo -n) <(gofmt -d ./)
@@ -28,7 +28,7 @@ blocks:
         - name: go test
           commands:
             - checkout
-            - sem-version go 1.14
+            - sem-version go 1.17.5
             - go get github.com/stretchr/testify
             - go get github.com/google/go-querystring
             - go get github.com/google/uuid
