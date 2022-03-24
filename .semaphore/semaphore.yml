@@ -23,18 +23,13 @@ blocks:
           - export "PATH=$(go env GOPATH)/bin:${PATH}"
           - mkdir -vp "${SEMAPHORE_GIT_DIR}" "$(go env GOPATH)/bin"
       jobs:
-        - name: go 1.18 test
+        - name: go test
+          matrix:
+            - env_var: GO_VERSION
+              values: ["1.13", "1.18"]
           commands:
             - checkout
-            - sem-version go 1.18
-            - go get github.com/stretchr/testify
-            - go get github.com/google/go-querystring
-            - go get github.com/google/uuid
-            - go test -v ./...
-        - name: go 1.13 test
-          commands:
-            - checkout
-            - sem-version go 1.13
+            - sem-version go $GO_VERSION
             - go get github.com/stretchr/testify
             - go get github.com/google/go-querystring
             - go get github.com/google/uuid
