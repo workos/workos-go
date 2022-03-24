@@ -136,6 +136,17 @@ type VerifyResponse struct {
 
 	// Boolean returning if request is valid
 	Valid bool `json:"valid"`
+
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type VerifyResponseError struct {
+	// Returns string of error code on response with valid: false
+	Code string `json:"code"`
+
+	// Returns string of message on response with valid: false
+	Message string `json:"message"`
 }
 
 // Create an Authentication Factor.
@@ -235,7 +246,7 @@ func (c *Client) ChallengeFactor(
 func (c *Client) VerifyFactor(
 	ctx context.Context,
 	opts VerifyOpts,
-) (VerifyResponse, error) {
+) (interface{}, error) {
 	c.once.Do(c.init)
 
 	if opts.AuthenticationChallengeID == "" {
@@ -262,13 +273,14 @@ func (c *Client) VerifyFactor(
 		return VerifyResponse{}, err
 	}
 
-	if err = workos.TryGetHTTPError(resp); err != nil {
-		return VerifyResponse{}, err
-	}
-
 	var body VerifyResponse
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
-	return body, err
+
+	if !body.Valid {
+		return VerifyResponseError{body.Code, body.Message}, err
+	} else {
+		return VerifyResponse{}, err
+	}
 
 }
