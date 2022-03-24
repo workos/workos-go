@@ -12,7 +12,7 @@ blocks:
         - name: gofmt
           commands:
             - checkout
-            - sem-version go 1.17.5
+            - sem-version go 1.18
             - diff -u <(echo -n) <(gofmt -d ./)
 
   - name: Run tests
@@ -23,10 +23,18 @@ blocks:
           - export "PATH=$(go env GOPATH)/bin:${PATH}"
           - mkdir -vp "${SEMAPHORE_GIT_DIR}" "$(go env GOPATH)/bin"
       jobs:
-        - name: go test
+        - name: go 1.18 test
           commands:
             - checkout
-            - sem-version go 1.17.5
+            - sem-version go 1.18
+            - go get github.com/stretchr/testify
+            - go get github.com/google/go-querystring
+            - go get github.com/google/uuid
+            - go test -v ./...
+        - name: go 1.13 test
+          commands:
+            - checkout
+            - sem-version go 1.13
             - go get github.com/stretchr/testify
             - go get github.com/google/go-querystring
             - go get github.com/google/uuid
