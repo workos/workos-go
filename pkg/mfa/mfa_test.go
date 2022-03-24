@@ -71,7 +71,8 @@ func TestVerifyFactors(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := VerifyResponse{
-		Valid: true,
+		Valid:   false,
+		Message: "",
 	}
 	verifyResponse, err := VerifyFactor(context.Background(), VerifyOpts{
 		AuthenticationChallengeID: "auth_challenge_test123",
