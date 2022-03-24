@@ -12,7 +12,9 @@ blocks:
         - name: gofmt
           commands:
             - checkout
-            - sem-version go 1.17.5
+            - sem-version go 1.17
+            - yes | sudo apt update
+            - yes | sudo apt install gccgo-go
             - diff -u <(echo -n) <(gofmt -d ./)
 
   - name: Run tests
