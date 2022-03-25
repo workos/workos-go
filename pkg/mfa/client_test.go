@@ -276,7 +276,7 @@ func TestVerifyFactorError(t *testing.T) {
 				Code:                      "0000000",
 			},
 			expected: VerifyResponseError{
-				Code: "authentication_challenge_expired",
+				Code:    "authentication_challenge_expired",
 				Message: "The authentication challenge 'auth_challenge_1234' has expired.",
 			},
 		},
@@ -315,7 +315,7 @@ func verifyFactorErrorTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(VerifyResponseError{
-		Code: "authentication_challenge_expired",
+		Code:    "authentication_challenge_expired",
 		Message: "The authentication challenge 'auth_challenge_1234' has expired.",
 	})
 	if err != nil {
