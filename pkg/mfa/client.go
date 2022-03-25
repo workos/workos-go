@@ -136,9 +136,6 @@ type VerifyResponse struct {
 
 	// Boolean returning if request is valid
 	Valid bool `json:"valid"`
-
-	Code    string `json:"code"`
-	Message string `json:"message"`
 }
 
 type VerifyResponseError struct {
@@ -147,6 +144,11 @@ type VerifyResponseError struct {
 
 	// Returns string of message on response with valid: false
 	Message string `json:"message"`
+}
+
+type RawVerifyResponse struct {
+	VerifyResponse
+	VerifyResponseError
 }
 
 // Create an Authentication Factor.
@@ -273,14 +275,14 @@ func (c *Client) VerifyFactor(
 		return VerifyResponse{}, err
 	}
 
-	var body VerifyResponse
+	var body RawVerifyResponse
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 
-	if !body.Valid {
+	if body.Code != "" {
 		return VerifyResponseError{body.Code, body.Message}, err
 	} else {
-		return VerifyResponse{}, err
+		return VerifyResponse{body.Challenge, body.Valid}, err
 	}
 
 }
