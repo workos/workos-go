@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/workos/workos-go/internal/workos"
 )
 
@@ -102,7 +104,7 @@ func (c *Client) GenerateLink(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return "", err
 	}
 

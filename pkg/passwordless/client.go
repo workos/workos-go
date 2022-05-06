@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/workos/workos-go/internal/workos"
 )
 
@@ -126,7 +128,7 @@ func (c *Client) CreateSession(ctx context.Context, opts CreateSessionOpts) (Pas
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return PasswordlessSession{}, err
 	}
 
@@ -174,5 +176,5 @@ func (c *Client) SendSession(
 	}
 	defer res.Body.Close()
 
-	return workos.TryGetHTTPError(res)
+	return workos_errors.TryGetHTTPError(res)
 }
