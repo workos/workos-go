@@ -2,10 +2,10 @@ package workos_errors_test
 
 import (
 	"fmt"
-	"github.com/workos/workos-go/internal/workos"
-	"github.com/workos/workos-go/pkg/workos_errors"
 	"net/http"
 	"testing"
+
+	"github.com/workos/workos-go/pkg/workos_errors"
 )
 
 func TestIsBadRequest(t *testing.T) {
@@ -19,14 +19,14 @@ func TestIsBadRequest(t *testing.T) {
 	}{
 		{
 			name: "bad request",
-			args: args{err: workos.HTTPError{
+			args: args{err: workos_errors.HTTPError{
 				Code: http.StatusBadRequest,
 			}},
 			want: true,
 		},
 		{
 			name: "internal server error",
-			args: args{err: workos.HTTPError{
+			args: args{err: workos_errors.HTTPError{
 				Code: http.StatusInternalServerError,
 			}},
 			want: false,

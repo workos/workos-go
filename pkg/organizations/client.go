@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/internal/workos"
 	"github.com/workos/workos-go/pkg/common"
@@ -172,7 +174,7 @@ func (c *Client) GetOrganization(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Organization{}, err
 	}
 
@@ -221,7 +223,7 @@ func (c *Client) ListOrganizations(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListOrganizationsResponse{}, err
 	}
 
@@ -256,7 +258,7 @@ func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganization
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Organization{}, err
 	}
 
@@ -306,7 +308,7 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Organization{}, err
 	}
 
@@ -354,5 +356,5 @@ func (c *Client) DeleteOrganization(
 	}
 	defer res.Body.Close()
 
-	return workos.TryGetHTTPError(res)
+	return workos_errors.TryGetHTTPError(res)
 }

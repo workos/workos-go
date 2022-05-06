@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/workos/workos-go/internal/workos"
 )
 
@@ -192,7 +194,7 @@ func (c *Client) EnrollFactor(
 		return EnrollResponse{}, err
 	}
 
-	if err = workos.TryGetHTTPError(resp); err != nil {
+	if err = workos_errors.TryGetHTTPError(resp); err != nil {
 		return EnrollResponse{}, err
 	}
 
@@ -233,7 +235,7 @@ func (c *Client) ChallengeFactor(
 		return ChallengeResponse{}, err
 	}
 
-	if err = workos.TryGetHTTPError(resp); err != nil {
+	if err = workos_errors.TryGetHTTPError(resp); err != nil {
 		return ChallengeResponse{}, err
 	}
 

@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/google/go-querystring/query"
 
 	"github.com/workos/workos-go/internal/workos"
@@ -133,7 +135,7 @@ func (c *Client) Publish(ctx context.Context, e EventOpts) error {
 	}
 	defer res.Body.Close()
 
-	return workos.TryGetHTTPError(res)
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // ListEventsOpts contains options to fetch Audit Trail events.
@@ -285,7 +287,7 @@ func (c *Client) ListEvents(ctx context.Context, opts ListEventsOpts) (ListEvent
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListEventsResponse{}, err
 	}
 

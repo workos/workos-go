@@ -1,4 +1,4 @@
-package workos
+package workos_errors
 
 import (
 	"encoding/json"

@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/workos/workos-go/internal/workos"
 	"github.com/workos/workos-go/pkg/common"
 )
@@ -252,7 +254,7 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ProfileAndToken{}, err
 	}
 
@@ -293,7 +295,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profil
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Profile{}, err
 	}
 
@@ -402,7 +404,7 @@ func (c *Client) GetConnection(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Connection{}, err
 	}
 
@@ -486,7 +488,7 @@ func (c *Client) ListConnections(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListConnectionsResponse{}, err
 	}
 
@@ -534,5 +536,5 @@ func (c *Client) DeleteConnection(
 	}
 	defer res.Body.Close()
 
-	return workos.TryGetHTTPError(res)
+	return workos_errors.TryGetHTTPError(res)
 }
