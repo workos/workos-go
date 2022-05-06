@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/pkg/workos_errors"
+
 	"github.com/workos/workos-go/internal/workos"
 	"github.com/workos/workos-go/pkg/common"
 )
@@ -183,7 +185,7 @@ func (c *Client) ListUsers(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListUsersResponse{}, err
 	}
 
@@ -274,7 +276,7 @@ func (c *Client) ListGroups(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListGroupsResponse{}, err
 	}
 
@@ -322,7 +324,7 @@ func (c *Client) GetUser(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return User{}, err
 	}
 
@@ -370,7 +372,7 @@ func (c *Client) GetGroup(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Group{}, err
 	}
 
@@ -511,7 +513,7 @@ func (c *Client) ListDirectories(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListDirectoriesResponse{}, err
 	}
 
@@ -559,7 +561,7 @@ func (c *Client) GetDirectory(
 	}
 	defer res.Body.Close()
 
-	if err = workos.TryGetHTTPError(res); err != nil {
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return Directory{}, err
 	}
 
@@ -607,5 +609,5 @@ func (c *Client) DeleteDirectory(
 	}
 	defer res.Body.Close()
 
-	return workos.TryGetHTTPError(res)
+	return workos_errors.TryGetHTTPError(res)
 }
