@@ -19,6 +19,18 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+//OrderDefault is the default order when neither asc or desc is used.
+const OrderDefault = "normal"
+
+//Order represents the order of records.
+type Order string
+
+// Constants that enumerate the available orders.
+const (
+	Asc  Order = "asc"
+	Desc Order = "desc"
+)
+
 // Client represents a client that performs Organization requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -95,6 +107,9 @@ type ListOrganizationsOpts struct {
 
 	// Maximum number of records to return.
 	Limit int `url:"limit,omitempty"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
 
 	// Pagination cursor to receive records before a provided Organization ID.
 	Before string `url:"before,omitempty"`
