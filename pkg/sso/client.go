@@ -21,6 +21,18 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+//OrderDefault is the default order when neither asc or desc is used.
+const OrderDefault = "normal"
+
+//Order represents the order of records.
+type Order string
+
+// Constants that enumerate the available orders.
+const (
+	Asc  Order = "asc"
+	Desc Order = "desc"
+)
+
 // ConnectionType represents a connection type.
 type ConnectionType string
 
