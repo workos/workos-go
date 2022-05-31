@@ -21,6 +21,15 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+//Order represents the order of records.
+type Order string
+
+// Constants that enumerate the available orders.
+const (
+	Asc  Order = "asc"
+	Desc Order = "desc"
+)
+
 // ConnectionType represents a connection type.
 type ConnectionType string
 
@@ -427,6 +436,9 @@ type ListConnectionsOpts struct {
 
 	// Maximum number of records to return.
 	Limit int
+
+	// The order in which to paginate records.
+	Order Order
 
 	// Pagination cursor to receive records before a provided Connection ID.
 	Before string
