@@ -149,7 +149,7 @@ type ListUsersResponse struct {
 	// List of provisioned Users.
 	Data []User `json:"data"`
 
-	// Cursor  options.
+	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
@@ -243,7 +243,7 @@ type ListGroupsResponse struct {
 	// List of provisioned Users.
 	Data []Group `json:"data"`
 
-	// Cursor  options.
+	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
@@ -486,7 +486,7 @@ type ListDirectoriesResponse struct {
 	// List of Directories.
 	Data []Directory `json:"data"`
 
-	// Cursor  options.
+	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
