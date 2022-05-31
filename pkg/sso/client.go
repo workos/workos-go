@@ -428,6 +428,9 @@ type ListConnectionsOpts struct {
 	// Maximum number of records to return.
 	Limit int
 
+	// The order in which to paginate records.
+	Order string
+
 	// Pagination cursor to receive records before a provided Connection ID.
 	Before string
 

@@ -124,6 +124,9 @@ type ListUsersOpts struct {
 	// Maximum number of records to return.
 	Limit int
 
+	// The order in which to paginate records.
+	Order string
+
 	// Pagination cursor to receive records before a provided Directory ID.
 	Before string
 
@@ -137,7 +140,7 @@ type ListUsersResponse struct {
 	// List of provisioned Users.
 	Data []User `json:"data"`
 
-	// Cursor pagination options.
+	// Cursor  options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
@@ -215,6 +218,9 @@ type ListGroupsOpts struct {
 	// Maximum number of records to return.
 	Limit int
 
+	// The order in which to paginate records.
+	Order string
+
 	// Pagination cursor to receive records before a provided Directory ID.
 	Before string
 
@@ -228,7 +234,7 @@ type ListGroupsResponse struct {
 	// List of provisioned Users.
 	Data []Group `json:"data"`
 
-	// Cursor pagination options.
+	// Cursor  options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
@@ -455,6 +461,9 @@ type ListDirectoriesOpts struct {
 	// Maximum number of records to return.
 	Limit int
 
+	// The order in which to paginate records.
+	Order string
+
 	// Pagination cursor to receive records before a provided Directory ID.
 	Before string
 
@@ -468,7 +477,7 @@ type ListDirectoriesResponse struct {
 	// List of Directories.
 	Data []Directory `json:"data"`
 
-	// Cursor pagination options.
+	// Cursor  options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 

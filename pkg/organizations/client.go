@@ -96,6 +96,9 @@ type ListOrganizationsOpts struct {
 	// Maximum number of records to return.
 	Limit int `url:"limit,omitempty"`
 
+	// The order in which to paginate records.
+	Order string `url:"order,omitempty"`
+
 	// Pagination cursor to receive records before a provided Organization ID.
 	Before string `url:"before,omitempty"`
 

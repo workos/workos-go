@@ -182,6 +182,9 @@ type ListEventsOpts struct {
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
 
+	// The order in which to paginate records.
+	Order string `url:"order,omitempty"`
+
 	// Pagination cursor to receive records before a provided Event ID.
 	Before string `url:"before,omitempty"`
 
