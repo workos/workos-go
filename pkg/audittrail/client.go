@@ -20,9 +20,6 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
-//OrderDefault is the default order when neither asc or desc is used.
-const OrderDefault = "normal"
-
 //Order represents the order of records.
 type Order string
 
@@ -195,7 +192,7 @@ type ListEventsOpts struct {
 	Limit int `url:"limit"`
 
 	// The order in which to paginate records.
-	Order string `url:"order,omitempty"`
+	Order Order `url:"order,omitempty"`
 
 	// Pagination cursor to receive records before a provided Event ID.
 	Before string `url:"before,omitempty"`
