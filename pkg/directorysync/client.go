@@ -18,6 +18,15 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+// Order represents the order of records.
+type Order string
+
+// Constants that enumerate the available orders.
+const (
+	Asc  Order = "asc"
+	Desc Order = "desc"
+)
+
 // Client represents a client that performs Directory Sync requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -124,6 +133,9 @@ type ListUsersOpts struct {
 	// Maximum number of records to return.
 	Limit int
 
+	// The order in which to paginate records.
+	Order Order
+
 	// Pagination cursor to receive records before a provided Directory ID.
 	Before string
 
@@ -214,6 +226,9 @@ type ListGroupsOpts struct {
 
 	// Maximum number of records to return.
 	Limit int
+
+	// The order in which to paginate records.
+	Order Order
 
 	// Pagination cursor to receive records before a provided Directory ID.
 	Before string
@@ -454,6 +469,9 @@ type ListDirectoriesOpts struct {
 
 	// Maximum number of records to return.
 	Limit int
+
+	// The order in which to paginate records.
+	Order Order
 
 	// Pagination cursor to receive records before a provided Directory ID.
 	Before string
