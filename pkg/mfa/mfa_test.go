@@ -20,10 +20,10 @@ func TestMfaEnrollFactors(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := EnrollResponse{
-		ID:            "auth_factor_test123",
-		CreatedAt:     "2022-02-17T22:39:26.616Z",
-		UpdatedAt:     "2022-02-17T22:39:26.616Z",
-		Type:          "generic_otp",
+		ID:        "auth_factor_test123",
+		CreatedAt: "2022-02-17T22:39:26.616Z",
+		UpdatedAt: "2022-02-17T22:39:26.616Z",
+		Type:      "generic_otp",
 	}
 	enrollResponse, err := EnrollFactor(context.Background(), GetEnrollOpts{
 		Type:       "totp",

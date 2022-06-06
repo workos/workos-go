@@ -35,10 +35,10 @@ func TestEnrollFactor(t *testing.T) {
 				TotpUser:   "some_user",
 			},
 			expected: EnrollResponse{
-				ID:            "auth_factor_test123",
-				CreatedAt:     "2022-02-17T22:39:26.616Z",
-				UpdatedAt:     "2022-02-17T22:39:26.616Z",
-				Type:          "generic_otp",
+				ID:        "auth_factor_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
 			},
 		},
 		{
@@ -51,10 +51,10 @@ func TestEnrollFactor(t *testing.T) {
 				PhoneNumber: "0000000000",
 			},
 			expected: EnrollResponse{
-				ID:            "auth_factor_test123",
-				CreatedAt:     "2022-02-17T22:39:26.616Z",
-				UpdatedAt:     "2022-02-17T22:39:26.616Z",
-				Type:          "generic_otp",
+				ID:        "auth_factor_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
 			},
 		},
 	}
@@ -92,10 +92,10 @@ func enrollFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(EnrollResponse{
-		ID:            "auth_factor_test123",
-		CreatedAt:     "2022-02-17T22:39:26.616Z",
-		UpdatedAt:     "2022-02-17T22:39:26.616Z",
-		Type:          "generic_otp",
+		ID:        "auth_factor_test123",
+		CreatedAt: "2022-02-17T22:39:26.616Z",
+		UpdatedAt: "2022-02-17T22:39:26.616Z",
+		Type:      "generic_otp",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
