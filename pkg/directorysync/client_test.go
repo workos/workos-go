@@ -444,7 +444,6 @@ func TestListDirectories(t *testing.T) {
 						ExternalKey:   "fried_chicken",
 						State:         "linked",
 						Type:          "gsuite directory",
-						EnvironmentID: "environment_id",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -496,7 +495,6 @@ func listDirectoriesTestHandler(w http.ResponseWriter, r *http.Request) {
 				ExternalKey:   "fried_chicken",
 				State:         "linked",
 				Type:          "gsuite directory",
-				EnvironmentID: "environment_id",
 			},
 		},
 		ListMetadata: common.ListMetadata{

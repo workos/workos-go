@@ -173,7 +173,6 @@ func TestDirectorySyncListDirectories(t *testing.T) {
 				ExternalKey:   "fried_chicken",
 				State:         "linked",
 				Type:          "gsuite directory",
-				EnvironmentID: "environment_id",
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -238,7 +237,6 @@ func TestGetDirectory(t *testing.T) {
 				ExternalKey:   "fried_chicken",
 				State:         "linked",
 				Type:          "gsuite directory",
-				EnvironmentID: "environment_id",
 			},
 		},
 	}
@@ -277,7 +275,6 @@ func getDirectoryTestHandler(w http.ResponseWriter, r *http.Request) {
 		ExternalKey:   "fried_chicken",
 		State:         "linked",
 		Type:          "gsuite directory",
-		EnvironmentID: "environment_id",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

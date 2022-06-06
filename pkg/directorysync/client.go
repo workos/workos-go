@@ -434,9 +434,6 @@ type Directory struct {
 	// Externally used identifier for the Directory.
 	ExternalKey string `json:"external_key"`
 
-	// Identifier for the Directory's Environment.
-	EnvironmentID string `json:"environment_id"`
-
 	// Type of the directory.
 	Type DirectoryType `json:"type"`
 

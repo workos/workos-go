@@ -208,9 +208,6 @@ type EventAction struct {
 
 	// Event Action name.
 	Name string `json:"name"`
-
-	// Identifier for the environment the Event Action belongs to.
-	EnvironmentID string `json:"environment_id"`
 }
 
 // Event describes an Audit Trail Event record.

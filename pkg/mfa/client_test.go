@@ -39,7 +39,6 @@ func TestEnrollFactor(t *testing.T) {
 				CreatedAt:     "2022-02-17T22:39:26.616Z",
 				UpdatedAt:     "2022-02-17T22:39:26.616Z",
 				Type:          "generic_otp",
-				EnvironmentID: "environment_test123",
 			},
 		},
 		{
@@ -56,7 +55,6 @@ func TestEnrollFactor(t *testing.T) {
 				CreatedAt:     "2022-02-17T22:39:26.616Z",
 				UpdatedAt:     "2022-02-17T22:39:26.616Z",
 				Type:          "generic_otp",
-				EnvironmentID: "environment_test123",
 			},
 		},
 	}
@@ -98,7 +96,6 @@ func enrollFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:     "2022-02-17T22:39:26.616Z",
 		UpdatedAt:     "2022-02-17T22:39:26.616Z",
 		Type:          "generic_otp",
-		EnvironmentID: "environment_test123",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
