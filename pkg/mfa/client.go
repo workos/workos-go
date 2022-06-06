@@ -89,9 +89,6 @@ type EnrollResponse struct {
 	// The type of request either 'sms' or 'totp'
 	Type string `json:"type"`
 
-	// The id of the environment
-	EnvironmentID string `json:"environment_id"`
-
 	// Details of the totp response will be 'null' if using sms
 	Totp map[string]interface{} `json:"totp"`
 
