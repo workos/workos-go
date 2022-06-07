@@ -117,6 +117,9 @@ type ChallengeResponse struct {
 	// The timestamp of when the request was updated.
 	UpdatedAt string `json:"updated_at"`
 
+	// The timestamp of when the request expires.
+	ExpiresAt string `json:"expires_at"`
+
 	// The authentication factor Id used to create the request.
 	AuthenticationFactorID string `json:"authentication_factor_id"`
 }
