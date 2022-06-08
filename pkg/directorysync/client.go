@@ -214,6 +214,21 @@ type Group struct {
 
 	// The Group's name.
 	Name string `json:"name"`
+
+	// The Groups's unique identifier assigned by the Directory Provider.
+	IdpID string `json:"idp_id"`
+
+	// The identifier of the Directory the group belongs to.
+	DirectoryID string `json:"directory_id"`
+
+	// The Group's created at date.
+	CreatedAt string `json:"created_at"`
+
+	// The Group's updated at date.
+	UpdatedAt string `json:"updated_at"`
+
+	// The Groups's raw attributes in raw encoded JSON.
+	RawAttributes json.RawMessage `json:"raw_attributes"`
 }
 
 // ListGroupsOpts contains the options to request provisioned Directory Groups.
