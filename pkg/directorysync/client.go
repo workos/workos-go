@@ -227,7 +227,7 @@ type Group struct {
 	// The Group's updated at date.
 	UpdatedAt string `json:"updated_at"`
 
-	// The Groups's raw attributes in raw encoded JSON.
+	// The Group's raw attributes in raw encoded JSON.
 	RawAttributes json.RawMessage `json:"raw_attributes"`
 }
 
