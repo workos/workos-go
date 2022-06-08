@@ -215,7 +215,7 @@ type Group struct {
 	// The Group's name.
 	Name string `json:"name"`
 
-	// The Groups's unique identifier assigned by the Directory Provider.
+	// The Group's unique identifier assigned by the Directory Provider.
 	IdpID string `json:"idp_id"`
 
 	// The identifier of the Directory the group belongs to.
