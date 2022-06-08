@@ -41,7 +41,7 @@ const (
 	AzureSAML         ConnectionType = "AzureSAML"
 	CasSAML           ConnectionType = "CasSAML"
 	CloudflareSAML    ConnectionType = "CloudflareSAML"
-	ClasslinkSAML     ConnectionType = "ClassLinkSAML"
+	ClassLinkSAML     ConnectionType = "ClassLinkSAML"
 	CyberArkSAML      ConnectionType = "CyberArkSAML"
 	DuoSAML           ConnectionType = "DuoSAML"
 	GenericOIDC       ConnectionType = "GenericOIDC"
