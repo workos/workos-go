@@ -165,8 +165,13 @@ func TestListGroups(t *testing.T) {
 			expected: ListGroupsResponse{
 				Data: []Group{
 					Group{
-						ID:   "directory_group_id",
-						Name: "Scientists",
+						ID:            "directory_group_id",
+						Name:          "Scientists",
+						IdpID:         "123",
+						DirectoryID:   "456",
+						CreatedAt:     "2022-06-08T17:05:58.051Z",
+						UpdatedAt:     "2022-06-08T17:05:58.051Z",
+						RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -215,8 +220,13 @@ func listGroupsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListGroupsResponse: ListGroupsResponse{
 			Data: []Group{
 				Group{
-					ID:   "directory_group_id",
-					Name: "Scientists",
+					ID:            "directory_group_id",
+					Name:          "Scientists",
+					IdpID:         "123",
+					DirectoryID:   "456",
+					CreatedAt:     "2022-06-08T17:05:58.051Z",
+					UpdatedAt:     "2022-06-08T17:05:58.051Z",
+					RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -365,8 +375,13 @@ func TestGetGroup(t *testing.T) {
 				Group: "directory_group_id",
 			},
 			expected: Group{
-				ID:   "directory_group_id",
-				Name: "Scientists",
+				ID:            "directory_group_id",
+				Name:          "Scientists",
+				IdpID:         "123",
+				DirectoryID:   "456",
+				CreatedAt:     "2022-06-08T17:05:58.051Z",
+				UpdatedAt:     "2022-06-08T17:05:58.051Z",
+				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
 	}
@@ -404,8 +419,13 @@ func getGroupTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(Group{
-		ID:   "directory_group_id",
-		Name: "Scientists",
+		ID:            "directory_group_id",
+		Name:          "Scientists",
+		IdpID:         "123",
+		DirectoryID:   "456",
+		CreatedAt:     "2022-06-08T17:05:58.051Z",
+		UpdatedAt:     "2022-06-08T17:05:58.051Z",
+		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
