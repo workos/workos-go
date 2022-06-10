@@ -132,6 +132,7 @@ func TestChallengeFactor(t *testing.T) {
 				CreatedAt:              "2022-02-17T22:39:26.616Z",
 				UpdatedAt:              "2022-02-17T22:39:26.616Z",
 				AuthenticationFactorID: "auth_factor_test123",
+				ExpiresAt:              "2022-02-17T22:39:26.616Z",
 			},
 		},
 	}
@@ -173,6 +174,7 @@ func challengeFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:              "2022-02-17T22:39:26.616Z",
 		UpdatedAt:              "2022-02-17T22:39:26.616Z",
 		AuthenticationFactorID: "auth_factor_test123",
+		ExpiresAt:              "2022-02-17T22:39:26.616Z",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
