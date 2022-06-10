@@ -36,7 +36,7 @@ type ConnectionType string
 // Constants that enumerate the available connection types.
 const (
 	ADFSSAML          ConnectionType = "ADFSSAML"
-	ADPOIDC           ConnectionType = "ADPOIDC"
+	AdpOidc           ConnectionType = "AdpOidc"
 	Auth0SAML         ConnectionType = "Auth0SAML"
 	AzureSAML         ConnectionType = "AzureSAML"
 	CasSAML           ConnectionType = "CasSAML"
