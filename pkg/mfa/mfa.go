@@ -39,3 +39,11 @@ func VerifyChallenge(
 ) (interface{}, error) {
 	return DefaultClient.VerifyChallenge(ctx, opts)
 }
+
+// Deprecated: Use VerifyChallenge instead
+func VerifyFactor(
+	ctx context.Context,
+	opts VerifyOpts,
+) (interface{}, error) {
+	return DefaultClient.VerifyFactor(ctx, opts)
+}

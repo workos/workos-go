@@ -245,6 +245,14 @@ func (c *Client) ChallengeFactor(
 
 }
 
+// Deprecated: Use VerifyChallenge instead.
+func (c *Client) VerifyFactor(
+	ctx context.Context,
+	opts VerifyOpts,
+) (interface{}, error) {
+	return VerifyChallenge(ctx, opts)
+}
+
 // Verifies the one time password provided by the end-user.
 func (c *Client) VerifyChallenge(
 	ctx context.Context,
@@ -262,7 +270,7 @@ func (c *Client) VerifyChallenge(
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/verify", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
 	req, err := http.NewRequest("POST", endpoint, responseBody)
 	if err != nil {
 		log.Panic(err)
