@@ -247,7 +247,7 @@ func (c *Client) ChallengeFactor(
 }
 
 // Verifies the one time password provided by the end-user.
-func (c *Client) VerifyFactor(
+func (c *Client) VerifyChallenge(
 	ctx context.Context,
 	opts VerifyOpts,
 ) (interface{}, error) {

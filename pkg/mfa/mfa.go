@@ -32,10 +32,10 @@ func ChallengeFactor(
 	return DefaultClient.ChallengeFactor(ctx, opts)
 }
 
-// VerifyFactor verifies the one time password provided by the end-user.
-func VerifyFactor(
+// VerifyChallenge verifies the one time password provided by the end-user.
+func VerifyChallenge(
 	ctx context.Context,
 	opts VerifyOpts,
 ) (interface{}, error) {
-	return DefaultClient.VerifyFactor(ctx, opts)
+	return DefaultClient.VerifyChallenge(ctx, opts)
 }
