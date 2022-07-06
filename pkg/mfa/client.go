@@ -216,12 +216,11 @@ func (c *Client) ChallengeFactor(
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"authentication_factor_id": opts.AuthenticationFactorID,
-		"sms_template":             opts.SMSTemplate,
+		"sms_template": opts.SMSTemplate,
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/challenge", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.AuthenticationFactorID)
 	req, err := http.NewRequest("POST", endpoint, responseBody)
 	if err != nil {
 		log.Panic(err)
