@@ -216,12 +216,11 @@ func (c *Client) ChallengeFactor(
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"authentication_factor_id": opts.AuthenticationFactorID,
-		"sms_template":             opts.SMSTemplate,
+		"sms_template": opts.SMSTemplate,
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/challenge", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.AuthenticationFactorID)
 	req, err := http.NewRequest("POST", endpoint, responseBody)
 	if err != nil {
 		log.Panic(err)
@@ -246,8 +245,16 @@ func (c *Client) ChallengeFactor(
 
 }
 
-// Verifies the one time password provided by the end-user.
+// Deprecated: Use VerifyChallenge instead.
 func (c *Client) VerifyFactor(
+	ctx context.Context,
+	opts VerifyOpts,
+) (interface{}, error) {
+	return VerifyChallenge(ctx, opts)
+}
+
+// Verifies the one time password provided by the end-user.
+func (c *Client) VerifyChallenge(
 	ctx context.Context,
 	opts VerifyOpts,
 ) (interface{}, error) {
@@ -258,12 +265,11 @@ func (c *Client) VerifyFactor(
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"authentication_challenge_id": opts.AuthenticationChallengeID,
-		"code":                        opts.Code,
+		"code": opts.Code,
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/verify", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
 	req, err := http.NewRequest("POST", endpoint, responseBody)
 	if err != nil {
 		log.Panic(err)

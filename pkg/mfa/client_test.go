@@ -185,7 +185,7 @@ func challengeFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestVerifyFactor(t *testing.T) {
+func TestVerifyChallenge(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
@@ -215,14 +215,14 @@ func TestVerifyFactor(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(verifyFactorTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(verifyChallengeTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			response, err := client.VerifyFactor(context.Background(), test.options)
+			response, err := client.VerifyChallenge(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -233,7 +233,7 @@ func TestVerifyFactor(t *testing.T) {
 	}
 }
 
-func verifyFactorTestHandler(w http.ResponseWriter, r *http.Request) {
+func verifyChallengeTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -257,7 +257,7 @@ func verifyFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestVerifyFactorError(t *testing.T) {
+func TestVerifyChallengeError(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
@@ -283,14 +283,14 @@ func TestVerifyFactorError(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(verifyFactorErrorTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(verifyChallengeErrorTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			response, err := client.VerifyFactor(context.Background(), test.options)
+			response, err := client.VerifyChallenge(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -301,7 +301,7 @@ func TestVerifyFactorError(t *testing.T) {
 	}
 }
 
-func verifyFactorErrorTestHandler(w http.ResponseWriter, r *http.Request) {
+func verifyChallengeErrorTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)

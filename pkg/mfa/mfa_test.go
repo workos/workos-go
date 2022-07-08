@@ -60,8 +60,8 @@ func TestMfaChallengeFactors(t *testing.T) {
 	require.Equal(t, expectedResponse, challengeResponse)
 }
 
-func TestVerifyFactors(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(verifyFactorTestHandler))
+func TestVerifyChallenges(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(verifyChallengeTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -73,7 +73,7 @@ func TestVerifyFactors(t *testing.T) {
 	expectedResponse := VerifyResponse{
 		Valid: true,
 	}
-	verifyResponse, err := VerifyFactor(context.Background(), VerifyOpts{
+	verifyResponse, err := VerifyChallenge(context.Background(), VerifyOpts{
 		AuthenticationChallengeID: "auth_challenge_test123",
 		Code:                      "0000000",
 	})
