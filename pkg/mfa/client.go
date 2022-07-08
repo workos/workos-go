@@ -265,8 +265,7 @@ func (c *Client) VerifyChallenge(
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"authentication_challenge_id": opts.AuthenticationChallengeID,
-		"code":                        opts.Code,
+		"code": opts.Code,
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
