@@ -97,6 +97,9 @@ type User struct {
 	// The identifier of the Directory the Directory User belongs to.
 	DirectoryID string `json:"directory_id"`
 
+	// The identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+
 	// The User's username.
 	Username string `json:"username"`
 
@@ -220,6 +223,9 @@ type Group struct {
 
 	// The identifier of the Directory the group belongs to.
 	DirectoryID string `json:"directory_id"`
+
+	// The identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
 
 	// The Group's created at date.
 	CreatedAt string `json:"created_at"`
