@@ -72,13 +72,14 @@ func TestDirectorySyncListGroups(t *testing.T) {
 	expectedResponse := ListGroupsResponse{
 		Data: []Group{
 			Group{
-				ID:            "directory_group_id",
-				Name:          "Scientists",
-				IdpID:         "123",
-				DirectoryID:   "456",
-				CreatedAt:     "2022-06-08T17:05:58.051Z",
-				UpdatedAt:     "2022-06-08T17:05:58.051Z",
-				RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+				ID:             "directory_group_id",
+				Name:           "Scientists",
+				IdpID:          "123",
+				DirectoryID:    "456",
+				OrganizationID: "789",
+				CreatedAt:      "2022-06-08T17:05:58.051Z",
+				UpdatedAt:      "2022-06-08T17:05:58.051Z",
+				RawAttributes:  json.RawMessage(`{"foo":"bar"}`),
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -148,13 +149,14 @@ func TestDirectorySyncGetGroup(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Group{
-		ID:            "directory_group_id",
-		Name:          "Scientists",
-		IdpID:         "123",
-		DirectoryID:   "456",
-		CreatedAt:     "2022-06-08T17:05:58.051Z",
-		UpdatedAt:     "2022-06-08T17:05:58.051Z",
-		RawAttributes: json.RawMessage(`{"foo":"bar"}`),
+		ID:             "directory_group_id",
+		Name:           "Scientists",
+		IdpID:          "123",
+		DirectoryID:    "456",
+		OrganizationID: "789",
+		CreatedAt:      "2022-06-08T17:05:58.051Z",
+		UpdatedAt:      "2022-06-08T17:05:58.051Z",
+		RawAttributes:  json.RawMessage(`{"foo":"bar"}`),
 	}
 	directoryGroupResponse, err := GetGroup(context.Background(), GetGroupOpts{
 		Group: "directory_group_id",
