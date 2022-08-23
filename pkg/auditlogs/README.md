@@ -21,9 +21,9 @@ func main() {
     auditlogs.SetAPIKey("my_api_key")
 
     // Wherever you need to publish an audit trail event:
-    err := auditlogs.CreateEvent(ctx.Background(), auditlogs.EventOpts{
+    err := auditlogs.CreateEvent(ctx.Background(), auditlogs.AuditLog{
         Action:     "document.viewed",
-        ActionType: audittrail.Create,
+        ActionType: auditlogs.Create,
         ActorName:  "Jairo Kunde",
         ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
         Group:      "abstract.com",

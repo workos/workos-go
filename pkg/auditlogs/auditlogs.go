@@ -1,26 +1,27 @@
-// Package `audittrail` provides a client wrapping the WorkOS Audit Trail API.
+// Package `auditlogs` provides a client wrapping the WorkOS Audit Trail API.
 //
 // Example:
-//   func main() {
-//       audittrail.SetAPIKey("my_api_key")
 //
-//       // Wherever you need to publish an audit trail event:
-//       err := audittrail.Publish(context.Background(), audittrail.EventOpts{
-//           Action:     "document.viewed",
-//           ActionType: audittrail.Create,
-//           ActorName:  "Jairo Kunde",
-//           ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
-//           Group:      "abstract.com",
-//           Location:   "55.27.223.26",
-//           OccurredAt: time.Now(),
-//           TargetName: "central.class",
-//           TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
-//       })
-//       if err != nil {
-//           // Handle error.
-//       }
-//   }
-package audittrail
+//	func main() {
+//	    auditlogs.SetAPIKey("my_api_key")
+//
+//	    // Wherever you need to publish an audit trail event:
+//	    err := auditlogs.Publish(context.Background(), auditlogs.AuditLog{
+//	        Action:     "document.viewed",
+//	        ActionType: auditlogs.Create,
+//	        ActorName:  "Jairo Kunde",
+//	        ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
+//	        Group:      "abstract.com",
+//	        Location:   "55.27.223.26",
+//	        OccurredAt: time.Now(),
+//	        TargetName: "central.class",
+//	        TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
+//	    })
+//	    if err != nil {
+//	        // Handle error.
+//	    }
+//	}
+package auditlogs
 
 import (
 	"context"
@@ -45,11 +46,6 @@ func SetAPIKey(k string) {
 }
 
 // Publish publishes the given event.
-func Publish(ctx context.Context, e EventOpts) error {
-	return DefaultClient.Publish(ctx, e)
-}
-
-// ListEvents fetches Audit Trail events.
-func ListEvents(ctx context.Context, opts ListEventsOpts) (ListEventsResponse, error) {
-	return DefaultClient.ListEvents(ctx, opts)
+func CreateEvent(ctx context.Context, e AuditLogEventOpts) error {
+	return DefaultClient.CreateEvent(ctx, e)
 }
