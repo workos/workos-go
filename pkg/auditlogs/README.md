@@ -18,22 +18,33 @@ package main
 import "github.com/workos/workos-go/pkg/auditlogs"
 
 func main() {
-    auditlogs.SetAPIKey("my_api_key")
+	auditlogs.SetAPIKey("my_api_key")
 
-    // Wherever you need to publish an audit trail event:
-    err := auditlogs.CreateEvent(ctx.Background(), auditlogs.AuditLog{
-        Action:     "document.viewed",
-        ActionType: auditlogs.Create,
-        ActorName:  "Jairo Kunde",
-        ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
-        Group:      "abstract.com",
-        Location:   "55.27.223.26",
-        OccurredAt: time.Now(),
-        TargetName: "central.class",
-        TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
-    })
-    if err != nil {
-        // Handle error.
-    }
+	// Wherever you need to publish an audit log event:
+	err := auditlogs.CreateEvent(ctx.Background(), auditlogs.AuditLogEventOpts{
+		Organization: "org_8899300049990088",
+		Event: Event{
+			Action: "team.created",
+			Actor: Actor{
+				Id:   "o5fdfsdfUMCAuunNN3Iwfs34gMw",
+				Name: "jonatas",
+				Type: "user",
+				Metadata: map[string]interface{}{
+					"Email": "person@workos.com",
+				},
+			},
+			Context: Context{
+				Location: "79.226.116.209",
+			},
+			Targets: []Target{
+				Target{Id: "team_123", Type: "team"},
+			},
+		},
+		IdempotencyKey: uuid.New().String(),
+	})
+}
+if err != nil {
+// Handle error.
+}
 }
 ```

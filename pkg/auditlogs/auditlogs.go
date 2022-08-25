@@ -6,7 +6,7 @@
 //	    auditlogs.SetAPIKey("my_api_key")
 //
 //	    // Wherever you need to publish an audit log event:
-//	    err := auditlogs.CreateEvent(context.Background(), auditlogs.AuditLogEvent{
+//	    err := auditlogs.CreateEvent(context.Background(), auditlogs.AuditLogEventOpts{
 //	        Organization: "org_8899300049990088",
 //			Event: Event{
 //				Action: "team.created",
