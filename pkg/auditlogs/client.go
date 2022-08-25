@@ -35,11 +35,12 @@ type Client struct {
 	// to http.Client.
 	HTTPClient *http.Client
 
-	// The endpoint used to request Workos. Defaults to
-	// https://api.workos.com/audit_logs/events.
+	// The endpoint used to request WorkOS AuditLog events creation endpoint.
+	// Defaults to https://api.workos.com/audit_logs/events.
 	EventsEndpoint string
 
-	// https://api.workos.com/audit_logs/exports.
+	// The endpoint used to request WorkOS AuditLog events creation endpoint.
+	// Defaults to https://api.workos.com/audit_logs/exports.
 	ExportsEndpoint string
 
 	// The function used to encode in JSON. Defaults to json.Marshal.
@@ -55,6 +56,7 @@ type AuditLogEventOpts struct {
 
 	// Event payload
 	Event Event `json:"event" binding:"required"`
+
 	// If no key is provided or the key is empty, the key will not be attached
 	// to the request.
 	IdempotencyKey string `json:"-"`
@@ -68,7 +70,6 @@ type Event struct {
 	Version int `json:"version,omitempty"`
 
 	// The time when the audit trail occurred.
-	//
 	// Defaults to time.Now().
 	OccurredAt time.Time `json:"occurred_at"`
 
