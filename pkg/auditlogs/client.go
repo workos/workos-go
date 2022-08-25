@@ -243,7 +243,7 @@ func (c *Client) CreateExport(ctx context.Context, e CreateExportOpts) (CreateEx
 	return body, err
 }
 
-// GetExport creates an export of Audit Log events. You can specify some filters.
+// GetExport retrieves an export of Audit Log events
 func (c *Client) GetExport(ctx context.Context, e GetExportOpts) (GetExportResponse, error) {
 	c.once.Do(c.init)
 
