@@ -27,7 +27,7 @@ const (
 
 // Client represents a client that performs auditlogs requests to WorkOS API.
 type Client struct {
-	// The WorkOS api key. It can be found in
+	// The WorkOS API key. It can be found in
 	// https://dashboard.workos.com/api-keys.
 	APIKey string
 
