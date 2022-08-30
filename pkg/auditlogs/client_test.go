@@ -279,38 +279,3 @@ func TestGetExports(t *testing.T) {
 type defaultTestHandler struct {
 	header *http.Header
 }
-
-// Unit test to hit the prod api directly. Uncomment and provide an APIKey to
-// test.
-//
-//func TestClientCreateEventLive(t *testing.T) {
-//	client := &Client{
-//		APIKey:         "sk_test_999999999999999999",
-//		EventsEndpoint: "https://api.workos-test.com/audit_logs/events",
-//	}
-//	client.init()
-//
-//	err := client.CreateEvent(context.TODO(), AuditLogEventOpts{
-//		Organization: "org_01G7SXG5PT45NP3E9Z38G22GPY",
-//		Event: Event{
-//			Action: "team.created",
-//			Actor: Actor{
-//				Id:   "o5fdfsdfUMCAuunNN3Iwfs34gMw",
-//				Name: "jonatas",
-//				Type: "user",
-//				Metadata: map[string]interface{}{
-//					"Email": "person@workos.com",
-//				},
-//			},
-//			Context: Context{
-//				Location: "79.226.116.209",
-//			},
-//			Targets: []Target{
-//				Target{Id: "team_123", Type: "team"},
-//			},
-//		},
-//		IdempotencyKey: uuid.New().String(),
-//	})
-//
-//	require.NoError(t, err)
-//}
