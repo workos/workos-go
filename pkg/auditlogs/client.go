@@ -31,7 +31,7 @@ type Client struct {
 	// https://dashboard.workos.com/api-keys.
 	APIKey string
 
-	// The http.Client that is used to post audit trail events to WorkOS. Defaults
+	// The http.Client that is used to post Audit Log events to WorkOS. Defaults
 	// to http.Client.
 	HTTPClient *http.Client
 
