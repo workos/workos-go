@@ -247,6 +247,18 @@ func TestCreateOrganization(t *testing.T) {
 				Domains: []string{"duplicate.com"},
 			},
 		},
+		{
+			scenario: "Idempotency Key with different event payloads returns error",
+			client: &Client{
+				APIKey: "test",
+			},
+			err: true,
+			options: CreateOrganizationOpts{
+				Name:           "New Corp",
+				Domains:        []string{"foo-corp.com"},
+				IdempotencyKey: "duplicate",
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -285,6 +297,18 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if opts.IdempotencyKey == "duplicate" {
+		for _, domain := range opts.Domains {
+			if domain != "foo-corp.com" {
+				http.Error(w, "duplicate idempotency key", http.StatusConflict)
+				return
+			}
+		}
+		if opts.Name != "Foo Corp" {
+			http.Error(w, "duplicate idempotency key", http.StatusConflict)
+			return
+		}
+	}
 	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
 		w.WriteHeader(http.StatusBadRequest)
 		return

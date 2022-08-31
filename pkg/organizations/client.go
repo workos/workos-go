@@ -137,6 +137,7 @@ type CreateOrganizationOpts struct {
 	// Domains of the Organization.
 	Domains []string `json:"domains"`
 
+	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_iey,omitempty"`
 }
 
