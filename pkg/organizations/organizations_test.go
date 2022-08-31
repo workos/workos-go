@@ -101,8 +101,9 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 		}
 
 	organization, err := CreateOrganization(context.Background(), CreateOrganizationOpts{
-		Name:    "Foo Corp",
-		Domains: []string{"foo-corp.com"},
+		Name:           "Foo Corp",
+		Domains:        []string{"foo-corp.com"},
+		IdempotencyKey: "duplicate",
 	})
 
 	require.NoError(t, err)

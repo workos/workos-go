@@ -136,6 +136,9 @@ type CreateOrganizationOpts struct {
 
 	// Domains of the Organization.
 	Domains []string `json:"domains"`
+
+	// Optional unique identifier to ensure idempotency
+	IdempotencyKey string `json:"idempotency_iey,omitempty"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
@@ -263,6 +266,7 @@ func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganization
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Idempotency-Key", opts.IdempotencyKey)
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
