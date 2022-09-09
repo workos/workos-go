@@ -74,7 +74,7 @@ func DeleteDirectory(
 	return DefaultClient.DeleteDirectory(ctx, opts)
 }
 
-// Primary Email is a method for finding a user's primary email (when applicable)
+// PrimaryEmail is a method for finding a user's primary email (when applicable)
 func (r User) PrimaryEmail() (string, error) {
 	for _, v := range r.Emails {
 		if v.Primary {
