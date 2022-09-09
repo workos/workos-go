@@ -328,16 +328,6 @@ type GetUserOpts struct {
 	User string
 }
 
-func (r User) PrimaryEmail() string {
-	for _, v := range r.Emails {
-		if v.Primary {
-			return v.Value
-		}
-	}
-
-	return nil
-}
-
 // GetUser gets a provisioned User for a Directory Endpoint.
 func (c *Client) GetUser(
 	ctx context.Context,

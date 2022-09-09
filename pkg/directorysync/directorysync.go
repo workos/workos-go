@@ -3,6 +3,7 @@ package directorysync
 
 import (
 	"context"
+	"errors"
 )
 
 // DefaultClient is the client used by SetAPIKey and Directory Sync functions.
@@ -71,4 +72,14 @@ func DeleteDirectory(
 	opts DeleteDirectoryOpts,
 ) error {
 	return DefaultClient.DeleteDirectory(ctx, opts)
+}
+
+// Primary Email is a method for finding a user's primary email (when applicable)
+func (r User) PrimaryEmail() (string, error) {
+	for _, v := range r.Emails {
+		if v.Primary {
+			return v.Value, nil
+		}
+	}
+	return "", errors.New("no primary email for this user found")
 }
