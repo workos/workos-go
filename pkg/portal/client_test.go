@@ -47,6 +47,18 @@ func TestGenerateLink(t *testing.T) {
 			},
 			expected: "https://id.workos.test/portal/launch?secret=1234",
 		},
+		{
+			scenario: "Request returns link with audit_logs intent",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GenerateLinkOpts{
+				Intent:       AuditLogs,
+				Organization: "organization_id",
+				ReturnURL:    "https://foo-corp.app.com/settings",
+			},
+			expected: "https://id.workos.test/portal/launch?secret=1234",
+		},
 	}
 
 	for _, test := range tests {
