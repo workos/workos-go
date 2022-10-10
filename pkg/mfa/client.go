@@ -153,6 +153,16 @@ type RawVerifyResponse struct {
 	VerifyResponseError
 }
 
+type DeleteFactorOpts struct {
+	// ID of factor to be deleted
+	ID string
+}
+
+type GetFactorOpts struct {
+	// ID of the factor.
+	ID string
+}
+
 // Create an Authentication Factor.
 func (c *Client) EnrollFactor(
 	ctx context.Context,
@@ -293,4 +303,81 @@ func (c *Client) VerifyChallenge(
 		return VerifyResponse{body.Challenge, body.Valid}, err
 	}
 
+}
+
+// DeleteFactor deletes a Factor.
+func (c *Client) DeleteFactor(
+	ctx context.Context,
+	opts DeleteFactorOpts,
+) error {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/auth/factors/%s",
+		c.Endpoint,
+		opts.ID,
+	)
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
+}
+
+// GetFactor gets a Factor.
+func (c *Client) GetFactor(
+	ctx context.Context,
+	opts GetFactorOpts,
+) (EnrollResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/auth/factors/%s",
+		c.Endpoint,
+		opts.ID,
+	)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return EnrollResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EnrollResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EnrollResponse{}, err
+	}
+
+	var body EnrollResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
