@@ -105,3 +105,23 @@ func TestGetFactors(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, factorResponse)
 }
+
+func TestDeleteFactors(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteFactorTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	err := DeleteFactor(
+		context.Background(),
+		DeleteFactorOpts{
+			ID: "auth_factor_test1231",
+		},
+	)
+
+	require.NoError(t, err)
+}

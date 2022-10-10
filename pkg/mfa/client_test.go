@@ -61,6 +61,39 @@ func TestGetFactor(t *testing.T) {
 	}
 }
 
+func TestDeleteFactor(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeleteFactorOpts
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deleteFactorTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			err := client.DeleteFactor(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
 func TestEnrollFactor(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -304,6 +337,16 @@ func getFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
+}
+
+func deleteFactorTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func verifyChallengeTestHandler(w http.ResponseWriter, r *http.Request) {
