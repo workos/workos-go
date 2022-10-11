@@ -27,6 +27,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				ID:        "directory_user_id",
 				FirstName: "Rick",
 				LastName:  "Sanchez",
+				JobTitle:  "Software Engineer",
 				Emails: []UserEmail{
 					UserEmail{
 						Primary: true,
@@ -112,6 +113,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		ID:        "directory_user_id",
 		FirstName: "Rick",
 		LastName:  "Sanchez",
+		JobTitle:  "Software Engineer",
 		Emails: []UserEmail{
 			UserEmail{
 				Primary: true,
