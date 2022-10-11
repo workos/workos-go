@@ -115,6 +115,9 @@ type User struct {
 	// The User's last name.
 	LastName string `json:"last_name"`
 
+	// The User's job title.
+	JobTitle string `json:"job_title"`
+
 	// The User's state.
 	State UserState `json:"state"`
 
