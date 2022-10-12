@@ -1,13 +1,13 @@
 # audittrail
 
-[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/pkg/audittrail)
+[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/dmytro-cyberhaven/workos-go/pkg/audittrail)
 
 A Go package to send audit trails events to WorkOS.
 
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/pkg/audittrail
+go get -u github.com/dmytro-cyberhaven/workos-go/pkg/audittrail
 ```
 
 ## How it works
@@ -15,7 +15,7 @@ go get -u github.com/workos/workos-go/pkg/audittrail
 ```go
 package main
 
-import "github.com/workos/workos-go/pkg/audittrail"
+import "github.com/dmytro-cyberhaven/workos-go/pkg/audittrail"
 
 func main() {
     audittrail.SetAPIKey("my_api_key")

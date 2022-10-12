@@ -11,7 +11,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 Install the package with:
 
 ```
-go get -u github.com/workos/workos-go/...
+go get -u github.com/dmytro-cyberhaven/workos-go/...
 ```
 
 ## Configuration
@@ -28,10 +28,10 @@ Or, you can set it on your own before your application starts:
 sso.Configure(
   "<WORKOS_API_KEY>",
   "<CLIENT_ID>",
-  "https://foo-corp.com/redirect-uri",
-)
+  "https://foo-corp.com/redirect-uri"
+);
 
-directorysync.SetAPIKey("<WORKOS_API_KEY>")
+directorysync.SetAPIKey("<WORKOS_API_KEY>");
 ```
 
 ## SDK Versioning
@@ -40,7 +40,7 @@ For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)
 
 ## More Information
 
-* [Single Sign-On Guide](https://workos.com/docs/sso/guide)
-* [Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
-* [Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
-* [Magic Link Guide](https://workos.com/docs/magic-link/guide)
+- [Single Sign-On Guide](https://workos.com/docs/sso/guide)
+- [Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
+- [Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
+- [Magic Link Guide](https://workos.com/docs/magic-link/guide)

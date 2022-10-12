@@ -4,10 +4,11 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/workos/workos-go/pkg/webhooks"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/dmytro-cyberhaven/workos-go/pkg/webhooks"
 )
 
 func TestWebhookWithValidHeader(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dmytro-cyberhaven/workos-go/pkg/common"
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/pkg/common"
 )
 
 func TestOrganizationsGetOrganization(t *testing.T) {
