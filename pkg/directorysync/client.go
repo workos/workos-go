@@ -126,6 +126,12 @@ type User struct {
 
 	// The User's custom attributes in raw encoded JSON.
 	CustomAttributes json.RawMessage `json:"custom_attributes"`
+
+	// The User's created at date
+	CreatedAt time.Time `json:"created_at"`
+
+	// The User's updated at date
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
