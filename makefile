@@ -10,7 +10,7 @@ ifdef VERSION
 	git add internal/workos/workos.go
 	-git commit -m ${VERSION}
 	git push --set-upstream origin ${VERSION}
-	open https://github.com/workos/workos-go/compare/${VERSION}?expand=1
+	open https://github.com/dmytro-cyberhaven/workos-go/compare/${VERSION}?expand=1
 
 else
 	@echo "\033[91mVERSION is not defided\033[00m"

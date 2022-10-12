@@ -3,11 +3,12 @@ package auditlogs
 import (
 	"context"
 	"encoding/json"
-	"github.com/workos/workos-go/pkg/workos_errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/dmytro-cyberhaven/workos-go/pkg/workos_errors"
 
 	"github.com/stretchr/testify/require"
 )

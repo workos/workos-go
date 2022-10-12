@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/pkg/workos_errors"
+	"github.com/dmytro-cyberhaven/workos-go/pkg/workos_errors"
 
-	"github.com/workos/workos-go/internal/workos"
-	"github.com/workos/workos-go/pkg/common"
+	"github.com/dmytro-cyberhaven/workos-go/internal/workos"
+	"github.com/dmytro-cyberhaven/workos-go/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -126,6 +126,12 @@ type User struct {
 
 	// The User's custom attributes in raw encoded JSON.
 	CustomAttributes json.RawMessage `json:"custom_attributes"`
+
+	// The User's created at date
+	CreatedAt time.Time `json:"created_at"`
+
+	// The User's updated at date
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
