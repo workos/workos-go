@@ -76,8 +76,11 @@ type GenerateLinkOpts struct {
 	// Organization identifier to scope the Portal Session
 	Organization string `json:"organization"`
 
-	// The URL to which users will return to when finished with the Admin Portal.
+	// The URL to which WorkOS should send users when they click on the link to return to your website.
 	ReturnURL string `json:"return_url"`
+
+	// The URL to which WorkOS will redirect users to upon successfully setting up Single Sign On or Directory Sync.
+	SuccessURL string `json:"success_url"`
 }
 
 // generatedLinkResponse represents the generated Portal Link
