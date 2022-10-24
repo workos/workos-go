@@ -155,7 +155,7 @@ type RawVerifyResponse struct {
 
 type DeleteFactorOpts struct {
 	// ID of factor to be deleted
-	ID string
+	AuthenticationFactorID string
 }
 
 type GetFactorOpts struct {
@@ -315,7 +315,7 @@ func (c *Client) DeleteFactor(
 	endpoint := fmt.Sprintf(
 		"%s/auth/factors/%s",
 		c.Endpoint,
-		opts.ID,
+		opts.AuthenticationFactorID,
 	)
 	req, err := http.NewRequest(
 		http.MethodDelete,
