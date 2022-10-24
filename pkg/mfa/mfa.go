@@ -47,3 +47,19 @@ func VerifyFactor(
 ) (interface{}, error) {
 	return DefaultClient.VerifyFactor(ctx, opts)
 }
+
+// DeleteFactor deletes a factor by ID.
+func DeleteFactor(
+	ctx context.Context,
+	opts DeleteFactorOpts,
+) error {
+	return DefaultClient.DeleteFactor(ctx, opts)
+}
+
+// GetFactor gets a factor by ID.
+func GetFactor(
+	ctx context.Context,
+	opts GetFactorOpts,
+) (EnrollResponse, error) {
+	return DefaultClient.GetFactor(ctx, opts)
+}
