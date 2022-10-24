@@ -93,10 +93,10 @@ func TestGetFactors(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := EnrollResponse{
-		AuthenticationFactorID: "auth_factor_test123",
-		CreatedAt:              "2022-02-17T22:39:26.616Z",
-		UpdatedAt:              "2022-02-17T22:39:26.616Z",
-		Type:                   "generic_otp",
+		ID:        "auth_factor_test123",
+		CreatedAt: "2022-02-17T22:39:26.616Z",
+		UpdatedAt: "2022-02-17T22:39:26.616Z",
+		Type:      "generic_otp",
 	}
 	factorResponse, err := GetFactor(context.Background(), GetFactorOpts{
 		AuthenticationFactorID: "auth_factor_test123",
