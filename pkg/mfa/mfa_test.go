@@ -99,7 +99,7 @@ func TestGetFactors(t *testing.T) {
 		Type:      "generic_otp",
 	}
 	factorResponse, err := GetFactor(context.Background(), GetFactorOpts{
-		ID: "auth_factor_test123",
+		AuthenticationFactorID: "auth_factor_test123",
 	})
 
 	require.NoError(t, err)
@@ -119,7 +119,7 @@ func TestDeleteFactors(t *testing.T) {
 	err := DeleteFactor(
 		context.Background(),
 		DeleteFactorOpts{
-			ID: "auth_factor_test1231",
+			AuthenticationFactorID: "auth_factor_test1231",
 		},
 	)
 

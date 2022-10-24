@@ -160,7 +160,7 @@ type DeleteFactorOpts struct {
 
 type GetFactorOpts struct {
 	// ID of the factor.
-	ID string
+	AuthenticationFactorID string
 }
 
 // Create an Authentication Factor.
@@ -305,7 +305,7 @@ func (c *Client) VerifyChallenge(
 
 }
 
-// DeleteFactor deletes a Factor.
+// Deletes an authentication factor.
 func (c *Client) DeleteFactor(
 	ctx context.Context,
 	opts DeleteFactorOpts,
@@ -340,7 +340,7 @@ func (c *Client) DeleteFactor(
 	return workos_errors.TryGetHTTPError(res)
 }
 
-// GetFactor gets a Factor.
+// Retrieves an authentication factor.
 func (c *Client) GetFactor(
 	ctx context.Context,
 	opts GetFactorOpts,
@@ -350,7 +350,7 @@ func (c *Client) GetFactor(
 	endpoint := fmt.Sprintf(
 		"%s/auth/factors/%s",
 		c.Endpoint,
-		opts.ID,
+		opts.AuthenticationFactorID,
 	)
 	req, err := http.NewRequest(
 		http.MethodGet,

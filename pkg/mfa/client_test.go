@@ -30,7 +30,7 @@ func TestGetFactor(t *testing.T) {
 				APIKey: "test",
 			},
 			options: GetFactorOpts{
-				ID: "auth_factor_test123",
+				AuthenticationFactorID: "auth_factor_test123",
 			},
 			expected: EnrollResponse{
 				ID:        "auth_factor_test123",
