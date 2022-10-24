@@ -362,7 +362,7 @@ func TestPrimaryEmail(t *testing.T) {
 			expected: "firstprimaryemail@foo-corp.com",
 		},
 		{
-			scenario: "No primary emails returns null",
+			scenario: "No primary emails returns null and an error",
 			user: User{
 				ID:        "directory_user_id",
 				FirstName: "WorkOS",
