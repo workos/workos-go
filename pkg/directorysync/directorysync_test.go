@@ -298,3 +298,128 @@ func getDirectoryTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestPrimaryEmail(t *testing.T) {
+	tests := []struct {
+		scenario string
+		user     User
+		expected string
+		err      bool
+	}{
+		{
+			scenario: "One primary email returns primary email",
+			user: User{
+				ID:        "directory_user_id",
+				FirstName: "WorkOS",
+				LastName:  "Testz",
+				Emails: []UserEmail{
+					UserEmail{
+						Primary: true,
+						Type:    "work",
+						Value:   "primaryemail@foo-corp.com",
+					},
+				},
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:     "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
+				State:            Active,
+				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+			},
+			expected: "primaryemail@foo-corp.com",
+		},
+		{
+			scenario: "Multiple primary emails returns the first primary email",
+			user: User{
+				ID:        "directory_user_id",
+				FirstName: "WorkOS",
+				LastName:  "Testz",
+				Emails: []UserEmail{
+					UserEmail{
+						Primary: true,
+						Type:    "work",
+						Value:   "firstprimaryemail@foo-corp.com",
+					},
+					UserEmail{
+						Primary: true,
+						Type:    "work",
+						Value:   "primaryemail@foo-corp.com",
+					},
+				},
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:     "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
+				State:            Active,
+				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+			},
+			expected: "firstprimaryemail@foo-corp.com",
+		},
+		{
+			scenario: "No primary emails returns null and an error",
+			user: User{
+				ID:        "directory_user_id",
+				FirstName: "WorkOS",
+				LastName:  "Testz",
+				Emails: []UserEmail{
+					UserEmail{
+						Type:  "work",
+						Value: "firstprimaryemail@foo-corp.com",
+					},
+				},
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:     "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
+				State:            Active,
+				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+			},
+			err: true,
+		},
+		{
+			scenario: "No emails returns null",
+			user: User{
+				ID:        "directory_user_id",
+				FirstName: "WorkOS",
+				LastName:  "Testz",
+				Groups: []UserGroup{
+					UserGroup{
+						Object: "user_group_object",
+						ID:     "directory_group_123",
+						Name:   "Group Name",
+					},
+				},
+				State:            Active,
+				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
+				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+			},
+			err: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			user := test.user
+
+			primaryemail, err := user.PrimaryEmail()
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, primaryemail)
+		})
+	}
+}
