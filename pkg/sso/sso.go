@@ -39,19 +39,10 @@ func GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	return DefaultClient.GetProfile(ctx, opts)
 }
 
-// Login return a http.Handler that redirects client to the appropriate
+// Login returns a http.Handler that redirects client to the appropriate
 // login provider.
 func Login(opts GetAuthorizationURLOptions) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u, err := GetAuthorizationURL(opts)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		http.Redirect(w, r, u.String(), http.StatusSeeOther)
-	})
+	return DefaultClient.GetLoginHandler(opts)
 }
 
 // GetConnection gets a Connection.
