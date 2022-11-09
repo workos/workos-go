@@ -109,6 +109,21 @@ func (c *Client) init() {
 	}
 }
 
+// GetLoginHandler returns an http.Handler that redirects client to the appropriate
+// login provider.
+func (c *Client) GetLoginHandler(opts GetAuthorizationURLOptions) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		u, err := c.GetAuthorizationURL(opts)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		http.Redirect(w, r, u.String(), http.StatusSeeOther)
+	})
+}
+
 // GetAuthorizationURLOptions contains the options to pass in order to generate
 // an authorization url.
 type GetAuthorizationURLOptions struct {

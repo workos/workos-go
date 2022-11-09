@@ -16,6 +16,12 @@ func TestLogin(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
+	DefaultClient = &Client{
+		Endpoint:   server.URL,
+		HTTPClient: server.Client(),
+	}
+	Configure("test", "client_123")
+
 	redirectURI := server.URL + "/callback"
 
 	profile := Profile{}
@@ -72,12 +78,6 @@ func TestLogin(t *testing.T) {
 	})
 
 	mux.HandleFunc("/sso/token", profileAndTokenTestHandler)
-
-	DefaultClient = &Client{
-		Endpoint:   server.URL,
-		HTTPClient: server.Client(),
-	}
-	Configure("test", "client_123")
 
 	res, err := server.Client().Get(server.URL + "/login")
 	require.NoError(t, err)
