@@ -49,8 +49,8 @@ type Client struct {
 	once sync.Once
 }
 
-// AuditLogEventOpts represents arguments to create an Audit Logs event.
-type AuditLogEventOpts struct {
+// CreateEventOpts represents arguments to create an Audit Logs event.
+type CreateEventOpts struct {
 	// Organization identifier
 	Organization string `json:"organization_id" binding:"required"`
 
@@ -97,7 +97,7 @@ type Context struct {
 
 // Target describes event entity's
 type Target struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 
 	Name string `json:"name"`
 
@@ -108,7 +108,7 @@ type Target struct {
 
 // Actor describes the entity that generated the event
 type Actor struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 
 	Name string `json:"name"`
 
@@ -137,26 +137,42 @@ type CreateExportOpts struct {
 	Targets []string `json:"targets,omitempty"`
 }
 
-type CreateExportResponse struct {
-	Object    string `json:"object"`
-	Id        string `json:"id"`
-	State     string `json:"state"`
-	Url       string `json:"url"`
+// AuditLogExportState represents the active state of an AuditLogExport.
+type AuditLogExportState string
+
+// Constants that enumerate the state of a AuditLogExport.
+const (
+	Ready   AuditLogExportState = "Ready"
+	Pending AuditLogExportState = "Pending"
+	Error   AuditLogExportState = "Error"
+)
+
+type AuditLogExportObject string
+
+const AuditLogExportObjectName AuditLogExportObject = "audit_log_export"
+
+type AuditLogExport struct {
+	// Object will always be set to 'audit_log_export'
+	Object AuditLogExportObject `json:"object"`
+
+	// AuditLogExport identifier
+	ID string `json:"id"`
+
+	// State is the active state of AuditLogExport
+	State AuditLogExportState `json:"state"`
+
+	// URL for downloading the exported logs
+	URL string `json:"url"`
+
+	// AuditLogExport's created at date
 	CreatedAt string `json:"created_at"`
+
+	// AuditLogExport's updated at date
 	UpdatedAt string `json:"updated_at"`
 }
 
 type GetExportOpts struct {
-	ExportId string `json:"export_id" binding:"required"`
-}
-
-type GetExportResponse struct {
-	Object    string `json:"object"`
-	Id        string `json:"id"`
-	State     string `json:"state"`
-	Url       string `json:"url"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ExportID string `json:"export_id" binding:"required"`
 }
 
 func (c *Client) init() {
@@ -178,7 +194,7 @@ func (c *Client) init() {
 }
 
 // CreateEvent creates an Audit Log event.
-func (c *Client) CreateEvent(ctx context.Context, e AuditLogEventOpts) error {
+func (c *Client) CreateEvent(ctx context.Context, e CreateEventOpts) error {
 	c.once.Do(c.init)
 
 	e.Event.OccurredAt = defaultTime(e.Event.OccurredAt)
@@ -211,17 +227,17 @@ func (c *Client) CreateEvent(ctx context.Context, e AuditLogEventOpts) error {
 }
 
 // CreateExport creates an export of Audit Log events. You can specify some filters.
-func (c *Client) CreateExport(ctx context.Context, e CreateExportOpts) (CreateExportResponse, error) {
+func (c *Client) CreateExport(ctx context.Context, e CreateExportOpts) (AuditLogExport, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(e)
 	if err != nil {
-		return CreateExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, c.ExportsEndpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return CreateExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
@@ -230,27 +246,27 @@ func (c *Client) CreateExport(ctx context.Context, e CreateExportOpts) (CreateEx
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return CreateExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return CreateExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 
-	var body CreateExportResponse
+	var body AuditLogExport
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 }
 
 // GetExport retrieves an export of Audit Log events
-func (c *Client) GetExport(ctx context.Context, e GetExportOpts) (GetExportResponse, error) {
+func (c *Client) GetExport(ctx context.Context, e GetExportOpts) (AuditLogExport, error) {
 	c.once.Do(c.init)
 
-	req, err := http.NewRequest(http.MethodGet, c.ExportsEndpoint+"/"+e.ExportId, nil)
+	req, err := http.NewRequest(http.MethodGet, c.ExportsEndpoint+"/"+e.ExportID, nil)
 	if err != nil {
-		return GetExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
@@ -259,15 +275,15 @@ func (c *Client) GetExport(ctx context.Context, e GetExportOpts) (GetExportRespo
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return GetExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return GetExportResponse{}, err
+		return AuditLogExport{}, err
 	}
 
-	var body GetExportResponse
+	var body AuditLogExport
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
