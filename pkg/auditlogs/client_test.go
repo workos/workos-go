@@ -12,19 +12,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var event = AuditLogEventOpts{
+var event = CreateEventOpts{
 	Organization: "org_123456",
 	Event: Event{
 		Action:     "document.updated",
 		OccurredAt: time.Now(),
 		Actor: Actor{
-			Id:   "user_1",
+			ID:   "user_1",
 			Name: "Jon Smith",
 			Type: "User",
 		},
 		Targets: []Target{
 			{
-				Id:   "document_39127",
+				ID:   "document_39127",
 				Type: "document",
 			},
 		},
@@ -55,7 +55,7 @@ func TestCreateEvent(t *testing.T) {
 		}
 		SetAPIKey("test")
 
-		err := CreateEvent(context.TODO(), AuditLogEventOpts{
+		err := CreateEvent(context.TODO(), CreateEventOpts{
 			IdempotencyKey: "the-idempotency-key",
 		})
 		require.Equal(t, handler.header.Get("Idempotency-Key"), "the-idempotency-key")
@@ -77,7 +77,7 @@ func TestCreateEvent(t *testing.T) {
 		}
 		SetAPIKey("test")
 
-		err := CreateEvent(context.TODO(), AuditLogEventOpts{})
+		err := CreateEvent(context.TODO(), CreateEventOpts{})
 		require.Equal(t, "a-request-id", err.(workos_errors.HTTPError).RequestID)
 		require.Error(t, err)
 	})
@@ -110,7 +110,7 @@ func TestCreateEvent(t *testing.T) {
 		}
 		SetAPIKey("test")
 
-		err := CreateEvent(context.TODO(), AuditLogEventOpts{})
+		err := CreateEvent(context.TODO(), CreateEventOpts{})
 		require.Error(t, err)
 
 		httpError := err.(workos_errors.HTTPError)
@@ -146,7 +146,7 @@ func TestCreateEvent(t *testing.T) {
 		}
 		SetAPIKey("test")
 
-		err := CreateEvent(context.TODO(), AuditLogEventOpts{})
+		err := CreateEvent(context.TODO(), CreateEventOpts{})
 		require.Error(t, err)
 
 		httpError := err.(workos_errors.HTTPError)
@@ -159,8 +159,8 @@ func TestCreateEvent(t *testing.T) {
 func TestCreateExports(t *testing.T) {
 	t.Run("Call succeeds", func(t *testing.T) {
 		handlerFunc := func(w http.ResponseWriter, r *http.Request) {
-			body, _ := json.Marshal(CreateExportResponse{
-				Id: "test",
+			body, _ := json.Marshal(AuditLogExport{
+				ID: "test",
 			})
 			w.WriteHeader(http.StatusCreated)
 			w.Write(body)
@@ -175,8 +175,8 @@ func TestCreateExports(t *testing.T) {
 		SetAPIKey("test")
 
 		body, err := CreateExport(context.TODO(), CreateExportOpts{})
-		require.Equal(t, body, CreateExportResponse{
-			Id: "test",
+		require.Equal(t, body, AuditLogExport{
+			ID: "test",
 		})
 		require.NoError(t, err)
 	})
@@ -190,8 +190,8 @@ func TestCreateExports(t *testing.T) {
 			require.Equal(t, opts.Targets[0], "user")
 			require.Equal(t, opts.Actors, []string{"Jon", "Smith"})
 
-			body, _ := json.Marshal(CreateExportResponse{
-				Id: "test123",
+			body, _ := json.Marshal(AuditLogExport{
+				ID: "test123",
 			})
 
 			w.Write(body)
@@ -211,8 +211,8 @@ func TestCreateExports(t *testing.T) {
 			Targets: []string{"user"},
 			Actors:  []string{"Jon", "Smith"},
 		})
-		require.Equal(t, body, CreateExportResponse{
-			Id: "test123",
+		require.Equal(t, body, AuditLogExport{
+			ID: "test123",
 		})
 		require.NoError(t, err)
 	})
@@ -237,8 +237,8 @@ func TestCreateExports(t *testing.T) {
 func TestGetExports(t *testing.T) {
 	t.Run("Call succeeds", func(t *testing.T) {
 		handlerFunc := func(w http.ResponseWriter, r *http.Request) {
-			body, _ := json.Marshal(GetExportResponse{
-				Id: "test",
+			body, _ := json.Marshal(AuditLogExport{
+				ID: "test",
 			})
 			w.WriteHeader(http.StatusCreated)
 			w.Write(body)
@@ -253,8 +253,8 @@ func TestGetExports(t *testing.T) {
 		SetAPIKey("test")
 
 		body, err := GetExport(context.TODO(), GetExportOpts{})
-		require.Equal(t, body, GetExportResponse{
-			Id: "test",
+		require.Equal(t, body, AuditLogExport{
+			ID: "test",
 		})
 		require.NoError(t, err)
 	})
