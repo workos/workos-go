@@ -25,13 +25,13 @@ func TestAuditLogsCreateEvent(t *testing.T) {
 
 	SetAPIKey("test")
 
-	err := CreateEvent(context.TODO(), AuditLogEventOpts{})
+	err := CreateEvent(context.TODO(), CreateEventOpts{})
 	require.NoError(t, err)
 }
 
 func TestAuditLogsCreateExport(t *testing.T) {
 	handlerFunc := func(w http.ResponseWriter, r *http.Request) {
-		body := CreateExportResponse{}
+		body := AuditLogExport{}
 		payload, _ := json.Marshal(body)
 		w.Write(payload)
 		w.WriteHeader(http.StatusOK)
@@ -53,7 +53,7 @@ func TestAuditLogsCreateExport(t *testing.T) {
 
 func TestAuditLogsGetExport(t *testing.T) {
 	handlerFunc := func(w http.ResponseWriter, r *http.Request) {
-		body := GetExportResponse{}
+		body := AuditLogExport{}
 		payload, _ := json.Marshal(body)
 		w.Write(payload)
 		w.WriteHeader(http.StatusOK)

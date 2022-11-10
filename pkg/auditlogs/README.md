@@ -21,12 +21,12 @@ func main() {
 	auditlogs.SetAPIKey("my_api_key")
 
 	// Wherever you need to publish an audit log event:
-	err := auditlogs.CreateEvent(ctx.Background(), auditlogs.AuditLogEventOpts{
+	err := auditlogs.CreateEvent(ctx.Background(), auditlogs.CreateEventOpts{
 		Organization: "org_8899300049990088",
 		Event: Event{
 			Action: "team.created",
 			Actor: Actor{
-				Id:   "o5fdfsdfUMCAuunNN3Iwfs34gMw",
+				ID:   "o5fdfsdfUMCAuunNN3Iwfs34gMw",
 				Name: "jonatas",
 				Type: "user",
 				Metadata: map[string]interface{}{
@@ -37,7 +37,7 @@ func main() {
 				Location: "79.226.116.209",
 			},
 			Targets: []Target{
-				Target{Id: "team_123", Type: "team"},
+				Target{ID: "team_123", Type: "team"},
 			},
 		},
 		IdempotencyKey: uuid.New().String(),
