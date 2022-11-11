@@ -52,7 +52,7 @@ type Client struct {
 // CreateEventOpts represents arguments to create an Audit Logs event.
 type CreateEventOpts struct {
 	// Organization identifier
-	Organization string `json:"organization_id" binding:"required"`
+	OrganizationID string `json:"organization_id" binding:"required"`
 
 	// Event payload
 	Event Event `json:"event" binding:"required"`
@@ -119,7 +119,7 @@ type Actor struct {
 
 type CreateExportOpts struct {
 	// Organization identifier
-	Organization string `json:"organization_id"`
+	OrganizationID string `json:"organization_id"`
 
 	// ISO-8601 start datetime the date range filter
 	RangeStart string `json:"range_start"`
