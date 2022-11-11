@@ -13,7 +13,7 @@ import (
 )
 
 var event = CreateEventOpts{
-	Organization: "org_123456",
+	OrganizationID: "org_123456",
 	Event: Event{
 		Action:     "document.updated",
 		OccurredAt: time.Now(),
