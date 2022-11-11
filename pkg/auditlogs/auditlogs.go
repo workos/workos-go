@@ -7,7 +7,7 @@
 //
 //	    // Wherever you need to publish an audit log event:
 //	    err := auditlogs.CreateEvent(context.Background(), auditlogs.CreateEventOpts{
-//	        Organization: "org_8899300049990088",
+//	        OrganizationID: "org_8899300049990088",
 //			Event: Event{
 //				Action: "team.created",
 //				Actor: Actor{
