@@ -263,11 +263,20 @@ func (c *Client) VerifyFactor(
 	return VerifyChallenge(ctx, opts)
 }
 
+type VerificationResponseError struct {
+	Code    string
+	Message string
+}
+
+func (r *VerificationResponseError) Error() string {
+	return fmt.Sprintf("code: %s. message: %v", r.Code, r.Message)
+}
+
 // Verifies the one time password provided by the end-user.
 func (c *Client) VerifyChallenge(
 	ctx context.Context,
 	opts VerifyOpts,
-) (interface{}, error) {
+) (VerifyResponse, error) {
 	c.once.Do(c.init)
 
 	if opts.AuthenticationChallengeID == "" {
@@ -296,13 +305,14 @@ func (c *Client) VerifyChallenge(
 	var body RawVerifyResponse
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
-
-	if body.Code != "" {
-		return VerifyResponseError{body.Code, body.Message}, err
-	} else {
-		return VerifyResponse{body.Challenge, body.Valid}, err
+	if err != nil {
+		return VerifyResponse{}, err
 	}
 
+	if body.Code != "" {
+		return VerifyResponse{}, &VerificationResponseError{body.Code, body.Message}
+	}
+	return VerifyResponse{body.Challenge, body.Valid}, err
 }
 
 // Deletes an authentication factor.

@@ -378,7 +378,7 @@ func TestVerifyChallengeError(t *testing.T) {
 		scenario string
 		client   *Client
 		options  VerifyOpts
-		expected VerifyResponseError
+		expected VerificationResponseError
 		err      bool
 	}{
 		{
@@ -390,7 +390,7 @@ func TestVerifyChallengeError(t *testing.T) {
 				AuthenticationChallengeID: "auth_challenge_test123",
 				Code:                      "0000000",
 			},
-			expected: VerifyResponseError{
+			expected: VerificationResponseError{
 				Code:    "authentication_challenge_expired",
 				Message: "The authentication challenge 'auth_challenge_1234' has expired.",
 			},
@@ -406,13 +406,12 @@ func TestVerifyChallengeError(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			response, err := client.VerifyChallenge(context.Background(), test.options)
+			_, err := client.VerifyChallenge(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, response)
+			require.Equal(t, test.expected.Error(), err.Error())
 		})
 	}
 }
