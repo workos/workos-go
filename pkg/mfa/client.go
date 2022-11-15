@@ -67,7 +67,7 @@ const (
 	TOTP Type = "totp"
 )
 
-// GetEnrollsOpts contains the options to create an Authentication Factor.
+// EnrollFactorOpts contains the options to create an Authentication Factor.
 type EnrollFactorOpts struct {
 
 	// Type of factor to be enrolled (sms or totp).
@@ -115,6 +115,7 @@ type TOTPDetails struct {
 type SMSDetails struct {
 	PhoneNumber string `json:"phone_number"`
 }
+
 type ChallengeOpts struct {
 	// ID of the authorization factor.
 	AuthenticationFactorID string
