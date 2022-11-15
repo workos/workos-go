@@ -27,8 +27,8 @@ func TestMfaEnrollFactors(t *testing.T) {
 	}
 	AuthenticationFactor, err := EnrollFactor(context.Background(), EnrollFactorOpts{
 		Type:       "totp",
-		TotpIssuer: "WorkOS",
-		TotpUser:   "some_user",
+		TOTPIssuer: "WorkOS",
+		TOTPUser:   "some_user",
 	})
 
 	require.NoError(t, err)

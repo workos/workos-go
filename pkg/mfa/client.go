@@ -99,14 +99,22 @@ type AuthenticationFactor struct {
 	// The type of request either 'sms' or 'totp'
 	Type Type `json:"type"`
 
-	// Details of the totp response will be 'null' if using sms
-	//fix this from being a string
-	TOTP map[string]interface{} `json:"totp"`
+	// Details of the totp response will be 'null' if using sms\
+	TOTP TOTPDetails `json:"totp"`
 
 	// Details of the sms response will be 'null' if using totp
-	SMS map[string]interface{} `json:"sms"`
+	SMS SMSDetails `json:"sms"`
 }
 
+type TOTPDetails struct {
+	QRCode string `json:"qr_code"`
+	Secret string `json:"secret"`
+	URI    string `json:"uri"`
+}
+
+type SMSDetails struct {
+	PhoneNumber string `json:"phone_number"`
+}
 type ChallengeOpts struct {
 	// ID of the authorization factor.
 	AuthenticationFactorID string
@@ -185,7 +193,7 @@ func (c *Client) EnrollFactor(
 		return AuthenticationFactor{}, ErrInvalidType
 	}
 
-	if opts.Type == "totp" && (opts.TotpIssuer == "" || opts.TotpUser == "") {
+	if opts.Type == "totp" && (opts.TOTPIssuer == "" || opts.TOTPUser == "") {
 		return AuthenticationFactor{}, ErrIncompleteArgs
 	}
 
@@ -195,8 +203,8 @@ func (c *Client) EnrollFactor(
 
 	postBody, _ := json.Marshal(map[string]string{
 		"type":         string(opts.Type),
-		"totp_issuer":  opts.TotpIssuer,
-		"totp_user":    opts.TotpUser,
+		"totp_issuer":  opts.TOTPIssuer,
+		"totp_user":    opts.TOTPUser,
 		"phone_number": opts.PhoneNumber,
 	})
 	responseBody := bytes.NewBuffer(postBody)

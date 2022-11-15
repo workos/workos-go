@@ -114,8 +114,8 @@ func TestEnrollFactor(t *testing.T) {
 			},
 			options: EnrollFactorOpts{
 				Type:       "totp",
-				TotpIssuer: "WorkOS",
-				TotpUser:   "some_user",
+				TOTPIssuer: "WorkOS",
+				TOTPUser:   "some_user",
 			},
 			expected: AuthenticationFactor{
 				ID:        "auth_factor_test123",
