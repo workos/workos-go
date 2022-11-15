@@ -312,7 +312,7 @@ func (c *Client) VerifyChallenge(
 	if body.Code != "" {
 		return VerifyResponse{}, &VerificationResponseError{body.Code, body.Message}
 	}
-	return VerifyResponse{body.Challenge, body.Valid}, err
+	return VerifyResponse{body.Challenge, body.Valid}, nil
 }
 
 // Deletes an authentication factor.
