@@ -58,22 +58,32 @@ func (c *Client) init() {
 	}
 }
 
+// Type represents the type of Authentication Factor
+type Type string
+
+// Constants that enumerate the available Types.
+const (
+	SMS  Type = "sms"
+	TOTP Type = "totp"
+)
+
 // GetEnrollsOpts contains the options to create an Authentication Factor.
-type GetEnrollOpts struct {
+type EnrollFactorOpts struct {
+
 	// Type of factor to be enrolled (sms or totp).
-	Type string
+	Type Type
 
 	// Name of the Organization.
-	TotpIssuer string
+	TOTPIssuer string
 
 	// Email of user.
-	TotpUser string
+	TOTPUser string
 
 	// Phone Number of the User.
 	PhoneNumber string
 }
 
-type EnrollResponse struct {
+type AuthenticationFactor struct {
 	// The authentication factor's unique ID
 	ID string `json:"id"`
 
@@ -87,13 +97,14 @@ type EnrollResponse struct {
 	UpdatedAt string `json:"updated_at"`
 
 	// The type of request either 'sms' or 'totp'
-	Type string `json:"type"`
+	Type Type `json:"type"`
 
 	// Details of the totp response will be 'null' if using sms
-	Totp map[string]interface{} `json:"totp"`
+	//fix this from being a string
+	TOTP map[string]interface{} `json:"totp"`
 
 	// Details of the sms response will be 'null' if using totp
-	Sms map[string]interface{} `json:"sms"`
+	SMS map[string]interface{} `json:"sms"`
 }
 
 type ChallengeOpts struct {
@@ -104,7 +115,7 @@ type ChallengeOpts struct {
 	SMSTemplate string
 }
 
-type ChallengeResponse struct {
+type Challenge struct {
 	// The authentication challenge's unique ID
 	ID string `json:"id"`
 
@@ -124,7 +135,7 @@ type ChallengeResponse struct {
 	AuthenticationFactorID string `json:"authentication_factor_id"`
 }
 
-type VerifyOpts struct {
+type VerifyChallengeOpts struct {
 	// The ID of the authentication challenge that provided the user the verification code.
 	AuthenticationChallengeID string
 
@@ -134,7 +145,7 @@ type VerifyOpts struct {
 
 type VerifyResponse struct {
 	// Return details of the request
-	Challenge ChallengeResponse
+	Challenge Challenge
 
 	// Boolean returning if request is valid
 	Valid bool `json:"valid"`
@@ -166,24 +177,24 @@ type GetFactorOpts struct {
 // Create an Authentication Factor.
 func (c *Client) EnrollFactor(
 	ctx context.Context,
-	opts GetEnrollOpts,
-) (EnrollResponse, error) {
+	opts EnrollFactorOpts,
+) (AuthenticationFactor, error) {
 	c.once.Do(c.init)
 
 	if opts.Type == "" || (opts.Type != "sms" && opts.Type != "totp") {
-		return EnrollResponse{}, ErrInvalidType
+		return AuthenticationFactor{}, ErrInvalidType
 	}
 
 	if opts.Type == "totp" && (opts.TotpIssuer == "" || opts.TotpUser == "") {
-		return EnrollResponse{}, ErrIncompleteArgs
+		return AuthenticationFactor{}, ErrIncompleteArgs
 	}
 
 	if opts.Type == "sms" && opts.PhoneNumber == "" {
-		return EnrollResponse{}, ErrNoPhoneNumber
+		return AuthenticationFactor{}, ErrNoPhoneNumber
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"type":         opts.Type,
+		"type":         string(opts.Type),
 		"totp_issuer":  opts.TotpIssuer,
 		"totp_user":    opts.TotpUser,
 		"phone_number": opts.PhoneNumber,
@@ -201,14 +212,14 @@ func (c *Client) EnrollFactor(
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return EnrollResponse{}, err
+		return AuthenticationFactor{}, err
 	}
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
-		return EnrollResponse{}, err
+		return AuthenticationFactor{}, err
 	}
 
-	var body EnrollResponse
+	var body AuthenticationFactor
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -218,11 +229,11 @@ func (c *Client) EnrollFactor(
 func (c *Client) ChallengeFactor(
 	ctx context.Context,
 	opts ChallengeOpts,
-) (ChallengeResponse, error) {
+) (Challenge, error) {
 	c.once.Do(c.init)
 
 	if opts.AuthenticationFactorID == "" {
-		return ChallengeResponse{}, ErrMissingAuthId
+		return Challenge{}, ErrMissingAuthId
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
@@ -241,14 +252,14 @@ func (c *Client) ChallengeFactor(
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return Challenge{}, err
 	}
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
-		return ChallengeResponse{}, err
+		return Challenge{}, err
 	}
 
-	var body ChallengeResponse
+	var body Challenge
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -258,7 +269,7 @@ func (c *Client) ChallengeFactor(
 // Deprecated: Use VerifyChallenge instead.
 func (c *Client) VerifyFactor(
 	ctx context.Context,
-	opts VerifyOpts,
+	opts VerifyChallengeOpts,
 ) (interface{}, error) {
 	return VerifyChallenge(ctx, opts)
 }
@@ -275,7 +286,7 @@ func (r *VerificationResponseError) Error() string {
 // Verifies the one time password provided by the end-user.
 func (c *Client) VerifyChallenge(
 	ctx context.Context,
-	opts VerifyOpts,
+	opts VerifyChallengeOpts,
 ) (VerifyResponse, error) {
 	c.once.Do(c.init)
 
@@ -354,7 +365,7 @@ func (c *Client) DeleteFactor(
 func (c *Client) GetFactor(
 	ctx context.Context,
 	opts GetFactorOpts,
-) (EnrollResponse, error) {
+) (AuthenticationFactor, error) {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
@@ -368,7 +379,7 @@ func (c *Client) GetFactor(
 		nil,
 	)
 	if err != nil {
-		return EnrollResponse{}, err
+		return AuthenticationFactor{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -378,15 +389,15 @@ func (c *Client) GetFactor(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return EnrollResponse{}, err
+		return AuthenticationFactor{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return EnrollResponse{}, err
+		return AuthenticationFactor{}, err
 	}
 
-	var body EnrollResponse
+	var body AuthenticationFactor
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err

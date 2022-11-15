@@ -19,8 +19,8 @@ func SetAPIKey(apiKey string) {
 // EnrollFactor creates a MFA authorization factor.
 func EnrollFactor(
 	ctx context.Context,
-	opts GetEnrollOpts,
-) (EnrollResponse, error) {
+	opts EnrollFactorOpts,
+) (AuthenticationFactor, error) {
 	return DefaultClient.EnrollFactor(ctx, opts)
 }
 
@@ -28,14 +28,14 @@ func EnrollFactor(
 func ChallengeFactor(
 	ctx context.Context,
 	opts ChallengeOpts,
-) (ChallengeResponse, error) {
+) (Challenge, error) {
 	return DefaultClient.ChallengeFactor(ctx, opts)
 }
 
 // VerifyChallenge verifies the one time password provided by the end-user.
 func VerifyChallenge(
 	ctx context.Context,
-	opts VerifyOpts,
+	opts VerifyChallengeOpts,
 ) (VerifyResponse, error) {
 	return DefaultClient.VerifyChallenge(ctx, opts)
 }
@@ -43,7 +43,7 @@ func VerifyChallenge(
 // Deprecated: Use VerifyChallenge instead
 func VerifyFactor(
 	ctx context.Context,
-	opts VerifyOpts,
+	opts VerifyChallengeOpts,
 ) (interface{}, error) {
 	return DefaultClient.VerifyFactor(ctx, opts)
 }
@@ -60,6 +60,6 @@ func DeleteFactor(
 func GetFactor(
 	ctx context.Context,
 	opts GetFactorOpts,
-) (EnrollResponse, error) {
+) (AuthenticationFactor, error) {
 	return DefaultClient.GetFactor(ctx, opts)
 }
