@@ -134,7 +134,7 @@ type VerifyOpts struct {
 
 type VerifyResponse struct {
 	// Return details of the request
-	Challenge map[string]interface{} `json:"challenge"`
+	Challenge ChallengeResponse
 
 	// Boolean returning if request is valid
 	Valid bool `json:"valid"`
