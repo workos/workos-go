@@ -134,7 +134,7 @@ type VerifyOpts struct {
 
 type VerifyResponse struct {
 	// Return details of the request
-	Challenge ChallengeResponse
+	Challenge ChallengeResponse `json:"challenge"`
 
 	// Boolean returning if request is valid
 	Valid bool `json:"valid"`
