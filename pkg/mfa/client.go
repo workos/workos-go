@@ -83,7 +83,7 @@ type EnrollFactorOpts struct {
 	PhoneNumber string
 }
 
-type AuthenticationFactor struct {
+type Factor struct {
 	// The authentication factor's unique ID
 	ID string `json:"id"`
 
@@ -118,7 +118,7 @@ type SMSDetails struct {
 
 type ChallengeOpts struct {
 	// ID of the authorization factor.
-	AuthenticationFactorID string
+	FactorID string
 
 	// Parameter to customize the message for sms type factors. Must include "{{code}}" if used (opt).
 	SMSTemplate string
@@ -141,7 +141,7 @@ type Challenge struct {
 	ExpiresAt string `json:"expires_at"`
 
 	// The authentication factor Id used to create the request.
-	AuthenticationFactorID string `json:"authentication_factor_id"`
+	FactorID string `json:"authentication_factor_id"`
 }
 
 type VerifyChallengeOpts struct {
@@ -175,31 +175,31 @@ type RawVerifyResponse struct {
 
 type DeleteFactorOpts struct {
 	// ID of factor to be deleted
-	AuthenticationFactorID string
+	FactorID string
 }
 
 type GetFactorOpts struct {
 	// ID of the factor.
-	AuthenticationFactorID string
+	FactorID string
 }
 
 // Create an Authentication Factor.
 func (c *Client) EnrollFactor(
 	ctx context.Context,
 	opts EnrollFactorOpts,
-) (AuthenticationFactor, error) {
+) (Factor, error) {
 	c.once.Do(c.init)
 
 	if opts.Type == "" || (opts.Type != "sms" && opts.Type != "totp") {
-		return AuthenticationFactor{}, ErrInvalidType
+		return Factor{}, ErrInvalidType
 	}
 
 	if opts.Type == "totp" && (opts.TOTPIssuer == "" || opts.TOTPUser == "") {
-		return AuthenticationFactor{}, ErrIncompleteArgs
+		return Factor{}, ErrIncompleteArgs
 	}
 
 	if opts.Type == "sms" && opts.PhoneNumber == "" {
-		return AuthenticationFactor{}, ErrNoPhoneNumber
+		return Factor{}, ErrNoPhoneNumber
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
@@ -221,14 +221,14 @@ func (c *Client) EnrollFactor(
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return AuthenticationFactor{}, err
+		return Factor{}, err
 	}
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
-		return AuthenticationFactor{}, err
+		return Factor{}, err
 	}
 
-	var body AuthenticationFactor
+	var body Factor
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -241,7 +241,7 @@ func (c *Client) ChallengeFactor(
 ) (Challenge, error) {
 	c.once.Do(c.init)
 
-	if opts.AuthenticationFactorID == "" {
+	if opts.FactorID == "" {
 		return Challenge{}, ErrMissingAuthId
 	}
 
@@ -250,7 +250,7 @@ func (c *Client) ChallengeFactor(
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.AuthenticationFactorID)
+	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.FactorID)
 	req, err := http.NewRequest("POST", endpoint, responseBody)
 	if err != nil {
 		log.Panic(err)
@@ -345,7 +345,7 @@ func (c *Client) DeleteFactor(
 	endpoint := fmt.Sprintf(
 		"%s/auth/factors/%s",
 		c.Endpoint,
-		opts.AuthenticationFactorID,
+		opts.FactorID,
 	)
 	req, err := http.NewRequest(
 		http.MethodDelete,
@@ -374,13 +374,13 @@ func (c *Client) DeleteFactor(
 func (c *Client) GetFactor(
 	ctx context.Context,
 	opts GetFactorOpts,
-) (AuthenticationFactor, error) {
+) (Factor, error) {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
 		"%s/auth/factors/%s",
 		c.Endpoint,
-		opts.AuthenticationFactorID,
+		opts.FactorID,
 	)
 	req, err := http.NewRequest(
 		http.MethodGet,
@@ -388,7 +388,7 @@ func (c *Client) GetFactor(
 		nil,
 	)
 	if err != nil {
-		return AuthenticationFactor{}, err
+		return Factor{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -398,15 +398,15 @@ func (c *Client) GetFactor(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return AuthenticationFactor{}, err
+		return Factor{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthenticationFactor{}, err
+		return Factor{}, err
 	}
 
-	var body AuthenticationFactor
+	var body Factor
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err

@@ -19,20 +19,20 @@ func TestMfaEnrollFactors(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationFactor{
+	expectedResponse := Factor{
 		ID:        "auth_factor_test123",
 		CreatedAt: "2022-02-17T22:39:26.616Z",
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
 		Type:      "generic_otp",
 	}
-	AuthenticationFactor, err := EnrollFactor(context.Background(), EnrollFactorOpts{
+	Factor, err := EnrollFactor(context.Background(), EnrollFactorOpts{
 		Type:       "totp",
 		TOTPIssuer: "WorkOS",
 		TOTPUser:   "some_user",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, AuthenticationFactor)
+	require.Equal(t, expectedResponse, Factor)
 }
 
 func TestMfaChallengeFactors(t *testing.T) {
@@ -46,14 +46,14 @@ func TestMfaChallengeFactors(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Challenge{
-		ID:                     "auth_challenge_test123",
-		CreatedAt:              "2022-02-17T22:39:26.616Z",
-		UpdatedAt:              "2022-02-17T22:39:26.616Z",
-		AuthenticationFactorID: "auth_factor_test123",
-		ExpiresAt:              "2022-02-17T22:39:26.616Z",
+		ID:        "auth_challenge_test123",
+		CreatedAt: "2022-02-17T22:39:26.616Z",
+		UpdatedAt: "2022-02-17T22:39:26.616Z",
+		FactorID:  "auth_factor_test123",
+		ExpiresAt: "2022-02-17T22:39:26.616Z",
 	}
 	Challenge, err := ChallengeFactor(context.Background(), ChallengeOpts{
-		AuthenticationFactorID: "auth_factor_id",
+		FactorID: "auth_factor_id",
 	})
 
 	require.NoError(t, err)
@@ -92,14 +92,14 @@ func TestGetFactors(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationFactor{
+	expectedResponse := Factor{
 		ID:        "auth_factor_test123",
 		CreatedAt: "2022-02-17T22:39:26.616Z",
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
 		Type:      "generic_otp",
 	}
 	factorResponse, err := GetFactor(context.Background(), GetFactorOpts{
-		AuthenticationFactorID: "auth_factor_test123",
+		FactorID: "auth_factor_test123",
 	})
 
 	require.NoError(t, err)
@@ -119,7 +119,7 @@ func TestDeleteFactors(t *testing.T) {
 	err := DeleteFactor(
 		context.Background(),
 		DeleteFactorOpts{
-			AuthenticationFactorID: "auth_factor_test1231",
+			FactorID: "auth_factor_test1231",
 		},
 	)
 

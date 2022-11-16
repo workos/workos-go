@@ -20,7 +20,7 @@ func SetAPIKey(apiKey string) {
 func EnrollFactor(
 	ctx context.Context,
 	opts EnrollFactorOpts,
-) (AuthenticationFactor, error) {
+) (Factor, error) {
 	return DefaultClient.EnrollFactor(ctx, opts)
 }
 
@@ -60,6 +60,6 @@ func DeleteFactor(
 func GetFactor(
 	ctx context.Context,
 	opts GetFactorOpts,
-) (AuthenticationFactor, error) {
+) (Factor, error) {
 	return DefaultClient.GetFactor(ctx, opts)
 }
