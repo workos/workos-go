@@ -36,7 +36,7 @@ func ChallengeFactor(
 func VerifyChallenge(
 	ctx context.Context,
 	opts VerifyChallengeOpts,
-) (VerifyResponse, error) {
+) (VerifyChallengeResponse, error) {
 	return DefaultClient.VerifyChallenge(ctx, opts)
 }
 

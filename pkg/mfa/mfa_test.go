@@ -70,16 +70,16 @@ func TestVerifyChallenges(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := VerifyResponse{
+	expectedResponse := VerifyChallengeResponse{
 		Valid: true,
 	}
-	verifyResponse, err := VerifyChallenge(context.Background(), VerifyChallengeOpts{
+	VerifyChallengeResponse, err := VerifyChallenge(context.Background(), VerifyChallengeOpts{
 		AuthenticationChallengeID: "auth_challenge_test123",
 		Code:                      "0000000",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, verifyResponse)
+	require.Equal(t, expectedResponse, VerifyChallengeResponse)
 }
 
 func TestGetFactors(t *testing.T) {

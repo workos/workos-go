@@ -273,7 +273,7 @@ func TestVerifyChallenge(t *testing.T) {
 		scenario string
 		client   *Client
 		options  VerifyChallengeOpts
-		expected VerifyResponse
+		expected VerifyChallengeResponse
 		err      bool
 	}{
 		{
@@ -290,7 +290,7 @@ func TestVerifyChallenge(t *testing.T) {
 				AuthenticationChallengeID: "auth_challenge_test123",
 				Code:                      "0000000",
 			},
-			expected: VerifyResponse{
+			expected: VerifyChallengeResponse{
 				Valid: true,
 			},
 		},
@@ -361,7 +361,7 @@ func verifyChallengeTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(VerifyResponse{
+	body, err := json.Marshal(VerifyChallengeResponse{
 		Valid: true,
 	})
 	if err != nil {
@@ -428,7 +428,7 @@ func verifyChallengeErrorTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(VerifyResponseError{
+	body, err := json.Marshal(VerifyChallengeResponseError{
 		Code:    "authentication_challenge_expired",
 		Message: "The authentication challenge 'auth_challenge_1234' has expired.",
 	})

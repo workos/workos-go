@@ -152,7 +152,7 @@ type VerifyChallengeOpts struct {
 	Code string
 }
 
-type VerifyResponse struct {
+type VerifyChallengeResponse struct {
 	// Return details of the request
 	Challenge Challenge `json:"challenge"`
 
@@ -160,7 +160,7 @@ type VerifyResponse struct {
 	Valid bool `json:"valid"`
 }
 
-type VerifyResponseError struct {
+type VerifyChallengeResponseError struct {
 	// Returns string of error code on response with valid: false
 	Code string `json:"code"`
 
@@ -168,9 +168,9 @@ type VerifyResponseError struct {
 	Message string `json:"message"`
 }
 
-type RawVerifyResponse struct {
-	VerifyResponse
-	VerifyResponseError
+type RawVerifyChallengeResponse struct {
+	VerifyChallengeResponse
+	VerifyChallengeResponseError
 }
 
 type DeleteFactorOpts struct {
@@ -296,11 +296,11 @@ func (r *VerificationResponseError) Error() string {
 func (c *Client) VerifyChallenge(
 	ctx context.Context,
 	opts VerifyChallengeOpts,
-) (VerifyResponse, error) {
+) (VerifyChallengeResponse, error) {
 	c.once.Do(c.init)
 
 	if opts.AuthenticationChallengeID == "" {
-		return VerifyResponse{}, ErrMissingChallengeId
+		return VerifyChallengeResponse{}, ErrMissingChallengeId
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
@@ -319,20 +319,20 @@ func (c *Client) VerifyChallenge(
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return VerifyResponse{}, err
+		return VerifyChallengeResponse{}, err
 	}
 
-	var body RawVerifyResponse
+	var body RawVerifyChallengeResponse
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 	if err != nil {
-		return VerifyResponse{}, err
+		return VerifyChallengeResponse{}, err
 	}
 
 	if body.Code != "" {
-		return VerifyResponse{}, &VerificationResponseError{body.Code, body.Message}
+		return VerifyChallengeResponse{}, &VerificationResponseError{body.Code, body.Message}
 	}
-	return VerifyResponse{body.Challenge, body.Valid}, nil
+	return VerifyChallengeResponse{body.Challenge, body.Valid}, nil
 }
 
 // Deletes an authentication factor.
