@@ -59,19 +59,19 @@ func (c *Client) init() {
 }
 
 // Type represents the type of Authentication Factor
-type Type string
+type FactorType string
 
 // Constants that enumerate the available Types.
 const (
-	SMS  Type = "sms"
-	TOTP Type = "totp"
+	SMS  FactorType = "sms"
+	TOTP FactorType = "totp"
 )
 
 // EnrollFactorOpts contains the options to create an Authentication Factor.
 type EnrollFactorOpts struct {
 
 	// Type of factor to be enrolled (sms or totp).
-	Type Type
+	Type FactorType
 
 	// Name of the Organization.
 	TOTPIssuer string
@@ -97,7 +97,7 @@ type AuthenticationFactor struct {
 	UpdatedAt string `json:"updated_at"`
 
 	// The type of request either 'sms' or 'totp'
-	Type Type `json:"type"`
+	Type FactorType `json:"type"`
 
 	// Details of the totp response will be 'null' if using sms\
 	TOTP TOTPDetails `json:"totp"`
