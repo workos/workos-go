@@ -190,15 +190,15 @@ func (c *Client) EnrollFactor(
 ) (Factor, error) {
 	c.once.Do(c.init)
 
-	if opts.Type == "" || (opts.Type != "sms" && opts.Type != "totp") {
+	if opts.Type == "" || (opts.Type != SMS && opts.Type != TOTP) {
 		return Factor{}, ErrInvalidType
 	}
 
-	if opts.Type == "totp" && (opts.TOTPIssuer == "" || opts.TOTPUser == "") {
+	if opts.Type == TOTP && (opts.TOTPIssuer == "" || opts.TOTPUser == "") {
 		return Factor{}, ErrIncompleteArgs
 	}
 
-	if opts.Type == "sms" && opts.PhoneNumber == "" {
+	if opts.Type == SMS && opts.PhoneNumber == "" {
 		return Factor{}, ErrNoPhoneNumber
 	}
 
