@@ -16,7 +16,7 @@ func TestGetFactor(t *testing.T) {
 		scenario string
 		client   *Client
 		options  GetFactorOpts
-		expected EnrollResponse
+		expected Factor
 		err      bool
 	}{
 		{
@@ -30,9 +30,9 @@ func TestGetFactor(t *testing.T) {
 				APIKey: "test",
 			},
 			options: GetFactorOpts{
-				AuthenticationFactorID: "auth_factor_test123",
+				FactorID: "auth_factor_test123",
 			},
-			expected: EnrollResponse{
+			expected: Factor{
 				ID:        "auth_factor_test123",
 				CreatedAt: "2022-02-17T22:39:26.616Z",
 				UpdatedAt: "2022-02-17T22:39:26.616Z",
@@ -98,8 +98,8 @@ func TestEnrollFactor(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetEnrollOpts
-		expected EnrollResponse
+		options  EnrollFactorOpts
+		expected Factor
 		err      bool
 	}{
 		{
@@ -112,12 +112,12 @@ func TestEnrollFactor(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetEnrollOpts{
+			options: EnrollFactorOpts{
 				Type:       "totp",
-				TotpIssuer: "WorkOS",
-				TotpUser:   "some_user",
+				TOTPIssuer: "WorkOS",
+				TOTPUser:   "some_user",
 			},
-			expected: EnrollResponse{
+			expected: Factor{
 				ID:        "auth_factor_test123",
 				CreatedAt: "2022-02-17T22:39:26.616Z",
 				UpdatedAt: "2022-02-17T22:39:26.616Z",
@@ -129,11 +129,11 @@ func TestEnrollFactor(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetEnrollOpts{
+			options: EnrollFactorOpts{
 				Type:        "sms",
 				PhoneNumber: "0000000000",
 			},
-			expected: EnrollResponse{
+			expected: Factor{
 				ID:        "auth_factor_test123",
 				CreatedAt: "2022-02-17T22:39:26.616Z",
 				UpdatedAt: "2022-02-17T22:39:26.616Z",
@@ -174,7 +174,7 @@ func enrollFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(EnrollResponse{
+	body, err := json.Marshal(Factor{
 		ID:        "auth_factor_test123",
 		CreatedAt: "2022-02-17T22:39:26.616Z",
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
@@ -194,7 +194,7 @@ func TestChallengeFactor(t *testing.T) {
 		scenario string
 		client   *Client
 		options  ChallengeOpts
-		expected ChallengeResponse
+		expected Challenge
 		err      bool
 	}{
 		{
@@ -208,14 +208,14 @@ func TestChallengeFactor(t *testing.T) {
 				APIKey: "test",
 			},
 			options: ChallengeOpts{
-				AuthenticationFactorID: "auth_factor_id",
+				FactorID: "auth_factor_id",
 			},
-			expected: ChallengeResponse{
-				ID:                     "auth_challenge_test123",
-				CreatedAt:              "2022-02-17T22:39:26.616Z",
-				UpdatedAt:              "2022-02-17T22:39:26.616Z",
-				AuthenticationFactorID: "auth_factor_test123",
-				ExpiresAt:              "2022-02-17T22:39:26.616Z",
+			expected: Challenge{
+				ID:        "auth_challenge_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				FactorID:  "auth_factor_test123",
+				ExpiresAt: "2022-02-17T22:39:26.616Z",
 			},
 		},
 	}
@@ -252,12 +252,12 @@ func challengeFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(ChallengeResponse{
-		ID:                     "auth_challenge_test123",
-		CreatedAt:              "2022-02-17T22:39:26.616Z",
-		UpdatedAt:              "2022-02-17T22:39:26.616Z",
-		AuthenticationFactorID: "auth_factor_test123",
-		ExpiresAt:              "2022-02-17T22:39:26.616Z",
+	body, err := json.Marshal(Challenge{
+		ID:        "auth_challenge_test123",
+		CreatedAt: "2022-02-17T22:39:26.616Z",
+		UpdatedAt: "2022-02-17T22:39:26.616Z",
+		FactorID:  "auth_factor_test123",
+		ExpiresAt: "2022-02-17T22:39:26.616Z",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -272,8 +272,8 @@ func TestVerifyChallenge(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  VerifyOpts
-		expected VerifyResponse
+		options  VerifyChallengeOpts
+		expected VerifyChallengeResponse
 		err      bool
 	}{
 		{
@@ -286,11 +286,11 @@ func TestVerifyChallenge(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: VerifyOpts{
+			options: VerifyChallengeOpts{
 				AuthenticationChallengeID: "auth_challenge_test123",
 				Code:                      "0000000",
 			},
-			expected: VerifyResponse{
+			expected: VerifyChallengeResponse{
 				Valid: true,
 			},
 		},
@@ -323,7 +323,7 @@ func getFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(EnrollResponse{
+	body, err := json.Marshal(Factor{
 		ID:        "auth_factor_test123",
 		CreatedAt: "2022-02-17T22:39:26.616Z",
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
@@ -361,7 +361,7 @@ func verifyChallengeTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(VerifyResponse{
+	body, err := json.Marshal(VerifyChallengeResponse{
 		Valid: true,
 	})
 	if err != nil {
@@ -377,7 +377,7 @@ func TestVerifyChallengeError(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  VerifyOpts
+		options  VerifyChallengeOpts
 		expected VerificationResponseError
 		err      bool
 	}{
@@ -386,7 +386,7 @@ func TestVerifyChallengeError(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: VerifyOpts{
+			options: VerifyChallengeOpts{
 				AuthenticationChallengeID: "auth_challenge_test123",
 				Code:                      "0000000",
 			},
@@ -428,7 +428,7 @@ func verifyChallengeErrorTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(VerifyResponseError{
+	body, err := json.Marshal(VerifyChallengeResponseError{
 		Code:    "authentication_challenge_expired",
 		Message: "The authentication challenge 'auth_challenge_1234' has expired.",
 	})

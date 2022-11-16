@@ -19,20 +19,20 @@ func TestMfaEnrollFactors(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := EnrollResponse{
+	expectedResponse := Factor{
 		ID:        "auth_factor_test123",
 		CreatedAt: "2022-02-17T22:39:26.616Z",
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
 		Type:      "generic_otp",
 	}
-	enrollResponse, err := EnrollFactor(context.Background(), GetEnrollOpts{
+	Factor, err := EnrollFactor(context.Background(), EnrollFactorOpts{
 		Type:       "totp",
-		TotpIssuer: "WorkOS",
-		TotpUser:   "some_user",
+		TOTPIssuer: "WorkOS",
+		TOTPUser:   "some_user",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, enrollResponse)
+	require.Equal(t, expectedResponse, Factor)
 }
 
 func TestMfaChallengeFactors(t *testing.T) {
@@ -45,19 +45,19 @@ func TestMfaChallengeFactors(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := ChallengeResponse{
-		ID:                     "auth_challenge_test123",
-		CreatedAt:              "2022-02-17T22:39:26.616Z",
-		UpdatedAt:              "2022-02-17T22:39:26.616Z",
-		AuthenticationFactorID: "auth_factor_test123",
-		ExpiresAt:              "2022-02-17T22:39:26.616Z",
+	expectedResponse := Challenge{
+		ID:        "auth_challenge_test123",
+		CreatedAt: "2022-02-17T22:39:26.616Z",
+		UpdatedAt: "2022-02-17T22:39:26.616Z",
+		FactorID:  "auth_factor_test123",
+		ExpiresAt: "2022-02-17T22:39:26.616Z",
 	}
-	challengeResponse, err := ChallengeFactor(context.Background(), ChallengeOpts{
-		AuthenticationFactorID: "auth_factor_id",
+	Challenge, err := ChallengeFactor(context.Background(), ChallengeOpts{
+		FactorID: "auth_factor_id",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, challengeResponse)
+	require.Equal(t, expectedResponse, Challenge)
 }
 
 func TestVerifyChallenges(t *testing.T) {
@@ -70,16 +70,16 @@ func TestVerifyChallenges(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := VerifyResponse{
+	expectedResponse := VerifyChallengeResponse{
 		Valid: true,
 	}
-	verifyResponse, err := VerifyChallenge(context.Background(), VerifyOpts{
+	VerifyChallengeResponse, err := VerifyChallenge(context.Background(), VerifyChallengeOpts{
 		AuthenticationChallengeID: "auth_challenge_test123",
 		Code:                      "0000000",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, verifyResponse)
+	require.Equal(t, expectedResponse, VerifyChallengeResponse)
 }
 
 func TestGetFactors(t *testing.T) {
@@ -92,14 +92,14 @@ func TestGetFactors(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := EnrollResponse{
+	expectedResponse := Factor{
 		ID:        "auth_factor_test123",
 		CreatedAt: "2022-02-17T22:39:26.616Z",
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
 		Type:      "generic_otp",
 	}
 	factorResponse, err := GetFactor(context.Background(), GetFactorOpts{
-		AuthenticationFactorID: "auth_factor_test123",
+		FactorID: "auth_factor_test123",
 	})
 
 	require.NoError(t, err)
@@ -119,7 +119,7 @@ func TestDeleteFactors(t *testing.T) {
 	err := DeleteFactor(
 		context.Background(),
 		DeleteFactorOpts{
-			AuthenticationFactorID: "auth_factor_test1231",
+			FactorID: "auth_factor_test1231",
 		},
 	)
 
