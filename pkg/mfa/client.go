@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -191,18 +190,19 @@ func (c *Client) EnrollFactor(
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/factors/enroll", c.Endpoint)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return EnrollResponse{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return EnrollResponse{}, err
 	}
+	defer resp.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
 		return EnrollResponse{}, err
@@ -228,21 +228,29 @@ func (c *Client) ChallengeFactor(
 	postBody, _ := json.Marshal(map[string]string{
 		"sms_template": opts.SMSTemplate,
 	})
-	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.AuthenticationFactorID)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	endpoint := fmt.Sprintf(
+		"%s/auth/factors/%s/challenge",
+		c.Endpoint,
+		opts.AuthenticationFactorID,
+	)
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(postBody),
+	)
 	if err != nil {
-		log.Panic(err)
+		return ChallengeResponse{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return ChallengeResponse{}, err
 	}
+	defer resp.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
 		return ChallengeResponse{}, err
@@ -280,18 +288,18 @@ func (c *Client) VerifyChallenge(
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return VerifyResponse{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return VerifyResponse{}, err
 	}
+	defer resp.Body.Close()
 
 	var body RawVerifyResponse
 	dec := json.NewDecoder(resp.Body)
@@ -317,7 +325,8 @@ func (c *Client) DeleteFactor(
 		c.Endpoint,
 		opts.AuthenticationFactorID,
 	)
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		endpoint,
 		nil,
@@ -325,8 +334,6 @@ func (c *Client) DeleteFactor(
 	if err != nil {
 		return err
 	}
-
-	req = req.WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
