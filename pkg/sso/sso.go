@@ -23,25 +23,25 @@ func Configure(apiKey, clientID string) {
 
 // GetAuthorizationURL returns an authorization url generated with the given
 // options.
-func GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL, error) {
+func GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
 	return DefaultClient.GetAuthorizationURL(opts)
 }
 
 // GetProfileAndToken returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOptions) (ProfileAndToken, error) {
+func GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOpts) (ProfileAndToken, error) {
 	return DefaultClient.GetProfileAndToken(ctx, opts)
 }
 
 // GetProfile returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
+func GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, error) {
 	return DefaultClient.GetProfile(ctx, opts)
 }
 
 // Login returns a http.Handler that redirects client to the appropriate
 // login provider.
-func Login(opts GetAuthorizationURLOptions) http.Handler {
+func Login(opts GetAuthorizationURLOpts) http.Handler {
 	return DefaultClient.GetLoginHandler(opts)
 }
 

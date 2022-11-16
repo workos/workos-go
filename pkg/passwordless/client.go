@@ -141,7 +141,7 @@ func (c *Client) CreateSession(ctx context.Context, opts CreateSessionOpts) (Pas
 // SendSessionOpts contains the options to send a Passwordless Session via email.
 type SendSessionOpts struct {
 	// Passwordless Session unique identifier.
-	ID string
+	SessionID string
 }
 
 // SendSession sends a Passwordless Session via email
@@ -159,7 +159,7 @@ func (c *Client) SendSession(
 	endpoint := fmt.Sprintf(
 		"%s/passwordless/sessions/%s/send",
 		c.Endpoint,
-		opts.ID,
+		opts.SessionID,
 	)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
