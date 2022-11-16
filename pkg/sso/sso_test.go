@@ -45,7 +45,7 @@ func TestLogin(t *testing.T) {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
-	mux.Handle("/login", Login(GetAuthorizationURLOptions{
+	mux.Handle("/login", Login(GetAuthorizationURLOpts{
 		Domain:      "lyft.com",
 		RedirectURI: redirectURI,
 	}))
@@ -64,7 +64,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-		p, err := GetProfileAndToken(context.Background(), GetProfileAndTokenOptions{
+		p, err := GetProfileAndToken(context.Background(), GetProfileAndTokenOpts{
 			Code: "authorization_code",
 		})
 		if err != nil {
@@ -172,7 +172,7 @@ func TestSsoGetProfile(t *testing.T) {
 			"last_name":  "bar",
 		},
 	}
-	profileResponse, err := GetProfile(context.Background(), GetProfileOptions{
+	profileResponse, err := GetProfile(context.Background(), GetProfileOpts{
 		AccessToken: "access_token",
 	})
 
