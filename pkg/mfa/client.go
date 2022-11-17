@@ -289,7 +289,7 @@ type VerificationResponseError struct {
 }
 
 func (r VerificationResponseError) Error() string {
-	return fmt.Sprintf("code: %s. message: %v", r.Code, r.Message)
+	return fmt.Sprintf("mfa verification failed: %s (code: %s)", r.Message, r.Code)
 }
 
 // Verifies the one time password provided by the end-user.
