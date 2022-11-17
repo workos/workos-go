@@ -16,12 +16,12 @@ import (
 func TestClientAuthorizeURL(t *testing.T) {
 	tests := []struct {
 		scenario string
-		options  GetAuthorizationURLOptions
+		options  GetAuthorizationURLOpts
 		expected string
 	}{
 		{
 			scenario: "generate url",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Domain:      "lyft.com",
 				RedirectURI: "https://example.com/sso/workos/callback",
 			},
@@ -29,7 +29,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with state",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Domain:      "lyft.com",
 				RedirectURI: "https://example.com/sso/workos/callback",
 				State:       "custom state",
@@ -38,7 +38,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with provider",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Provider:    "GoogleOAuth",
 				RedirectURI: "https://example.com/sso/workos/callback",
 				State:       "custom state",
@@ -47,7 +47,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with connection",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Connection:  "connection_123",
 				RedirectURI: "https://example.com/sso/workos/callback",
 				State:       "custom state",
@@ -56,7 +56,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with provider and domain",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Domain:      "lyft.com",
 				Provider:    "GoogleOAuth",
 				RedirectURI: "https://example.com/sso/workos/callback",
@@ -66,7 +66,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with organization",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Organization: "organization_123",
 				RedirectURI:  "https://example.com/sso/workos/callback",
 				State:        "custom state",
@@ -75,7 +75,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with DomainHint",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Connection:  "connection_123",
 				RedirectURI: "https://example.com/sso/workos/callback",
 				State:       "custom state",
@@ -85,7 +85,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 		},
 		{
 			scenario: "generate url with LoginHint",
-			options: GetAuthorizationURLOptions{
+			options: GetAuthorizationURLOpts{
 				Connection:  "connection_123",
 				RedirectURI: "https://example.com/sso/workos/callback",
 				State:       "custom state",
@@ -115,7 +115,7 @@ func TestClientAuthorizeURLWithNoConnectionDomainAndProvider(t *testing.T) {
 		ClientID: "client_123",
 	}
 
-	u, err := client.GetAuthorizationURL(GetAuthorizationURLOptions{
+	u, err := client.GetAuthorizationURL(GetAuthorizationURLOpts{
 		RedirectURI: "https://example.com/sso/workos/callback",
 		State:       "state",
 	})
@@ -128,7 +128,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetProfileAndTokenOptions
+		options  GetProfileAndTokenOpts
 		expected Profile
 		err      bool
 	}{
@@ -143,7 +143,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 				APIKey:   "test",
 				ClientID: "client_123",
 			},
-			options: GetProfileAndTokenOptions{
+			options: GetProfileAndTokenOpts{
 				Code: "authorization_code",
 			},
 			expected: Profile{
@@ -237,7 +237,7 @@ func TestClientGetProfile(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetProfileOptions
+		options  GetProfileOpts
 		expected Profile
 		err      bool
 	}{
@@ -247,7 +247,7 @@ func TestClientGetProfile(t *testing.T) {
 				APIKey:   "test",
 				ClientID: "client_123",
 			},
-			options: GetProfileOptions{
+			options: GetProfileOpts{
 				AccessToken: "access_token",
 			},
 			expected: Profile{
