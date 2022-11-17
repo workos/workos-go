@@ -25,14 +25,14 @@ func TestMfaEnrollFactors(t *testing.T) {
 		UpdatedAt: "2022-02-17T22:39:26.616Z",
 		Type:      "generic_otp",
 	}
-	Factor, err := EnrollFactor(context.Background(), EnrollFactorOpts{
+	factor, err := EnrollFactor(context.Background(), EnrollFactorOpts{
 		Type:       "totp",
 		TOTPIssuer: "WorkOS",
 		TOTPUser:   "some_user",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, Factor)
+	require.Equal(t, expectedResponse, factor)
 }
 
 func TestMfaChallengeFactors(t *testing.T) {
@@ -52,12 +52,12 @@ func TestMfaChallengeFactors(t *testing.T) {
 		FactorID:  "auth_factor_test123",
 		ExpiresAt: "2022-02-17T22:39:26.616Z",
 	}
-	Challenge, err := ChallengeFactor(context.Background(), ChallengeOpts{
+	challenge, err := ChallengeFactor(context.Background(), ChallengeOpts{
 		FactorID: "auth_factor_id",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, Challenge)
+	require.Equal(t, expectedResponse, challenge)
 }
 
 func TestVerifyChallenges(t *testing.T) {
@@ -73,13 +73,13 @@ func TestVerifyChallenges(t *testing.T) {
 	expectedResponse := VerifyChallengeResponse{
 		Valid: true,
 	}
-	VerifyChallengeResponse, err := VerifyChallenge(context.Background(), VerifyChallengeOpts{
+	verifyChallengeResponse, err := VerifyChallenge(context.Background(), VerifyChallengeOpts{
 		AuthenticationChallengeID: "auth_challenge_test123",
 		Code:                      "0000000",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, VerifyChallengeResponse)
+	require.Equal(t, expectedResponse, verifyChallengeResponse)
 }
 
 func TestGetFactors(t *testing.T) {
