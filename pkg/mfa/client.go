@@ -288,7 +288,7 @@ type VerificationResponseError struct {
 	Message string
 }
 
-func (r *VerificationResponseError) Error() string {
+func (r VerificationResponseError) Error() string {
 	return fmt.Sprintf("code: %s. message: %v", r.Code, r.Message)
 }
 
@@ -330,7 +330,7 @@ func (c *Client) VerifyChallenge(
 	}
 
 	if body.Code != "" {
-		return VerifyChallengeResponse{}, &VerificationResponseError{body.Code, body.Message}
+		return VerifyChallengeResponse{}, VerificationResponseError{body.Code, body.Message}
 	}
 	return VerifyChallengeResponse{body.Challenge, body.Valid}, nil
 }
