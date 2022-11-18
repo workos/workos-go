@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -211,18 +210,18 @@ func (c *Client) EnrollFactor(
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/factors/enroll", c.Endpoint)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return Factor{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return Factor{}, err
 	}
+	defer resp.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
 		return Factor{}, err
@@ -251,18 +250,19 @@ func (c *Client) ChallengeFactor(
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.FactorID)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return Challenge{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return Challenge{}, err
 	}
+	defer resp.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
 		return Challenge{}, err
@@ -276,11 +276,8 @@ func (c *Client) ChallengeFactor(
 }
 
 // Deprecated: Use VerifyChallenge instead.
-func (c *Client) VerifyFactor(
-	ctx context.Context,
-	opts VerifyChallengeOpts,
-) (interface{}, error) {
-	return VerifyChallenge(ctx, opts)
+func (c *Client) VerifyFactor(ctx context.Context, opts VerifyChallengeOpts) (interface{}, error) {
+	return c.VerifyChallenge(ctx, opts)
 }
 
 type VerificationResponseError struct {
@@ -309,18 +306,18 @@ func (c *Client) VerifyChallenge(
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return VerifyChallengeResponse{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return VerifyChallengeResponse{}, err
 	}
+	defer resp.Body.Close()
 
 	var body RawVerifyChallengeResponse
 	dec := json.NewDecoder(resp.Body)
@@ -347,7 +344,8 @@ func (c *Client) DeleteFactor(
 		c.Endpoint,
 		opts.FactorID,
 	)
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		endpoint,
 		nil,
@@ -356,7 +354,6 @@ func (c *Client) DeleteFactor(
 		return err
 	}
 
-	req = req.WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -377,21 +374,11 @@ func (c *Client) GetFactor(
 ) (Factor, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf(
-		"%s/auth/factors/%s",
-		c.Endpoint,
-		opts.FactorID,
-	)
-	req, err := http.NewRequest(
-		http.MethodGet,
-		endpoint,
-		nil,
-	)
+	endpoint := fmt.Sprintf("%s/auth/factors/%s", c.Endpoint, opts.FactorID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return Factor{}, err
 	}
-
-	req = req.WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
