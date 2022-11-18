@@ -99,7 +99,7 @@ type Factor struct {
 	// The type of request either 'sms' or 'totp'
 	Type FactorType `json:"type"`
 
-	// Details of the totp response will be 'null' if using sms\
+	// Details of the totp response will be 'null' if using sms
 	TOTP TOTPDetails `json:"totp"`
 
 	// Details of the sms response will be 'null' if using totp
