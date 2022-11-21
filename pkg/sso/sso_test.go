@@ -46,7 +46,6 @@ func TestLogin(t *testing.T) {
 	wg.Add(1)
 
 	mux.Handle("/login", Login(GetAuthorizationURLOpts{
-		Domain:      "lyft.com",
 		RedirectURI: redirectURI,
 	}))
 
@@ -102,7 +101,6 @@ func TestSsoGetConnection(t *testing.T) {
 		ID:             "conn_id",
 		ConnectionType: "GoogleOAuth",
 		State:          Active,
-		Status:         Linked,
 		Name:           "Foo Corp",
 	}
 	connectionResponse, err := GetConnection(context.Background(), GetConnectionOpts{
@@ -129,7 +127,6 @@ func TestSsoListConnections(t *testing.T) {
 				ID:             "conn_id",
 				ConnectionType: "GoogleOAuth",
 				State:          Active,
-				Status:         Linked,
 				Name:           "Foo Corp",
 			},
 		},

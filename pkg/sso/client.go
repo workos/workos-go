@@ -3,7 +3,6 @@ package sso
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -127,9 +126,6 @@ func (c *Client) GetLoginHandler(opts GetAuthorizationURLOpts) http.Handler {
 // GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
 type GetAuthorizationURLOpts struct {
-	// Deprecated: Please use `Organization` parameter instead.
-	// The app/company domain without without protocol (eg. example.com).
-	Domain string
 
 	// Domain hint that will be passed as a parameter to the IdP login page.
 	// OPTIONAL.
@@ -173,16 +169,8 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	query.Set("client_id", c.ClientID)
 	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
-
-	if opts.Domain == "" && opts.Provider == "" && opts.Connection == "" && opts.Organization == "" {
-		return nil, errors.New("incomplete arguments: missing connection, organization, domain, or provider")
-	}
 	if opts.Provider != "" {
 		query.Set("provider", string(opts.Provider))
-	}
-	if opts.Domain != "" {
-		query.Set("domain", opts.Domain)
-		fmt.Println("The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.")
 	}
 	if opts.DomainHint != "" {
 		query.Set("domain_hint", opts.DomainHint)
@@ -347,17 +335,6 @@ type ConnectionDomain struct {
 	Domain string `json:"domain"`
 }
 
-// ConnectionStatus represents a Connection's linked status.
-//
-// Deprecated: Please use ConnectionState instead.
-type ConnectionStatus string
-
-// Constants that enumerate the available Connection's linked statuses.
-const (
-	Linked   ConnectionStatus = "linked"
-	Unlinked ConnectionStatus = "unlinked"
-)
-
 // ConnectionState indicates whether a Connection is able to authenticate users.
 type ConnectionState string
 
@@ -372,9 +349,6 @@ const (
 type Connection struct {
 	// Connection unique identifier.
 	ID string `json:"id"`
-
-	// Connection linked status. Deprecated; use State instead.
-	Status ConnectionStatus `json:"status"`
 
 	// Connection linked state.
 	State ConnectionState `json:"state"`
