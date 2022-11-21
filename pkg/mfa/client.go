@@ -275,11 +275,6 @@ func (c *Client) ChallengeFactor(
 
 }
 
-// Deprecated: Use VerifyChallenge instead.
-func (c *Client) VerifyFactor(ctx context.Context, opts VerifyChallengeOpts) (interface{}, error) {
-	return c.VerifyChallenge(ctx, opts)
-}
-
 type VerificationResponseError struct {
 	Code    string
 	Message string

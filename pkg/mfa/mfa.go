@@ -40,14 +40,6 @@ func VerifyChallenge(
 	return DefaultClient.VerifyChallenge(ctx, opts)
 }
 
-// Deprecated: Use VerifyChallenge instead
-func VerifyFactor(
-	ctx context.Context,
-	opts VerifyChallengeOpts,
-) (interface{}, error) {
-	return DefaultClient.VerifyFactor(ctx, opts)
-}
-
 // DeleteFactor deletes a factor by ID.
 func DeleteFactor(
 	ctx context.Context,

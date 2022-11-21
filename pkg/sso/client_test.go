@@ -22,19 +22,17 @@ func TestClientAuthorizeURL(t *testing.T) {
 		{
 			scenario: "generate url",
 			options: GetAuthorizationURLOpts{
-				Domain:      "lyft.com",
 				RedirectURI: "https://example.com/sso/workos/callback",
 			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
+			expected: "https://api.workos.com/sso/authorize?client_id=client_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
 		},
 		{
 			scenario: "generate url with state",
 			options: GetAuthorizationURLOpts{
-				Domain:      "lyft.com",
 				RedirectURI: "https://example.com/sso/workos/callback",
 				State:       "custom state",
 			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/sso/authorize?client_id=client_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with provider",
@@ -55,16 +53,6 @@ func TestClientAuthorizeURL(t *testing.T) {
 			expected: "https://api.workos.com/sso/authorize?client_id=client_123&connection=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
-			scenario: "generate url with provider and domain",
-			options: GetAuthorizationURLOpts{
-				Domain:      "lyft.com",
-				Provider:    "GoogleOAuth",
-				RedirectURI: "https://example.com/sso/workos/callback",
-				State:       "custom state",
-			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
-		},
-		{
 			scenario: "generate url with organization",
 			options: GetAuthorizationURLOpts{
 				Organization: "organization_123",
@@ -72,16 +60,6 @@ func TestClientAuthorizeURL(t *testing.T) {
 				State:        "custom state",
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
-		},
-		{
-			scenario: "generate url with DomainHint",
-			options: GetAuthorizationURLOpts{
-				Connection:  "connection_123",
-				RedirectURI: "https://example.com/sso/workos/callback",
-				State:       "custom state",
-				DomainHint:  "foo.com",
-			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&connection=connection_123&domain_hint=foo.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with LoginHint",
@@ -107,21 +85,6 @@ func TestClientAuthorizeURL(t *testing.T) {
 			require.Equal(t, test.expected, u.String())
 		})
 	}
-}
-
-func TestClientAuthorizeURLWithNoConnectionDomainAndProvider(t *testing.T) {
-	client := Client{
-		APIKey:   "test",
-		ClientID: "client_123",
-	}
-
-	u, err := client.GetAuthorizationURL(GetAuthorizationURLOpts{
-		RedirectURI: "https://example.com/sso/workos/callback",
-		State:       "state",
-	})
-
-	require.Error(t, err)
-	require.Nil(t, u)
 }
 
 func TestClientGetProfileAndToken(t *testing.T) {
@@ -352,7 +315,6 @@ func TestGetConnection(t *testing.T) {
 				ID:             "conn_id",
 				ConnectionType: "GoogleOAuth",
 				State:          Active,
-				Status:         Linked,
 				Name:           "Foo Corp",
 			},
 		},
@@ -389,7 +351,6 @@ func getConnectionTestHandler(w http.ResponseWriter, r *http.Request) {
 		ID:             "conn_id",
 		ConnectionType: "GoogleOAuth",
 		State:          Active,
-		Status:         Linked,
 		Name:           "Foo Corp",
 	})
 	if err != nil {
@@ -426,7 +387,6 @@ func TestListConnections(t *testing.T) {
 						ID:             "conn_id",
 						ConnectionType: "GoogleOAuth",
 						State:          Active,
-						Status:         Linked,
 						Name:           "Foo Corp",
 					},
 				},
@@ -476,7 +436,6 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 				ID:             "conn_id",
 				ConnectionType: "GoogleOAuth",
 				State:          Active,
-				Status:         Linked,
 				Name:           "Foo Corp",
 			},
 		},
