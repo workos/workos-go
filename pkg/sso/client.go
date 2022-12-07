@@ -111,7 +111,7 @@ func (c *Client) init() {
 
 // GetLoginHandler returns an http.Handler that redirects client to the appropriate
 // login provider.
-func (c *Client) GetLoginHandler(opts GetAuthorizationURLOptions) http.Handler {
+func (c *Client) GetLoginHandler(opts GetAuthorizationURLOpts) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		u, err := c.GetAuthorizationURL(opts)
 		if err != nil {
@@ -124,9 +124,9 @@ func (c *Client) GetLoginHandler(opts GetAuthorizationURLOptions) http.Handler {
 	})
 }
 
-// GetAuthorizationURLOptions contains the options to pass in order to generate
+// GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
-type GetAuthorizationURLOptions struct {
+type GetAuthorizationURLOpts struct {
 	// Deprecated: Please use `Organization` parameter instead.
 	// The app/company domain without without protocol (eg. example.com).
 	Domain string
@@ -164,7 +164,7 @@ type GetAuthorizationURLOptions struct {
 
 // GetAuthorizationURL returns an authorization url generated with the given
 // options.
-func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL, error) {
+func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
 	c.once.Do(c.init)
 
 	redirectURI := opts.RedirectURI
@@ -211,8 +211,8 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOptions) (*url.URL,
 	return u, nil
 }
 
-// GetProfileAndTokenOptions contains the options to pass in order to get a user profile and access token.
-type GetProfileAndTokenOptions struct {
+// GetProfileAndTokenOpts contains the options to pass in order to get a user profile and access token.
+type GetProfileAndTokenOpts struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	Code string
@@ -258,7 +258,7 @@ type ProfileAndToken struct {
 
 // GetProfileAndToken returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOptions) (ProfileAndToken, error) {
+func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOpts) (ProfileAndToken, error) {
 	c.once.Do(c.init)
 
 	form := make(url.Values, 5)
@@ -298,7 +298,7 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 }
 
 // GetProfile contains the options to pass in order to get a user profile.
-type GetProfileOptions struct {
+type GetProfileOpts struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	AccessToken string
@@ -306,7 +306,7 @@ type GetProfileOptions struct {
 
 // GetProfile returns a profile describing the user that authenticated with
 // WorkOS SSO.
-func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
+func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, error) {
 	c.once.Do(c.init)
 
 	req, err := http.NewRequest(

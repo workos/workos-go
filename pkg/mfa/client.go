@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -58,22 +57,32 @@ func (c *Client) init() {
 	}
 }
 
-// GetEnrollsOpts contains the options to create an Authentication Factor.
-type GetEnrollOpts struct {
+// Type represents the type of Authentication Factor
+type FactorType string
+
+// Constants that enumerate the available Types.
+const (
+	SMS  FactorType = "sms"
+	TOTP FactorType = "totp"
+)
+
+// EnrollFactorOpts contains the options to create an Authentication Factor.
+type EnrollFactorOpts struct {
+
 	// Type of factor to be enrolled (sms or totp).
-	Type string
+	Type FactorType
 
 	// Name of the Organization.
-	TotpIssuer string
+	TOTPIssuer string
 
 	// Email of user.
-	TotpUser string
+	TOTPUser string
 
 	// Phone Number of the User.
 	PhoneNumber string
 }
 
-type EnrollResponse struct {
+type Factor struct {
 	// The authentication factor's unique ID
 	ID string `json:"id"`
 
@@ -87,24 +96,34 @@ type EnrollResponse struct {
 	UpdatedAt string `json:"updated_at"`
 
 	// The type of request either 'sms' or 'totp'
-	Type string `json:"type"`
+	Type FactorType `json:"type"`
 
 	// Details of the totp response will be 'null' if using sms
-	Totp map[string]interface{} `json:"totp"`
+	TOTP TOTPDetails `json:"totp"`
 
 	// Details of the sms response will be 'null' if using totp
-	Sms map[string]interface{} `json:"sms"`
+	SMS SMSDetails `json:"sms"`
+}
+
+type TOTPDetails struct {
+	QRCode string `json:"qr_code"`
+	Secret string `json:"secret"`
+	URI    string `json:"uri"`
+}
+
+type SMSDetails struct {
+	PhoneNumber string `json:"phone_number"`
 }
 
 type ChallengeOpts struct {
 	// ID of the authorization factor.
-	AuthenticationFactorID string
+	FactorID string
 
 	// Parameter to customize the message for sms type factors. Must include "{{code}}" if used (opt).
 	SMSTemplate string
 }
 
-type ChallengeResponse struct {
+type Challenge struct {
 	// The authentication challenge's unique ID
 	ID string `json:"id"`
 
@@ -121,10 +140,10 @@ type ChallengeResponse struct {
 	ExpiresAt string `json:"expires_at"`
 
 	// The authentication factor Id used to create the request.
-	AuthenticationFactorID string `json:"authentication_factor_id"`
+	FactorID string `json:"authentication_factor_id"`
 }
 
-type VerifyOpts struct {
+type VerifyChallengeOpts struct {
 	// The ID of the authentication challenge that provided the user the verification code.
 	AuthenticationChallengeID string
 
@@ -132,15 +151,15 @@ type VerifyOpts struct {
 	Code string
 }
 
-type VerifyResponse struct {
+type VerifyChallengeResponse struct {
 	// Return details of the request
-	Challenge map[string]interface{} `json:"challenge"`
+	Challenge Challenge `json:"challenge"`
 
 	// Boolean returning if request is valid
 	Valid bool `json:"valid"`
 }
 
-type VerifyResponseError struct {
+type VerifyChallengeResponseError struct {
 	// Returns string of error code on response with valid: false
 	Code string `json:"code"`
 
@@ -148,67 +167,67 @@ type VerifyResponseError struct {
 	Message string `json:"message"`
 }
 
-type RawVerifyResponse struct {
-	VerifyResponse
-	VerifyResponseError
+type RawVerifyChallengeResponse struct {
+	VerifyChallengeResponse
+	VerifyChallengeResponseError
 }
 
 type DeleteFactorOpts struct {
 	// ID of factor to be deleted
-	AuthenticationFactorID string
+	FactorID string
 }
 
 type GetFactorOpts struct {
 	// ID of the factor.
-	AuthenticationFactorID string
+	FactorID string
 }
 
 // Create an Authentication Factor.
 func (c *Client) EnrollFactor(
 	ctx context.Context,
-	opts GetEnrollOpts,
-) (EnrollResponse, error) {
+	opts EnrollFactorOpts,
+) (Factor, error) {
 	c.once.Do(c.init)
 
-	if opts.Type == "" || (opts.Type != "sms" && opts.Type != "totp") {
-		return EnrollResponse{}, ErrInvalidType
+	if opts.Type == "" || (opts.Type != SMS && opts.Type != TOTP) {
+		return Factor{}, ErrInvalidType
 	}
 
-	if opts.Type == "totp" && (opts.TotpIssuer == "" || opts.TotpUser == "") {
-		return EnrollResponse{}, ErrIncompleteArgs
+	if opts.Type == TOTP && (opts.TOTPIssuer == "" || opts.TOTPUser == "") {
+		return Factor{}, ErrIncompleteArgs
 	}
 
-	if opts.Type == "sms" && opts.PhoneNumber == "" {
-		return EnrollResponse{}, ErrNoPhoneNumber
+	if opts.Type == SMS && opts.PhoneNumber == "" {
+		return Factor{}, ErrNoPhoneNumber
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"type":         opts.Type,
-		"totp_issuer":  opts.TotpIssuer,
-		"totp_user":    opts.TotpUser,
+		"type":         string(opts.Type),
+		"totp_issuer":  opts.TOTPIssuer,
+		"totp_user":    opts.TOTPUser,
 		"phone_number": opts.PhoneNumber,
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/factors/enroll", c.Endpoint)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return Factor{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return EnrollResponse{}, err
+		return Factor{}, err
 	}
+	defer resp.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
-		return EnrollResponse{}, err
+		return Factor{}, err
 	}
 
-	var body EnrollResponse
+	var body Factor
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -218,11 +237,11 @@ func (c *Client) EnrollFactor(
 func (c *Client) ChallengeFactor(
 	ctx context.Context,
 	opts ChallengeOpts,
-) (ChallengeResponse, error) {
+) (Challenge, error) {
 	c.once.Do(c.init)
 
-	if opts.AuthenticationFactorID == "" {
-		return ChallengeResponse{}, ErrMissingAuthId
+	if opts.FactorID == "" {
+		return Challenge{}, ErrMissingAuthId
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
@@ -230,25 +249,26 @@ func (c *Client) ChallengeFactor(
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.AuthenticationFactorID)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	endpoint := fmt.Sprintf("%s/auth/factors/%s/challenge", c.Endpoint, opts.FactorID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return Challenge{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return Challenge{}, err
 	}
+	defer resp.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(resp); err != nil {
-		return ChallengeResponse{}, err
+		return Challenge{}, err
 	}
 
-	var body ChallengeResponse
+	var body Challenge
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
 	return body, err
@@ -256,22 +276,28 @@ func (c *Client) ChallengeFactor(
 }
 
 // Deprecated: Use VerifyChallenge instead.
-func (c *Client) VerifyFactor(
-	ctx context.Context,
-	opts VerifyOpts,
-) (interface{}, error) {
-	return VerifyChallenge(ctx, opts)
+func (c *Client) VerifyFactor(ctx context.Context, opts VerifyChallengeOpts) (interface{}, error) {
+	return c.VerifyChallenge(ctx, opts)
+}
+
+type VerificationResponseError struct {
+	Code    string
+	Message string
+}
+
+func (r VerificationResponseError) Error() string {
+	return fmt.Sprintf("mfa verification failed: %s (code: %s)", r.Message, r.Code)
 }
 
 // Verifies the one time password provided by the end-user.
 func (c *Client) VerifyChallenge(
 	ctx context.Context,
-	opts VerifyOpts,
-) (interface{}, error) {
+	opts VerifyChallengeOpts,
+) (VerifyChallengeResponse, error) {
 	c.once.Do(c.init)
 
 	if opts.AuthenticationChallengeID == "" {
-		return VerifyResponse{}, ErrMissingChallengeId
+		return VerifyChallengeResponse{}, ErrMissingChallengeId
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
@@ -280,29 +306,30 @@ func (c *Client) VerifyChallenge(
 	responseBody := bytes.NewBuffer(postBody)
 
 	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
-	req, err := http.NewRequest("POST", endpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
-		log.Panic(err)
+		return VerifyChallengeResponse{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return VerifyResponse{}, err
+		return VerifyChallengeResponse{}, err
 	}
+	defer resp.Body.Close()
 
-	var body RawVerifyResponse
+	var body RawVerifyChallengeResponse
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&body)
-
-	if body.Code != "" {
-		return VerifyResponseError{body.Code, body.Message}, err
-	} else {
-		return VerifyResponse{body.Challenge, body.Valid}, err
+	if err != nil {
+		return VerifyChallengeResponse{}, err
 	}
 
+	if body.Code != "" {
+		return VerifyChallengeResponse{}, VerificationResponseError{body.Code, body.Message}
+	}
+	return VerifyChallengeResponse{body.Challenge, body.Valid}, nil
 }
 
 // Deletes an authentication factor.
@@ -315,9 +342,10 @@ func (c *Client) DeleteFactor(
 	endpoint := fmt.Sprintf(
 		"%s/auth/factors/%s",
 		c.Endpoint,
-		opts.AuthenticationFactorID,
+		opts.FactorID,
 	)
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		endpoint,
 		nil,
@@ -326,7 +354,6 @@ func (c *Client) DeleteFactor(
 		return err
 	}
 
-	req = req.WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -344,39 +371,29 @@ func (c *Client) DeleteFactor(
 func (c *Client) GetFactor(
 	ctx context.Context,
 	opts GetFactorOpts,
-) (EnrollResponse, error) {
+) (Factor, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf(
-		"%s/auth/factors/%s",
-		c.Endpoint,
-		opts.AuthenticationFactorID,
-	)
-	req, err := http.NewRequest(
-		http.MethodGet,
-		endpoint,
-		nil,
-	)
+	endpoint := fmt.Sprintf("%s/auth/factors/%s", c.Endpoint, opts.FactorID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
-		return EnrollResponse{}, err
+		return Factor{}, err
 	}
-
-	req = req.WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return EnrollResponse{}, err
+		return Factor{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return EnrollResponse{}, err
+		return Factor{}, err
 	}
 
-	var body EnrollResponse
+	var body Factor
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err

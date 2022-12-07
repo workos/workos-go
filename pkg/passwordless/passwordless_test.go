@@ -47,7 +47,7 @@ func TestPasswordlessSendSession(t *testing.T) {
 	SetAPIKey("test")
 
 	err := SendSession(context.Background(), SendSessionOpts{
-		ID: "session_id",
+		SessionID: "session_id",
 	})
 	require.NoError(t, err)
 }
