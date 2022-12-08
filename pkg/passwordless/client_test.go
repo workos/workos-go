@@ -114,7 +114,7 @@ func TestSendSession(t *testing.T) {
 				APIKey: "test",
 			},
 			options: SendSessionOpts{
-				ID: "session_id",
+				SessionID: "session_id",
 			},
 		},
 	}
