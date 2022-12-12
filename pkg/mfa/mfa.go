@@ -27,7 +27,7 @@ func EnrollFactor(
 // ChallengeFactor Initiates the authentication process for the newly created MFA authorization factor.
 func ChallengeFactor(
 	ctx context.Context,
-	opts ChallengeOpts,
+	opts ChallengeFactorOpts,
 ) (Challenge, error) {
 	return DefaultClient.ChallengeFactor(ctx, opts)
 }
