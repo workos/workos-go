@@ -287,8 +287,8 @@ func TestVerifyChallenge(t *testing.T) {
 				APIKey: "test",
 			},
 			options: VerifyChallengeOpts{
-				AuthenticationChallengeID: "auth_challenge_test123",
-				Code:                      "0000000",
+				ChallengeID: "auth_challenge_test123",
+				Code:        "0000000",
 			},
 			expected: VerifyChallengeResponse{
 				Valid: true,
@@ -387,8 +387,8 @@ func TestVerifyChallengeError(t *testing.T) {
 				APIKey: "test",
 			},
 			options: VerifyChallengeOpts{
-				AuthenticationChallengeID: "auth_challenge_test123",
-				Code:                      "0000000",
+				ChallengeID: "auth_challenge_test123",
+				Code:        "0000000",
 			},
 			expected: VerificationResponseError{
 				Code:    "authentication_challenge_expired",

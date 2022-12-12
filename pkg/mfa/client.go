@@ -145,7 +145,7 @@ type Challenge struct {
 
 type VerifyChallengeOpts struct {
 	// The ID of the authentication challenge that provided the user the verification code.
-	AuthenticationChallengeID string
+	ChallengeID string
 
 	// The verification code sent to and provided by the end user.
 	Code string
@@ -296,7 +296,7 @@ func (c *Client) VerifyChallenge(
 ) (VerifyChallengeResponse, error) {
 	c.once.Do(c.init)
 
-	if opts.AuthenticationChallengeID == "" {
+	if opts.ChallengeID == "" {
 		return VerifyChallengeResponse{}, ErrMissingChallengeId
 	}
 
@@ -305,7 +305,7 @@ func (c *Client) VerifyChallenge(
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
+	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.ChallengeID)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
 		return VerifyChallengeResponse{}, err

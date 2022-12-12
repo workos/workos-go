@@ -74,8 +74,8 @@ func TestVerifyChallenges(t *testing.T) {
 		Valid: true,
 	}
 	verifyChallengeResponse, err := VerifyChallenge(context.Background(), VerifyChallengeOpts{
-		AuthenticationChallengeID: "auth_challenge_test123",
-		Code:                      "0000000",
+		ChallengeID: "auth_challenge_test123",
+		Code:        "0000000",
 	})
 
 	require.NoError(t, err)
