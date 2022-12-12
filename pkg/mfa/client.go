@@ -115,7 +115,7 @@ type SMSDetails struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
-type ChallengeOpts struct {
+type ChallengeFactorOpts struct {
 	// ID of the authorization factor.
 	FactorID string
 
@@ -236,7 +236,7 @@ func (c *Client) EnrollFactor(
 // Initiates the authentication process for the newly created MFA authorization factor, referred to as a challenge.
 func (c *Client) ChallengeFactor(
 	ctx context.Context,
-	opts ChallengeOpts,
+	opts ChallengeFactorOpts,
 ) (Challenge, error) {
 	c.once.Do(c.init)
 

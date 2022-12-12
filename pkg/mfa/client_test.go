@@ -193,7 +193,7 @@ func TestChallengeFactor(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  ChallengeOpts
+		options  ChallengeFactorOpts
 		expected Challenge
 		err      bool
 	}{
@@ -207,7 +207,7 @@ func TestChallengeFactor(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: ChallengeOpts{
+			options: ChallengeFactorOpts{
 				FactorID: "auth_factor_id",
 			},
 			expected: Challenge{

@@ -52,7 +52,7 @@ func TestMfaChallengeFactors(t *testing.T) {
 		FactorID:  "auth_factor_test123",
 		ExpiresAt: "2022-02-17T22:39:26.616Z",
 	}
-	challenge, err := ChallengeFactor(context.Background(), ChallengeOpts{
+	challenge, err := ChallengeFactor(context.Background(), ChallengeFactorOpts{
 		FactorID: "auth_factor_id",
 	})
 
