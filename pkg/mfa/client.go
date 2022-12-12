@@ -115,7 +115,7 @@ type SMSDetails struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
-type ChallengeOpts struct {
+type ChallengeFactorOpts struct {
 	// ID of the authorization factor.
 	FactorID string
 
@@ -145,7 +145,7 @@ type Challenge struct {
 
 type VerifyChallengeOpts struct {
 	// The ID of the authentication challenge that provided the user the verification code.
-	AuthenticationChallengeID string
+	ChallengeID string
 
 	// The verification code sent to and provided by the end user.
 	Code string
@@ -236,7 +236,7 @@ func (c *Client) EnrollFactor(
 // Initiates the authentication process for the newly created MFA authorization factor, referred to as a challenge.
 func (c *Client) ChallengeFactor(
 	ctx context.Context,
-	opts ChallengeOpts,
+	opts ChallengeFactorOpts,
 ) (Challenge, error) {
 	c.once.Do(c.init)
 
@@ -296,7 +296,7 @@ func (c *Client) VerifyChallenge(
 ) (VerifyChallengeResponse, error) {
 	c.once.Do(c.init)
 
-	if opts.AuthenticationChallengeID == "" {
+	if opts.ChallengeID == "" {
 		return VerifyChallengeResponse{}, ErrMissingChallengeId
 	}
 
@@ -305,7 +305,7 @@ func (c *Client) VerifyChallenge(
 	})
 	responseBody := bytes.NewBuffer(postBody)
 
-	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.AuthenticationChallengeID)
+	endpoint := fmt.Sprintf("%s/auth/challenges/%s/verify", c.Endpoint, opts.ChallengeID)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, responseBody)
 	if err != nil {
 		return VerifyChallengeResponse{}, err
