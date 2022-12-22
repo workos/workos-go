@@ -1,6 +1,6 @@
 # WorkOS Go Library
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go.svg)](https://pkg.go.dev/github.com/workos/workos-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v2.svg)](https://pkg.go.dev/github.com/workos/workos-go/v2)
 
 The WorkOS library for Go provides convenient access to the WorkOS API from applications written in Go.
 
@@ -13,7 +13,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 Install the package with:
 
 ```
-go get -u github.com/workos/workos-go/...
+go get -u github.com/workos/workos-go/v2...
 ```
 
 ## Configuration

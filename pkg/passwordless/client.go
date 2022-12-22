@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/pkg/workos_errors"
+	"github.com/workos/workos-go/v2/pkg/workos_errors"
 
-	"github.com/workos/workos-go/internal/workos"
+	"github.com/workos/workos-go/v2/internal/workos"
 )
 
 // Client represents a client that performs Passwordless requests to the WorkOS API.
