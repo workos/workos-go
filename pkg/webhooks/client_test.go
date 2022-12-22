@@ -4,7 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/workos/workos-go/pkg/webhooks"
+	"github.com/workos/workos-go/v2/pkg/webhooks"
 	"strconv"
 	"testing"
 	"time"
