@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/pkg/common"
+	"github.com/workos/workos-go/v2/pkg/common"
 )
 
 func TestAuditTrail(t *testing.T) {
