@@ -34,6 +34,7 @@ func TestLogin(t *testing.T) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
+		Groups:         []string{"Admins", "Developers"},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
@@ -165,6 +166,7 @@ func TestSsoGetProfile(t *testing.T) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
+		Groups:         []string{"Admins", "Developers"},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
