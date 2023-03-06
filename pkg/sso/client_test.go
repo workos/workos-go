@@ -155,6 +155,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 				Email:          "foo@test.com",
 				FirstName:      "foo",
 				LastName:       "bar",
+				Groups:         []string{"Admins", "Developers"},
 				RawAttributes: map[string]interface{}{
 					"idp_id":     "123",
 					"email":      "foo@test.com",
@@ -216,6 +217,7 @@ func profileAndTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 			Email:          "foo@test.com",
 			FirstName:      "foo",
 			LastName:       "bar",
+			Groups:         []string{"Admins", "Developers"},
 			RawAttributes: map[string]interface{}{
 				"idp_id":     "123",
 				"email":      "foo@test.com",
@@ -259,6 +261,7 @@ func TestClientGetProfile(t *testing.T) {
 				Email:          "foo@test.com",
 				FirstName:      "foo",
 				LastName:       "bar",
+				Groups:         []string{"Admins", "Developers"},
 				RawAttributes: map[string]interface{}{
 					"idp_id":     "123",
 					"email":      "foo@test.com",
@@ -310,6 +313,7 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
+		Groups:         []string{"Admins", "Developers"},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
