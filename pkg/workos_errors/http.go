@@ -72,15 +72,23 @@ func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []
 		return string(b), "", nil, nil
 	}
 
-	if payload.Error != "" && payload.ErrorDescription != "" {
-		return fmt.Sprintf("%s %s", payload.Error, payload.ErrorDescription), "", nil, nil
-	} else if payload.Message != "" && len(payload.Errors) == 0 {
-		return payload.Message, "", nil, nil
-	} else if payload.Message != "" && len(payload.Errors) > 0 {
-		return payload.Message, payload.Code, payload.Errors, nil
+	var errorCode string
+
+	if payload.Code != "" {
+		errorCode = payload.Code
+	} else {
+		errorCode = payload.Error
 	}
 
-	return string(b), "", nil, nil
+	if payload.Error != "" && payload.ErrorDescription != "" {
+		return fmt.Sprintf("%s %s", payload.Error, payload.ErrorDescription), errorCode, nil, nil
+	} else if payload.Message != "" && len(payload.Errors) == 0 {
+		return payload.Message, errorCode, nil, nil
+	} else if payload.Message != "" && len(payload.Errors) > 0 {
+		return payload.Message, errorCode, payload.Errors, nil
+	}
+
+	return string(b), errorCode, nil, nil
 }
 
 // HTTPError represents an http error.
