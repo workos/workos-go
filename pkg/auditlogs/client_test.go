@@ -189,6 +189,8 @@ func TestCreateExports(t *testing.T) {
 			require.Equal(t, opts.Actions[0], "create-user")
 			require.Equal(t, opts.Targets[0], "user")
 			require.Equal(t, opts.Actors, []string{"Jon", "Smith"})
+			require.Equal(t, opts.ActorNames, []string{"Jon", "Smith"})
+			require.Equal(t, opts.ActorIds, []string{"user:1234"})
 
 			body, _ := json.Marshal(AuditLogExport{
 				ID: "test123",
@@ -210,6 +212,8 @@ func TestCreateExports(t *testing.T) {
 			Actions: []string{"create-user"},
 			Targets: []string{"user"},
 			Actors:  []string{"Jon", "Smith"},
+			ActorNames:  []string{"Jon", "Smith"},
+			ActorIds:  []string{"user:1234"},
 		})
 		require.Equal(t, body, AuditLogExport{
 			ID: "test123",
