@@ -130,8 +130,14 @@ type CreateExportOpts struct {
 	// Optional list of actions to filter
 	Actions []string `json:"actions,omitempty"`
 
-	// Optional list of actors to filter
+	// Deprecated - use `ActorNames` instead
 	Actors []string `json:"actors,omitempty"`
+
+	// Optional list of actor names to filter by
+	ActorNames []string `json:"actor_names,omitempty"`
+
+	// Optional list of actor ids to filter by
+	ActorIds []string `json:"actor_ids,omitempty"`
 
 	// Optional list of targets to filter
 	Targets []string `json:"targets,omitempty"`
