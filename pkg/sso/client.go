@@ -373,6 +373,7 @@ const (
 	Draft    ConnectionState = "draft"
 	Active   ConnectionState = "active"
 	Inactive ConnectionState = "inactive"
+	Validating ConnectionState = "validating"
 )
 
 // Connection represents a Connection record.
