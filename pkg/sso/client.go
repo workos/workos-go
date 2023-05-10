@@ -370,9 +370,10 @@ type ConnectionState string
 
 // Constants that enumerate a Connection's possible states.
 const (
-	Draft    ConnectionState = "draft"
-	Active   ConnectionState = "active"
-	Inactive ConnectionState = "inactive"
+	Draft      ConnectionState = "draft"
+	Active     ConnectionState = "active"
+	Inactive   ConnectionState = "inactive"
+	Validating ConnectionState = "validating"
 )
 
 // Connection represents a Connection record.
