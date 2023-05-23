@@ -155,6 +155,11 @@ type ListUsersOpts struct {
 	After string
 }
 
+type PaginationParams struct {
+	Limit int
+	Order Order
+}
+
 // ListUsersResponse describes the response structure when requesting
 // provisioned Directory Users.
 type ListUsersResponse struct {
@@ -163,6 +168,8 @@ type ListUsersResponse struct {
 
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
+
+	PaginationParams
 }
 
 // ListUsers gets a list of provisioned Users for a Directory.
@@ -216,6 +223,10 @@ func (c *Client) ListUsers(
 	var body ListUsersResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	// Set the limit value in the ListUsersResponse before returning it
+	body.PaginationParams.Limit = limit
+	body.PaginationParams.Order = opts.Order
+
 	return body, err
 }
 
@@ -567,6 +578,7 @@ func (c *Client) ListDirectories(
 	err = dec.Decode(&body)
 	return body, err
 }
+
 
 // GetDirectoryOpts contains the options to request details for an Directory.
 type GetDirectoryOpts struct {

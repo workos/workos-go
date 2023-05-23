@@ -9,7 +9,6 @@ type Item struct {
 	Users directorysync.ListUsersResponse
 }
 
-// PaginateList is a method for iterating over the data in the Item struct
 func (r Item) PaginateList() ([]directorysync.User, int, error) {
 	ctx := context.Background()
 	results := make([]directorysync.User, 0)
@@ -28,6 +27,7 @@ func (r Item) PaginateList() ([]directorysync.User, int, error) {
 		opts := directorysync.ListUsersOpts{
 			Directory: r.Users.Data[0].DirectoryID, // Extract the directory from the first user in the list
 		}
+		
 		response, err := directorysync.ListUsers(ctx, opts)
 		if err != nil {
 			errorChan <- err
@@ -39,7 +39,7 @@ func (r Item) PaginateList() ([]directorysync.User, int, error) {
 		totalCount += len(response.Data)
 
 		// Check if there is more data to fetch
-		for response.ListMetadata.Before != "" {
+		for response.ListMetadata.Before != "" && (r.Users.Limit == 0 || totalCount < r.Users.Limit) {
 			// Make the subsequent list request using the 'Before' parameter
 			opts.Before = response.ListMetadata.Before
 			response, err = directorysync.ListUsers(ctx, opts)
@@ -62,6 +62,12 @@ func (r Item) PaginateList() ([]directorysync.User, int, error) {
 	// Check for any errors
 	if err := <-errorChan; err != nil {
 		return nil, 0, err
+	}
+
+	// Truncate the results if the limit was reached
+	if r.Users.Limit > 0 && len(results) > r.Users.Limit {
+		results = results[:r.Users.Limit]
+		totalCount = r.Users.Limit
 	}
 
 	return results, totalCount, nil

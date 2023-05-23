@@ -423,3 +423,12 @@ func TestPrimaryEmail(t *testing.T) {
 		})
 	}
 }
+
+func (c *Client) ListDirectoriesPaginated(params map[string]string) ([]Directory, error) {
+	var results []Directory
+	err := AutoPaginate(c, "/directories", params, &results)
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
+}
