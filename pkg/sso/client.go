@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
-	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
 
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/common"
@@ -526,7 +526,6 @@ func (c *Client) ListConnections(
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListConnectionsResponse{}, err
 	}
-
 
 	var body ListConnectionsResponse
 	dec := json.NewDecoder(res.Body)

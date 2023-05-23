@@ -27,7 +27,6 @@ const (
 	Desc Order = "desc"
 )
 
-
 // Client represents a client that performs Directory Sync requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
