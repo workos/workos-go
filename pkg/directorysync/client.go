@@ -148,10 +148,10 @@ type ListUsersOpts struct {
 	// The order in which to paginate records.
 	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Event ID.
+	// Pagination cursor to receive records before a provided User ID.
 	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Event ID.
+	// Pagination cursor to receive records after a provided User ID.
 	After string `url:"after,omitempty"`
 }
 
@@ -253,10 +253,10 @@ type ListGroupsOpts struct {
 	// The order in which to paginate records.
 	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Event ID.
+	// Pagination cursor to receive records before a provided Group ID.
 	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Event ID.
+	// Pagination cursor to receive records after a provided Group ID.
 	After string `url:"after,omitempty"`
 }
 
@@ -487,10 +487,10 @@ type ListDirectoriesOpts struct {
 	// The order in which to paginate records.
 	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Event ID.
+	// Pagination cursor to receive records before a provided Directory ID.
 	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Event ID.
+	// Pagination cursor to receive records after a provided Directory ID.
 	After string `url:"after,omitempty"`
 }
 
