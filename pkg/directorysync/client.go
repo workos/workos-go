@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 
 	"github.com/workos/workos-go/v2/internal/workos"
@@ -137,22 +137,22 @@ type User struct {
 // ListUsersOpts contains the options to request provisioned Directory Users.
 type ListUsersOpts struct {
 	// Directory unique identifier.
-	Directory string
+	Directory string `url:"directory", omitempty`
 
 	// Directory Group unique identifier.
-	Group string
+	Group string `url:"group", omitempty`
 
 	// Maximum number of records to return.
-	Limit int
+	Limit int `url:"limit"`
 
 	// The order in which to paginate records.
-	Order Order
+	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Directory ID.
-	Before string
+	// Pagination cursor to receive records before a provided Event ID.
+	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Directory ID.
-	After string
+	// Pagination cursor to receive records after a provided Event ID.
+	After string `url:"after,omitempty"`
 }
 
 // ListUsersResponse describes the response structure when requesting
@@ -186,23 +186,16 @@ func (c *Client) ListUsers(
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
 
-	limit := ResponseLimit
-	if opts.Limit != 0 {
-		limit = opts.Limit
+	v, err := query.Values(opts)
+	if err != nil {
+		return ListUsersResponse{}, err
 	}
-	q := req.URL.Query()
-	if opts.Directory != "" {
-		q.Add("directory", opts.Directory)
-	}
-	if opts.Group != "" {
-		q.Add("group", opts.Group)
-	}
-	q.Add("before", opts.Before)
-	q.Add("after", opts.After)
-	q.Add("limit", strconv.Itoa(limit))
-	req.URL.RawQuery = q.Encode()
 
+	req.URL.RawQuery = v.Encode()
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return ListUsersResponse{}, err
@@ -249,22 +242,22 @@ type Group struct {
 // ListGroupsOpts contains the options to request provisioned Directory Groups.
 type ListGroupsOpts struct {
 	// Directory unique identifier.
-	Directory string
+	Directory string `url:"directory", omitempty`
 
-	// Directory User unique identifier.
-	User string
+	// Directory unique identifier.
+	User string `url:"user", omitempty`
 
 	// Maximum number of records to return.
-	Limit int
+	Limit int `url:"limit"`
 
 	// The order in which to paginate records.
-	Order Order
+	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Directory ID.
-	Before string
+	// Pagination cursor to receive records before a provided Event ID.
+	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Directory ID.
-	After string
+	// Pagination cursor to receive records after a provided Event ID.
+	After string `url:"after,omitempty"`
 }
 
 // ListGroupsResponse describes the response structure when requesting
@@ -299,22 +292,16 @@ func (c *Client) ListGroups(
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
-	limit := ResponseLimit
-	if opts.Limit != 0 {
-		limit = opts.Limit
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
 	}
-	q := req.URL.Query()
-	if opts.Directory != "" {
-		q.Add("directory", opts.Directory)
-	}
-	if opts.User != "" {
-		q.Add("user", opts.User)
-	}
-	q.Add("before", opts.Before)
-	q.Add("after", opts.After)
-	q.Add("limit", strconv.Itoa(limit))
-	req.URL.RawQuery = q.Encode()
 
+	v, err := query.Values(opts)
+	if err != nil {
+		return ListGroupsResponse{}, err
+	}
+
+	req.URL.RawQuery = v.Encode()
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return ListGroupsResponse{}, err
@@ -486,25 +473,25 @@ type Directory struct {
 // ListDirectoriesOpts contains the options to request a Project's Directories.
 type ListDirectoriesOpts struct {
 	// Domain of a Directory. Can be empty.
-	Domain string
+	Domain string `url:"domain", omitempty`
 
 	// Searchable text for a Directory. Can be empty.
-	Search string
+	Search string `url:"search", omitempty`
 
 	// Organization ID of a Directory. Can be empty.
-	OrganizationID string
+	OrganizationID string `url:"organization_id", omitempty`
 
 	// Maximum number of records to return.
-	Limit int
+	Limit int `url:"limit"`
 
 	// The order in which to paginate records.
-	Order Order
+	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Directory ID.
-	Before string
+	// Pagination cursor to receive records before a provided Event ID.
+	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Directory ID.
-	After string
+	// Pagination cursor to receive records after a provided Event ID.
+	After string `url:"after,omitempty"`
 }
 
 // ListDirectoriesResponse describes the response structure when requesting
@@ -538,20 +525,16 @@ func (c *Client) ListDirectories(
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	limit := ResponseLimit
-	if opts.Limit != 0 {
-		limit = opts.Limit
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
 	}
-	q := req.URL.Query()
-	q.Add("domain", opts.Domain)
-	q.Add("search", opts.Search)
-	q.Add("before", opts.Before)
-	q.Add("after", opts.After)
-	q.Add("organization_id", opts.OrganizationID)
-	q.Add("limit", strconv.Itoa(limit))
-	req.URL.RawQuery = q.Encode()
 
+	v, err := query.Values(opts)
+	if err != nil {
+		return ListDirectoriesResponse{}, err
+	}
+
+	req.URL.RawQuery = v.Encode()
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return ListDirectoriesResponse{}, err
@@ -561,7 +544,6 @@ func (c *Client) ListDirectories(
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
 		return ListDirectoriesResponse{}, err
 	}
-
 	var body ListDirectoriesResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
