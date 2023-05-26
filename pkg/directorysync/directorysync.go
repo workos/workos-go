@@ -66,7 +66,7 @@ func GetDirectory(
 	return DefaultClient.GetDirectory(ctx, opts)
 }
 
-//DeleteDirectory deletes a directory
+// DeleteDirectory deletes a directory
 func DeleteDirectory(
 	ctx context.Context,
 	opts DeleteDirectoryOpts,
