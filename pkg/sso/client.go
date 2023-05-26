@@ -455,13 +455,13 @@ func (c *Client) GetConnection(
 // ListConnectionsOpts contains the options to request a list of Connections.
 type ListConnectionsOpts struct {
 	// Authentication service provider descriptor. Can be empty.
-	ConnectionType ConnectionType `url:"connection_type", omitempty`
+	ConnectionType ConnectionType `url:"connection_type,omitempty"`
 
 	// Organization ID of the Connection(s). Can be empty.
-	OrganizationID string `url:"organization_id", omitempty`
+	OrganizationID string `url:"organization_id,omitempty"`
 
 	// Domain of a Connection. Can be empty.
-	Domain string `url:"domain", omitempty`
+	Domain string `url:"domain,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`

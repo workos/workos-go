@@ -137,10 +137,10 @@ type User struct {
 // ListUsersOpts contains the options to request provisioned Directory Users.
 type ListUsersOpts struct {
 	// Directory unique identifier.
-	Directory string `url:"directory", omitempty`
+	Directory string `url:"directory,omitempty"`
 
 	// Directory Group unique identifier.
-	Group string `url:"group", omitempty`
+	Group string `url:"group,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -242,10 +242,10 @@ type Group struct {
 // ListGroupsOpts contains the options to request provisioned Directory Groups.
 type ListGroupsOpts struct {
 	// Directory unique identifier.
-	Directory string `url:"directory", omitempty`
+	Directory string `url:"directory,omitempty"`
 
 	// Directory unique identifier.
-	User string `url:"user", omitempty`
+	User string `url:"user,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -473,13 +473,13 @@ type Directory struct {
 // ListDirectoriesOpts contains the options to request a Project's Directories.
 type ListDirectoriesOpts struct {
 	// Domain of a Directory. Can be empty.
-	Domain string `url:"domain", omitempty`
+	Domain string `url:"domain,omitempty"`
 
 	// Searchable text for a Directory. Can be empty.
-	Search string `url:"search", omitempty`
+	Search string `url:"search,omitempty"`
 
 	// Organization ID of a Directory. Can be empty.
-	OrganizationID string `url:"organization_id", omitempty`
+	OrganizationID string `url:"organization_id,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
