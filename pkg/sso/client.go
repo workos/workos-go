@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
 
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/common"
@@ -457,25 +456,25 @@ func (c *Client) GetConnection(
 // ListConnectionsOpts contains the options to request a list of Connections.
 type ListConnectionsOpts struct {
 	// Authentication service provider descriptor. Can be empty.
-	ConnectionType ConnectionType
+	ConnectionType ConnectionType `url:"connection_type", omitempty`
 
 	// Organization ID of the Connection(s). Can be empty.
-	OrganizationID string
+	OrganizationID string `url:"organization_id", omitempty`
 
 	// Domain of a Connection. Can be empty.
-	Domain string
+	Domain string `url:"domain", omitempty`
 
 	// Maximum number of records to return.
-	Limit int
+	Limit int `url:"limit"`
 
 	// The order in which to paginate records.
-	Order Order
+	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Connection ID.
-	Before string
+	// Pagination cursor to receive records before a provided Event ID.
+	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Connection ID.
-	After string
+	// Pagination cursor to receive records after a provided Event ID.
+	After string `url:"after,omitempty"`
 }
 
 // ListConnectionsResponse describes the response structure when requesting
@@ -509,22 +508,16 @@ func (c *Client) ListConnections(
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	limit := ResponseLimit
-	if opts.Limit != 0 {
-		limit = opts.Limit
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
 	}
-	q := req.URL.Query()
-	q.Add("before", opts.Before)
-	q.Add("after", opts.After)
-	if opts.ConnectionType != "" {
-		q.Add("connection_type", string(opts.ConnectionType))
-	}
-	q.Add("organization_id", string(opts.OrganizationID))
-	q.Add("domain", opts.Domain)
-	q.Add("limit", strconv.Itoa(limit))
-	req.URL.RawQuery = q.Encode()
 
+	v, err := query.Values(opts)
+	if err != nil {
+		return ListConnectionsResponse{}, err
+	}
+
+	req.URL.RawQuery = v.Encode()
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return ListConnectionsResponse{}, err
