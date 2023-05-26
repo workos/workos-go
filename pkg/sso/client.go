@@ -469,10 +469,10 @@ type ListConnectionsOpts struct {
 	// The order in which to paginate records.
 	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Event ID.
+	// Pagination cursor to receive records before a provided Connection ID.
 	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Event ID.
+	// Pagination cursor to receive records after a provided Connection ID.
 	After string `url:"after,omitempty"`
 }
 
