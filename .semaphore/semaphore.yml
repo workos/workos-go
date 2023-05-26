@@ -30,7 +30,5 @@ blocks:
           commands:
             - checkout
             - sem-version go $GO_VERSION
-            - go get github.com/stretchr/testify
-            - go get github.com/google/go-querystring
-            - go get github.com/google/uuid
+            - go mod download
             - go test -v ./...
