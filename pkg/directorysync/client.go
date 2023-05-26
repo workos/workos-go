@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
+	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 
 	"github.com/workos/workos-go/v2/internal/workos"
@@ -136,29 +136,33 @@ type User struct {
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
 type ListUsersOpts struct {
-	// Directory unique identifier.
-	Directory string
+    // Directory unique identifier.
+    Directory string `url:"directory", omitempty`
 
-	// Directory Group unique identifier.
-	Group string
+    // Directory Group unique identifier.
+    Group string `url:"group", omitempty`
 
-	// Maximum number of records to return.
-	Limit int
+    // Maximum number of records to return.
+    Limit int `url:"limit"`
 
-	// The order in which to paginate records.
-	Order Order
+    // The order in which to paginate records.
+    Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Directory ID.
-	Before string
+    // Pagination cursor to receive records before a provided Event ID.
+    Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Directory ID.
-	After string
+    // Pagination cursor to receive records after a provided Event ID.
+    After string `url:"after,omitempty"`
 }
+
 
 type PaginationParams struct {
-	Limit int
-	Order Order
+	 // Maximum number of records to return.
+	 Limit int `url:"limit"`
+	 
+	Order Order `url:"order,omitempty"`
 }
+
 
 // ListUsersResponse describes the response structure when requesting
 // provisioned Directory Users.
@@ -169,66 +173,58 @@ type ListUsersResponse struct {
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 
-	PaginationParams
+	PaginationParams PaginationParams  `json:"paginationParams"`
 }
+
+
 
 // ListUsers gets a list of provisioned Users for a Directory.
 func (c *Client) ListUsers(
-	ctx context.Context,
-	opts ListUsersOpts,
+    ctx context.Context,
+    opts ListUsersOpts,
 ) (ListUsersResponse, error) {
-	c.once.Do(c.init)
+    c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/directory_users", c.Endpoint)
-	req, err := http.NewRequest(
-		http.MethodGet,
-		endpoint,
-		nil,
-	)
-	if err != nil {
-		return ListUsersResponse{}, err
-	}
+    endpoint := fmt.Sprintf("%s/directory_users", c.Endpoint)
+    req, err := http.NewRequest(
+        http.MethodGet,
+        endpoint,
+        nil,
+    )
+    if err != nil {
+        return ListUsersResponse{}, err
+    }
 
-	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+    req = req.WithContext(ctx)
+    req.Header.Set("Authorization", "Bearer "+c.APIKey)
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+    if opts.Limit == 0 {
+        opts.Limit = ResponseLimit
+    }
 
-	limit := ResponseLimit
-	if opts.Limit != 0 {
-		limit = opts.Limit
-	}
-	q := req.URL.Query()
-	if opts.Directory != "" {
-		q.Add("directory", opts.Directory)
-	}
-	if opts.Group != "" {
-		q.Add("group", opts.Group)
-	}
-	q.Add("before", opts.Before)
-	q.Add("after", opts.After)
-	q.Add("limit", strconv.Itoa(limit))
-	req.URL.RawQuery = q.Encode()
+    v, err := query.Values(opts)
+    if err != nil {
+        return ListUsersResponse{}, err
+    }
 
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return ListUsersResponse{}, err
-	}
-	defer res.Body.Close()
+    req.URL.RawQuery = v.Encode()
+    res, err := c.HTTPClient.Do(req)
+    if err != nil {
+        return ListUsersResponse{}, err
+    }
+    defer res.Body.Close()
 
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ListUsersResponse{}, err
-	}
+    if err = workos_errors.TryGetHTTPError(res); err != nil {
+        return ListUsersResponse{}, err
+    }
 
-	var body ListUsersResponse
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-	// Set the limit value in the ListUsersResponse before returning it
-	body.PaginationParams.Limit = limit
-	body.PaginationParams.Order = opts.Order
-
-	return body, err
+    var body ListUsersResponse
+    dec := json.NewDecoder(res.Body)
+    err = dec.Decode(&body)
+    return body, err
 }
+
 
 // Group contains data about a provisioned Directory Group.
 type Group struct {

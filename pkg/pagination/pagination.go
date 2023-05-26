@@ -9,10 +9,10 @@ type Item struct {
 	Users directorysync.ListUsersResponse
 }
 
-func (r Item) PaginateList() ([]directorysync.User, int, error) {
+
+func (r Item) PaginateList() ([]directorysync.User, error) {
 	ctx := context.Background()
 	results := make([]directorysync.User, 0)
-	totalCount := 0
 
 	// Create a channel to send and receive directorysync.ListUsersResponse
 	responseChan := make(chan directorysync.ListUsersResponse)
@@ -23,26 +23,20 @@ func (r Item) PaginateList() ([]directorysync.User, int, error) {
 		defer close(responseChan)
 		defer close(errorChan)
 
+		
 		// Perform the initial list request
 		opts := directorysync.ListUsersOpts{
-			Directory: r.Users.Data[0].DirectoryID, // Extract the directory from the first user in the list
+			Order: r.Users.PaginationParams.Order,
+			Limit: r.Users.PaginationParams.Limit,
 		}
 		
-		response, err := directorysync.ListUsers(ctx, opts)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
 		// Send the initial response
-		responseChan <- response
-		totalCount += len(response.Data)
-
+		responseChan <- r.Users
 		// Check if there is more data to fetch
-		for response.ListMetadata.Before != "" && (r.Users.Limit == 0 || totalCount < r.Users.Limit) {
+		for r.Users.ListMetadata.Before != "" {
 			// Make the subsequent list request using the 'Before' parameter
-			opts.Before = response.ListMetadata.Before
-			response, err = directorysync.ListUsers(ctx, opts)
+			opts.Before = r.Users.ListMetadata.Before
+			response, err := directorysync.ListUsers(ctx, opts)
 			if err != nil {
 				errorChan <- err
 				return
@@ -50,7 +44,6 @@ func (r Item) PaginateList() ([]directorysync.User, int, error) {
 
 			// Send the response
 			responseChan <- response
-			totalCount += len(response.Data)
 		}
 	}()
 
@@ -61,14 +54,8 @@ func (r Item) PaginateList() ([]directorysync.User, int, error) {
 
 	// Check for any errors
 	if err := <-errorChan; err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	// Truncate the results if the limit was reached
-	if r.Users.Limit > 0 && len(results) > r.Users.Limit {
-		results = results[:r.Users.Limit]
-		totalCount = r.Users.Limit
-	}
-
-	return results, totalCount, nil
+	return results,  nil
 }
