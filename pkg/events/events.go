@@ -3,7 +3,6 @@ package events
 
 import (
 	"context"
-	"errors"
 )
 
 // DefaultClient is the client used by SetAPIKey and Event functions.

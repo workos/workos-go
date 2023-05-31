@@ -58,8 +58,8 @@ type Event struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// ListeEventsOpts contains the options to request provisioned Events.
-type ListeEventsOpts struct {
+// GetEventsOpts contains the options to request provisioned Events.
+type GetEventsOpts struct {
 	// Filter to only return Events of particular types.
 	Events []string `url:"events,omitempty"`
 
@@ -76,9 +76,9 @@ type ListeEventsOpts struct {
 	RangeEnd string `url:"after,omitempty"`
 }
 
-// ListEventsResponse describes the response structure when requesting
+// GetEventsResponse describes the response structure when requesting
 // Events.
-type ListEventsResponse struct {
+type GetEventsResponse struct {
 	// List of Events.
 	Data []Event `json:"data"`
 
@@ -86,11 +86,11 @@ type ListEventsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
-// ListEvents gets a list of Events.
-func (c *Client) ListEvents(
+// GetEvents gets a list of Events.
+func (c *Client) GetEvents(
 	ctx context.Context,
-	opts ListeEventsOpts,
-) (ListeEventsOpts, error) {
+	opts GetEventsOpts,
+) (GetEventsResponse, error) {
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf("%s/events", c.Endpoint)
@@ -100,7 +100,7 @@ func (c *Client) ListEvents(
 		nil,
 	)
 	if err != nil {
-		return ListEventsResponse{}, err
+		return GetEventsResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -113,21 +113,21 @@ func (c *Client) ListEvents(
 
 	v, err := query.Values(opts)
 	if err != nil {
-		return ListEventsResponse{}, err
+		return GetEventsResponse{}, err
 	}
 
 	req.URL.RawQuery = v.Encode()
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ListEventsResponse{}, err
+		return GetEventsResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ListEventsResponse{}, err
+		return GetEventsResponse{}, err
 	}
 
-	var body ListEventsResponse
+	var body GetEventsResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
