@@ -1,3 +1,4 @@
+package events
 
 import (
 	"context"
@@ -42,7 +43,6 @@ func (c *Client) init() {
 	}
 }
 
-
 // Event contains data about a particular Event.
 type Event struct {
 	// The Event's unique identifier.
@@ -61,7 +61,7 @@ type Event struct {
 // ListeEventsOpts contains the options to request provisioned Events.
 type ListeEventsOpts struct {
 	// Filter to only return Events of particular types.
-	Events string[] `url:"events,omitempty"`
+	Events []string `url:"events,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -132,4 +132,3 @@ func (c *Client) ListEvents(
 	err = dec.Decode(&body)
 	return body, err
 }
-

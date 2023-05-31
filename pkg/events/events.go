@@ -1,5 +1,5 @@
 // Package `events` provides a client wrapping the WorkOS Events API.
-package events 
+package events
 
 import (
 	"context"
@@ -25,4 +25,3 @@ func GetEvents(
 ) (GetEventsResponse, error) {
 	return DefaultClient.GetEvents(ctx, opts)
 }
-
