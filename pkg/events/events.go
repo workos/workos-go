@@ -17,10 +17,10 @@ func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
-// GetEvents gets a list of Events for an environment.
-func GetEvents(
+// ListEvents gets a list of Events for an environment.
+func ListEvents(
 	ctx context.Context,
-	opts GetEventsOpts,
-) (GetEventsResponse, error) {
-	return DefaultClient.GetEvents(ctx, opts)
+	opts ListEventsOpts,
+) (ListEventsResponse, error) {
+	return DefaultClient.ListEvents(ctx, opts)
 }

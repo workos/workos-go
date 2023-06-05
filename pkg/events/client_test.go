@@ -12,12 +12,12 @@ import (
 	"github.com/workos/workos-go/v2/pkg/common"
 )
 
-func TestGetEvents(t *testing.T) {
+func TestListEvents(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetEventsOpts
-		expected GetEventsResponse
+		options  ListEventsOpts
+		expected ListEventsResponse
 		err      bool
 	}{
 		{
@@ -30,8 +30,8 @@ func TestGetEvents(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetEventsOpts{},
-			expected: GetEventsResponse{
+			options: ListEventsOpts{},
+			expected: ListEventsResponse{
 				Data: []Event{
 					Event{
 						ID:    "event_abcd1234",
@@ -55,7 +55,7 @@ func TestGetEvents(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			events, err := client.GetEvents(context.Background(), test.options)
+			events, err := client.ListEvents(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -79,9 +79,9 @@ func getEventsTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(struct {
-		GetEventsResponse
+		ListEventsResponse
 	}{
-		GetEventsResponse: GetEventsResponse{
+		ListEventsResponse: ListEventsResponse{
 			Data: []Event{
 				{
 					ID:    "event_abcd1234",

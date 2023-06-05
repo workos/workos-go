@@ -11,7 +11,7 @@ import (
 	"github.com/workos/workos-go/v2/pkg/common"
 )
 
-func TestEventsGetEvents(t *testing.T) {
+func TestEventsListEvents(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getEventsTestHandler))
 	defer server.Close()
 
@@ -21,7 +21,7 @@ func TestEventsGetEvents(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := GetEventsResponse{
+	expectedResponse := ListEventsResponse{
 		Data: []Event{
 			{
 				ID:    "event_abcd1234",
@@ -33,7 +33,7 @@ func TestEventsGetEvents(t *testing.T) {
 			After: "",
 		},
 	}
-	eventsResponse, err := GetEvents(context.Background(), GetEventsOpts{})
+	eventsResponse, err := ListEvents(context.Background(), ListEventsOpts{})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, eventsResponse)
