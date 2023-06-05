@@ -12,7 +12,7 @@ import (
 )
 
 func TestEventsListEvents(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getEventsTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(ListEventsTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
