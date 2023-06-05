@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v2/pkg/common"
@@ -36,6 +37,43 @@ func TestListEvents(t *testing.T) {
 		}
 
 		events, err := client.ListEvents(context.Background(), ListEventsOpts{})
+
+		require.NoError(t, err)
+		require.Equal(t, expectedResponse, events)
+	})
+
+	t.Run("ListEvents succeeds to fetch Events with a startRange and endRange", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(ListEventsTestHandler))
+		defer server.Close()
+		client := &Client{
+			HTTPClient: server.Client(),
+			Endpoint:   server.URL,
+			APIKey:     "test",
+		}
+
+		currentTime := time.Now()
+		rangeStart := currentTime.AddDate(0, 0, -2)
+		rangeEnd := currentTime.AddDate(0, 0, -1)
+
+		params := ListEventsOpts{
+			RangeStart: rangeStart.String(),
+			RangeEnd:   rangeEnd.String(),
+		}
+
+		expectedResponse := ListEventsResponse{
+			Data: []Event{
+				{
+					ID:    "event_abcd1234",
+					Event: "dsync.user.created",
+					Data:  json.RawMessage(`{"foo":"bar"}`),
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+		events, err := client.ListEvents(context.Background(), params)
 
 		require.NoError(t, err)
 		require.Equal(t, expectedResponse, events)

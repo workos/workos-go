@@ -70,10 +70,10 @@ type ListEventsOpts struct {
 	After string `url:"after,omitempty"`
 
 	// Date range start for stream of Events.
-	RangeStart string `url:"after,omitempty"`
+	RangeStart string `url:"rangeStart,omitempty"`
 
 	// Date range end for stream of Events.
-	RangeEnd string `url:"after,omitempty"`
+	RangeEnd string `url:"rangeEnd,omitempty"`
 }
 
 // GetEventsResponse describes the response structure when requesting
@@ -111,12 +111,12 @@ func (c *Client) ListEvents(
 		opts.Limit = ResponseLimit
 	}
 
-	v, err := query.Values(opts)
+	queryValues, err := query.Values(opts)
 	if err != nil {
 		return ListEventsResponse{}, err
 	}
 
-	req.URL.RawQuery = v.Encode()
+	req.URL.RawQuery = queryValues.Encode()
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return ListEventsResponse{}, err
