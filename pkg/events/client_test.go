@@ -42,7 +42,7 @@ func TestListEvents(t *testing.T) {
 		require.Equal(t, expectedResponse, events)
 	})
 
-	t.Run("ListEvents succeeds to fetch Events with a startRange and endRange", func(t *testing.T) {
+	t.Run("ListEvents succeeds to fetch Events with a RangeStart and RangeEnd", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(ListEventsTestHandler))
 		defer server.Close()
 		client := &Client{
