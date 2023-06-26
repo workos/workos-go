@@ -70,10 +70,10 @@ type ListEventsOpts struct {
 	After string `url:"after,omitempty"`
 
 	// Date range start for stream of Events.
-	RangeStart string `url:"rangeStart,omitempty"`
+	RangeStart string `url:"range_start,omitempty"`
 
 	// Date range end for stream of Events.
-	RangeEnd string `url:"rangeEnd,omitempty"`
+	RangeEnd string `url:"range_end,omitempty"`
 }
 
 // GetEventsResponse describes the response structure when requesting
