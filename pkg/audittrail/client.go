@@ -259,7 +259,7 @@ type ListEventsResponse struct {
 	Data []Event `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // ListEvents gets a list of Audit Trail events.

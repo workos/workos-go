@@ -484,7 +484,7 @@ type ListConnectionsResponse struct {
 	Data []Connection `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // ListConnections gets details of existing Connections.
