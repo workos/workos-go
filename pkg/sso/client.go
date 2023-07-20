@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
 	"net/url"
@@ -21,13 +20,7 @@ import (
 const ResponseLimit = 10
 
 // Order represents the order of records.
-type Order string
-
-// Constants that enumerate the available orders.
-const (
-	Asc  Order = "asc"
-	Desc Order = "desc"
-)
+type Order common.Order
 
 // ConnectionType represents a connection type.
 type ConnectionType string
@@ -97,35 +90,6 @@ type Client struct {
 	once sync.Once
 }
 
-func (c *Client) init() {
-	if c.Endpoint == "" {
-		c.Endpoint = "https://api.workos.com"
-	}
-	c.Endpoint = strings.TrimSuffix(c.Endpoint, "/")
-
-	if c.HTTPClient == nil {
-		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
-	}
-
-	if c.JSONEncode == nil {
-		c.JSONEncode = json.Marshal
-	}
-}
-
-// GetLoginHandler returns an http.Handler that redirects client to the appropriate
-// login provider.
-func (c *Client) GetLoginHandler(opts GetAuthorizationURLOpts) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u, err := c.GetAuthorizationURL(opts)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		http.Redirect(w, r, u.String(), http.StatusSeeOther)
-	})
-}
 
 // GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
@@ -163,55 +127,6 @@ type GetAuthorizationURLOpts struct {
 	//
 	// OPTIONAL.
 	State string
-}
-
-// GetAuthorizationURL returns an authorization url generated with the given
-// options.
-func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
-	c.once.Do(c.init)
-
-	redirectURI := opts.RedirectURI
-
-	query := make(url.Values, 5)
-	query.Set("client_id", c.ClientID)
-	query.Set("redirect_uri", redirectURI)
-	query.Set("response_type", "code")
-
-	if opts.Domain == "" && opts.Provider == "" && opts.Connection == "" && opts.Organization == "" {
-		return nil, errors.New("incomplete arguments: missing connection, organization, domain, or provider")
-	}
-	if opts.Provider != "" {
-		query.Set("provider", string(opts.Provider))
-	}
-	if opts.Domain != "" {
-		query.Set("domain", opts.Domain)
-		fmt.Println("The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.")
-	}
-	if opts.DomainHint != "" {
-		query.Set("domain_hint", opts.DomainHint)
-	}
-	if opts.LoginHint != "" {
-		query.Set("login_hint", opts.LoginHint)
-	}
-	if opts.Connection != "" {
-		query.Set("connection", opts.Connection)
-	}
-
-	if opts.Organization != "" {
-		query.Set("organization", opts.Organization)
-	}
-
-	if opts.State != "" {
-		query.Set("state", opts.State)
-	}
-
-	u, err := url.ParseRequestURI(c.Endpoint + "/sso/authorize")
-	if err != nil {
-		return nil, err
-	}
-
-	u.RawQuery = query.Encode()
-	return u, nil
 }
 
 // GetProfileAndTokenOpts contains the options to pass in order to get a user profile and access token.
@@ -262,46 +177,6 @@ type ProfileAndToken struct {
 	Profile Profile `json:"profile"`
 }
 
-// GetProfileAndToken returns a profile describing the user that authenticated with
-// WorkOS SSO.
-func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOpts) (ProfileAndToken, error) {
-	c.once.Do(c.init)
-
-	form := make(url.Values, 5)
-	form.Set("client_id", c.ClientID)
-	form.Set("client_secret", c.APIKey)
-	form.Set("grant_type", "authorization_code")
-	form.Set("code", opts.Code)
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.Endpoint+"/sso/token",
-		strings.NewReader(form.Encode()),
-	)
-	if err != nil {
-		return ProfileAndToken{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return ProfileAndToken{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ProfileAndToken{}, err
-	}
-
-	var body ProfileAndToken
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
-}
 
 // GetProfile contains the options to pass in order to get a user profile.
 type GetProfileOpts struct {
@@ -310,39 +185,6 @@ type GetProfileOpts struct {
 	AccessToken string
 }
 
-// GetProfile returns a profile describing the user that authenticated with
-// WorkOS SSO.
-func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, error) {
-	c.once.Do(c.init)
-
-	req, err := http.NewRequest(
-		http.MethodGet,
-		c.Endpoint+"/sso/profile",
-		nil,
-	)
-	if err != nil {
-		return Profile{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+opts.AccessToken)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return Profile{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return Profile{}, err
-	}
-
-	var body Profile
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
-}
 
 // ConnectionDomain represents the domain records associated with a Connection.
 type ConnectionDomain struct {
@@ -411,48 +253,6 @@ type GetConnectionOpts struct {
 	Connection string
 }
 
-// GetConnection gets a Connection.
-func (c *Client) GetConnection(
-	ctx context.Context,
-	opts GetConnectionOpts,
-) (Connection, error) {
-	c.once.Do(c.init)
-
-	endpoint := fmt.Sprintf(
-		"%s/connections/%s",
-		c.Endpoint,
-		opts.Connection,
-	)
-	req, err := http.NewRequest(
-		http.MethodGet,
-		endpoint,
-		nil,
-	)
-	if err != nil {
-		return Connection{}, err
-	}
-
-	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return Connection{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return Connection{}, err
-	}
-
-	var body Connection
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-	return body, err
-}
-
 // ListConnectionsOpts contains the options to request a list of Connections.
 type ListConnectionsOpts struct {
 	// Authentication service provider descriptor. Can be empty.
@@ -484,60 +284,196 @@ type ListConnectionsResponse struct {
 	Data []Connection `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"list_metadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
-// ListConnections gets details of existing Connections.
-func (c *Client) ListConnections(
-	ctx context.Context,
-	opts ListConnectionsOpts,
-) (ListConnectionsResponse, error) {
-	c.once.Do(c.init)
-
-	endpoint := fmt.Sprintf("%s/connections", c.Endpoint)
-	req, err := http.NewRequest(
-		http.MethodGet,
-		endpoint,
-		nil,
-	)
-	if err != nil {
-		return ListConnectionsResponse{}, err
-	}
-
-	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	if opts.Limit == 0 {
-		opts.Limit = ResponseLimit
-	}
-
-	v, err := query.Values(opts)
-	if err != nil {
-		return ListConnectionsResponse{}, err
-	}
-
-	req.URL.RawQuery = v.Encode()
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return ListConnectionsResponse{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ListConnectionsResponse{}, err
-	}
-
-	var body ListConnectionsResponse
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-	return body, err
-}
 
 // DeleteConnectionOpts contains the options to delete a Connection.
 type DeleteConnectionOpts struct {
 	// Connection unique identifier.
 	Connection string
+}
+
+func (c *Client) init() {
+	if c.Endpoint == "" {
+		c.Endpoint = "https://api.workos.com"
+	}
+	c.Endpoint = strings.TrimSuffix(c.Endpoint, "/")
+
+	if c.HTTPClient == nil {
+		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
+	}
+
+	if c.JSONEncode == nil {
+		c.JSONEncode = json.Marshal
+	}
+}
+
+// GetLoginHandler returns an http.Handler that redirects client to the appropriate
+// login provider.
+func (c *Client) GetLoginHandler(opts GetAuthorizationURLOpts) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		u, err := c.GetAuthorizationURL(opts)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		http.Redirect(w, r, u.String(), http.StatusSeeOther)
+	})
+}
+
+// GetAuthorizationURL returns an authorization url generated with the given
+// options.
+func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
+	c.once.Do(c.init)
+
+	redirectURI := opts.RedirectURI
+
+	query := make(url.Values, 5)
+	query.Set("client_id", c.ClientID)
+	query.Set("redirect_uri", redirectURI)
+	query.Set("response_type", "code")
+
+	if opts.Domain == "" && opts.Provider == "" && opts.Connection == "" && opts.Organization == "" {
+		return nil, errors.New("incomplete arguments: missing connection, organization, domain, or provider")
+	}
+	if opts.Provider != "" {
+		query.Set("provider", string(opts.Provider))
+	}
+	if opts.Domain != "" {
+		query.Set("domain", opts.Domain)
+		fmt.Println("The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.")
+	}
+	if opts.DomainHint != "" {
+		query.Set("domain_hint", opts.DomainHint)
+	}
+	if opts.LoginHint != "" {
+		query.Set("login_hint", opts.LoginHint)
+	}
+	if opts.Connection != "" {
+		query.Set("connection", opts.Connection)
+	}
+
+	if opts.Organization != "" {
+		query.Set("organization", opts.Organization)
+	}
+
+	if opts.State != "" {
+		query.Set("state", opts.State)
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/sso/authorize")
+	if err != nil {
+		return nil, err
+	}
+
+	u.RawQuery = query.Encode()
+	return u, nil
+}
+
+// GetProfileAndToken returns a profile describing the user that authenticated with
+// WorkOS SSO.
+func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOpts) (ProfileAndToken, error) {
+	c.once.Do(c.init)
+
+	form := make(url.Values, 5)
+	form.Set("client_id", c.ClientID)
+	form.Set("client_secret", c.APIKey)
+	form.Set("grant_type", "authorization_code")
+	form.Set("code", opts.Code)
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/sso/token",
+		strings.NewReader(form.Encode()),
+	)
+	if err != nil {
+		return ProfileAndToken{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ProfileAndToken{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ProfileAndToken{}, err
+	}
+
+	var body ProfileAndToken
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Generic function for making HTTP requests and decoding JSON responses
+func Request[T any](c *Client, ctx context.Context, method, endpoint string) (*T, error) {
+    c.once.Do(c.init)
+
+    req, err := http.NewRequest(method, endpoint, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    req = req.WithContext(ctx)
+    req.Header.Set("Authorization", "Bearer "+c.APIKey)
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+    res, err := c.HTTPClient.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer res.Body.Close()
+
+    if err = workos_errors.TryGetHTTPError(res); err != nil {
+        return nil, err
+    }
+
+    var result T
+    dec := json.NewDecoder(res.Body)
+    if err := dec.Decode(&result); err != nil {
+        return nil, err
+    }
+
+    return &result, nil
+}
+
+
+// GetProfile returns a profile describing the user that authenticated with
+// WorkOS SSO.
+func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, error) {
+    profile, err := Request[Profile](c, ctx, http.MethodGet, c.Endpoint+"/sso/profile")
+    if err != nil {
+        return Profile{}, err
+    }
+    return *profile, nil
+}
+
+// GetConnection gets a Connection.
+func (c *Client) GetConnection(ctx context.Context, opts GetConnectionOpts) (Connection, error) {
+    connection, err := Request[Connection](c, ctx, http.MethodGet, c.Endpoint+"/connections")
+    if err != nil {
+        return Connection{}, err
+    }
+    return *connection, nil
+}
+
+// ListConnections gets details of existing Connections.
+func (c *Client) ListConnections(ctx context.Context, opts ListConnectionsOpts) (ListConnectionsResponse, error) {
+    connections, err := Request[ListConnectionsResponse](c, ctx, http.MethodGet, c.Endpoint+"/connections")
+    if err != nil {
+        return ListConnectionsResponse{}, err
+    }
+    return *connections, nil
 }
 
 // DeleteConnection deletes a Connection.
