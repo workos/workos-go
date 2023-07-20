@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/workos/workos-go/v2/internal/workos"
@@ -18,9 +17,6 @@ import (
 
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
-
-// Order represents the order of records.
-type Order common.Order
 
 // ConnectionType represents a connection type.
 type ConnectionType string
@@ -86,8 +82,6 @@ type Client struct {
 
 	// The function used to encode in JSON. Defaults to json.Marshal.
 	JSONEncode func(v interface{}) ([]byte, error)
-
-	once sync.Once
 }
 
 
@@ -268,7 +262,7 @@ type ListConnectionsOpts struct {
 	Limit int `url:"limit"`
 
 	// The order in which to paginate records.
-	Order Order `url:"order,omitempty"`
+	Order common.Order `url:"order,omitempty"`
 
 	// Pagination cursor to receive records before a provided Connection ID.
 	Before string `url:"before,omitempty"`
@@ -294,20 +288,18 @@ type DeleteConnectionOpts struct {
 	Connection string
 }
 
-func (c *Client) init() {
-	if c.Endpoint == "" {
-		c.Endpoint = "https://api.workos.com"
-	}
-	c.Endpoint = strings.TrimSuffix(c.Endpoint, "/")
 
-	if c.HTTPClient == nil {
-		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
-	}
-
-	if c.JSONEncode == nil {
-		c.JSONEncode = json.Marshal
+// NewClient creates a new instance of the Client.
+func NewClient(apiKey, clientID string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		ClientID:   clientID,
+		Endpoint:   "https://api.workos.com", // Set default endpoint if needed
+		HTTPClient: &http.Client{Timeout: time.Second * 15},
+		JSONEncode: json.Marshal, // Set default JSON encoding function if needed
 	}
 }
+
 
 // GetLoginHandler returns an http.Handler that redirects client to the appropriate
 // login provider.
@@ -324,11 +316,10 @@ func (c *Client) GetLoginHandler(opts GetAuthorizationURLOpts) http.Handler {
 	})
 }
 
+
 // GetAuthorizationURL returns an authorization url generated with the given
 // options.
 func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
-	c.once.Do(c.init)
-
 	redirectURI := opts.RedirectURI
 
 	query := make(url.Values, 5)
@@ -376,7 +367,6 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 // GetProfileAndToken returns a profile describing the user that authenticated with
 // WorkOS SSO.
 func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndTokenOpts) (ProfileAndToken, error) {
-	c.once.Do(c.init)
 
 	form := make(url.Values, 5)
 	form.Set("client_id", c.ClientID)
@@ -384,9 +374,10 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", opts.Code)
 
+	u, err := url.JoinPath(c.Endpoint, "/sso/token")
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/sso/token",
+		u,
 		strings.NewReader(form.Encode()),
 	)
 	if err != nil {
@@ -415,13 +406,13 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 }
 
 // Generic function for making HTTP requests and decoding JSON responses
-func Request[T any](c *Client, ctx context.Context, method, endpoint string) (*T, error) {
-    c.once.Do(c.init)
-
-    req, err := http.NewRequest(method, endpoint, nil)
-    if err != nil {
-        return nil, err
-    }
+func performRequest[T any](ctx context.Context, c *Client, method, path string) (*T, error) {
+	var response *T
+	u, err := url.JoinPath(c.Endpoint, path)
+	req, err := http.NewRequest(method, u, nil)
+	if err != nil {
+		return nil, err
+	}
 
     req = req.WithContext(ctx)
     req.Header.Set("Authorization", "Bearer "+c.APIKey)
@@ -430,12 +421,12 @@ func Request[T any](c *Client, ctx context.Context, method, endpoint string) (*T
 
     res, err := c.HTTPClient.Do(req)
     if err != nil {
-        return nil, err
+        return response, err
     }
     defer res.Body.Close()
 
     if err = workos_errors.TryGetHTTPError(res); err != nil {
-        return nil, err
+        return response, err
     }
 
     var result T
@@ -451,7 +442,7 @@ func Request[T any](c *Client, ctx context.Context, method, endpoint string) (*T
 // GetProfile returns a profile describing the user that authenticated with
 // WorkOS SSO.
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, error) {
-    profile, err := Request[Profile](c, ctx, http.MethodGet, c.Endpoint+"/sso/profile")
+    profile, err := performRequest[Profile](ctx, c, http.MethodGet, "/sso/profile")
     if err != nil {
         return Profile{}, err
     }
@@ -460,7 +451,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, 
 
 // GetConnection gets a Connection.
 func (c *Client) GetConnection(ctx context.Context, opts GetConnectionOpts) (Connection, error) {
-    connection, err := Request[Connection](c, ctx, http.MethodGet, c.Endpoint+"/connections")
+    connection, err := performRequest[Connection](ctx, c, http.MethodGet, "/connections")
     if err != nil {
         return Connection{}, err
     }
@@ -469,7 +460,7 @@ func (c *Client) GetConnection(ctx context.Context, opts GetConnectionOpts) (Con
 
 // ListConnections gets details of existing Connections.
 func (c *Client) ListConnections(ctx context.Context, opts ListConnectionsOpts) (ListConnectionsResponse, error) {
-    connections, err := Request[ListConnectionsResponse](c, ctx, http.MethodGet, c.Endpoint+"/connections")
+    connections, err := performRequest[ListConnectionsResponse](ctx, c, http.MethodGet, "/connections")
     if err != nil {
         return ListConnectionsResponse{}, err
     }
@@ -481,16 +472,10 @@ func (c *Client) DeleteConnection(
 	ctx context.Context,
 	opts DeleteConnectionOpts,
 ) error {
-	c.once.Do(c.init)
-
-	endpoint := fmt.Sprintf(
-		"%s/connections/%s",
-		c.Endpoint,
-		opts.Connection,
-	)
+	u, err := url.JoinPath(c.Endpoint, "/connections/", opts.Connection)
 	req, err := http.NewRequest(
 		http.MethodDelete,
-		endpoint,
+		u,
 		nil,
 	)
 	if err != nil {
