@@ -1,25 +1,26 @@
 // Package `audittrail` provides a client wrapping the WorkOS Audit Trail API.
 //
 // Example:
-//   func main() {
-//       audittrail.SetAPIKey("my_api_key")
 //
-//       // Wherever you need to publish an audit trail event:
-//       err := audittrail.Publish(context.Background(), audittrail.EventOpts{
-//           Action:     "document.viewed",
-//           ActionType: audittrail.Create,
-//           ActorName:  "Jairo Kunde",
-//           ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
-//           Group:      "abstract.com",
-//           Location:   "55.27.223.26",
-//           OccurredAt: time.Now(),
-//           TargetName: "central.class",
-//           TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
-//       })
-//       if err != nil {
-//           // Handle error.
-//       }
-//   }
+//	func main() {
+//	    audittrail.SetAPIKey("my_api_key")
+//
+//	    // Wherever you need to publish an audit trail event:
+//	    err := audittrail.Publish(context.Background(), audittrail.EventOpts{
+//	        Action:     "document.viewed",
+//	        ActionType: audittrail.Create,
+//	        ActorName:  "Jairo Kunde",
+//	        ActorID:    "user_01DGZ0FAXN978HCET66Q98QMTQ",
+//	        Group:      "abstract.com",
+//	        Location:   "55.27.223.26",
+//	        OccurredAt: time.Now(),
+//	        TargetName: "central.class",
+//	        TargetID:   "doc_01DGZ0FAXP4HA4X0BVFKS0ZH4Y",
+//	    })
+//	    if err != nil {
+//	        // Handle error.
+//	    }
+//	}
 package audittrail
 
 import (
