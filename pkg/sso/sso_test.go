@@ -47,7 +47,7 @@ func TestLogin(t *testing.T) {
 	wg.Add(1)
 
 	mux.Handle("/login", Login(GetAuthorizationURLOpts{
-		Domain:      "lyft.com",
+		Organization:      "org_123",
 		RedirectURI: redirectURI,
 	}))
 
