@@ -97,10 +97,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			client := Client{
-				APIKey:   "test",
-				ClientID: "client_123",
-			}
+			client := NewClient("test", "client_123")
 
 			u, err := client.GetAuthorizationURL(test.options)
 			require.NoError(t, err)

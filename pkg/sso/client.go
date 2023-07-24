@@ -295,7 +295,7 @@ func NewClient(apiKey, clientID string) *Client {
 		APIKey:     apiKey,
 		ClientID:   clientID,
 		Endpoint:   "https://api.workos.com", // Set default endpoint if needed
-		HTTPClient: &http.Client{Timeout: time.Second * 15},
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
 		JSONEncode: json.Marshal, // Set default JSON encoding function if needed
 	}
 }
@@ -406,12 +406,12 @@ func (c *Client) GetProfileAndToken(ctx context.Context, opts GetProfileAndToken
 }
 
 // Generic function for making HTTP requests and decoding JSON responses
-func performRequest[T any](ctx context.Context, c *Client, method, path string) (*T, error) {
-	var response *T
+func performRequest[T any](ctx context.Context, c *Client, method, path string) (T, error) {
+	var response T
 	u, err := url.JoinPath(c.Endpoint, path)
 	req, err := http.NewRequest(method, u, nil)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
     req = req.WithContext(ctx)
@@ -429,13 +429,12 @@ func performRequest[T any](ctx context.Context, c *Client, method, path string) 
         return response, err
     }
 
-    var result T
     dec := json.NewDecoder(res.Body)
-    if err := dec.Decode(&result); err != nil {
-        return nil, err
+    if err := dec.Decode(&response); err != nil {
+        return response, err
     }
 
-    return &result, nil
+    return response, nil
 }
 
 
@@ -446,7 +445,7 @@ func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, 
     if err != nil {
         return Profile{}, err
     }
-    return *profile, nil
+    return profile, nil
 }
 
 // GetConnection gets a Connection.
@@ -455,7 +454,7 @@ func (c *Client) GetConnection(ctx context.Context, opts GetConnectionOpts) (Con
     if err != nil {
         return Connection{}, err
     }
-    return *connection, nil
+    return connection, nil
 }
 
 // ListConnections gets details of existing Connections.
@@ -464,7 +463,7 @@ func (c *Client) ListConnections(ctx context.Context, opts ListConnectionsOpts) 
     if err != nil {
         return ListConnectionsResponse{}, err
     }
-    return *connections, nil
+    return connections, nil
 }
 
 // DeleteConnection deletes a Connection.
