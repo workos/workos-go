@@ -101,9 +101,10 @@ func (c *Client) checkSignature(bodyString string, rawTimestamp string, signatur
 
 	if signature == digest {
 		return nil
-	} else {
-		return ErrNoValidSignature
 	}
+
+	return ErrNoValidSignature
+
 }
 
 func (c *Client) ValidatePayload(workosHeader string, bodyString string) (string, error) {
