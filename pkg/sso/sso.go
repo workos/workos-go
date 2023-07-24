@@ -12,7 +12,8 @@ var (
 )
 
 func Configure(apiKey, clientID string) {
-	DefaultClient = NewClient(apiKey, clientID)
+	DefaultClient.APIKey = apiKey
+	DefaultClient.ClientID = clientID
 }
 
 // GetAuthorizationURL returns an authorization url generated with the given

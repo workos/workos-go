@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
 	"net/url"
@@ -84,14 +83,9 @@ type Client struct {
 	JSONEncode func(v interface{}) ([]byte, error)
 }
 
-
 // GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
 type GetAuthorizationURLOpts struct {
-	// Deprecated: Please use `Organization` parameter instead.
-	// The app/company domain without without protocol (eg. example.com).
-	Domain string
-
 	// Domain hint that will be passed as a parameter to the IdP login page.
 	// OPTIONAL.
 	DomainHint string
@@ -171,14 +165,12 @@ type ProfileAndToken struct {
 	Profile Profile `json:"profile"`
 }
 
-
 // GetProfile contains the options to pass in order to get a user profile.
 type GetProfileOpts struct {
 	// An opaque string provided by the authorization server. It will be
 	// exchanged for an Access Token when the user’s profile is sent.
 	AccessToken string
 }
-
 
 // ConnectionDomain represents the domain records associated with a Connection.
 type ConnectionDomain struct {
@@ -281,13 +273,11 @@ type ListConnectionsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
-
 // DeleteConnectionOpts contains the options to delete a Connection.
 type DeleteConnectionOpts struct {
 	// Connection unique identifier.
 	Connection string
 }
-
 
 // NewClient creates a new instance of the Client.
 func NewClient(apiKey, clientID string) *Client {
@@ -299,7 +289,6 @@ func NewClient(apiKey, clientID string) *Client {
 		JSONEncode: json.Marshal, // Set default JSON encoding function if needed
 	}
 }
-
 
 // GetLoginHandler returns an http.Handler that redirects client to the appropriate
 // login provider.
@@ -316,7 +305,6 @@ func (c *Client) GetLoginHandler(opts GetAuthorizationURLOpts) http.Handler {
 	})
 }
 
-
 // GetAuthorizationURL returns an authorization url generated with the given
 // options.
 func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
@@ -327,16 +315,13 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
 
-	if opts.Domain == "" && opts.Provider == "" && opts.Connection == "" && opts.Organization == "" {
+	if opts.Provider == "" && opts.Connection == "" && opts.Organization == "" {
 		return nil, errors.New("incomplete arguments: missing connection, organization, domain, or provider")
 	}
 	if opts.Provider != "" {
 		query.Set("provider", string(opts.Provider))
 	}
-	if opts.Domain != "" {
-		query.Set("domain", opts.Domain)
-		fmt.Println("The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.")
-	}
+
 	if opts.DomainHint != "" {
 		query.Set("domain_hint", opts.DomainHint)
 	}
@@ -414,56 +399,55 @@ func performRequest[T any](ctx context.Context, c *Client, method, path string) 
 		return response, err
 	}
 
-    req = req.WithContext(ctx)
-    req.Header.Set("Authorization", "Bearer "+c.APIKey)
-    req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
-    res, err := c.HTTPClient.Do(req)
-    if err != nil {
-        return response, err
-    }
-    defer res.Body.Close()
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return response, err
+	}
+	defer res.Body.Close()
 
-    if err = workos_errors.TryGetHTTPError(res); err != nil {
-        return response, err
-    }
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return response, err
+	}
 
-    dec := json.NewDecoder(res.Body)
-    if err := dec.Decode(&response); err != nil {
-        return response, err
-    }
+	dec := json.NewDecoder(res.Body)
+	if err := dec.Decode(&response); err != nil {
+		return response, err
+	}
 
-    return response, nil
+	return response, nil
 }
-
 
 // GetProfile returns a profile describing the user that authenticated with
 // WorkOS SSO.
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOpts) (Profile, error) {
-    profile, err := performRequest[Profile](ctx, c, http.MethodGet, "/sso/profile")
-    if err != nil {
-        return Profile{}, err
-    }
-    return profile, nil
+	profile, err := performRequest[Profile](ctx, c, http.MethodGet, "/sso/profile")
+	if err != nil {
+		return Profile{}, err
+	}
+	return profile, nil
 }
 
 // GetConnection gets a Connection.
 func (c *Client) GetConnection(ctx context.Context, opts GetConnectionOpts) (Connection, error) {
-    connection, err := performRequest[Connection](ctx, c, http.MethodGet, "/connections")
-    if err != nil {
-        return Connection{}, err
-    }
-    return connection, nil
+	connection, err := performRequest[Connection](ctx, c, http.MethodGet, "/connections")
+	if err != nil {
+		return Connection{}, err
+	}
+	return connection, nil
 }
 
 // ListConnections gets details of existing Connections.
 func (c *Client) ListConnections(ctx context.Context, opts ListConnectionsOpts) (ListConnectionsResponse, error) {
-    connections, err := performRequest[ListConnectionsResponse](ctx, c, http.MethodGet, "/connections")
-    if err != nil {
-        return ListConnectionsResponse{}, err
-    }
-    return connections, nil
+	connections, err := performRequest[ListConnectionsResponse](ctx, c, http.MethodGet, "/connections")
+	if err != nil {
+		return ListConnectionsResponse{}, err
+	}
+	return connections, nil
 }
 
 // DeleteConnection deletes a Connection.
