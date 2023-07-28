@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/common"
@@ -56,32 +55,6 @@ const (
 	VMwareSAML            ConnectionType = "VMwareSAML"
 )
 
-// Client represents a client that fetch SSO data from WorkOS API.
-type Client struct {
-	// The WorkOS api key. It can be found in
-	// https://dashboard.workos.com/api-keys.
-	//
-	// REQUIRED.
-	APIKey string
-
-	// The WorkOS Client ID (eg. client_01JG3BCPTRTSTTWQR4VSHXGWCQ).
-	//
-	// REQUIRED.
-	ClientID string
-
-	// The endpoint to WorkOS API.
-	//
-	// Defaults to https://api.workos.com.
-	Endpoint string
-
-	// The http.Client that is used to send request to WorkOS.
-	//
-	// Defaults to http.Client.
-	HTTPClient *http.Client
-
-	// The function used to encode in JSON. Defaults to json.Marshal.
-	JSONEncode func(v interface{}) ([]byte, error)
-}
 
 // GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
@@ -279,16 +252,6 @@ type DeleteConnectionOpts struct {
 	Connection string
 }
 
-// NewClient creates a new instance of the Client.
-func NewClient(apiKey, clientID string) *Client {
-	return &Client{
-		APIKey:     apiKey,
-		ClientID:   clientID,
-		Endpoint:   "https://api.workos.com", // Set default endpoint if needed
-		HTTPClient: &http.Client{Timeout: time.Second * 10},
-		JSONEncode: json.Marshal, // Set default JSON encoding function if needed
-	}
-}
 
 // GetLoginHandler returns an http.Handler that redirects client to the appropriate
 // login provider.
