@@ -162,7 +162,7 @@ type ListUsersResponse struct {
 	Data []User `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"list_metadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListUsers gets a list of provisioned Users for a Directory.
@@ -267,7 +267,7 @@ type ListGroupsResponse struct {
 	Data []Group `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"list_metadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListGroups gets a list of provisioned Groups for a Directory Endpoint.
@@ -501,7 +501,7 @@ type ListDirectoriesResponse struct {
 	Data []Directory `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"list_metadata"`
+	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
 // ListDirectories gets details of existing Directories.
