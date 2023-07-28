@@ -4,17 +4,25 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v2/pkg/common"
 )
 
+func mockClient(s *httptest.Server) *Client {
+	client := NewClient("test", "client_123")
+	client.HTTPClient = s.Client()
+	client.Endpoint = s.URL
+	return client
+}
+
 func TestLogin(t *testing.T) {
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)
 	defer server.Close()
+
+	DefaultClient = mockClient(server)
 
 	redirectURI := server.URL + "/callback"
 
@@ -36,9 +44,6 @@ func TestLogin(t *testing.T) {
 			"last_name":  "bar",
 		},
 	}
-
-	wg := sync.WaitGroup{}
-	wg.Add(1)
 
 	mux.Handle("/login", Login(GetAuthorizationURLOpts{
 		Organization:      "organization_123",
@@ -69,7 +74,6 @@ func TestLogin(t *testing.T) {
 		profile = p.Profile
 
 		w.WriteHeader(http.StatusOK)
-		wg.Done()
 	})
 
 	mux.HandleFunc("/sso/token", profileAndTokenTestHandler)
@@ -79,13 +83,17 @@ func TestLogin(t *testing.T) {
 	res.Body.Close()
 	require.Equal(t, http.StatusOK, res.StatusCode)
 
-	wg.Wait()
 	require.Equal(t, expectedProfile, profile)
 }
 
 func TestSsoGetConnection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getConnectionTestHandler))
 	defer server.Close()
+
+	
+	
+	DefaultClient = mockClient(server)
+
 
 	expectedResponse := Connection{
 		ID:             "conn_id",
@@ -106,7 +114,10 @@ func TestSsoListConnections(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listConnectionsTestHandler))
 	defer server.Close()
 
-	NewClient("test", "client_123")
+	
+	
+	DefaultClient = mockClient(server)
+
 
 	expectedResponse := ListConnectionsResponse{
 		Data: []Connection{
@@ -136,6 +147,7 @@ func TestSsoGetProfile(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(profileTestHandler))
 	defer server.Close()
 
+	DefaultClient = mockClient(server)
 	expectedResponse := Profile{
 		ID:             "profile_123",
 		IdpID:          "123",
