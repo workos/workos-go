@@ -16,12 +16,6 @@ func TestLogin(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	DefaultClient = &Client{
-		Endpoint:   server.URL,
-		HTTPClient: server.Client(),
-	}
-	Configure("test", "client_123")
-
 	redirectURI := server.URL + "/callback"
 
 	profile := Profile{}
@@ -47,7 +41,7 @@ func TestLogin(t *testing.T) {
 	wg.Add(1)
 
 	mux.Handle("/login", Login(GetAuthorizationURLOpts{
-		Domain:      "lyft.com",
+		Organization:      "organization_123",
 		RedirectURI: redirectURI,
 	}))
 
@@ -93,12 +87,6 @@ func TestSsoGetConnection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getConnectionTestHandler))
 	defer server.Close()
 
-	DefaultClient = &Client{
-		HTTPClient: server.Client(),
-		Endpoint:   server.URL,
-	}
-	Configure("test", "client_123")
-
 	expectedResponse := Connection{
 		ID:             "conn_id",
 		ConnectionType: "GoogleOAuth",
@@ -118,11 +106,7 @@ func TestSsoListConnections(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listConnectionsTestHandler))
 	defer server.Close()
 
-	DefaultClient = &Client{
-		HTTPClient: server.Client(),
-		Endpoint:   server.URL,
-	}
-	Configure("test", "client_123")
+	NewClient("test", "client_123")
 
 	expectedResponse := ListConnectionsResponse{
 		Data: []Connection{
@@ -151,11 +135,6 @@ func TestSsoListConnections(t *testing.T) {
 func TestSsoGetProfile(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(profileTestHandler))
 	defer server.Close()
-
-	DefaultClient = &Client{
-		HTTPClient: server.Client(),
-		Endpoint:   server.URL,
-	}
 
 	expectedResponse := Profile{
 		ID:             "profile_123",
