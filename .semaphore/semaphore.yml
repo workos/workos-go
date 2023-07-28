@@ -26,7 +26,7 @@ blocks:
         - name: go test
           matrix:
             - env_var: GO_VERSION
-              values: ["1.13", "1.18"]
+              values: ["1.19"]
           commands:
             - checkout
             - sem-version go $GO_VERSION
