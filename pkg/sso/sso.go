@@ -30,7 +30,7 @@ type Client struct {
 // DefaultClient is the client used by SetAPIKey and mfa functions.
 var (
 	DefaultClient = NewClient("", "")
-) //question about this vs var DefaultClient *Client
+)
 
 // NewClient returns a new instance of the Client struct with default values.
 func NewClient(apiKey, clientID string) *Client {
