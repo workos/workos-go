@@ -3,11 +3,10 @@ package sso
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"time"
-	"encoding/json"
-	
 )
 
 // Client represents a client that performs Admin Portal requests to the WorkOS API.
@@ -33,19 +32,16 @@ var (
 	DefaultClient = NewClient("", "")
 ) //question about this vs var DefaultClient *Client
 
-
-
 // NewClient returns a new instance of the Client struct with default values.
 func NewClient(apiKey, clientID string) *Client {
-    return &Client{
-        APIKey:     apiKey,
-        ClientID:   clientID,
-        Endpoint:   "https://api.workos.com",
-        HTTPClient: &http.Client{Timeout: time.Second * 10},
-        JSONEncode: json.Marshal,
-    }
+	return &Client{
+		APIKey:     apiKey,
+		ClientID:   clientID,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
+	}
 }
-
 
 // GetAuthorizationURL returns an authorization url generated with the given
 // options.

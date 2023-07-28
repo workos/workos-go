@@ -46,8 +46,8 @@ func TestLogin(t *testing.T) {
 	}
 
 	mux.Handle("/login", Login(GetAuthorizationURLOpts{
-		Organization:      "organization_123",
-		RedirectURI: redirectURI,
+		Organization: "organization_123",
+		RedirectURI:  redirectURI,
 	}))
 
 	mux.HandleFunc("/sso/authorize", func(w http.ResponseWriter, r *http.Request) {
@@ -90,10 +90,7 @@ func TestSsoGetConnection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getConnectionTestHandler))
 	defer server.Close()
 
-	
-	
 	DefaultClient = mockClient(server)
-
 
 	expectedResponse := Connection{
 		ID:             "conn_id",
@@ -114,10 +111,7 @@ func TestSsoListConnections(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listConnectionsTestHandler))
 	defer server.Close()
 
-	
-	
 	DefaultClient = mockClient(server)
-
 
 	expectedResponse := ListConnectionsResponse{
 		Data: []Connection{

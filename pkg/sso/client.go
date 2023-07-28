@@ -55,7 +55,6 @@ const (
 	VMwareSAML            ConnectionType = "VMwareSAML"
 )
 
-
 // GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
 type GetAuthorizationURLOpts struct {
@@ -251,7 +250,6 @@ type DeleteConnectionOpts struct {
 	// Connection unique identifier.
 	Connection string
 }
-
 
 // GetLoginHandler returns an http.Handler that redirects client to the appropriate
 // login provider.

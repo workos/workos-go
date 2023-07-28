@@ -126,7 +126,7 @@ func TestClientGetProfileAndToken(t *testing.T) {
 		{
 			scenario: "request returns a profile",
 			client: &Client{
-				APIKey: "test",
+				APIKey:   "test",
 				ClientID: "client_123",
 			},
 			options: GetProfileAndTokenOpts{
