@@ -22,19 +22,19 @@ func TestClientAuthorizeURL(t *testing.T) {
 		{
 			scenario: "generate url",
 			options: GetAuthorizationURLOpts{
-				Domain:      "lyft.com",
-				RedirectURI: "https://example.com/sso/workos/callback",
+				Organization: "organization_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
 			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
+			expected: "https://api.workos.com/sso/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
 		},
 		{
 			scenario: "generate url with state",
 			options: GetAuthorizationURLOpts{
-				Domain:      "lyft.com",
-				RedirectURI: "https://example.com/sso/workos/callback",
-				State:       "custom state",
+				Organization: "organization_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+				State:        "custom state",
 			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/sso/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with provider",
@@ -53,16 +53,6 @@ func TestClientAuthorizeURL(t *testing.T) {
 				State:       "custom state",
 			},
 			expected: "https://api.workos.com/sso/authorize?client_id=client_123&connection=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
-		},
-		{
-			scenario: "generate url with provider and domain",
-			options: GetAuthorizationURLOpts{
-				Domain:      "lyft.com",
-				Provider:    "GoogleOAuth",
-				RedirectURI: "https://example.com/sso/workos/callback",
-				State:       "custom state",
-			},
-			expected: "https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with organization",
@@ -97,11 +87,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			client := Client{
-				APIKey:   "test",
-				ClientID: "client_123",
-			}
-
+			client := NewClient("", "client_123")
 			u, err := client.GetAuthorizationURL(test.options)
 			require.NoError(t, err)
 			require.Equal(t, test.expected, u.String())
@@ -464,8 +450,8 @@ func TestListConnections(t *testing.T) {
 
 func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
+	if !strings.HasPrefix(auth, "Bearer ") {
+		http.Error(w, "client did not attach the correct Authorization header (expected: Bearer)", http.StatusUnauthorized)
 		return
 	}
 
