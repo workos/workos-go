@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/internal/workos"
+	"github.com/workos/workos-go/v2/pkg/common"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
 	"time"
@@ -22,15 +24,6 @@ const (
 	Desc Order = "desc"
 )
 
-func NewClient(apiKey string) *Client {
-	return &Client{
-		APIKey:     apiKey,
-		Endpoint:   "https://api.workos.com",
-		HTTPClient: &http.Client{Timeout: time.Second * 10},
-		JSONEncode: json.Marshal,
-	}
-}
-
 // UserType represents the type of the User
 type UserType string
 
@@ -40,6 +33,7 @@ const (
 	Managed   UserType = "managed"
 )
 
+// Organization contains data about a particular Organization.
 type Organization struct {
 	// The Organization's unique identifier.
 	ID string `json:"id"`
@@ -48,6 +42,7 @@ type Organization struct {
 	Name string `json:"name"`
 }
 
+// OrganizationMembership contains data about a particular OrganizationMembership.
 type OrganizationMembership struct {
 	// Contains the ID and name of the associated Organization.
 	Organization Organization `json:"organization"`
@@ -59,6 +54,7 @@ type OrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// User contains data about a particular User.
 type User struct {
 
 	// The User's unique identifier.
@@ -104,8 +100,48 @@ type GetUserOpts struct {
 	User string `json:"id"`
 }
 
+// ListUsersResponse contains the response from the ListUsers call.
+type ListUsersResponse struct {
+	// List of Users
+	Data []User `json:"data"`
+
+	// Cursor to paginate through the list of Users
+	ListMetadata common.ListMetadata `json:"listMetadata"`
+}
+
+type ListUsersOpts struct {
+	// Filter Users by their type.
+	Type UserType `json:"type,omitempty"`
+
+	// Filter Users by their email.
+	Email string `json:"email,omitempty"`
+
+	// Filter Users by the organization they are members of.
+	Organization string `json:"organization,omitempty"`
+
+	// Maximum number of records to return.
+	Limit int `url:"limit"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
+
+	// Pagination cursor to receive records before a provided User ID.
+	Before string `url:"before,omitempty"`
+
+	// Pagination cursor to receive records after a provided User ID.
+	After string `url:"after,omitempty"`
+}
+
+func NewClient(apiKey string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
+	}
+}
+
 // GetUser returns details of an existing user
-// WorkOS SSO.
 func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/%s",
@@ -137,6 +173,54 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 	}
 
 	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ListUsers get a list of all of your existing users matching the criteria specified.
+func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersResponse, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users",
+		c.Endpoint,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListUsersResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
+	queryValues, err := query.Values(opts)
+	if err != nil {
+		return ListUsersResponse{}, err
+	}
+
+	req.URL.RawQuery = queryValues.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListUsersResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListUsersResponse{}, err
+	}
+
+	var body ListUsersResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
