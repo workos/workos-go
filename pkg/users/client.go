@@ -135,11 +135,25 @@ type ListUsersOpts struct {
 }
 
 type CreateUserOpts struct {
-	Email         string `json:"email"`
-	Password      string `json:"password"`
-	FirstName     string `json:"first_name,omitempty"`
-	LastName      string `json:"last_name,omitempty"`
-	EmailVerified bool   `json:"email_verified,omitempty"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+
+	// EmailVerified states whether the user's email address was
+	// previously verified. You should normally use the Email Verification API
+	// to verify a user's email address
+	EmailVerified bool `json:"email_verified,omitempty"`
+}
+
+type AddUserToOrganizationOpts struct {
+	User         string `json:"id"`
+	Organization string `json:"organization_id"`
+}
+
+type RemoveUserFromOrganizationOpts struct {
+	User         string `json:"id"`
+	Organization string `json:"organization_id"`
 }
 
 type Session struct {
@@ -257,6 +271,49 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 	return body, err
 }
 
+// CreateUser create a new user with email password authentication.
+// Only unmanaged users can be created directly using the User Management API.
+func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
 	encodedForm, err := query.Values(opts)
 	if err != nil {
@@ -350,12 +407,12 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	return body, err
 }
 
-// CreateUser create a new user with email password authentication.
-// Only unmanaged users can be created directly using the User Management API.
-func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, error) {
+// AddUserToOrganization adds an unmanaged user to an Organization
+func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrganizationOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users",
+		"%s/users/%s/organizations",
 		c.Endpoint,
+		opts.User,
 	)
 
 	data, err := c.JSONEncode(opts)
@@ -367,6 +424,45 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 		http.MethodPost,
 		endpoint,
 		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// RemoveUserFromOrganization removes an unmanaged User from the given Organization.
+func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUserFromOrganizationOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/organizations/%s",
+		c.Endpoint,
+		opts.User,
+		opts.Organization,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
 	)
 	if err != nil {
 		return User{}, err
