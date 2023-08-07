@@ -25,15 +25,6 @@ const (
 	Desc Order = "desc"
 )
 
-func NewClient(apiKey string) *Client {
-	return &Client{
-		APIKey:     apiKey,
-		Endpoint:   "https://api.workos.com",
-		HTTPClient: &http.Client{Timeout: time.Second * 10},
-		JSONEncode: json.Marshal,
-	}
-}
-
 // UserType represents the type of the User
 type UserType string
 
@@ -160,6 +151,15 @@ type AuthenticateUserWithPasswordOpts struct {
 type AuthenticationResponse struct {
 	Session Session `json:"session"`
 	User    User    `json:"user"`
+}
+
+func NewClient(apiKey string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
+	}
 }
 
 // GetUser returns details of an existing user
