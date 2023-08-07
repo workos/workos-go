@@ -62,3 +62,10 @@ func CreateUser(
 ) (User, error) {
 	return DefaultClient.CreateUser(ctx, opts)
 }
+
+func AddUserToOrganization(
+	ctx context.Context,
+	opts AddUserToOrganizationOpts,
+) (User, error) {
+	return DefaultClient.AddUserToOrganization(ctx, opts)
+}
