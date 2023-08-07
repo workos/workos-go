@@ -202,7 +202,7 @@ func testAuthenticateUserWithPassword(t *testing.T) {
 					ID:        "testSessionID",
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
-					UpdatedAt: "2023-08-05T14:50:00.000Z",
+					ExpiresAt: "2023-08-05T14:50:00.000Z",
 				},
 				User: User{
 					ID:        "testUserID",
@@ -240,7 +240,7 @@ func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 				ID:        "testSessionID",
 				Token:     "testSessionToken",
 				CreatedAt: "2023-08-05T14:48:00.000Z",
-				UpdatedAt: "2023-08-05T14:50:00.000Z",
+				ExpiresAt: "2023-08-05T14:50:00.000Z",
 			},
 			User: User{
 				ID:        "testUserID",
