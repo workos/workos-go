@@ -44,3 +44,10 @@ func GetUser(
 ) (User, error) {
 	return DefaultClient.GetUser(ctx, opts)
 }
+
+func AuthenticateUserWithPassword(
+	ctx context.Context,
+	opts AuthenticateUserWithPasswordOpts,
+) (AuthenticationResponse, error) {
+	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
+}
