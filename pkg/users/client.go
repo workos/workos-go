@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-querystring/query"
 	"strings"
 	"net/http"
+	"time"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -22,6 +23,15 @@ const (
 	Asc  Order = "asc"
 	Desc Order = "desc"
 )
+
+func NewClient(apiKey string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
+	}
+}
 
 // UserType represents the type of the User
 type UserType string
