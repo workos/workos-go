@@ -33,7 +33,7 @@ type Client struct {
 	JSONEncode func(v interface{}) ([]byte, error)
 }
 
-// SetApiKEY configures the default client that is used by the User management methods
+// SetAPIKey configures the default client that is used by the User management methods
 // It must be called before using those functions.
 func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
@@ -53,4 +53,19 @@ func ListUsers(
 	opts ListUsersOpts,
 ) (ListUsersResponse, error) {
 	return DefaultClient.ListUsers(ctx, opts)
+}
+
+// CreateUser creates a User.
+func CreateUser(
+	ctx context.Context,
+	opts CreateUserOpts,
+) (User, error) {
+	return DefaultClient.CreateUser(ctx, opts)
+}
+
+func AddUserToOrganization(
+	ctx context.Context,
+	opts AddUserToOrganizationOpts,
+) (User, error) {
+	return DefaultClient.AddUserToOrganization(ctx, opts)
 }
