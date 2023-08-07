@@ -150,6 +150,11 @@ type AddUserToOrganizationOpts struct {
 	Organization string `json:"organization_id"`
 }
 
+type RemoveUserFromOrganizationOpts struct {
+	User         string `json:"id"`
+	Organization string `json:"organization_id"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -306,6 +311,45 @@ func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrgani
 		http.MethodPost,
 		endpoint,
 		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// RemoveUserFromOrganization removes an unmanaged User from the given Organization.
+func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUserFromOrganizationOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/organizations/%s",
+		c.Endpoint,
+		opts.User,
+		opts.Organization,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
 	)
 	if err != nil {
 		return User{}, err
