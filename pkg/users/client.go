@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -137,6 +139,65 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 	}
 
 	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+type Session struct {
+	ID        string `json:"id"`
+	Token     string `json:"token"`
+	CreatedAt string `json:"created_at"`
+	ExpiresAt string `json:"expires_at"`
+}
+
+type AuthenticateUserWithPasswordOpts struct {
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
+	StartSession bool   `json:"start_session,omitempty"`
+	ExpiresIn    int    `json:"expires_in,omitempty"`
+}
+type AuthenticationResponse struct {
+	Session Session `json:"session"`
+	User    User    `json:"user"`
+}
+
+func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
+	encodedForm, err := query.Values(opts)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/token",
+		strings.NewReader(encodedForm.Encode()),
+	)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body AuthenticationResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
