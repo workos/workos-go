@@ -1,17 +1,39 @@
 // Package users provides a client wrapping the WorkOS User Management API.
 package users
 
-import "context"
+import (
+	"context"
+	"net/http"
+)
 
 var (
-	// DefaultClient is the client used by GetAuthorizationURL, GetProfileAndToken and
-	// Login functions.
+	// DefaultClient is the client used by User management methods
 	DefaultClient = NewClient("")
 )
 
-// Configure configures the default client that is used by the User management methods
-// It must be called before using those functions.
-func Configure(apiKey string) {
+// Client represents a client that fetch SSO data from WorkOS API.
+type Client struct {
+	// The WorkOS api key. It can be found in
+	// https://dashboard.workos.com/api-keys.
+	//
+	// REQUIRED.
+	APIKey string
+
+	// The http.Client that is used to send request to WorkOS.
+	//
+	// Defaults to http.Client.
+	HTTPClient *http.Client
+
+	// The endpoint to WorkOS API.
+	//
+	// Defaults to https://api.workos.com.
+	Endpoint string
+
+	// The function used to encode in JSON. Defaults to json.Marshal.
+	JSONEncode func(v interface{}) ([]byte, error)
+}
+
+func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
