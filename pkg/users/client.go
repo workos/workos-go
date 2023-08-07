@@ -24,15 +24,6 @@ const (
 	Desc Order = "desc"
 )
 
-func NewClient(apiKey string) *Client {
-	return &Client{
-		APIKey:     apiKey,
-		Endpoint:   "https://api.workos.com",
-		HTTPClient: &http.Client{Timeout: time.Second * 10},
-		JSONEncode: json.Marshal,
-	}
-}
-
 // UserType represents the type of the User
 type UserType string
 
@@ -139,6 +130,15 @@ type ListUsersOpts struct {
 
 	// Pagination cursor to receive records after a provided User ID.
 	After string `url:"after,omitempty"`
+}
+
+func NewClient(apiKey string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
+	}
 }
 
 // GetUser returns details of an existing user
