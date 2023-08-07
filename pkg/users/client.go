@@ -9,8 +9,6 @@ import (
 	"github.com/google/go-querystring/query"
 	"strings"
 	"net/http"
-	"sync"
-	"time"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -24,39 +22,6 @@ const (
 	Asc  Order = "asc"
 	Desc Order = "desc"
 )
-
-// Client represents a client that fetch SSO data from WorkOS API.
-type Client struct {
-	// The WorkOS api key. It can be found in
-	// https://dashboard.workos.com/api-keys.
-	//
-	// REQUIRED.
-	APIKey string
-
-	// The endpoint to WorkOS API.
-	//
-	// Defaults to https://api.workos.com.
-	Endpoint string
-
-	// The http.Client that is used to send request to WorkOS.
-	//
-	// Defaults to http.Client.
-	HTTPClient *http.Client
-
-	// The function used to encode in JSON. Defaults to json.Marshal.
-	JSONEncode func(v interface{}) ([]byte, error)
-
-	once sync.Once
-}
-
-func NewClient(apiKey string) *Client {
-	return &Client{
-		APIKey:     apiKey,
-		Endpoint:   "https://api.workos.com",
-		HTTPClient: &http.Client{Timeout: time.Second * 10},
-		JSONEncode: json.Marshal,
-	}
-}
 
 // UserType represents the type of the User
 type UserType string
