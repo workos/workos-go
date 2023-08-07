@@ -176,3 +176,82 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func testAuthenticateUserWithPassword(t *testing.T){
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateUserWithPasswordOpts
+		expected AuthenticationResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns an AuthenticationResponse",
+			client:   NewClient("test"),
+			options: AuthenticateUserWithPasswordOpts{
+				Email: "employee@foo-corp.com",
+				Password: "test_123",
+			},
+			expected: AuthenticationResponse{
+				Session: Session{
+					ID:        "testSessionID",
+					Token:     "testSessionToken",
+					CreatedAt: "2023-08-05T14:48:00.000Z",
+					UpdatedAt: "2023-08-05T14:50:00.000Z",
+				},
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			authenticationresponse, err := client.AuthenticateUserWithPassword(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, authenticationresponse)
+		})
+	}
+}
+
+func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Authorization") == "Bearer test" {
+		response := AuthenticationResponse{
+			Session: Session{
+				ID:        "testSessionID",
+				Token:     "testSessionToken",
+				CreatedAt: "2023-08-05T14:48:00.000Z",
+				UpdatedAt: "2023-08-05T14:50:00.000Z",
+			},
+			User: User{
+				ID:        "testUserID",
+				FirstName: "John",
+				LastName:  "Doe",
+				Email:     "employee@foo-corp.com",
+			},
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	w.WriteHeader(http.StatusUnauthorized)
+}
