@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
-	"github.com/google/go-querystring/query"
-	"strings"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -146,23 +146,23 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 }
 
 type Session struct {
-	ID string `json:"id"`
-	Token string `json:"token"`
+	ID        string `json:"id"`
+	Token     string `json:"token"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"Updated_at"`
 }
 
 type AuthenticateUserWithPasswordOpts struct {
-	Email string `json:"email"`
-	Password string `json:"password"`
-	IPAddress string `json:"ip_address,omitempty"`
-	UserAgent string `json:"user_agent,omitempty"`
-	StartSession bool `json:"start_session,omitempty"`
-	ExpiresIn int `json:"expires_in,omitempty"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
+	StartSession bool   `json:"start_session,omitempty"`
+	ExpiresIn    int    `json:"expires_in,omitempty"`
 }
 type AuthenticationResponse struct {
 	Session Session `json:"session"`
-	User User `json:"user"`
+	User    User    `json:"user"`
 }
 
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {

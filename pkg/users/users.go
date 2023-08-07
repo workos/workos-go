@@ -36,6 +36,7 @@ type Client struct {
 func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
+
 // GetUser gets a User.
 func GetUser(
 	ctx context.Context,
@@ -47,6 +48,6 @@ func GetUser(
 func AuthenticateUserWithPassword(
 	ctx context.Context,
 	opts AuthenticateUserWithPasswordOpts,
-) (AuthenticationResponse, error){
+) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
 }

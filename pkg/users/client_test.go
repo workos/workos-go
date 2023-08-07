@@ -177,7 +177,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func testAuthenticateUserWithPassword(t *testing.T){
+func testAuthenticateUserWithPassword(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
@@ -194,7 +194,7 @@ func testAuthenticateUserWithPassword(t *testing.T){
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
 			options: AuthenticateUserWithPasswordOpts{
-				Email: "employee@foo-corp.com",
+				Email:    "employee@foo-corp.com",
 				Password: "test_123",
 			},
 			expected: AuthenticationResponse{
