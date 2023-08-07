@@ -19,14 +19,12 @@ func TestGetUser(t *testing.T) {
 	}{
 		{
 			scenario: "Request without API Key returns an error",
-			client:   &Client{},
+			client:   NewClient(""),
 			err:      true,
 		},
 		{
 			scenario: "Request returns a managed User",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: GetUserOpts{
 				User: "user_managed_id",
 			},
@@ -53,9 +51,7 @@ func TestGetUser(t *testing.T) {
 		},
 		{
 			scenario: "Request returns an unmanaged User",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: GetUserOpts{
 				User: "user_unmanaged_id",
 			},

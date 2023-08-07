@@ -6,7 +6,7 @@ import "context"
 var (
 	// DefaultClient is the client used by GetAuthorizationURL, GetProfileAndToken and
 	// Login functions.
-	DefaultClient = &Client{}
+	DefaultClient = NewClient("")
 )
 
 // Configure configures the default client that is used by the User management methods

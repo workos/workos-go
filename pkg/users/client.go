@@ -7,7 +7,6 @@ import (
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 )
@@ -32,11 +31,6 @@ type Client struct {
 	// REQUIRED.
 	APIKey string
 
-	// The WorkOS Client ID (eg. client_01JG3BCPTRTSTTWQR4VSHXGWCQ).
-	//
-	// REQUIRED.
-	ClientID string
-
 	// The endpoint to WorkOS API.
 	//
 	// Defaults to https://api.workos.com.
@@ -53,18 +47,12 @@ type Client struct {
 	once sync.Once
 }
 
-func (c *Client) init() {
-	if c.Endpoint == "" {
-		c.Endpoint = "https://api.workos.com"
-	}
-	c.Endpoint = strings.TrimSuffix(c.Endpoint, "/")
-
-	if c.HTTPClient == nil {
-		c.HTTPClient = &http.Client{Timeout: time.Second * 15}
-	}
-
-	if c.JSONEncode == nil {
-		c.JSONEncode = json.Marshal
+func NewClient(apiKey string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
 	}
 }
 
@@ -144,8 +132,6 @@ type GetUserOpts struct {
 // GetUser returns details of an existing user
 // WorkOS SSO.
 func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
-	c.once.Do(c.init)
-
 	endpoint := fmt.Sprintf(
 		"%s/users/%s",
 		c.Endpoint,
