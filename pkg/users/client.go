@@ -149,7 +149,7 @@ type Session struct {
 	ID        string `json:"id"`
 	Token     string `json:"token"`
 	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"Updated_at"`
+	ExpiresAt string `json:"expires_at"`
 }
 
 type AuthenticateUserWithPasswordOpts struct {
