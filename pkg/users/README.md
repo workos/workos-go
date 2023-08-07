@@ -7,9 +7,9 @@ A go package to request WorkOS SSO API.
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v2/pkg/sso
+go get -u github.com/workos/workos-go/v2/pkg/users
 ```
 
 ## How it works
 
-See the [SSO integration guide](https://workos.com/docs/sso/guide).
+See the [SSO integration guide](https://workos.com/docs/user-management/).
