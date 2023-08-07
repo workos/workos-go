@@ -51,3 +51,4 @@ func AuthenticateUserWithPassword(
 ) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
 }
+
