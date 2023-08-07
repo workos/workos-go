@@ -9,9 +9,9 @@ var (
 	DefaultClient = NewClient("")
 )
 
-// Configure configures the default client that is used by the User management methods
+// SetApiKEY configures the default client that is used by the User management methods
 // It must be called before using those functions.
-func Configure(apiKey string) {
+func SetApiKEY(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
@@ -21,4 +21,12 @@ func GetUser(
 	opts GetUserOpts,
 ) (User, error) {
 	return DefaultClient.GetUser(ctx, opts)
+}
+
+// ListUsers gets a list of Users.
+func ListUsers(
+	ctx context.Context,
+	opts ListUsersOpts,
+) (ListUsersResponse, error) {
+	return DefaultClient.ListUsers(ctx, opts)
 }
