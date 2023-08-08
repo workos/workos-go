@@ -403,16 +403,17 @@ type VerifySessionResponse struct {
 }
 
 func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
-	encodedForm, err := query.Values(opts)
-
+	data, err := json.Marshal(opts)
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/verify",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewReader(data),  
 	)
+
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
