@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"github.com/workos/workos-go/v2/pkg/common"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -53,66 +54,102 @@ func TestUsersGetUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersAuthenticateUserWithPassword(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+func TestUsersListUsers(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listUsersTestHandler))
+
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationResponse{
-		Session: Session{
-			ID:        "testSessionID",
-			Token:     "testSessionToken",
-			CreatedAt: "2023-08-05T14:48:00.000Z",
-			ExpiresAt: "2023-08-05T14:50:00.000Z",
+	expectedResponse := ListUsersResponse{
+		Data: []User{
+			{
+				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				UserType:        Unmanaged,
+				Email:           "marcelina@foo-corp.com",
+				FirstName:       "Marcelina",
+				LastName:        "Davis",
+				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				OrganizationMemberships: []OrganizationMembership{
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "Marcelina's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "David's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
 		},
-		User: User{
-			ID:        "testUserID",
-			FirstName: "John",
-			LastName:  "Doe",
-			Email:     "employee@foo-corp.com",
+		ListMetadata: common.ListMetadata{
+			After: "",
 		},
 	}
 
-	authenticationRes, err := AuthenticateUserWithPassword(context.Background(), AuthenticateUserWithPasswordOpts{
-		Email:    "employee@foo-corp.com",
-		Password: "test_123",
-	})
+	userRes, err := ListUsers(context.Background(), ListUsersOpts{})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, authenticationRes)
+	require.Equal(t, expectedResponse, userRes)
 }
 
-func testUsersAuthenticateUserWithToken(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+func TestUsersCreateUser(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createUserTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationResponse{
-		Session: Session{
-			ID:        "testSessionID",
-			Token:     "testSessionToken",
-			CreatedAt: "2023-08-05T14:48:00.000Z",
-			ExpiresAt: "2023-08-05T14:50:00.000Z",
+	expectedResponse := User{
+		ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		UserType:        Unmanaged,
+		Email:           "marcelina@foo-corp.com",
+		FirstName:       "Marcelina",
+		LastName:        "Davis",
+		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+		OrganizationMemberships: []OrganizationMembership{
+			{
+				Organization: Organization{
+					ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Name: "Marcelina's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+			{
+				Organization: Organization{
+					ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Name: "David's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
 		},
-		User: User{
-			ID:        "testUserID",
-			FirstName: "John",
-			LastName:  "Doe",
-			Email:     "employee@foo-corp.com",
-		},
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
 	}
 
-	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{
-		ClientID: "project_123",
-		Code:     "test_123",
+	userRes, err := CreateUser(context.Background(), CreateUserOpts{
+		Email:         "marcelina@gmail.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		Password:      "pass",
+		EmailVerified: false,
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, authenticationRes)
+	require.Equal(t, expectedResponse, userRes)
 }
