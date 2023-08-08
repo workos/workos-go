@@ -170,6 +170,10 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
+
+	encodedForm.Add("grant_type", "authorization_code")
+	encodedForm.Add("client_secret", c.APIKey)
+	
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
@@ -207,7 +211,6 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 type AuthenticateUserWithTokenOpts struct {
 	ClientID  string `json:"client_id"`
 	Code      string `json:"code"`
-	GrantType string `json:"grant_type"`
 	ExpiresIn int    `json:"expires_in,omitempty"`
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
@@ -218,6 +221,10 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
+	
+	encodedForm.Add("grant_type", "authorization_code")
+	encodedForm.Add("client_secret", c.APIKey)
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
