@@ -76,3 +76,24 @@ func AuthenticateUserWithToken(
 ) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
 }
+
+func VerifySession(
+	ctx context.Context,
+	opts VerifySessionOpts,
+) (VerifySessionResponse, error) {
+	return DefaultClient.VerifySession(ctx, opts)
+}
+
+func RevokeSession(
+	ctx context.Context,
+	opts RevokeSessionOpts,
+) (bool, error) {
+	return DefaultClient.RevokeSession(ctx, opts)
+}
+
+func RevokeAllSessionsForUser(
+	ctx context.Context,
+	userId string,
+) (bool, error) {
+	return DefaultClient.RevokeAllSessionsForUser(ctx, userId)
+}
