@@ -177,7 +177,6 @@ func TestUsersAuthenticateUserWithToken(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 	}
-	
 
 	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{})
 
@@ -208,7 +207,6 @@ func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 	}
-	
 
 	authenticationRes, err := AuthenticateUserWithPassword(context.Background(), AuthenticateUserWithPasswordOpts{})
 
@@ -239,9 +237,42 @@ func TestUsersVerifySession(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 	}
-	
 
 	sessionRes, err := VerifySession(context.Background(), VerifySessionOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, sessionRes)
+}
+
+func TestUsersRevokeSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := true
+
+	sessionRes, err := RevokeSession(context.Background(), RevokeSessionOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, sessionRes)
+}
+
+func TestUsersRevokeAllSessionsForUser(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := true
+
+	sessionRes, err := RevokeAllSessionsForUser(context.Background(), "123")
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, sessionRes)
