@@ -1044,6 +1044,248 @@ func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestCreatePasswordResetChallenge(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreatePasswordResetChallengeOpts
+		expected CreatePasswordResetChallengeResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: CreatePasswordResetChallengeOpts{
+				Email:            "marcelina@foo-corp.com",
+				PasswordResetUrl: "https://foo-corp.com/reset-password",
+			},
+			expected: CreatePasswordResetChallengeResponse{
+				User: User{
+					ID:              "user_unmanaged_id",
+					UserType:        Unmanaged,
+					Email:           "marcelina@foo-corp.com",
+					FirstName:       "Marcelina",
+					LastName:        "Davis",
+					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+					OrganizationMemberships: []OrganizationMembership{
+						{
+							Organization: Organization{
+								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+								Name: "Marcelina's Workspace",
+							},
+							CreatedAt: "2021-06-25T19:07:33.155Z",
+							UpdatedAt: "2021-06-25T19:07:33.155Z",
+						},
+						{
+							Organization: Organization{
+								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+								Name: "David's Workspace",
+							},
+							CreatedAt: "2021-06-25T19:07:33.155Z",
+							UpdatedAt: "2021-06-25T19:07:33.155Z",
+						},
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+				Token: "testToken",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.CreatePasswordResetChallenge(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/password_reset_challenge" {
+		body, err = json.Marshal(CreatePasswordResetChallengeResponse{
+			User: User{
+				ID:              "user_unmanaged_id",
+				UserType:        Unmanaged,
+				Email:           "marcelina@foo-corp.com",
+				FirstName:       "Marcelina",
+				LastName:        "Davis",
+				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				OrganizationMemberships: []OrganizationMembership{
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "Marcelina's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "David's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			}, Token: "testToken",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCompletePasswordReset(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CompletePasswordResetOpts
+		expected User
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: CompletePasswordResetOpts{
+				Token: "testToken",
+			},
+			expected: User{
+				ID:              "user_unmanaged_id",
+				UserType:        Unmanaged,
+				Email:           "marcelina@foo-corp.com",
+				FirstName:       "Marcelina",
+				LastName:        "Davis",
+				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				OrganizationMemberships: []OrganizationMembership{
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "Marcelina's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "David's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(completePasswordResetHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.CompletePasswordReset(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/password_reset" {
+		body, err = json.Marshal(User{
+			ID:              "user_unmanaged_id",
+			UserType:        Unmanaged,
+			Email:           "marcelina@foo-corp.com",
+			FirstName:       "Marcelina",
+			LastName:        "Davis",
+			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+			OrganizationMemberships: []OrganizationMembership{
+				{
+					Organization: Organization{
+						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Name: "Marcelina's Workspace",
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+				{
+					Organization: Organization{
+						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Name: "David's Workspace",
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestVerifySession(t *testing.T) {
 	tests := []struct {
 		scenario string
