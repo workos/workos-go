@@ -207,6 +207,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 type AuthenticateUserWithTokenOpts struct {
 	ClientID  string `json:"client_id"`
 	Code      string `json:"code"`
+	GrantType string `json:"grant_type"`
 	ExpiresIn int    `json:"expires_in,omitempty"`
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
