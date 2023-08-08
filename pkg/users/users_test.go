@@ -152,3 +152,41 @@ func TestUsersCreateUser(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, userRes)
 }
+
+func TestUsersAddUserToOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(addUserToOrganizationTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		UserType:        Unmanaged,
+		Email:           "marcelina@foo-corp.com",
+		FirstName:       "Marcelina",
+		LastName:        "Davis",
+		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+		OrganizationMemberships: []OrganizationMembership{
+			{
+				Organization: Organization{
+					ID:   "foo_corp_id",
+					Name: "Marcelina's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := AddUserToOrganization(context.Background(), AddUserToOrganizationOpts{
+		User:         "user_managed_id",
+		Organization: "foo_corp_id",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
