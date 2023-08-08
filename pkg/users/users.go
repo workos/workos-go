@@ -69,3 +69,10 @@ func AuthenticateUserWithPassword(
 ) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
 }
+
+func AuthenticateUserWithToken(
+	ctx context.Context,
+	opts AuthenticateUserWithTokenOpts,
+) (AuthenticationResponse, error) {
+	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
+}

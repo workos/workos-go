@@ -56,6 +56,7 @@ func TestUsersGetUser(t *testing.T) {
 
 func TestUsersListUsers(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listUsersTestHandler))
+
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
