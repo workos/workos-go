@@ -343,7 +343,6 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	// Add headers and context to the request
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Execute the request
