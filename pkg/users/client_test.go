@@ -482,7 +482,11 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		options  AuthenticateUserWithPasswordOpts
 		expected AuthenticationResponse
 		err      bool
-	}{
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
@@ -528,24 +532,32 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 
 func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 
-	response := AuthenticationResponse{
-		Session: Session{
-			ID:        "testSessionID",
-			Token:     "testSessionToken",
-			CreatedAt: "2023-08-05T14:48:00.000Z",
-			ExpiresAt: "2023-08-05T14:50:00.000Z",
-		},
-		User: User{
-			ID:        "testUserID",
-			FirstName: "John",
-			LastName:  "Doe",
-			Email:     "employee@foo-corp.com",
-		},
+	payload := make(map[string]interface{})
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
+		response := AuthenticationResponse{
+			Session: Session{
+				ID:        "testSessionID",
+				Token:     "testSessionToken",
+				CreatedAt: "2023-08-05T14:48:00.000Z",
+				ExpiresAt: "2023-08-05T14:50:00.000Z",
+			},
+			User: User{
+				ID:        "testUserID",
+				FirstName: "John",
+				LastName:  "Doe",
+				Email:     "employee@foo-corp.com",
+			},
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-	return
+	w.WriteHeader(http.StatusUnauthorized)
 
 }
 
@@ -556,7 +568,11 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 		options  AuthenticateUserWithTokenOpts
 		expected AuthenticationResponse
 		err      bool
-	}{
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
