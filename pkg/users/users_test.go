@@ -270,6 +270,49 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
+func TestUsersCompleteEmailVerification(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:              "user_unmanaged_id",
+		UserType:        Unmanaged,
+		Email:           "marcelina@foo-corp.com",
+		FirstName:       "Marcelina",
+		LastName:        "Davis",
+		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+		OrganizationMemberships: []OrganizationMembership{
+			{
+				Organization: Organization{
+					ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Name: "Marcelina's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+			{
+				Organization: Organization{
+					ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Name: "David's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	userRes, err := CompleteEmailVerification(context.Background(), CompleteEmailVerificationOpts{
+		Token: "testToken",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
 func TestUsersAuthenticateUserWithToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
 

@@ -100,6 +100,13 @@ func CreateEmailVerificationChallenge(
 	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
 }
 
+func CompleteEmailVerification(
+	ctx context.Context,
+	opts CompleteEmailVerificationOpts,
+) (User, error) {
+	return DefaultClient.CompleteEmailVerification(ctx, opts)
+}
+
 func VerifySession(
 	ctx context.Context,
 	opts VerifySessionOpts,
