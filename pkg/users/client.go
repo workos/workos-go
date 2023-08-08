@@ -10,7 +10,6 @@ import (
 	"github.com/workos/workos-go/v2/pkg/common"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -258,18 +257,25 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 }
 
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
-	encodedForm, err := query.Values(opts)
+	payload := struct {
+		AuthenticateUserWithPasswordOpts
+		ClientSecret string `json:"client_secret"`
+	}{
+		AuthenticateUserWithPasswordOpts: opts,
+		ClientSecret:                     c.APIKey,
+	}
+
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
 
-	encodedForm.Add("client_secret", c.APIKey)
-
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewBuffer(jsonData),
 	)
+
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -277,7 +283,6 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	// Add headers and context to the request
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Execute the request
@@ -308,19 +313,25 @@ type AuthenticateUserWithTokenOpts struct {
 }
 
 func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts AuthenticateUserWithTokenOpts) (AuthenticationResponse, error) {
-	encodedForm, err := query.Values(opts)
+	payload := struct {
+		AuthenticateUserWithTokenOpts
+		ClientSecret string `json:"client_secret"`
+	}{
+		AuthenticateUserWithTokenOpts: opts,
+		ClientSecret:                  c.APIKey,
+	}
+
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
 
-	encodedForm.Add("grant_type", "authorization_code")
-	encodedForm.Add("client_secret", c.APIKey)
-
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewBuffer(jsonData),
 	)
+
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -403,16 +414,17 @@ type VerifySessionResponse struct {
 }
 
 func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
-	encodedForm, err := query.Values(opts)
-
+	data, err := json.Marshal(opts)
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/verify",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewReader(data),
 	)
+
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
@@ -420,6 +432,7 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 	// Add headers and context to the request
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Execute the request
@@ -442,8 +455,8 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 }
 
 type RevokeSessionOpts struct {
-	SessionToken string `json:"session_token,omitempty"`
-	SessionID    string `json:"session_id,omitempty"`
+	SessionToken string `json:"session_token"`
+	SessionID    string `json:"session_id"`
 }
 
 func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) (bool, error) {
