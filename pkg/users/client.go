@@ -170,7 +170,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
-	
+
 	encodedForm.Add("client_secret", c.APIKey)
 
 	req, err := http.NewRequest(
@@ -220,7 +220,7 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
-	
+
 	encodedForm.Add("grant_type", "authorization_code")
 	encodedForm.Add("client_secret", c.APIKey)
 
