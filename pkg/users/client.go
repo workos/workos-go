@@ -171,9 +171,24 @@ type AuthenticateUserWithPasswordOpts struct {
 	StartSession bool   `json:"start_session,omitempty"`
 	ExpiresIn    int    `json:"expires_in,omitempty"`
 }
+
 type AuthenticationResponse struct {
 	Session Session `json:"session"`
 	User    User    `json:"user"`
+}
+
+type CreateEmailVerificationChallengeOpts struct {
+	// The unique ID of the User whose email address will be verified.
+	User string `json:"id"`
+
+	// The URL that will be linked to in the verification email.
+	VerificationUrl string `json:"verification_url"`
+}
+
+type CreateEmailVerificationChallengeResponse struct {
+	Token string `json:"token"`
+
+	User User `json:"user"`
 }
 
 func NewClient(apiKey string) *Client {
@@ -429,6 +444,49 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 
 	// Parse the JSON response
 	var body AuthenticationResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
+func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts CreateEmailVerificationChallengeOpts) (CreateEmailVerificationChallengeResponse, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/email_verification_challenge",
+		c.Endpoint,
+		opts.User,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return CreateEmailVerificationChallengeResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return CreateEmailVerificationChallengeResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return CreateEmailVerificationChallengeResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return CreateEmailVerificationChallengeResponse{}, err
+	}
+
+	var body CreateEmailVerificationChallengeResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

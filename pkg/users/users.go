@@ -85,3 +85,10 @@ func AuthenticateUserWithPassword(
 ) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
 }
+
+func CreateEmailVerificationChallenge(
+	ctx context.Context,
+	opts CreateEmailVerificationChallengeOpts,
+) (CreateEmailVerificationChallengeResponse, error) {
+	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
+}
