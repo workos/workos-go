@@ -262,6 +262,60 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
+
+	encodedForm.Add("client_secret", c.APIKey)
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/token",
+		strings.NewReader(encodedForm.Encode()),
+	)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body AuthenticationResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+type AuthenticateUserWithTokenOpts struct {
+	ClientID  string `json:"client_id"`
+	Code      string `json:"code"`
+	ExpiresIn int    `json:"expires_in,omitempty"`
+	IPAddress string `json:"ip_address,omitempty"`
+	UserAgent string `json:"user_agent,omitempty"`
+}
+
+func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts AuthenticateUserWithTokenOpts) (AuthenticationResponse, error) {
+	encodedForm, err := query.Values(opts)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	encodedForm.Add("grant_type", "authorization_code")
+	encodedForm.Add("client_secret", c.APIKey)
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
