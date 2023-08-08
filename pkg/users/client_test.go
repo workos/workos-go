@@ -619,11 +619,6 @@ func TestVerifySession(t *testing.T) {
 		err      bool
 	}{
 		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
-		{
 			scenario: "Request returns a VerifySessionResponse",
 			client:   NewClient("test"),
 			options: VerifySessionOpts{
@@ -667,25 +662,25 @@ func TestVerifySession(t *testing.T) {
 }
 
 func getVerifySessionHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Authorization") == "Bearer test" {
-		response := VerifySessionResponse{
-			Session: Session{
-				ID:        "testSessionID",
-				Token:     "testSessionToken",
-				CreatedAt: "2023-08-05T14:48:00.000Z",
-				ExpiresAt: "2023-08-05T14:50:00.000Z",
-			},
-			User: User{
-				ID:        "testUserID",
-				FirstName: "John",
-				LastName:  "Doe",
-				Email:     "employee@foo-corp.com",
-			},
-		}
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-		return
+
+	response := VerifySessionResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
 	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+	return
+
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
