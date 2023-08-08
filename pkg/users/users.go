@@ -93,6 +93,7 @@ func AuthenticateUserWithToken(
 	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
 }
 
+// CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
 func CreateEmailVerificationChallenge(
 	ctx context.Context,
 	opts CreateEmailVerificationChallengeOpts,
@@ -100,9 +101,26 @@ func CreateEmailVerificationChallenge(
 	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
 }
 
+// CompleteEmailVerification verifies user email using verification token that was sent to the user.
 func CompleteEmailVerification(
 	ctx context.Context,
 	opts CompleteEmailVerificationOpts,
 ) (User, error) {
 	return DefaultClient.CompleteEmailVerification(ctx, opts)
+}
+
+// CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an unmanaged user.
+func CreatePasswordResetChallenge(
+	ctx context.Context,
+	opts CreatePasswordResetChallengeOpts,
+) (CreatePasswordResetChallengeResponse, error) {
+	return DefaultClient.CreatePasswordResetChallenge(ctx, opts)
+}
+
+// CompletePasswordReset resets user password using token that was sent to the user.
+func CompletePasswordReset(
+	ctx context.Context,
+	opts CompletePasswordResetOpts,
+) (User, error) {
+	return DefaultClient.CompletePasswordReset(ctx, opts)
 }

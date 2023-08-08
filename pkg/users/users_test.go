@@ -312,3 +312,95 @@ func TestUsersCompleteEmailVerification(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, userRes)
 }
+
+func TestUsersCreatePasswordResetChallenge(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := CreatePasswordResetChallengeResponse{
+		User: User{
+			ID:              "user_unmanaged_id",
+			UserType:        Unmanaged,
+			Email:           "marcelina@foo-corp.com",
+			FirstName:       "Marcelina",
+			LastName:        "Davis",
+			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+			OrganizationMemberships: []OrganizationMembership{
+				{
+					Organization: Organization{
+						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Name: "Marcelina's Workspace",
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+				{
+					Organization: Organization{
+						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Name: "David's Workspace",
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		},
+		Token: "testToken",
+	}
+
+	userRes, err := CreatePasswordResetChallenge(context.Background(), CreatePasswordResetChallengeOpts{
+		Email:            "marcelina@foo-corp.com",
+		PasswordResetUrl: "https://example.com/reset",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUsersCompletePasswordReset(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(completePasswordResetHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:              "user_unmanaged_id",
+		UserType:        Unmanaged,
+		Email:           "marcelina@foo-corp.com",
+		FirstName:       "Marcelina",
+		LastName:        "Davis",
+		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+		OrganizationMemberships: []OrganizationMembership{
+			{
+				Organization: Organization{
+					ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Name: "Marcelina's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+			{
+				Organization: Organization{
+					ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Name: "David's Workspace",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	userRes, err := CompletePasswordReset(context.Background(), CompletePasswordResetOpts{
+		Token: "testToken",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
