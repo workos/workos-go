@@ -255,3 +255,59 @@ func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusUnauthorized)
 }
+
+func testAuthenticateUserWithToken(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateUserWithTokenOpts
+		expected AuthenticationResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns an AuthenticationResponse",
+			client:   NewClient("test"),
+			options: AuthenticateUserWithTokenOpts{
+				ClientID: "project_123",
+				Code:     "test_123",
+			},
+			expected: AuthenticationResponse{
+				Session: Session{
+					ID:        "testSessionID",
+					Token:     "testSessionToken",
+					CreatedAt: "2023-08-05T14:48:00.000Z",
+					ExpiresAt: "2023-08-05T14:50:00.000Z",
+				},
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			authenticationresponse, err := client.AuthenticateUserWithToken(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, authenticationresponse)
+		})
+	}
+}
