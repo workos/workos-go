@@ -10,7 +10,6 @@ import (
 	"github.com/workos/workos-go/v2/pkg/common"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -258,17 +257,25 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 }
 
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
-    jsonData, err := json.Marshal(opts)
-    if err != nil {
-        return AuthenticationResponse{}, err
-    }
+	payload := struct {
+		AuthenticateUserWithPasswordOpts
+		ClientSecret string `json:"client_secret"`
+	}{
+		AuthenticateUserWithPasswordOpts: opts,
+		ClientSecret:                     c.APIKey,
+	}
 
-    req, err := http.NewRequest(
-        http.MethodPost,
-        c.Endpoint+"/users/sessions/token",
-        bytes.NewBuffer(jsonData),  
-    )
-	
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/token",
+		bytes.NewBuffer(jsonData),
+	)
+
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -276,7 +283,6 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	// Add headers and context to the request
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Execute the request
@@ -307,19 +313,25 @@ type AuthenticateUserWithTokenOpts struct {
 }
 
 func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts AuthenticateUserWithTokenOpts) (AuthenticationResponse, error) {
-	encodedForm, err := query.Values(opts)
+	payload := struct {
+		AuthenticateUserWithTokenOpts
+		ClientSecret string `json:"client_secret"`
+	}{
+		AuthenticateUserWithTokenOpts: opts,
+		ClientSecret:                  c.APIKey,
+	}
+
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
 
-	encodedForm.Add("grant_type", "authorization_code")
-	encodedForm.Add("client_secret", c.APIKey)
-
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewBuffer(jsonData),
 	)
+
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -410,7 +422,7 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/verify",
-		bytes.NewReader(data),  
+		bytes.NewReader(data),
 	)
 
 	if err != nil {
