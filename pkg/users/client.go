@@ -258,18 +258,17 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 }
 
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
-	encodedForm, err := query.Values(opts)
-	if err != nil {
-		return AuthenticationResponse{}, err
-	}
+    jsonData, err := json.Marshal(opts)
+    if err != nil {
+        return AuthenticationResponse{}, err
+    }
 
-	encodedForm.Add("client_secret", c.APIKey)
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.Endpoint+"/users/sessions/token",
-		strings.NewReader(encodedForm.Encode()),
-	)
+    req, err := http.NewRequest(
+        http.MethodPost,
+        c.Endpoint+"/users/sessions/token",
+        bytes.NewBuffer(jsonData),  
+    )
+	
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -403,16 +402,17 @@ type VerifySessionResponse struct {
 }
 
 func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
-	encodedForm, err := query.Values(opts)
-
+	data, err := json.Marshal(opts)
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/verify",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewReader(data),  
 	)
+
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
@@ -420,6 +420,7 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 	// Add headers and context to the request
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Execute the request
@@ -442,8 +443,8 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 }
 
 type RevokeSessionOpts struct {
-	SessionToken string `json:"session_token,omitempty"`
-	SessionID    string `json:"session_id,omitempty"`
+	SessionToken string `json:"session_token"`
+	SessionID    string `json:"session_id"`
 }
 
 func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) (bool, error) {
