@@ -273,8 +273,8 @@ func testAuthenticateUserWithToken(t *testing.T) {
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
 			options: AuthenticateUserWithTokenOpts{
-				ClientID:    "project_123",
-				Code: "test_123",
+				ClientID: "project_123",
+				Code:     "test_123",
 			},
 			expected: AuthenticationResponse{
 				Session: Session{

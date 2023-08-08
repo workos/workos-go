@@ -53,7 +53,6 @@ func TestUsersGetUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-
 func testUsersAuthenticateUserWithPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
 	defer server.Close()
@@ -110,8 +109,8 @@ func testUsersAuthenticateUserWithToken(t *testing.T) {
 	}
 
 	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{
-		ClientID:    "project_123",
-		Code: "test_123",
+		ClientID: "project_123",
+		Code:     "test_123",
 	})
 
 	require.NoError(t, err)
