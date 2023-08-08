@@ -92,3 +92,10 @@ func AuthenticateUserWithToken(
 ) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
 }
+
+func CreateEmailVerificationChallenge(
+	ctx context.Context,
+	opts CreateEmailVerificationChallengeOpts,
+) (CreateEmailVerificationChallengeResponse, error) {
+	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
+}
