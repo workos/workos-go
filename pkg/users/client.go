@@ -270,7 +270,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 		c.Endpoint+"/users/sessions/token",
 		bytes.NewBuffer(data),
 	)
-	
+
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -412,7 +412,7 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/verify",
-		bytes.NewReader(data),  
+		bytes.NewReader(data),
 	)
 
 	if err != nil {
