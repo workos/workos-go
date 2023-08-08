@@ -392,3 +392,53 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 
 	return body, err
 }
+
+
+
+type VerifySessionOpts struct {
+	Token string `json:"token"`
+	ClientID string `json:"client_id"`
+}
+type VerifySessionResponse struct {
+	Session Session `json:"session"`
+	User    User    `json:"user"`
+}
+func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
+	encodedForm, err := query.Values(opts)
+	
+	if err != nil {
+		return VerifySessionResponse{}, err
+	}
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/verify",
+		strings.NewReader(encodedForm.Encode()),
+	)
+	if err != nil {
+		return VerifySessionResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return VerifySessionResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return VerifySessionResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body VerifySessionResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}

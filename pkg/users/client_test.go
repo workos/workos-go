@@ -609,3 +609,82 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 		})
 	}
 }
+
+func TestVerifySessions(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  VerifySessionOpts
+		expected VerifySessionResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns a VerifySessionResponse",
+			client:   NewClient("test"),
+			options: VerifySessionOpts{
+				Token: "123",
+				ClientID: "project_123",
+			},
+			expected: VerifySessionResponse{
+				Session: Session{
+					ID:        "testSessionID",
+					Token:     "testSessionToken",
+					CreatedAt: "2023-08-05T14:48:00.000Z",
+					ExpiresAt: "2023-08-05T14:50:00.000Z",
+				},
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getVerifySessionHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			sessionresponse, err := client.VerifySession(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, sessionresponse)
+		})
+	}
+}
+
+func getVerifySessionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Authorization") == "Bearer test" {
+		response := VerifySessionResponse{
+			Session: Session{
+				ID:        "testSessionID",
+				Token:     "testSessionToken",
+				CreatedAt: "2023-08-05T14:48:00.000Z",
+				ExpiresAt: "2023-08-05T14:50:00.000Z",
+			},
+			User: User{
+				ID:        "testUserID",
+				FirstName: "John",
+				LastName:  "Doe",
+				Email:     "employee@foo-corp.com",
+			},
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	w.WriteHeader(http.StatusUnauthorized)
+}

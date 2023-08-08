@@ -76,3 +76,10 @@ func AuthenticateUserWithToken(
 ) (AuthenticationResponse, error) {
 	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
 }
+
+func VerifySession(
+	ctx context.Context,
+	opts VerifySessionOpts,
+) (VerifySessionResponse, error) {
+	return DefaultClient.VerifySession(ctx, opts)
+}

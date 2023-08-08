@@ -153,3 +153,96 @@ func TestUsersCreateUser(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, userRes)
 }
+
+func TestUsersAuthenticateUserWithToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticationResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+	
+
+	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUsersAuthenticateUserWithPassword(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticationResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+	
+
+	authenticationRes, err := AuthenticateUserWithPassword(context.Background(), AuthenticateUserWithPasswordOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUsersVerifySession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getVerifySessionHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := VerifySessionResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+	
+
+	sessionRes, err := VerifySession(context.Background(), VerifySessionOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, sessionRes)
+}
