@@ -258,18 +258,19 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 }
 
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
-	encodedForm, err := query.Values(opts)
+	opts.ClientSecret = c.APIKey
+
+	data, err := json.Marshal(opts)
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
 
-	encodedForm.Add("client_secret", c.APIKey)
-
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
-		strings.NewReader(encodedForm.Encode()),
+		bytes.NewBuffer(data),
 	)
+	
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
