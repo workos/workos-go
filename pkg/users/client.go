@@ -1,6 +1,7 @@
 package users
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -131,6 +132,14 @@ type ListUsersOpts struct {
 
 	// Pagination cursor to receive records after a provided User ID.
 	After string `url:"after,omitempty"`
+}
+
+type CreateUserOpts struct {
+	Email         string `json:"email"`
+	Password      string `json:"password"`
+	FirstName     string `json:"first_name,omitempty"`
+	LastName      string `json:"last_name,omitempty"`
+	EmailVerified bool   `json:"email_verified,omitempty"`
 }
 
 type Session struct {
@@ -281,6 +290,49 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 
 	// Parse the JSON response
 	var body AuthenticationResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreateUser create a new user with email password authentication.
+// Only unmanaged users can be created directly using the User Management API.
+func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

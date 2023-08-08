@@ -351,6 +351,130 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestCreateUser(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreateUserOpts
+		expected User
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: CreateUserOpts{
+				Email:         "marcelina@gmail.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: false,
+				Password:      "pass",
+			},
+			expected: User{
+				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				UserType:        Unmanaged,
+				Email:           "marcelina@foo-corp.com",
+				FirstName:       "Marcelina",
+				LastName:        "Davis",
+				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				OrganizationMemberships: []OrganizationMembership{
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "Marcelina's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "David's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(createUserTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.CreateUser(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func createUserTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users" {
+		body, err = json.Marshal(User{
+			ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			UserType:        Unmanaged,
+			Email:           "marcelina@foo-corp.com",
+			FirstName:       "Marcelina",
+			LastName:        "Davis",
+			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+			OrganizationMemberships: []OrganizationMembership{
+				{
+					Organization: Organization{
+						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Name: "Marcelina's Workspace",
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+				{
+					Organization: Organization{
+						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Name: "David's Workspace",
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestAuthenticateUserWithPassword(t *testing.T) {
 	tests := []struct {
 		scenario string
