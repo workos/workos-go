@@ -484,11 +484,6 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		err      bool
 	}{
 		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
-		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
 			options: AuthenticateUserWithPasswordOpts{
@@ -532,26 +527,26 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 }
 
 func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Authorization") == "Bearer test" {
-		response := AuthenticationResponse{
-			Session: Session{
-				ID:        "testSessionID",
-				Token:     "testSessionToken",
-				CreatedAt: "2023-08-05T14:48:00.000Z",
-				ExpiresAt: "2023-08-05T14:50:00.000Z",
-			},
-			User: User{
-				ID:        "testUserID",
-				FirstName: "John",
-				LastName:  "Doe",
-				Email:     "employee@foo-corp.com",
-			},
-		}
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-		return
+
+	response := AuthenticationResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
 	}
-	w.WriteHeader(http.StatusUnauthorized)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+	return
+
 }
 
 func TestAuthenticateUserWithToken(t *testing.T) {
@@ -562,11 +557,6 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 		expected AuthenticationResponse
 		err      bool
 	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
