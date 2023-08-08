@@ -455,8 +455,8 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 }
 
 type RevokeSessionOpts struct {
-	SessionToken string `json:"session_token"`
-	SessionID    string `json:"session_id"`
+	SessionToken string `json:"session_token,omitempty"`
+	SessionID    string `json:"session_id,omitempty"`
 }
 
 func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) (bool, error) {
