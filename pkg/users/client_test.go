@@ -256,7 +256,7 @@ func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
-func testAuthenticateUserWithToken(t *testing.T) {
+func TestAuthenticateUserWithToken(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
