@@ -99,3 +99,10 @@ func CreateEmailVerificationChallenge(
 ) (CreateEmailVerificationChallengeResponse, error) {
 	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
 }
+
+func CompleteEmailVerification(
+	ctx context.Context,
+	opts CompleteEmailVerificationOpts,
+) (User, error) {
+	return DefaultClient.CompleteEmailVerification(ctx, opts)
+}
