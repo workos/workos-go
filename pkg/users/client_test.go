@@ -482,12 +482,11 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		options  AuthenticateUserWithPasswordOpts
 		expected AuthenticationResponse
 		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
@@ -532,7 +531,13 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 }
 
 func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Authorization") == "Bearer test" {
+
+	payload := make(map[string]interface{})
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
 		response := AuthenticationResponse{
 			Session: Session{
 				ID:        "testSessionID",
@@ -551,7 +556,9 @@ func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
+
 	w.WriteHeader(http.StatusUnauthorized)
+
 }
 
 func TestAuthenticateUserWithToken(t *testing.T) {
@@ -561,12 +568,11 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 		options  AuthenticateUserWithTokenOpts
 		expected AuthenticationResponse
 		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
