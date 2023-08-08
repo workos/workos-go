@@ -53,7 +53,7 @@ func TestUsersGetUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func testUsersAuthenticateUserWithPassword(t *testing.T) {
+func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
 	defer server.Close()
 
