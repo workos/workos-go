@@ -392,3 +392,131 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 
 	return body, err
 }
+
+type VerifySessionOpts struct {
+	Token    string `json:"token"`
+	ClientID string `json:"client_id"`
+}
+type VerifySessionResponse struct {
+	Session Session `json:"session"`
+	User    User    `json:"user"`
+}
+
+func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
+	encodedForm, err := query.Values(opts)
+
+	if err != nil {
+		return VerifySessionResponse{}, err
+	}
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/verify",
+		strings.NewReader(encodedForm.Encode()),
+	)
+	if err != nil {
+		return VerifySessionResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return VerifySessionResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return VerifySessionResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body VerifySessionResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+type RevokeSessionOpts struct {
+	SessionToken string `json:"session_token,omitempty"`
+	SessionID    string `json:"session_id,omitempty"`
+}
+
+func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) (bool, error) {
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return false, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/revocations",
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return false, err
+	}
+
+	var result bool
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return false, err
+	}
+
+	return result, err
+}
+
+func (c *Client) RevokeAllSessionsForUser(ctx context.Context, userId string) (bool, error) {
+	// Construct the URL
+	url := c.Endpoint + "/users/" + userId + "/sessions"
+
+	// Create a new DELETE request
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, url, nil)
+	if err != nil {
+		return false, err
+	}
+
+	// Add headers to the request
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return false, err
+	}
+
+	// Decode the response
+	var result bool
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return false, err
+	}
+
+	return result, nil
+}
