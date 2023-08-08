@@ -199,6 +199,11 @@ type CreateEmailVerificationChallengeResponse struct {
 	User User `json:"user"`
 }
 
+type CompleteEmailVerificationOpts struct {
+	// The verification token emailed to the user.
+	Token string `json:"token"`
+}
+
 type VerifySessionOpts struct {
 	Token    string `json:"token"`
 	ClientID string `json:"client_id"`
@@ -556,6 +561,48 @@ func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts Crea
 	}
 
 	var body CreateEmailVerificationChallengeResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CompleteEmailVerification verifies user email using verification token that was sent to the user.
+func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEmailVerificationOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/email_verification",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
