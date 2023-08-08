@@ -258,19 +258,18 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 }
 
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
-	opts.ClientSecret = c.APIKey
-
-	data, err := json.Marshal(opts)
+	encodedForm, err := query.Values(opts)
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
 
+	encodedForm.Add("client_secret", c.APIKey)
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/token",
-		bytes.NewBuffer(data),
+		strings.NewReader(encodedForm.Encode()),
 	)
-
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
@@ -404,17 +403,16 @@ type VerifySessionResponse struct {
 }
 
 func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
-	data, err := json.Marshal(opts)
+	encodedForm, err := query.Values(opts)
+
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
-
 	req, err := http.NewRequest(
 		http.MethodPost,
 		c.Endpoint+"/users/sessions/verify",
-		bytes.NewReader(data),
+		strings.NewReader(encodedForm.Encode()),
 	)
-
 	if err != nil {
 		return VerifySessionResponse{}, err
 	}
