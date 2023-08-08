@@ -316,9 +316,11 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	payload := struct {
 		AuthenticateUserWithTokenOpts
 		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
 	}{
 		AuthenticateUserWithTokenOpts: opts,
 		ClientSecret:                  c.APIKey,
+		GrantType:                     "authorization_code",
 	}
 
 	jsonData, err := json.Marshal(payload)
