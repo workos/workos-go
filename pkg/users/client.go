@@ -203,6 +203,28 @@ type CompleteEmailVerificationOpts struct {
 	Token string `json:"token"`
 }
 
+type CreatePasswordResetChallengeOpts struct {
+	// The unique ID of the User whose email address will be verified.
+	Email string `json:"email"`
+
+	// The URL that will be linked to in the verification email.
+	PasswordResetUrl string `json:"password_reset_url"`
+}
+
+type CreatePasswordResetChallengeResponse struct {
+	Token string `json:"token"`
+
+	User User `json:"user"`
+}
+
+type CompletePasswordResetOpts struct {
+	// The verification token emailed to the user.
+	Token string `json:"token"`
+
+	// The new password to be set for the user.
+	NewPassword string `json:"new_password"`
+}
+
 type VerifySessionOpts struct {
 	Token    string `json:"token"`
 	ClientID string `json:"client_id"`
@@ -585,6 +607,90 @@ func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts Crea
 func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEmailVerificationOpts) (User, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/email_verification",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an unmanaged user.
+func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePasswordResetChallengeOpts) (CreatePasswordResetChallengeResponse, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/password_reset_challenge",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return CreatePasswordResetChallengeResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return CreatePasswordResetChallengeResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return CreatePasswordResetChallengeResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return CreatePasswordResetChallengeResponse{}, err
+	}
+
+	var body CreatePasswordResetChallengeResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CompletePasswordReset resets user password using token that was sent to the user.
+func (c *Client) CompletePasswordReset(ctx context.Context, opts CompletePasswordResetOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/password_reset",
 		c.Endpoint,
 	)
 
