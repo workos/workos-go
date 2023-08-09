@@ -185,6 +185,17 @@ type AuthenticateUserWithTokenOpts struct {
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
+type MagicAuthChallengeID string
+
+type AuthenticateUserWithMagicAuthOpts struct {
+	ClientID             string               `json:"client_id"`
+	Code                 string               `json:"code"`
+	MagicAuthChallengeID MagicAuthChallengeID `json:"magic_auth_challenge_id"`
+	ExpiresIn            int                  `json:"expires_in,omitempty"`
+	IPAddress            string               `json:"ip_address,omitempty"`
+	UserAgent            string               `json:"user_agent,omitempty"`
+}
+
 type AuthenticationResponse struct {
 	Session Session `json:"session"`
 	User    User    `json:"user"`
@@ -196,12 +207,6 @@ type CreateEmailVerificationChallengeOpts struct {
 
 	// The URL that will be linked to in the verification email.
 	VerificationUrl string `json:"verification_url"`
-}
-
-type CreateEmailVerificationChallengeResponse struct {
-	Token string `json:"token"`
-
-	User User `json:"user"`
 }
 
 type CompleteEmailVerificationOpts struct {
@@ -217,18 +222,27 @@ type CreatePasswordResetChallengeOpts struct {
 	PasswordResetUrl string `json:"password_reset_url"`
 }
 
-type CreatePasswordResetChallengeResponse struct {
-	Token string `json:"token"`
-
-	User User `json:"user"`
-}
-
 type CompletePasswordResetOpts struct {
 	// The verification token emailed to the user.
 	Token string `json:"token"`
 
 	// The new password to be set for the user.
 	NewPassword string `json:"new_password"`
+}
+
+type ChallengeResponse struct {
+	Token string `json:"token"`
+
+	User User `json:"user"`
+}
+
+type SendMagicAuthCodeOpts struct {
+	// The email address the one-time code will be sent to.
+	Email string `json:"email_address"`
+}
+
+type MagicAuthChallenge struct {
+	MagicAuthChallengeID MagicAuthChallengeID `json:"id"`
 }
 
 type VerifySessionOpts struct {
@@ -246,6 +260,10 @@ type RevokeSessionOpts struct {
 	SessionID    string `json:"session_id,omitempty"`
 }
 
+type RevokeAllSessionsForUserOpts struct {
+	User string
+}
+
 type AddUserToOrganizationOpts struct {
 	User         string `json:"id"`
 	Organization string `json:"organization_id"`
@@ -255,6 +273,7 @@ type RemoveUserFromOrganizationOpts struct {
 	User         string `json:"id"`
 	Organization string `json:"organization_id"`
 }
+
 
 func NewClient(apiKey string) *Client {
 	return &Client{
@@ -526,6 +545,8 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	return body, err
 }
 
+// AuthenticateUserWithToken authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
+// optionally creates a session.
 func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts AuthenticateUserWithTokenOpts) (AuthenticationResponse, error) {
 	payload := struct {
 		AuthenticateUserWithTokenOpts
@@ -576,8 +597,60 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	return body, err
 }
 
+// AuthenticateUserWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
+// the Magic Auth Send Code endpoint.
+func (c *Client) AuthenticateUserWithMagicAuth(ctx context.Context, opts AuthenticateUserWithMagicAuthOpts) (AuthenticationResponse, error) {
+	payload := struct {
+		AuthenticateUserWithMagicAuthOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateUserWithMagicAuthOpts: opts,
+		ClientSecret:                      c.APIKey,
+		GrantType:                         "urn:workos:oauth:grant-type:magic-auth:code",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/sessions/token",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body AuthenticationResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
-func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts CreateEmailVerificationChallengeOpts) (CreateEmailVerificationChallengeResponse, error) {
+func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts CreateEmailVerificationChallengeOpts) (ChallengeResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/%s/email_verification_challenge",
 		c.Endpoint,
@@ -586,7 +659,7 @@ func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts Crea
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return CreateEmailVerificationChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -595,7 +668,7 @@ func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts Crea
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return CreateEmailVerificationChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -604,15 +677,15 @@ func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts Crea
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return CreateEmailVerificationChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return CreateEmailVerificationChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 
-	var body CreateEmailVerificationChallengeResponse
+	var body ChallengeResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -661,8 +734,9 @@ func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEma
 	return body, err
 }
 
-// CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an unmanaged user.
-func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePasswordResetChallengeOpts) (CreatePasswordResetChallengeResponse, error) {
+// CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an
+// unmanaged user.
+func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePasswordResetChallengeOpts) (ChallengeResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/password_reset_challenge",
 		c.Endpoint,
@@ -670,7 +744,7 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return CreatePasswordResetChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -679,7 +753,7 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return CreatePasswordResetChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -688,15 +762,15 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return CreatePasswordResetChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return CreatePasswordResetChallengeResponse{}, err
+		return ChallengeResponse{}, err
 	}
 
-	var body CreatePasswordResetChallengeResponse
+	var body ChallengeResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -745,6 +819,50 @@ func (c *Client) CompletePasswordReset(ctx context.Context, opts CompletePasswor
 	return body, err
 }
 
+// SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
+func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (MagicAuthChallengeID, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/magic_auth/send",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return "", err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return "", err
+	}
+
+	var body MagicAuthChallenge
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body.MagicAuthChallengeID, err
+}
+
+// VerifySession verifies the session token returned by the authentication request. If the token is authentic and has
+// not expired the response will contain the authenticated user and session objects.
 func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (VerifySessionResponse, error) {
 	data, err := json.Marshal(opts)
 	if err != nil {
@@ -786,6 +904,8 @@ func (c *Client) VerifySession(ctx context.Context, opts VerifySessionOpts) (Ver
 	return body, err
 }
 
+// RevokeSession revokes a single session, invalidating the token for further verification requests. Either the
+// session ID or token must be given to identify the session to revoke.
 func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) (bool, error) {
 	data, err := c.JSONEncode(opts)
 	if err != nil {
@@ -826,9 +946,10 @@ func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) (boo
 	return result, err
 }
 
-func (c *Client) RevokeAllSessionsForUser(ctx context.Context, userId string) (bool, error) {
+// RevokeAllSessionsForUser revokes all active sessions for the given user.
+func (c *Client) RevokeAllSessionsForUser(ctx context.Context, opts RevokeAllSessionsForUserOpts) (bool, error) {
 	// Construct the URL
-	url := c.Endpoint + "/users/" + userId + "/sessions"
+	url := c.Endpoint + "/users/" + opts.User + "/sessions"
 
 	// Create a new DELETE request
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, url, nil)
