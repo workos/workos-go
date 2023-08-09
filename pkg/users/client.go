@@ -108,13 +108,13 @@ type ListUsersResponse struct {
 
 type ListUsersOpts struct {
 	// Filter Users by their type.
-	Type UserType `json:"type,omitempty"`
+	Type UserType `url:"type,omitempty"`
 
 	// Filter Users by their email.
-	Email string `json:"email,omitempty"`
+	Email string `url:"email,omitempty"`
 
 	// Filter Users by the organization they are members of.
-	Organization string `json:"organization,omitempty"`
+	Organization string `url:"organization,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
