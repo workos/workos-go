@@ -160,7 +160,7 @@ const (
 
 type UnauthorizedOrganizationReason struct {
 	Type                         string                        `json:"type"`
-	AllowedAuthenticationMethods []SessionAuthenticationMethod `json:"allowedAuthenticationMethods"`
+	AllowedAuthenticationMethods []SessionAuthenticationMethod `json:"allowed_authentication_methods"`
 }
 
 type UnauthorizedOrganization struct {
