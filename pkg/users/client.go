@@ -153,7 +153,6 @@ const (
 	MagicAuth      SessionAuthenticationMethod = "MagicAuth"
 	MicrosoftOauth SessionAuthenticationMethod = "MicrosoftOauth"
 	Password       SessionAuthenticationMethod = "Password"
-	ADFSSAML       SessionAuthenticationMethod = "ADFSSAML"
 )
 
 type UnauthorizedOrganizationReason struct {
