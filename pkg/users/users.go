@@ -79,6 +79,7 @@ func RemoveUserFromOrganization(
 	return DefaultClient.RemoveUserFromOrganization(ctx, opts)
 }
 
+// AuthenticateUserWithPassword authenticates a user with email and password and optionally creates a session.
 func AuthenticateUserWithPassword(
 	ctx context.Context,
 	opts AuthenticateUserWithPasswordOpts,
@@ -86,6 +87,8 @@ func AuthenticateUserWithPassword(
 	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
 }
 
+// AuthenticateUserWithToken authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
+// optionally creates a session.
 func AuthenticateUserWithToken(
 	ctx context.Context,
 	opts AuthenticateUserWithTokenOpts,
@@ -93,11 +96,20 @@ func AuthenticateUserWithToken(
 	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
 }
 
+// AuthenticateUserWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
+// the Magic Auth Send Code endpoint.
+func AuthenticateUserWithMagicAuth(
+	ctx context.Context,
+	opts AuthenticateUserWithMagicAuthOpts,
+) (AuthenticationResponse, error) {
+	return DefaultClient.AuthenticateUserWithMagicAuth(ctx, opts)
+}
+
 // CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
 func CreateEmailVerificationChallenge(
 	ctx context.Context,
 	opts CreateEmailVerificationChallengeOpts,
-) (CreateEmailVerificationChallengeResponse, error) {
+) (ChallengeResponse, error) {
 	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
 }
 
@@ -113,7 +125,7 @@ func CompleteEmailVerification(
 func CreatePasswordResetChallenge(
 	ctx context.Context,
 	opts CreatePasswordResetChallengeOpts,
-) (CreatePasswordResetChallengeResponse, error) {
+) (ChallengeResponse, error) {
 	return DefaultClient.CreatePasswordResetChallenge(ctx, opts)
 }
 
@@ -125,6 +137,15 @@ func CompletePasswordReset(
 	return DefaultClient.CompletePasswordReset(ctx, opts)
 }
 
+// SendMagicAuthCode sends a one-time code to the user's email address.
+func SendMagicAuthCode(
+	ctx context.Context,
+	opts SendMagicAuthCodeOpts,
+) (MagicAuthChallengeID, error) {
+	return DefaultClient.SendMagicAuthCode(ctx, opts)
+}
+
+// VerifySession verifies the session token returned by the authentication request.
 func VerifySession(
 	ctx context.Context,
 	opts VerifySessionOpts,
@@ -132,6 +153,7 @@ func VerifySession(
 	return DefaultClient.VerifySession(ctx, opts)
 }
 
+// RevokeSession revokes a single session, invalidating the token for further verification requests.
 func RevokeSession(
 	ctx context.Context,
 	opts RevokeSessionOpts,
@@ -139,9 +161,10 @@ func RevokeSession(
 	return DefaultClient.RevokeSession(ctx, opts)
 }
 
+// RevokeAllSessionsForUser revokes all active sessions for the given user.
 func RevokeAllSessionsForUser(
 	ctx context.Context,
-	userId string,
+	opts RevokeAllSessionsForUserOpts,
 ) (bool, error) {
-	return DefaultClient.RevokeAllSessionsForUser(ctx, userId)
+	return DefaultClient.RevokeAllSessionsForUser(ctx, opts)
 }
