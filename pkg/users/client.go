@@ -170,10 +170,6 @@ type AuthenticateUserWithPasswordOpts struct {
 	StartSession bool   `json:"start_session,omitempty"`
 	ExpiresIn    int    `json:"expires_in,omitempty"`
 }
-type AuthenticationResponse struct {
-	Session Session `json:"session"`
-	User    User    `json:"user"`
-}
 
 type AuthenticateUserWithTokenOpts struct {
 	ClientID  string `json:"client_id"`
@@ -181,6 +177,25 @@ type AuthenticateUserWithTokenOpts struct {
 	ExpiresIn int    `json:"expires_in,omitempty"`
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
+}
+
+type AuthenticationResponse struct {
+	Session Session `json:"session"`
+	User    User    `json:"user"`
+}
+
+type CreateEmailVerificationChallengeOpts struct {
+	// The unique ID of the User whose email address will be verified.
+	User string `json:"id"`
+
+	// The URL that will be linked to in the verification email.
+	VerificationUrl string `json:"verification_url"`
+}
+
+type CreateEmailVerificationChallengeResponse struct {
+	Token string `json:"token"`
+
+	User User `json:"user"`
 }
 
 type VerifySessionOpts struct {
@@ -336,6 +351,88 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 	return body, err
 }
 
+// AddUserToOrganization adds an unmanaged user to an Organization
+func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrganizationOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/organizations",
+		c.Endpoint,
+		opts.User,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// RemoveUserFromOrganization removes an unmanaged User from the given Organization.
+func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUserFromOrganizationOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/organizations/%s",
+		c.Endpoint,
+		opts.User,
+		opts.Organization,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
 	payload := struct {
 		AuthenticateUserWithPasswordOpts
@@ -436,17 +533,17 @@ func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts Authenticat
 	return body, err
 }
 
-// AddUserToOrganization adds an unmanaged user to an Organization
-func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrganizationOpts) (User, error) {
+// CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
+func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts CreateEmailVerificationChallengeOpts) (CreateEmailVerificationChallengeResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s/organizations",
+		"%s/users/%s/email_verification_challenge",
 		c.Endpoint,
 		opts.User,
 	)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return User{}, err
+		return CreateEmailVerificationChallengeResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -455,7 +552,7 @@ func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrgani
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return User{}, err
+		return CreateEmailVerificationChallengeResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -464,54 +561,15 @@ func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrgani
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return User{}, err
+		return CreateEmailVerificationChallengeResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
+		return CreateEmailVerificationChallengeResponse{}, err
 	}
 
-	var body User
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
-}
-
-// RemoveUserFromOrganization removes an unmanaged User from the given Organization.
-func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUserFromOrganizationOpts) (User, error) {
-	endpoint := fmt.Sprintf(
-		"%s/users/%s/organizations/%s",
-		c.Endpoint,
-		opts.User,
-		opts.Organization,
-	)
-
-	req, err := http.NewRequest(
-		http.MethodDelete,
-		endpoint,
-		nil,
-	)
-	if err != nil {
-		return User{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return User{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
-	}
-
-	var body User
+	var body CreateEmailVerificationChallengeResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

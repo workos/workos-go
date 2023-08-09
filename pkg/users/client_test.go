@@ -808,6 +808,132 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 	}
 }
 
+func TestCreateEmailVerificationChallenge(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreateEmailVerificationChallengeOpts
+		expected CreateEmailVerificationChallengeResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: CreateEmailVerificationChallengeOpts{
+				User:            "user_unmanaged_id",
+				VerificationUrl: "https://your-app.com/verify-email",
+			},
+			expected: CreateEmailVerificationChallengeResponse{
+				User: User{
+					ID:              "user_unmanaged_id",
+					UserType:        Unmanaged,
+					Email:           "marcelina@foo-corp.com",
+					FirstName:       "Marcelina",
+					LastName:        "Davis",
+					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+					OrganizationMemberships: []OrganizationMembership{
+						{
+							Organization: Organization{
+								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+								Name: "Marcelina's Workspace",
+							},
+							CreatedAt: "2021-06-25T19:07:33.155Z",
+							UpdatedAt: "2021-06-25T19:07:33.155Z",
+						},
+						{
+							Organization: Organization{
+								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+								Name: "David's Workspace",
+							},
+							CreatedAt: "2021-06-25T19:07:33.155Z",
+							UpdatedAt: "2021-06-25T19:07:33.155Z",
+						},
+					},
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+				Token: "testToken",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.CreateEmailVerificationChallenge(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/user_unmanaged_id/email_verification_challenge" {
+		body, err = json.Marshal(CreateEmailVerificationChallengeResponse{
+			User: User{
+				ID:              "user_unmanaged_id",
+				UserType:        Unmanaged,
+				Email:           "marcelina@foo-corp.com",
+				FirstName:       "Marcelina",
+				LastName:        "Davis",
+				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				OrganizationMemberships: []OrganizationMembership{
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "Marcelina's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+					{
+						Organization: Organization{
+							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+							Name: "David's Workspace",
+						},
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			}, Token: "testToken",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestVerifySession(t *testing.T) {
 	tests := []struct {
 		scenario string
