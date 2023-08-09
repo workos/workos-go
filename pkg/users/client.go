@@ -274,7 +274,6 @@ type RemoveUserFromOrganizationOpts struct {
 	Organization string `json:"organization_id"`
 }
 
-
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
