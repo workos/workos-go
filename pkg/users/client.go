@@ -79,10 +79,6 @@ type User struct {
 	// The type of the User: `managed` or `unmanaged`
 	UserType UserType `json:"user_type"`
 
-	// List of the user's organization memberships. Unmanaged users can have zero or multiple memberships.
-	// Managed users have exactly one membership.
-	OrganizationMemberships []OrganizationMembership `json:"organization_memberships"`
-
 	// The ID of the SSO Profile. Only managed users have SSO Profiles.
 	SSOProfileID string `json:"sso_profile_id"`
 
@@ -134,32 +130,42 @@ type ListUsersOpts struct {
 }
 
 type CreateUserOpts struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-
-	// EmailVerified states whether the user's email address was
-	// previously verified. You should normally use the Email Verification API
-	// to verify a user's email address
-	EmailVerified bool `json:"email_verified,omitempty"`
+	Email         string `json:"email"`
+	Password      string `json:"password"`
+	FirstName     string `json:"first_name,omitempty"`
+	LastName      string `json:"last_name,omitempty"`
+	EmailVerified bool   `json:"email_verified,omitempty"`
 }
 
-type AddUserToOrganizationOpts struct {
-	User         string `json:"id"`
-	Organization string `json:"organization_id"`
+type AuthorizedOrganization struct {
+	Organization Organization `json:"organization"`
 }
-
-type RemoveUserFromOrganizationOpts struct {
-	User         string `json:"id"`
-	Organization string `json:"organization_id"`
-}
-
 type Session struct {
-	ID        string `json:"id"`
-	Token     string `json:"token"`
-	CreatedAt string `json:"created_at"`
-	ExpiresAt string `json:"expires_at"`
+	ID                        string                     `json:"id"`
+	Token                     string                     `json:"token"`
+	CreatedAt                 string                     `json:"created_at"`
+	ExpiresAt                 string                     `json:"expires_at"`
+	AuthorizedOrganizations   []AuthorizedOrganization   `json:"authorized_organizations"`
+	UnauthorizedOrganizations []UnauthorizedOrganization `json:"unauthorized_organizations"`
+}
+
+type SessionAuthenticationMethod string
+
+const (
+	GoogleOauth    SessionAuthenticationMethod = "GoogleOauth"
+	MagicAuth      SessionAuthenticationMethod = "MagicAuth"
+	MicrosoftOauth SessionAuthenticationMethod = "MicrosoftOauth"
+	Password       SessionAuthenticationMethod = "Password"
+)
+
+type UnauthorizedOrganizationReason struct {
+	Type                         string                        `json:"type"`
+	AllowedAuthenticationMethods []SessionAuthenticationMethod `json:"allowedAuthenticationMethods"`
+}
+
+type UnauthorizedOrganization struct {
+	Organization Organization                     `json:"organization"`
+	Reasons      []UnauthorizedOrganizationReason `json:"reasons"`
 }
 
 type AuthenticateUserWithPasswordOpts struct {
@@ -238,6 +244,16 @@ type VerifySessionResponse struct {
 type RevokeSessionOpts struct {
 	SessionToken string `json:"session_token,omitempty"`
 	SessionID    string `json:"session_id,omitempty"`
+}
+
+type AddUserToOrganizationOpts struct {
+	User         string `json:"id"`
+	Organization string `json:"organization_id"`
+}
+
+type RemoveUserFromOrganizationOpts struct {
+	User         string `json:"id"`
+	Organization string `json:"organization_id"`
 }
 
 func NewClient(apiKey string) *Client {
