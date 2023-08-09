@@ -38,18 +38,8 @@ func TestGetUser(t *testing.T) {
 				FirstName:    "Marcelina",
 				LastName:     "Davis",
 				SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Foo Corp",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt:    "2021-06-25T19:07:33.155Z",
+				UpdatedAt:    "2021-06-25T19:07:33.155Z",
 			},
 		},
 		{
@@ -65,26 +55,8 @@ func TestGetUser(t *testing.T) {
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "David's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt:       "2021-06-25T19:07:33.155Z",
+				UpdatedAt:       "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -127,18 +99,8 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			FirstName:    "Marcelina",
 			LastName:     "Davis",
 			SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-			OrganizationMemberships: []OrganizationMembership{
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "Foo Corp",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-			},
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt:    "2021-06-25T19:07:33.155Z",
+			UpdatedAt:    "2021-06-25T19:07:33.155Z",
 		})
 	} else if r.URL.Path == "/users/user_unmanaged_id" {
 		body, err = json.Marshal(User{
@@ -148,26 +110,8 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			FirstName:       "Marcelina",
 			LastName:        "Davis",
 			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			OrganizationMemberships: []OrganizationMembership{
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "Marcelina's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "David's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-			},
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt:       "2021-06-25T19:07:33.155Z",
+			UpdatedAt:       "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -199,26 +143,8 @@ func TestListUsers(t *testing.T) {
 					FirstName:       "Marcelina",
 					LastName:        "Davis",
 					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					OrganizationMemberships: []OrganizationMembership{
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "Marcelina's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "David's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt:       "2021-06-25T19:07:33.155Z",
+					UpdatedAt:       "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -257,26 +183,8 @@ func TestListUsers(t *testing.T) {
 					FirstName:       "Marcelina",
 					LastName:        "Davis",
 					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					OrganizationMemberships: []OrganizationMembership{
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "Marcelina's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "David's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt:       "2021-06-25T19:07:33.155Z",
+					UpdatedAt:       "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -315,26 +223,8 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					FirstName:       "Marcelina",
 					LastName:        "Davis",
 					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					OrganizationMemberships: []OrganizationMembership{
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "Marcelina's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "David's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt:       "2021-06-25T19:07:33.155Z",
+					UpdatedAt:       "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -381,26 +271,8 @@ func TestCreateUser(t *testing.T) {
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "David's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt:       "2021-06-25T19:07:33.155Z",
+				UpdatedAt:       "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -443,26 +315,8 @@ func createUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			FirstName:       "Marcelina",
 			LastName:        "Davis",
 			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			OrganizationMemberships: []OrganizationMembership{
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "Marcelina's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "David's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-			},
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt:       "2021-06-25T19:07:33.155Z",
+			UpdatedAt:       "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -502,18 +356,8 @@ func TestAddUserToOrganization(t *testing.T) {
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "foo_corp_id",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt:       "2021-06-25T19:07:33.155Z",
+				UpdatedAt:       "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -556,18 +400,8 @@ func addUserToOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 			FirstName:       "Marcelina",
 			LastName:        "Davis",
 			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			OrganizationMemberships: []OrganizationMembership{
-				{
-					Organization: Organization{
-						ID:   "foo_corp_id",
-						Name: "Marcelina's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-			},
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt:       "2021-06-25T19:07:33.155Z",
+			UpdatedAt:       "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -601,15 +435,14 @@ func TestRemoveUserFromOrganization(t *testing.T) {
 				Organization: "foo_corp_id",
 			},
 			expected: User{
-				ID:                      "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:                Unmanaged,
-				Email:                   "marcelina@foo-corp.com",
-				FirstName:               "Marcelina",
-				LastName:                "Davis",
-				EmailVerifiedAt:         "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{},
-				CreatedAt:               "2021-06-25T19:07:33.155Z",
-				UpdatedAt:               "2021-06-25T19:07:33.155Z",
+				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				UserType:        Unmanaged,
+				Email:           "marcelina@foo-corp.com",
+				FirstName:       "Marcelina",
+				LastName:        "Davis",
+				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				CreatedAt:       "2021-06-25T19:07:33.155Z",
+				UpdatedAt:       "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -646,15 +479,14 @@ func removeUserFromOrganizationTestHandler(w http.ResponseWriter, r *http.Reques
 
 	if r.URL.Path == "/users/user_managed_id/organizations/foo_corp_id" {
 		body, err = json.Marshal(User{
-			ID:                      "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:                Unmanaged,
-			Email:                   "marcelina@foo-corp.com",
-			FirstName:               "Marcelina",
-			LastName:                "Davis",
-			EmailVerifiedAt:         "2021-07-25T19:07:33.155Z",
-			OrganizationMemberships: []OrganizationMembership{},
-			CreatedAt:               "2021-06-25T19:07:33.155Z",
-			UpdatedAt:               "2021-06-25T19:07:33.155Z",
+			ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			UserType:        Unmanaged,
+			Email:           "marcelina@foo-corp.com",
+			FirstName:       "Marcelina",
+			LastName:        "Davis",
+			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+			CreatedAt:       "2021-06-25T19:07:33.155Z",
+			UpdatedAt:       "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -692,6 +524,29 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
 					ExpiresAt: "2023-08-05T14:50:00.000Z",
+					AuthorizedOrganizations: []Organization{
+						{
+							ID:   "123",
+							Name: "Example",
+						},
+					},
+					UnauthorizedOrganizations: []UnauthorizedOrganization{
+						{
+							Organization: Organization{
+								ID:   "123",
+								Name: "Example",
+							},
+							Reasons: []UnauthorizedOrganizationReason{
+								{
+									Type: "authentication_method_required",
+									AllowedAuthenticationMethods: []SessionAuthenticationMethod{
+										MagicAuth,
+										Password,
+									},
+								},
+							},
+						},
+					},
 				},
 				User: User{
 					ID:        "testUserID",
@@ -736,6 +591,29 @@ func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 				Token:     "testSessionToken",
 				CreatedAt: "2023-08-05T14:48:00.000Z",
 				ExpiresAt: "2023-08-05T14:50:00.000Z",
+				AuthorizedOrganizations: []Organization{
+					{
+						ID:   "123",
+						Name: "Example",
+					},
+				},
+				UnauthorizedOrganizations: []UnauthorizedOrganization{
+					{
+						Organization: Organization{
+							ID:   "123",
+							Name: "Example",
+						},
+						Reasons: []UnauthorizedOrganizationReason{
+							{
+								Type: "authentication_method_required",
+								AllowedAuthenticationMethods: []SessionAuthenticationMethod{
+									MagicAuth,
+									Password,
+								},
+							},
+						},
+					},
+				},
 			},
 			User: User{
 				ID:        "testUserID",
@@ -778,6 +656,29 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
 					ExpiresAt: "2023-08-05T14:50:00.000Z",
+					AuthorizedOrganizations: []Organization{
+						{
+							ID:   "123",
+							Name: "Example",
+						},
+					},
+					UnauthorizedOrganizations: []UnauthorizedOrganization{
+						{
+							Organization: Organization{
+								ID:   "123",
+								Name: "Example",
+							},
+							Reasons: []UnauthorizedOrganizationReason{
+								{
+									Type: "authentication_method_required",
+									AllowedAuthenticationMethods: []SessionAuthenticationMethod{
+										MagicAuth,
+										Password,
+									},
+								},
+							},
+						},
+					},
 				},
 				User: User{
 					ID:        "testUserID",
@@ -836,26 +737,8 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 					FirstName:       "Marcelina",
 					LastName:        "Davis",
 					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					OrganizationMemberships: []OrganizationMembership{
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "Marcelina's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "David's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt:       "2021-06-25T19:07:33.155Z",
+					UpdatedAt:       "2021-06-25T19:07:33.155Z",
 				},
 				Token: "testToken",
 			},
@@ -901,26 +784,8 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "David's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt:       "2021-06-25T19:07:33.155Z",
+				UpdatedAt:       "2021-06-25T19:07:33.155Z",
 			}, Token: "testToken",
 		})
 	}
@@ -960,24 +825,6 @@ func TestCompleteEmailVerification(t *testing.T) {
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "David's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
 			},
 		},
 	}
@@ -1020,24 +867,6 @@ func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
 			FirstName:       "Marcelina",
 			LastName:        "Davis",
 			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			OrganizationMemberships: []OrganizationMembership{
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "Marcelina's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "David's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-			},
 		})
 	}
 
@@ -1078,26 +907,8 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 					FirstName:       "Marcelina",
 					LastName:        "Davis",
 					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					OrganizationMemberships: []OrganizationMembership{
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "Marcelina's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-						{
-							Organization: Organization{
-								ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-								Name: "David's Workspace",
-							},
-							CreatedAt: "2021-06-25T19:07:33.155Z",
-							UpdatedAt: "2021-06-25T19:07:33.155Z",
-						},
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt:       "2021-06-25T19:07:33.155Z",
+					UpdatedAt:       "2021-06-25T19:07:33.155Z",
 				},
 				Token: "testToken",
 			},
@@ -1143,26 +954,8 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "David's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt:       "2021-06-25T19:07:33.155Z",
+				UpdatedAt:       "2021-06-25T19:07:33.155Z",
 			}, Token: "testToken",
 		})
 	}
@@ -1202,24 +995,6 @@ func TestCompletePasswordReset(t *testing.T) {
 				FirstName:       "Marcelina",
 				LastName:        "Davis",
 				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				OrganizationMemberships: []OrganizationMembership{
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "Marcelina's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-					{
-						Organization: Organization{
-							ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-							Name: "David's Workspace",
-						},
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
-					},
-				},
 			},
 		},
 	}
@@ -1262,24 +1037,6 @@ func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 			FirstName:       "Marcelina",
 			LastName:        "Davis",
 			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			OrganizationMemberships: []OrganizationMembership{
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "Marcelina's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-				{
-					Organization: Organization{
-						ID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Name: "David's Workspace",
-					},
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
-			},
 		})
 	}
 
@@ -1313,6 +1070,29 @@ func TestVerifySession(t *testing.T) {
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
 					ExpiresAt: "2023-08-05T14:50:00.000Z",
+					AuthorizedOrganizations: []Organization{
+						{
+							ID:   "123",
+							Name: "Example",
+						},
+					},
+					UnauthorizedOrganizations: []UnauthorizedOrganization{
+						{
+							Organization: Organization{
+								ID:   "123",
+								Name: "Example",
+							},
+							Reasons: []UnauthorizedOrganizationReason{
+								{
+									Type: "authentication_method_required",
+									AllowedAuthenticationMethods: []SessionAuthenticationMethod{
+										MagicAuth,
+										Password,
+									},
+								},
+							},
+						},
+					},
 				},
 				User: User{
 					ID:        "testUserID",
@@ -1351,6 +1131,29 @@ func getVerifySessionHandler(w http.ResponseWriter, r *http.Request) {
 			Token:     "testSessionToken",
 			CreatedAt: "2023-08-05T14:48:00.000Z",
 			ExpiresAt: "2023-08-05T14:50:00.000Z",
+			AuthorizedOrganizations: []Organization{
+				{
+					ID:   "123",
+					Name: "Example",
+				},
+			},
+			UnauthorizedOrganizations: []UnauthorizedOrganization{
+				{
+					Organization: Organization{
+						ID:   "123",
+						Name: "Example",
+					},
+					Reasons: []UnauthorizedOrganizationReason{
+						{
+							Type: "authentication_method_required",
+							AllowedAuthenticationMethods: []SessionAuthenticationMethod{
+								MagicAuth,
+								Password,
+							},
+						},
+					},
+				},
+			},
 		},
 		User: User{
 			ID:        "testUserID",
