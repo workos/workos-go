@@ -291,10 +291,12 @@ func TestUsersAuthenticateUserWithToken(t *testing.T) {
 			Token:     "testSessionToken",
 			CreatedAt: "2023-08-05T14:48:00.000Z",
 			ExpiresAt: "2023-08-05T14:50:00.000Z",
-			AuthorizedOrganizations: []Organization{
+			AuthorizedOrganizations: []AuthorizedOrganization{
 				{
-					ID:   "123",
-					Name: "Example",
+					Organization: Organization{
+						ID:   "123",
+						Name: "Example",
+					},
 				},
 			},
 			UnauthorizedOrganizations: []UnauthorizedOrganization{
@@ -344,10 +346,12 @@ func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 			Token:     "testSessionToken",
 			CreatedAt: "2023-08-05T14:48:00.000Z",
 			ExpiresAt: "2023-08-05T14:50:00.000Z",
-			AuthorizedOrganizations: []Organization{
+			AuthorizedOrganizations: []AuthorizedOrganization{
 				{
-					ID:   "123",
-					Name: "Example",
+					Organization: Organization{
+						ID:   "123",
+						Name: "Example",
+					},
 				},
 			},
 			UnauthorizedOrganizations: []UnauthorizedOrganization{
@@ -397,10 +401,12 @@ func TestUsersVerifySession(t *testing.T) {
 			Token:     "testSessionToken",
 			CreatedAt: "2023-08-05T14:48:00.000Z",
 			ExpiresAt: "2023-08-05T14:50:00.000Z",
-			AuthorizedOrganizations: []Organization{
+			AuthorizedOrganizations: []AuthorizedOrganization{
 				{
-					ID:   "123",
-					Name: "Example",
+					Organization: Organization{
+						ID:   "123",
+						Name: "Example",
+					},
 				},
 			},
 			UnauthorizedOrganizations: []UnauthorizedOrganization{

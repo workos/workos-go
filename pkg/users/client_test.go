@@ -524,10 +524,12 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
 					ExpiresAt: "2023-08-05T14:50:00.000Z",
-					AuthorizedOrganizations: []Organization{
+					AuthorizedOrganizations: []AuthorizedOrganization{
 						{
-							ID:   "123",
-							Name: "Example",
+							Organization: Organization{
+								ID:   "123",
+								Name: "Example",
+							},
 						},
 					},
 					UnauthorizedOrganizations: []UnauthorizedOrganization{
@@ -591,10 +593,12 @@ func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
 				Token:     "testSessionToken",
 				CreatedAt: "2023-08-05T14:48:00.000Z",
 				ExpiresAt: "2023-08-05T14:50:00.000Z",
-				AuthorizedOrganizations: []Organization{
+				AuthorizedOrganizations: []AuthorizedOrganization{
 					{
-						ID:   "123",
-						Name: "Example",
+						Organization: Organization{
+							ID:   "123",
+							Name: "Example",
+						},
 					},
 				},
 				UnauthorizedOrganizations: []UnauthorizedOrganization{
@@ -656,10 +660,12 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
 					ExpiresAt: "2023-08-05T14:50:00.000Z",
-					AuthorizedOrganizations: []Organization{
+					AuthorizedOrganizations: []AuthorizedOrganization{
 						{
-							ID:   "123",
-							Name: "Example",
+							Organization: Organization{
+								ID:   "123",
+								Name: "Example",
+							},
 						},
 					},
 					UnauthorizedOrganizations: []UnauthorizedOrganization{
@@ -1070,10 +1076,12 @@ func TestVerifySession(t *testing.T) {
 					Token:     "testSessionToken",
 					CreatedAt: "2023-08-05T14:48:00.000Z",
 					ExpiresAt: "2023-08-05T14:50:00.000Z",
-					AuthorizedOrganizations: []Organization{
+					AuthorizedOrganizations: []AuthorizedOrganization{
 						{
-							ID:   "123",
-							Name: "Example",
+							Organization: Organization{
+								ID:   "123",
+								Name: "Example",
+							},
 						},
 					},
 					UnauthorizedOrganizations: []UnauthorizedOrganization{
@@ -1131,10 +1139,12 @@ func getVerifySessionHandler(w http.ResponseWriter, r *http.Request) {
 			Token:     "testSessionToken",
 			CreatedAt: "2023-08-05T14:48:00.000Z",
 			ExpiresAt: "2023-08-05T14:50:00.000Z",
-			AuthorizedOrganizations: []Organization{
+			AuthorizedOrganizations: []AuthorizedOrganization{
 				{
-					ID:   "123",
-					Name: "Example",
+					Organization: Organization{
+						ID:   "123",
+						Name: "Example",
+					},
 				},
 			},
 			UnauthorizedOrganizations: []UnauthorizedOrganization{

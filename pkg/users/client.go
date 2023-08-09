@@ -137,12 +137,15 @@ type CreateUserOpts struct {
 	EmailVerified bool   `json:"email_verified,omitempty"`
 }
 
+type AuthorizedOrganization struct {
+	Organization Organization `json:"organization"`
+}
 type Session struct {
 	ID                        string                     `json:"id"`
 	Token                     string                     `json:"token"`
 	CreatedAt                 string                     `json:"created_at"`
 	ExpiresAt                 string                     `json:"expires_at"`
-	AuthorizedOrganizations   []Organization             `json:"authorized_organizations"`
+	AuthorizedOrganizations   []AuthorizedOrganization   `json:"authorized_organizations"`
 	UnauthorizedOrganizations []UnauthorizedOrganization `json:"unauthorized_organizations"`
 }
 
