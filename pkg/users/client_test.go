@@ -704,7 +704,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+			server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -720,37 +720,6 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 			require.Equal(t, test.expected, authenticationresponse)
 		})
 	}
-}
-
-func getAuthenticationResponseHandler(w http.ResponseWriter, r *http.Request) {
-
-	payload := make(map[string]interface{})
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
-		response := AuthenticationResponse{
-			Session: Session{
-				ID:        "testSessionID",
-				Token:     "testSessionToken",
-				CreatedAt: "2023-08-05T14:48:00.000Z",
-				ExpiresAt: "2023-08-05T14:50:00.000Z",
-			},
-			User: User{
-				ID:        "testUserID",
-				FirstName: "John",
-				LastName:  "Doe",
-				Email:     "employee@foo-corp.com",
-			},
-		}
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	w.WriteHeader(http.StatusUnauthorized)
-
 }
 
 func TestAuthenticateUserWithToken(t *testing.T) {
@@ -790,7 +759,7 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+			server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -808,12 +777,99 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 	}
 }
 
+func TestAuthenticateUserWithMagicAuth(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateUserWithMagicAuthOpts
+		expected AuthenticationResponse
+		err      bool
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
+		{
+			scenario: "Request returns an AuthenticationResponse",
+			client:   NewClient("test"),
+			options: AuthenticateUserWithMagicAuthOpts{
+				ClientID:             "project_123",
+				Code:                 "test_123",
+				MagicAuthChallengeID: "testMagicAuthChallengeID",
+			},
+			expected: AuthenticationResponse{
+				Session: Session{
+					ID:        "testSessionID",
+					Token:     "testSessionToken",
+					CreatedAt: "2023-08-05T14:48:00.000Z",
+					ExpiresAt: "2023-08-05T14:50:00.000Z",
+				},
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			authenticationresponse, err := client.AuthenticateUserWithMagicAuth(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, authenticationresponse)
+		})
+	}
+}
+
+func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
+
+	payload := make(map[string]interface{})
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
+		response := AuthenticationResponse{
+			Session: Session{
+				ID:        "testSessionID",
+				Token:     "testSessionToken",
+				CreatedAt: "2023-08-05T14:48:00.000Z",
+				ExpiresAt: "2023-08-05T14:50:00.000Z",
+			},
+			User: User{
+				ID:        "testUserID",
+				FirstName: "John",
+				LastName:  "Doe",
+				Email:     "employee@foo-corp.com",
+			},
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
+
+}
+
 func TestCreateEmailVerificationChallenge(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
 		options  CreateEmailVerificationChallengeOpts
-		expected CreateEmailVerificationChallengeResponse
+		expected ChallengeResponse
 		err      bool
 	}{
 		{
@@ -828,7 +884,7 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 				User:            "user_unmanaged_id",
 				VerificationUrl: "https://your-app.com/verify-email",
 			},
-			expected: CreateEmailVerificationChallengeResponse{
+			expected: ChallengeResponse{
 				User: User{
 					ID:              "user_unmanaged_id",
 					UserType:        Unmanaged,
@@ -864,7 +920,7 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeHandler))
+			server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -882,7 +938,7 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 	}
 }
 
-func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Request) {
+func createEmailVerificationChallengeTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -893,7 +949,7 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 	var err error
 
 	if r.URL.Path == "/users/user_unmanaged_id/email_verification_challenge" {
-		body, err = json.Marshal(CreateEmailVerificationChallengeResponse{
+		body, err = json.Marshal(ChallengeResponse{
 			User: User{
 				ID:              "user_unmanaged_id",
 				UserType:        Unmanaged,
@@ -984,7 +1040,7 @@ func TestCompleteEmailVerification(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationHandler))
+			server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -1002,7 +1058,7 @@ func TestCompleteEmailVerification(t *testing.T) {
 	}
 }
 
-func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
+func completeEmailVerificationTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1055,7 +1111,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 		scenario string
 		client   *Client
 		options  CreatePasswordResetChallengeOpts
-		expected CreatePasswordResetChallengeResponse
+		expected ChallengeResponse
 		err      bool
 	}{
 		{
@@ -1070,7 +1126,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 				Email:            "marcelina@foo-corp.com",
 				PasswordResetUrl: "https://foo-corp.com/reset-password",
 			},
-			expected: CreatePasswordResetChallengeResponse{
+			expected: ChallengeResponse{
 				User: User{
 					ID:              "user_unmanaged_id",
 					UserType:        Unmanaged,
@@ -1106,7 +1162,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeHandler))
+			server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -1124,7 +1180,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 	}
 }
 
-func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request) {
+func createPasswordResetChallengeTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1135,7 +1191,7 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 	var err error
 
 	if r.URL.Path == "/users/password_reset_challenge" {
-		body, err = json.Marshal(CreatePasswordResetChallengeResponse{
+		body, err = json.Marshal(ChallengeResponse{
 			User: User{
 				ID:              "user_unmanaged_id",
 				UserType:        Unmanaged,
@@ -1226,7 +1282,7 @@ func TestCompletePasswordReset(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(completePasswordResetHandler))
+			server := httptest.NewServer(http.HandlerFunc(completePasswordResetTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -1244,7 +1300,7 @@ func TestCompletePasswordReset(t *testing.T) {
 	}
 }
 
-func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
+func completePasswordResetTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1292,6 +1348,74 @@ func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestSendMagicAuthCode(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  SendMagicAuthCodeOpts
+		expected MagicAuthChallengeID
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: SendMagicAuthCodeOpts{
+				Email: "marcelina@foo-corp.com",
+			},
+			expected: "testMagicAuthChallengeID",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(sendMagicAuthCodeTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.SendMagicAuthCode(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/magic_auth/send" {
+		body, err = json.Marshal(MagicAuthChallenge{
+			MagicAuthChallengeID: "testMagicAuthChallengeID",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestVerifySession(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -1325,7 +1449,7 @@ func TestVerifySession(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getVerifySessionHandler))
+			server := httptest.NewServer(http.HandlerFunc(verifySessionTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -1343,7 +1467,7 @@ func TestVerifySession(t *testing.T) {
 	}
 }
 
-func getVerifySessionHandler(w http.ResponseWriter, r *http.Request) {
+func verifySessionTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := VerifySessionResponse{
 		Session: Session{
@@ -1391,7 +1515,7 @@ func TestRevokeSession(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+			server := httptest.NewServer(http.HandlerFunc(revokeSessionTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -1431,14 +1555,14 @@ func TestRevokeAllSessionsForUser(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+			server := httptest.NewServer(http.HandlerFunc(revokeSessionTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			response, err := client.RevokeAllSessionsForUser(context.Background(), test.userId)
+			response, err := client.RevokeAllSessionsForUser(context.Background(), RevokeAllSessionsForUserOpts{User: test.userId})
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1449,7 +1573,7 @@ func TestRevokeAllSessionsForUser(t *testing.T) {
 	}
 }
 
-func getRevokeSessionHandler(w http.ResponseWriter, r *http.Request) {
+func revokeSessionTestHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Authorization") == "Bearer test" {
 		response := true
 		w.WriteHeader(http.StatusOK)
