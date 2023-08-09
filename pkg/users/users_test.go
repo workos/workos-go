@@ -222,14 +222,14 @@ func TestUsersRemoveUserFromOrganization(t *testing.T) {
 }
 
 func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeHandler))
+	server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := CreateEmailVerificationChallengeResponse{
+	expectedResponse := ChallengeResponse{
 		User: User{
 			ID:              "user_unmanaged_id",
 			UserType:        Unmanaged,
@@ -271,7 +271,7 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 }
 
 func TestUsersCompleteEmailVerification(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationHandler))
+	server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
@@ -314,14 +314,14 @@ func TestUsersCompleteEmailVerification(t *testing.T) {
 }
 
 func TestUsersCreatePasswordResetChallenge(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeHandler))
+	server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := CreatePasswordResetChallengeResponse{
+	expectedResponse := ChallengeResponse{
 		User: User{
 			ID:              "user_unmanaged_id",
 			UserType:        Unmanaged,
@@ -363,7 +363,7 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 }
 
 func TestUsersCompletePasswordReset(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(completePasswordResetHandler))
+	server := httptest.NewServer(http.HandlerFunc(completePasswordResetTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
@@ -405,38 +405,8 @@ func TestUsersCompletePasswordReset(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersAuthenticateUserWithToken(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
-
-	defer server.Close()
-
-	DefaultClient = mockClient(server)
-
-	SetAPIKey("test")
-
-	expectedResponse := AuthenticationResponse{
-		Session: Session{
-			ID:        "testSessionID",
-			Token:     "testSessionToken",
-			CreatedAt: "2023-08-05T14:48:00.000Z",
-			ExpiresAt: "2023-08-05T14:50:00.000Z",
-		},
-		User: User{
-			ID:        "testUserID",
-			FirstName: "John",
-			LastName:  "Doe",
-			Email:     "employee@foo-corp.com",
-		},
-	}
-
-	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{})
-
-	require.NoError(t, err)
-	require.Equal(t, expectedResponse, authenticationRes)
-}
-
 func TestUsersAuthenticateUserWithPassword(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
 
@@ -465,8 +435,68 @@ func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
+func TestUsersAuthenticateUserWithToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticationResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+
+	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUsersAuthenticateUserWithMagicAuth(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticationResponse{
+		Session: Session{
+			ID:        "testSessionID",
+			Token:     "testSessionToken",
+			CreatedAt: "2023-08-05T14:48:00.000Z",
+			ExpiresAt: "2023-08-05T14:50:00.000Z",
+		},
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+
+	authenticationRes, err := AuthenticateUserWithMagicAuth(context.Background(), AuthenticateUserWithMagicAuthOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
 func TestUsersVerifySession(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getVerifySessionHandler))
+	server := httptest.NewServer(http.HandlerFunc(verifySessionTestHandler))
 
 	defer server.Close()
 
@@ -496,7 +526,7 @@ func TestUsersVerifySession(t *testing.T) {
 }
 
 func TestUsersRevokeSession(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+	server := httptest.NewServer(http.HandlerFunc(revokeSessionTestHandler))
 
 	defer server.Close()
 
@@ -513,7 +543,7 @@ func TestUsersRevokeSession(t *testing.T) {
 }
 
 func TestUsersRevokeAllSessionsForUser(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+	server := httptest.NewServer(http.HandlerFunc(revokeSessionTestHandler))
 
 	defer server.Close()
 
@@ -523,7 +553,9 @@ func TestUsersRevokeAllSessionsForUser(t *testing.T) {
 
 	expectedResponse := true
 
-	sessionRes, err := RevokeAllSessionsForUser(context.Background(), "123")
+	sessionRes, err := RevokeAllSessionsForUser(context.Background(), RevokeAllSessionsForUserOpts{
+		User: "123",
+	})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, sessionRes)
