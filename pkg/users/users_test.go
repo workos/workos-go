@@ -172,7 +172,7 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := CreateEmailVerificationChallengeResponse{
+	expectedResponse := ChallengeResponse{
 		User: User{
 			ID:              "user_unmanaged_id",
 			UserType:        Unmanaged,
@@ -228,7 +228,7 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := CreatePasswordResetChallengeResponse{
+	expectedResponse := ChallengeResponse{
 		User: User{
 			ID:              "user_unmanaged_id",
 			UserType:        Unmanaged,
@@ -277,7 +277,7 @@ func TestUsersCompletePasswordReset(t *testing.T) {
 }
 
 func TestUsersAuthenticateUserWithToken(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
 
@@ -332,7 +332,7 @@ func TestUsersAuthenticateUserWithToken(t *testing.T) {
 }
 
 func TestUsersAuthenticateUserWithPassword(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getAuthenticationResponseHandler))
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
 
@@ -387,7 +387,7 @@ func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 }
 
 func TestUsersVerifySession(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getVerifySessionHandler))
+	server := httptest.NewServer(http.HandlerFunc(verifySessionTestHandler))
 
 	defer server.Close()
 
@@ -442,7 +442,7 @@ func TestUsersVerifySession(t *testing.T) {
 }
 
 func TestUsersRevokeSession(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+	server := httptest.NewServer(http.HandlerFunc(revokeSessionTestHandler))
 
 	defer server.Close()
 
@@ -459,7 +459,7 @@ func TestUsersRevokeSession(t *testing.T) {
 }
 
 func TestUsersRevokeAllSessionsForUser(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getRevokeSessionHandler))
+	server := httptest.NewServer(http.HandlerFunc(revokeSessionTestHandler))
 
 	defer server.Close()
 
@@ -469,7 +469,9 @@ func TestUsersRevokeAllSessionsForUser(t *testing.T) {
 
 	expectedResponse := true
 
-	sessionRes, err := RevokeAllSessionsForUser(context.Background(), "123")
+	sessionRes, err := RevokeAllSessionsForUser(context.Background(), RevokeAllSessionsForUserOpts{
+		User: "123",
+	})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, sessionRes)
