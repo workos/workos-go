@@ -169,12 +169,12 @@ type UnauthorizedOrganization struct {
 }
 
 type AuthenticateUserWithPasswordOpts struct {
-	Email        string `json:"email"`
-	Password     string `json:"password"`
-	IPAddress    string `json:"ip_address,omitempty"`
-	UserAgent    string `json:"user_agent,omitempty"`
-	StartSession bool   `json:"start_session,omitempty"`
-	ExpiresIn    int    `json:"expires_in,omitempty"`
+	ClientID  string `json:"client_id"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	IPAddress string `json:"ip_address,omitempty"`
+	UserAgent string `json:"user_agent,omitempty"`
+	ExpiresIn int    `json:"expires_in,omitempty"`
 }
 
 type AuthenticateUserWithTokenOpts struct {
