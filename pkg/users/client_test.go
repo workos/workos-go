@@ -515,6 +515,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
 			options: AuthenticateUserWithPasswordOpts{
+				ClientID: "project_123",
 				Email:    "employee@foo-corp.com",
 				Password: "test_123",
 			},
