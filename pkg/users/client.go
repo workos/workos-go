@@ -169,6 +169,7 @@ type UnauthorizedOrganization struct {
 }
 
 type AuthenticateUserWithPasswordOpts struct {
+	ClientID     string `json:"client_id"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	IPAddress    string `json:"ip_address,omitempty"`
