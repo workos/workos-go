@@ -1,8 +1,8 @@
-# sso
+# users
 
-[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/v2/pkg/sso)
+[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/v2/pkg/users)
 
-A go package to request WorkOS SSO API.
+A go package to request WorkOS User Management API.
 
 ## Install
 
@@ -12,4 +12,4 @@ go get -u github.com/workos/workos-go/v2/pkg/users
 
 ## How it works
 
-See the [SSO integration guide](https://workos.com/docs/user-management/).
+See the [User Management integration guide](https://workos.com/docs/user-management/).
