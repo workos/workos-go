@@ -11,7 +11,7 @@ var (
 	DefaultClient = NewClient("")
 )
 
-// Client represents a client that fetch SSO data from WorkOS API.
+// Client represents a client that fetch User Management data from WorkOS API.
 type Client struct {
 	// The WorkOS api key. It can be found in
 	// https://dashboard.workos.com/api-keys.
