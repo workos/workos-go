@@ -131,7 +131,7 @@ type ListUsersOpts struct {
 
 type CreateUserOpts struct {
 	Email         string `json:"email"`
-	Password      string `json:"password"`
+	Password      string `json:"password,omitempty"`
 	FirstName     string `json:"first_name,omitempty"`
 	LastName      string `json:"last_name,omitempty"`
 	EmailVerified bool   `json:"email_verified,omitempty"`
