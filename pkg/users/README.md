@@ -12,4 +12,4 @@ go get -u github.com/workos/workos-go/v2/pkg/users
 
 ## How it works
 
-See the [User management integration guide](https://workos.com/docs/user-management/).
+See the [User Management integration guide](https://workos.com/docs/user-management/).
