@@ -498,7 +498,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	payload := struct {
 		AuthenticateUserWithPasswordOpts
 		ClientSecret string `json:"client_secret"`
-		GrantType    string `json:"grant_type`
+		GrantType    string `json:"grant_type"`
 	}{
 		AuthenticateUserWithPasswordOpts: opts,
 		ClientSecret:                     c.APIKey,
@@ -506,6 +506,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	}
 
 	jsonData, err := json.Marshal(payload)
+	fmt.Println(string(jsonData))
 	if err != nil {
 		return AuthenticationResponse{}, err
 	}
