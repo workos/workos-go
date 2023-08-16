@@ -276,7 +276,7 @@ func TestUsersCompletePasswordReset(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersAuthenticateUserWithToken(t *testing.T) {
+func TestUsersAuthenticateUserWithCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
@@ -325,7 +325,7 @@ func TestUsersAuthenticateUserWithToken(t *testing.T) {
 		},
 	}
 
-	authenticationRes, err := AuthenticateUserWithToken(context.Background(), AuthenticateUserWithTokenOpts{})
+	authenticationRes, err := AuthenticateUserWithCode(context.Background(), AuthenticateUserWithCodeOpts{})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)

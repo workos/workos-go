@@ -580,11 +580,11 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 	}
 }
 
-func TestAuthenticateUserWithToken(t *testing.T) {
+func TestAuthenticateUserWithCode(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  AuthenticateUserWithTokenOpts
+		options  AuthenticateUserWithCodeOpts
 		expected AuthenticationResponse
 		err      bool
 	}{{
@@ -595,7 +595,7 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
-			options: AuthenticateUserWithTokenOpts{
+			options: AuthenticateUserWithCodeOpts{
 				ClientID: "project_123",
 				Code:     "test_123",
 			},
@@ -649,7 +649,7 @@ func TestAuthenticateUserWithToken(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateUserWithToken(context.Background(), test.options)
+			authenticationresponse, err := client.AuthenticateUserWithCode(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
