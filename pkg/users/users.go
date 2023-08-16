@@ -87,13 +87,13 @@ func AuthenticateUserWithPassword(
 	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
 }
 
-// AuthenticateUserWithToken authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
+// AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
 // optionally creates a session.
-func AuthenticateUserWithToken(
+func AuthenticateUserWithCode(
 	ctx context.Context,
-	opts AuthenticateUserWithTokenOpts,
+	opts AuthenticateUserWithCodeOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithToken(ctx, opts)
+	return DefaultClient.AuthenticateUserWithCode(ctx, opts)
 }
 
 // AuthenticateUserWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by

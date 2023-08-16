@@ -177,7 +177,7 @@ type AuthenticateUserWithPasswordOpts struct {
 	ExpiresIn int    `json:"expires_in,omitempty"`
 }
 
-type AuthenticateUserWithTokenOpts struct {
+type AuthenticateUserWithCodeOpts struct {
 	ClientID  string `json:"client_id"`
 	Code      string `json:"code"`
 	ExpiresIn int    `json:"expires_in,omitempty"`
@@ -544,17 +544,17 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	return body, err
 }
 
-// AuthenticateUserWithToken authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
+// AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
 // optionally creates a session.
-func (c *Client) AuthenticateUserWithToken(ctx context.Context, opts AuthenticateUserWithTokenOpts) (AuthenticationResponse, error) {
+func (c *Client) AuthenticateUserWithCode(ctx context.Context, opts AuthenticateUserWithCodeOpts) (AuthenticationResponse, error) {
 	payload := struct {
-		AuthenticateUserWithTokenOpts
+		AuthenticateUserWithCodeOpts
 		ClientSecret string `json:"client_secret"`
 		GrantType    string `json:"grant_type"`
 	}{
-		AuthenticateUserWithTokenOpts: opts,
-		ClientSecret:                  c.APIKey,
-		GrantType:                     "authorization_code",
+		AuthenticateUserWithCodeOpts: opts,
+		ClientSecret:                 c.APIKey,
+		GrantType:                    "authorization_code",
 	}
 
 	jsonData, err := json.Marshal(payload)
