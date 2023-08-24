@@ -76,19 +76,8 @@ type User struct {
 	// The timestamp of when the User was updated.
 	UpdatedAt string `json:"updated_at"`
 
-	// The type of the User: `managed` or `unmanaged`
-	UserType UserType `json:"user_type"`
-
-	// The ID of the SSO Profile. Only managed users have SSO Profiles.
-	SSOProfileID string `json:"sso_profile_id"`
-
-	// The timestamp when the user's email was verified.
-	// Email verification is only applicable to unmanaged users.
-	EmailVerifiedAt string `json:"email_verified_at"`
-
-	// The ID of the Google OAuth Profile.
-	// Only unmanaged users who sign in with Google OAuth have Google OAuth Profiles.
-	GoogleOAuthProfileID string `json:"google_oauth_profile_id"`
+	// Whether the User email is verified.
+	EmailVerified bool `json:"email_verified"`
 }
 
 // GetUserOpts contains the options to pass in order to get a user profile.
