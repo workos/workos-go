@@ -676,9 +676,9 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
 			options: AuthenticateUserWithMagicAuthOpts{
-				ClientID:             "project_123",
-				Code:                 "test_123",
-				MagicAuthChallengeID: "testMagicAuthChallengeID",
+				ClientID: "project_123",
+				Code:     "test_123",
+				User:     "user_123",
 			},
 			expected: AuthenticationResponse{
 				Session: Session{
@@ -1142,7 +1142,7 @@ func TestSendMagicAuthCode(t *testing.T) {
 		scenario string
 		client   *Client
 		options  SendMagicAuthCodeOpts
-		expected MagicAuthChallengeID
+		expected User
 		err      bool
 	}{
 		{
@@ -1156,7 +1156,16 @@ func TestSendMagicAuthCode(t *testing.T) {
 			options: SendMagicAuthCodeOpts{
 				Email: "marcelina@foo-corp.com",
 			},
-			expected: "testMagicAuthChallengeID",
+			expected: User{
+				ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				UserType:     Managed,
+				Email:        "marcelina@foo-corp.com",
+				FirstName:    "Marcelina",
+				LastName:     "Davis",
+				SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
+				CreatedAt:    "2021-06-25T19:07:33.155Z",
+				UpdatedAt:    "2021-06-25T19:07:33.155Z",
+			},
 		},
 	}
 
@@ -1191,8 +1200,15 @@ func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/magic_auth/send" {
-		body, err = json.Marshal(MagicAuthChallenge{
-			MagicAuthChallengeID: "testMagicAuthChallengeID",
+		body, err = json.Marshal(User{
+			ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			UserType:     Managed,
+			Email:        "marcelina@foo-corp.com",
+			FirstName:    "Marcelina",
+			LastName:     "Davis",
+			SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
+			CreatedAt:    "2021-06-25T19:07:33.155Z",
+			UpdatedAt:    "2021-06-25T19:07:33.155Z",
 		})
 	}
 
