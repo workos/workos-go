@@ -26,37 +26,19 @@ func TestGetUser(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns a managed User",
+			scenario: "Request returns a User",
 			client:   NewClient("test"),
 			options: GetUserOpts{
-				User: "user_managed_id",
+				User: "user_123",
 			},
 			expected: User{
-				ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:     Managed,
-				Email:        "marcelina@foo-corp.com",
-				FirstName:    "Marcelina",
-				LastName:     "Davis",
-				SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-				CreatedAt:    "2021-06-25T19:07:33.155Z",
-				UpdatedAt:    "2021-06-25T19:07:33.155Z",
-			},
-		},
-		{
-			scenario: "Request returns an unmanaged User",
-			client:   NewClient("test"),
-			options: GetUserOpts{
-				User: "user_unmanaged_id",
-			},
-			expected: User{
-				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -91,27 +73,15 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_managed_id" {
+	if r.URL.Path == "/users/user_123" {
 		body, err = json.Marshal(User{
-			ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:     Managed,
-			Email:        "marcelina@foo-corp.com",
-			FirstName:    "Marcelina",
-			LastName:     "Davis",
-			SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-			CreatedAt:    "2021-06-25T19:07:33.155Z",
-			UpdatedAt:    "2021-06-25T19:07:33.155Z",
-		})
-	} else if r.URL.Path == "/users/user_unmanaged_id" {
-		body, err = json.Marshal(User{
-			ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			CreatedAt:       "2021-06-25T19:07:33.155Z",
-			UpdatedAt:       "2021-06-25T19:07:33.155Z",
+			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -137,14 +107,13 @@ func TestListUsers(t *testing.T) {
 		expectedResponse := ListUsersResponse{
 			Data: []User{
 				{
-					ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-					UserType:        Unmanaged,
-					Email:           "marcelina@foo-corp.com",
-					FirstName:       "Marcelina",
-					LastName:        "Davis",
-					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					CreatedAt:       "2021-06-25T19:07:33.155Z",
-					UpdatedAt:       "2021-06-25T19:07:33.155Z",
+					ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+					CreatedAt:     "2021-06-25T19:07:33.155Z",
+					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -177,14 +146,13 @@ func TestListUsers(t *testing.T) {
 		expectedResponse := ListUsersResponse{
 			Data: []User{
 				{
-					ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-					UserType:        Unmanaged,
-					Email:           "marcelina@foo-corp.com",
-					FirstName:       "Marcelina",
-					LastName:        "Davis",
-					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					CreatedAt:       "2021-06-25T19:07:33.155Z",
-					UpdatedAt:       "2021-06-25T19:07:33.155Z",
+					ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+					CreatedAt:     "2021-06-25T19:07:33.155Z",
+					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -217,14 +185,13 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListUsersResponse: ListUsersResponse{
 			Data: []User{
 				{
-					ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-					UserType:        Unmanaged,
-					Email:           "marcelina@foo-corp.com",
-					FirstName:       "Marcelina",
-					LastName:        "Davis",
-					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					CreatedAt:       "2021-06-25T19:07:33.155Z",
-					UpdatedAt:       "2021-06-25T19:07:33.155Z",
+					ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+					CreatedAt:     "2021-06-25T19:07:33.155Z",
+					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -265,14 +232,13 @@ func TestCreateUser(t *testing.T) {
 				Password:      "pass",
 			},
 			expected: User{
-				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -309,14 +275,13 @@ func createUserTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users" {
 		body, err = json.Marshal(User{
-			ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			CreatedAt:       "2021-06-25T19:07:33.155Z",
-			UpdatedAt:       "2021-06-25T19:07:33.155Z",
+			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -350,14 +315,13 @@ func TestAddUserToOrganization(t *testing.T) {
 				Organization: "foo_corp_id",
 			},
 			expected: User{
-				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -394,14 +358,13 @@ func addUserToOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/user_managed_id/organizations" {
 		body, err = json.Marshal(User{
-			ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			CreatedAt:       "2021-06-25T19:07:33.155Z",
-			UpdatedAt:       "2021-06-25T19:07:33.155Z",
+			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -435,14 +398,13 @@ func TestRemoveUserFromOrganization(t *testing.T) {
 				Organization: "foo_corp_id",
 			},
 			expected: User{
-				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -479,14 +441,13 @@ func removeUserFromOrganizationTestHandler(w http.ResponseWriter, r *http.Reques
 
 	if r.URL.Path == "/users/user_managed_id/organizations/foo_corp_id" {
 		body, err = json.Marshal(User{
-			ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			CreatedAt:       "2021-06-25T19:07:33.155Z",
-			UpdatedAt:       "2021-06-25T19:07:33.155Z",
+			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -814,19 +775,18 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 			scenario: "Request returns User",
 			client:   NewClient("test"),
 			options: CreateEmailVerificationChallengeOpts{
-				User:            "user_unmanaged_id",
+				User:            "user_123",
 				VerificationUrl: "https://your-app.com/verify-email",
 			},
 			expected: ChallengeResponse{
 				User: User{
-					ID:              "user_unmanaged_id",
-					UserType:        Unmanaged,
-					Email:           "marcelina@foo-corp.com",
-					FirstName:       "Marcelina",
-					LastName:        "Davis",
-					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					CreatedAt:       "2021-06-25T19:07:33.155Z",
-					UpdatedAt:       "2021-06-25T19:07:33.155Z",
+					ID:            "user_123",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+					CreatedAt:     "2021-06-25T19:07:33.155Z",
+					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
 				Token: "testToken",
 			},
@@ -863,17 +823,17 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_unmanaged_id/email_verification_challenge" {
+	if r.URL.Path == "/users/user_123/email_verification_challenge" {
 		body, err = json.Marshal(ChallengeResponse{
 			User: User{
-				ID:              "user_unmanaged_id",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID: "user_123",
+
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			}, Token: "testToken",
 		})
 	}
@@ -907,12 +867,11 @@ func TestCompleteEmailVerification(t *testing.T) {
 				Token: "testToken",
 			},
 			expected: User{
-				ID:              "user_unmanaged_id",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				ID:            "user_123",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
 			},
 		},
 	}
@@ -949,12 +908,11 @@ func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/email_verification" {
 		body, err = json.Marshal(User{
-			ID:              "user_unmanaged_id",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+			ID:            "user_123",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
 		})
 	}
 
@@ -989,14 +947,13 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 			},
 			expected: ChallengeResponse{
 				User: User{
-					ID:              "user_unmanaged_id",
-					UserType:        Unmanaged,
-					Email:           "marcelina@foo-corp.com",
-					FirstName:       "Marcelina",
-					LastName:        "Davis",
-					EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-					CreatedAt:       "2021-06-25T19:07:33.155Z",
-					UpdatedAt:       "2021-06-25T19:07:33.155Z",
+					ID:            "user_123",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+					CreatedAt:     "2021-06-25T19:07:33.155Z",
+					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
 				Token: "testToken",
 			},
@@ -1036,14 +993,13 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 	if r.URL.Path == "/users/password_reset_challenge" {
 		body, err = json.Marshal(ChallengeResponse{
 			User: User{
-				ID:              "user_unmanaged_id",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID:            "user_123",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			}, Token: "testToken",
 		})
 	}
@@ -1077,12 +1033,12 @@ func TestCompletePasswordReset(t *testing.T) {
 				Token: "testToken",
 			},
 			expected: User{
-				ID:              "user_unmanaged_id",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+				ID: "user_123",
+
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
 			},
 		},
 	}
@@ -1119,12 +1075,11 @@ func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/password_reset" {
 		body, err = json.Marshal(User{
-			ID:              "user_unmanaged_id",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+			ID:            "user_123",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
 		})
 	}
 
@@ -1157,14 +1112,12 @@ func TestSendMagicAuthCode(t *testing.T) {
 				Email: "marcelina@foo-corp.com",
 			},
 			expected: User{
-				ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:     Managed,
-				Email:        "marcelina@foo-corp.com",
-				FirstName:    "Marcelina",
-				LastName:     "Davis",
-				SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-				CreatedAt:    "2021-06-25T19:07:33.155Z",
-				UpdatedAt:    "2021-06-25T19:07:33.155Z",
+				ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:     "marcelina@foo-corp.com",
+				FirstName: "Marcelina",
+				LastName:  "Davis",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -1201,14 +1154,12 @@ func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/magic_auth/send" {
 		body, err = json.Marshal(User{
-			ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			UserType:     Managed,
-			Email:        "marcelina@foo-corp.com",
-			FirstName:    "Marcelina",
-			LastName:     "Davis",
-			SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-			CreatedAt:    "2021-06-25T19:07:33.155Z",
-			UpdatedAt:    "2021-06-25T19:07:33.155Z",
+			ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:     "marcelina@foo-corp.com",
+			FirstName: "Marcelina",
+			LastName:  "Davis",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
 		})
 	}
 
