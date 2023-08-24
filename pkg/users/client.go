@@ -188,12 +188,12 @@ type AuthenticateUserWithCodeOpts struct {
 type MagicAuthChallengeID string
 
 type AuthenticateUserWithMagicAuthOpts struct {
-	ClientID             string               `json:"client_id"`
-	Code                 string               `json:"code"`
-	MagicAuthChallengeID MagicAuthChallengeID `json:"magic_auth_challenge_id"`
-	ExpiresIn            int                  `json:"expires_in,omitempty"`
-	IPAddress            string               `json:"ip_address,omitempty"`
-	UserAgent            string               `json:"user_agent,omitempty"`
+	ClientID  string `json:"client_id"`
+	Code      string `json:"code"`
+	User      string `json:"user_id"`
+	ExpiresIn int    `json:"expires_in,omitempty"`
+	IPAddress string `json:"ip_address,omitempty"`
+	UserAgent string `json:"user_agent,omitempty"`
 }
 
 type AuthenticationResponse struct {
@@ -239,10 +239,6 @@ type ChallengeResponse struct {
 type SendMagicAuthCodeOpts struct {
 	// The email address the one-time code will be sent to.
 	Email string `json:"email_address"`
-}
-
-type MagicAuthChallenge struct {
-	MagicAuthChallengeID MagicAuthChallengeID `json:"id"`
 }
 
 type VerifySessionOpts struct {
@@ -819,7 +815,7 @@ func (c *Client) CompletePasswordReset(ctx context.Context, opts CompletePasswor
 }
 
 // SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
-func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (MagicAuthChallengeID, error) {
+func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (User, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/magic_auth/send",
 		c.Endpoint,
@@ -853,9 +849,9 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 		return "", err
 	}
 
-	var body MagicAuthChallenge
+	var body User
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
-	return body.MagicAuthChallengeID, err
+	return body, err
 }
