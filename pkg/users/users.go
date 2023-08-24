@@ -141,6 +141,6 @@ func CompletePasswordReset(
 func SendMagicAuthCode(
 	ctx context.Context,
 	opts SendMagicAuthCodeOpts,
-) (MagicAuthChallengeID, error) {
+) (User, error) {
 	return DefaultClient.SendMagicAuthCode(ctx, opts)
 }

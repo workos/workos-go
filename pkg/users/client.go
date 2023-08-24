@@ -823,7 +823,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return "", err
+		return User{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -832,7 +832,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return "", err
+		return User{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -841,12 +841,12 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return "", err
+		return User{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return "", err
+		return User{}, err
 	}
 
 	var body User
