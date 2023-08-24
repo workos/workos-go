@@ -169,7 +169,7 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 
 	expectedResponse := ChallengeResponse{
 		User: User{
-			ID:            "user_unmanaged_id",
+			ID:            "user_123",
 			Email:         "marcelina@foo-corp.com",
 			FirstName:     "Marcelina",
 			LastName:      "Davis",
@@ -181,7 +181,7 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 	}
 
 	userRes, err := CreateEmailVerificationChallenge(context.Background(), CreateEmailVerificationChallengeOpts{
-		User:            "user_unmanaged_id",
+		User:            "user_123",
 		VerificationUrl: "https://example.com/verify",
 	})
 
@@ -198,7 +198,7 @@ func TestUsersCompleteEmailVerification(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:            "user_unmanaged_id",
+		ID:            "user_123",
 		Email:         "marcelina@foo-corp.com",
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
@@ -223,7 +223,7 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 
 	expectedResponse := ChallengeResponse{
 		User: User{
-			ID:            "user_unmanaged_id",
+			ID:            "user_123",
 			Email:         "marcelina@foo-corp.com",
 			FirstName:     "Marcelina",
 			LastName:      "Davis",
@@ -252,7 +252,7 @@ func TestUsersCompletePasswordReset(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:            "user_unmanaged_id",
+		ID:            "user_123",
 		Email:         "marcelina@foo-corp.com",
 		FirstName:     "Marcelina",
 		LastName:      "Davis",

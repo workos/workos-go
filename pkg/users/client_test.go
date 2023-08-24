@@ -775,12 +775,12 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 			scenario: "Request returns User",
 			client:   NewClient("test"),
 			options: CreateEmailVerificationChallengeOpts{
-				User:            "user_unmanaged_id",
+				User:            "user_123",
 				VerificationUrl: "https://your-app.com/verify-email",
 			},
 			expected: ChallengeResponse{
 				User: User{
-					ID:            "user_unmanaged_id",
+					ID:            "user_123",
 					Email:         "marcelina@foo-corp.com",
 					FirstName:     "Marcelina",
 					LastName:      "Davis",
@@ -823,10 +823,10 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_unmanaged_id/email_verification_challenge" {
+	if r.URL.Path == "/users/user_123/email_verification_challenge" {
 		body, err = json.Marshal(ChallengeResponse{
 			User: User{
-				ID: "user_unmanaged_id",
+				ID: "user_123",
 
 				Email:         "marcelina@foo-corp.com",
 				FirstName:     "Marcelina",
@@ -867,7 +867,7 @@ func TestCompleteEmailVerification(t *testing.T) {
 				Token: "testToken",
 			},
 			expected: User{
-				ID:            "user_unmanaged_id",
+				ID:            "user_123",
 				Email:         "marcelina@foo-corp.com",
 				FirstName:     "Marcelina",
 				LastName:      "Davis",
@@ -908,7 +908,7 @@ func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/email_verification" {
 		body, err = json.Marshal(User{
-			ID:            "user_unmanaged_id",
+			ID:            "user_123",
 			Email:         "marcelina@foo-corp.com",
 			FirstName:     "Marcelina",
 			LastName:      "Davis",
@@ -947,7 +947,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 			},
 			expected: ChallengeResponse{
 				User: User{
-					ID:            "user_unmanaged_id",
+					ID:            "user_123",
 					Email:         "marcelina@foo-corp.com",
 					FirstName:     "Marcelina",
 					LastName:      "Davis",
@@ -993,7 +993,7 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 	if r.URL.Path == "/users/password_reset_challenge" {
 		body, err = json.Marshal(ChallengeResponse{
 			User: User{
-				ID:            "user_unmanaged_id",
+				ID:            "user_123",
 				Email:         "marcelina@foo-corp.com",
 				FirstName:     "Marcelina",
 				LastName:      "Davis",
@@ -1033,7 +1033,7 @@ func TestCompletePasswordReset(t *testing.T) {
 				Token: "testToken",
 			},
 			expected: User{
-				ID: "user_unmanaged_id",
+				ID: "user_123",
 
 				Email:         "marcelina@foo-corp.com",
 				FirstName:     "Marcelina",
@@ -1075,7 +1075,7 @@ func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/password_reset" {
 		body, err = json.Marshal(User{
-			ID:            "user_unmanaged_id",
+			ID:            "user_123",
 			Email:         "marcelina@foo-corp.com",
 			FirstName:     "Marcelina",
 			LastName:      "Davis",
