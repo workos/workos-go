@@ -144,27 +144,3 @@ func SendMagicAuthCode(
 ) (MagicAuthChallengeID, error) {
 	return DefaultClient.SendMagicAuthCode(ctx, opts)
 }
-
-// VerifySession verifies the session token returned by the authentication request.
-func VerifySession(
-	ctx context.Context,
-	opts VerifySessionOpts,
-) (VerifySessionResponse, error) {
-	return DefaultClient.VerifySession(ctx, opts)
-}
-
-// RevokeSession revokes a single session, invalidating the token for further verification requests.
-func RevokeSession(
-	ctx context.Context,
-	opts RevokeSessionOpts,
-) (bool, error) {
-	return DefaultClient.RevokeSession(ctx, opts)
-}
-
-// RevokeAllSessionsForUser revokes all active sessions for the given user.
-func RevokeAllSessionsForUser(
-	ctx context.Context,
-	opts RevokeAllSessionsForUserOpts,
-) (bool, error) {
-	return DefaultClient.RevokeAllSessionsForUser(ctx, opts)
-}
