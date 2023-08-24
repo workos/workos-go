@@ -26,18 +26,17 @@ func TestUsersGetUser(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:           "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		UserType:     Managed,
-		Email:        "marcelina@foo-corp.com",
-		FirstName:    "Marcelina",
-		LastName:     "Davis",
-		SSOProfileID: "prof_01E55M8ZA10HV0XERJYW0PM277",
-		CreatedAt:    "2021-06-25T19:07:33.155Z",
-		UpdatedAt:    "2021-06-25T19:07:33.155Z",
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := GetUser(context.Background(), GetUserOpts{
-		User: "user_managed_id",
+		User: "user_123",
 	})
 
 	require.NoError(t, err)
@@ -56,14 +55,13 @@ func TestUsersListUsers(t *testing.T) {
 	expectedResponse := ListUsersResponse{
 		Data: []User{
 			{
-				ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				UserType:        Unmanaged,
-				Email:           "marcelina@foo-corp.com",
-				FirstName:       "Marcelina",
-				LastName:        "Davis",
-				EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-				CreatedAt:       "2021-06-25T19:07:33.155Z",
-				UpdatedAt:       "2021-06-25T19:07:33.155Z",
+				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -86,22 +84,21 @@ func TestUsersCreateUser(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		UserType:        Unmanaged,
-		Email:           "marcelina@foo-corp.com",
-		FirstName:       "Marcelina",
-		LastName:        "Davis",
-		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-		CreatedAt:       "2021-06-25T19:07:33.155Z",
-		UpdatedAt:       "2021-06-25T19:07:33.155Z",
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := CreateUser(context.Background(), CreateUserOpts{
 		Email:         "marcelina@gmail.com",
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
+		EmailVerified: true,
 		Password:      "pass",
-		EmailVerified: false,
 	})
 
 	require.NoError(t, err)
@@ -117,14 +114,13 @@ func TestUsersAddUserToOrganization(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		UserType:        Unmanaged,
-		Email:           "marcelina@foo-corp.com",
-		FirstName:       "Marcelina",
-		LastName:        "Davis",
-		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-		CreatedAt:       "2021-06-25T19:07:33.155Z",
-		UpdatedAt:       "2021-06-25T19:07:33.155Z",
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := AddUserToOrganization(context.Background(), AddUserToOrganizationOpts{
@@ -145,14 +141,13 @@ func TestUsersRemoveUserFromOrganization(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:              "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		UserType:        Unmanaged,
-		Email:           "marcelina@foo-corp.com",
-		FirstName:       "Marcelina",
-		LastName:        "Davis",
-		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-		CreatedAt:       "2021-06-25T19:07:33.155Z",
-		UpdatedAt:       "2021-06-25T19:07:33.155Z",
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := RemoveUserFromOrganization(context.Background(), RemoveUserFromOrganizationOpts{
@@ -174,20 +169,19 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 
 	expectedResponse := ChallengeResponse{
 		User: User{
-			ID:              "user_unmanaged_id",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			CreatedAt:       "2021-06-25T19:07:33.155Z",
-			UpdatedAt:       "2021-06-25T19:07:33.155Z",
+			ID:            "user_123",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		},
 		Token: "testToken",
 	}
 
 	userRes, err := CreateEmailVerificationChallenge(context.Background(), CreateEmailVerificationChallengeOpts{
-		User:            "user_unmanaged_id",
+		User:            "user_123",
 		VerificationUrl: "https://example.com/verify",
 	})
 
@@ -204,12 +198,11 @@ func TestUsersCompleteEmailVerification(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:              "user_unmanaged_id",
-		UserType:        Unmanaged,
-		Email:           "marcelina@foo-corp.com",
-		FirstName:       "Marcelina",
-		LastName:        "Davis",
-		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+		ID:            "user_123",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
 	}
 
 	userRes, err := CompleteEmailVerification(context.Background(), CompleteEmailVerificationOpts{
@@ -230,14 +223,13 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 
 	expectedResponse := ChallengeResponse{
 		User: User{
-			ID:              "user_unmanaged_id",
-			UserType:        Unmanaged,
-			Email:           "marcelina@foo-corp.com",
-			FirstName:       "Marcelina",
-			LastName:        "Davis",
-			EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
-			CreatedAt:       "2021-06-25T19:07:33.155Z",
-			UpdatedAt:       "2021-06-25T19:07:33.155Z",
+			ID:            "user_123",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		},
 		Token: "testToken",
 	}
@@ -260,12 +252,11 @@ func TestUsersCompletePasswordReset(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := User{
-		ID:              "user_unmanaged_id",
-		UserType:        Unmanaged,
-		Email:           "marcelina@foo-corp.com",
-		FirstName:       "Marcelina",
-		LastName:        "Davis",
-		EmailVerifiedAt: "2021-07-25T19:07:33.155Z",
+		ID:            "user_123",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
 	}
 
 	userRes, err := CompletePasswordReset(context.Background(), CompletePasswordResetOpts{
