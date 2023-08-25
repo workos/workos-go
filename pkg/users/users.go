@@ -63,6 +63,14 @@ func CreateUser(
 	return DefaultClient.CreateUser(ctx, opts)
 }
 
+// DeleteUser deletes a existing User.
+func DeleteUser(
+	ctx context.Context,
+	opts DeleteUserOpts,
+) error {
+	return DefaultClient.DeleteUser(ctx, opts)
+}
+
 // AddUserToOrganization adds an unmanaged User as a member of the given Organization.
 func AddUserToOrganization(
 	ctx context.Context,
