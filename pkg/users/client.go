@@ -25,15 +25,6 @@ const (
 	Desc Order = "desc"
 )
 
-// UserType represents the type of the User
-type UserType string
-
-// Constants that enumerate the UserType
-const (
-	Unmanaged UserType = "unmanaged"
-	Managed   UserType = "managed"
-)
-
 // Organization contains data about a particular Organization.
 type Organization struct {
 	// The Organization's unique identifier.
@@ -96,9 +87,6 @@ type ListUsersResponse struct {
 }
 
 type ListUsersOpts struct {
-	// Filter Users by their type.
-	Type UserType `url:"type,omitempty"`
-
 	// Filter Users by their email.
 	Email string `url:"email,omitempty"`
 
@@ -124,6 +112,22 @@ type CreateUserOpts struct {
 	FirstName     string `json:"first_name,omitempty"`
 	LastName      string `json:"last_name,omitempty"`
 	EmailVerified bool   `json:"email_verified,omitempty"`
+}
+
+type UpdateUserOpts struct {
+	User          string
+	FirstName     string `json:"first_name,omitempty"`
+	LastName      string `json:"last_name,omitempty"`
+	EmailVerified bool   `json:"email_verified,omitempty"`
+}
+
+type UpdateUserPasswordOpts struct {
+	User     string
+	Password string `json:"password"`
+}
+
+type DeleteUserOpts struct {
+	User string
 }
 
 type AuthorizedOrganization struct {
@@ -345,6 +349,122 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 	err = dec.Decode(&body)
 
 	return body, err
+}
+
+// UpdateUser updates User attributes.
+func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s",
+		c.Endpoint,
+		opts.User,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// UpdateUserPassword updates a User password.
+func (c *Client) UpdateUserPassword(ctx context.Context, opts UpdateUserPasswordOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s",
+		c.Endpoint,
+		opts.User,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// DeleteUser delete an existing user.
+func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s",
+		c.Endpoint,
+		opts.User,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // AddUserToOrganization adds an unmanaged user to an Organization
