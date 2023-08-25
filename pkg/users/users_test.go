@@ -105,6 +105,22 @@ func TestUsersCreateUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
+func TestUsersDeleteUser(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteUserTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := DeleteUser(context.Background(), DeleteUserOpts{
+		User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, nil, err)
+}
+
 func TestUsersAddUserToOrganization(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(addUserToOrganizationTestHandler))
 	defer server.Close()
