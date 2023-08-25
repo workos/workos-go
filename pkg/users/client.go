@@ -129,33 +129,6 @@ type CreateUserOpts struct {
 type AuthorizedOrganization struct {
 	Organization Organization `json:"organization"`
 }
-type Session struct {
-	ID                        string                     `json:"id"`
-	Token                     string                     `json:"token"`
-	CreatedAt                 string                     `json:"created_at"`
-	ExpiresAt                 string                     `json:"expires_at"`
-	AuthorizedOrganizations   []AuthorizedOrganization   `json:"authorized_organizations"`
-	UnauthorizedOrganizations []UnauthorizedOrganization `json:"unauthorized_organizations"`
-}
-
-type SessionAuthenticationMethod string
-
-const (
-	GoogleOauth    SessionAuthenticationMethod = "GoogleOauth"
-	MagicAuth      SessionAuthenticationMethod = "MagicAuth"
-	MicrosoftOauth SessionAuthenticationMethod = "MicrosoftOauth"
-	Password       SessionAuthenticationMethod = "Password"
-)
-
-type UnauthorizedOrganizationReason struct {
-	Type                         string                        `json:"type"`
-	AllowedAuthenticationMethods []SessionAuthenticationMethod `json:"allowed_authentication_methods"`
-}
-
-type UnauthorizedOrganization struct {
-	Organization Organization                     `json:"organization"`
-	Reasons      []UnauthorizedOrganizationReason `json:"reasons"`
-}
 
 type AuthenticateUserWithPasswordOpts struct {
 	ClientID  string `json:"client_id"`
@@ -163,13 +136,11 @@ type AuthenticateUserWithPasswordOpts struct {
 	Password  string `json:"password"`
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
-	ExpiresIn int    `json:"expires_in,omitempty"`
 }
 
 type AuthenticateUserWithCodeOpts struct {
 	ClientID  string `json:"client_id"`
 	Code      string `json:"code"`
-	ExpiresIn int    `json:"expires_in,omitempty"`
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
 }
@@ -180,14 +151,12 @@ type AuthenticateUserWithMagicAuthOpts struct {
 	ClientID  string `json:"client_id"`
 	Code      string `json:"code"`
 	User      string `json:"user_id"`
-	ExpiresIn int    `json:"expires_in,omitempty"`
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
 type AuthenticationResponse struct {
-	Session Session `json:"session"`
-	User    User    `json:"user"`
+	User User `json:"user"`
 }
 
 type CreateEmailVerificationChallengeOpts struct {
@@ -228,25 +197,6 @@ type ChallengeResponse struct {
 type SendMagicAuthCodeOpts struct {
 	// The email address the one-time code will be sent to.
 	Email string `json:"email_address"`
-}
-
-type VerifySessionOpts struct {
-	Token    string `json:"token"`
-	ClientID string `json:"client_id"`
-}
-
-type VerifySessionResponse struct {
-	Session Session `json:"session"`
-	User    User    `json:"user"`
-}
-
-type RevokeSessionOpts struct {
-	SessionToken string `json:"session_token,omitempty"`
-	SessionID    string `json:"session_id,omitempty"`
-}
-
-type RevokeAllSessionsForUserOpts struct {
-	User string
 }
 
 type AddUserToOrganizationOpts struct {
@@ -497,7 +447,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/sessions/token",
+		c.Endpoint+"/users/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
@@ -529,8 +479,7 @@ func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts Authenti
 	return body, err
 }
 
-// AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
-// optionally creates a session.
+// AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
 func (c *Client) AuthenticateUserWithCode(ctx context.Context, opts AuthenticateUserWithCodeOpts) (AuthenticationResponse, error) {
 	payload := struct {
 		AuthenticateUserWithCodeOpts
@@ -549,7 +498,7 @@ func (c *Client) AuthenticateUserWithCode(ctx context.Context, opts Authenticate
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/sessions/token",
+		c.Endpoint+"/users/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
@@ -601,7 +550,7 @@ func (c *Client) AuthenticateUserWithMagicAuth(ctx context.Context, opts Authent
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/sessions/token",
+		c.Endpoint+"/users/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
