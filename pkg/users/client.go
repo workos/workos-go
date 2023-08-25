@@ -121,6 +121,11 @@ type UpdateUserOpts struct {
 	EmailVerified bool   `json:"email_verified,omitempty"`
 }
 
+type UpdateUserPasswordOpts struct {
+	User     string
+	Password string `json:"password"`
+}
+
 type DeleteUserOpts struct {
 	User string
 }
@@ -348,6 +353,49 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 
 // UpdateUser updates User attributes.
 func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s",
+		c.Endpoint,
+		opts.User,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// UpdateUserPassword updates a User password.
+func (c *Client) UpdateUserPassword(ctx context.Context, opts UpdateUserPasswordOpts) (User, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/%s",
 		c.Endpoint,
