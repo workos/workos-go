@@ -63,6 +63,14 @@ func CreateUser(
 	return DefaultClient.CreateUser(ctx, opts)
 }
 
+// UpdateUser creates a User.
+func UpdateUser(
+	ctx context.Context,
+	opts UpdateUserOpts,
+) (User, error) {
+	return DefaultClient.UpdateUser(ctx, opts)
+}
+
 // DeleteUser deletes a existing User.
 func DeleteUser(
 	ctx context.Context,
