@@ -294,6 +294,72 @@ func createUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestDeleteUser(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeleteUserOpts
+		expected error
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: DeleteUserOpts{
+				User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			},
+			expected: nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deleteUserTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			err := client.DeleteUser(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, err)
+		})
+	}
+}
+
+func deleteUserTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+		body, err = nil, nil
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestAddUserToOrganization(t *testing.T) {
 	tests := []struct {
 		scenario string

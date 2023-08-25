@@ -126,6 +126,10 @@ type CreateUserOpts struct {
 	EmailVerified bool   `json:"email_verified,omitempty"`
 }
 
+type DeleteUserOpts struct {
+	User string
+}
+
 type AuthorizedOrganization struct {
 	Organization Organization `json:"organization"`
 }
@@ -345,6 +349,36 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 	err = dec.Decode(&body)
 
 	return body, err
+}
+
+// DeleteUser delete an existing user.
+func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s",
+		c.Endpoint,
+		opts.User,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // AddUserToOrganization adds an unmanaged user to an Organization
