@@ -25,15 +25,6 @@ const (
 	Desc Order = "desc"
 )
 
-// UserType represents the type of the User
-type UserType string
-
-// Constants that enumerate the UserType
-const (
-	Unmanaged UserType = "unmanaged"
-	Managed   UserType = "managed"
-)
-
 // Organization contains data about a particular Organization.
 type Organization struct {
 	// The Organization's unique identifier.
@@ -96,9 +87,6 @@ type ListUsersResponse struct {
 }
 
 type ListUsersOpts struct {
-	// Filter Users by their type.
-	Type UserType `url:"type,omitempty"`
-
 	// Filter Users by their email.
 	Email string `url:"email,omitempty"`
 
