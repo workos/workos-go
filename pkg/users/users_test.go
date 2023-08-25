@@ -277,37 +277,6 @@ func TestUsersAuthenticateUserWithCode(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := AuthenticationResponse{
-		Session: Session{
-			ID:        "testSessionID",
-			Token:     "testSessionToken",
-			CreatedAt: "2023-08-05T14:48:00.000Z",
-			ExpiresAt: "2023-08-05T14:50:00.000Z",
-			AuthorizedOrganizations: []AuthorizedOrganization{
-				{
-					Organization: Organization{
-						ID:   "123",
-						Name: "Example",
-					},
-				},
-			},
-			UnauthorizedOrganizations: []UnauthorizedOrganization{
-				{
-					Organization: Organization{
-						ID:   "123",
-						Name: "Example",
-					},
-					Reasons: []UnauthorizedOrganizationReason{
-						{
-							Type: "authentication_method_required",
-							AllowedAuthenticationMethods: []SessionAuthenticationMethod{
-								MagicAuth,
-								Password,
-							},
-						},
-					},
-				},
-			},
-		},
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
@@ -332,37 +301,6 @@ func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := AuthenticationResponse{
-		Session: Session{
-			ID:        "testSessionID",
-			Token:     "testSessionToken",
-			CreatedAt: "2023-08-05T14:48:00.000Z",
-			ExpiresAt: "2023-08-05T14:50:00.000Z",
-			AuthorizedOrganizations: []AuthorizedOrganization{
-				{
-					Organization: Organization{
-						ID:   "123",
-						Name: "Example",
-					},
-				},
-			},
-			UnauthorizedOrganizations: []UnauthorizedOrganization{
-				{
-					Organization: Organization{
-						ID:   "123",
-						Name: "Example",
-					},
-					Reasons: []UnauthorizedOrganizationReason{
-						{
-							Type: "authentication_method_required",
-							AllowedAuthenticationMethods: []SessionAuthenticationMethod{
-								MagicAuth,
-								Password,
-							},
-						},
-					},
-				},
-			},
-		},
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",

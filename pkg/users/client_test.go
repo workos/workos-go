@@ -481,37 +481,6 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 				Password: "test_123",
 			},
 			expected: AuthenticationResponse{
-				Session: Session{
-					ID:        "testSessionID",
-					Token:     "testSessionToken",
-					CreatedAt: "2023-08-05T14:48:00.000Z",
-					ExpiresAt: "2023-08-05T14:50:00.000Z",
-					AuthorizedOrganizations: []AuthorizedOrganization{
-						{
-							Organization: Organization{
-								ID:   "123",
-								Name: "Example",
-							},
-						},
-					},
-					UnauthorizedOrganizations: []UnauthorizedOrganization{
-						{
-							Organization: Organization{
-								ID:   "123",
-								Name: "Example",
-							},
-							Reasons: []UnauthorizedOrganizationReason{
-								{
-									Type: "authentication_method_required",
-									AllowedAuthenticationMethods: []SessionAuthenticationMethod{
-										MagicAuth,
-										Password,
-									},
-								},
-							},
-						},
-					},
-				},
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
@@ -561,37 +530,6 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 				Code:     "test_123",
 			},
 			expected: AuthenticationResponse{
-				Session: Session{
-					ID:        "testSessionID",
-					Token:     "testSessionToken",
-					CreatedAt: "2023-08-05T14:48:00.000Z",
-					ExpiresAt: "2023-08-05T14:50:00.000Z",
-					AuthorizedOrganizations: []AuthorizedOrganization{
-						{
-							Organization: Organization{
-								ID:   "123",
-								Name: "Example",
-							},
-						},
-					},
-					UnauthorizedOrganizations: []UnauthorizedOrganization{
-						{
-							Organization: Organization{
-								ID:   "123",
-								Name: "Example",
-							},
-							Reasons: []UnauthorizedOrganizationReason{
-								{
-									Type: "authentication_method_required",
-									AllowedAuthenticationMethods: []SessionAuthenticationMethod{
-										MagicAuth,
-										Password,
-									},
-								},
-							},
-						},
-					},
-				},
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
@@ -642,37 +580,6 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 				User:     "user_123",
 			},
 			expected: AuthenticationResponse{
-				Session: Session{
-					ID:        "testSessionID",
-					Token:     "testSessionToken",
-					CreatedAt: "2023-08-05T14:48:00.000Z",
-					ExpiresAt: "2023-08-05T14:50:00.000Z",
-					AuthorizedOrganizations: []AuthorizedOrganization{
-						{
-							Organization: Organization{
-								ID:   "123",
-								Name: "Example",
-							},
-						},
-					},
-					UnauthorizedOrganizations: []UnauthorizedOrganization{
-						{
-							Organization: Organization{
-								ID:   "123",
-								Name: "Example",
-							},
-							Reasons: []UnauthorizedOrganizationReason{
-								{
-									Type: "authentication_method_required",
-									AllowedAuthenticationMethods: []SessionAuthenticationMethod{
-										MagicAuth,
-										Password,
-									},
-								},
-							},
-						},
-					},
-				},
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
@@ -711,37 +618,6 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
 		response := AuthenticationResponse{
-			Session: Session{
-				ID:        "testSessionID",
-				Token:     "testSessionToken",
-				CreatedAt: "2023-08-05T14:48:00.000Z",
-				ExpiresAt: "2023-08-05T14:50:00.000Z",
-				AuthorizedOrganizations: []AuthorizedOrganization{
-					{
-						Organization: Organization{
-							ID:   "123",
-							Name: "Example",
-						},
-					},
-				},
-				UnauthorizedOrganizations: []UnauthorizedOrganization{
-					{
-						Organization: Organization{
-							ID:   "123",
-							Name: "Example",
-						},
-						Reasons: []UnauthorizedOrganizationReason{
-							{
-								Type: "authentication_method_required",
-								AllowedAuthenticationMethods: []SessionAuthenticationMethod{
-									MagicAuth,
-									Password,
-								},
-							},
-						},
-					},
-				},
-			},
 			User: User{
 				ID:        "testUserID",
 				FirstName: "John",
@@ -755,7 +631,6 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusUnauthorized)
-
 }
 
 func TestCreateEmailVerificationChallenge(t *testing.T) {
