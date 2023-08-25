@@ -134,6 +134,33 @@ func TestUsersUpdateUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
+func TestUsersUpdateUserPassword(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateUserTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := UpdateUserPassword(context.Background(), UpdateUserPasswordOpts{
+		User:     "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Password: "pass_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
 func TestUsersDeleteUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(deleteUserTestHandler))
 	defer server.Close()
