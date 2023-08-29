@@ -397,7 +397,7 @@ func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, err
 // UpdateUserPassword updates a User password.
 func (c *Client) UpdateUserPassword(ctx context.Context, opts UpdateUserPasswordOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s",
+		"%s/users/%s/password",
 		c.Endpoint,
 		opts.User,
 	)
