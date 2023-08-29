@@ -135,7 +135,7 @@ func TestUsersUpdateUser(t *testing.T) {
 }
 
 func TestUsersUpdateUserPassword(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updateUserTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(updateUserPasswordTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
