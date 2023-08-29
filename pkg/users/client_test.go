@@ -441,7 +441,7 @@ func updateUserPasswordTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/password" {
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
