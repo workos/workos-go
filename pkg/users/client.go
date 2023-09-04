@@ -163,17 +163,16 @@ type AuthenticationResponse struct {
 	User User `json:"user"`
 }
 
-type CreateEmailVerificationChallengeOpts struct {
+type SendVerificationEmailOpts struct {
 	// The unique ID of the User whose email address will be verified.
-	User string `json:"id"`
-
-	// The URL that will be linked to in the verification email.
-	VerificationUrl string `json:"verification_url"`
+	User string
 }
 
-type CompleteEmailVerificationOpts struct {
+type VerifyEmailCodeOpts struct {
+	// The unique ID of the User whose code will be verified.
+	User string
 	// The verification token emailed to the user.
-	Token string `json:"token"`
+	Code string `json:"code"`
 }
 
 type CreatePasswordResetChallengeOpts struct {
@@ -192,9 +191,7 @@ type CompletePasswordResetOpts struct {
 	NewPassword string `json:"new_password"`
 }
 
-type ChallengeResponse struct {
-	Token string `json:"token"`
-
+type UserResponse struct {
 	User User `json:"user"`
 }
 
@@ -702,26 +699,20 @@ func (c *Client) AuthenticateUserWithMagicAuth(ctx context.Context, opts Authent
 	return body, err
 }
 
-// CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
-func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts CreateEmailVerificationChallengeOpts) (ChallengeResponse, error) {
+// SendVerificationEmail creates an email verification challenge and emails verification token to user.
+func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificationEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s/email_verification_challenge",
+		"%s/users/%s/send_verification_email",
 		c.Endpoint,
 		opts.User,
 	)
-
-	data, err := c.JSONEncode(opts)
-	if err != nil {
-		return ChallengeResponse{}, err
-	}
-
 	req, err := http.NewRequest(
 		http.MethodPost,
 		endpoint,
-		bytes.NewBuffer(data),
+		nil,
 	)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -730,31 +721,32 @@ func (c *Client) CreateEmailVerificationChallenge(ctx context.Context, opts Crea
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 
-	var body ChallengeResponse
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
 	return body, err
 }
 
-// CompleteEmailVerification verifies user email using verification token that was sent to the user.
-func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEmailVerificationOpts) (User, error) {
+// VerifyEmailCode verifies user email using verification token that was sent to the user.
+func (c *Client) VerifyEmailCode(ctx context.Context, opts VerifyEmailCodeOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/email_verification",
+		"%s/users/%s/verify_email_code",
 		c.Endpoint,
+		opts.User,
 	)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -763,7 +755,7 @@ func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEma
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -772,15 +764,15 @@ func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEma
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 
-	var body User
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -789,7 +781,7 @@ func (c *Client) CompleteEmailVerification(ctx context.Context, opts CompleteEma
 
 // CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an
 // unmanaged user.
-func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePasswordResetChallengeOpts) (ChallengeResponse, error) {
+func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePasswordResetChallengeOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/password_reset_challenge",
 		c.Endpoint,
@@ -797,7 +789,7 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -806,7 +798,7 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -815,15 +807,15 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ChallengeResponse{}, err
+		return UserResponse{}, err
 	}
 
-	var body ChallengeResponse
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

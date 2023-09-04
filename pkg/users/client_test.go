@@ -867,12 +867,12 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
-func TestCreateEmailVerificationChallenge(t *testing.T) {
+func TestSendVerificationEmail(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateEmailVerificationChallengeOpts
-		expected ChallengeResponse
+		options  SendVerificationEmailOpts
+		expected UserResponse
 		err      bool
 	}{
 		{
@@ -883,11 +883,10 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 		{
 			scenario: "Request returns User",
 			client:   NewClient("test"),
-			options: CreateEmailVerificationChallengeOpts{
-				User:            "user_123",
-				VerificationUrl: "https://your-app.com/verify-email",
+			options: SendVerificationEmailOpts{
+				User: "user_123",
 			},
-			expected: ChallengeResponse{
+			expected: UserResponse{
 				User: User{
 					ID:            "user_123",
 					Email:         "marcelina@foo-corp.com",
@@ -897,21 +896,20 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 					CreatedAt:     "2021-06-25T19:07:33.155Z",
 					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
-				Token: "testToken",
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeHandler))
+			server := httptest.NewServer(http.HandlerFunc(sendVerificationEmailTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.CreateEmailVerificationChallenge(context.Background(), test.options)
+			user, err := client.SendVerificationEmail(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -922,7 +920,7 @@ func TestCreateEmailVerificationChallenge(t *testing.T) {
 	}
 }
 
-func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Request) {
+func sendVerificationEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -932,8 +930,8 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_123/email_verification_challenge" {
-		body, err = json.Marshal(ChallengeResponse{
+	if r.URL.Path == "/users/user_123/send_verification_email" {
+		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID: "user_123",
 
@@ -943,7 +941,7 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 				EmailVerified: true,
 				CreatedAt:     "2021-06-25T19:07:33.155Z",
 				UpdatedAt:     "2021-06-25T19:07:33.155Z",
-			}, Token: "testToken",
+			},
 		})
 	}
 
@@ -956,12 +954,12 @@ func createEmailVerificationChallengeHandler(w http.ResponseWriter, r *http.Requ
 	w.Write(body)
 }
 
-func TestCompleteEmailVerification(t *testing.T) {
+func TestVerifyEmailCode(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CompleteEmailVerificationOpts
-		expected User
+		options  VerifyEmailCodeOpts
+		expected UserResponse
 		err      bool
 	}{
 		{
@@ -972,29 +970,32 @@ func TestCompleteEmailVerification(t *testing.T) {
 		{
 			scenario: "Request returns User",
 			client:   NewClient("test"),
-			options: CompleteEmailVerificationOpts{
-				Token: "testToken",
+			options: VerifyEmailCodeOpts{
+				User: "user_123",
+				Code: "testToken",
 			},
-			expected: User{
-				ID:            "user_123",
-				Email:         "marcelina@foo-corp.com",
-				FirstName:     "Marcelina",
-				LastName:      "Davis",
-				EmailVerified: true,
+			expected: UserResponse{
+				User: User{
+					ID:            "user_123",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+				},
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationHandler))
+			server := httptest.NewServer(http.HandlerFunc(verifyEmailCodeTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.CompleteEmailVerification(context.Background(), test.options)
+			user, err := client.VerifyEmailCode(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1005,7 +1006,7 @@ func TestCompleteEmailVerification(t *testing.T) {
 	}
 }
 
-func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
+func verifyEmailCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1015,13 +1016,15 @@ func completeEmailVerificationHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/email_verification" {
-		body, err = json.Marshal(User{
-			ID:            "user_123",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
+	if r.URL.Path == "/users/user_123/verify_email_code" {
+		body, err = json.Marshal(UserResponse{
+			User: User{
+				ID:            "user_123",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+			},
 		})
 	}
 
@@ -1039,7 +1042,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 		scenario string
 		client   *Client
 		options  CreatePasswordResetChallengeOpts
-		expected ChallengeResponse
+		expected UserResponse
 		err      bool
 	}{
 		{
@@ -1054,7 +1057,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 				Email:            "marcelina@foo-corp.com",
 				PasswordResetUrl: "https://foo-corp.com/reset-password",
 			},
-			expected: ChallengeResponse{
+			expected: UserResponse{
 				User: User{
 					ID:            "user_123",
 					Email:         "marcelina@foo-corp.com",
@@ -1064,7 +1067,6 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 					CreatedAt:     "2021-06-25T19:07:33.155Z",
 					UpdatedAt:     "2021-06-25T19:07:33.155Z",
 				},
-				Token: "testToken",
 			},
 		},
 	}
@@ -1100,7 +1102,7 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 	var err error
 
 	if r.URL.Path == "/users/password_reset_challenge" {
-		body, err = json.Marshal(ChallengeResponse{
+		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:            "user_123",
 				Email:         "marcelina@foo-corp.com",
@@ -1109,7 +1111,7 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 				EmailVerified: true,
 				CreatedAt:     "2021-06-25T19:07:33.155Z",
 				UpdatedAt:     "2021-06-25T19:07:33.155Z",
-			}, Token: "testToken",
+			},
 		})
 	}
 
