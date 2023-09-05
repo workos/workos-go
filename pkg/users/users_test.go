@@ -357,7 +357,7 @@ func TestUsersAuthenticateUserWithCode(t *testing.T) {
 		},
 	}
 
-	authenticationRes, err := AuthenticateUserWithCode(context.Background(), AuthenticateUserWithCodeOpts{})
+	authenticationRes, err := AuthenticateWithCode(context.Background(), AuthenticateWithCodeOpts{})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
@@ -381,7 +381,7 @@ func TestUsersAuthenticateUserWithPassword(t *testing.T) {
 		},
 	}
 
-	authenticationRes, err := AuthenticateUserWithPassword(context.Background(), AuthenticateUserWithPasswordOpts{})
+	authenticationRes, err := AuthenticateWithPassword(context.Background(), AuthenticateWithPasswordOpts{})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
