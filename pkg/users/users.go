@@ -103,30 +103,30 @@ func RemoveUserFromOrganization(
 	return DefaultClient.RemoveUserFromOrganization(ctx, opts)
 }
 
-// AuthenticateUserWithPassword authenticates a user with email and password and optionally creates a session.
-func AuthenticateUserWithPassword(
+// AuthenticateWithPassword authenticates a user with email and password and optionally creates a session.
+func AuthenticateWithPassword(
 	ctx context.Context,
-	opts AuthenticateUserWithPasswordOpts,
+	opts AuthenticateWithPasswordOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
+	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
-// AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
+// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
 // optionally creates a session.
-func AuthenticateUserWithCode(
+func AuthenticateWithCode(
 	ctx context.Context,
-	opts AuthenticateUserWithCodeOpts,
+	opts AuthenticateWithCodeOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithCode(ctx, opts)
+	return DefaultClient.AuthenticateWithCode(ctx, opts)
 }
 
-// AuthenticateUserWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
+// AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
 // the Magic Auth Send Code endpoint.
-func AuthenticateUserWithMagicAuth(
+func AuthenticateWithMagicAuth(
 	ctx context.Context,
-	opts AuthenticateUserWithMagicAuthOpts,
+	opts AuthenticateWithMagicAuthOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithMagicAuth(ctx, opts)
+	return DefaultClient.AuthenticateWithMagicAuth(ctx, opts)
 }
 
 // CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
