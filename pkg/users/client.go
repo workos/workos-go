@@ -134,7 +134,7 @@ type AuthorizedOrganization struct {
 	Organization Organization `json:"organization"`
 }
 
-type AuthenticateUserWithPasswordOpts struct {
+type AuthenticateWithPasswordOpts struct {
 	ClientID  string `json:"client_id"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
@@ -142,7 +142,7 @@ type AuthenticateUserWithPasswordOpts struct {
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
-type AuthenticateUserWithCodeOpts struct {
+type AuthenticateWithCodeOpts struct {
 	ClientID  string `json:"client_id"`
 	Code      string `json:"code"`
 	IPAddress string `json:"ip_address,omitempty"`
@@ -549,66 +549,16 @@ func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUser
 	return body, err
 }
 
-func (c *Client) AuthenticateUserWithPassword(ctx context.Context, opts AuthenticateUserWithPasswordOpts) (AuthenticationResponse, error) {
+// AuthenticateWithPassword authenticates a user with Email and Password
+func (c *Client) AuthenticateWithPassword(ctx context.Context, opts AuthenticateWithPasswordOpts) (AuthenticationResponse, error) {
 	payload := struct {
-		AuthenticateUserWithPasswordOpts
+		AuthenticateWithPasswordOpts
 		ClientSecret string `json:"client_secret"`
 		GrantType    string `json:"grant_type"`
 	}{
-		AuthenticateUserWithPasswordOpts: opts,
-		ClientSecret:                     c.APIKey,
-		GrantType:                        "password",
-	}
-
-	jsonData, err := json.Marshal(payload)
-	if err != nil {
-		return AuthenticationResponse{}, err
-	}
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		c.Endpoint+"/users/authenticate",
-		bytes.NewBuffer(jsonData),
-	)
-
-	if err != nil {
-		return AuthenticationResponse{}, err
-	}
-
-	// Add headers and context to the request
-	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Content-Type", "application/json")
-
-	// Execute the request
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return AuthenticationResponse{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthenticationResponse{}, err
-	}
-
-	// Parse the JSON response
-	var body AuthenticationResponse
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
-}
-
-// AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
-func (c *Client) AuthenticateUserWithCode(ctx context.Context, opts AuthenticateUserWithCodeOpts) (AuthenticationResponse, error) {
-	payload := struct {
-		AuthenticateUserWithCodeOpts
-		ClientSecret string `json:"client_secret"`
-		GrantType    string `json:"grant_type"`
-	}{
-		AuthenticateUserWithCodeOpts: opts,
+		AuthenticateWithPasswordOpts: opts,
 		ClientSecret:                 c.APIKey,
-		GrantType:                    "authorization_code",
+		GrantType:                    "password",
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -650,9 +600,60 @@ func (c *Client) AuthenticateUserWithCode(ctx context.Context, opts Authenticate
 	return body, err
 }
 
-// AuthenticateUserWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
+// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
+func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWithCodeOpts) (AuthenticationResponse, error) {
+	payload := struct {
+		AuthenticateWithCodeOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithCodeOpts: opts,
+		ClientSecret:             c.APIKey,
+		GrantType:                "authorization_code",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body AuthenticationResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
 // the Magic Auth Send Code endpoint.
-func (c *Client) AuthenticateUserWithMagicAuth(ctx context.Context, opts AuthenticateUserWithMagicAuthOpts) (AuthenticationResponse, error) {
+func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts AuthenticateUserWithMagicAuthOpts) (AuthenticationResponse, error) {
 	payload := struct {
 		AuthenticateUserWithMagicAuthOpts
 		ClientSecret string `json:"client_secret"`

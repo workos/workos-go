@@ -106,18 +106,18 @@ func RemoveUserFromOrganization(
 // AuthenticateUserWithPassword authenticates a user with email and password and optionally creates a session.
 func AuthenticateUserWithPassword(
 	ctx context.Context,
-	opts AuthenticateUserWithPasswordOpts,
+	opts AuthenticateWithPasswordOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithPassword(ctx, opts)
+	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
 // AuthenticateUserWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
 // optionally creates a session.
 func AuthenticateUserWithCode(
 	ctx context.Context,
-	opts AuthenticateUserWithCodeOpts,
+	opts AuthenticateWithCodeOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithCode(ctx, opts)
+	return DefaultClient.AuthenticateWithCode(ctx, opts)
 }
 
 // AuthenticateUserWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
@@ -126,7 +126,7 @@ func AuthenticateUserWithMagicAuth(
 	ctx context.Context,
 	opts AuthenticateUserWithMagicAuthOpts,
 ) (AuthenticationResponse, error) {
-	return DefaultClient.AuthenticateUserWithMagicAuth(ctx, opts)
+	return DefaultClient.AuthenticateWithMagicAuth(ctx, opts)
 }
 
 // CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
