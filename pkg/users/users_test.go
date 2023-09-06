@@ -386,3 +386,51 @@ func TestUsersAuthenticateWithPassword(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
 }
+
+func TestUsersAuthenticateWithMagicAuth(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticationResponse{
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+
+	authenticationRes, err := AuthenticateWithMagicAuth(context.Background(), AuthenticateUserWithMagicAuthOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUsersSendMagicAuthCode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(sendMagicAuthCodeTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:     "marcelina@foo-corp.com",
+		FirstName: "Marcelina",
+		LastName:  "Davis",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	authenticationRes, err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
