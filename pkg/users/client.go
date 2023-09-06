@@ -217,6 +217,10 @@ type EnrollAuthFactorOpts struct {
 	Type mfa.FactorType `json:"type"`
 }
 
+type ListAuthFactorsOpts struct {
+	User string
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -951,6 +955,44 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 	}
 
 	var body AuthenticationResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ListAuthFactors lists the available authentication factors for the user.
+func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) ([]mfa.Factor, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/auth/factors",
+		c.Endpoint,
+		opts.User,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return []mfa.Factor{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return []mfa.Factor{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return []mfa.Factor{}, err
+	}
+
+	var body []mfa.Factor
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
