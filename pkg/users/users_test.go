@@ -412,6 +412,30 @@ func TestUsersAuthenticateWithMagicAuth(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
+func TestUsersAuthenticateWithTOTP(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := UserResponse{
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+	}
+
+	authenticationRes, err := AuthenticateWithTOTP(context.Background(), AuthenticateWithTOTPOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
 func TestUsersSendMagicAuthCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(sendMagicAuthCodeTestHandler))
 
