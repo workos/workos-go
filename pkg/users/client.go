@@ -160,6 +160,15 @@ type AuthenticateWithMagicAuthOpts struct {
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
+type AuthenticateWithTOTPOpts struct {
+	ClientID                   string `json:"client_id"`
+	Code                       string `json:"code"`
+	IPAddress                  string `json:"ip_address,omitempty"`
+	UserAgent                  string `json:"user_agent,omitempty"`
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	AuthenticationChallengeID  string `json:"authentication_challenge_id"`
+}
+
 type AuthenticationResponse struct {
 	Factor    mfa.Factor    `json:"authentication_factor"`
 	Challenge mfa.Challenge `json:"authentication_challenge"`
@@ -670,6 +679,57 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 		AuthenticateWithMagicAuthOpts: opts,
 		ClientSecret:                  c.APIKey,
 		GrantType:                     "urn:workos:oauth:grant-type:magic-auth:code",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return UserResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/users/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return UserResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return UserResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return UserResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body UserResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithTOTP authenticates a user by verifying a time-based one-time password (TOTP)
+func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWithTOTPOpts) (UserResponse, error) {
+	payload := struct {
+		AuthenticateWithTOTPOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithTOTPOpts: opts,
+		ClientSecret:             c.APIKey,
+		GrantType:                "workos:oauth:grant-type:mfa-totp",
 	}
 
 	jsonData, err := json.Marshal(payload)
