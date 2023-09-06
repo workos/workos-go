@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v2/pkg/mfa"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
 	"net/http"
 	"time"
@@ -160,7 +161,8 @@ type AuthenticateWithMagicAuthOpts struct {
 }
 
 type AuthenticationResponse struct {
-	User User `json:"user"`
+	Factor    mfa.Factor    `json:"authentication_factor"`
+	Challenge mfa.Challenge `json:"authentication_challenge"`
 }
 
 type SendVerificationEmailOpts struct {
@@ -208,6 +210,11 @@ type AddUserToOrganizationOpts struct {
 type RemoveUserFromOrganizationOpts struct {
 	User         string `json:"id"`
 	Organization string `json:"organization_id"`
+}
+
+type EnrollAuthFactorOpts struct {
+	User string
+	Type mfa.FactorType `json:"type"`
 }
 
 func NewClient(apiKey string) *Client {
@@ -547,7 +554,7 @@ func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUser
 }
 
 // AuthenticateWithPassword authenticates a user with Email and Password
-func (c *Client) AuthenticateWithPassword(ctx context.Context, opts AuthenticateWithPasswordOpts) (AuthenticationResponse, error) {
+func (c *Client) AuthenticateWithPassword(ctx context.Context, opts AuthenticateWithPasswordOpts) (UserResponse, error) {
 	payload := struct {
 		AuthenticateWithPasswordOpts
 		ClientSecret string `json:"client_secret"`
@@ -560,7 +567,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -570,7 +577,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 	)
 
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -581,16 +588,16 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body AuthenticationResponse
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -598,7 +605,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 }
 
 // AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
-func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWithCodeOpts) (AuthenticationResponse, error) {
+func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWithCodeOpts) (UserResponse, error) {
 	payload := struct {
 		AuthenticateWithCodeOpts
 		ClientSecret string `json:"client_secret"`
@@ -611,7 +618,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -621,7 +628,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 	)
 
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -632,16 +639,16 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body AuthenticationResponse
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -650,7 +657,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 // AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
 // the Magic Auth Send Code endpoint.
-func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts AuthenticateWithMagicAuthOpts) (AuthenticationResponse, error) {
+func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts AuthenticateWithMagicAuthOpts) (UserResponse, error) {
 	payload := struct {
 		AuthenticateWithMagicAuthOpts
 		ClientSecret string `json:"client_secret"`
@@ -663,7 +670,7 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -673,7 +680,7 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 	)
 
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -684,16 +691,16 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthenticationResponse{}, err
+		return UserResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body AuthenticationResponse
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -901,6 +908,48 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 	}
 
 	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts) (AuthenticationResponse, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/%s/auth/factors",
+		c.Endpoint,
+		opts.User,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticationResponse{}, err
+	}
+
+	var body AuthenticationResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
