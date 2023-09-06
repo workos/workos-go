@@ -186,7 +186,7 @@ type VerifyEmailCodeOpts struct {
 	Code string `json:"code"`
 }
 
-type CreatePasswordResetChallengeOpts struct {
+type SendPasswordResetEmailOpts struct {
 	// The unique ID of the User whose email address will be verified.
 	Email string `json:"email"`
 
@@ -194,7 +194,7 @@ type CreatePasswordResetChallengeOpts struct {
 	PasswordResetUrl string `json:"password_reset_url"`
 }
 
-type CompletePasswordResetOpts struct {
+type ResetPasswordOpts struct {
 	// The verification token emailed to the user.
 	Token string `json:"token"`
 
@@ -851,11 +851,11 @@ func (c *Client) VerifyEmailCode(ctx context.Context, opts VerifyEmailCodeOpts) 
 	return body, err
 }
 
-// CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an
+// SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an
 // unmanaged user.
-func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePasswordResetChallengeOpts) (UserResponse, error) {
+func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/password_reset_challenge",
+		"%s/users/send_password_reset_email",
 		c.Endpoint,
 	)
 
@@ -894,16 +894,16 @@ func (c *Client) CreatePasswordResetChallenge(ctx context.Context, opts CreatePa
 	return body, err
 }
 
-// CompletePasswordReset resets user password using token that was sent to the user.
-func (c *Client) CompletePasswordReset(ctx context.Context, opts CompletePasswordResetOpts) (User, error) {
+// ResetPassword resets user password using token that was sent to the user.
+func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/password_reset",
+		"%s/users/reset_password",
 		c.Endpoint,
 	)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -912,7 +912,7 @@ func (c *Client) CompletePasswordReset(ctx context.Context, opts CompletePasswor
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -921,15 +921,15 @@ func (c *Client) CompletePasswordReset(ctx context.Context, opts CompletePasswor
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 
-	var body User
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
