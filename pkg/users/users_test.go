@@ -469,3 +469,35 @@ func TestUsersEnrollAuthFactor(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
 }
+
+func TestUsersListAuthFactors(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listAuthFactorsTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := []mfa.Factor{
+		{
+			ID:        "auth_factor_test123",
+			CreatedAt: "2022-02-17T22:39:26.616Z",
+			UpdatedAt: "2022-02-17T22:39:26.616Z",
+			Type:      "generic_otp",
+		},
+		{
+			ID:        "auth_factor_test234",
+			CreatedAt: "2022-02-17T22:39:26.616Z",
+			UpdatedAt: "2022-02-17T22:39:26.616Z",
+			Type:      "generic_otp",
+		},
+	}
+
+	authenticationRes, err := ListAuthFactors(context.Background(), ListAuthFactorsOpts{
+		User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
