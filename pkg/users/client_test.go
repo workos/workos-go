@@ -734,13 +734,13 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateWithPassword(context.Background(), test.options)
+			response, err := client.AuthenticateWithPassword(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, authenticationresponse)
+			require.Equal(t, test.expected, response)
 		})
 	}
 }
@@ -783,13 +783,13 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateWithCode(context.Background(), test.options)
+			response, err := client.AuthenticateWithCode(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, authenticationresponse)
+			require.Equal(t, test.expected, response)
 		})
 	}
 }
@@ -833,13 +833,64 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateWithMagicAuth(context.Background(), test.options)
+			response, err := client.AuthenticateWithMagicAuth(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, authenticationresponse)
+			require.Equal(t, test.expected, response)
+		})
+	}
+}
+
+func TestAuthenticateUserWithTOTP(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateWithTOTPOpts
+		expected UserResponse
+		err      bool
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
+		{
+			scenario: "Request returns an AuthenticationResponse",
+			client:   NewClient("test"),
+			options: AuthenticateWithTOTPOpts{
+				ClientID:                   "project_123",
+				Code:                       "test_123",
+				PendingAuthenticationToken: "cTDQJTTkTkkVYxQUlKBIxEsFs",
+				AuthenticationChallengeID:  "auth_challenge_01H96FETXGTW1QMBSBT2T36PW0",
+			},
+			expected: UserResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			response, err := client.AuthenticateWithTOTP(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, response)
 		})
 	}
 }
