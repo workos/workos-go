@@ -288,7 +288,7 @@ func TestUsersVerifyEmailCode(t *testing.T) {
 }
 
 func TestUsersCreatePasswordResetChallenge(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeHandler))
+	server := httptest.NewServer(http.HandlerFunc(sendPasswordResetEmailTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
@@ -307,7 +307,7 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 		},
 	}
 
-	userRes, err := CreatePasswordResetChallenge(context.Background(), CreatePasswordResetChallengeOpts{
+	userRes, err := SendPasswordResetEmail(context.Background(), SendPasswordResetEmailOpts{
 		Email:            "marcelina@foo-corp.com",
 		PasswordResetUrl: "https://example.com/reset",
 	})
@@ -316,23 +316,26 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersCompletePasswordReset(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(completePasswordResetHandler))
+func TestUsersResetPassword(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(resetPasswordHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := User{
-		ID:            "user_123",
-		Email:         "marcelina@foo-corp.com",
-		FirstName:     "Marcelina",
-		LastName:      "Davis",
-		EmailVerified: true,
+	expectedResponse := UserResponse{
+		User: User{
+			ID: "user_123",
+
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+		},
 	}
 
-	userRes, err := CompletePasswordReset(context.Background(), CompletePasswordResetOpts{
+	userRes, err := ResetPassword(context.Background(), ResetPasswordOpts{
 		Token: "testToken",
 	})
 
