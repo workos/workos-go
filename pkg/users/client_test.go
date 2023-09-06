@@ -1089,11 +1089,11 @@ func verifyEmailCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCreatePasswordResetChallenge(t *testing.T) {
+func TestSendPasswordResetEmail(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreatePasswordResetChallengeOpts
+		options  SendPasswordResetEmailOpts
 		expected UserResponse
 		err      bool
 	}{
@@ -1105,7 +1105,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 		{
 			scenario: "Request returns User",
 			client:   NewClient("test"),
-			options: CreatePasswordResetChallengeOpts{
+			options: SendPasswordResetEmailOpts{
 				Email:            "marcelina@foo-corp.com",
 				PasswordResetUrl: "https://foo-corp.com/reset-password",
 			},
@@ -1125,14 +1125,14 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createPasswordResetChallengeHandler))
+			server := httptest.NewServer(http.HandlerFunc(sendPasswordResetEmailTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.CreatePasswordResetChallenge(context.Background(), test.options)
+			user, err := client.SendPasswordResetEmail(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1143,7 +1143,7 @@ func TestCreatePasswordResetChallenge(t *testing.T) {
 	}
 }
 
-func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request) {
+func sendPasswordResetEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1153,7 +1153,7 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/password_reset_challenge" {
+	if r.URL.Path == "/users/send_password_reset_email" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:            "user_123",
@@ -1176,12 +1176,12 @@ func createPasswordResetChallengeHandler(w http.ResponseWriter, r *http.Request)
 	w.Write(body)
 }
 
-func TestCompletePasswordReset(t *testing.T) {
+func TestResetPassword(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CompletePasswordResetOpts
-		expected User
+		options  ResetPasswordOpts
+		expected UserResponse
 		err      bool
 	}{
 		{
@@ -1192,30 +1192,32 @@ func TestCompletePasswordReset(t *testing.T) {
 		{
 			scenario: "Request returns User",
 			client:   NewClient("test"),
-			options: CompletePasswordResetOpts{
+			options: ResetPasswordOpts{
 				Token: "testToken",
 			},
-			expected: User{
-				ID: "user_123",
+			expected: UserResponse{
+				User: User{
+					ID: "user_123",
 
-				Email:         "marcelina@foo-corp.com",
-				FirstName:     "Marcelina",
-				LastName:      "Davis",
-				EmailVerified: true,
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+				},
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(completePasswordResetHandler))
+			server := httptest.NewServer(http.HandlerFunc(resetPasswordHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.CompletePasswordReset(context.Background(), test.options)
+			user, err := client.ResetPassword(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1226,7 +1228,7 @@ func TestCompletePasswordReset(t *testing.T) {
 	}
 }
 
-func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
+func resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1236,13 +1238,16 @@ func completePasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/password_reset" {
-		body, err = json.Marshal(User{
-			ID:            "user_123",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
+	if r.URL.Path == "/users/reset_password" {
+		body, err = json.Marshal(UserResponse{
+			User: User{
+				ID: "user_123",
+
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+			},
 		})
 	}
 
