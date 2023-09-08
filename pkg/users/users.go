@@ -129,27 +129,27 @@ func AuthenticateUserWithMagicAuth(
 	return DefaultClient.AuthenticateUserWithMagicAuth(ctx, opts)
 }
 
-// CreateEmailVerificationChallenge creates an email verification challenge and emails verification token to user.
-func CreateEmailVerificationChallenge(
+// SendVerificationEmail creates an email verification challenge and emails verification token to user.
+func SendVerificationEmail(
 	ctx context.Context,
-	opts CreateEmailVerificationChallengeOpts,
-) (ChallengeResponse, error) {
-	return DefaultClient.CreateEmailVerificationChallenge(ctx, opts)
+	opts SendVerificationEmailOpts,
+) (UserResponse, error) {
+	return DefaultClient.SendVerificationEmail(ctx, opts)
 }
 
-// CompleteEmailVerification verifies user email using verification token that was sent to the user.
-func CompleteEmailVerification(
+// VerifyEmailCode verifies user email using verification token that was sent to the user.
+func VerifyEmailCode(
 	ctx context.Context,
-	opts CompleteEmailVerificationOpts,
-) (User, error) {
-	return DefaultClient.CompleteEmailVerification(ctx, opts)
+	opts VerifyEmailCodeOpts,
+) (UserResponse, error) {
+	return DefaultClient.VerifyEmailCode(ctx, opts)
 }
 
 // CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an unmanaged user.
 func CreatePasswordResetChallenge(
 	ctx context.Context,
 	opts CreatePasswordResetChallengeOpts,
-) (ChallengeResponse, error) {
+) (UserResponse, error) {
 	return DefaultClient.CreatePasswordResetChallenge(ctx, opts)
 }
 
