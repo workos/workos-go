@@ -107,7 +107,7 @@ func RemoveUserFromOrganization(
 func AuthenticateWithPassword(
 	ctx context.Context,
 	opts AuthenticateWithPasswordOpts,
-) (AuthenticationResponse, error) {
+) (UserResponse, error) {
 	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
@@ -116,7 +116,7 @@ func AuthenticateWithPassword(
 func AuthenticateWithCode(
 	ctx context.Context,
 	opts AuthenticateWithCodeOpts,
-) (AuthenticationResponse, error) {
+) (UserResponse, error) {
 	return DefaultClient.AuthenticateWithCode(ctx, opts)
 }
 
@@ -125,7 +125,7 @@ func AuthenticateWithCode(
 func AuthenticateWithMagicAuth(
 	ctx context.Context,
 	opts AuthenticateWithMagicAuthOpts,
-) (AuthenticationResponse, error) {
+) (UserResponse, error) {
 	return DefaultClient.AuthenticateWithMagicAuth(ctx, opts)
 }
 
@@ -167,4 +167,12 @@ func SendMagicAuthCode(
 	opts SendMagicAuthCodeOpts,
 ) (User, error) {
 	return DefaultClient.SendMagicAuthCode(ctx, opts)
+}
+
+// EnrollAuthFactor enrolls an authentication factor for the user.
+func EnrollAuthFactor(
+	ctx context.Context,
+	opts EnrollAuthFactorOpts,
+) (AuthenticationResponse, error) {
+	return DefaultClient.EnrollAuthFactor(ctx, opts)
 }

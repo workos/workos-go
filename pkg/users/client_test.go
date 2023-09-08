@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v2/pkg/mfa"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -699,7 +700,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithPasswordOpts
-		expected AuthenticationResponse
+		expected UserResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -714,7 +715,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 				Email:    "employee@foo-corp.com",
 				Password: "test_123",
 			},
-			expected: AuthenticationResponse{
+			expected: UserResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
@@ -749,7 +750,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithCodeOpts
-		expected AuthenticationResponse
+		expected UserResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -763,7 +764,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 				ClientID: "project_123",
 				Code:     "test_123",
 			},
-			expected: AuthenticationResponse{
+			expected: UserResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
@@ -798,7 +799,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithMagicAuthOpts
-		expected AuthenticationResponse
+		expected UserResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -813,7 +814,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 				Code:     "test_123",
 				User:     "user_123",
 			},
-			expected: AuthenticationResponse{
+			expected: UserResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
@@ -851,7 +852,7 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
-		response := AuthenticationResponse{
+		response := UserResponse{
 			User: User{
 				ID:        "testUserID",
 				FirstName: "John",
@@ -1271,6 +1272,101 @@ func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 			LastName:  "Davis",
 			CreatedAt: "2021-06-25T19:07:33.155Z",
 			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestEnrollAuthFactor(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  EnrollAuthFactorOpts
+		expected AuthenticationResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: EnrollAuthFactorOpts{
+				User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Type: mfa.TOTP,
+			},
+			expected: AuthenticationResponse{
+				Factor: mfa.Factor{
+					ID:        "auth_factor_test123",
+					CreatedAt: "2022-02-17T22:39:26.616Z",
+					UpdatedAt: "2022-02-17T22:39:26.616Z",
+					Type:      "generic_otp",
+				},
+				Challenge: mfa.Challenge{
+					ID:        "auth_challenge_test123",
+					CreatedAt: "2022-02-17T22:39:26.616Z",
+					UpdatedAt: "2022-02-17T22:39:26.616Z",
+					FactorID:  "auth_factor_test123",
+					ExpiresAt: "2022-02-17T22:39:26.616Z",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(enrollAuthFactorTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.EnrollAuthFactor(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func enrollAuthFactorTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
+		body, err = json.Marshal(AuthenticationResponse{
+			Factor: mfa.Factor{
+				ID:        "auth_factor_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
+			},
+			Challenge: mfa.Challenge{
+				ID:        "auth_challenge_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				FactorID:  "auth_factor_test123",
+				ExpiresAt: "2022-02-17T22:39:26.616Z",
+			},
 		})
 	}
 
