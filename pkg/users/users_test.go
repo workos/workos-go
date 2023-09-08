@@ -231,15 +231,15 @@ func TestUsersRemoveUserFromOrganization(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createEmailVerificationChallengeHandler))
+func TestUsersSendVerificationEmail(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(sendVerificationEmailTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := ChallengeResponse{
+	expectedResponse := UserResponse{
 		User: User{
 			ID:            "user_123",
 			Email:         "marcelina@foo-corp.com",
@@ -249,36 +249,37 @@ func TestUsersCreateEmailVerificationChallenge(t *testing.T) {
 			CreatedAt:     "2021-06-25T19:07:33.155Z",
 			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		},
-		Token: "testToken",
 	}
 
-	userRes, err := CreateEmailVerificationChallenge(context.Background(), CreateEmailVerificationChallengeOpts{
-		User:            "user_123",
-		VerificationUrl: "https://example.com/verify",
+	userRes, err := SendVerificationEmail(context.Background(), SendVerificationEmailOpts{
+		User: "user_123",
 	})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersCompleteEmailVerification(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(completeEmailVerificationHandler))
+func TestUsersVerifyEmailCode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(verifyEmailCodeTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
 
-	expectedResponse := User{
-		ID:            "user_123",
-		Email:         "marcelina@foo-corp.com",
-		FirstName:     "Marcelina",
-		LastName:      "Davis",
-		EmailVerified: true,
+	expectedResponse := UserResponse{
+		User: User{
+			ID:            "user_123",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+		},
 	}
 
-	userRes, err := CompleteEmailVerification(context.Background(), CompleteEmailVerificationOpts{
-		Token: "testToken",
+	userRes, err := VerifyEmailCode(context.Background(), VerifyEmailCodeOpts{
+		User: "user_123",
+		Code: "testToken",
 	})
 
 	require.NoError(t, err)
@@ -293,7 +294,7 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := ChallengeResponse{
+	expectedResponse := UserResponse{
 		User: User{
 			ID:            "user_123",
 			Email:         "marcelina@foo-corp.com",
@@ -303,7 +304,6 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 			CreatedAt:     "2021-06-25T19:07:33.155Z",
 			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		},
-		Token: "testToken",
 	}
 
 	userRes, err := CreatePasswordResetChallenge(context.Background(), CreatePasswordResetChallengeOpts{
