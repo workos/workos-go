@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v2/pkg/mfa"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -348,7 +349,7 @@ func TestUsersAuthenticateWithCode(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationResponse{
+	expectedResponse := UserResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
@@ -372,7 +373,7 @@ func TestUsersAuthenticateWithPassword(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationResponse{
+	expectedResponse := UserResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
@@ -396,7 +397,7 @@ func TestUsersAuthenticateWithMagicAuth(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationResponse{
+	expectedResponse := UserResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
@@ -430,6 +431,40 @@ func TestUsersSendMagicAuthCode(t *testing.T) {
 	}
 
 	authenticationRes, err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUsersEnrollAuthFactor(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(enrollAuthFactorTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticationResponse{
+		Factor: mfa.Factor{
+			ID:        "auth_factor_test123",
+			CreatedAt: "2022-02-17T22:39:26.616Z",
+			UpdatedAt: "2022-02-17T22:39:26.616Z",
+			Type:      "generic_otp",
+		},
+		Challenge: mfa.Challenge{
+			ID:        "auth_challenge_test123",
+			CreatedAt: "2022-02-17T22:39:26.616Z",
+			UpdatedAt: "2022-02-17T22:39:26.616Z",
+			FactorID:  "auth_factor_test123",
+			ExpiresAt: "2022-02-17T22:39:26.616Z",
+		},
+	}
+
+	authenticationRes, err := EnrollAuthFactor(context.Background(), EnrollAuthFactorOpts{
+		User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Type: mfa.TOTP,
+	})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
