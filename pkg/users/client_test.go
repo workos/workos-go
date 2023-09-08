@@ -1378,3 +1378,95 @@ func enrollAuthFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestListAuthFactor(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListAuthFactorsOpts
+		expected []mfa.Factor
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns User",
+			client:   NewClient("test"),
+			options: ListAuthFactorsOpts{
+				User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			},
+			expected: []mfa.Factor{
+				{
+					ID:        "auth_factor_test123",
+					CreatedAt: "2022-02-17T22:39:26.616Z",
+					UpdatedAt: "2022-02-17T22:39:26.616Z",
+					Type:      "generic_otp",
+				},
+				{
+					ID:        "auth_factor_test234",
+					CreatedAt: "2022-02-17T22:39:26.616Z",
+					UpdatedAt: "2022-02-17T22:39:26.616Z",
+					Type:      "generic_otp",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listAuthFactorsTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.ListAuthFactors(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
+func listAuthFactorsTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
+		body, err = json.Marshal([]mfa.Factor{
+			{
+				ID:        "auth_factor_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
+			},
+			{
+				ID:        "auth_factor_test234",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
+			},
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
