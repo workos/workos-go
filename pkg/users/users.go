@@ -154,20 +154,20 @@ func VerifyEmailCode(
 	return DefaultClient.VerifyEmailCode(ctx, opts)
 }
 
-// CreatePasswordResetChallenge creates a password reset challenge and emails a password reset link to an unmanaged user.
-func CreatePasswordResetChallenge(
+// SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an unmanaged user.
+func SendPasswordResetEmail(
 	ctx context.Context,
-	opts CreatePasswordResetChallengeOpts,
+	opts SendPasswordResetEmailOpts,
 ) (UserResponse, error) {
-	return DefaultClient.CreatePasswordResetChallenge(ctx, opts)
+	return DefaultClient.SendPasswordResetEmail(ctx, opts)
 }
 
-// CompletePasswordReset resets user password using token that was sent to the user.
-func CompletePasswordReset(
+// ResetPassword resets user password using token that was sent to the user.
+func ResetPassword(
 	ctx context.Context,
-	opts CompletePasswordResetOpts,
-) (User, error) {
-	return DefaultClient.CompletePasswordReset(ctx, opts)
+	opts ResetPasswordOpts,
+) (UserResponse, error) {
+	return DefaultClient.ResetPassword(ctx, opts)
 }
 
 // SendMagicAuthCode sends a one-time code to the user's email address.
