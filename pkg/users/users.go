@@ -130,6 +130,14 @@ func AuthenticateWithMagicAuth(
 	return DefaultClient.AuthenticateWithMagicAuth(ctx, opts)
 }
 
+// AuthenticateWithTOTP authenticates a user by verifying a time-based one-time password (TOTP)
+func AuthenticateWithTOTP(
+	ctx context.Context,
+	opts AuthenticateWithTOTPOpts,
+) (UserResponse, error) {
+	return DefaultClient.AuthenticateWithTOTP(ctx, opts)
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func SendVerificationEmail(
 	ctx context.Context,
