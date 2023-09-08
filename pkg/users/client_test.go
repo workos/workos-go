@@ -698,7 +698,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  AuthenticateUserWithPasswordOpts
+		options  AuthenticateWithPasswordOpts
 		expected AuthenticationResponse
 		err      bool
 	}{{
@@ -709,7 +709,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
-			options: AuthenticateUserWithPasswordOpts{
+			options: AuthenticateWithPasswordOpts{
 				ClientID: "project_123",
 				Email:    "employee@foo-corp.com",
 				Password: "test_123",
@@ -733,7 +733,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateUserWithPassword(context.Background(), test.options)
+			authenticationresponse, err := client.AuthenticateWithPassword(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -748,7 +748,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  AuthenticateUserWithCodeOpts
+		options  AuthenticateWithCodeOpts
 		expected AuthenticationResponse
 		err      bool
 	}{{
@@ -759,7 +759,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
-			options: AuthenticateUserWithCodeOpts{
+			options: AuthenticateWithCodeOpts{
 				ClientID: "project_123",
 				Code:     "test_123",
 			},
@@ -782,7 +782,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateUserWithCode(context.Background(), test.options)
+			authenticationresponse, err := client.AuthenticateWithCode(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -797,7 +797,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  AuthenticateUserWithMagicAuthOpts
+		options  AuthenticateWithMagicAuthOpts
 		expected AuthenticationResponse
 		err      bool
 	}{{
@@ -808,7 +808,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 		{
 			scenario: "Request returns an AuthenticationResponse",
 			client:   NewClient("test"),
-			options: AuthenticateUserWithMagicAuthOpts{
+			options: AuthenticateWithMagicAuthOpts{
 				ClientID: "project_123",
 				Code:     "test_123",
 				User:     "user_123",
@@ -832,7 +832,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			authenticationresponse, err := client.AuthenticateUserWithMagicAuth(context.Background(), test.options)
+			authenticationresponse, err := client.AuthenticateWithMagicAuth(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
