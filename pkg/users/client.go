@@ -171,7 +171,7 @@ type SendVerificationEmailOpts struct {
 type VerifyEmailCodeOpts struct {
 	// The unique ID of the User whose code will be verified.
 	User string
-	// The verification token emailed to the user.
+	// The verification code emailed to the user.
 	Code string `json:"code"`
 }
 
