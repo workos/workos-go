@@ -208,7 +208,7 @@ type UserResponse struct {
 
 type SendMagicAuthCodeOpts struct {
 	// The email address the one-time code will be sent to.
-	Email string `json:"email_address"`
+	Email string `json:"email"`
 }
 
 type AddUserToOrganizationOpts struct {
