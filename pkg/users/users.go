@@ -174,7 +174,7 @@ func ResetPassword(
 func SendMagicAuthCode(
 	ctx context.Context,
 	opts SendMagicAuthCodeOpts,
-) (User, error) {
+) (UserResponse, error) {
 	return DefaultClient.SendMagicAuthCode(ctx, opts)
 }
 
