@@ -508,18 +508,20 @@ func TestUsersListAuthFactors(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := []mfa.Factor{
-		{
-			ID:        "auth_factor_test123",
-			CreatedAt: "2022-02-17T22:39:26.616Z",
-			UpdatedAt: "2022-02-17T22:39:26.616Z",
-			Type:      "generic_otp",
-		},
-		{
-			ID:        "auth_factor_test234",
-			CreatedAt: "2022-02-17T22:39:26.616Z",
-			UpdatedAt: "2022-02-17T22:39:26.616Z",
-			Type:      "generic_otp",
+	expectedResponse := ListAuthFactorsResponse{
+		Data: []mfa.Factor{
+			{
+				ID:        "auth_factor_test123",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
+			},
+			{
+				ID:        "auth_factor_test234",
+				CreatedAt: "2022-02-17T22:39:26.616Z",
+				UpdatedAt: "2022-02-17T22:39:26.616Z",
+				Type:      "generic_otp",
+			},
 		},
 	}
 
