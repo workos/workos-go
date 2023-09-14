@@ -3,7 +3,6 @@ package users
 
 import (
 	"context"
-	"github.com/workos/workos-go/v2/pkg/mfa"
 	"net/http"
 )
 
@@ -190,6 +189,6 @@ func EnrollAuthFactor(
 func ListAuthFactors(
 	ctx context.Context,
 	opts ListAuthFactorsOpts,
-) ([]mfa.Factor, error) {
+) (ListAuthFactorsResponse, error) {
 	return DefaultClient.ListAuthFactors(ctx, opts)
 }
