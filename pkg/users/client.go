@@ -232,6 +232,12 @@ type ListAuthFactorsOpts struct {
 	User string
 }
 
+type ListAuthFactorsResponse struct {
+	Data []mfa.Factor `json:"data"`
+
+	ListMetadata common.ListMetadata `json:"listMetadata"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -1024,7 +1030,7 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 }
 
 // ListAuthFactors lists the available authentication factors for the user.
-func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) ([]mfa.Factor, error) {
+func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) (ListAuthFactorsResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/%s/auth/factors",
 		c.Endpoint,
@@ -1037,7 +1043,7 @@ func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) 
 		nil,
 	)
 	if err != nil {
-		return []mfa.Factor{}, err
+		return ListAuthFactorsResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -1046,15 +1052,15 @@ func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) 
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return []mfa.Factor{}, err
+		return ListAuthFactorsResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return []mfa.Factor{}, err
+		return ListAuthFactorsResponse{}, err
 	}
 
-	var body []mfa.Factor
+	var body ListAuthFactorsResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

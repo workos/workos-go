@@ -1444,7 +1444,7 @@ func TestListAuthFactor(t *testing.T) {
 		scenario string
 		client   *Client
 		options  ListAuthFactorsOpts
-		expected []mfa.Factor
+		expected ListAuthFactorsResponse
 		err      bool
 	}{
 		{
@@ -1458,18 +1458,20 @@ func TestListAuthFactor(t *testing.T) {
 			options: ListAuthFactorsOpts{
 				User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			},
-			expected: []mfa.Factor{
-				{
-					ID:        "auth_factor_test123",
-					CreatedAt: "2022-02-17T22:39:26.616Z",
-					UpdatedAt: "2022-02-17T22:39:26.616Z",
-					Type:      "generic_otp",
-				},
-				{
-					ID:        "auth_factor_test234",
-					CreatedAt: "2022-02-17T22:39:26.616Z",
-					UpdatedAt: "2022-02-17T22:39:26.616Z",
-					Type:      "generic_otp",
+			expected: ListAuthFactorsResponse{
+				Data: []mfa.Factor{
+					{
+						ID:        "auth_factor_test123",
+						CreatedAt: "2022-02-17T22:39:26.616Z",
+						UpdatedAt: "2022-02-17T22:39:26.616Z",
+						Type:      "generic_otp",
+					},
+					{
+						ID:        "auth_factor_test234",
+						CreatedAt: "2022-02-17T22:39:26.616Z",
+						UpdatedAt: "2022-02-17T22:39:26.616Z",
+						Type:      "generic_otp",
+					},
 				},
 			},
 		},
@@ -1506,18 +1508,20 @@ func listAuthFactorsTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
-		body, err = json.Marshal([]mfa.Factor{
-			{
-				ID:        "auth_factor_test123",
-				CreatedAt: "2022-02-17T22:39:26.616Z",
-				UpdatedAt: "2022-02-17T22:39:26.616Z",
-				Type:      "generic_otp",
-			},
-			{
-				ID:        "auth_factor_test234",
-				CreatedAt: "2022-02-17T22:39:26.616Z",
-				UpdatedAt: "2022-02-17T22:39:26.616Z",
-				Type:      "generic_otp",
+		body, err = json.Marshal(ListAuthFactorsResponse{
+			Data: []mfa.Factor{
+				{
+					ID:        "auth_factor_test123",
+					CreatedAt: "2022-02-17T22:39:26.616Z",
+					UpdatedAt: "2022-02-17T22:39:26.616Z",
+					Type:      "generic_otp",
+				},
+				{
+					ID:        "auth_factor_test234",
+					CreatedAt: "2022-02-17T22:39:26.616Z",
+					UpdatedAt: "2022-02-17T22:39:26.616Z",
+					Type:      "generic_otp",
+				},
 			},
 		})
 	}
