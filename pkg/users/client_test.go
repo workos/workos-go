@@ -1265,7 +1265,7 @@ func TestSendMagicAuthCode(t *testing.T) {
 		scenario string
 		client   *Client
 		options  SendMagicAuthCodeOpts
-		expected User
+		expected UserResponse
 		err      bool
 	}{
 		{
@@ -1279,13 +1279,15 @@ func TestSendMagicAuthCode(t *testing.T) {
 			options: SendMagicAuthCodeOpts{
 				Email: "marcelina@foo-corp.com",
 			},
-			expected: User{
-				ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				Email:     "marcelina@foo-corp.com",
-				FirstName: "Marcelina",
-				LastName:  "Davis",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			expected: UserResponse{
+				User: User{
+					ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+					Email:     "marcelina@foo-corp.com",
+					FirstName: "Marcelina",
+					LastName:  "Davis",
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
 			},
 		},
 	}
@@ -1321,13 +1323,15 @@ func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/magic_auth/send" {
-		body, err = json.Marshal(User{
-			ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			Email:     "marcelina@foo-corp.com",
-			FirstName: "Marcelina",
-			LastName:  "Davis",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		body, err = json.Marshal(UserResponse{
+			User: User{
+				ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:     "marcelina@foo-corp.com",
+				FirstName: "Marcelina",
+				LastName:  "Davis",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
 		})
 	}
 
