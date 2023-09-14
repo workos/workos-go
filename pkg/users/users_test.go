@@ -448,13 +448,15 @@ func TestUsersSendMagicAuthCode(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := User{
-		ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		Email:     "marcelina@foo-corp.com",
-		FirstName: "Marcelina",
-		LastName:  "Davis",
-		CreatedAt: "2021-06-25T19:07:33.155Z",
-		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	expectedResponse := UserResponse{
+		User: User{
+			ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:     "marcelina@foo-corp.com",
+			FirstName: "Marcelina",
+			LastName:  "Davis",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		},
 	}
 
 	authenticationRes, err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})

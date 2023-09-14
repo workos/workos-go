@@ -222,8 +222,10 @@ type RemoveUserFromOrganizationOpts struct {
 }
 
 type EnrollAuthFactorOpts struct {
-	User string
-	Type mfa.FactorType `json:"type"`
+	User       string
+	Type       mfa.FactorType `json:"type"`
+	TOTPIssuer string         `json:"totp_issuer,omitempty"`
+	TOTPUser   string         `json:"totp_user,omitempty"`
 }
 
 type ListAuthFactorsOpts struct {
@@ -937,7 +939,7 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 }
 
 // SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
-func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (User, error) {
+func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/magic_auth/send",
 		c.Endpoint,
@@ -945,7 +947,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -954,7 +956,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -963,15 +965,15 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
+		return UserResponse{}, err
 	}
 
-	var body User
+	var body UserResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
