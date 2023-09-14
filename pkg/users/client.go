@@ -222,8 +222,10 @@ type RemoveUserFromOrganizationOpts struct {
 }
 
 type EnrollAuthFactorOpts struct {
-	User string
-	Type mfa.FactorType `json:"type"`
+	User       string
+	Type       mfa.FactorType `json:"type"`
+	TOTPIssuer string         `json:"totp_issuer,omitempty"`
+	TOTPUser   string         `json:"totp_user,omitempty"`
 }
 
 type ListAuthFactorsOpts struct {
