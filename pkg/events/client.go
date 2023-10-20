@@ -42,21 +42,24 @@ func (c *Client) init() {
 		c.Endpoint = "https://api.workos.com"
 	}
 }
- 
 
 const (
+	// Connection Events
+	ConnectionActivated   = "connection.activated"
+	ConnectionDeactivated = "connection.deactived"
+	ConnectionDeleted     = "connection.deleted"
 	// Directory Events
-	DirectoryActivated  = "dsync.activated"
-	DirectoryDeleted    = "dsync.deleted"
+	DirectoryActivated = "dsync.activated"
+	DirectoryDeleted   = "dsync.deleted"
 	// Directory User Events
 	DirectoryUserCreated = "dsync.user.created"
 	DirectoryUserUpdated = "dsync.user.updated"
 	DirectoryUserDeleted = "dsync.user.deleted"
 	// Directory Group Events
-	DirectoryGroupCreated = "dsync.group.created"
-	DirectoryGroupUpdated = "dsync.group.updated"
-	DirectoryGroupDeleted = "dsync.group.deleted"
-	DirectoryGroupUserAdded = "dsync.group.user_added"
+	DirectoryGroupCreated     = "dsync.group.created"
+	DirectoryGroupUpdated     = "dsync.group.updated"
+	DirectoryGroupDeleted     = "dsync.group.deleted"
+	DirectoryGroupUserAdded   = "dsync.group.user_added"
 	DirectroyGroupUserRemoved = "dsync.group.user_removed"
 )
 
