@@ -206,3 +206,10 @@ func RevokeInvitation(
 ) (InviteObject, error) {
 	return DefaultClient.RevokeInvitation(ctx, opts)
 }
+
+func ListInvitations(
+	ctx context.Context,
+	opts ListInvitationsOpts,
+) ([]InviteObject, error) {
+	return DefaultClient.ListInvitations(ctx, opts)
+}

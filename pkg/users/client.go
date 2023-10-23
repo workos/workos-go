@@ -259,6 +259,15 @@ type CreateInvitationOpts struct {
 	InviterUserID  string `json:"inviter_user_id,omitempty"`
 }
 
+type RevokeInvitationOpts struct {
+	InviteID string
+}
+
+type ListInvitationsOpts struct {
+	OrganizationID string `json:"organization_id,omitempty"`
+	Email          string `json:"email,omitempty"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -266,10 +275,6 @@ func NewClient(apiKey string) *Client {
 		HTTPClient: &http.Client{Timeout: time.Second * 10},
 		JSONEncode: json.Marshal,
 	}
-}
-
-type RevokeInvitationOpts struct {
-	InviteID string
 }
 
 // GetUser returns details of an existing user
@@ -1153,6 +1158,50 @@ func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts
 	}
 
 	var body InviteObject
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ListInvitations gets a list of all of your existing invites matching the criteria specified.
+func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) ([]InviteObject, error) {
+	endpoint := fmt.Sprintf(
+		"%s/users/invites",
+		c.Endpoint,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	queryValues, err := query.Values(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	req.URL.RawQuery = queryValues.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return nil, err
+	}
+
+	var body []InviteObject
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

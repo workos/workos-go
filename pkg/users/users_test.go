@@ -591,3 +591,31 @@ func TestUsersRevokeInvitation(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, revokeRes)
 }
+
+func TestUsersListInvitations(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listInvitationsTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := []InviteObject{
+		{
+			Object:    "invite",
+			ID:        "invite_123",
+			Email:     "marcelina@foo-corp.com",
+			State:     "pending",
+			Token:     "myToken",
+			ExpiresAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		},
+	}
+
+	listRes, err := ListInvitations(context.Background(), ListInvitationsOpts{
+		Email: "marcelina@foo-corp.com",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, listRes)
+}
