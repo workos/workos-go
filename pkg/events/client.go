@@ -36,6 +36,10 @@ const (
 	DirectoryGroupDeleted     = "dsync.group.deleted"
 	DirectoryGroupUserAdded   = "dsync.group.user_added"
 	DirectroyGroupUserRemoved = "dsync.group.user_removed"
+	// User Management Events
+	UserAdded   = "user.added"
+	UserUpdated = "user.updated"
+	UserDeleted = "user.deleted"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
