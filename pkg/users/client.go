@@ -268,6 +268,10 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
+type RevokeInvitationOpts struct {
+	InviteID string
+}
+
 // GetUser returns details of an existing user
 func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
@@ -1101,6 +1105,35 @@ func (c *Client) CreateInvitation(ctx context.Context, opts CreateInvitationOpts
 		endpoint,
 		bytes.NewBuffer(data),
 	)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return InviteObject{}, err
+	}
+
+	var body InviteObject
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts) (InviteObject, error) {
+	endpoint := fmt.Sprintf("%s/users/invites/%s/revoke", c.Endpoint, opts.InviteID)
+
+	req, err := http.NewRequest(http.MethodPost, endpoint, nil)
 	if err != nil {
 		return InviteObject{}, err
 	}
