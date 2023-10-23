@@ -268,6 +268,14 @@ type ListInvitationsOpts struct {
 	Email          string `json:"email,omitempty"`
 }
 
+type GetInvitationByIDOpts struct {
+	InviteID string
+}
+
+type GetInvitationByTokenOpts struct {
+	Token string
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -1202,6 +1210,66 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 	}
 
 	var body []InviteObject
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// GetInvitationByID fetches an invite by its ID.
+func (c *Client) GetInvitationByID(ctx context.Context, opts GetInvitationByIDOpts) (InviteObject, error) {
+	endpoint := fmt.Sprintf("%s/users/invites/%s", c.Endpoint, opts.InviteID)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return InviteObject{}, err
+	}
+
+	var body InviteObject
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// GetInvitationByToken fetches an invite by its token.
+func (c *Client) GetInvitationByToken(ctx context.Context, opts GetInvitationByTokenOpts) (InviteObject, error) {
+	endpoint := fmt.Sprintf("%s/users/invites/by_token/%s", c.Endpoint, opts.Token)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return InviteObject{}, err
+	}
+
+	var body InviteObject
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

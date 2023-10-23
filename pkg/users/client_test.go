@@ -1794,3 +1794,169 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestGetInvitationByID(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetInvitationByIDOpts
+		expected InviteObject
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns InviteObject by ID",
+			client:   NewClient("test"),
+			options:  GetInvitationByIDOpts{InviteID: "invite_123"},
+			expected: InviteObject{
+				Object:    "invite",
+				ID:        "invite_123",
+				Email:     "marcelina@foo-corp.com",
+				State:     "pending",
+				Token:     "myToken",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getInvitationByIDTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			invitation, err := client.GetInvitationByID(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, invitation)
+		})
+	}
+}
+
+func TestGetInvitationByToken(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetInvitationByTokenOpts
+		expected InviteObject
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns InviteObject by token",
+			client:   NewClient("test"),
+			options:  GetInvitationByTokenOpts{Token: "myToken"},
+			expected: InviteObject{
+				Object:    "invite",
+				ID:        "invite_123",
+				Email:     "marcelina@foo-corp.com",
+				State:     "pending",
+				Token:     "myToken",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getInvitationByTokenTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			invitation, err := client.GetInvitationByToken(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, invitation)
+		})
+	}
+}
+
+func getInvitationByIDTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/invites/invite_123" {
+		invites := InviteObject{
+			Object:    "invite",
+			ID:        "invite_123",
+			Email:     "marcelina@foo-corp.com",
+			State:     "pending",
+			Token:     "myToken",
+			ExpiresAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(invites)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func getInvitationByTokenTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/users/invites/by_token/myToken" {
+		invites := InviteObject{
+			Object:    "invite",
+			ID:        "invite_123",
+			Email:     "marcelina@foo-corp.com",
+			State:     "pending",
+			Token:     "myToken",
+			ExpiresAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(invites)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}

@@ -213,3 +213,17 @@ func ListInvitations(
 ) ([]InviteObject, error) {
 	return DefaultClient.ListInvitations(ctx, opts)
 }
+
+func GetInvitationByID(
+	ctx context.Context,
+	opts GetInvitationByIDOpts,
+) (InviteObject, error) {
+	return DefaultClient.GetInvitationByID(ctx, opts)
+}
+
+func GetInvitationByToken(
+	ctx context.Context,
+	opts GetInvitationByTokenOpts,
+) (InviteObject, error) {
+	return DefaultClient.GetInvitationByToken(ctx, opts)
+}
