@@ -238,6 +238,27 @@ type ListAuthFactorsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
+type InviteObject struct {
+	Object         string `json:"object"`
+	ID             string `json:"id"`
+	Email          string `json:"email"`
+	State          string `json:"state"`
+	AcceptedAt     string `json:"accepted_at,omitempty"`
+	RevokedAt      string `json:"revoked_at,omitempty"`
+	Token          string `json:"token"`
+	OrganizationID string `json:"organization_id,omitempty"`
+	ExpiresAt      string `json:"expires_at"`
+	CreatedAt      string `json:"created_at"`
+	UpdatedAt      string `json:"updated_at"`
+}
+
+type CreateInvitationOpts struct {
+	Email          string `json:"email"`
+	OrganizationID string `json:"organization_id,omitempty"`
+	ExpiresInDays  int    `json:"expires_in_days,omitempty"`
+	InviterUserID  string `json:"inviter_user_id,omitempty"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -1061,6 +1082,44 @@ func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) 
 	}
 
 	var body ListAuthFactorsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) CreateInvitation(ctx context.Context, opts CreateInvitationOpts) (InviteObject, error) {
+	endpoint := fmt.Sprintf("%s/users/invites", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return InviteObject{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return InviteObject{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return InviteObject{}, err
+	}
+
+	var body InviteObject
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

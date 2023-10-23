@@ -192,3 +192,10 @@ func ListAuthFactors(
 ) (ListAuthFactorsResponse, error) {
 	return DefaultClient.ListAuthFactors(ctx, opts)
 }
+
+func CreateInvitation(
+	ctx context.Context,
+	opts CreateInvitationOpts,
+) (InviteObject, error) {
+	return DefaultClient.CreateInvitation(ctx, opts)
+}
