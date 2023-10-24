@@ -533,8 +533,8 @@ func TestUsersListAuthFactors(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersCreateInvitation(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createInvitationTestHandler))
+func TestUsersCreateInvite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(CreateInviteTestHandler))
 
 	defer server.Close()
 
@@ -542,8 +542,7 @@ func TestUsersCreateInvitation(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := InviteObject{
-		Object:    "invite",
+	expectedResponse := Invite{
 		ID:        "invite_123",
 		Email:     "marcelina@foo-corp.com",
 		State:     "pending",
@@ -553,7 +552,7 @@ func TestUsersCreateInvitation(t *testing.T) {
 		UpdatedAt: "2021-06-25T19:07:33.155Z",
 	}
 
-	createRes, err := CreateInvitation(context.Background(), CreateInvitationOpts{
+	createRes, err := CreateInvite(context.Background(), CreateInviteOpts{
 		Email:          "marcelina@foo-corp.com",
 		OrganizationID: "org_123",
 		ExpiresInDays:  7,
@@ -564,8 +563,8 @@ func TestUsersCreateInvitation(t *testing.T) {
 	require.Equal(t, expectedResponse, createRes)
 }
 
-func TestUsersRevokeInvitation(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(revokeInvitationTestHandler))
+func TestUsersRevokeInvite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(RevokeInviteTestHandler))
 
 	defer server.Close()
 
@@ -573,8 +572,7 @@ func TestUsersRevokeInvitation(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := InviteObject{
-		Object:    "invite",
+	expectedResponse := Invite{
 		ID:        "invite_123",
 		Email:     "marcelina@foo-corp.com",
 		State:     "pending",
@@ -584,7 +582,7 @@ func TestUsersRevokeInvitation(t *testing.T) {
 		UpdatedAt: "2021-06-25T19:07:33.155Z",
 	}
 
-	revokeRes, err := RevokeInvitation(context.Background(), RevokeInvitationOpts{
+	revokeRes, err := RevokeInvite(context.Background(), RevokeInviteOpts{
 		InviteID: "invite_123",
 	})
 
@@ -592,27 +590,32 @@ func TestUsersRevokeInvitation(t *testing.T) {
 	require.Equal(t, expectedResponse, revokeRes)
 }
 
-func TestUsersListInvitations(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listInvitationsTestHandler))
+func TestUsersListInvites(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listInvitesTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 	SetAPIKey("test")
 
-	expectedResponse := []InviteObject{
-		{
-			Object:    "invite",
-			ID:        "invite_123",
-			Email:     "marcelina@foo-corp.com",
-			State:     "pending",
-			Token:     "myToken",
-			ExpiresAt: "2021-06-25T19:07:33.155Z",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
-		},
-	}
+	expectedResponse :=
+		ListInvitesResponse{
+			Data: []Invite{
+				{
+					ID:        "invite_123",
+					Email:     "marcelina@foo-corp.com",
+					State:     "pending",
+					Token:     "myToken",
+					ExpiresAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
 
-	listRes, err := ListInvitations(context.Background(), ListInvitationsOpts{
+	listRes, err := ListInvites(context.Background(), ListInvitesOpts{
 		Email: "marcelina@foo-corp.com",
 	})
 
@@ -620,15 +623,14 @@ func TestUsersListInvitations(t *testing.T) {
 	require.Equal(t, expectedResponse, listRes)
 }
 
-func TestUsersGetInvitationByID(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getInvitationByIDTestHandler))
+func TestUsersGetInvite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getInviteTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 	SetAPIKey("test")
 
-	expectedResponse := InviteObject{
-		Object:    "invite",
+	expectedResponse := Invite{
 		ID:        "invite_123",
 		Email:     "marcelina@foo-corp.com",
 		State:     "pending",
@@ -638,7 +640,7 @@ func TestUsersGetInvitationByID(t *testing.T) {
 		UpdatedAt: "2021-06-25T19:07:33.155Z",
 	}
 
-	getByIDRes, err := GetInvitationByID(context.Background(), GetInvitationByIDOpts{
+	getByIDRes, err := GetInvite(context.Background(), GetInviteOpts{
 		InviteID: "invite_123",
 	})
 
@@ -646,15 +648,14 @@ func TestUsersGetInvitationByID(t *testing.T) {
 	require.Equal(t, expectedResponse, getByIDRes)
 }
 
-func TestUsersGetInvitationByToken(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getInvitationByTokenTestHandler))
+func TestUsersGetInviteByToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getInviteByTokenTestHandler))
 	defer server.Close()
 
 	DefaultClient = mockClient(server)
 	SetAPIKey("test")
 
-	expectedResponse := InviteObject{
-		Object:    "invite",
+	expectedResponse := Invite{
 		ID:        "invite_123",
 		Email:     "marcelina@foo-corp.com",
 		State:     "pending",
@@ -664,7 +665,7 @@ func TestUsersGetInvitationByToken(t *testing.T) {
 		UpdatedAt: "2021-06-25T19:07:33.155Z",
 	}
 
-	getByTokenRes, err := GetInvitationByToken(context.Background(), GetInvitationByTokenOpts{
+	getByTokenRes, err := GetInviteByToken(context.Background(), GetInviteByTokenOpts{
 		Token: "myToken",
 	})
 

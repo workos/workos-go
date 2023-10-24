@@ -26,6 +26,17 @@ const (
 	Desc Order = "desc"
 )
 
+// TokenState represents the state of a token.
+type TokenState string
+
+// Constants that enumerate the state of a token.
+const (
+	Pending  TokenState = "pending"
+	Accepted TokenState = "accepted"
+	Expired  TokenState = "expired"
+	Revoked  TokenState = "revoked"
+)
+
 // Organization contains data about a particular Organization.
 type Organization struct {
 	// The Organization's unique identifier.
@@ -238,41 +249,62 @@ type ListAuthFactorsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
-type InviteObject struct {
-	Object         string `json:"object"`
-	ID             string `json:"id"`
-	Email          string `json:"email"`
-	State          string `json:"state"`
-	AcceptedAt     string `json:"accepted_at,omitempty"`
-	RevokedAt      string `json:"revoked_at,omitempty"`
-	Token          string `json:"token"`
-	OrganizationID string `json:"organization_id,omitempty"`
-	ExpiresAt      string `json:"expires_at"`
-	CreatedAt      string `json:"created_at"`
-	UpdatedAt      string `json:"updated_at"`
+type Invite struct {
+	ID             string     `json:"id"`
+	Email          string     `json:"email"`
+	State          TokenState `json:"state"`
+	AcceptedAt     string     `json:"accepted_at,omitempty"`
+	RevokedAt      string     `json:"revoked_at,omitempty"`
+	Token          string     `json:"token"`
+	OrganizationID string     `json:"organization_id,omitempty"`
+	ExpiresAt      string     `json:"expires_at"`
+	CreatedAt      string     `json:"created_at"`
+	UpdatedAt      string     `json:"updated_at"`
 }
 
-type CreateInvitationOpts struct {
+type CreateInviteOpts struct {
 	Email          string `json:"email"`
 	OrganizationID string `json:"organization_id,omitempty"`
 	ExpiresInDays  int    `json:"expires_in_days,omitempty"`
 	InviterUserID  string `json:"inviter_user_id,omitempty"`
 }
 
-type RevokeInvitationOpts struct {
+type RevokeInviteOpts struct {
 	InviteID string
 }
 
-type ListInvitationsOpts struct {
+// ListInvites contains the response from the ListInvites call.
+type ListInvitesResponse struct {
+	// List of Invites
+	Data []Invite `json:"data"`
+
+	// Cursor to paginate through the list of invites
+	ListMetadata common.ListMetadata `json:"listMetadata"`
+}
+
+type ListInvitesOpts struct {
 	OrganizationID string `json:"organization_id,omitempty"`
-	Email          string `json:"email,omitempty"`
+
+	Email string `json:"email,omitempty"`
+
+	// Maximum number of records to return.
+	Limit int `url:"limit"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
+
+	// Pagination cursor to receive records before a provided User ID.
+	Before string `url:"before,omitempty"`
+
+	// Pagination cursor to receive records after a provided User ID.
+	After string `url:"after,omitempty"`
 }
 
-type GetInvitationByIDOpts struct {
+type GetInviteOpts struct {
 	InviteID string
 }
 
-type GetInvitationByTokenOpts struct {
+type GetInviteByTokenOpts struct {
 	Token string
 }
 
@@ -1105,12 +1137,12 @@ func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) 
 	return body, err
 }
 
-func (c *Client) CreateInvitation(ctx context.Context, opts CreateInvitationOpts) (InviteObject, error) {
+func (c *Client) CreateInvite(ctx context.Context, opts CreateInviteOpts) (Invite, error) {
 	endpoint := fmt.Sprintf("%s/users/invites", c.Endpoint)
 
 	data, err := json.Marshal(opts)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -1119,7 +1151,7 @@ func (c *Client) CreateInvitation(ctx context.Context, opts CreateInvitationOpts
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -1128,27 +1160,27 @@ func (c *Client) CreateInvitation(ctx context.Context, opts CreateInvitationOpts
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 
-	var body InviteObject
+	var body Invite
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
 	return body, err
 }
 
-func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts) (InviteObject, error) {
+func (c *Client) RevokeInvite(ctx context.Context, opts RevokeInviteOpts) (Invite, error) {
 	endpoint := fmt.Sprintf("%s/users/invites/%s/revoke", c.Endpoint, opts.InviteID)
 
 	req, err := http.NewRequest(http.MethodPost, endpoint, nil)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -1157,23 +1189,23 @@ func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 
-	var body InviteObject
+	var body Invite
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
 	return body, err
 }
 
-// ListInvitations gets a list of all of your existing invites matching the criteria specified.
-func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) ([]InviteObject, error) {
+// ListInvites gets a list of all of your existing invites matching the criteria specified.
+func (c *Client) ListInvites(ctx context.Context, opts ListInvitesOpts) (ListInvitesResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/users/invites",
 		c.Endpoint,
@@ -1185,44 +1217,48 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 		nil,
 	)
 	if err != nil {
-		return nil, err
+		return ListInvitesResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
 	queryValues, err := query.Values(opts)
 	if err != nil {
-		return nil, err
+		return ListInvitesResponse{}, err
 	}
 
 	req.URL.RawQuery = queryValues.Encode()
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return ListInvitesResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return nil, err
+		return ListInvitesResponse{}, err
 	}
 
-	var body []InviteObject
+	var body ListInvitesResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
 	return body, err
 }
 
-// GetInvitationByID fetches an invite by its ID.
-func (c *Client) GetInvitationByID(ctx context.Context, opts GetInvitationByIDOpts) (InviteObject, error) {
+// GetInvite fetches an invite by its ID.
+func (c *Client) GetInvite(ctx context.Context, opts GetInviteOpts) (Invite, error) {
 	endpoint := fmt.Sprintf("%s/users/invites/%s", c.Endpoint, opts.InviteID)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -1231,28 +1267,28 @@ func (c *Client) GetInvitationByID(ctx context.Context, opts GetInvitationByIDOp
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 
-	var body InviteObject
+	var body Invite
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
 	return body, err
 }
 
-// GetInvitationByToken fetches an invite by its token.
-func (c *Client) GetInvitationByToken(ctx context.Context, opts GetInvitationByTokenOpts) (InviteObject, error) {
+// GetInvite fetches an invite by its token.
+func (c *Client) GetInviteByToken(ctx context.Context, opts GetInviteByTokenOpts) (Invite, error) {
 	endpoint := fmt.Sprintf("%s/users/invites/by_token/%s", c.Endpoint, opts.Token)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -1261,15 +1297,15 @@ func (c *Client) GetInvitationByToken(ctx context.Context, opts GetInvitationByT
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return InviteObject{}, err
+		return Invite{}, err
 	}
 
-	var body InviteObject
+	var body Invite
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 

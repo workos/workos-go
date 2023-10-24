@@ -1535,12 +1535,12 @@ func listAuthFactorsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCreateInvitation(t *testing.T) {
+func TestCreateInvite(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateInvitationOpts
-		expected InviteObject
+		options  CreateInviteOpts
+		expected Invite
 		err      bool
 	}{
 		{
@@ -1549,16 +1549,15 @@ func TestCreateInvitation(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns InviteObject",
+			scenario: "Request returns Invite",
 			client:   NewClient("test"),
-			options: CreateInvitationOpts{
+			options: CreateInviteOpts{
 				Email:          "marcelina@foo-corp.com",
 				OrganizationID: "org_123",
 				ExpiresInDays:  7,
 				InviterUserID:  "user_123",
 			},
-			expected: InviteObject{
-				Object:    "invite",
+			expected: Invite{
 				ID:        "invite_123",
 				Email:     "marcelina@foo-corp.com",
 				State:     "pending",
@@ -1572,25 +1571,25 @@ func TestCreateInvitation(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createInvitationTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(CreateInviteTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			inviteObject, err := client.CreateInvitation(context.Background(), test.options)
+			Invite, err := client.CreateInvite(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, inviteObject)
+			require.Equal(t, test.expected, Invite)
 		})
 	}
 }
 
-func createInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
+func CreateInviteTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1601,16 +1600,16 @@ func createInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/invites" {
-		body, err = json.Marshal(InviteObject{
-			Object:    "invite",
-			ID:        "invite_123",
-			Email:     "marcelina@foo-corp.com",
-			State:     "pending",
-			Token:     "myToken",
-			ExpiresAt: "2021-06-25T19:07:33.155Z",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
-		})
+		body, err = json.Marshal(
+			Invite{
+				ID:        "invite_123",
+				Email:     "marcelina@foo-corp.com",
+				State:     "pending",
+				Token:     "myToken",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			})
 	}
 
 	if err != nil {
@@ -1622,12 +1621,12 @@ func createInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestRevokeInvitation(t *testing.T) {
+func TestRevokeInvite(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  RevokeInvitationOpts
-		expected InviteObject
+		options  RevokeInviteOpts
+		expected Invite
 		err      bool
 	}{
 		{
@@ -1636,13 +1635,13 @@ func TestRevokeInvitation(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns InviteObject",
+			scenario: "Request returns Invite",
 			client:   NewClient("test"),
-			options: RevokeInvitationOpts{
+			options: RevokeInviteOpts{
 				InviteID: "invite_123",
 			},
-			expected: InviteObject{
-				Object:    "invite",
+			expected: Invite{
+
 				ID:        "invite_123",
 				Email:     "marcelina@foo-corp.com",
 				State:     "pending",
@@ -1656,25 +1655,25 @@ func TestRevokeInvitation(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(revokeInvitationTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(RevokeInviteTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			inviteObject, err := client.RevokeInvitation(context.Background(), test.options)
+			Invite, err := client.RevokeInvite(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, inviteObject)
+			require.Equal(t, test.expected, Invite)
 		})
 	}
 }
 
-func revokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
+func RevokeInviteTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1685,16 +1684,17 @@ func revokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/invites/invite_123/revoke" {
-		body, err = json.Marshal(InviteObject{
-			Object:    "invite",
-			ID:        "invite_123",
-			Email:     "marcelina@foo-corp.com",
-			State:     "pending",
-			Token:     "myToken",
-			ExpiresAt: "2021-06-25T19:07:33.155Z",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
-		})
+		body, err = json.Marshal(
+			Invite{
+
+				ID:        "invite_123",
+				Email:     "marcelina@foo-corp.com",
+				State:     "pending",
+				Token:     "myToken",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			})
 	}
 
 	if err != nil {
@@ -1706,12 +1706,12 @@ func revokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestListInvitations(t *testing.T) {
+func TestListInvites(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  ListInvitationsOpts
-		expected []InviteObject
+		options  ListInvitesOpts
+		expected ListInvitesResponse
 		err      bool
 	}{
 		{
@@ -1720,21 +1720,25 @@ func TestListInvitations(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns list of InviteObjects",
+			scenario: "Request returns list of Invites",
 			client:   NewClient("test"),
-			options: ListInvitationsOpts{
+			options: ListInvitesOpts{
 				Email: "marcelina@foo-corp.com",
 			},
-			expected: []InviteObject{
-				{
-					Object:    "invite",
-					ID:        "invite_123",
-					Email:     "marcelina@foo-corp.com",
-					State:     "pending",
-					Token:     "myToken",
-					ExpiresAt: "2021-06-25T19:07:33.155Z",
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+			expected: ListInvitesResponse{
+				Data: []Invite{
+					{
+						ID:        "invite_123",
+						Email:     "marcelina@foo-corp.com",
+						State:     "pending",
+						Token:     "myToken",
+						ExpiresAt: "2021-06-25T19:07:33.155Z",
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					After: "",
 				},
 			},
 		},
@@ -1742,14 +1746,14 @@ func TestListInvitations(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(listInvitationsTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listInvitesTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			invitations, err := client.ListInvitations(context.Background(), test.options)
+			invitations, err := client.ListInvites(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1760,7 +1764,7 @@ func TestListInvitations(t *testing.T) {
 	}
 }
 
-func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
+func listInvitesTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1771,16 +1775,20 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/invites" {
-		invites := []InviteObject{
-			{
-				Object:    "invite",
-				ID:        "invite_123",
-				Email:     "marcelina@foo-corp.com",
-				State:     "pending",
-				Token:     "myToken",
-				ExpiresAt: "2021-06-25T19:07:33.155Z",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+		invites := ListInvitesResponse{
+			Data: []Invite{
+				{
+					ID:        "invite_123",
+					Email:     "marcelina@foo-corp.com",
+					State:     "pending",
+					Token:     "myToken",
+					ExpiresAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
 			},
 		}
 		body, err = json.Marshal(invites)
@@ -1795,12 +1803,12 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestGetInvitationByID(t *testing.T) {
+func TestGetInvite(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetInvitationByIDOpts
-		expected InviteObject
+		options  GetInviteOpts
+		expected Invite
 		err      bool
 	}{
 		{
@@ -1809,11 +1817,11 @@ func TestGetInvitationByID(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns InviteObject by ID",
+			scenario: "Request returns Invite by ID",
 			client:   NewClient("test"),
-			options:  GetInvitationByIDOpts{InviteID: "invite_123"},
-			expected: InviteObject{
-				Object:    "invite",
+			options:  GetInviteOpts{InviteID: "invite_123"},
+			expected: Invite{
+
 				ID:        "invite_123",
 				Email:     "marcelina@foo-corp.com",
 				State:     "pending",
@@ -1827,14 +1835,14 @@ func TestGetInvitationByID(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getInvitationByIDTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(getInviteTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			invitation, err := client.GetInvitationByID(context.Background(), test.options)
+			invitation, err := client.GetInvite(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1845,12 +1853,12 @@ func TestGetInvitationByID(t *testing.T) {
 	}
 }
 
-func TestGetInvitationByToken(t *testing.T) {
+func TestGetInviteByToken(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetInvitationByTokenOpts
-		expected InviteObject
+		options  GetInviteByTokenOpts
+		expected Invite
 		err      bool
 	}{
 		{
@@ -1859,11 +1867,11 @@ func TestGetInvitationByToken(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns InviteObject by token",
+			scenario: "Request returns Invite by token",
 			client:   NewClient("test"),
-			options:  GetInvitationByTokenOpts{Token: "myToken"},
-			expected: InviteObject{
-				Object:    "invite",
+			options:  GetInviteByTokenOpts{Token: "myToken"},
+			expected: Invite{
+
 				ID:        "invite_123",
 				Email:     "marcelina@foo-corp.com",
 				State:     "pending",
@@ -1877,14 +1885,14 @@ func TestGetInvitationByToken(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getInvitationByTokenTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(getInviteByTokenTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			invitation, err := client.GetInvitationByToken(context.Background(), test.options)
+			invitation, err := client.GetInviteByToken(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1895,7 +1903,7 @@ func TestGetInvitationByToken(t *testing.T) {
 	}
 }
 
-func getInvitationByIDTestHandler(w http.ResponseWriter, r *http.Request) {
+func getInviteTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1906,8 +1914,8 @@ func getInvitationByIDTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/invites/invite_123" {
-		invites := InviteObject{
-			Object:    "invite",
+		invites := Invite{
+
 			ID:        "invite_123",
 			Email:     "marcelina@foo-corp.com",
 			State:     "pending",
@@ -1928,7 +1936,7 @@ func getInvitationByIDTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func getInvitationByTokenTestHandler(w http.ResponseWriter, r *http.Request) {
+func getInviteByTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -1939,8 +1947,8 @@ func getInvitationByTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/users/invites/by_token/myToken" {
-		invites := InviteObject{
-			Object:    "invite",
+		invites := Invite{
+
 			ID:        "invite_123",
 			Email:     "marcelina@foo-corp.com",
 			State:     "pending",
