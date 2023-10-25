@@ -532,3 +532,143 @@ func TestUsersListAuthFactors(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
 }
+
+func TestUsersCreateInvite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(CreateInviteTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := Invite{
+		ID:        "invite_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     "pending",
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	createRes, err := CreateInvite(context.Background(), CreateInviteOpts{
+		Email:          "marcelina@foo-corp.com",
+		OrganizationID: "org_123",
+		ExpiresInDays:  7,
+		InviterUserID:  "user_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, createRes)
+}
+
+func TestUsersRevokeInvite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(RevokeInviteTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := Invite{
+		ID:        "invite_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     "pending",
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	revokeRes, err := RevokeInvite(context.Background(), RevokeInviteOpts{
+		Invite: "invite_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, revokeRes)
+}
+
+func TestUsersListInvites(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listInvitesTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse :=
+		ListInvitesResponse{
+			Data: []Invite{
+				{
+					ID:        "invite_123",
+					Email:     "marcelina@foo-corp.com",
+					State:     "pending",
+					Token:     "myToken",
+					ExpiresAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+	listRes, err := ListInvites(context.Background(), ListInvitesOpts{
+		Email: "marcelina@foo-corp.com",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, listRes)
+}
+
+func TestUsersGetInvite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getInviteTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := Invite{
+		ID:        "invite_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     "pending",
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	getByIDRes, err := GetInvite(context.Background(), GetInviteOpts{
+		Invite: "invite_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByIDRes)
+}
+
+func TestUsersGetInviteByToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getInviteByTokenTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := Invite{
+		ID:        "invite_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     "pending",
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	getByTokenRes, err := GetInviteByToken(context.Background(), GetInviteByTokenOpts{
+		Token: "myToken",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByTokenRes)
+}
