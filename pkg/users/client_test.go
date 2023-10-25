@@ -1638,7 +1638,7 @@ func TestRevokeInvite(t *testing.T) {
 			scenario: "Request returns Invite",
 			client:   NewClient("test"),
 			options: RevokeInviteOpts{
-				InviteID: "invite_123",
+				Invite: "invite_123",
 			},
 			expected: Invite{
 
@@ -1819,7 +1819,7 @@ func TestGetInvite(t *testing.T) {
 		{
 			scenario: "Request returns Invite by ID",
 			client:   NewClient("test"),
-			options:  GetInviteOpts{InviteID: "invite_123"},
+			options:  GetInviteOpts{Invite: "invite_123"},
 			expected: Invite{
 
 				ID:        "invite_123",

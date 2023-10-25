@@ -583,7 +583,7 @@ func TestUsersRevokeInvite(t *testing.T) {
 	}
 
 	revokeRes, err := RevokeInvite(context.Background(), RevokeInviteOpts{
-		InviteID: "invite_123",
+		Invite: "invite_123",
 	})
 
 	require.NoError(t, err)
@@ -641,7 +641,7 @@ func TestUsersGetInvite(t *testing.T) {
 	}
 
 	getByIDRes, err := GetInvite(context.Background(), GetInviteOpts{
-		InviteID: "invite_123",
+		Invite: "invite_123",
 	})
 
 	require.NoError(t, err)

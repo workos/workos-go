@@ -26,15 +26,15 @@ const (
 	Desc Order = "desc"
 )
 
-// TokenState represents the state of a token.
-type TokenState string
+// InviteState represents the state of a token.
+type InviteState string
 
 // Constants that enumerate the state of a token.
 const (
-	Pending  TokenState = "pending"
-	Accepted TokenState = "accepted"
-	Expired  TokenState = "expired"
-	Revoked  TokenState = "revoked"
+	Pending  InviteState = "pending"
+	Accepted InviteState = "accepted"
+	Expired  InviteState = "expired"
+	Revoked  InviteState = "revoked"
 )
 
 // Organization contains data about a particular Organization.
@@ -250,16 +250,16 @@ type ListAuthFactorsResponse struct {
 }
 
 type Invite struct {
-	ID             string     `json:"id"`
-	Email          string     `json:"email"`
-	State          TokenState `json:"state"`
-	AcceptedAt     string     `json:"accepted_at,omitempty"`
-	RevokedAt      string     `json:"revoked_at,omitempty"`
-	Token          string     `json:"token"`
-	OrganizationID string     `json:"organization_id,omitempty"`
-	ExpiresAt      string     `json:"expires_at"`
-	CreatedAt      string     `json:"created_at"`
-	UpdatedAt      string     `json:"updated_at"`
+	ID             string      `json:"id"`
+	Email          string      `json:"email"`
+	State          InviteState `json:"state"`
+	AcceptedAt     string      `json:"accepted_at,omitempty"`
+	RevokedAt      string      `json:"revoked_at,omitempty"`
+	Token          string      `json:"token"`
+	OrganizationID string      `json:"organization_id,omitempty"`
+	ExpiresAt      string      `json:"expires_at"`
+	CreatedAt      string      `json:"created_at"`
+	UpdatedAt      string      `json:"updated_at"`
 }
 
 type CreateInviteOpts struct {
@@ -270,7 +270,7 @@ type CreateInviteOpts struct {
 }
 
 type RevokeInviteOpts struct {
-	InviteID string
+	Invite string
 }
 
 // ListInvites contains the response from the ListInvites call.
@@ -301,7 +301,7 @@ type ListInvitesOpts struct {
 }
 
 type GetInviteOpts struct {
-	InviteID string
+	Invite string
 }
 
 type GetInviteByTokenOpts struct {
@@ -1176,7 +1176,7 @@ func (c *Client) CreateInvite(ctx context.Context, opts CreateInviteOpts) (Invit
 }
 
 func (c *Client) RevokeInvite(ctx context.Context, opts RevokeInviteOpts) (Invite, error) {
-	endpoint := fmt.Sprintf("%s/users/invites/%s/revoke", c.Endpoint, opts.InviteID)
+	endpoint := fmt.Sprintf("%s/users/invites/%s/revoke", c.Endpoint, opts.Invite)
 
 	req, err := http.NewRequest(http.MethodPost, endpoint, nil)
 	if err != nil {
@@ -1254,7 +1254,7 @@ func (c *Client) ListInvites(ctx context.Context, opts ListInvitesOpts) (ListInv
 
 // GetInvite fetches an invite by its ID.
 func (c *Client) GetInvite(ctx context.Context, opts GetInviteOpts) (Invite, error) {
-	endpoint := fmt.Sprintf("%s/users/invites/%s", c.Endpoint, opts.InviteID)
+	endpoint := fmt.Sprintf("%s/users/invites/%s", c.Endpoint, opts.Invite)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
