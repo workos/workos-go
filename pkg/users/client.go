@@ -84,7 +84,7 @@ type ListUsersResponse struct {
 	Data []User `json:"data"`
 
 	// Cursor to paginate through the list of Users
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 type ListUsersOpts struct {
@@ -235,7 +235,7 @@ type ListAuthFactorsOpts struct {
 type ListAuthFactorsResponse struct {
 	Data []mfa.Factor `json:"data"`
 
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 func NewClient(apiKey string) *Client {
