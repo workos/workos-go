@@ -34,15 +34,8 @@ func TestGetOrganization(t *testing.T) {
 				Organization: "organization_id",
 			},
 			expected: Organization{
-				ID:                               "organization_id",
-				Name:                             "Foo Corp",
-				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
-					},
-				},
+				ID:   "organization_id",
+				Name: "Foo Corp",
 			},
 		},
 	}
@@ -75,15 +68,8 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(Organization{
-		ID:                               "organization_id",
-		Name:                             "Foo Corp",
-		AllowProfilesOutsideOrganization: false,
-		Domains: []OrganizationDomain{
-			OrganizationDomain{
-				ID:     "organization_domain_id",
-				Domain: "foo-corp.com",
-			},
-		},
+		ID:   "organization_id",
+		Name: "Foo Corp",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -119,15 +105,8 @@ func TestListOrganizations(t *testing.T) {
 			expected: ListOrganizationsResponse{
 				Data: []Organization{
 					Organization{
-						ID:                               "organization_id",
-						Name:                             "Foo Corp",
-						AllowProfilesOutsideOrganization: false,
-						Domains: []OrganizationDomain{
-							OrganizationDomain{
-								ID:     "organization_domain_id",
-								Domain: "foo-corp.com",
-							},
-						},
+						ID:   "organization_id",
+						Name: "Foo Corp",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -176,15 +155,8 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListOrganizationsResponse: ListOrganizationsResponse{
 			Data: []Organization{
 				Organization{
-					ID:                               "organization_id",
-					Name:                             "Foo Corp",
-					AllowProfilesOutsideOrganization: false,
-					Domains: []OrganizationDomain{
-						OrganizationDomain{
-							ID:     "organization_domain_id",
-							Domain: "foo-corp.com",
-						},
-					},
+					ID:   "organization_id",
+					Name: "Foo Corp",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -221,30 +193,11 @@ func TestCreateOrganization(t *testing.T) {
 				APIKey: "test",
 			},
 			options: CreateOrganizationOpts{
-				Name:    "Foo Corp",
-				Domains: []string{"foo-corp.com"},
+				Name: "Foo Corp",
 			},
 			expected: Organization{
-				ID:                               "organization_id",
-				Name:                             "Foo Corp",
-				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
-					},
-				},
-			},
-		},
-		{
-			scenario: "Request with duplicate Organization Domain returns error",
-			client: &Client{
-				APIKey: "test",
-			},
-			err: true,
-			options: CreateOrganizationOpts{
-				Name:    "Foo Corp",
-				Domains: []string{"duplicate.com"},
+				ID:   "organization_id",
+				Name: "Foo Corp",
 			},
 		},
 		{
@@ -255,7 +208,6 @@ func TestCreateOrganization(t *testing.T) {
 			err: true,
 			options: CreateOrganizationOpts{
 				Name:           "New Corp",
-				Domains:        []string{"foo-corp.com"},
 				IdempotencyKey: "duplicate",
 			},
 		},
@@ -290,20 +242,7 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	var opts CreateOrganizationOpts
 	json.NewDecoder(r.Body).Decode(&opts)
-	for _, domain := range opts.Domains {
-		if domain == "duplicate.com" {
-			http.Error(w, "duplicate domain", http.StatusConflict)
-			return
-		}
-	}
-
 	if opts.IdempotencyKey == "duplicate" {
-		for _, domain := range opts.Domains {
-			if domain != "foo-corp.com" {
-				http.Error(w, "duplicate idempotency key", http.StatusConflict)
-				return
-			}
-		}
 		if opts.Name != "Foo Corp" {
 			http.Error(w, "duplicate idempotency key", http.StatusConflict)
 			return
@@ -316,15 +255,8 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
-			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
-				},
-			},
+			ID:   "organization_id",
+			Name: "Foo Corp",
 		})
 
 	if err != nil {
@@ -357,22 +289,10 @@ func TestUpdateOrganization(t *testing.T) {
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
-				Domains:      []string{"foo-corp.com", "foo-corp.io"},
 			},
 			expected: Organization{
-				ID:                               "organization_id",
-				Name:                             "Foo Corp",
-				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
-					},
-					OrganizationDomain{
-						ID:     "organization_domain_id_2",
-						Domain: "foo-corp.io",
-					},
-				},
+				ID:   "organization_id",
+				Name: "Foo Corp",
 			},
 		},
 		{
@@ -384,7 +304,6 @@ func TestUpdateOrganization(t *testing.T) {
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
-				Domains:      []string{"duplicate.com"},
 			},
 		},
 	}
@@ -418,12 +337,6 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	var opts UpdateOrganizationOpts
 	json.NewDecoder(r.Body).Decode(&opts)
-	for _, domain := range opts.Domains {
-		if domain == "duplicate.com" {
-			http.Error(w, "duplicate domain", http.StatusConflict)
-			return
-		}
-	}
 
 	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
 		w.WriteHeader(http.StatusBadRequest)
@@ -432,19 +345,8 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
-			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
-				},
-				OrganizationDomain{
-					ID:     "organization_domain_id_2",
-					Domain: "foo-corp.io",
-				},
-			},
+			ID:   "organization_id",
+			Name: "Foo Corp",
 		})
 
 	if err != nil {
