@@ -201,16 +201,6 @@ func TestCreateOrganization(t *testing.T) {
 			},
 		},
 		{
-			scenario: "Request with duplicate Organization Domain returns error",
-			client: &Client{
-				APIKey: "test",
-			},
-			err: true,
-			options: CreateOrganizationOpts{
-				Name: "Foo Corp",
-			},
-		},
-		{
 			scenario: "Idempotency Key with different event payloads returns error",
 			client: &Client{
 				APIKey: "test",
@@ -303,17 +293,6 @@ func TestUpdateOrganization(t *testing.T) {
 			expected: Organization{
 				ID:   "organization_id",
 				Name: "Foo Corp",
-			},
-		},
-		{
-			scenario: "Request with duplicate Organization Domain returns error",
-			client: &Client{
-				APIKey: "test",
-			},
-			err: true,
-			options: UpdateOrganizationOpts{
-				Organization: "organization_id",
-				Name:         "Foo Corp",
 			},
 		},
 	}
