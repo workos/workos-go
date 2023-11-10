@@ -23,13 +23,6 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 	expectedResponse := Organization{
 		ID:                               "organization_id",
 		Name:                             "Foo Corp",
-		AllowProfilesOutsideOrganization: false,
-		Domains: []OrganizationDomain{
-			OrganizationDomain{
-				ID:     "organization_domain_id",
-				Domain: "foo-corp.com",
-			},
-		},
 	}
 	organizationResponse, err := GetOrganization(context.Background(), GetOrganizationOpts{
 		Organization: "organization_id",
@@ -54,13 +47,6 @@ func TestOrganizationsListOrganizations(t *testing.T) {
 			Organization{
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
-				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
-					},
-				},
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -91,18 +77,10 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 		Organization{
 			ID:                               "organization_id",
 			Name:                             "Foo Corp",
-			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
-				},
-			},
 		}
 
 	organization, err := CreateOrganization(context.Background(), CreateOrganizationOpts{
 		Name:           "Foo Corp",
-		Domains:        []string{"foo-corp.com"},
 		IdempotencyKey: "duplicate",
 	})
 
@@ -124,23 +102,11 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 		Organization{
 			ID:                               "organization_id",
 			Name:                             "Foo Corp",
-			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
-				},
-				OrganizationDomain{
-					ID:     "organization_domain_id_2",
-					Domain: "foo-corp.io",
-				},
-			},
 		}
 
 	organization, err := UpdateOrganization(context.Background(), UpdateOrganizationOpts{
 		Organization: "organization_id",
 		Name:         "Foo Corp",
-		Domains:      []string{"foo-corp.com", "foo-corp.io"},
 	})
 
 	require.NoError(t, err)
