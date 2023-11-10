@@ -77,13 +77,6 @@ type Organization struct {
 	// The Organization's name.
 	Name string `json:"name"`
 
-	// Whether Connections within the Organization allow profiles that are
-	// outside of the Organization's configured User Email Domains.
-	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
-
-	// The Organization's Domains.
-	Domains []OrganizationDomain `json:"domains"`
-
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
 
@@ -130,13 +123,6 @@ type CreateOrganizationOpts struct {
 	// Name of the Organization.
 	Name string `json:"name"`
 
-	// Whether Connections within the Organization allow profiles that are
-	// outside of the Organization's configured User Email Domains.
-	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
-
-	// Domains of the Organization.
-	Domains []string `json:"domains"`
-
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_iey,omitempty"`
 }
@@ -148,13 +134,6 @@ type UpdateOrganizationOpts struct {
 
 	// Name of the Organization.
 	Name string
-
-	// Whether Connections within the Organization allow profiles that are
-	// outside of the Organization's configured User Email Domains.
-	AllowProfilesOutsideOrganization bool
-
-	// Domains of the Organization.
-	Domains []string
 }
 
 // GetOrganization gets an Organization.
@@ -292,16 +271,9 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 	type UpdateOrganizationChangeOpts struct {
 		// Name of the Organization.
 		Name string `json:"name"`
-
-		// Whether Connections within the Organization allow profiles that are
-		// outside of the Organization's configured User Email Domains.
-		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
-
-		// Domains of the Organization.
-		Domains []string `json:"domains"`
 	}
 
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.Domains}
+	update_opts := UpdateOrganizationChangeOpts{opts.Name}
 
 	data, err := c.JSONEncode(update_opts)
 	if err != nil {
