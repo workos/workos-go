@@ -21,8 +21,8 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Organization{
-		ID:                               "organization_id",
-		Name:                             "Foo Corp",
+		ID:   "organization_id",
+		Name: "Foo Corp",
 	}
 	organizationResponse, err := GetOrganization(context.Background(), GetOrganizationOpts{
 		Organization: "organization_id",
@@ -45,8 +45,8 @@ func TestOrganizationsListOrganizations(t *testing.T) {
 	expectedResponse := ListOrganizationsResponse{
 		Data: []Organization{
 			Organization{
-				ID:                               "organization_id",
-				Name:                             "Foo Corp",
+				ID:   "organization_id",
+				Name: "Foo Corp",
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -75,8 +75,8 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 
 	expectedResponse :=
 		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
+			ID:   "organization_id",
+			Name: "Foo Corp",
 		}
 
 	organization, err := CreateOrganization(context.Background(), CreateOrganizationOpts{
@@ -100,8 +100,8 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 
 	expectedResponse :=
 		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
+			ID:   "organization_id",
+			Name: "Foo Corp",
 		}
 
 	organization, err := UpdateOrganization(context.Background(), UpdateOrganizationOpts{
