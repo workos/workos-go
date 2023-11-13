@@ -75,7 +75,11 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
+<<<<<<< Updated upstream:pkg/usermanagement/client_test.go
 	if r.URL.Path == "/user_management/user_123" {
+=======
+	if r.URL.Path == "/user_management/users/user_123" {
+>>>>>>> Stashed changes:pkg/users/client_test.go
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -275,7 +279,11 @@ func createUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
+<<<<<<< Updated upstream:pkg/usermanagement/client_test.go
 	if r.URL.Path == "/user_management" {
+=======
+	if r.URL.Path == "/user_management/users" {
+>>>>>>> Stashed changes:pkg/users/client_test.go
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -360,7 +368,11 @@ func updateUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
+<<<<<<< Updated upstream:pkg/usermanagement/client_test.go
 	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+=======
+	if r.URL.Path == "/user_management/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+>>>>>>> Stashed changes:pkg/users/client_test.go
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -434,7 +446,11 @@ func deleteUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
+<<<<<<< Updated upstream:pkg/usermanagement/client_test.go
 	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+=======
+	if r.URL.Path == "/user_management/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+>>>>>>> Stashed changes:pkg/users/client_test.go
 		body, err = nil, nil
 	}
 
