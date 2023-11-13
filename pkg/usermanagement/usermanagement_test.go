@@ -19,7 +19,7 @@ func mockClient(s *httptest.Server) *Client {
 	return client
 }
 
-func TestUsersGetUser(t *testing.T) {
+func TestUserManagementGetUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getUserTestHandler))
 	defer server.Close()
 
@@ -45,7 +45,7 @@ func TestUsersGetUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersListUsers(t *testing.T) {
+func TestUserManagementListUsers(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listUsersTestHandler))
 
 	defer server.Close()
@@ -77,7 +77,7 @@ func TestUsersListUsers(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersCreateUser(t *testing.T) {
+func TestUserManagementCreateUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(createUserTestHandler))
 	defer server.Close()
 
@@ -107,7 +107,7 @@ func TestUsersCreateUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersUpdateUser(t *testing.T) {
+func TestUserManagementUpdateUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(updateUserTestHandler))
 	defer server.Close()
 
@@ -180,7 +180,7 @@ func TestUsersSendVerificationEmail(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersVerifyEmailCode(t *testing.T) {
+func TestUserManagementVerifyEmailCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(verifyEmailCodeTestHandler))
 	defer server.Close()
 
@@ -207,7 +207,7 @@ func TestUsersVerifyEmailCode(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersCreatePasswordResetChallenge(t *testing.T) {
+func TestUserManagementCreatePasswordResetChallenge(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(sendPasswordResetEmailTestHandler))
 	defer server.Close()
 
@@ -236,7 +236,7 @@ func TestUsersCreatePasswordResetChallenge(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersResetPassword(t *testing.T) {
+func TestUserManagementResetPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(resetPasswordHandler))
 	defer server.Close()
 
@@ -263,7 +263,7 @@ func TestUsersResetPassword(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersAuthenticateWithCode(t *testing.T) {
+func TestUserManagementAuthenticateWithCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
@@ -287,7 +287,7 @@ func TestUsersAuthenticateWithCode(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersAuthenticateWithPassword(t *testing.T) {
+func TestUserManagementAuthenticateWithPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
@@ -311,7 +311,7 @@ func TestUsersAuthenticateWithPassword(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersAuthenticateWithMagicAuth(t *testing.T) {
+func TestUserManagementAuthenticateWithMagicAuth(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
@@ -335,7 +335,7 @@ func TestUsersAuthenticateWithMagicAuth(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersAuthenticateWithTOTP(t *testing.T) {
+func TestUserManagementAuthenticateWithTOTP(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
 	defer server.Close()
@@ -359,7 +359,7 @@ func TestUsersAuthenticateWithTOTP(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersSendMagicAuthCode(t *testing.T) {
+func TestUserManagementSendMagicAuthCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(sendMagicAuthCodeTestHandler))
 
 	defer server.Close()
@@ -385,7 +385,7 @@ func TestUsersSendMagicAuthCode(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersEnrollAuthFactor(t *testing.T) {
+func TestUserManagementEnrollAuthFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(enrollAuthFactorTestHandler))
 
 	defer server.Close()
@@ -419,7 +419,7 @@ func TestUsersEnrollAuthFactor(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
-func TestUsersListAuthFactors(t *testing.T) {
+func TestUserManagementListAuthFactors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listAuthFactorsTestHandler))
 
 	defer server.Close()
