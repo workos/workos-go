@@ -71,36 +71,12 @@ func UpdateUser(
 	return DefaultClient.UpdateUser(ctx, opts)
 }
 
-// UpdateUserPassword updates a User password.
-func UpdateUserPassword(
-	ctx context.Context,
-	opts UpdateUserPasswordOpts,
-) (User, error) {
-	return DefaultClient.UpdateUserPassword(ctx, opts)
-}
-
 // DeleteUser deletes a existing User.
 func DeleteUser(
 	ctx context.Context,
 	opts DeleteUserOpts,
 ) error {
 	return DefaultClient.DeleteUser(ctx, opts)
-}
-
-// AddUserToOrganization adds an unmanaged User as a member of the given Organization.
-func AddUserToOrganization(
-	ctx context.Context,
-	opts AddUserToOrganizationOpts,
-) (User, error) {
-	return DefaultClient.AddUserToOrganization(ctx, opts)
-}
-
-// RemoveUserFromOrganization removes an unmanaged User as a member of the given Organization.
-func RemoveUserFromOrganization(
-	ctx context.Context,
-	opts RemoveUserFromOrganizationOpts,
-) (User, error) {
-	return DefaultClient.RemoveUserFromOrganization(ctx, opts)
 }
 
 // AuthenticateWithPassword authenticates a user with email and password and optionally creates a session.

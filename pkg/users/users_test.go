@@ -2,11 +2,12 @@ package users
 
 import (
 	"context"
-	"github.com/workos/workos-go/v2/pkg/common"
-	"github.com/workos/workos-go/v2/pkg/mfa"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v2/pkg/mfa"
 
 	"github.com/stretchr/testify/require"
 )
@@ -135,33 +136,6 @@ func TestUsersUpdateUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUsersUpdateUserPassword(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updateUserPasswordTestHandler))
-	defer server.Close()
-
-	DefaultClient = mockClient(server)
-
-	SetAPIKey("test")
-
-	expectedResponse := User{
-		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		Email:         "marcelina@foo-corp.com",
-		FirstName:     "Marcelina",
-		LastName:      "Davis",
-		EmailVerified: true,
-		CreatedAt:     "2021-06-25T19:07:33.155Z",
-		UpdatedAt:     "2021-06-25T19:07:33.155Z",
-	}
-
-	userRes, err := UpdateUserPassword(context.Background(), UpdateUserPasswordOpts{
-		User:     "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		Password: "pass_123",
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, expectedResponse, userRes)
-}
-
 func TestUsersDeleteUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(deleteUserTestHandler))
 	defer server.Close()
@@ -176,60 +150,6 @@ func TestUsersDeleteUser(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, nil, err)
-}
-
-func TestUsersAddUserToOrganization(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(addUserToOrganizationTestHandler))
-	defer server.Close()
-
-	DefaultClient = mockClient(server)
-
-	SetAPIKey("test")
-
-	expectedResponse := User{
-		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		Email:         "marcelina@foo-corp.com",
-		FirstName:     "Marcelina",
-		LastName:      "Davis",
-		EmailVerified: true,
-		CreatedAt:     "2021-06-25T19:07:33.155Z",
-		UpdatedAt:     "2021-06-25T19:07:33.155Z",
-	}
-
-	userRes, err := AddUserToOrganization(context.Background(), AddUserToOrganizationOpts{
-		User:         "user_managed_id",
-		Organization: "foo_corp_id",
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, expectedResponse, userRes)
-}
-
-func TestUsersRemoveUserFromOrganization(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(removeUserFromOrganizationTestHandler))
-	defer server.Close()
-
-	DefaultClient = mockClient(server)
-
-	SetAPIKey("test")
-
-	expectedResponse := User{
-		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		Email:         "marcelina@foo-corp.com",
-		FirstName:     "Marcelina",
-		LastName:      "Davis",
-		EmailVerified: true,
-		CreatedAt:     "2021-06-25T19:07:33.155Z",
-		UpdatedAt:     "2021-06-25T19:07:33.155Z",
-	}
-
-	userRes, err := RemoveUserFromOrganization(context.Background(), RemoveUserFromOrganizationOpts{
-		User:         "user_managed_id",
-		Organization: "foo_corp_id",
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, expectedResponse, userRes)
 }
 
 func TestUsersSendVerificationEmail(t *testing.T) {
