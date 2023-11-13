@@ -241,11 +241,7 @@ func NewClient(apiKey string) *Client {
 // GetUser returns details of an existing user
 func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-<<<<<<< Updated upstream:pkg/usermanagement/client.go
-		"%s/user_management/%s",
-=======
 		"%s/user_management/users/%s",
->>>>>>> Stashed changes:pkg/users/client.go
 		c.Endpoint,
 		opts.User,
 	)
@@ -283,11 +279,7 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 // ListUsers get a list of all of your existing users matching the criteria specified.
 func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersResponse, error) {
 	endpoint := fmt.Sprintf(
-<<<<<<< Updated upstream:pkg/usermanagement/client.go
-		"%s/user_management",
-=======
 		"%s/user_management/users",
->>>>>>> Stashed changes:pkg/users/client.go
 		c.Endpoint,
 	)
 
@@ -336,11 +328,7 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 // Only unmanaged users can be created directly using the User Management API.
 func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-<<<<<<< Updated upstream:pkg/usermanagement/client.go
-		"%s/user_management",
-=======
 		"%s/user_management/users",
->>>>>>> Stashed changes:pkg/users/client.go
 		c.Endpoint,
 	)
 
@@ -382,11 +370,7 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 // UpdateUser updates User attributes.
 func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-<<<<<<< Updated upstream:pkg/usermanagement/client.go
-		"%s/user_management/%s",
-=======
 		"%s/user_management/users/%s",
->>>>>>> Stashed changes:pkg/users/client.go
 		c.Endpoint,
 		opts.User,
 	)
@@ -429,11 +413,7 @@ func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, err
 // DeleteUser delete an existing user.
 func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	endpoint := fmt.Sprintf(
-<<<<<<< Updated upstream:pkg/usermanagement/client.go
-		"%s/user_management/%s",
-=======
 		"%s/user_management/users/%s",
->>>>>>> Stashed changes:pkg/users/client.go
 		c.Endpoint,
 		opts.User,
 	)
