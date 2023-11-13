@@ -71,14 +71,6 @@ func UpdateUser(
 	return DefaultClient.UpdateUser(ctx, opts)
 }
 
-// UpdateUserPassword updates a User password.
-func UpdateUserPassword(
-	ctx context.Context,
-	opts UpdateUserPasswordOpts,
-) (User, error) {
-	return DefaultClient.UpdateUserPassword(ctx, opts)
-}
-
 // DeleteUser deletes a existing User.
 func DeleteUser(
 	ctx context.Context,
