@@ -75,7 +75,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_123" {
+	if r.URL.Path == "/user_management/user_123" {
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -275,7 +275,7 @@ func createUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users" {
+	if r.URL.Path == "/user_management" {
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -360,7 +360,7 @@ func updateUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -443,7 +443,7 @@ func updateUserPasswordTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/password" {
+	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/password" {
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",
@@ -517,7 +517,7 @@ func deleteUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
+	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
 		body, err = nil, nil
 	}
 
@@ -817,7 +817,7 @@ func sendVerificationEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_123/send_verification_email" {
+	if r.URL.Path == "/user_management/user_123/send_verification_email" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID: "user_123",
@@ -903,7 +903,7 @@ func verifyEmailCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_123/verify_email_code" {
+	if r.URL.Path == "/user_management/user_123/verify_email_code" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:            "user_123",
@@ -988,7 +988,7 @@ func sendPasswordResetEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/send_password_reset_email" {
+	if r.URL.Path == "/user_management/send_password_reset_email" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:            "user_123",
@@ -1073,7 +1073,7 @@ func resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/reset_password" {
+	if r.URL.Path == "/user_management/reset_password" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID: "user_123",
@@ -1157,7 +1157,7 @@ func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/magic_auth/send" {
+	if r.URL.Path == "/user_management/magic_auth/send" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
@@ -1247,7 +1247,7 @@ func enrollAuthFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
+	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
 		body, err = json.Marshal(AuthenticationResponse{
 			Factor: mfa.Factor{
 				ID:        "auth_factor_test123",
@@ -1342,7 +1342,7 @@ func listAuthFactorsTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
+	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
 		body, err = json.Marshal(ListAuthFactorsResponse{
 			Data: []mfa.Factor{
 				{
