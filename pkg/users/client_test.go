@@ -3,14 +3,15 @@ package users
 import (
 	"context"
 	"encoding/json"
-	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v2/pkg/common"
-	"github.com/workos/workos-go/v2/pkg/mfa"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v2/pkg/mfa"
 )
 
 func TestGetUser(t *testing.T) {
@@ -380,89 +381,6 @@ func updateUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestUpdateUserPassword(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  UpdateUserPasswordOpts
-		expected User
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
-		{
-			scenario: "Request returns User",
-			client:   NewClient("test"),
-			options: UpdateUserPasswordOpts{
-				User:     "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				Password: "pass_123",
-			},
-			expected: User{
-				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				Email:         "marcelina@foo-corp.com",
-				FirstName:     "Marcelina",
-				LastName:      "Davis",
-				EmailVerified: true,
-				CreatedAt:     "2021-06-25T19:07:33.155Z",
-				UpdatedAt:     "2021-06-25T19:07:33.155Z",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(updateUserPasswordTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
-
-			user, err := client.UpdateUserPassword(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, user)
-		})
-	}
-}
-
-func updateUserPasswordTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	var body []byte
-	var err error
-
-	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/password" {
-		body, err = json.Marshal(User{
-			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
-			CreatedAt:     "2021-06-25T19:07:33.155Z",
-			UpdatedAt:     "2021-06-25T19:07:33.155Z",
-		})
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
 func TestDeleteUser(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -518,172 +436,6 @@ func deleteUserTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH" {
 		body, err = nil, nil
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
-func TestAddUserToOrganization(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  AddUserToOrganizationOpts
-		expected User
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
-		{
-			scenario: "Request returns User",
-			client:   NewClient("test"),
-			options: AddUserToOrganizationOpts{
-				User:         "user_managed_id",
-				Organization: "foo_corp_id",
-			},
-			expected: User{
-				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				Email:         "marcelina@foo-corp.com",
-				FirstName:     "Marcelina",
-				LastName:      "Davis",
-				EmailVerified: true,
-				CreatedAt:     "2021-06-25T19:07:33.155Z",
-				UpdatedAt:     "2021-06-25T19:07:33.155Z",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(addUserToOrganizationTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
-
-			user, err := client.AddUserToOrganization(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, user)
-		})
-	}
-}
-
-func addUserToOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	var body []byte
-	var err error
-
-	if r.URL.Path == "/users/user_managed_id/organizations" {
-		body, err = json.Marshal(User{
-			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
-			CreatedAt:     "2021-06-25T19:07:33.155Z",
-			UpdatedAt:     "2021-06-25T19:07:33.155Z",
-		})
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
-func TestRemoveUserFromOrganization(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  RemoveUserFromOrganizationOpts
-		expected User
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   NewClient(""),
-			err:      true,
-		},
-		{
-			scenario: "Request returns User",
-			client:   NewClient("test"),
-			options: RemoveUserFromOrganizationOpts{
-				User:         "user_managed_id",
-				Organization: "foo_corp_id",
-			},
-			expected: User{
-				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				Email:         "marcelina@foo-corp.com",
-				FirstName:     "Marcelina",
-				LastName:      "Davis",
-				EmailVerified: true,
-				CreatedAt:     "2021-06-25T19:07:33.155Z",
-				UpdatedAt:     "2021-06-25T19:07:33.155Z",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(removeUserFromOrganizationTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
-
-			user, err := client.RemoveUserFromOrganization(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, user)
-		})
-	}
-}
-
-func removeUserFromOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	var body []byte
-	var err error
-
-	if r.URL.Path == "/users/user_managed_id/organizations/foo_corp_id" {
-		body, err = json.Marshal(User{
-			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
-			CreatedAt:     "2021-06-25T19:07:33.155Z",
-			UpdatedAt:     "2021-06-25T19:07:33.155Z",
-		})
 	}
 
 	if err != nil {

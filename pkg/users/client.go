@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v2/internal/workos"
 	"github.com/workos/workos-go/v2/pkg/common"
 	"github.com/workos/workos-go/v2/pkg/mfa"
 	"github.com/workos/workos-go/v2/pkg/workos_errors"
-	"net/http"
-	"time"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -209,16 +210,6 @@ type UserResponse struct {
 type SendMagicAuthCodeOpts struct {
 	// The email address the one-time code will be sent to.
 	Email string `json:"email"`
-}
-
-type AddUserToOrganizationOpts struct {
-	User         string `json:"id"`
-	Organization string `json:"organization_id"`
-}
-
-type RemoveUserFromOrganizationOpts struct {
-	User         string `json:"id"`
-	Organization string `json:"organization_id"`
 }
 
 type EnrollAuthFactorOpts struct {
@@ -419,49 +410,6 @@ func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, err
 	return body, err
 }
 
-// UpdateUserPassword updates a User password.
-func (c *Client) UpdateUserPassword(ctx context.Context, opts UpdateUserPasswordOpts) (User, error) {
-	endpoint := fmt.Sprintf(
-		"%s/users/%s/password",
-		c.Endpoint,
-		opts.User,
-	)
-
-	data, err := c.JSONEncode(opts)
-	if err != nil {
-		return User{}, err
-	}
-
-	req, err := http.NewRequest(
-		http.MethodPut,
-		endpoint,
-		bytes.NewBuffer(data),
-	)
-	if err != nil {
-		return User{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return User{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
-	}
-
-	var body User
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
-}
-
 // DeleteUser delete an existing user.
 func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	endpoint := fmt.Sprintf(
@@ -490,88 +438,6 @@ func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
-}
-
-// AddUserToOrganization adds an unmanaged user to an Organization
-func (c *Client) AddUserToOrganization(ctx context.Context, opts AddUserToOrganizationOpts) (User, error) {
-	endpoint := fmt.Sprintf(
-		"%s/users/%s/organizations",
-		c.Endpoint,
-		opts.User,
-	)
-
-	data, err := c.JSONEncode(opts)
-	if err != nil {
-		return User{}, err
-	}
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		endpoint,
-		bytes.NewBuffer(data),
-	)
-	if err != nil {
-		return User{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return User{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
-	}
-
-	var body User
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
-}
-
-// RemoveUserFromOrganization removes an unmanaged User from the given Organization.
-func (c *Client) RemoveUserFromOrganization(ctx context.Context, opts RemoveUserFromOrganizationOpts) (User, error) {
-	endpoint := fmt.Sprintf(
-		"%s/users/%s/organizations/%s",
-		c.Endpoint,
-		opts.User,
-		opts.Organization,
-	)
-
-	req, err := http.NewRequest(
-		http.MethodDelete,
-		endpoint,
-		nil,
-	)
-	if err != nil {
-		return User{}, err
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return User{}, err
-	}
-	defer res.Body.Close()
-
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return User{}, err
-	}
-
-	var body User
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
 }
 
 // AuthenticateWithPassword authenticates a user with Email and Password
