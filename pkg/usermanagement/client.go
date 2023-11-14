@@ -241,7 +241,7 @@ func NewClient(apiKey string) *Client {
 // GetUser returns details of an existing user
 func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s",
+		"%s/user_management/users/%s",
 		c.Endpoint,
 		opts.User,
 	)
@@ -279,7 +279,7 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 // ListUsers get a list of all of your existing users matching the criteria specified.
 func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users",
+		"%s/user_management/users",
 		c.Endpoint,
 	)
 
@@ -328,7 +328,7 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 // Only unmanaged users can be created directly using the User Management API.
 func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users",
+		"%s/user_management/users",
 		c.Endpoint,
 	)
 
@@ -370,7 +370,7 @@ func (c *Client) CreateUser(ctx context.Context, opts CreateUserOpts) (User, err
 // UpdateUser updates User attributes.
 func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s",
+		"%s/user_management/users/%s",
 		c.Endpoint,
 		opts.User,
 	)
@@ -413,7 +413,7 @@ func (c *Client) UpdateUser(ctx context.Context, opts UpdateUserOpts) (User, err
 // DeleteUser delete an existing user.
 func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s",
+		"%s/user_management/users/%s",
 		c.Endpoint,
 		opts.User,
 	)
@@ -459,7 +459,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/authenticate",
+		c.Endpoint+"/user_management/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
@@ -510,7 +510,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/authenticate",
+		c.Endpoint+"/user_management/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
@@ -562,7 +562,7 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/authenticate",
+		c.Endpoint+"/user_management/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
@@ -613,7 +613,7 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		c.Endpoint+"/users/authenticate",
+		c.Endpoint+"/user_management/authenticate",
 		bytes.NewBuffer(jsonData),
 	)
 
@@ -648,7 +648,7 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificationEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s/send_verification_email",
+		"%s/user_management/%s/send_verification_email",
 		c.Endpoint,
 		opts.User,
 	)
@@ -685,7 +685,7 @@ func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificatio
 // VerifyEmailCode verifies user email using verification token that was sent to the user.
 func (c *Client) VerifyEmailCode(ctx context.Context, opts VerifyEmailCodeOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s/verify_email_code",
+		"%s/user_management/%s/verify_email_code",
 		c.Endpoint,
 		opts.User,
 	)
@@ -729,7 +729,7 @@ func (c *Client) VerifyEmailCode(ctx context.Context, opts VerifyEmailCodeOpts) 
 // unmanaged user.
 func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/send_password_reset_email",
+		"%s/user_management/send_password_reset_email",
 		c.Endpoint,
 	)
 
@@ -771,7 +771,7 @@ func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordRe
 // ResetPassword resets user password using token that was sent to the user.
 func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/reset_password",
+		"%s/user_management/reset_password",
 		c.Endpoint,
 	)
 
@@ -813,7 +813,7 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 // SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
 func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/magic_auth/send",
+		"%s/user_management/magic_auth/send",
 		c.Endpoint,
 	)
 
@@ -855,7 +855,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 // EnrollAuthFactor enrolls an authentication factor for the user.
 func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts) (AuthenticationResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s/auth/factors",
+		"%s/user_management/%s/auth/factors",
 		c.Endpoint,
 		opts.User,
 	)
@@ -898,7 +898,7 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 // ListAuthFactors lists the available authentication factors for the user.
 func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) (ListAuthFactorsResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/users/%s/auth/factors",
+		"%s/user_management/%s/auth/factors",
 		c.Endpoint,
 		opts.User,
 	)
