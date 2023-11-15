@@ -93,7 +93,7 @@ type ListUsersOpts struct {
 	Email string `url:"email,omitempty"`
 
 	// Filter Users by the organization they are members of.
-	Organization string `url:"organization,omitempty"`
+	OrganizationID string `url:"organization_id,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`

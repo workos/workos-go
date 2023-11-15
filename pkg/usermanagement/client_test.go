@@ -129,6 +129,38 @@ func TestListUsers(t *testing.T) {
 		require.Equal(t, expectedResponse, users)
 	})
 
+	t.Run("ListUsers succeeds to fetch Users belonging to an Organization", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(listUsersTestHandler))
+		defer server.Close()
+		client := &Client{
+			HTTPClient: server.Client(),
+			Endpoint:   server.URL,
+			APIKey:     "test",
+		}
+
+		expectedResponse := ListUsersResponse{
+			Data: []User{
+				{
+					ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+					Email:         "marcelina@foo-corp.com",
+					FirstName:     "Marcelina",
+					LastName:      "Davis",
+					EmailVerified: true,
+					CreatedAt:     "2021-06-25T19:07:33.155Z",
+					UpdatedAt:     "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+		users, err := client.ListUsers(context.Background(), ListUsersOpts{OrganizationID: "org_123"})
+
+		require.NoError(t, err)
+		require.Equal(t, expectedResponse, users)
+	})
+
 	t.Run("ListUsers succeeds to fetch Users created after a timestamp", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(listUsersTestHandler))
 		defer server.Close()
