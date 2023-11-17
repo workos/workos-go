@@ -1,5 +1,5 @@
-// Package users provides a client wrapping the WorkOS User Management API.
-package users
+// Package `usermanagement` provides a client wrapping the WorkOS User Management API.
+package usermanagement
 
 import (
 	"context"
