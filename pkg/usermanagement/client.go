@@ -855,7 +855,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 // EnrollAuthFactor enrolls an authentication factor for the user.
 func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts) (AuthenticationResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/user_management/%s/auth/factors",
+		"%s/user_management/users/%s/auth_factors",
 		c.Endpoint,
 		opts.User,
 	)
@@ -898,7 +898,7 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 // ListAuthFactors lists the available authentication factors for the user.
 func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) (ListAuthFactorsResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/user_management/%s/auth/factors",
+		"%s/user_management/users/%s/auth_factors",
 		c.Endpoint,
 		opts.User,
 	)
