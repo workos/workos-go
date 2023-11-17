@@ -766,7 +766,7 @@ func sendVerificationEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/user_123/send_verification_email" {
+	if r.URL.Path == "/user_management/users/user_123/email_verification/send" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID: "user_123",
@@ -790,11 +790,11 @@ func sendVerificationEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestVerifyEmailCode(t *testing.T) {
+func TestVerifyEmail(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  VerifyEmailCodeOpts
+		options  VerifyEmailOpts
 		expected UserResponse
 		err      bool
 	}{
@@ -806,7 +806,7 @@ func TestVerifyEmailCode(t *testing.T) {
 		{
 			scenario: "Request returns User",
 			client:   NewClient("test"),
-			options: VerifyEmailCodeOpts{
+			options: VerifyEmailOpts{
 				User: "user_123",
 				Code: "testToken",
 			},
@@ -831,7 +831,7 @@ func TestVerifyEmailCode(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.VerifyEmailCode(context.Background(), test.options)
+			user, err := client.VerifyEmail(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -852,7 +852,7 @@ func verifyEmailCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/user_123/verify_email_code" {
+	if r.URL.Path == "/user_management/users/user_123/email_verification/confirm" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:            "user_123",
