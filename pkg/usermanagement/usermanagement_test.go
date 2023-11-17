@@ -180,7 +180,7 @@ func TestUsersSendVerificationEmail(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUserManagementVerifyEmailCode(t *testing.T) {
+func TestUserManagementVerifyEmail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(verifyEmailCodeTestHandler))
 	defer server.Close()
 
@@ -198,7 +198,7 @@ func TestUserManagementVerifyEmailCode(t *testing.T) {
 		},
 	}
 
-	userRes, err := VerifyEmailCode(context.Background(), VerifyEmailCodeOpts{
+	userRes, err := VerifyEmail(context.Background(), VerifyEmailOpts{
 		User: "user_123",
 		Code: "testToken",
 	})

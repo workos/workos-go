@@ -121,12 +121,12 @@ func SendVerificationEmail(
 	return DefaultClient.SendVerificationEmail(ctx, opts)
 }
 
-// VerifyEmailCode verifies user email using verification token that was sent to the user.
-func VerifyEmailCode(
+// VerifyEmail verifies a user's email using the verification token that was sent to the user.
+func VerifyEmail(
 	ctx context.Context,
-	opts VerifyEmailCodeOpts,
+	opts VerifyEmailOpts,
 ) (UserResponse, error) {
-	return DefaultClient.VerifyEmailCode(ctx, opts)
+	return DefaultClient.VerifyEmail(ctx, opts)
 }
 
 // SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an unmanaged user.
