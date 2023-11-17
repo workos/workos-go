@@ -1196,7 +1196,7 @@ func enrollAuthFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
+	if r.URL.Path == "/user_management/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth_factors" {
 		body, err = json.Marshal(AuthenticationResponse{
 			Factor: mfa.Factor{
 				ID:        "auth_factor_test123",
@@ -1291,7 +1291,7 @@ func listAuthFactorsTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth/factors" {
+	if r.URL.Path == "/user_management/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth_factors" {
 		body, err = json.Marshal(ListAuthFactorsResponse{
 			Data: []mfa.Factor{
 				{
