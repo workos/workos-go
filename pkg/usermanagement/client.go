@@ -176,12 +176,12 @@ type AuthenticationResponse struct {
 }
 
 type SendVerificationEmailOpts struct {
-	// The unique ID of the User whose email address will be verified.
+	// The unique ID of the User who will be sent a verification email.
 	User string
 }
 
-type VerifyEmailCodeOpts struct {
-	// The unique ID of the User whose code will be verified.
+type VerifyEmailOpts struct {
+	// The unique ID of the User whose email address will be verified.
 	User string
 	// The verification code emailed to the user.
 	Code string `json:"code"`
@@ -648,7 +648,7 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificationEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/user_management/%s/send_verification_email",
+		"%s/user_management/users/%s/email_verification/send",
 		c.Endpoint,
 		opts.User,
 	)
@@ -682,10 +682,10 @@ func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificatio
 	return body, err
 }
 
-// VerifyEmailCode verifies user email using verification token that was sent to the user.
-func (c *Client) VerifyEmailCode(ctx context.Context, opts VerifyEmailCodeOpts) (UserResponse, error) {
+// VerifyEmail verifies a user's email using the verification token that was sent to the user.
+func (c *Client) VerifyEmail(ctx context.Context, opts VerifyEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/user_management/%s/verify_email_code",
+		"%s/user_management/users/%s/email_verification/confirm",
 		c.Endpoint,
 		opts.User,
 	)
