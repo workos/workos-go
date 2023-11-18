@@ -937,7 +937,7 @@ func sendPasswordResetEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/send_password_reset_email" {
+	if r.URL.Path == "/user_management/password_reset/send" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID:            "user_123",
@@ -1022,7 +1022,7 @@ func resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/reset_password" {
+	if r.URL.Path == "/user_management/password_reset/confirm" {
 		body, err = json.Marshal(UserResponse{
 			User: User{
 				ID: "user_123",
