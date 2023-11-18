@@ -132,10 +132,6 @@ type DeleteUserOpts struct {
 	User string
 }
 
-type AuthorizedOrganization struct {
-	Organization Organization `json:"organization"`
-}
-
 type AuthenticateWithPasswordOpts struct {
 	ClientID  string `json:"client_id"`
 	Email     string `json:"email"`
@@ -150,8 +146,6 @@ type AuthenticateWithCodeOpts struct {
 	IPAddress string `json:"ip_address,omitempty"`
 	UserAgent string `json:"user_agent,omitempty"`
 }
-
-type MagicAuthChallengeID string
 
 type AuthenticateWithMagicAuthOpts struct {
 	ClientID  string `json:"client_id"`
