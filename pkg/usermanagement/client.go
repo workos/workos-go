@@ -729,7 +729,7 @@ func (c *Client) VerifyEmail(ctx context.Context, opts VerifyEmailOpts) (UserRes
 // unmanaged user.
 func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/user_management/send_password_reset_email",
+		"%s/user_management/password_reset/send",
 		c.Endpoint,
 	)
 
@@ -771,7 +771,7 @@ func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordRe
 // ResetPassword resets user password using token that was sent to the user.
 func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
-		"%s/user_management/reset_password",
+		"%s/user_management/password_reset/confirm",
 		c.Endpoint,
 	)
 
