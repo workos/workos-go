@@ -168,3 +168,35 @@ func ListAuthFactors(
 ) (ListAuthFactorsResponse, error) {
 	return DefaultClient.ListAuthFactors(ctx, opts)
 }
+
+// GetOrganizationMembership gets an OrganizationMembership.
+func GetOrganizationMembership(
+	ctx context.Context,
+	opts GetOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.GetOrganizationMembership(ctx, opts)
+}
+
+// ListOrganizationMemberships gets a list of OrganizationMemberhips.
+func ListOrganizationMemberships(
+	ctx context.Context,
+	opts ListOrganizationMembershipsOpts,
+) (ListOrganizationMembershipsResponse, error) {
+	return DefaultClient.ListOrganizationMemberships(ctx, opts)
+}
+
+// CreateOrganizationMembership creates a OrganizationMembership.
+func CreateOrganizationMembership(
+	ctx context.Context,
+	opts CreateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.CreateOrganizationMembership(ctx, opts)
+}
+
+// DeleteOrganizationMembership deletes a existing OrganizationMembership.
+func DeleteOrganizationMembership(
+	ctx context.Context,
+	opts DeleteOrganizationMembershipOpts,
+) error {
+	return DefaultClient.DeleteOrganizationMembership(ctx, opts)
+}
