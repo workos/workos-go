@@ -38,8 +38,14 @@ type Organization struct {
 
 // OrganizationMembership contains data about a particular OrganizationMembership.
 type OrganizationMembership struct {
-	// Contains the ID and name of the associated Organization.
-	Organization Organization `json:"organization"`
+	// The Organization Membership's unique identifier.
+	ID string `json:"id"`
+
+	// The ID of the User.
+	UserID string `json:"user_id"`
+
+	// The ID of the Organization.
+	OrganizationID string `json:"organization_id"`
 
 	// CreatedAt is the timestamp of when the OrganizationMembership was created.
 	CreatedAt string `json:"created_at"`
@@ -221,6 +227,52 @@ type ListAuthFactorsResponse struct {
 	Data []mfa.Factor `json:"data"`
 
 	ListMetadata common.ListMetadata `json:"list_metadata"`
+}
+
+type GetOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
+	OrganizationMembershipID string
+}
+
+type ListOrganizationMembershipsOpts struct {
+	// Filter memberships by Organization ID.
+	OrganizationID string `url:"organization_id,omitempty"`
+
+	// Filter memberships by User ID.
+	UserID string `url:"user_id,omitempty"`
+
+	// Maximum number of records to return.
+	Limit int `url:"limit"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
+
+	// Pagination cursor to receive records before a provided
+	// Organization Membership ID.
+	Before string `url:"before,omitempty"`
+
+	// Pagination cursor to receive records after a provided
+	// Organization Membership ID.
+	After string `url:"after,omitempty"`
+}
+
+type ListOrganizationMembershipsResponse struct {
+	Data []OrganizationMembership `json:"data"`
+
+	ListMetadata common.ListMetadata `json:"list_metadata"`
+}
+
+type CreateOrganizationMembershipOpts struct {
+	// The ID of the User to add as a member.
+	UserID string `json:"user_id"`
+
+	// The ID of the Organization in which to add the User as a member.
+	OrganizationID string `json:"organization_id"`
+}
+
+type DeleteOrganizationMembershipOpts struct {
+	// The ID of the Organization Membership to delete.
+	OrganizationMembershipID string
 }
 
 func NewClient(apiKey string) *Client {
@@ -925,4 +977,162 @@ func (c *Client) ListAuthFactors(ctx context.Context, opts ListAuthFactorsOpts) 
 	err = dec.Decode(&body)
 
 	return body, err
+}
+
+// GetOrganizationMembership returns details of an existing Organization Membership
+func (c *Client) GetOrganizationMembership(ctx context.Context, opts GetOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s",
+		c.Endpoint,
+		opts.OrganizationMembershipID,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// List Organization Memberships matching the criteria specified.
+func (c *Client) ListOrganizationMemberships(ctx context.Context, opts ListOrganizationMembershipsOpts) (ListOrganizationMembershipsResponse, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships",
+		c.Endpoint,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListOrganizationMembershipsResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
+	queryValues, err := query.Values(opts)
+	if err != nil {
+		return ListOrganizationMembershipsResponse{}, err
+	}
+
+	req.URL.RawQuery = queryValues.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListOrganizationMembershipsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListOrganizationMembershipsResponse{}, err
+	}
+
+	var body ListOrganizationMembershipsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Create an Organization Membership. Adds a User to an Organization.
+func (c *Client) CreateOrganizationMembership(ctx context.Context, opts CreateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships",
+		c.Endpoint,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Delete an Organization Membership. Removes the membership's User from its Organization.
+func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOrganizationMembershipOpts) error {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s",
+		c.Endpoint,
+		opts.OrganizationMembershipID,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
