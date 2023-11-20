@@ -452,3 +452,98 @@ func TestUserManagementListAuthFactors(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
 }
+
+func TestUserManagementGetOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := GetOrganizationMembership(context.Background(), GetOrganizationMembershipOpts{
+		OrganizationMembershipID: "om_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementListOrganizationMemberships(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listOrganizationMembershipsTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := ListOrganizationMembershipsResponse{
+		Data: []OrganizationMembership{
+			{
+				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				CreatedAt:      "2021-06-25T19:07:33.155Z",
+				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			After: "",
+		},
+	}
+
+	userRes, err := ListOrganizationMemberships(context.Background(), ListOrganizationMembershipsOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementCreateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := CreateOrganizationMembership(context.Background(), CreateOrganizationMembershipOpts{
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUsersDeleteOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := DeleteOrganizationMembership(context.Background(), DeleteOrganizationMembershipOpts{
+		OrganizationMembershipID: "om_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, nil, err)
+}
