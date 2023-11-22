@@ -3,7 +3,7 @@ package auditlogs
 import (
 	"context"
 	"encoding/json"
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
+	"github.com/workos/workos-go/v3/pkg/workos_errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
