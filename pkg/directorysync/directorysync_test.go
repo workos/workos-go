@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v3/pkg/common"
 )
 
 func TestDirectorySyncListUsers(t *testing.T) {

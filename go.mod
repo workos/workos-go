@@ -1,4 +1,4 @@
-module github.com/workos/workos-go/v2
+module github.com/workos/workos-go/v3
 
 go 1.13
 
