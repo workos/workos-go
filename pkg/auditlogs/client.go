@@ -69,7 +69,7 @@ type Event struct {
 	// The schema version of the event
 	Version int `json:"version,omitempty"`
 
-	// The time when the audit trail occurred.
+	// The time when the event occurred.
 	// Defaults to time.Now().
 	OccurredAt time.Time `json:"occurred_at"`
 
