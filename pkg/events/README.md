@@ -5,7 +5,7 @@ A Go package to retrieve events from WorkOS.
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v2/pkg/events
+go get -u github.com/workos/workos-go/v3/pkg/events
 ```
 
 ## How it works
@@ -13,7 +13,7 @@ go get -u github.com/workos/workos-go/v2/pkg/events
 
 package main
 
-import "github.com/workos/workos-go/v2/pkg/events"
+import "github.com/workos/workos-go/v3/pkg/events"
 
 func main() {
     events.SetAPIKey("my_api_key")

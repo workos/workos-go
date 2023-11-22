@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
+	"github.com/workos/workos-go/v3/pkg/workos_errors"
 )
 
 func TestIsBadRequest(t *testing.T) {
