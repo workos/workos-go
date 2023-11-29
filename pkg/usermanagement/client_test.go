@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v2/pkg/common"
-	"github.com/workos/workos-go/v2/pkg/mfa"
+	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v3/pkg/mfa"
 )
 
 func TestGetUser(t *testing.T) {
