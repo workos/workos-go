@@ -221,3 +221,10 @@ func SendInvitation(
 ) (Invitation, error) {
 	return DefaultClient.SendInvitation(ctx, opts)
 }
+
+func RevokeInvitation(
+	ctx context.Context,
+	opts RevokeInvitationOpts,
+) (Invitation, error) {
+	return DefaultClient.RevokeInvitation(ctx, opts)
+}
