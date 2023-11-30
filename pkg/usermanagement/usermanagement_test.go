@@ -304,13 +304,14 @@ func TestUserManagementAuthenticateWithCode(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
 	}
 
 	authenticationRes, err := AuthenticateWithCode(context.Background(), AuthenticateWithCodeOpts{})
@@ -328,13 +329,14 @@ func TestUserManagementAuthenticateWithPassword(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
 	}
 
 	authenticationRes, err := AuthenticateWithPassword(context.Background(), AuthenticateWithPasswordOpts{})
@@ -352,13 +354,14 @@ func TestUserManagementAuthenticateWithMagicAuth(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
 	}
 
 	authenticationRes, err := AuthenticateWithMagicAuth(context.Background(), AuthenticateWithMagicAuthOpts{})
@@ -376,13 +379,14 @@ func TestUserManagementAuthenticateWithTOTP(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
 	}
 
 	authenticationRes, err := AuthenticateWithTOTP(context.Background(), AuthenticateWithTOTPOpts{})
