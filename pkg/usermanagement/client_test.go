@@ -734,6 +734,58 @@ func TestAuthenticateUserWithEmailVerificationCode(t *testing.T) {
 		})
 	}
 }
+
+func TestAuthenticateUserWithOrganizationSelection(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateWithOrganizationSelectionOpts
+		expected AuthenticateResponse
+		err      bool
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
+		{
+			scenario: "Request returns a User",
+			client:   NewClient("test"),
+			options: AuthenticateWithOrganizationSelectionOpts{
+				ClientID:                   "project_123",
+				OrganizationID:             "org_123",
+				PendingAuthenticationToken: "cTDQJTTkTkkVYxQUlKBIxEsFs",
+			},
+			expected: AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			response, err := client.AuthenticateWithOrganizationSelection(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, response)
+		})
+	}
+}
+
 func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	payload := make(map[string]interface{})

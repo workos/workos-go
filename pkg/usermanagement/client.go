@@ -189,6 +189,14 @@ type AuthenticateWithEmailVerificationCodeOpts struct {
 	UserAgent                  string `json:"user_agent,omitempty"`
 }
 
+type AuthenticateWithOrganizationSelectionOpts struct {
+	ClientID                   string `json:"client_id"`
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	OrganizationID             string `json:"organization_id"`
+	IPAddress                  string `json:"ip_address,omitempty"`
+	UserAgent                  string `json:"user_agent,omitempty"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -731,6 +739,57 @@ func (c *Client) AuthenticateWithEmailVerificationCode(ctx context.Context, opts
 		AuthenticateWithEmailVerificationCodeOpts: opts,
 		ClientSecret: c.APIKey,
 		GrantType:    "urn:workos:oauth:grant-type:email-verification:code",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/user_management/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body AuthenticateResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithOrganizationSelection completes authentication for a user given an organization they've selected.
+func (c *Client) AuthenticateWithOrganizationSelection(ctx context.Context, opts AuthenticateWithOrganizationSelectionOpts) (AuthenticateResponse, error) {
+	payload := struct {
+		AuthenticateWithOrganizationSelectionOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithOrganizationSelectionOpts: opts,
+		ClientSecret: c.APIKey,
+		GrantType:    "urn:workos:oauth:grant-type:organization-selection",
 	}
 
 	jsonData, err := json.Marshal(payload)
