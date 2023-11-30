@@ -492,7 +492,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		err:      true,
 	},
 		{
-			scenario: "Request returns an AuthenticationResponse",
+			scenario: "Request returns a User",
 			client:   NewClient("test"),
 			options: AuthenticateWithPasswordOpts{
 				ClientID: "project_123",
@@ -542,7 +542,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 		err:      true,
 	},
 		{
-			scenario: "Request returns an AuthenticationResponse",
+			scenario: "Request returns a User",
 			client:   NewClient("test"),
 			options: AuthenticateWithCodeOpts{
 				ClientID: "project_123",
@@ -591,7 +591,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 		err:      true,
 	},
 		{
-			scenario: "Request returns an AuthenticationResponse",
+			scenario: "Request returns a User",
 			client:   NewClient("test"),
 			options: AuthenticateWithMagicAuthOpts{
 				ClientID: "project_123",
@@ -641,7 +641,7 @@ func TestAuthenticateUserWithTOTP(t *testing.T) {
 		err:      true,
 	},
 		{
-			scenario: "Request returns an AuthenticationResponse",
+			scenario: "Request returns a User",
 			client:   NewClient("test"),
 			options: AuthenticateWithTOTPOpts{
 				ClientID:                   "project_123",
@@ -1133,7 +1133,7 @@ func TestEnrollAuthFactor(t *testing.T) {
 		scenario string
 		client   *Client
 		options  EnrollAuthFactorOpts
-		expected AuthenticationResponse
+		expected EnrollAuthFactorResponse
 		err      bool
 	}{
 		{
@@ -1148,7 +1148,7 @@ func TestEnrollAuthFactor(t *testing.T) {
 				User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 				Type: mfa.TOTP,
 			},
-			expected: AuthenticationResponse{
+			expected: EnrollAuthFactorResponse{
 				Factor: mfa.Factor{
 					ID:        "auth_factor_test123",
 					CreatedAt: "2022-02-17T22:39:26.616Z",
@@ -1197,7 +1197,7 @@ func enrollAuthFactorTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/user_management/users/user_01E3JC5F5Z1YJNPGVYWV9SX6GH/auth_factors" {
-		body, err = json.Marshal(AuthenticationResponse{
+		body, err = json.Marshal(EnrollAuthFactorResponse{
 			Factor: mfa.Factor{
 				ID:        "auth_factor_test123",
 				CreatedAt: "2022-02-17T22:39:26.616Z",
