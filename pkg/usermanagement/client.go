@@ -39,16 +39,16 @@ const (
 )
 
 type Invitation struct {
-	ID             string      `json:"id"`
-	Email          string      `json:"email"`
+	ID             string          `json:"id"`
+	Email          string          `json:"email"`
 	State          InvitationState `json:"state"`
-	AcceptedAt     string      `json:"accepted_at,omitempty"`
-	RevokedAt      string      `json:"revoked_at,omitempty"`
-	Token          string      `json:"token"`
-	OrganizationID string      `json:"organization_id,omitempty"`
-	ExpiresAt      string      `json:"expires_at"`
-	CreatedAt      string      `json:"created_at"`
-	UpdatedAt      string      `json:"updated_at"`
+	AcceptedAt     string          `json:"accepted_at,omitempty"`
+	RevokedAt      string          `json:"revoked_at,omitempty"`
+	Token          string          `json:"token"`
+	OrganizationID string          `json:"organization_id,omitempty"`
+	ExpiresAt      string          `json:"expires_at"`
+	CreatedAt      string          `json:"created_at"`
+	UpdatedAt      string          `json:"updated_at"`
 }
 
 // Organization contains data about a particular Organization.
