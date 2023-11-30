@@ -83,7 +83,7 @@ func DeleteUser(
 func AuthenticateWithPassword(
 	ctx context.Context,
 	opts AuthenticateWithPasswordOpts,
-) (UserResponse, error) {
+) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
@@ -92,7 +92,7 @@ func AuthenticateWithPassword(
 func AuthenticateWithCode(
 	ctx context.Context,
 	opts AuthenticateWithCodeOpts,
-) (UserResponse, error) {
+) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithCode(ctx, opts)
 }
 
@@ -101,7 +101,7 @@ func AuthenticateWithCode(
 func AuthenticateWithMagicAuth(
 	ctx context.Context,
 	opts AuthenticateWithMagicAuthOpts,
-) (UserResponse, error) {
+) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithMagicAuth(ctx, opts)
 }
 
@@ -109,7 +109,7 @@ func AuthenticateWithMagicAuth(
 func AuthenticateWithTOTP(
 	ctx context.Context,
 	opts AuthenticateWithTOTPOpts,
-) (UserResponse, error) {
+) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithTOTP(ctx, opts)
 }
 
