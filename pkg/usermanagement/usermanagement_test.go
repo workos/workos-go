@@ -130,6 +130,38 @@ func TestUserManagementUpdateUser(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		Password:      "pass",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementUpdateUserPasswordHash(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateUserTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := UpdateUser(context.Background(), UpdateUserOpts{
+		User:             "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		FirstName:        "Marcelina",
+		LastName:         "Davis",
+		EmailVerified:    true,
+		PasswordHash:     "$2b$10$dXS6RadWKYIqs6vOwqKZceLuCIqz6S81t06.yOkGJbbfeO9go4fai",
+		PasswordHashType: "bcrypt",
 	})
 
 	require.NoError(t, err)
