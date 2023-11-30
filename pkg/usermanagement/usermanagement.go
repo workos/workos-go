@@ -121,6 +121,14 @@ func AuthenticateWithEmailVerificationCode(
 	return DefaultClient.AuthenticateWithEmailVerificationCode(ctx, opts)
 }
 
+// AuthenticateWithOrganizationSelection completes authentication for a user given an organization they've selected.
+func AuthenticateWithOrganizationSelection(
+	ctx context.Context,
+	opts AuthenticateWithOrganizationSelectionOpts,
+) (AuthenticateResponse, error) {
+	return DefaultClient.AuthenticateWithOrganizationSelection(ctx, opts)
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func SendVerificationEmail(
 	ctx context.Context,
