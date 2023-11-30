@@ -484,7 +484,7 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithPasswordOpts
-		expected UserResponse
+		expected AuthenticateResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -499,13 +499,14 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 				Email:    "employee@foo-corp.com",
 				Password: "test_123",
 			},
-			expected: UserResponse{
+			expected: AuthenticateResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
 					LastName:  "Doe",
 					Email:     "employee@foo-corp.com",
 				},
+				OrganizationID: "org_123",
 			},
 		},
 	}
@@ -534,7 +535,7 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithCodeOpts
-		expected UserResponse
+		expected AuthenticateResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -548,13 +549,14 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 				ClientID: "project_123",
 				Code:     "test_123",
 			},
-			expected: UserResponse{
+			expected: AuthenticateResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
 					LastName:  "Doe",
 					Email:     "employee@foo-corp.com",
 				},
+				OrganizationID: "org_123",
 			},
 		},
 	}
@@ -583,7 +585,7 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithMagicAuthOpts
-		expected UserResponse
+		expected AuthenticateResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -598,13 +600,14 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 				Code:     "test_123",
 				User:     "user_123",
 			},
-			expected: UserResponse{
+			expected: AuthenticateResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
 					LastName:  "Doe",
 					Email:     "employee@foo-corp.com",
 				},
+				OrganizationID: "org_123",
 			},
 		},
 	}
@@ -633,7 +636,7 @@ func TestAuthenticateUserWithTOTP(t *testing.T) {
 		scenario string
 		client   *Client
 		options  AuthenticateWithTOTPOpts
-		expected UserResponse
+		expected AuthenticateResponse
 		err      bool
 	}{{
 		scenario: "Request without API Key returns an error",
@@ -649,13 +652,14 @@ func TestAuthenticateUserWithTOTP(t *testing.T) {
 				PendingAuthenticationToken: "cTDQJTTkTkkVYxQUlKBIxEsFs",
 				AuthenticationChallengeID:  "auth_challenge_01H96FETXGTW1QMBSBT2T36PW0",
 			},
-			expected: UserResponse{
+			expected: AuthenticateResponse{
 				User: User{
 					ID:        "testUserID",
 					FirstName: "John",
 					LastName:  "Doe",
 					Email:     "employee@foo-corp.com",
 				},
+				OrganizationID: "org_123",
 			},
 		},
 	}
@@ -687,13 +691,14 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
-		response := UserResponse{
+		response := AuthenticateResponse{
 			User: User{
 				ID:        "testUserID",
 				FirstName: "John",
 				LastName:  "Doe",
 				Email:     "employee@foo-corp.com",
 			},
+			OrganizationID: "org_123",
 		}
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)

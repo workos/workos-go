@@ -175,6 +175,11 @@ type AuthenticationResponse struct {
 	Challenge mfa.Challenge `json:"authentication_challenge"`
 }
 
+type AuthenticateResponse struct {
+	User           User   `json:"user"`
+	OrganizationID string `json:"organization_id"`
+}
+
 type SendVerificationEmailOpts struct {
 	// The unique ID of the User who will be sent a verification email.
 	User string
@@ -487,7 +492,7 @@ func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 }
 
 // AuthenticateWithPassword authenticates a user with Email and Password
-func (c *Client) AuthenticateWithPassword(ctx context.Context, opts AuthenticateWithPasswordOpts) (UserResponse, error) {
+func (c *Client) AuthenticateWithPassword(ctx context.Context, opts AuthenticateWithPasswordOpts) (AuthenticateResponse, error) {
 	payload := struct {
 		AuthenticateWithPasswordOpts
 		ClientSecret string `json:"client_secret"`
@@ -500,7 +505,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -510,7 +515,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 	)
 
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -521,16 +526,16 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body UserResponse
+	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -538,7 +543,7 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 }
 
 // AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
-func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWithCodeOpts) (UserResponse, error) {
+func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWithCodeOpts) (AuthenticateResponse, error) {
 	payload := struct {
 		AuthenticateWithCodeOpts
 		ClientSecret string `json:"client_secret"`
@@ -551,7 +556,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -561,7 +566,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 	)
 
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -572,16 +577,16 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body UserResponse
+	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -590,7 +595,7 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 // AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
 // the Magic Auth Send Code endpoint.
-func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts AuthenticateWithMagicAuthOpts) (UserResponse, error) {
+func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts AuthenticateWithMagicAuthOpts) (AuthenticateResponse, error) {
 	payload := struct {
 		AuthenticateWithMagicAuthOpts
 		ClientSecret string `json:"client_secret"`
@@ -603,7 +608,7 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -613,7 +618,7 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 	)
 
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -624,16 +629,16 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body UserResponse
+	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -641,7 +646,7 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 }
 
 // AuthenticateWithTOTP authenticates a user by verifying a time-based one-time password (TOTP)
-func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWithTOTPOpts) (UserResponse, error) {
+func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWithTOTPOpts) (AuthenticateResponse, error) {
 	payload := struct {
 		AuthenticateWithTOTPOpts
 		ClientSecret string `json:"client_secret"`
@@ -654,7 +659,7 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -664,7 +669,7 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 	)
 
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Add headers and context to the request
@@ -675,16 +680,16 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 	// Execute the request
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return UserResponse{}, err
+		return AuthenticateResponse{}, err
 	}
 
 	// Parse the JSON response
-	var body UserResponse
+	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
