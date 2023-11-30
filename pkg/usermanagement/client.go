@@ -176,7 +176,13 @@ type AuthenticationResponse struct {
 }
 
 type AuthenticateResponse struct {
-	User           User   `json:"user"`
+	User User `json:"user"`
+
+	// Which Organization the user is signing in to.
+	// If the user is a member of multiple organizations, this is the organization the user selected
+	// as part of the authentication flow.
+	// If the user is a member of only one organization, this is that organization.
+	// If the user is not a member of any organizations, this is null.
 	OrganizationID string `json:"organization_id"`
 }
 
