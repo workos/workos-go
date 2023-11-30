@@ -320,6 +320,33 @@ type GetInvitationOpts struct {
 	Invitation string
 }
 
+// ListInvitations contains the response from the ListInvitations call.
+type ListInvitationsResponse struct {
+	// List of Invitations
+	Data []Invitation `json:"data"`
+
+	// Cursor to paginate through the list of Invitations
+	ListMetadata common.ListMetadata `json:"listMetadata"`
+}
+
+type ListInvitationsOpts struct {
+	OrganizationID string `json:"organization_id,omitempty"`
+
+	Email string `json:"email,omitempty"`
+
+	// Maximum number of records to return.
+	Limit int `url:"limit"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
+
+	// Pagination cursor to receive records before a provided User ID.
+	Before string `url:"before,omitempty"`
+
+	// Pagination cursor to receive records after a provided User ID.
+	After string `url:"after,omitempty"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -1206,6 +1233,54 @@ func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Inv
 	}
 
 	var body Invitation
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ListInvitations gets a list of all of your existing invitations matching the criteria specified.
+func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) (ListInvitationsResponse, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/invitations",
+		c.Endpoint,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListInvitationsResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
+	queryValues, err := query.Values(opts)
+	if err != nil {
+		return ListInvitationsResponse{}, err
+	}
+
+	req.URL.RawQuery = queryValues.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListInvitationsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListInvitationsResponse{}, err
+	}
+
+	var body ListInvitationsResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
