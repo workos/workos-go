@@ -368,6 +368,13 @@ type ListInvitationsOpts struct {
 	After string `url:"after,omitempty"`
 }
 
+type SendInvitationOpts struct {
+	Email          string `json:"email"`
+	OrganizationID string `json:"organization_id,omitempty"`
+	ExpiresInDays  int    `json:"expires_in_days,omitempty"`
+	InviterUserID  string `json:"inviter_user_id,omitempty"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -1388,6 +1395,44 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 	}
 
 	var body ListInvitationsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) SendInvitation(ctx context.Context, opts SendInvitationOpts) (Invitation, error) {
+	endpoint := fmt.Sprintf("%s/user_management/invitations", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return Invitation{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return Invitation{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Invitation{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Invitation{}, err
+	}
+
+	var body Invitation
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
