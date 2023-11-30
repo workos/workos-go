@@ -214,3 +214,10 @@ func ListInvitations(
 ) (ListInvitationsResponse, error) {
 	return DefaultClient.ListInvitations(ctx, opts)
 }
+
+func SendInvitation(
+	ctx context.Context,
+	opts SendInvitationOpts,
+) (Invitation, error) {
+	return DefaultClient.SendInvitation(ctx, opts)
+}
