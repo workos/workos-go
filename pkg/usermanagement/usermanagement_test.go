@@ -592,7 +592,7 @@ func TestUsersGetInvitation(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Invitation{
-		ID:        "invite_123",
+		ID:        "invitation_123",
 		Email:     "marcelina@foo-corp.com",
 		State:     "pending",
 		Token:     "myToken",
@@ -602,7 +602,7 @@ func TestUsersGetInvitation(t *testing.T) {
 	}
 
 	getByIDRes, err := GetInvitation(context.Background(), GetInvitationOpts{
-		Invitation: "invite_123",
+		Invitation: "invitation_123",
 	})
 
 	require.NoError(t, err)
