@@ -113,6 +113,14 @@ func AuthenticateWithTOTP(
 	return DefaultClient.AuthenticateWithTOTP(ctx, opts)
 }
 
+// AuthenticateWithEmailVerificationCode authenticates a user by verifying an code sent to their email address.
+func AuthenticateWithEmailVerificationCode(
+	ctx context.Context,
+	opts AuthenticateWithEmailVerificationCodeOpts,
+) (AuthenticateResponse, error) {
+	return DefaultClient.AuthenticateWithEmailVerificationCode(ctx, opts)
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func SendVerificationEmail(
 	ctx context.Context,
