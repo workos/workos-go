@@ -160,11 +160,16 @@ type AuthenticateWithCodeOpts struct {
 }
 
 type AuthenticateWithMagicAuthOpts struct {
-	ClientID  string `json:"client_id"`
-	Code      string `json:"code"`
-	User      string `json:"user_id"`
-	IPAddress string `json:"ip_address,omitempty"`
-	UserAgent string `json:"user_agent,omitempty"`
+	ClientID string `json:"client_id"`
+	Code     string `json:"code"`
+	Email    string `json:"email"`
+
+	// An authorization code used in a previous authenticate request that resulted in an existing user error response.
+	// By specifying link_authorization_code, the Magic Auth authentication will link the credentials of the previous
+	// authorization code with this user.
+	LinkAuthorizationCode string `json:"link_authorization_code,omitempty"`
+	IPAddress             string `json:"ip_address,omitempty"`
+	UserAgent             string `json:"user_agent,omitempty"`
 }
 
 type AuthenticateWithTOTPOpts struct {
