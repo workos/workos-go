@@ -596,9 +596,10 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 			scenario: "Request returns a User",
 			client:   NewClient("test"),
 			options: AuthenticateWithMagicAuthOpts{
-				ClientID: "project_123",
-				Code:     "test_123",
-				Email:    "employee@foo-corp.com",
+				ClientID:              "project_123",
+				Code:                  "test_123",
+				Email:                 "employee@foo-corp.com",
+				LinkAuthorizationCode: "test_456",
 			},
 			expected: AuthenticateResponse{
 				User: User{
