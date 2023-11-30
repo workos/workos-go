@@ -122,16 +122,22 @@ type CreateUserOpts struct {
 	EmailVerified bool   `json:"email_verified,omitempty"`
 }
 
-type UpdateUserOpts struct {
-	User          string
-	FirstName     string `json:"first_name,omitempty"`
-	LastName      string `json:"last_name,omitempty"`
-	EmailVerified bool   `json:"email_verified,omitempty"`
-}
+// The algorithm originally used to hash the password.
+type PasswordHashType string
 
-type UpdateUserPasswordOpts struct {
-	User     string
-	Password string `json:"password"`
+// Constants that enumerate the available password hash types.
+const (
+	Bcrypt PasswordHashType = "bcrypt"
+)
+
+type UpdateUserOpts struct {
+	User             string
+	FirstName        string           `json:"first_name,omitempty"`
+	LastName         string           `json:"last_name,omitempty"`
+	EmailVerified    bool             `json:"email_verified,omitempty"`
+	Password         string           `json:"password,omitempty"`
+	PasswordHash     string           `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType `json:"password_hash_type,omitempty"`
 }
 
 type DeleteUserOpts struct {
