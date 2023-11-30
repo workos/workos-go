@@ -157,7 +157,7 @@ func SendMagicAuthCode(
 func EnrollAuthFactor(
 	ctx context.Context,
 	opts EnrollAuthFactorOpts,
-) (AuthenticationResponse, error) {
+) (EnrollAuthFactorResponse, error) {
 	return DefaultClient.EnrollAuthFactor(ctx, opts)
 }
 
