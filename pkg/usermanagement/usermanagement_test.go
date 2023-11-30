@@ -633,3 +633,28 @@ func TestUsersDeleteOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, nil, err)
 }
+
+func TestUsersGetInvitation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getInvitationTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:        "invitation_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     "pending",
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	getByIDRes, err := GetInvitation(context.Background(), GetInvitationOpts{
+		Invitation: "invitation_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByIDRes)
+}

@@ -27,6 +27,30 @@ const (
 	Desc Order = "desc"
 )
 
+// InvitationState represents the state of a token.
+type InvitationState string
+
+// Constants that enumerate the state of a token.
+const (
+	Pending  InvitationState = "pending"
+	Accepted InvitationState = "accepted"
+	Expired  InvitationState = "expired"
+	Revoked  InvitationState = "revoked"
+)
+
+type Invitation struct {
+	ID             string          `json:"id"`
+	Email          string          `json:"email"`
+	State          InvitationState `json:"state"`
+	AcceptedAt     string          `json:"accepted_at,omitempty"`
+	RevokedAt      string          `json:"revoked_at,omitempty"`
+	Token          string          `json:"token"`
+	OrganizationID string          `json:"organization_id,omitempty"`
+	ExpiresAt      string          `json:"expires_at"`
+	CreatedAt      string          `json:"created_at"`
+	UpdatedAt      string          `json:"updated_at"`
+}
+
 // Organization contains data about a particular Organization.
 type Organization struct {
 	// The Organization's unique identifier.
@@ -311,6 +335,10 @@ type CreateOrganizationMembershipOpts struct {
 type DeleteOrganizationMembershipOpts struct {
 	// The ID of the Organization Membership to delete.
 	OrganizationMembershipID string
+}
+
+type GetInvitationOpts struct {
+	Invitation string
 }
 
 func NewClient(apiKey string) *Client {
@@ -1275,4 +1303,34 @@ func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOr
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+// GetInvitation fetches an invitation by its ID.
+func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Invitation, error) {
+	endpoint := fmt.Sprintf("%s/user_management/invitations/%s", c.Endpoint, opts.Invitation)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return Invitation{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Invitation{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Invitation{}, err
+	}
+
+	var body Invitation
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
 }
