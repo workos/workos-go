@@ -913,7 +913,7 @@ func (c *Client) VerifyEmail(ctx context.Context, opts VerifyEmailOpts) (UserRes
 
 // SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an
 // unmanaged user.
-func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) (UserResponse, error) {
+func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/password_reset/send",
 		c.Endpoint,
@@ -921,7 +921,7 @@ func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordRe
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return UserResponse{}, err
+		return err
 	}
 
 	req, err := http.NewRequest(
@@ -930,7 +930,7 @@ func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordRe
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return UserResponse{}, err
+		return err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -939,19 +939,11 @@ func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordRe
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return UserResponse{}, err
+		return err
 	}
 	defer res.Body.Close()
 
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return UserResponse{}, err
-	}
-
-	var body UserResponse
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // ResetPassword resets user password using token that was sent to the user.
@@ -997,7 +989,7 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 }
 
 // SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
-func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) (UserResponse, error) {
+func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/magic_auth/send",
 		c.Endpoint,
@@ -1005,7 +997,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return UserResponse{}, err
+		return err
 	}
 
 	req, err := http.NewRequest(
@@ -1014,7 +1006,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return UserResponse{}, err
+		return err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -1023,19 +1015,11 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return UserResponse{}, err
+		return err
 	}
 	defer res.Body.Close()
 
-	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return UserResponse{}, err
-	}
-
-	var body UserResponse
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-
-	return body, err
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // EnrollAuthFactor enrolls an authentication factor for the user.

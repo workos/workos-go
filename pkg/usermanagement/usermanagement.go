@@ -149,7 +149,7 @@ func VerifyEmail(
 func SendPasswordResetEmail(
 	ctx context.Context,
 	opts SendPasswordResetEmailOpts,
-) (UserResponse, error) {
+) error {
 	return DefaultClient.SendPasswordResetEmail(ctx, opts)
 }
 
@@ -165,7 +165,7 @@ func ResetPassword(
 func SendMagicAuthCode(
 	ctx context.Context,
 	opts SendMagicAuthCodeOpts,
-) (UserResponse, error) {
+) error {
 	return DefaultClient.SendMagicAuthCode(ctx, opts)
 }
 

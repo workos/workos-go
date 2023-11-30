@@ -247,25 +247,12 @@ func TestUserManagementCreatePasswordResetChallenge(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
-		User: User{
-			ID:            "user_123",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
-			CreatedAt:     "2021-06-25T19:07:33.155Z",
-			UpdatedAt:     "2021-06-25T19:07:33.155Z",
-		},
-	}
-
-	userRes, err := SendPasswordResetEmail(context.Background(), SendPasswordResetEmailOpts{
+	err := SendPasswordResetEmail(context.Background(), SendPasswordResetEmailOpts{
 		Email:            "marcelina@foo-corp.com",
 		PasswordResetUrl: "https://example.com/reset",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, userRes)
 }
 
 func TestUserManagementResetPassword(t *testing.T) {
@@ -454,21 +441,9 @@ func TestUserManagementSendMagicAuthCode(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
-		User: User{
-			ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			Email:     "marcelina@foo-corp.com",
-			FirstName: "Marcelina",
-			LastName:  "Davis",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
-		},
-	}
-
-	authenticationRes, err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})
+	err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, authenticationRes)
 }
 
 func TestUserManagementEnrollAuthFactor(t *testing.T) {
