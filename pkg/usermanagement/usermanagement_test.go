@@ -645,7 +645,7 @@ func TestUsersListInvitations(t *testing.T) {
 		ListInvitationsResponse{
 			Data: []Invitation{
 				{
-					ID:        "invite_123",
+					ID:        "invitation_123",
 					Email:     "marcelina@foo-corp.com",
 					State:     "pending",
 					Token:     "myToken",
