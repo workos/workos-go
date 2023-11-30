@@ -395,6 +395,31 @@ func TestUserManagementAuthenticateWithTOTP(t *testing.T) {
 	require.Equal(t, expectedResponse, authenticationRes)
 }
 
+func TestUserManagementAuthenticateWithEmailVerificationCode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticateResponse{
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+		OrganizationID: "org_123",
+	}
+
+	authenticationRes, err := AuthenticateWithEmailVerificationCode(context.Background(), AuthenticateWithEmailVerificationCodeOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
 func TestUserManagementSendMagicAuthCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(sendMagicAuthCodeTestHandler))
 

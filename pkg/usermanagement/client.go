@@ -176,6 +176,14 @@ type AuthenticateWithTOTPOpts struct {
 	AuthenticationChallengeID  string `json:"authentication_challenge_id"`
 }
 
+type AuthenticateWithEmailVerificationCodeOpts struct {
+	ClientID                   string `json:"client_id"`
+	Code                       string `json:"code"`
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	IPAddress                  string `json:"ip_address,omitempty"`
+	UserAgent                  string `json:"user_agent,omitempty"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -667,6 +675,57 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 		AuthenticateWithTOTPOpts: opts,
 		ClientSecret:             c.APIKey,
 		GrantType:                "workos:oauth:grant-type:mfa-totp",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/user_management/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body AuthenticateResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithEmailVerificationCode authenticates a user by verifying a code sent to their email address
+func (c *Client) AuthenticateWithEmailVerificationCode(ctx context.Context, opts AuthenticateWithEmailVerificationCodeOpts) (AuthenticateResponse, error) {
+	payload := struct {
+		AuthenticateWithEmailVerificationCodeOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithEmailVerificationCodeOpts: opts,
+		ClientSecret: c.APIKey,
+		GrantType:    "urn:workos:oauth:grant-type:email-verification:code",
 	}
 
 	jsonData, err := json.Marshal(payload)
