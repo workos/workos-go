@@ -320,12 +320,12 @@ type GetInvitationOpts struct {
 	Invitation string
 }
 
-// ListInvites contains the response from the ListInvites call.
+// ListInvitations contains the response from the ListInvitations call.
 type ListInvitationsResponse struct {
-	// List of Invites
+	// List of Invitations
 	Data []Invitation `json:"data"`
 
-	// Cursor to paginate through the list of invites
+	// Cursor to paginate through the list of Invitations
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
