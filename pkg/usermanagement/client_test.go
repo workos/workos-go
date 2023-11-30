@@ -1754,7 +1754,7 @@ func TestListInvitations(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns list of Invites",
+			scenario: "Request returns list of invitations",
 			client:   NewClient("test"),
 			options: ListInvitationsOpts{
 				Email: "marcelina@foo-corp.com",
@@ -1762,7 +1762,7 @@ func TestListInvitations(t *testing.T) {
 			expected: ListInvitationsResponse{
 				Data: []Invitation{
 					{
-						ID:        "invite_123",
+						ID:        "invitation_123",
 						Email:     "marcelina@foo-corp.com",
 						State:     "pending",
 						Token:     "myToken",
@@ -1809,10 +1809,10 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/user_management/invitations" {
-		invites := ListInvitationsResponse{
+		invitations := ListInvitationsResponse{
 			Data: []Invitation{
 				{
-					ID:        "invite_123",
+					ID:        "invitation_123",
 					Email:     "marcelina@foo-corp.com",
 					State:     "pending",
 					Token:     "myToken",
@@ -1825,7 +1825,7 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 				After: "",
 			},
 		}
-		body, err = json.Marshal(invites)
+		body, err = json.Marshal(invitations)
 	}
 
 	if err != nil {
