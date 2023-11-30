@@ -176,11 +176,6 @@ type AuthenticateWithTOTPOpts struct {
 	AuthenticationChallengeID  string `json:"authentication_challenge_id"`
 }
 
-type AuthenticationResponse struct {
-	Factor    mfa.Factor    `json:"authentication_factor"`
-	Challenge mfa.Challenge `json:"authentication_challenge"`
-}
-
 type SendVerificationEmailOpts struct {
 	// The unique ID of the User who will be sent a verification email.
 	User string
@@ -223,6 +218,11 @@ type EnrollAuthFactorOpts struct {
 	Type       mfa.FactorType `json:"type"`
 	TOTPIssuer string         `json:"totp_issuer,omitempty"`
 	TOTPUser   string         `json:"totp_user,omitempty"`
+}
+
+type EnrollAuthFactorResponse struct {
+	Factor    mfa.Factor    `json:"authentication_factor"`
+	Challenge mfa.Challenge `json:"authentication_challenge"`
 }
 
 type ListAuthFactorsOpts struct {
@@ -905,7 +905,7 @@ func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOp
 }
 
 // EnrollAuthFactor enrolls an authentication factor for the user.
-func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts) (AuthenticationResponse, error) {
+func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts) (EnrollAuthFactorResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/users/%s/auth_factors",
 		c.Endpoint,
@@ -914,7 +914,7 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return EnrollAuthFactorResponse{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -923,7 +923,7 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return EnrollAuthFactorResponse{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
@@ -932,15 +932,15 @@ func (c *Client) EnrollAuthFactor(ctx context.Context, opts EnrollAuthFactorOpts
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return AuthenticationResponse{}, err
+		return EnrollAuthFactorResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthenticationResponse{}, err
+		return EnrollAuthFactorResponse{}, err
 	}
 
-	var body AuthenticationResponse
+	var body EnrollAuthFactorResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
