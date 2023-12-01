@@ -216,3 +216,10 @@ func DeleteOrganizationMembership(
 ) error {
 	return DefaultClient.DeleteOrganizationMembership(ctx, opts)
 }
+
+func GetInvitation(
+	ctx context.Context,
+	opts GetInvitationOpts,
+) (Invitation, error) {
+	return DefaultClient.GetInvitation(ctx, opts)
+}
