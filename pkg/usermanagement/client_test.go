@@ -1954,3 +1954,87 @@ func SendInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestRevokeInvitation(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  RevokeInvitationOpts
+		expected Invitation
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns Invitation",
+			client:   NewClient("test"),
+			options: RevokeInvitationOpts{
+				Invitation: "invitation_123",
+			},
+			expected: Invitation{
+
+				ID:        "invitation_123",
+				Email:     "marcelina@foo-corp.com",
+				State:     Pending,
+				Token:     "myToken",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(RevokeInvitationTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			Invitation, err := client.RevokeInvitation(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, Invitation)
+		})
+	}
+}
+
+func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/invitations/invitation_123/revoke" {
+		body, err = json.Marshal(
+			Invitation{
+				ID:        "invitation_123",
+				Email:     "marcelina@foo-corp.com",
+				State:     Pending,
+				Token:     "myToken",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
