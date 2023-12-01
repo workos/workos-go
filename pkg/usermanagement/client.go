@@ -1346,7 +1346,7 @@ func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Inv
 	return body, err
 }
 
-// ListInvitations gets a list of all of your existing invitations matching the criteria specified.
+// ListInvitations gets a list of all of your existing Invitations matching the criteria specified.
 func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) (ListInvitationsResponse, error) {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/invitations",
