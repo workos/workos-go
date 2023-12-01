@@ -1739,3 +1739,100 @@ func getInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestListInvitations(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListInvitationsOpts
+		expected ListInvitationsResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns list of invitations",
+			client:   NewClient("test"),
+			options: ListInvitationsOpts{
+				Email: "marcelina@foo-corp.com",
+			},
+			expected: ListInvitationsResponse{
+				Data: []Invitation{
+					{
+						ID:        "invitation_123",
+						Email:     "marcelina@foo-corp.com",
+						State:     "pending",
+						Token:     "myToken",
+						ExpiresAt: "2021-06-25T19:07:33.155Z",
+						CreatedAt: "2021-06-25T19:07:33.155Z",
+						UpdatedAt: "2021-06-25T19:07:33.155Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					After: "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listInvitationsTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			invitations, err := client.ListInvitations(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, invitations)
+		})
+	}
+}
+
+func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/invitations" {
+		invitations := ListInvitationsResponse{
+			Data: []Invitation{
+				{
+					ID:        "invitation_123",
+					Email:     "marcelina@foo-corp.com",
+					State:     "pending",
+					Token:     "myToken",
+					ExpiresAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+		body, err = json.Marshal(invitations)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
