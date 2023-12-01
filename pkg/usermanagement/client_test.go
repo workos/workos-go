@@ -1796,7 +1796,7 @@ func TestListInvitations(t *testing.T) {
 					{
 						ID:        "invitation_123",
 						Email:     "marcelina@foo-corp.com",
-						State:     "pending",
+						State:     Pending,
 						Token:     "myToken",
 						ExpiresAt: "2021-06-25T19:07:33.155Z",
 						CreatedAt: "2021-06-25T19:07:33.155Z",
@@ -1846,7 +1846,7 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 				{
 					ID:        "invitation_123",
 					Email:     "marcelina@foo-corp.com",
-					State:     "pending",
+					State:     Pending,
 					Token:     "myToken",
 					ExpiresAt: "2021-06-25T19:07:33.155Z",
 					CreatedAt: "2021-06-25T19:07:33.155Z",
