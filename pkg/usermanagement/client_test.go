@@ -986,7 +986,6 @@ func TestSendPasswordResetEmail(t *testing.T) {
 		scenario string
 		client   *Client
 		options  SendPasswordResetEmailOpts
-		expected UserResponse
 		err      bool
 	}{
 		{
@@ -995,22 +994,11 @@ func TestSendPasswordResetEmail(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns User",
+			scenario: "Successful request",
 			client:   NewClient("test"),
 			options: SendPasswordResetEmailOpts{
 				Email:            "marcelina@foo-corp.com",
 				PasswordResetUrl: "https://foo-corp.com/reset-password",
-			},
-			expected: UserResponse{
-				User: User{
-					ID:            "user_123",
-					Email:         "marcelina@foo-corp.com",
-					FirstName:     "Marcelina",
-					LastName:      "Davis",
-					EmailVerified: true,
-					CreatedAt:     "2021-06-25T19:07:33.155Z",
-					UpdatedAt:     "2021-06-25T19:07:33.155Z",
-				},
 			},
 		},
 	}
@@ -1024,13 +1012,12 @@ func TestSendPasswordResetEmail(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.SendPasswordResetEmail(context.Background(), test.options)
+			err := client.SendPasswordResetEmail(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, user)
 		})
 	}
 }
@@ -1042,30 +1029,7 @@ func sendPasswordResetEmailTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body []byte
-	var err error
-
-	if r.URL.Path == "/user_management/password_reset/send" {
-		body, err = json.Marshal(UserResponse{
-			User: User{
-				ID:            "user_123",
-				Email:         "marcelina@foo-corp.com",
-				FirstName:     "Marcelina",
-				LastName:      "Davis",
-				EmailVerified: true,
-				CreatedAt:     "2021-06-25T19:07:33.155Z",
-				UpdatedAt:     "2021-06-25T19:07:33.155Z",
-			},
-		})
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
 }
 
 func TestResetPassword(t *testing.T) {
@@ -1157,7 +1121,6 @@ func TestSendMagicAuthCode(t *testing.T) {
 		scenario string
 		client   *Client
 		options  SendMagicAuthCodeOpts
-		expected UserResponse
 		err      bool
 	}{
 		{
@@ -1166,20 +1129,10 @@ func TestSendMagicAuthCode(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns User",
+			scenario: "Successful request",
 			client:   NewClient("test"),
 			options: SendMagicAuthCodeOpts{
 				Email: "marcelina@foo-corp.com",
-			},
-			expected: UserResponse{
-				User: User{
-					ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-					Email:     "marcelina@foo-corp.com",
-					FirstName: "Marcelina",
-					LastName:  "Davis",
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
-				},
 			},
 		},
 	}
@@ -1193,13 +1146,12 @@ func TestSendMagicAuthCode(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			user, err := client.SendMagicAuthCode(context.Background(), test.options)
+			err := client.SendMagicAuthCode(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, user)
 		})
 	}
 }
@@ -1210,30 +1162,7 @@ func sendMagicAuthCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
 		return
 	}
-
-	var body []byte
-	var err error
-
-	if r.URL.Path == "/user_management/magic_auth/send" {
-		body, err = json.Marshal(UserResponse{
-			User: User{
-				ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-				Email:     "marcelina@foo-corp.com",
-				FirstName: "Marcelina",
-				LastName:  "Davis",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
-			},
-		})
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
 }
 
 func TestEnrollAuthFactor(t *testing.T) {
