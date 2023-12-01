@@ -641,3 +641,33 @@ func TestUsersListInvitations(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, listRes)
 }
+
+func TestUsersSendInvitation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(SendInvitationTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:        "invitation_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     Pending,
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	createRes, err := SendInvitation(context.Background(), SendInvitationOpts{
+		Email:          "marcelina@foo-corp.com",
+		OrganizationID: "org_123",
+		ExpiresInDays:  7,
+		InviterUserID:  "user_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, createRes)
+}
