@@ -27,10 +27,10 @@ const (
 	Desc Order = "desc"
 )
 
-// InvitationState represents the state of a token.
+// InvitationState represents the state of an Invitation.
 type InvitationState string
 
-// Constants that enumerate the state of a token.
+// Constants that enumerate the state of an Invitation.
 const (
 	Pending  InvitationState = "pending"
 	Accepted InvitationState = "accepted"
