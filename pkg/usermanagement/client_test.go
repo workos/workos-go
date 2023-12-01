@@ -1862,7 +1862,7 @@ func TestSendInvitation(t *testing.T) {
 			expected: Invitation{
 				ID:        "invitation_123",
 				Email:     "marcelina@foo-corp.com",
-				State:     "pending",
+				State:     Pending,
 				Token:     "myToken",
 				ExpiresAt: "2021-06-25T19:07:33.155Z",
 				CreatedAt: "2021-06-25T19:07:33.155Z",
@@ -1906,7 +1906,7 @@ func SendInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 			Invitation{
 				ID:        "invitation_123",
 				Email:     "marcelina@foo-corp.com",
-				State:     "pending",
+				State:     Pending,
 				Token:     "myToken",
 				ExpiresAt: "2021-06-25T19:07:33.155Z",
 				CreatedAt: "2021-06-25T19:07:33.155Z",

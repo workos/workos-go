@@ -654,7 +654,7 @@ func TestUsersSendInvitation(t *testing.T) {
 	expectedResponse := Invitation{
 		ID:        "invitation_123",
 		Email:     "marcelina@foo-corp.com",
-		State:     "pending",
+		State:     Pending,
 		Token:     "myToken",
 		ExpiresAt: "2021-06-25T19:07:33.155Z",
 		CreatedAt: "2021-06-25T19:07:33.155Z",
