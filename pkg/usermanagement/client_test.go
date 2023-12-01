@@ -479,6 +479,135 @@ func deleteUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestClientAuthorizeURL(t *testing.T) {
+	tests := []struct {
+		scenario string
+		options  GetAuthorizationURLOpts
+		expected string
+	}{
+		{
+			scenario: "generate url with provider",
+			options: GetAuthorizationURLOpts{
+				ClientID:    "client_123",
+				Provider:    "GoogleOAuth",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				State:       "custom state",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
+			scenario: "generate url with connection",
+			options: GetAuthorizationURLOpts{
+				ClientID:     "client_123",
+				ConnectionID: "connection_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+				State:        "custom state",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
+			scenario: "generate url with state",
+			options: GetAuthorizationURLOpts{
+				ClientID:    "client_123",
+				Provider:    "GoogleOAuth",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				State:       "custom state",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
+			scenario: "generate url with provider and connection",
+			options: GetAuthorizationURLOpts{
+				ClientID:     "client_123",
+				ConnectionID: "connection_123",
+				Provider:     "GoogleOAuth",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+				State:        "custom state",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
+			scenario: "generate url with organization",
+			options: GetAuthorizationURLOpts{
+				ClientID:       "client_123",
+				OrganizationID: "organization_123",
+				RedirectURI:    "https://example.com/sso/workos/callback",
+				State:          "custom state",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
+			scenario: "generate url with DomainHint",
+			options: GetAuthorizationURLOpts{
+				ClientID:     "client_123",
+				ConnectionID: "connection_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+				State:        "custom state",
+				DomainHint:   "foo.com",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&domain_hint=foo.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+		{
+			scenario: "generate url with LoginHint",
+			options: GetAuthorizationURLOpts{
+				ClientID:     "client_123",
+				ConnectionID: "connection_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+				State:        "custom state",
+				LoginHint:    "foo@workos.com",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&login_hint=foo%40workos.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			client := NewClient("test")
+			u, err := client.GetAuthorizationURL(test.options)
+			require.NoError(t, err)
+			require.Equal(t, test.expected, u.String())
+		})
+	}
+}
+
+func TestClientAuthorizeURLInvalidOpts(t *testing.T) {
+	tests := []struct {
+		scenario string
+		options  GetAuthorizationURLOpts
+	}{
+		{
+			scenario: "without selector",
+			options: GetAuthorizationURLOpts{
+				ClientID:    "client_123",
+				RedirectURI: "https://example.com/sso/workos/callback",
+			},
+		},
+		{
+			scenario: "without ClientID",
+			options: GetAuthorizationURLOpts{
+				ConnectionID: "connection_123",
+				RedirectURI:  "https://example.com/sso/workos/callback",
+			},
+		},
+		{
+			scenario: "without RedirectURI",
+			options: GetAuthorizationURLOpts{
+				ClientID:     "client_123",
+				ConnectionID: "connection_123",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			client := NewClient("test")
+			u, err := client.GetAuthorizationURL(test.options)
+			require.Error(t, err)
+			require.Nil(t, u)
+		})
+	}
+}
+
 func TestAuthenticateUserWithPassword(t *testing.T) {
 	tests := []struct {
 		scenario string
