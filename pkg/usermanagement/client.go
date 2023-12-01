@@ -293,7 +293,7 @@ type ListAuthFactorsResponse struct {
 
 type GetOrganizationMembershipOpts struct {
 	// Organization Membership unique identifier
-	OrganizationMembershipID string
+	OrganizationMembership string
 }
 
 type ListOrganizationMembershipsOpts struct {
@@ -334,7 +334,7 @@ type CreateOrganizationMembershipOpts struct {
 
 type DeleteOrganizationMembershipOpts struct {
 	// The ID of the Organization Membership to delete.
-	OrganizationMembershipID string
+	OrganizationMembership string
 }
 
 type GetInvitationOpts struct {
@@ -1170,7 +1170,7 @@ func (c *Client) GetOrganizationMembership(ctx context.Context, opts GetOrganiza
 	endpoint := fmt.Sprintf(
 		"%s/user_management/organization_memberships/%s",
 		c.Endpoint,
-		opts.OrganizationMembershipID,
+		opts.OrganizationMembership,
 	)
 
 	req, err := http.NewRequest(
@@ -1298,7 +1298,7 @@ func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOr
 	endpoint := fmt.Sprintf(
 		"%s/user_management/organization_memberships/%s",
 		c.Endpoint,
-		opts.OrganizationMembershipID,
+		opts.OrganizationMembership,
 	)
 
 	req, err := http.NewRequest(

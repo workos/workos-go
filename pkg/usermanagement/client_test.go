@@ -1373,7 +1373,7 @@ func TestGetOrganizationMembership(t *testing.T) {
 			scenario: "Request returns an Organization Membership",
 			client:   NewClient("test"),
 			options: GetOrganizationMembershipOpts{
-				OrganizationMembershipID: "om_01E4ZCR3C56J083X43JQXF3JK5",
+				OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
 			},
 			expected: OrganizationMembership{
 				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
@@ -1642,7 +1642,7 @@ func TestDeleteOrganizationMembership(t *testing.T) {
 			scenario: "Request returns OrganizationMembership",
 			client:   NewClient("test"),
 			options: DeleteOrganizationMembershipOpts{
-				OrganizationMembershipID: "om_01E4ZCR3C56J083X43JQXF3JK5",
+				OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
 			},
 			expected: nil,
 		},

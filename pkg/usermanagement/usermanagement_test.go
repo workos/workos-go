@@ -531,7 +531,7 @@ func TestUserManagementGetOrganizationMembership(t *testing.T) {
 	}
 
 	userRes, err := GetOrganizationMembership(context.Background(), GetOrganizationMembershipOpts{
-		OrganizationMembershipID: "om_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
 	})
 
 	require.NoError(t, err)
@@ -602,7 +602,7 @@ func TestUsersDeleteOrganizationMembership(t *testing.T) {
 	SetAPIKey("test")
 
 	err := DeleteOrganizationMembership(context.Background(), DeleteOrganizationMembershipOpts{
-		OrganizationMembershipID: "om_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
 	})
 
 	require.NoError(t, err)
