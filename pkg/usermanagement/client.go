@@ -1182,7 +1182,7 @@ func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOr
 	return workos_errors.TryGetHTTPError(res)
 }
 
-// GetInvitation fetches an invitation by its ID.
+// GetInvitation fetches an Invitation by its ID.
 func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Invitation, error) {
 	endpoint := fmt.Sprintf("%s/user_management/invitations/%s", c.Endpoint, opts.Invitation)
 

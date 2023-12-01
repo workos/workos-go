@@ -1659,38 +1659,6 @@ func deleteOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 	w.Write(body)
 }
 
-func getInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	var body []byte
-	var err error
-
-	if r.URL.Path == "/user_management/invitations/invitation_123" {
-		invitations := Invitation{
-			ID:        "invitation_123",
-			Email:     "marcelina@foo-corp.com",
-			State:     "pending",
-			Token:     "myToken",
-			ExpiresAt: "2021-06-25T19:07:33.155Z",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
-		}
-		body, err = json.Marshal(invitations)
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
 func TestGetInvitation(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -1705,7 +1673,7 @@ func TestGetInvitation(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns invitation by ID",
+			scenario: "Request returns Invitation by ID",
 			client:   NewClient("test"),
 			options:  GetInvitationOpts{Invitation: "invitation_123"},
 			expected: Invitation{
@@ -1738,4 +1706,36 @@ func TestGetInvitation(t *testing.T) {
 			require.Equal(t, test.expected, invitation)
 		})
 	}
+}
+
+func getInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/invitations/invitation_123" {
+		invitations := Invitation{
+			ID:        "invitation_123",
+			Email:     "marcelina@foo-corp.com",
+			State:     "pending",
+			Token:     "myToken",
+			ExpiresAt: "2021-06-25T19:07:33.155Z",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(invitations)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
