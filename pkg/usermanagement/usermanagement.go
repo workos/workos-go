@@ -4,6 +4,7 @@ package usermanagement
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 var (
@@ -77,6 +78,12 @@ func DeleteUser(
 	opts DeleteUserOpts,
 ) error {
 	return DefaultClient.DeleteUser(ctx, opts)
+}
+
+// GetAuthorizationURL returns an authorization url generated with the given
+// options.
+func GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
+	return DefaultClient.GetAuthorizationURL(opts)
 }
 
 // AuthenticateWithPassword authenticates a user with email and password and optionally creates a session.

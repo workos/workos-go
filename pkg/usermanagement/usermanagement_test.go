@@ -282,6 +282,23 @@ func TestUserManagementResetPassword(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
+func TestUserManagementGetAuthorizationURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetAuthorizationURL(GetAuthorizationURLOpts{
+		ClientID:    "client_123",
+		Provider:    "GoogleOAuth",
+		RedirectURI: "https://example.com/sso/workos/callback",
+		State:       "custom state",
+	})
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/user_management/authorize?client_id=client_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		u.String(),
+	)
+}
+
 func TestUserManagementAuthenticateWithCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
