@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -588,6 +590,91 @@ func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+// GetAuthorizationURLOpts contains the options to pass in order to generate
+// an authorization url.
+type GetAuthorizationURLOpts struct {
+	// Your WorkOS Project's Client ID.
+	//
+	// REQUIRED.
+	ClientID string
+
+	// The callback URL where your app redirects the user after an
+	// authorization code is granted (eg. https://foo.com/callback).
+	//
+	// REQUIRED.
+	RedirectURI string
+
+	// The Provider connection selector is used to initiate SSO using an OAuth-compatible provider.
+	Provider string
+
+	// The ConnectionID connection selector is used to initiate SSO for a Connection.
+	ConnectionID string
+
+	// The organization_id connection selector is used to initiate SSO for an Organization.
+	OrganizationID string
+
+	// Use state to encode arbitrary information to restore state through redirects.
+	//
+	// OPTIONAL.
+	State string
+
+	// Username/email hint that will be passed as a parameter to the to IdP login page.
+	// OPTIONAL.
+	LoginHint string
+
+	// Domain hint that will be passed as a parameter to the IdP login page.
+	// OPTIONAL.
+	DomainHint string
+}
+
+// GetAuthorizationURL generates an OAuth 2.0 authorization URL.
+// To indicate the connection to use for authentication, use one of the following connection selectors:
+// connection_id, organization_id, or provider.
+// These connection selectors are mutually exclusive, and exactly one must be provided.
+func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
+
+	query := make(url.Values, 5)
+	query.Set("client_id", opts.ClientID)
+	query.Set("redirect_uri", opts.RedirectURI)
+	query.Set("response_type", "code")
+
+	if opts.ClientID == "" {
+		return nil, errors.New("incomplete arguments: missing ClientID")
+	}
+	if opts.RedirectURI == "" {
+		return nil, errors.New("incomplete arguments: missing RedirectURI")
+	}
+	if opts.Provider == "" && opts.ConnectionID == "" && opts.OrganizationID == "" {
+		return nil, errors.New("incomplete arguments: missing ConnectionID, OrganizationID, or Provider")
+	}
+	if opts.Provider != "" {
+		query.Set("provider", string(opts.Provider))
+	}
+	if opts.ConnectionID != "" {
+		query.Set("connection", opts.ConnectionID)
+	}
+	if opts.OrganizationID != "" {
+		query.Set("organization", opts.OrganizationID)
+	}
+	if opts.LoginHint != "" {
+		query.Set("login_hint", opts.LoginHint)
+	}
+	if opts.DomainHint != "" {
+		query.Set("domain_hint", opts.DomainHint)
+	}
+	if opts.State != "" {
+		query.Set("state", opts.State)
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")
+	if err != nil {
+		return nil, err
+	}
+
+	u.RawQuery = query.Encode()
+	return u, nil
 }
 
 // AuthenticateWithPassword authenticates a user with Email and Password
