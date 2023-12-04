@@ -840,7 +840,7 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 	}{
 		AuthenticateWithTOTPOpts: opts,
 		ClientSecret:             c.APIKey,
-		GrantType:                "workos:oauth:grant-type:mfa-totp",
+		GrantType:                "urn:workos:oauth:grant-type:mfa-totp",
 	}
 
 	jsonData, err := json.Marshal(payload)
