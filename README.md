@@ -42,7 +42,8 @@ For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)
 
 ## More Information
 
-* [Single Sign-On Guide](https://workos.com/docs/sso/guide)
-* [Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
-* [Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
-* [Magic Link Guide](https://workos.com/docs/magic-link/guide)
+- [User Management Guide](https://workos.com/docs/user-management)
+- [Single Sign-On Guide](https://workos.com/docs/sso)
+- [Directory Sync Guide](https://workos.com/docs/directory-sync)
+- [Admin Portal Guide](https://workos.com/docs/admin-portal)
+- [Magic Link Guide](https://workos.com/docs/magic-link)
