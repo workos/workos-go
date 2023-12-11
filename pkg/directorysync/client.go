@@ -83,7 +83,6 @@ type UserState string
 const (
 	Active    UserState = "active"
 	Inactive  UserState = "inactive"
-	Suspended UserState = "suspended"
 )
 
 // User contains data about a provisioned Directory User.
