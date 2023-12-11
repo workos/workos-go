@@ -81,9 +81,8 @@ type UserState string
 
 // Constants that enumerate the state of a Directory User.
 const (
-	Active    UserState = "active"
-	Inactive  UserState = "inactive"
-	Suspended UserState = "suspended"
+	Active   UserState = "active"
+	Inactive UserState = "inactive"
 )
 
 // User contains data about a provisioned Directory User.
