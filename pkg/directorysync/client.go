@@ -484,9 +484,6 @@ type Directory struct {
 
 // ListDirectoriesOpts contains the options to request a Project's Directories.
 type ListDirectoriesOpts struct {
-	// Domain of a Directory. Can be empty.
-	Domain string `url:"domain,omitempty"`
-
 	// Searchable text for a Directory. Can be empty.
 	Search string `url:"search,omitempty"`
 
