@@ -103,6 +103,9 @@ type User struct {
 
 	// Whether the User email is verified.
 	EmailVerified bool `json:"email_verified"`
+
+	// A URL reference to an image representing the User.
+	ProfilePictureURL string `json:"profile_picture_url"`
 }
 
 // GetUserOpts contains the options to pass in order to get a user profile.
