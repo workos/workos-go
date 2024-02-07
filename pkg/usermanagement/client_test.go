@@ -43,6 +43,23 @@ func TestGetUser(t *testing.T) {
 				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
 		},
+		{
+			scenario: "Request returns a User with an unmarshalled `ProfilePictureURL`",
+			client:   NewClient("test"),
+			options: GetUserOpts{
+				User: "user_456",
+			},
+			expected: User{
+				ID:                "user_01E3JC5F5Z1YJNPGVYWV9SX456",
+				Email:             "marcelina@foo-corp.com",
+				FirstName:         "Marcelina",
+				LastName:          "Davis",
+				EmailVerified:     true,
+				ProfilePictureURL: "https://workoscdn.com/images/v1/123abc",
+				CreatedAt:         "2021-06-25T19:07:33.155Z",
+				UpdatedAt:         "2021-06-25T19:07:33.155Z",
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -84,6 +101,19 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			EmailVerified: true,
 			CreatedAt:     "2021-06-25T19:07:33.155Z",
 			UpdatedAt:     "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if r.URL.Path == "/user_management/users/user_456" {
+		body, err = json.Marshal(User{
+			ID:                "user_01E3JC5F5Z1YJNPGVYWV9SX456",
+			Email:             "marcelina@foo-corp.com",
+			FirstName:         "Marcelina",
+			LastName:          "Davis",
+			EmailVerified:     true,
+			ProfilePictureURL: "https://workoscdn.com/images/v1/123abc",
+			CreatedAt:         "2021-06-25T19:07:33.155Z",
+			UpdatedAt:         "2021-06-25T19:07:33.155Z",
 		})
 	}
 
