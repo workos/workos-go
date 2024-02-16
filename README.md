@@ -13,7 +13,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 Install the package with:
 
 ```
-go get -u github.com/workos/workos-go/v3...
+go get -u github.com/workos/workos-go/v3
 ```
 
 ## Configuration
