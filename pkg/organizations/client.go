@@ -225,6 +225,10 @@ func (c *Client) ListOrganizations(
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+        opts.Order = Desc
+    }
+
 	q, err := query.Values(opts)
 	if err != nil {
 		return ListOrganizationsResponse{}, err
