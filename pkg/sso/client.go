@@ -512,6 +512,10 @@ func (c *Client) ListConnections(
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+        opts.Order = Desc
+    }
+
 	v, err := query.Values(opts)
 	if err != nil {
 		return ListConnectionsResponse{}, err

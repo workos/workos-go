@@ -455,6 +455,10 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+        opts.Order = Desc
+    }
+
 	queryValues, err := query.Values(opts)
 	if err != nil {
 		return ListUsersResponse{}, err
@@ -1321,6 +1325,10 @@ func (c *Client) ListOrganizationMemberships(ctx context.Context, opts ListOrgan
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+        opts.Order = Desc
+    }
+
 	queryValues, err := query.Values(opts)
 	if err != nil {
 		return ListOrganizationMembershipsResponse{}, err
@@ -1470,6 +1478,10 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
 	}
+
+	if opts.Order == "" {
+        opts.Order = Desc
+    }
 
 	queryValues, err := query.Values(opts)
 	if err != nil {
