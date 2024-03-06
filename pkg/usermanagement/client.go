@@ -456,8 +456,8 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	queryValues, err := query.Values(opts)
 	if err != nil {
@@ -1326,8 +1326,8 @@ func (c *Client) ListOrganizationMemberships(ctx context.Context, opts ListOrgan
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	queryValues, err := query.Values(opts)
 	if err != nil {
@@ -1480,8 +1480,8 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	queryValues, err := query.Values(opts)
 	if err != nil {

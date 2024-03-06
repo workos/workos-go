@@ -513,8 +513,8 @@ func (c *Client) ListConnections(
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	v, err := query.Values(opts)
 	if err != nil {

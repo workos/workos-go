@@ -190,8 +190,8 @@ func (c *Client) ListUsers(
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	v, err := query.Values(opts)
 	if err != nil {
@@ -300,8 +300,8 @@ func (c *Client) ListGroups(
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	v, err := query.Values(opts)
 	if err != nil {
@@ -550,8 +550,8 @@ func (c *Client) ListDirectories(
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	v, err := query.Values(opts)
 	if err != nil {

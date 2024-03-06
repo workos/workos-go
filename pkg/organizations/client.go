@@ -226,8 +226,8 @@ func (c *Client) ListOrganizations(
 	}
 
 	if opts.Order == "" {
-        opts.Order = Desc
-    }
+		opts.Order = Desc
+	}
 
 	q, err := query.Values(opts)
 	if err != nil {
