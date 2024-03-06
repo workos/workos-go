@@ -189,6 +189,10 @@ func (c *Client) ListUsers(
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
 	v, err := query.Values(opts)
 	if err != nil {
 		return ListUsersResponse{}, err
@@ -293,6 +297,10 @@ func (c *Client) ListGroups(
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)
@@ -539,6 +547,10 @@ func (c *Client) ListDirectories(
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)
