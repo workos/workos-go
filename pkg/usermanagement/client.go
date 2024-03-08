@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
-	"github.com/workos/workos-go/v3/pkg/mfa"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v4/internal/workos"
+	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/mfa"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -465,6 +465,10 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	queryValues, err := query.Values(opts)
@@ -1333,6 +1337,10 @@ func (c *Client) ListOrganizationMemberships(ctx context.Context, opts ListOrgan
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
 	queryValues, err := query.Values(opts)
 	if err != nil {
 		return ListOrganizationMembershipsResponse{}, err
@@ -1481,6 +1489,10 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	queryValues, err := query.Values(opts)
