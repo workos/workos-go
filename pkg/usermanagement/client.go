@@ -67,8 +67,8 @@ type OrganizationMembershipStatus string
 
 // Constants that enumerate the status of an Organization Membership.
 const (
-	Active  OrganizationMembershipStatus = "active"
-	Pending OrganizationMembershipStatus = "pending"
+	Active                        OrganizationMembershipStatus = "active"
+	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
 )
 
 // OrganizationMembership contains data about a particular OrganizationMembership.
