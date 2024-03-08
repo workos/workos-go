@@ -543,6 +543,7 @@ func TestUserManagementGetOrganizationMembership(t *testing.T) {
 		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
 		CreatedAt:      "2021-06-25T19:07:33.155Z",
 		UpdatedAt:      "2021-06-25T19:07:33.155Z",
 	}
@@ -570,6 +571,7 @@ func TestUserManagementListOrganizationMemberships(t *testing.T) {
 				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
 				CreatedAt:      "2021-06-25T19:07:33.155Z",
 				UpdatedAt:      "2021-06-25T19:07:33.155Z",
 			},
@@ -597,6 +599,7 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
 		CreatedAt:      "2021-06-25T19:07:33.155Z",
 		UpdatedAt:      "2021-06-25T19:07:33.155Z",
 	}
