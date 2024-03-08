@@ -62,6 +62,15 @@ type Organization struct {
 	Name string `json:"name"`
 }
 
+// OrganizationMembershipStatus represents the status of an Organization Membership.
+type OrganizationMembershipStatus string
+
+// Constants that enumerate the status of an Organization Membership.
+const (
+	Active                        OrganizationMembershipStatus = "active"
+	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
+)
+
 // OrganizationMembership contains data about a particular OrganizationMembership.
 type OrganizationMembership struct {
 	// The Organization Membership's unique identifier.
@@ -72,6 +81,9 @@ type OrganizationMembership struct {
 
 	// The ID of the Organization.
 	OrganizationID string `json:"organization_id"`
+
+	// The Status of the Organization.
+	Status OrganizationMembershipStatus `json:"status"`
 
 	// CreatedAt is the timestamp of when the OrganizationMembership was created.
 	CreatedAt string `json:"created_at"`

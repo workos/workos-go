@@ -41,6 +41,7 @@ const (
 	UserUpdated                   = "user.updated"
 	UserDeleted                   = "user.deleted"
 	OrganizationMembershipAdded   = "organization_membership.added"
+	OrganizationMembershipUpdated = "organization_membership.updated"
 	OrganizationMembershipRemoved = "organization_membership.removed"
 )
 
