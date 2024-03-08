@@ -1,6 +1,6 @@
 # WorkOS Go Library
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v3.svg)](https://pkg.go.dev/github.com/workos/workos-go/v3)
+[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v4.svg)](https://pkg.go.dev/github.com/workos/workos-go/v4)
 
 The WorkOS library for Go provides convenient access to the WorkOS API from applications written in Go.
 
@@ -13,7 +13,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 Install the package with:
 
 ```
-go get -u github.com/workos/workos-go/v3...
+go get -u github.com/workos/workos-go/v4...
 ```
 
 ## Configuration
@@ -30,10 +30,10 @@ Or, you can set it on your own before your application starts:
 sso.Configure(
   "<WORKOS_API_KEY>",
   "<CLIENT_ID>",
-  "https://foo-corp.com/redirect-uri",
-)
+  "https://foo-corp.com/redirect-uri"
+);
 
-directorysync.SetAPIKey("<WORKOS_API_KEY>")
+directorysync.SetAPIKey("<WORKOS_API_KEY>");
 ```
 
 ## SDK Versioning
