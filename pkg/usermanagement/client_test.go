@@ -718,6 +718,27 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 				OrganizationID: "org_123",
 			},
 		},
+		{
+			scenario: "Request returns a User and Impersonator metadata",
+			client:   NewClient("test_with_impersonation"),
+			options: AuthenticateWithCodeOpts{
+				ClientID: "project_123",
+				Code:     "test_123",
+			},
+			expected: AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				Impersonator: &Impersonator{
+					Email:  "admin@example.com",
+					Reason: "Helping debug a customer issue.",
+				},
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
@@ -946,22 +967,42 @@ func TestAuthenticateUserWithOrganizationSelection(t *testing.T) {
 }
 
 func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
-
 	payload := make(map[string]interface{})
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
-		response := AuthenticateResponse{
-			User: User{
-				ID:        "testUserID",
-				FirstName: "John",
-				LastName:  "Doe",
-				Email:     "employee@foo-corp.com",
-			},
-			OrganizationID: "org_123",
+		var response AuthenticateResponse
+
+		switch secret {
+		case "test":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+			}
+		case "test_with_impersonation":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				Impersonator: &Impersonator{
+					Email:  "admin@example.com",
+					Reason: "Helping debug a customer issue.",
+				},
+			}
 		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)
 		return

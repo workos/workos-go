@@ -238,6 +238,14 @@ type AuthenticateWithOrganizationSelectionOpts struct {
 	UserAgent                  string `json:"user_agent,omitempty"`
 }
 
+type Impersonator struct {
+	// The email address of the WorkOS Dashboard user using impersonation.
+	Email string `json:"email"`
+
+	// The reason provided by the impersoantor for impersonating the user.
+	Reason string `json:"reason"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -247,6 +255,9 @@ type AuthenticateResponse struct {
 	// If the user is a member of only one organization, this is that organization.
 	// If the user is not a member of any organizations, this is null.
 	OrganizationID string `json:"organization_id"`
+
+	// Present if the authenticated user is being impersonated.
+	Impersonator *Impersonator `json:"impersonator"`
 }
 
 type SendVerificationEmailOpts struct {
