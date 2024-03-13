@@ -755,3 +755,15 @@ func TestUsersRevokeInvitation(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, revokeRes)
 }
+
+func TestUserManagementGetJWKSURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetJWKSURL("client_123")
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/sso/jwks/client_123",
+		u.String(),
+	)
+}

@@ -1660,3 +1660,16 @@ func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts
 
 	return body, err
 }
+
+func (c *Client) GetJWKSURL(clientID string) (*url.URL, error) {
+	if clientID == "" {
+		return nil, errors.New("clientID must not be blank")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/sso/jwks/" + clientID)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
