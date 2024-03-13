@@ -86,7 +86,7 @@ func GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
 	return DefaultClient.GetAuthorizationURL(opts)
 }
 
-// AuthenticateWithPassword authenticates a user with email and password and optionally creates a session.
+// AuthenticateWithPassword authenticates a user with email and password
 func AuthenticateWithPassword(
 	ctx context.Context,
 	opts AuthenticateWithPasswordOpts,
@@ -94,13 +94,21 @@ func AuthenticateWithPassword(
 	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
-// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
-// optionally creates a session.
+// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
 func AuthenticateWithCode(
 	ctx context.Context,
 	opts AuthenticateWithCodeOpts,
 ) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithCode(ctx, opts)
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func AuthenticateWithRefreshToken(
+	ctx context.Context,
+	opts AuthenticateWithRefreshTokenOpts,
+) (RefreshAuthenticationResponse, error) {
+	return DefaultClient.AuthenticateWithRefreshToken(ctx, opts)
 }
 
 // AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by

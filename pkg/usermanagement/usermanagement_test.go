@@ -316,6 +316,8 @@ func TestUserManagementAuthenticateWithCode(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithCode(context.Background(), AuthenticateWithCodeOpts{})
@@ -341,6 +343,8 @@ func TestUserManagementAuthenticateWithPassword(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithPassword(context.Background(), AuthenticateWithPasswordOpts{})
@@ -366,6 +370,8 @@ func TestUserManagementAuthenticateWithMagicAuth(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithMagicAuth(context.Background(), AuthenticateWithMagicAuthOpts{})
@@ -391,6 +397,8 @@ func TestUserManagementAuthenticateWithTOTP(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithTOTP(context.Background(), AuthenticateWithTOTPOpts{})
@@ -416,6 +424,8 @@ func TestUserManagementAuthenticateWithEmailVerificationCode(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithEmailVerificationCode(context.Background(), AuthenticateWithEmailVerificationCodeOpts{})
@@ -441,6 +451,8 @@ func TestUserManagementAuthenticateWithOrganizationSelection(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithOrganizationSelection(context.Background(), AuthenticateWithOrganizationSelectionOpts{})

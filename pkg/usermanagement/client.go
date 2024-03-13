@@ -200,6 +200,13 @@ type AuthenticateWithCodeOpts struct {
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
+type AuthenticateWithRefreshTokenOpts struct {
+	ClientID     string `json:"client_id"`
+	RefreshToken string `json:"refresh_token"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
+}
+
 type AuthenticateWithMagicAuthOpts struct {
 	ClientID string `json:"client_id"`
 	Code     string `json:"code"`
@@ -247,6 +254,22 @@ type AuthenticateResponse struct {
 	// If the user is a member of only one organization, this is that organization.
 	// If the user is not a member of any organizations, this is null.
 	OrganizationID string `json:"organization_id"`
+
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type RefreshAuthenticationResponse struct {
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type SendVerificationEmailOpts struct {
@@ -792,6 +815,58 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	// Parse the JSON response
 	var body AuthenticateResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func (c *Client) AuthenticateWithRefreshToken(ctx context.Context, opts AuthenticateWithRefreshTokenOpts) (RefreshAuthenticationResponse, error) {
+	payload := struct {
+		AuthenticateWithRefreshTokenOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithRefreshTokenOpts: opts,
+		ClientSecret:                     c.APIKey,
+		GrantType:                        "refresh_token",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/user_management/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body RefreshAuthenticationResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
