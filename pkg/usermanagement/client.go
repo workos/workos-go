@@ -1673,3 +1673,28 @@ func (c *Client) GetJWKSURL(clientID string) (*url.URL, error) {
 
 	return u, nil
 }
+
+type GetLogoutURLOpts struct {
+	// The ID of the session that will end. This is in the `sid` claim of the
+	// AccessToken
+	//
+	// REQUIRED
+	SessionID string
+}
+
+func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	if opts.SessionID == "" {
+		return nil, errors.New("incomplete arguments: missing SessionID")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/sessions/logout")
+	if err != nil {
+		return nil, err
+	}
+
+	query := make(url.Values, 1)
+	query.Set("session_id", opts.SessionID)
+	u.RawQuery = query.Encode()
+
+	return u, nil
+}

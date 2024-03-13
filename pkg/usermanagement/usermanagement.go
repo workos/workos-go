@@ -263,3 +263,7 @@ func RevokeInvitation(
 func GetJWKSURL(clientID string) (*url.URL, error) {
 	return DefaultClient.GetJWKSURL(clientID)
 }
+
+func GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	return DefaultClient.GetLogoutURL(opts)
+}

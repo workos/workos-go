@@ -767,3 +767,15 @@ func TestUserManagementGetJWKSURL(t *testing.T) {
 		u.String(),
 	)
 }
+
+func TestUsersManagementGetLogoutURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetLogoutURL(GetLogoutURLOpts{SessionID: "session_abc"})
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/user_management/sessions/logout?session_id=session_abc",
+		u.String(),
+	)
+}
