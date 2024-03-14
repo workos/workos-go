@@ -779,3 +779,19 @@ func TestUsersManagementGetLogoutURL(t *testing.T) {
 		u.String(),
 	)
 }
+
+func TestUsersRevokeSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(RevokeSessionTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := RevokeSession(context.Background(), RevokeSessionOpts{
+		SessionID: "session_123",
+	})
+
+	require.NoError(t, err)
+}

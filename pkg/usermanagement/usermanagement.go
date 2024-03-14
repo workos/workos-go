@@ -267,3 +267,7 @@ func GetJWKSURL(clientID string) (*url.URL, error) {
 func GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
 	return DefaultClient.GetLogoutURL(opts)
 }
+
+func RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	return DefaultClient.RevokeSession(ctx, opts)
+}

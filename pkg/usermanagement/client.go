@@ -419,6 +419,10 @@ type RevokeInvitationOpts struct {
 	Invitation string
 }
 
+type RevokeSessionOpts struct {
+	SessionID string `json:"session_id"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -1697,4 +1701,36 @@ func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
 	u.RawQuery = query.Encode()
 
 	return u, nil
+}
+
+func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	jsonData, err := json.Marshal(opts)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		fmt.Sprintf("%s/user_management/sessions/revoke", c.Endpoint),
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return err
+	}
+
+	return nil
 }
