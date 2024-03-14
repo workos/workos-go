@@ -666,6 +666,8 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -716,6 +718,8 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -729,6 +733,51 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 			client.HTTPClient = server.Client()
 
 			response, err := client.AuthenticateWithCode(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, response)
+		})
+	}
+}
+
+func TestAuthenticateUserWithRefreshToken(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateWithRefreshTokenOpts
+		expected RefreshAuthenticationResponse
+		err      bool
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
+		{
+			scenario: "Request new tokens",
+			client:   NewClient("test"),
+			options: AuthenticateWithRefreshTokenOpts{
+				ClientID:     "project_123",
+				RefreshToken: "refresh_token",
+			},
+			expected: RefreshAuthenticationResponse{
+				AccessToken:  "access_token",
+				RefreshToken: "new_refresh_token",
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(refreshAuthenticationResponseTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			response, err := client.AuthenticateWithRefreshToken(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -768,6 +817,8 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -820,6 +871,8 @@ func TestAuthenticateUserWithTOTP(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -871,6 +924,8 @@ func TestAuthenticateUserWithEmailVerificationCode(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -922,6 +977,8 @@ func TestAuthenticateUserWithOrganizationSelection(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -961,6 +1018,28 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 				Email:     "employee@foo-corp.com",
 			},
 			OrganizationID: "org_123",
+			AccessToken:    "access_token",
+			RefreshToken:   "refresh_token",
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
+}
+
+func refreshAuthenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
+
+	payload := make(map[string]interface{})
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
+		response := AuthenticateResponse{
+			AccessToken:  "access_token",
+			RefreshToken: "new_refresh_token",
 		}
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)
@@ -2200,6 +2279,19 @@ func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func RevokeSessionTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)

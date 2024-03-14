@@ -200,6 +200,13 @@ type AuthenticateWithCodeOpts struct {
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
+type AuthenticateWithRefreshTokenOpts struct {
+	ClientID     string `json:"client_id"`
+	RefreshToken string `json:"refresh_token"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
+}
+
 type AuthenticateWithMagicAuthOpts struct {
 	ClientID string `json:"client_id"`
 	Code     string `json:"code"`
@@ -247,6 +254,22 @@ type AuthenticateResponse struct {
 	// If the user is a member of only one organization, this is that organization.
 	// If the user is not a member of any organizations, this is null.
 	OrganizationID string `json:"organization_id"`
+
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type RefreshAuthenticationResponse struct {
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type SendVerificationEmailOpts struct {
@@ -394,6 +417,10 @@ type SendInvitationOpts struct {
 
 type RevokeInvitationOpts struct {
 	Invitation string
+}
+
+type RevokeSessionOpts struct {
+	SessionID string `json:"session_id"`
 }
 
 func NewClient(apiKey string) *Client {
@@ -792,6 +819,58 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	// Parse the JSON response
 	var body AuthenticateResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func (c *Client) AuthenticateWithRefreshToken(ctx context.Context, opts AuthenticateWithRefreshTokenOpts) (RefreshAuthenticationResponse, error) {
+	payload := struct {
+		AuthenticateWithRefreshTokenOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithRefreshTokenOpts: opts,
+		ClientSecret:                     c.APIKey,
+		GrantType:                        "refresh_token",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/user_management/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body RefreshAuthenticationResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -1584,4 +1663,74 @@ func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts
 	err = dec.Decode(&body)
 
 	return body, err
+}
+
+func (c *Client) GetJWKSURL(clientID string) (*url.URL, error) {
+	if clientID == "" {
+		return nil, errors.New("clientID must not be blank")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/sso/jwks/" + clientID)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+type GetLogoutURLOpts struct {
+	// The ID of the session that will end. This is in the `sid` claim of the
+	// AccessToken
+	//
+	// REQUIRED
+	SessionID string
+}
+
+func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	if opts.SessionID == "" {
+		return nil, errors.New("incomplete arguments: missing SessionID")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/sessions/logout")
+	if err != nil {
+		return nil, err
+	}
+
+	query := make(url.Values, 1)
+	query.Set("session_id", opts.SessionID)
+	u.RawQuery = query.Encode()
+
+	return u, nil
+}
+
+func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	jsonData, err := json.Marshal(opts)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		fmt.Sprintf("%s/user_management/sessions/revoke", c.Endpoint),
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return err
+	}
+
+	return nil
 }
