@@ -596,7 +596,7 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedRole := RoleResponse{
-		Slug:						"member",
+		Slug:          "member",
 	}
 
 	expectedResponse := OrganizationMembership{
@@ -604,7 +604,7 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 		Status:         Active,
-		Role:						expectedRole,
+		Role:           expectedRole,
 		CreatedAt:      "2021-06-25T19:07:33.155Z",
 		UpdatedAt:      "2021-06-25T19:07:33.155Z",
 	}
