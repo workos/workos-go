@@ -222,7 +222,7 @@ func UpdateOrganizationMembership(
 	organizationMembershipId string,
 	opts UpdateOrganizationMembershipOpts,
 ) (OrganizationMembership, error) {
-	return DefaultClient.UpdateOrganizationMembership(ctx, opts)
+	return DefaultClient.UpdateOrganizationMembership(ctx, organizationMembershipId, opts)
 }
 
 // DeleteOrganizationMembership deletes an existing OrganizationMembership.

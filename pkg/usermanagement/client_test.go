@@ -1735,8 +1735,11 @@ func TestCreateOrganizationMembership(t *testing.T) {
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 				Status:         Active,
-				CreatedAt:      "2021-06-25T19:07:33.155Z",
-				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+				Role: RoleResponse{
+					Slug: "member",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -1777,8 +1780,99 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 			Status:         Active,
-			CreatedAt:      "2021-06-25T19:07:33.155Z",
-			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			Role: RoleResponse{
+				Slug: "member",
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestUpdateOrganizationMembership(t *testing.T) {
+	tests := []struct {
+		scenario                 string
+		client                   *Client
+		organizationMembershipId string
+		options                  UpdateOrganizationMembershipOpts
+		expected                 OrganizationMembership
+		err                      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario:                 "Request returns OrganizationMembership",
+			client:                   NewClient("test"),
+			organizationMembershipId: "om_01E4ZCR3C56J083X43JQXF3JK5",
+			options: UpdateOrganizationMembershipOpts{
+				RoleSlug: "member",
+			},
+			expected: OrganizationMembership{
+				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
+				Role: RoleResponse{
+					Slug: "member",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(updateOrganizationMembershipTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			body, err := client.UpdateOrganizationMembership(context.Background(), test.organizationMembershipId, test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, body)
+		})
+	}
+}
+
+func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5" {
+		body, err = json.Marshal(OrganizationMembership{
+			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+			Status:         Active,
+			Role: RoleResponse{
+				Slug: "member",
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
 		})
 	}
 
