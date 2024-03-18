@@ -356,7 +356,7 @@ type CreateOrganizationMembershipOpts struct {
 	// The ID of the Organization in which to add the User as a member.
 	OrganizationID string `json:"organization_id"`
 
-	// The slug of the Role in which to this membership. If no RoleSlug is given, the default role will be granted.
+	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted.
 	// OPTIONAL
 	RoleSlug string `json:"role_slug,omitempty"`
 }
