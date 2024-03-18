@@ -249,7 +249,7 @@ type Impersonator struct {
 	// The email address of the WorkOS Dashboard user using impersonation.
 	Email string `json:"email"`
 
-	// The reason provided by the impersoantor for impersonating the user.
+	// The reason provided by the impersonator for impersonating the user.
 	Reason string `json:"reason"`
 }
 
