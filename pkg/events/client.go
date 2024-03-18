@@ -40,6 +40,7 @@ const (
 	UserCreated                   = "user.created"
 	UserUpdated                   = "user.updated"
 	UserDeleted                   = "user.deleted"
+	UserImpersonated              = "user.impersonated"
 	OrganizationMembershipAdded   = "organization_membership.added"
 	OrganizationMembershipUpdated = "organization_membership.updated"
 	OrganizationMembershipRemoved = "organization_membership.removed"
