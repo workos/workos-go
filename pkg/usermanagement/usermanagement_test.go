@@ -607,11 +607,16 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 
 	SetAPIKey("test")
 
+	expectedRole := RoleResponse{
+		Slug: "member",
+	}
+
 	expectedResponse := OrganizationMembership{
 		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 		Status:         Active,
+		Role:           expectedRole,
 		CreatedAt:      "2021-06-25T19:07:33.155Z",
 		UpdatedAt:      "2021-06-25T19:07:33.155Z",
 	}
@@ -636,6 +641,26 @@ func TestUsersDeleteOrganizationMembership(t *testing.T) {
 	err := DeleteOrganizationMembership(context.Background(), DeleteOrganizationMembershipOpts{
 		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
 	})
+
+	require.NoError(t, err)
+	require.Equal(t, nil, err)
+}
+
+func TestUsersUpdateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := UpdateOrganizationMembership(
+		context.Background(),
+		"om_01E4ZCR3C56J083X43JQXF3JK5",
+		UpdateOrganizationMembershipOpts{
+			RoleSlug: "member",
+		},
+	)
 
 	require.NoError(t, err)
 	require.Equal(t, nil, err)
