@@ -208,7 +208,7 @@ func ListOrganizationMemberships(
 	return DefaultClient.ListOrganizationMemberships(ctx, opts)
 }
 
-// CreateOrganizationMembership creates a OrganizationMembership.
+// CreateOrganizationMembership creates an OrganizationMembership.
 func CreateOrganizationMembership(
 	ctx context.Context,
 	opts CreateOrganizationMembershipOpts,
@@ -216,7 +216,16 @@ func CreateOrganizationMembership(
 	return DefaultClient.CreateOrganizationMembership(ctx, opts)
 }
 
-// DeleteOrganizationMembership deletes a existing OrganizationMembership.
+// UpdateOrganizationMembership updates an OrganizationMembership.
+func UpdateOrganizationMembership(
+	ctx context.Context,
+	organizationMembershipId string,
+	opts UpdateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.UpdateOrganizationMembership(ctx, opts)
+}
+
+// DeleteOrganizationMembership deletes an existing OrganizationMembership.
 func DeleteOrganizationMembership(
 	ctx context.Context,
 	opts DeleteOrganizationMembershipOpts,

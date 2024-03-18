@@ -634,6 +634,26 @@ func TestUsersDeleteOrganizationMembership(t *testing.T) {
 	require.Equal(t, nil, err)
 }
 
+func TestUsersUpdateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := UpdateOrganizationMembership(
+		context.Background(),
+		"om_01E4ZCR3C56J083X43JQXF3JK5",
+		UpdateOrganizationMembershipOpts{
+			RoleSlug: "member",
+		},
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, nil, err)
+}
+
 func TestUsersGetInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getInvitationTestHandler))
 	defer server.Close()

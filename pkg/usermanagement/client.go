@@ -356,9 +356,15 @@ type CreateOrganizationMembershipOpts struct {
 	// The ID of the Organization in which to add the User as a member.
 	OrganizationID string `json:"organization_id"`
 
-	// The slug of the Role in which to this membership. If not RoleSlug is given, the default role will be granted.
+	// The slug of the Role in which to this membership. If no RoleSlug is given, the default role will be granted.
 	// OPTIONAL
-	RoleSlug string `json:"role_slug"`
+	RoleSlug string `json:"role_slug,omitempty"`
+}
+
+type UpdateOrganizationMembershipOpts struct {
+	// The slug of the Role to update to for this membership.
+	// OPTIONAL
+	RoleSlug string `json:"role_slug,omitempty"`
 }
 
 type DeleteOrganizationMembershipOpts struct {
@@ -1447,6 +1453,53 @@ func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOr
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+// Update an Organization Membership
+func (c *Client) UpdateOrganizationMembership(
+	ctx context.Context,
+	organizationMembershipId string,
+	opts UpdateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
 }
 
 // GetInvitation fetches an Invitation by its ID.
