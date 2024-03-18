@@ -1464,7 +1464,7 @@ func (c *Client) UpdateOrganizationMembership(
 	endpoint := fmt.Sprintf(
 		"%s/user_management/organization_memberships/%s",
 		c.Endpoint,
-		opts.OrganizationMembership,
+		organizationMembershipId,
 	)
 
 	data, err := c.JSONEncode(opts)
