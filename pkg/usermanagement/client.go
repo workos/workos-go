@@ -253,6 +253,14 @@ type AuthenticateWithOrganizationSelectionOpts struct {
 	UserAgent                  string `json:"user_agent,omitempty"`
 }
 
+type Impersonator struct {
+	// The email address of the WorkOS Dashboard user using impersonation.
+	Email string `json:"email"`
+
+	// The reason provided by the impersonator for impersonating the user.
+	Reason string `json:"reason"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -269,6 +277,9 @@ type AuthenticateResponse struct {
 	// This RefreshToken can be used to obtain a new AccessToken using
 	// `AuthenticateWithRefreshToken`
 	RefreshToken string `json:"refresh_token"`
+
+	// Present if the authenticated user is being impersonated.
+	Impersonator *Impersonator `json:"impersonator"`
 }
 
 type RefreshAuthenticationResponse struct {

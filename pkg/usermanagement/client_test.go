@@ -722,6 +722,29 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 				RefreshToken:   "refresh_token",
 			},
 		},
+		{
+			scenario: "Request returns a User and Impersonator metadata",
+			client:   NewClient("test_with_impersonation"),
+			options: AuthenticateWithCodeOpts{
+				ClientID: "project_123",
+				Code:     "test_123",
+			},
+			expected: AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				Impersonator: &Impersonator{
+					Email:  "admin@example.com",
+					Reason: "Helping debug a customer issue.",
+				},
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
@@ -1003,24 +1026,46 @@ func TestAuthenticateUserWithOrganizationSelection(t *testing.T) {
 }
 
 func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
-
 	payload := make(map[string]interface{})
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
-		response := AuthenticateResponse{
-			User: User{
-				ID:        "testUserID",
-				FirstName: "John",
-				LastName:  "Doe",
-				Email:     "employee@foo-corp.com",
-			},
-			OrganizationID: "org_123",
-			AccessToken:    "access_token",
-			RefreshToken:   "refresh_token",
+		var response AuthenticateResponse
+
+		switch secret {
+		case "test":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				OrganizationID: "org_123",
+			}
+		case "test_with_impersonation":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				Impersonator: &Impersonator{
+					Email:  "admin@example.com",
+					Reason: "Helping debug a customer issue.",
+				},
+			}
 		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)
 		return
@@ -1041,6 +1086,7 @@ func refreshAuthenticationResponseTestHandler(w http.ResponseWriter, r *http.Req
 			AccessToken:  "access_token",
 			RefreshToken: "new_refresh_token",
 		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)
 		return
