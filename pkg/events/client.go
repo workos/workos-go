@@ -43,6 +43,7 @@ const (
 	OrganizationMembershipAdded   = "organization_membership.added"
 	OrganizationMembershipUpdated = "organization_membership.updated"
 	OrganizationMembershipRemoved = "organization_membership.removed"
+	SessionCreated                = "session.created"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
