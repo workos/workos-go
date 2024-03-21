@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    name: Test Go ${{ matrix.go }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go:
+          - 'stable'
+          - 'oldstable'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Run Tests
+        run: |
+          go mod download
+          go test -v ./...
+
+      - name: Code style
+        run: |
+          go fmt -d ./
+          git diff --exit-code
