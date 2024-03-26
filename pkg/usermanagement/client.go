@@ -20,6 +20,15 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+// ScreenHint represents the screen to redirect the user to in Authkit
+type ScreenHint string
+
+// Constants that enumerate the available screen hints.
+const (
+	SignUp  ScreenHint = "sign-up"
+	SignIn ScreenHint = "sign-in"
+)
+
 // Order represents the order of records.
 type Order string
 
@@ -627,6 +636,11 @@ type GetAuthorizationURLOpts struct {
 	// Domain hint that will be passed as a parameter to the IdP login page.
 	// OPTIONAL.
 	DomainHint string
+
+
+	// ScreenHint represents the screen to redirect the user to when the provider is Authkit.
+  // OPTIONAL.
+	ScreenHint ScreenHint
 }
 
 // GetAuthorizationURL generates an OAuth 2.0 authorization URL.
@@ -666,6 +680,13 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	}
 	if opts.State != "" {
 		query.Set("state", opts.State)
+	}
+
+	if opts.ScreenHint != "" {
+		if opts.Provider != "authkit" {
+			return nil, errors.New("provider must be 'authkit' to include a screen hint")
+		}
+		query.Set("screen_hint", opts.ScreenHint)
 	}
 
 	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")

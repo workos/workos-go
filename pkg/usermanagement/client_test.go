@@ -496,6 +496,16 @@ func TestClientAuthorizeURL(t *testing.T) {
 			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
+			scenario: "generate url with a screen hint",
+			options: GetAuthorizationURLOpts{
+				ClientID:    "client_123",
+				Provider:    "authkit",
+				RedirectURI: "https://example.com/sso/workos/callback",
+				ScreenHint: "sign-up",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&provider=authkit&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&screen_hint=sign-up",
+		},
+		{
 			scenario: "generate url with connection",
 			options: GetAuthorizationURLOpts{
 				ClientID:     "client_123",
