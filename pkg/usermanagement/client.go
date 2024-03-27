@@ -25,7 +25,7 @@ type ScreenHint string
 
 // Constants that enumerate the available screen hints.
 const (
-	SignUp  ScreenHint = "sign-up"
+	SignUp ScreenHint = "sign-up"
 	SignIn ScreenHint = "sign-in"
 )
 
@@ -637,9 +637,8 @@ type GetAuthorizationURLOpts struct {
 	// OPTIONAL.
 	DomainHint string
 
-
 	// ScreenHint represents the screen to redirect the user to when the provider is Authkit.
-  // OPTIONAL.
+	// OPTIONAL.
 	ScreenHint ScreenHint
 }
 
@@ -686,7 +685,7 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 		if opts.Provider != "authkit" {
 			return nil, errors.New("provider must be 'authkit' to include a screen hint")
 		}
-		query.Set("screen_hint", opts.ScreenHint)
+		query.Set("screen_hint", string(opts.ScreenHint)) 
 	}
 
 	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")
