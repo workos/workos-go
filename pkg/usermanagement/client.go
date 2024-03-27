@@ -685,7 +685,7 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 		if opts.Provider != "authkit" {
 			return nil, errors.New("provider must be 'authkit' to include a screen hint")
 		}
-		query.Set("screen_hint", string(opts.ScreenHint)) 
+		query.Set("screen_hint", string(opts.ScreenHint))
 	}
 
 	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")
