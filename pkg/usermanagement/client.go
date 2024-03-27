@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
-	"github.com/workos/workos-go/v3/pkg/mfa"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v4/internal/workos"
+	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/mfa"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -71,6 +71,20 @@ type Organization struct {
 	Name string `json:"name"`
 }
 
+// OrganizationMembershipStatus represents the status of an Organization Membership.
+type OrganizationMembershipStatus string
+
+// Constants that enumerate the status of an Organization Membership.
+const (
+	Active                        OrganizationMembershipStatus = "active"
+	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
+)
+
+type RoleResponse struct {
+	// The slug of the role
+	Slug string `json:"slug"`
+}
+
 // OrganizationMembership contains data about a particular OrganizationMembership.
 type OrganizationMembership struct {
 	// The Organization Membership's unique identifier.
@@ -81,6 +95,12 @@ type OrganizationMembership struct {
 
 	// The ID of the Organization.
 	OrganizationID string `json:"organization_id"`
+
+	// The role given to this Organization Membership
+	Role RoleResponse `json:"role"`
+
+	// The Status of the Organization.
+	Status OrganizationMembershipStatus `json:"status"`
 
 	// CreatedAt is the timestamp of when the OrganizationMembership was created.
 	CreatedAt string `json:"created_at"`
@@ -112,6 +132,9 @@ type User struct {
 
 	// Whether the User email is verified.
 	EmailVerified bool `json:"email_verified"`
+
+	// A URL reference to an image representing the User.
+	ProfilePictureURL string `json:"profile_picture_url"`
 }
 
 // GetUserOpts contains the options to pass in order to get a user profile.
@@ -194,6 +217,13 @@ type AuthenticateWithCodeOpts struct {
 	UserAgent string `json:"user_agent,omitempty"`
 }
 
+type AuthenticateWithRefreshTokenOpts struct {
+	ClientID     string `json:"client_id"`
+	RefreshToken string `json:"refresh_token"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
+}
+
 type AuthenticateWithMagicAuthOpts struct {
 	ClientID string `json:"client_id"`
 	Code     string `json:"code"`
@@ -232,6 +262,14 @@ type AuthenticateWithOrganizationSelectionOpts struct {
 	UserAgent                  string `json:"user_agent,omitempty"`
 }
 
+type Impersonator struct {
+	// The email address of the WorkOS Dashboard user using impersonation.
+	Email string `json:"email"`
+
+	// The reason provided by the impersonator for impersonating the user.
+	Reason string `json:"reason"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -241,6 +279,25 @@ type AuthenticateResponse struct {
 	// If the user is a member of only one organization, this is that organization.
 	// If the user is not a member of any organizations, this is null.
 	OrganizationID string `json:"organization_id"`
+
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
+
+	// Present if the authenticated user is being impersonated.
+	Impersonator *Impersonator `json:"impersonator"`
+}
+
+type RefreshAuthenticationResponse struct {
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type SendVerificationEmailOpts struct {
@@ -341,6 +398,16 @@ type CreateOrganizationMembershipOpts struct {
 
 	// The ID of the Organization in which to add the User as a member.
 	OrganizationID string `json:"organization_id"`
+
+	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted.
+	// OPTIONAL
+	RoleSlug string `json:"role_slug,omitempty"`
+}
+
+type UpdateOrganizationMembershipOpts struct {
+	// The slug of the Role to update to for this membership.
+	// OPTIONAL
+	RoleSlug string `json:"role_slug,omitempty"`
 }
 
 type DeleteOrganizationMembershipOpts struct {
@@ -388,6 +455,10 @@ type SendInvitationOpts struct {
 
 type RevokeInvitationOpts struct {
 	Invitation string
+}
+
+type RevokeSessionOpts struct {
+	SessionID string `json:"session_id"`
 }
 
 func NewClient(apiKey string) *Client {
@@ -459,6 +530,10 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	queryValues, err := query.Values(opts)
@@ -793,6 +868,58 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	// Parse the JSON response
 	var body AuthenticateResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func (c *Client) AuthenticateWithRefreshToken(ctx context.Context, opts AuthenticateWithRefreshTokenOpts) (RefreshAuthenticationResponse, error) {
+	payload := struct {
+		AuthenticateWithRefreshTokenOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithRefreshTokenOpts: opts,
+		ClientSecret:                     c.APIKey,
+		GrantType:                        "refresh_token",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/user_management/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body RefreshAuthenticationResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -1338,6 +1465,10 @@ func (c *Client) ListOrganizationMemberships(ctx context.Context, opts ListOrgan
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
 	queryValues, err := query.Values(opts)
 	if err != nil {
 		return ListOrganizationMembershipsResponse{}, err
@@ -1434,6 +1565,53 @@ func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOr
 	return workos_errors.TryGetHTTPError(res)
 }
 
+// Update an Organization Membership
+func (c *Client) UpdateOrganizationMembership(
+	ctx context.Context,
+	organizationMembershipId string,
+	opts UpdateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s",
+		c.Endpoint,
+		organizationMembershipId,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // GetInvitation fetches an Invitation by its ID.
 func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Invitation, error) {
 	endpoint := fmt.Sprintf("%s/user_management/invitations/%s", c.Endpoint, opts.Invitation)
@@ -1486,6 +1664,10 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	queryValues, err := query.Values(opts)
@@ -1577,4 +1759,74 @@ func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts
 	err = dec.Decode(&body)
 
 	return body, err
+}
+
+func (c *Client) GetJWKSURL(clientID string) (*url.URL, error) {
+	if clientID == "" {
+		return nil, errors.New("clientID must not be blank")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/sso/jwks/" + clientID)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+type GetLogoutURLOpts struct {
+	// The ID of the session that will end. This is in the `sid` claim of the
+	// AccessToken
+	//
+	// REQUIRED
+	SessionID string
+}
+
+func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	if opts.SessionID == "" {
+		return nil, errors.New("incomplete arguments: missing SessionID")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/sessions/logout")
+	if err != nil {
+		return nil, err
+	}
+
+	query := make(url.Values, 1)
+	query.Set("session_id", opts.SessionID)
+	u.RawQuery = query.Encode()
+
+	return u, nil
+}
+
+func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	jsonData, err := json.Marshal(opts)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		fmt.Sprintf("%s/user_management/sessions/revoke", c.Endpoint),
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/workos/workos-go/v3/pkg/common"
-	"github.com/workos/workos-go/v3/pkg/mfa"
+	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/mfa"
 
 	"github.com/stretchr/testify/require"
 )
@@ -316,6 +316,8 @@ func TestUserManagementAuthenticateWithCode(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithCode(context.Background(), AuthenticateWithCodeOpts{})
@@ -341,6 +343,8 @@ func TestUserManagementAuthenticateWithPassword(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithPassword(context.Background(), AuthenticateWithPasswordOpts{})
@@ -366,6 +370,8 @@ func TestUserManagementAuthenticateWithMagicAuth(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithMagicAuth(context.Background(), AuthenticateWithMagicAuthOpts{})
@@ -391,6 +397,8 @@ func TestUserManagementAuthenticateWithTOTP(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithTOTP(context.Background(), AuthenticateWithTOTPOpts{})
@@ -416,6 +424,8 @@ func TestUserManagementAuthenticateWithEmailVerificationCode(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithEmailVerificationCode(context.Background(), AuthenticateWithEmailVerificationCodeOpts{})
@@ -441,6 +451,8 @@ func TestUserManagementAuthenticateWithOrganizationSelection(t *testing.T) {
 			Email:     "employee@foo-corp.com",
 		},
 		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithOrganizationSelection(context.Background(), AuthenticateWithOrganizationSelectionOpts{})
@@ -543,6 +555,7 @@ func TestUserManagementGetOrganizationMembership(t *testing.T) {
 		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
 		CreatedAt:      "2021-06-25T19:07:33.155Z",
 		UpdatedAt:      "2021-06-25T19:07:33.155Z",
 	}
@@ -570,6 +583,7 @@ func TestUserManagementListOrganizationMemberships(t *testing.T) {
 				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
 				CreatedAt:      "2021-06-25T19:07:33.155Z",
 				UpdatedAt:      "2021-06-25T19:07:33.155Z",
 			},
@@ -593,10 +607,16 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 
 	SetAPIKey("test")
 
+	expectedRole := RoleResponse{
+		Slug: "member",
+	}
+
 	expectedResponse := OrganizationMembership{
 		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
+		Role:           expectedRole,
 		CreatedAt:      "2021-06-25T19:07:33.155Z",
 		UpdatedAt:      "2021-06-25T19:07:33.155Z",
 	}
@@ -624,6 +644,40 @@ func TestUsersDeleteOrganizationMembership(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, nil, err)
+}
+
+func TestUsersUpdateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedRole := RoleResponse{
+		Slug: "member",
+	}
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
+		Role:           expectedRole,
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	body, err := UpdateOrganizationMembership(
+		context.Background(),
+		"om_01E4ZCR3C56J083X43JQXF3JK5",
+		UpdateOrganizationMembershipOpts{
+			RoleSlug: "member",
+		},
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, body)
 }
 
 func TestUsersGetInvitation(t *testing.T) {
@@ -739,4 +793,44 @@ func TestUsersRevokeInvitation(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, revokeRes)
+}
+
+func TestUserManagementGetJWKSURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetJWKSURL("client_123")
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/sso/jwks/client_123",
+		u.String(),
+	)
+}
+
+func TestUsersManagementGetLogoutURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetLogoutURL(GetLogoutURLOpts{SessionID: "session_abc"})
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/user_management/sessions/logout?session_id=session_abc",
+		u.String(),
+	)
+}
+
+func TestUsersRevokeSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(RevokeSessionTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := RevokeSession(context.Background(), RevokeSessionOpts{
+		SessionID: "session_123",
+	})
+
+	require.NoError(t, err)
 }

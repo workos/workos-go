@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v4/internal/workos"
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -41,7 +41,9 @@ const (
 	UserUpdated                   = "user.updated"
 	UserDeleted                   = "user.deleted"
 	OrganizationMembershipAdded   = "organization_membership.added"
+	OrganizationMembershipUpdated = "organization_membership.updated"
 	OrganizationMembershipRemoved = "organization_membership.removed"
+	SessionCreated                = "session.created"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.

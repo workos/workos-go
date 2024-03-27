@@ -86,7 +86,7 @@ func GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
 	return DefaultClient.GetAuthorizationURL(opts)
 }
 
-// AuthenticateWithPassword authenticates a user with email and password and optionally creates a session.
+// AuthenticateWithPassword authenticates a user with email and password
 func AuthenticateWithPassword(
 	ctx context.Context,
 	opts AuthenticateWithPasswordOpts,
@@ -94,13 +94,21 @@ func AuthenticateWithPassword(
 	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
-// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
-// optionally creates a session.
+// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
 func AuthenticateWithCode(
 	ctx context.Context,
 	opts AuthenticateWithCodeOpts,
 ) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithCode(ctx, opts)
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func AuthenticateWithRefreshToken(
+	ctx context.Context,
+	opts AuthenticateWithRefreshTokenOpts,
+) (RefreshAuthenticationResponse, error) {
+	return DefaultClient.AuthenticateWithRefreshToken(ctx, opts)
 }
 
 // AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
@@ -208,7 +216,7 @@ func ListOrganizationMemberships(
 	return DefaultClient.ListOrganizationMemberships(ctx, opts)
 }
 
-// CreateOrganizationMembership creates a OrganizationMembership.
+// CreateOrganizationMembership creates an OrganizationMembership.
 func CreateOrganizationMembership(
 	ctx context.Context,
 	opts CreateOrganizationMembershipOpts,
@@ -216,7 +224,16 @@ func CreateOrganizationMembership(
 	return DefaultClient.CreateOrganizationMembership(ctx, opts)
 }
 
-// DeleteOrganizationMembership deletes a existing OrganizationMembership.
+// UpdateOrganizationMembership updates an OrganizationMembership.
+func UpdateOrganizationMembership(
+	ctx context.Context,
+	organizationMembershipId string,
+	opts UpdateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.UpdateOrganizationMembership(ctx, organizationMembershipId, opts)
+}
+
+// DeleteOrganizationMembership deletes an existing OrganizationMembership.
 func DeleteOrganizationMembership(
 	ctx context.Context,
 	opts DeleteOrganizationMembershipOpts,
@@ -250,4 +267,16 @@ func RevokeInvitation(
 	opts RevokeInvitationOpts,
 ) (Invitation, error) {
 	return DefaultClient.RevokeInvitation(ctx, opts)
+}
+
+func GetJWKSURL(clientID string) (*url.URL, error) {
+	return DefaultClient.GetJWKSURL(clientID)
+}
+
+func GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	return DefaultClient.GetLogoutURL(opts)
+}
+
+func RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	return DefaultClient.RevokeSession(ctx, opts)
 }

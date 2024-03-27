@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
-	"github.com/workos/workos-go/v3/pkg/mfa"
+	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/mfa"
 )
 
 func TestGetUser(t *testing.T) {
@@ -41,6 +41,23 @@ func TestGetUser(t *testing.T) {
 				EmailVerified: true,
 				CreatedAt:     "2021-06-25T19:07:33.155Z",
 				UpdatedAt:     "2021-06-25T19:07:33.155Z",
+			},
+		},
+		{
+			scenario: "Request returns a User with an unmarshalled `ProfilePictureURL`",
+			client:   NewClient("test"),
+			options: GetUserOpts{
+				User: "user_456",
+			},
+			expected: User{
+				ID:                "user_01E3JC5F5Z1YJNPGVYWV9SX456",
+				Email:             "marcelina@foo-corp.com",
+				FirstName:         "Marcelina",
+				LastName:          "Davis",
+				EmailVerified:     true,
+				ProfilePictureURL: "https://workoscdn.com/images/v1/123abc",
+				CreatedAt:         "2021-06-25T19:07:33.155Z",
+				UpdatedAt:         "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -84,6 +101,19 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			EmailVerified: true,
 			CreatedAt:     "2021-06-25T19:07:33.155Z",
 			UpdatedAt:     "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if r.URL.Path == "/user_management/users/user_456" {
+		body, err = json.Marshal(User{
+			ID:                "user_01E3JC5F5Z1YJNPGVYWV9SX456",
+			Email:             "marcelina@foo-corp.com",
+			FirstName:         "Marcelina",
+			LastName:          "Davis",
+			EmailVerified:     true,
+			ProfilePictureURL: "https://workoscdn.com/images/v1/123abc",
+			CreatedAt:         "2021-06-25T19:07:33.155Z",
+			UpdatedAt:         "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -646,6 +676,8 @@ func TestAuthenticateUserWithPassword(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -696,6 +728,31 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+			},
+		},
+		{
+			scenario: "Request returns a User and Impersonator metadata",
+			client:   NewClient("test_with_impersonation"),
+			options: AuthenticateWithCodeOpts{
+				ClientID: "project_123",
+				Code:     "test_123",
+			},
+			expected: AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				Impersonator: &Impersonator{
+					Email:  "admin@example.com",
+					Reason: "Helping debug a customer issue.",
+				},
 			},
 		},
 	}
@@ -709,6 +766,51 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 			client.HTTPClient = server.Client()
 
 			response, err := client.AuthenticateWithCode(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, response)
+		})
+	}
+}
+
+func TestAuthenticateUserWithRefreshToken(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  AuthenticateWithRefreshTokenOpts
+		expected RefreshAuthenticationResponse
+		err      bool
+	}{{
+		scenario: "Request without API Key returns an error",
+		client:   NewClient(""),
+		err:      true,
+	},
+		{
+			scenario: "Request new tokens",
+			client:   NewClient("test"),
+			options: AuthenticateWithRefreshTokenOpts{
+				ClientID:     "project_123",
+				RefreshToken: "refresh_token",
+			},
+			expected: RefreshAuthenticationResponse{
+				AccessToken:  "access_token",
+				RefreshToken: "new_refresh_token",
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(refreshAuthenticationResponseTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			response, err := client.AuthenticateWithRefreshToken(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -748,6 +850,8 @@ func TestAuthenticateUserWithMagicAuth(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -800,6 +904,8 @@ func TestAuthenticateUserWithTOTP(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -851,6 +957,8 @@ func TestAuthenticateUserWithEmailVerificationCode(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -902,6 +1010,8 @@ func TestAuthenticateUserWithOrganizationSelection(t *testing.T) {
 					Email:     "employee@foo-corp.com",
 				},
 				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
 			},
 		},
 	}
@@ -926,6 +1036,55 @@ func TestAuthenticateUserWithOrganizationSelection(t *testing.T) {
 }
 
 func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
+	payload := make(map[string]interface{})
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
+		var response AuthenticateResponse
+
+		switch secret {
+		case "test":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				OrganizationID: "org_123",
+			}
+		case "test_with_impersonation":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				Impersonator: &Impersonator{
+					Email:  "admin@example.com",
+					Reason: "Helping debug a customer issue.",
+				},
+			}
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
+}
+
+func refreshAuthenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	payload := make(map[string]interface{})
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -934,14 +1093,10 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if secret, exists := payload["client_secret"].(string); exists && secret != "" {
 		response := AuthenticateResponse{
-			User: User{
-				ID:        "testUserID",
-				FirstName: "John",
-				LastName:  "Doe",
-				Email:     "employee@foo-corp.com",
-			},
-			OrganizationID: "org_123",
+			AccessToken:  "access_token",
+			RefreshToken: "new_refresh_token",
 		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)
 		return
@@ -1518,6 +1673,7 @@ func TestGetOrganizationMembership(t *testing.T) {
 				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
 				CreatedAt:      "2021-06-25T19:07:33.155Z",
 				UpdatedAt:      "2021-06-25T19:07:33.155Z",
 			},
@@ -1559,6 +1715,7 @@ func getOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Request
 			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+			Status:         Active,
 			CreatedAt:      "2021-06-25T19:07:33.155Z",
 			UpdatedAt:      "2021-06-25T19:07:33.155Z",
 		})
@@ -1589,6 +1746,7 @@ func TestListOrganizationMemberships(t *testing.T) {
 					ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Status:         Active,
 					CreatedAt:      "2021-06-25T19:07:33.155Z",
 					UpdatedAt:      "2021-06-25T19:07:33.155Z",
 				},
@@ -1622,6 +1780,7 @@ func TestListOrganizationMemberships(t *testing.T) {
 					ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Status:         Active,
 					CreatedAt:      "2021-06-25T19:07:33.155Z",
 					UpdatedAt:      "2021-06-25T19:07:33.155Z",
 				},
@@ -1666,6 +1825,7 @@ func listOrganizationMembershipsTestHandler(w http.ResponseWriter, r *http.Reque
 						ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 						UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 						OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+						Status:         Active,
 						CreatedAt:      "2021-06-25T19:07:33.155Z",
 						UpdatedAt:      "2021-06-25T19:07:33.155Z",
 					},
@@ -1709,8 +1869,12 @@ func TestCreateOrganizationMembership(t *testing.T) {
 				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-				CreatedAt:      "2021-06-25T19:07:33.155Z",
-				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+				Status:         Active,
+				Role: RoleResponse{
+					Slug: "member",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -1750,8 +1914,100 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-			CreatedAt:      "2021-06-25T19:07:33.155Z",
-			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			Status:         Active,
+			Role: RoleResponse{
+				Slug: "member",
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestUpdateOrganizationMembership(t *testing.T) {
+	tests := []struct {
+		scenario                 string
+		client                   *Client
+		organizationMembershipId string
+		options                  UpdateOrganizationMembershipOpts
+		expected                 OrganizationMembership
+		err                      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario:                 "Request returns OrganizationMembership",
+			client:                   NewClient("test"),
+			organizationMembershipId: "om_01E4ZCR3C56J083X43JQXF3JK5",
+			options: UpdateOrganizationMembershipOpts{
+				RoleSlug: "member",
+			},
+			expected: OrganizationMembership{
+				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
+				Role: RoleResponse{
+					Slug: "member",
+				},
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(updateOrganizationMembershipTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			body, err := client.UpdateOrganizationMembership(context.Background(), test.organizationMembershipId, test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, body)
+		})
+	}
+}
+
+func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5" {
+		body, err = json.Marshal(OrganizationMembership{
+			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+			Status:         Active,
+			Role: RoleResponse{
+				Slug: "member",
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -2173,6 +2429,19 @@ func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func RevokeSessionTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
