@@ -533,7 +533,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 				RedirectURI:  "https://example.com/sso/workos/callback",
 				State:        "custom state",
 			},
-			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection_id=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with state",
@@ -554,7 +554,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 				RedirectURI:  "https://example.com/sso/workos/callback",
 				State:        "custom state",
 			},
-			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection_id=connection_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with organization",
@@ -564,7 +564,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 				RedirectURI:    "https://example.com/sso/workos/callback",
 				State:          "custom state",
 			},
-			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&organization=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&organization_id=organization_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with DomainHint",
@@ -575,7 +575,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 				State:        "custom state",
 				DomainHint:   "foo.com",
 			},
-			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&domain_hint=foo.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection_id=connection_123&domain_hint=foo.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 		{
 			scenario: "generate url with LoginHint",
@@ -586,7 +586,7 @@ func TestClientAuthorizeURL(t *testing.T) {
 				State:        "custom state",
 				LoginHint:    "foo@workos.com",
 			},
-			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection=connection_123&login_hint=foo%40workos.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection_id=connection_123&login_hint=foo%40workos.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
 	}
 
