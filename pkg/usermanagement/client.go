@@ -451,6 +451,7 @@ type SendInvitationOpts struct {
 	OrganizationID string `json:"organization_id,omitempty"`
 	ExpiresInDays  int    `json:"expires_in_days,omitempty"`
 	InviterUserID  string `json:"inviter_user_id,omitempty"`
+	RoleSlug       string `json:"role_slug,omitempty"`
 }
 
 type RevokeInvitationOpts struct {

@@ -762,6 +762,7 @@ func TestUsersSendInvitation(t *testing.T) {
 		OrganizationID: "org_123",
 		ExpiresInDays:  7,
 		InviterUserID:  "user_123",
+    RoleSlug:       "admin",
 	})
 
 	require.NoError(t, err)
