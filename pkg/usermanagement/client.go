@@ -173,11 +173,13 @@ type ListUsersOpts struct {
 }
 
 type CreateUserOpts struct {
-	Email         string `json:"email"`
-	Password      string `json:"password,omitempty"`
-	FirstName     string `json:"first_name,omitempty"`
-	LastName      string `json:"last_name,omitempty"`
-	EmailVerified bool   `json:"email_verified,omitempty"`
+	Email            string           `json:"email"`
+	Password         string           `json:"password,omitempty"`
+	PasswordHash     string           `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType `json:"password_hash_type,omitempty"`
+	FirstName        string           `json:"first_name,omitempty"`
+	LastName         string           `json:"last_name,omitempty"`
+	EmailVerified    bool             `json:"email_verified,omitempty"`
 }
 
 // The algorithm originally used to hash the password.
