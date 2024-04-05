@@ -742,10 +742,10 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 		query.Set("provider", string(opts.Provider))
 	}
 	if opts.ConnectionID != "" {
-		query.Set("connection", opts.ConnectionID)
+		query.Set("connection_id", opts.ConnectionID)
 	}
 	if opts.OrganizationID != "" {
-		query.Set("organization", opts.OrganizationID)
+		query.Set("organization_id", opts.OrganizationID)
 	}
 	if opts.LoginHint != "" {
 		query.Set("login_hint", opts.LoginHint)
