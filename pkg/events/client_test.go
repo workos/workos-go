@@ -37,7 +37,7 @@ func TestListEvents(t *testing.T) {
 		}
 
 		params := ListEventsOpts{
-			Events: []string{"dsync.user.created"}
+			Events: []string{"dsync.user.created"},
 		}
 		events, err := client.ListEvents(context.Background(), params)
 
@@ -59,7 +59,7 @@ func TestListEvents(t *testing.T) {
 		rangeEnd := currentTime.AddDate(0, 0, -1)
 
 		params := ListEventsOpts{
-			Events: []string{"dsync.user.created"}
+			Events:     []string{"dsync.user.created"},
 			RangeStart: rangeStart.String(),
 			RangeEnd:   rangeEnd.String(),
 		}

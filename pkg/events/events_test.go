@@ -22,7 +22,7 @@ func TestEventsListEvents(t *testing.T) {
 	SetAPIKey("test")
 
 	params := ListEventsOpts{
-		Events: []string{"dsync.user.created"}
+		Events: []string{"dsync.user.created"},
 	}
 
 	expectedResponse := ListEventsResponse{
