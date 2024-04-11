@@ -21,6 +21,10 @@ func TestEventsListEvents(t *testing.T) {
 	}
 	SetAPIKey("test")
 
+	params := ListEventsOpts{
+		Events: []string{"dsync.user.created"},
+	}
+
 	expectedResponse := ListEventsResponse{
 		Data: []Event{
 			{
@@ -33,7 +37,7 @@ func TestEventsListEvents(t *testing.T) {
 			After: "",
 		},
 	}
-	eventsResponse, err := ListEvents(context.Background(), ListEventsOpts{})
+	eventsResponse, err := ListEvents(context.Background(), params)
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, eventsResponse)

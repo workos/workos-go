@@ -89,7 +89,7 @@ type Event struct {
 // ListEventsOpts contains the options to request provisioned Events.
 type ListEventsOpts struct {
 	// Filter to only return Events of particular types.
-	Events []string `url:"events,omitempty"`
+	Events []string `url:"events"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
