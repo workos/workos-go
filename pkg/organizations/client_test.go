@@ -216,13 +216,39 @@ func TestCreateOrganization(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Organization",
+			scenario: "Request returns Organization with Domains",
 			client: &Client{
 				APIKey: "test",
 			},
 			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"foo-corp.com"},
+			},
+			expected: Organization{
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
+				Domains: []OrganizationDomain{
+					OrganizationDomain{
+						ID:     "organization_domain_id",
+						Domain: "foo-corp.com",
+					},
+				},
+			},
+		},
+		{
+			scenario: "Request returns Organization with DomainData",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CreateOrganizationOpts{
+				Name: "Foo Corp",
+				DomainData: []OrganizationDomainData{
+					OrganizationDomainData{
+						Domain: "foo-corp.com",
+						State:  "verified",
+					},
+				},
 			},
 			expected: Organization{
 				ID:                               "organization_id",
@@ -350,7 +376,7 @@ func TestUpdateOrganization(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Organization",
+			scenario: "Request returns Organization with Domains",
 			client: &Client{
 				APIKey: "test",
 			},
@@ -358,6 +384,41 @@ func TestUpdateOrganization(t *testing.T) {
 				Organization: "organization_id",
 				Name:         "Foo Corp",
 				Domains:      []string{"foo-corp.com", "foo-corp.io"},
+			},
+			expected: Organization{
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
+				Domains: []OrganizationDomain{
+					OrganizationDomain{
+						ID:     "organization_domain_id",
+						Domain: "foo-corp.com",
+					},
+					OrganizationDomain{
+						ID:     "organization_domain_id_2",
+						Domain: "foo-corp.io",
+					},
+				},
+			},
+		},
+		{
+			scenario: "Request returns Organization with DomainData",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdateOrganizationOpts{
+				Organization: "organization_id",
+				Name:         "Foo Corp",
+				DomainData: []OrganizationDomainData{
+					OrganizationDomainData{
+						Domain: "foo-corp.com",
+						State:  "verified",
+					},
+					OrganizationDomainData{
+						Domain: "foo-corp.io",
+						State:  "verified",
+					},
+				},
 			},
 			expected: Organization{
 				ID:                               "organization_id",
