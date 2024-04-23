@@ -40,9 +40,11 @@ const (
 	UserCreated                   = "user.created"
 	UserUpdated                   = "user.updated"
 	UserDeleted                   = "user.deleted"
-	OrganizationMembershipAdded   = "organization_membership.added"
+	OrganizationMembershipAdded   = "organization_membership.added" // Deprecated: use OrganizationMembershipCreated instead
+	OrganizationMembershipCreated = "organization_membership.created"
+	OrganizationMembershipDeleted = "organization_membership.deleted"
 	OrganizationMembershipUpdated = "organization_membership.updated"
-	OrganizationMembershipRemoved = "organization_membership.removed"
+	OrganizationMembershipRemoved = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
 	SessionCreated                = "session.created"
 )
 
