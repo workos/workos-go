@@ -125,6 +125,22 @@ type ListOrganizationsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
+type OrganizationDomainDataState string
+
+const (
+	Verified OrganizationDomainDataState = "verified"
+	Pending  OrganizationDomainDataState = "pending"
+)
+
+// OrganizationDomainData contains data used to create an OrganizationDomain.
+type OrganizationDomainData struct {
+	// The domain's value.
+	Domain string `json:"domain"`
+
+	// The domain's state.
+	State OrganizationDomainDataState `json:"state"`
+}
+
 // CreateOrganizationOpts contains the options to create an Organization.
 type CreateOrganizationOpts struct {
 	// Name of the Organization.
@@ -135,7 +151,12 @@ type CreateOrganizationOpts struct {
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// Domains of the Organization.
+	//
+	// Deprecated:  Use DomainData instead.
 	Domains []string `json:"domains"`
+
+	// Domains of the Organization.
+	DomainData []OrganizationDomainData `json:"domain_data"`
 
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_iey,omitempty"`
@@ -154,7 +175,12 @@ type UpdateOrganizationOpts struct {
 	AllowProfilesOutsideOrganization bool
 
 	// Domains of the Organization.
+	//
+	// Deprecated:  Use DomainData instead.
 	Domains []string
+
+	// Domains of the Organization.
+	DomainData []OrganizationDomainData `json:"domain_data"`
 }
 
 // GetOrganization gets an Organization.
