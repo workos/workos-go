@@ -132,12 +132,12 @@ const (
 	Pending  OrganizationDomainDataState = "pending"
 )
 
-// OrganizationDomainData contains data used to create OrganizationDomain
+// OrganizationDomainData contains data used to create an OrganizationDomain.
 type OrganizationDomainData struct {
-	// The domain value
+	// The domain's value.
 	Domain string `json:"domain"`
 
-	// The domain state
+	// The domain's state.
 	State OrganizationDomainDataState `json:"state"`
 }
 
@@ -150,7 +150,9 @@ type CreateOrganizationOpts struct {
 	// outside of the Organization's configured User Email Domains.
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
-	// [Deprecated] Domains of the Organization. Use DomainData instead.
+	// Domains of the Organization.
+	//
+	// Deprecated:  Use DomainData instead.
 	Domains []string `json:"domains"`
 
 	// Domains of the Organization.
@@ -172,7 +174,9 @@ type UpdateOrganizationOpts struct {
 	// outside of the Organization's configured User Email Domains.
 	AllowProfilesOutsideOrganization bool
 
-	// [Deprecated] Domains of the Organization. Use DomainData instead.
+	// Domains of the Organization.
+	//
+	// Deprecated:  Use DomainData instead.
 	Domains []string
 
 	// Domains of the Organization.
