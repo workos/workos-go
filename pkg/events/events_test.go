@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 func TestEventsListEvents(t *testing.T) {
@@ -20,6 +20,10 @@ func TestEventsListEvents(t *testing.T) {
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
+
+	params := ListEventsOpts{
+		Events: []string{"dsync.user.created"},
+	}
 
 	expectedResponse := ListEventsResponse{
 		Data: []Event{
@@ -33,7 +37,7 @@ func TestEventsListEvents(t *testing.T) {
 			After: "",
 		},
 	}
-	eventsResponse, err := ListEvents(context.Background(), ListEventsOpts{})
+	eventsResponse, err := ListEvents(context.Background(), params)
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, eventsResponse)

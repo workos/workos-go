@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 func TestListEvents(t *testing.T) {
@@ -36,7 +36,10 @@ func TestListEvents(t *testing.T) {
 			},
 		}
 
-		events, err := client.ListEvents(context.Background(), ListEventsOpts{})
+		params := ListEventsOpts{
+			Events: []string{"dsync.user.created"},
+		}
+		events, err := client.ListEvents(context.Background(), params)
 
 		require.NoError(t, err)
 		require.Equal(t, expectedResponse, events)
@@ -56,6 +59,7 @@ func TestListEvents(t *testing.T) {
 		rangeEnd := currentTime.AddDate(0, 0, -1)
 
 		params := ListEventsOpts{
+			Events:     []string{"dsync.user.created"},
 			RangeStart: rangeStart.String(),
 			RangeEnd:   rangeEnd.String(),
 		}

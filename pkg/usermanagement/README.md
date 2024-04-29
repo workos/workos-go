@@ -1,13 +1,13 @@
-# users
+# usermanagement
 
-[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/v2/pkg/usermanagement)
+[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/v4/pkg/usermanagement)
 
-A go package to request WorkOS User Management API.
+A go package wrapping the WorkOS User Management API.
 
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v2/pkg/usermanagement
+go get -u github.com/workos/workos-go/v4/pkg/usermanagement
 ```
 
 ## How it works

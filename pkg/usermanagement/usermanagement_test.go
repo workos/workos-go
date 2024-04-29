@@ -1,4 +1,4 @@
-package users
+package usermanagement
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/workos/workos-go/v2/pkg/common"
-	"github.com/workos/workos-go/v2/pkg/mfa"
+	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/mfa"
 
 	"github.com/stretchr/testify/require"
 )
@@ -107,6 +107,37 @@ func TestUserManagementCreateUser(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
+func TestUserManagementCreateUserPasswordHash(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createUserTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := CreateUser(context.Background(), CreateUserOpts{
+		Email:            "marcelina@gmail.com",
+		FirstName:        "Marcelina",
+		LastName:         "Davis",
+		EmailVerified:    true,
+		PasswordHash:     "$2b$10$dXS6RadWKYIqs6vOwqKZceLuCIqz6S81t06.yOkGJbbfeO9go4fai",
+		PasswordHashType: "bcrypt",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
 func TestUserManagementUpdateUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(updateUserTestHandler))
 	defer server.Close()
@@ -130,6 +161,38 @@ func TestUserManagementUpdateUser(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		Password:      "pass",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementUpdateUserPasswordHash(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateUserTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := User{
+		ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Email:         "marcelina@foo-corp.com",
+		FirstName:     "Marcelina",
+		LastName:      "Davis",
+		EmailVerified: true,
+		CreatedAt:     "2021-06-25T19:07:33.155Z",
+		UpdatedAt:     "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := UpdateUser(context.Background(), UpdateUserOpts{
+		User:             "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		FirstName:        "Marcelina",
+		LastName:         "Davis",
+		EmailVerified:    true,
+		PasswordHash:     "$2b$10$dXS6RadWKYIqs6vOwqKZceLuCIqz6S81t06.yOkGJbbfeO9go4fai",
+		PasswordHashType: "bcrypt",
 	})
 
 	require.NoError(t, err)
@@ -180,7 +243,7 @@ func TestUsersSendVerificationEmail(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
-func TestUserManagementVerifyEmailCode(t *testing.T) {
+func TestUserManagementVerifyEmail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(verifyEmailCodeTestHandler))
 	defer server.Close()
 
@@ -198,7 +261,7 @@ func TestUserManagementVerifyEmailCode(t *testing.T) {
 		},
 	}
 
-	userRes, err := VerifyEmailCode(context.Background(), VerifyEmailCodeOpts{
+	userRes, err := VerifyEmail(context.Background(), VerifyEmailOpts{
 		User: "user_123",
 		Code: "testToken",
 	})
@@ -215,25 +278,12 @@ func TestUserManagementCreatePasswordResetChallenge(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
-		User: User{
-			ID:            "user_123",
-			Email:         "marcelina@foo-corp.com",
-			FirstName:     "Marcelina",
-			LastName:      "Davis",
-			EmailVerified: true,
-			CreatedAt:     "2021-06-25T19:07:33.155Z",
-			UpdatedAt:     "2021-06-25T19:07:33.155Z",
-		},
-	}
-
-	userRes, err := SendPasswordResetEmail(context.Background(), SendPasswordResetEmailOpts{
+	err := SendPasswordResetEmail(context.Background(), SendPasswordResetEmailOpts{
 		Email:            "marcelina@foo-corp.com",
 		PasswordResetUrl: "https://example.com/reset",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, userRes)
 }
 
 func TestUserManagementResetPassword(t *testing.T) {
@@ -263,6 +313,23 @@ func TestUserManagementResetPassword(t *testing.T) {
 	require.Equal(t, expectedResponse, userRes)
 }
 
+func TestUserManagementGetAuthorizationURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetAuthorizationURL(GetAuthorizationURLOpts{
+		ClientID:    "client_123",
+		Provider:    "GoogleOAuth",
+		RedirectURI: "https://example.com/sso/workos/callback",
+		State:       "custom state",
+	})
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/user_management/authorize?client_id=client_123&provider=GoogleOAuth&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
+		u.String(),
+	)
+}
+
 func TestUserManagementAuthenticateWithCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
 
@@ -272,13 +339,16 @@ func TestUserManagementAuthenticateWithCode(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithCode(context.Background(), AuthenticateWithCodeOpts{})
@@ -296,13 +366,16 @@ func TestUserManagementAuthenticateWithPassword(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithPassword(context.Background(), AuthenticateWithPasswordOpts{})
@@ -320,13 +393,16 @@ func TestUserManagementAuthenticateWithMagicAuth(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithMagicAuth(context.Background(), AuthenticateWithMagicAuthOpts{})
@@ -344,16 +420,73 @@ func TestUserManagementAuthenticateWithTOTP(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
+	expectedResponse := AuthenticateResponse{
 		User: User{
 			ID:        "testUserID",
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "employee@foo-corp.com",
 		},
+		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
 	}
 
 	authenticationRes, err := AuthenticateWithTOTP(context.Background(), AuthenticateWithTOTPOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUserManagementAuthenticateWithEmailVerificationCode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticateResponse{
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
+	}
+
+	authenticationRes, err := AuthenticateWithEmailVerificationCode(context.Background(), AuthenticateWithEmailVerificationCodeOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUserManagementAuthenticateWithOrganizationSelection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(authenticationResponseTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := AuthenticateResponse{
+		User: User{
+			ID:        "testUserID",
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "employee@foo-corp.com",
+		},
+		OrganizationID: "org_123",
+		AccessToken:    "access_token",
+		RefreshToken:   "refresh_token",
+	}
+
+	authenticationRes, err := AuthenticateWithOrganizationSelection(context.Background(), AuthenticateWithOrganizationSelectionOpts{})
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
@@ -368,21 +501,9 @@ func TestUserManagementSendMagicAuthCode(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := UserResponse{
-		User: User{
-			ID:        "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-			Email:     "marcelina@foo-corp.com",
-			FirstName: "Marcelina",
-			LastName:  "Davis",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
-		},
-	}
-
-	authenticationRes, err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})
+	err := SendMagicAuthCode(context.Background(), SendMagicAuthCodeOpts{})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, authenticationRes)
 }
 
 func TestUserManagementEnrollAuthFactor(t *testing.T) {
@@ -394,7 +515,7 @@ func TestUserManagementEnrollAuthFactor(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedResponse := AuthenticationResponse{
+	expectedResponse := EnrollAuthFactorResponse{
 		Factor: mfa.Factor{
 			ID:        "auth_factor_test123",
 			CreatedAt: "2022-02-17T22:39:26.616Z",
@@ -451,4 +572,297 @@ func TestUserManagementListAuthFactors(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, authenticationRes)
+}
+
+func TestUserManagementGetOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := GetOrganizationMembership(context.Background(), GetOrganizationMembershipOpts{
+		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementListOrganizationMemberships(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listOrganizationMembershipsTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := ListOrganizationMembershipsResponse{
+		Data: []OrganizationMembership{
+			{
+				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
+				CreatedAt:      "2021-06-25T19:07:33.155Z",
+				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			After: "",
+		},
+	}
+
+	userRes, err := ListOrganizationMemberships(context.Background(), ListOrganizationMembershipsOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementCreateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedRole := RoleResponse{
+		Slug: "member",
+	}
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
+		Role:           expectedRole,
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := CreateOrganizationMembership(context.Background(), CreateOrganizationMembershipOpts{
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUsersDeleteOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := DeleteOrganizationMembership(context.Background(), DeleteOrganizationMembershipOpts{
+		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, nil, err)
+}
+
+func TestUsersUpdateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedRole := RoleResponse{
+		Slug: "member",
+	}
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
+		Role:           expectedRole,
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	body, err := UpdateOrganizationMembership(
+		context.Background(),
+		"om_01E4ZCR3C56J083X43JQXF3JK5",
+		UpdateOrganizationMembershipOpts{
+			RoleSlug: "member",
+		},
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, body)
+}
+
+func TestUsersGetInvitation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getInvitationTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:        "invitation_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     Pending,
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	getByIDRes, err := GetInvitation(context.Background(), GetInvitationOpts{
+		Invitation: "invitation_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByIDRes)
+}
+
+func TestUsersListInvitations(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listInvitationsTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse :=
+		ListInvitationsResponse{
+			Data: []Invitation{
+				{
+					ID:        "invitation_123",
+					Email:     "marcelina@foo-corp.com",
+					State:     Pending,
+					Token:     "myToken",
+					ExpiresAt: "2021-06-25T19:07:33.155Z",
+					CreatedAt: "2021-06-25T19:07:33.155Z",
+					UpdatedAt: "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+	listRes, err := ListInvitations(context.Background(), ListInvitationsOpts{
+		Email: "marcelina@foo-corp.com",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, listRes)
+}
+
+func TestUsersSendInvitation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(SendInvitationTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:        "invitation_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     Pending,
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	createRes, err := SendInvitation(context.Background(), SendInvitationOpts{
+		Email:          "marcelina@foo-corp.com",
+		OrganizationID: "org_123",
+		ExpiresInDays:  7,
+		InviterUserID:  "user_123",
+                RoleSlug:       "admin",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, createRes)
+}
+
+func TestUsersRevokeInvitation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(RevokeInvitationTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:        "invitation_123",
+		Email:     "marcelina@foo-corp.com",
+		State:     Pending,
+		Token:     "myToken",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	revokeRes, err := RevokeInvitation(context.Background(), RevokeInvitationOpts{
+		Invitation: "invitation_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, revokeRes)
+}
+
+func TestUserManagementGetJWKSURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetJWKSURL("client_123")
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/sso/jwks/client_123",
+		u.String(),
+	)
+}
+
+func TestUsersManagementGetLogoutURL(t *testing.T) {
+	client := NewClient("test")
+
+	u, err := client.GetLogoutURL(GetLogoutURLOpts{SessionID: "session_abc"})
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		"https://api.workos.com/user_management/sessions/logout?session_id=session_abc",
+		u.String(),
+	)
+}
+
+func TestUsersRevokeSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(RevokeSessionTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	err := RevokeSession(context.Background(), RevokeSessionOpts{
+		SessionID: "session_123",
+	})
+
+	require.NoError(t, err)
 }

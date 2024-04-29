@@ -1,30 +1,44 @@
-# events 
+# events
 
 A Go package to retrieve events from WorkOS.
 
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v2/pkg/events
+go get -u github.com/workos/workos-go/v4/pkg/events
 ```
 
 ## How it works
-```go
 
+```go
 package main
 
-import "github.com/workos/workos-go/v2/pkg/events"
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/workos/workos-go/v4/pkg/events"
+)
 
 func main() {
-    events.SetAPIKey("my_api_key")
+	events.SetAPIKey(os.Getenv("WORKOS_API_KEY"))
 
-   var  events = []string {"dsync.user.created"}
+	eventTypes := []string{
+		"dsync.activated",
+		"dsync.deleted",
+		"dsync.user.created",
+		"dsync.user.updated",
+		"dsync.user.deleted",
+	}
 
-    events, err := events.GetEvents(ctx.Background(), events.GetEventOpts{
-        Event:     events,
-    })
-    if err != nil {
-        // Handle error.
-    }
+	events, err := events.ListEvents(context.Background(), events.ListEventsOpts{
+		Events: eventTypes,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%#v\n", events)
 }
 ```

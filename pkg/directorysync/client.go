@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v2/internal/workos"
-	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v4/internal/workos"
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -81,9 +81,8 @@ type UserState string
 
 // Constants that enumerate the state of a Directory User.
 const (
-	Active    UserState = "active"
-	Inactive  UserState = "inactive"
-	Suspended UserState = "suspended"
+	Active   UserState = "active"
+	Inactive UserState = "inactive"
 )
 
 // User contains data about a provisioned Directory User.
@@ -190,6 +189,10 @@ func (c *Client) ListUsers(
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
 	v, err := query.Values(opts)
 	if err != nil {
 		return ListUsersResponse{}, err
@@ -294,6 +297,10 @@ func (c *Client) ListGroups(
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)
@@ -419,12 +426,25 @@ type DirectoryType string
 
 // Constants that enumerate the available Directory types.
 const (
-	OktaSCIMV1_1    DirectoryType = "okta scim v1.1"
-	OktaSCIMV2_0    DirectoryType = "okta scim v2.0"
 	AzureSCIMV2_0   DirectoryType = "azure scim v2.0"
+	BambooHr        DirectoryType = "bamboohr"
+	BreatheHr       DirectoryType = "breathe hr"
+	CezanneHr       DirectoryType = "cezanne hr"
+	CyberArk        DirectoryType = "cyberark scim v2.0"
+	FourthHr        DirectoryType = "fourth hr"
 	GSuiteDirectory DirectoryType = "gsuite directory"
-	GenericSCIMV1_1 DirectoryType = "generic scim v1.1"
 	GenericSCIMV2_0 DirectoryType = "generic scim v2.0"
+	Hibob           DirectoryType = "hibob"
+	JumpCloud       DirectoryType = "jump cloud scim v2.0"
+	OktaSCIMV2_0    DirectoryType = "okta scim v2.0"
+	OneLogin        DirectoryType = "onelogin scim v2.0"
+	PeopleHr        DirectoryType = "people hr"
+	Personio        DirectoryType = "personio"
+	PingFederate    DirectoryType = "pingfederate scim v2.0"
+	Rippling        DirectoryType = "rippling scim v2.0"
+	SFTP            DirectoryType = "sftp"
+	SFTPWorkday     DirectoryType = "sftp workday"
+	Workday         DirectoryType = "workday"
 )
 
 // DirectoryState represents if a Directory is linked or unlinked.
@@ -527,6 +547,10 @@ func (c *Client) ListDirectories(
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)

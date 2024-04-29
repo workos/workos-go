@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v2/internal/workos"
+	"github.com/workos/workos-go/v4/internal/workos"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -69,7 +69,7 @@ type Event struct {
 	// The schema version of the event
 	Version int `json:"version,omitempty"`
 
-	// The time when the audit trail occurred.
+	// The time when the event occurred.
 	// Defaults to time.Now().
 	OccurredAt time.Time `json:"occurred_at"`
 

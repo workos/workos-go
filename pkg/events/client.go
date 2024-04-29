@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v2/pkg/workos_errors"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v2/internal/workos"
-	"github.com/workos/workos-go/v2/pkg/common"
+	"github.com/workos/workos-go/v4/internal/workos"
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -37,9 +37,13 @@ const (
 	DirectoryGroupUserAdded   = "dsync.group.user_added"
 	DirectroyGroupUserRemoved = "dsync.group.user_removed"
 	// User Management Events
-	UserAdded   = "user.added"
-	UserUpdated = "user.updated"
-	UserDeleted = "user.deleted"
+	UserCreated                   = "user.created"
+	UserUpdated                   = "user.updated"
+	UserDeleted                   = "user.deleted"
+	OrganizationMembershipAdded   = "organization_membership.added"
+	OrganizationMembershipUpdated = "organization_membership.updated"
+	OrganizationMembershipRemoved = "organization_membership.removed"
+	SessionCreated                = "session.created"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
@@ -85,7 +89,7 @@ type Event struct {
 // ListEventsOpts contains the options to request provisioned Events.
 type ListEventsOpts struct {
 	// Filter to only return Events of particular types.
-	Events []string `url:"events,omitempty"`
+	Events []string `url:"events"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
