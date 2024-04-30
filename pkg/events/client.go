@@ -103,7 +103,6 @@ type ListEventsOpts struct {
 	// Date range end for stream of Events.
 	RangeEnd string `url:"range_end,omitempty"`
 
-
 	OrganizationId string `url:"organization_id,omitempty"`
 }
 
