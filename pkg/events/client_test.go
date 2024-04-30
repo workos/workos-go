@@ -82,6 +82,39 @@ func TestListEvents(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, expectedResponse, events)
 	})
+
+	t.Run("ListEvents succeeds to fetch Events with an organizationId ", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(ListEventsTestHandler))
+		defer server.Close()
+		client := &Client{
+			HTTPClient: server.Client(),
+			Endpoint:   server.URL,
+			APIKey:     "test",
+		}
+
+		params := ListEventsOpts{
+			Events:     []string{"dsync.user.created"},
+			OrganizationId: "org_1234",
+		}
+
+		expectedResponse := ListEventsResponse{
+			Data: []Event{
+				{
+					ID:    "event_abcd1234",
+					Event: "dsync.user.created",
+					Data:  json.RawMessage(`{"foo":"bar"}`),
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+		events, err := client.ListEvents(context.Background(), params)
+
+		require.NoError(t, err)
+		require.Equal(t, expectedResponse, events)
+	})
 }
 
 func ListEventsTestHandler(w http.ResponseWriter, r *http.Request) {
