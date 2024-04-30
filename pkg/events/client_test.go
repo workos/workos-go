@@ -83,7 +83,7 @@ func TestListEvents(t *testing.T) {
 		require.Equal(t, expectedResponse, events)
 	})
 
-	t.Run("ListEvents succeeds to fetch Events with an organizationId ", func(t *testing.T) {
+	t.Run("ListEvents succeeds to fetch Events with an organization_id", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(ListEventsTestHandler))
 		defer server.Close()
 		client := &Client{
