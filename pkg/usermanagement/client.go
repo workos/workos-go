@@ -50,16 +50,27 @@ const (
 )
 
 type Invitation struct {
-	ID             string          `json:"id"`
-	Email          string          `json:"email"`
-	State          InvitationState `json:"state"`
-	AcceptedAt     string          `json:"accepted_at,omitempty"`
-	RevokedAt      string          `json:"revoked_at,omitempty"`
-	Token          string          `json:"token"`
-	OrganizationID string          `json:"organization_id,omitempty"`
-	ExpiresAt      string          `json:"expires_at"`
-	CreatedAt      string          `json:"created_at"`
-	UpdatedAt      string          `json:"updated_at"`
+	ID                  string          `json:"id"`
+	Email               string          `json:"email"`
+	State               InvitationState `json:"state"`
+	AcceptedAt          string          `json:"accepted_at,omitempty"`
+	RevokedAt           string          `json:"revoked_at,omitempty"`
+	Token               string          `json:"token"`
+	AcceptInvitationUrl string          `json:"accept_invitation_url`
+	OrganizationID      string          `json:"organization_id,omitempty"`
+	ExpiresAt           string          `json:"expires_at"`
+	CreatedAt           string          `json:"created_at"`
+	UpdatedAt           string          `json:"updated_at"`
+}
+
+type MagicAuth struct {
+	ID        string `json:"id"`
+	UserId    string `json:"user_id"`
+	Email     string `json:"email"`
+	ExpiresAt string `json:"expires_at"`
+	Code      string `json:"code"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 // Organization contains data about a particular Organization.
@@ -332,6 +343,16 @@ type ResetPasswordOpts struct {
 
 type UserResponse struct {
 	User User `json:"user"`
+}
+
+type GetMagicAuthOpts struct {
+	MagicAuth string
+}
+
+type CreateMagicAuthOpts struct {
+	// The email address the one-time code is for.
+	Email           string `json:"email"`
+	InvitationToken string `json:"invitation_token,omitempty"`
 }
 
 type SendMagicAuthCodeOpts struct {
@@ -1291,7 +1312,76 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 	return body, err
 }
 
-// SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
+// GetMagicAuth fetches an Invitation by its ID.
+func (c *Client) GetMagicAuth(ctx context.Context, opts GetMagicAuthOpts) (MagicAuth, error) {
+	endpoint := fmt.Sprintf("%s/user_management/magic_auth/%s", c.Endpoint, opts.MagicAuth)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return MagicAuth{}, err
+	}
+
+	var body MagicAuth
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreateMagicAuth creates a one-time Magic Auth code that can be emailed it to the user.
+func (c *Client) CreateMagicAuth(ctx context.Context, opts CreateMagicAuthOpts) (MagicAuth, error) {
+	endpoint := fmt.Sprintf("%s/user_management/magic_auth", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return MagicAuth{}, err
+	}
+
+	var body MagicAuth
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Deprecated: Use CreateMagicAuth instead
 func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/magic_auth/send",

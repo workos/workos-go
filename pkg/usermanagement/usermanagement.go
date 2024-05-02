@@ -176,7 +176,22 @@ func ResetPassword(
 	return DefaultClient.ResetPassword(ctx, opts)
 }
 
-// SendMagicAuthCode sends a one-time code to the user's email address.
+func GetMagicAuth(
+	ctx context.Context,
+	opts GetMagicAuthOpts,
+) (MagicAuth, error) {
+	return DefaultClient.GetMagicAuth(ctx, opts)
+}
+
+// CreateMagicAuth creates a one-time code that can be sent to the user's email address and used for authentication.
+func CreateMagicAuth(
+	ctx context.Context,
+	opts CreateMagicAuthOpts,
+) (MagicAuth, error) {
+	return DefaultClient.CreateMagicAuth(ctx, opts)
+}
+
+// Deprecated: Use CreateMagicAuth instead
 func SendMagicAuthCode(
 	ctx context.Context,
 	opts SendMagicAuthCodeOpts,
