@@ -1410,6 +1410,170 @@ func resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestGetMagicAuth(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetMagicAuthOpts
+		expected MagicAuth
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns MagicAuth by ID",
+			client:   NewClient("test"),
+			options:  GetMagicAuthOpts{MagicAuth: "magic_auth_123"},
+			expected: MagicAuth{
+				ID:        "magic_auth_123",
+				UserId:    "user_123",
+				Email:     "marcelina@foo-corp.com",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				Code:      "123456",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getMagicAuthTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			magicAuth, err := client.GetMagicAuth(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, magicAuth)
+		})
+	}
+}
+
+func getMagicAuthTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/magic_auth/magic_auth_123" {
+		magicAuth := MagicAuth{
+			ID:        "magic_auth_123",
+			UserId:    "user_123",
+			Email:     "marcelina@foo-corp.com",
+			ExpiresAt: "2021-06-25T19:07:33.155Z",
+			Code:      "123456",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(magicAuth)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCreateMagicAuth(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreateMagicAuthOpts
+		expected MagicAuth
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns Invitation",
+			client:   NewClient("test"),
+			options: CreateMagicAuthOpts{
+				Email: "marcelina@foo-corp.com",
+			},
+			expected: MagicAuth{
+				ID:        "magic_auth_123",
+				UserId:    "user_123",
+				Email:     "marcelina@foo-corp.com",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				Code:      "123456",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(CreateMagicAuthTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			magicAuth, err := client.CreateMagicAuth(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, magicAuth)
+		})
+	}
+}
+
+func CreateMagicAuthTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/magic_auth" {
+		body, err = json.Marshal(
+			MagicAuth{
+				ID:        "magic_auth_123",
+				UserId:    "user_123",
+				Email:     "marcelina@foo-corp.com",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				Code:      "123456",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestSendMagicAuthCode(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -2104,13 +2268,14 @@ func TestGetInvitation(t *testing.T) {
 			client:   NewClient("test"),
 			options:  GetInvitationOpts{Invitation: "invitation_123"},
 			expected: Invitation{
-				ID:        "invitation_123",
-				Email:     "marcelina@foo-corp.com",
-				State:     Pending,
-				Token:     "myToken",
-				ExpiresAt: "2021-06-25T19:07:33.155Z",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				ID:                  "invitation_123",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "myToken",
+				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -2147,13 +2312,14 @@ func getInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/user_management/invitations/invitation_123" {
 		invitations := Invitation{
-			ID:        "invitation_123",
-			Email:     "marcelina@foo-corp.com",
-			State:     Pending,
-			Token:     "myToken",
-			ExpiresAt: "2021-06-25T19:07:33.155Z",
-			CreatedAt: "2021-06-25T19:07:33.155Z",
-			UpdatedAt: "2021-06-25T19:07:33.155Z",
+			ID:                  "invitation_123",
+			Email:               "marcelina@foo-corp.com",
+			State:               Pending,
+			Token:               "myToken",
+			AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+			ExpiresAt:           "2021-06-25T19:07:33.155Z",
+			CreatedAt:           "2021-06-25T19:07:33.155Z",
+			UpdatedAt:           "2021-06-25T19:07:33.155Z",
 		}
 		body, err = json.Marshal(invitations)
 	}
@@ -2189,13 +2355,14 @@ func TestListInvitations(t *testing.T) {
 			expected: ListInvitationsResponse{
 				Data: []Invitation{
 					{
-						ID:        "invitation_123",
-						Email:     "marcelina@foo-corp.com",
-						State:     Pending,
-						Token:     "myToken",
-						ExpiresAt: "2021-06-25T19:07:33.155Z",
-						CreatedAt: "2021-06-25T19:07:33.155Z",
-						UpdatedAt: "2021-06-25T19:07:33.155Z",
+						ID:                  "invitation_123",
+						Email:               "marcelina@foo-corp.com",
+						State:               Pending,
+						Token:               "myToken",
+						AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+						ExpiresAt:           "2021-06-25T19:07:33.155Z",
+						CreatedAt:           "2021-06-25T19:07:33.155Z",
+						UpdatedAt:           "2021-06-25T19:07:33.155Z",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -2239,13 +2406,14 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 		invitations := ListInvitationsResponse{
 			Data: []Invitation{
 				{
-					ID:        "invitation_123",
-					Email:     "marcelina@foo-corp.com",
-					State:     Pending,
-					Token:     "myToken",
-					ExpiresAt: "2021-06-25T19:07:33.155Z",
-					CreatedAt: "2021-06-25T19:07:33.155Z",
-					UpdatedAt: "2021-06-25T19:07:33.155Z",
+					ID:                  "invitation_123",
+					Email:               "marcelina@foo-corp.com",
+					State:               Pending,
+					Token:               "myToken",
+					AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+					ExpiresAt:           "2021-06-25T19:07:33.155Z",
+					CreatedAt:           "2021-06-25T19:07:33.155Z",
+					UpdatedAt:           "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -2288,13 +2456,14 @@ func TestSendInvitation(t *testing.T) {
 				RoleSlug:       "admin",
 			},
 			expected: Invitation{
-				ID:        "invitation_123",
-				Email:     "marcelina@foo-corp.com",
-				State:     Pending,
-				Token:     "myToken",
-				ExpiresAt: "2021-06-25T19:07:33.155Z",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				ID:                  "invitation_123",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "myToken",
+				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -2332,13 +2501,14 @@ func SendInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/user_management/invitations" {
 		body, err = json.Marshal(
 			Invitation{
-				ID:        "invitation_123",
-				Email:     "marcelina@foo-corp.com",
-				State:     Pending,
-				Token:     "myToken",
-				ExpiresAt: "2021-06-25T19:07:33.155Z",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				ID:                  "invitation_123",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "myToken",
+				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
 			})
 	}
 
@@ -2372,13 +2542,14 @@ func TestRevokeInvitation(t *testing.T) {
 			},
 			expected: Invitation{
 
-				ID:        "invitation_123",
-				Email:     "marcelina@foo-corp.com",
-				State:     Pending,
-				Token:     "myToken",
-				ExpiresAt: "2021-06-25T19:07:33.155Z",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				ID:                  "invitation_123",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "myToken",
+				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -2416,13 +2587,14 @@ func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/user_management/invitations/invitation_123/revoke" {
 		body, err = json.Marshal(
 			Invitation{
-				ID:        "invitation_123",
-				Email:     "marcelina@foo-corp.com",
-				State:     Pending,
-				Token:     "myToken",
-				ExpiresAt: "2021-06-25T19:07:33.155Z",
-				CreatedAt: "2021-06-25T19:07:33.155Z",
-				UpdatedAt: "2021-06-25T19:07:33.155Z",
+				ID:                  "invitation_123",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "myToken",
+				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
 			})
 	}
 

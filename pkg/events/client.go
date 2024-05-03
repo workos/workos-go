@@ -46,6 +46,8 @@ const (
 	OrganizationMembershipUpdated = "organization_membership.updated"
 	OrganizationMembershipRemoved = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
 	SessionCreated                = "session.created"
+	InvitationCreated             = "invitation.created"
+	MagicAuthCreated              = "magic_auth.created"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
