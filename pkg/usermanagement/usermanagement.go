@@ -191,7 +191,7 @@ func CreateMagicAuth(
 	return DefaultClient.CreateMagicAuth(ctx, opts)
 }
 
-// Deprecated: Use CreateMagicAuth instead
+// Deprecated: Use CreateMagicAuth instead. This method will be removed in a future major version.
 func SendMagicAuthCode(
 	ctx context.Context,
 	opts SendMagicAuthCodeOpts,

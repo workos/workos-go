@@ -1381,7 +1381,7 @@ func (c *Client) CreateMagicAuth(ctx context.Context, opts CreateMagicAuthOpts) 
 	return body, err
 }
 
-// Deprecated: Use CreateMagicAuth instead
+// Deprecated: Use CreateMagicAuth instead. This method will be removed in a future major version.
 func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/magic_auth/send",
