@@ -1312,7 +1312,7 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 	return body, err
 }
 
-// GetMagicAuth fetches an Invitation by its ID.
+// GetMagicAuth fetches a Magic Auth object by its ID.
 func (c *Client) GetMagicAuth(ctx context.Context, opts GetMagicAuthOpts) (MagicAuth, error) {
 	endpoint := fmt.Sprintf("%s/user_management/magic_auth/%s", c.Endpoint, opts.MagicAuth)
 
