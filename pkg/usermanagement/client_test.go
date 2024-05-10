@@ -2250,6 +2250,166 @@ func deleteOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 	w.Write(body)
 }
 
+func TestDeactivateOrganizationMembership(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeactivateOrganizationMembershipOpts
+		expected OrganizationMembership
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns an Organization Membership",
+			client:   NewClient("test"),
+			options: DeactivateOrganizationMembershipOpts{
+				OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
+			},
+			expected: OrganizationMembership{
+				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Inactive,
+				CreatedAt:      "2021-06-25T19:07:33.155Z",
+				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deactivateOrganizationMembershipTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			organizationMembership, err := client.DeactivateOrganizationMembership(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, organizationMembership)
+		})
+	}
+}
+
+func deactivateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5/deactivate" {
+		body, err = json.Marshal(OrganizationMembership{
+			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+			Status:         Inactive,
+			CreatedAt:      "2021-06-25T19:07:33.155Z",
+			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestReactivateOrganizationMembership(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ReactivateOrganizationMembershipOpts
+		expected OrganizationMembership
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns an Organization Membership",
+			client:   NewClient("test"),
+			options: ReactivateOrganizationMembershipOpts{
+				OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
+			},
+			expected: OrganizationMembership{
+				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         Active,
+				CreatedAt:      "2021-06-25T19:07:33.155Z",
+				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(reactivateOrganizationMembershipTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			organizationMembership, err := client.ReactivateOrganizationMembership(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, organizationMembership)
+		})
+	}
+}
+
+func reactivateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5/reactivate" {
+		body, err = json.Marshal(OrganizationMembership{
+			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+			Status:         Active,
+			CreatedAt:      "2021-06-25T19:07:33.155Z",
+			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestGetInvitation(t *testing.T) {
 	tests := []struct {
 		scenario string

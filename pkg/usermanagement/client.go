@@ -88,6 +88,7 @@ type OrganizationMembershipStatus string
 // Constants that enumerate the status of an Organization Membership.
 const (
 	Active                        OrganizationMembershipStatus = "active"
+	Inactive                      OrganizationMembershipStatus = "inactive"
 	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
 )
 
@@ -394,6 +395,9 @@ type ListOrganizationMembershipsOpts struct {
 	// Filter memberships by User ID.
 	UserID string `url:"user_id,omitempty"`
 
+	// Filter memberships by status
+	Statuses []string `url:"statuses,omitempty"`
+
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
 
@@ -435,6 +439,16 @@ type UpdateOrganizationMembershipOpts struct {
 
 type DeleteOrganizationMembershipOpts struct {
 	// The ID of the Organization Membership to delete.
+	OrganizationMembership string
+}
+
+type DeactivateOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
+	OrganizationMembership string
+}
+
+type ReactivateOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
 	OrganizationMembership string
 }
 
@@ -1679,6 +1693,82 @@ func (c *Client) UpdateOrganizationMembership(
 		http.MethodPut,
 		endpoint,
 		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// DeactivateOrganizationMembership deactivates an Organization Membership
+func (c *Client) DeactivateOrganizationMembership(ctx context.Context, opts DeactivateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s/deactivate",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ReactivateOrganizationMembership reactivates an Organization Membership
+func (c *Client) ReactivateOrganizationMembership(ctx context.Context, opts ReactivateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s/reactivate",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		nil,
 	)
 	if err != nil {
 		return OrganizationMembership{}, err
