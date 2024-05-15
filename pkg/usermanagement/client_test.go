@@ -1962,6 +1962,40 @@ func TestListOrganizationMemberships(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, expectedResponse, organizationMemberships)
 	})
+
+	t.Run("ListOrganizationMemberships succeeds to fetch OrganizationMemberships belonging to a User with particular statuses", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(listOrganizationMembershipsTestHandler))
+		defer server.Close()
+		client := &Client{
+			HTTPClient: server.Client(),
+			Endpoint:   server.URL,
+			APIKey:     "test",
+		}
+
+		expectedResponse := ListOrganizationMembershipsResponse{
+			Data: []OrganizationMembership{
+				{
+					ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Status:         Active,
+					CreatedAt:      "2021-06-25T19:07:33.155Z",
+					UpdatedAt:      "2021-06-25T19:07:33.155Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+		organizationMemberships, err := client.ListOrganizationMemberships(
+			context.Background(),
+			ListOrganizationMembershipsOpts{Statuses: []OrganizationMembershipStatus{Active, Inactive}, UserID: "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E"},
+		)
+
+		require.NoError(t, err)
+		require.Equal(t, expectedResponse, organizationMemberships)
+	})
 }
 
 func listOrganizationMembershipsTestHandler(w http.ResponseWriter, r *http.Request) {

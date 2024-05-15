@@ -396,7 +396,7 @@ type ListOrganizationMembershipsOpts struct {
 	UserID string `url:"user_id,omitempty"`
 
 	// Filter memberships by status
-	Statuses []string `url:"statuses,omitempty"`
+	Statuses []OrganizationMembershipStatus `url:"statuses,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
