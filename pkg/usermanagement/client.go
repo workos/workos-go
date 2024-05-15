@@ -1728,7 +1728,7 @@ func (c *Client) DeactivateOrganizationMembership(ctx context.Context, opts Deac
 	)
 
 	req, err := http.NewRequest(
-		http.MethodPost,
+		http.MethodPut,
 		endpoint,
 		nil,
 	)
@@ -1766,7 +1766,7 @@ func (c *Client) ReactivateOrganizationMembership(ctx context.Context, opts Reac
 	)
 
 	req, err := http.NewRequest(
-		http.MethodPost,
+		http.MethodPut,
 		endpoint,
 		nil,
 	)
