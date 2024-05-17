@@ -37,13 +37,6 @@ const (
 	DirectoryGroupUserAdded   = "dsync.group.user_added"
 	DirectroyGroupUserRemoved = "dsync.group.user_removed"
 	// User Management Events
-	UserCreated                              = "user.created"
-	UserUpdated                              = "user.updated"
-	UserDeleted                              = "user.deleted"
-	OrganizationMembershipAdded              = "organization_membership.added"
-	OrganizationMembershipUpdated            = "organization_membership.updated"
-	OrganizationMembershipRemoved            = "organization_membership.removed"
-	SessionCreated                           = "session.created"
 	AuthenticationEmailVerificationFailed    = "authentication.email_verification_failed"
 	AuthenticationEmailVerificationSucceeded = "authentication.email_verification_succeeded"
 	AuthenticationMagicAuthFailed            = "authentication.magic_auth_failed"
@@ -56,6 +49,17 @@ const (
 	AuthenticationPasswordSucceeded          = "authentication.password_succeeded"
 	AuthenticationSsoFailed                  = "authentication.sso_failed"
 	AuthenticationSsoSucceeded               = "authentication.sso_succeeded"
+	UserCreated                              = "user.created"
+	UserUpdated                              = "user.updated"
+	UserDeleted                              = "user.deleted"
+	OrganizationMembershipAdded              = "organization_membership.added" // Deprecated: use OrganizationMembershipCreated instead
+	OrganizationMembershipCreated            = "organization_membership.created"
+	OrganizationMembershipDeleted            = "organization_membership.deleted"
+	OrganizationMembershipUpdated            = "organization_membership.updated"
+	OrganizationMembershipRemoved            = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
+	SessionCreated                           = "session.created"
+	InvitationCreated                        = "invitation.created"
+	MagicAuthCreated                         = "magic_auth.created"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
@@ -101,7 +105,7 @@ type Event struct {
 // ListEventsOpts contains the options to request provisioned Events.
 type ListEventsOpts struct {
 	// Filter to only return Events of particular types.
-	Events []string `url:"events,omitempty"`
+	Events []string `url:"events"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -114,6 +118,8 @@ type ListEventsOpts struct {
 
 	// Date range end for stream of Events.
 	RangeEnd string `url:"range_end,omitempty"`
+
+	OrganizationId string `url:"organization_id,omitempty"`
 }
 
 // GetEventsResponse describes the response structure when requesting

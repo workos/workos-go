@@ -20,6 +20,15 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+// ScreenHint represents the screen to redirect the user to in Authkit
+type ScreenHint string
+
+// Constants that enumerate the available screen hints.
+const (
+	SignUp ScreenHint = "sign-up"
+	SignIn ScreenHint = "sign-in"
+)
+
 // Order represents the order of records.
 type Order string
 
@@ -41,16 +50,27 @@ const (
 )
 
 type Invitation struct {
-	ID             string          `json:"id"`
-	Email          string          `json:"email"`
-	State          InvitationState `json:"state"`
-	AcceptedAt     string          `json:"accepted_at,omitempty"`
-	RevokedAt      string          `json:"revoked_at,omitempty"`
-	Token          string          `json:"token"`
-	OrganizationID string          `json:"organization_id,omitempty"`
-	ExpiresAt      string          `json:"expires_at"`
-	CreatedAt      string          `json:"created_at"`
-	UpdatedAt      string          `json:"updated_at"`
+	ID                  string          `json:"id"`
+	Email               string          `json:"email"`
+	State               InvitationState `json:"state"`
+	AcceptedAt          string          `json:"accepted_at,omitempty"`
+	RevokedAt           string          `json:"revoked_at,omitempty"`
+	Token               string          `json:"token"`
+	AcceptInvitationUrl string          `json:"accept_invitation_url`
+	OrganizationID      string          `json:"organization_id,omitempty"`
+	ExpiresAt           string          `json:"expires_at"`
+	CreatedAt           string          `json:"created_at"`
+	UpdatedAt           string          `json:"updated_at"`
+}
+
+type MagicAuth struct {
+	ID        string `json:"id"`
+	UserId    string `json:"user_id"`
+	Email     string `json:"email"`
+	ExpiresAt string `json:"expires_at"`
+	Code      string `json:"code"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 // Organization contains data about a particular Organization.
@@ -68,6 +88,7 @@ type OrganizationMembershipStatus string
 // Constants that enumerate the status of an Organization Membership.
 const (
 	Active                        OrganizationMembershipStatus = "active"
+	Inactive                      OrganizationMembershipStatus = "inactive"
 	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
 )
 
@@ -164,11 +185,13 @@ type ListUsersOpts struct {
 }
 
 type CreateUserOpts struct {
-	Email         string `json:"email"`
-	Password      string `json:"password,omitempty"`
-	FirstName     string `json:"first_name,omitempty"`
-	LastName      string `json:"last_name,omitempty"`
-	EmailVerified bool   `json:"email_verified,omitempty"`
+	Email            string           `json:"email"`
+	Password         string           `json:"password,omitempty"`
+	PasswordHash     string           `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType `json:"password_hash_type,omitempty"`
+	FirstName        string           `json:"first_name,omitempty"`
+	LastName         string           `json:"last_name,omitempty"`
+	EmailVerified    bool             `json:"email_verified,omitempty"`
 }
 
 // The algorithm originally used to hash the password.
@@ -323,6 +346,16 @@ type UserResponse struct {
 	User User `json:"user"`
 }
 
+type GetMagicAuthOpts struct {
+	MagicAuth string
+}
+
+type CreateMagicAuthOpts struct {
+	// The email address the one-time code is for.
+	Email           string `json:"email"`
+	InvitationToken string `json:"invitation_token,omitempty"`
+}
+
 type SendMagicAuthCodeOpts struct {
 	// The email address the one-time code will be sent to.
 	Email string `json:"email"`
@@ -361,6 +394,9 @@ type ListOrganizationMembershipsOpts struct {
 
 	// Filter memberships by User ID.
 	UserID string `url:"user_id,omitempty"`
+
+	// Filter memberships by status
+	Statuses []OrganizationMembershipStatus `url:"statuses,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -406,6 +442,16 @@ type DeleteOrganizationMembershipOpts struct {
 	OrganizationMembership string
 }
 
+type DeactivateOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
+	OrganizationMembership string
+}
+
+type ReactivateOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
+	OrganizationMembership string
+}
+
 type GetInvitationOpts struct {
 	Invitation string
 }
@@ -442,6 +488,7 @@ type SendInvitationOpts struct {
 	OrganizationID string `json:"organization_id,omitempty"`
 	ExpiresInDays  int    `json:"expires_in_days,omitempty"`
 	InviterUserID  string `json:"inviter_user_id,omitempty"`
+	RoleSlug       string `json:"role_slug,omitempty"`
 }
 
 type RevokeInvitationOpts struct {
@@ -702,6 +749,10 @@ type GetAuthorizationURLOpts struct {
 	// Domain hint that will be passed as a parameter to the IdP login page.
 	// OPTIONAL.
 	DomainHint string
+
+	// ScreenHint represents the screen to redirect the user to when the provider is Authkit.
+	// OPTIONAL.
+	ScreenHint ScreenHint
 }
 
 // GetAuthorizationURL generates an OAuth 2.0 authorization URL.
@@ -728,10 +779,10 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 		query.Set("provider", string(opts.Provider))
 	}
 	if opts.ConnectionID != "" {
-		query.Set("connection", opts.ConnectionID)
+		query.Set("connection_id", opts.ConnectionID)
 	}
 	if opts.OrganizationID != "" {
-		query.Set("organization", opts.OrganizationID)
+		query.Set("organization_id", opts.OrganizationID)
 	}
 	if opts.LoginHint != "" {
 		query.Set("login_hint", opts.LoginHint)
@@ -741,6 +792,13 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	}
 	if opts.State != "" {
 		query.Set("state", opts.State)
+	}
+
+	if opts.ScreenHint != "" {
+		if opts.Provider != "authkit" {
+			return nil, errors.New("provider must be 'authkit' to include a screen hint")
+		}
+		query.Set("screen_hint", string(opts.ScreenHint))
 	}
 
 	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")
@@ -1268,7 +1326,76 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 	return body, err
 }
 
-// SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
+// GetMagicAuth fetches a Magic Auth object by its ID.
+func (c *Client) GetMagicAuth(ctx context.Context, opts GetMagicAuthOpts) (MagicAuth, error) {
+	endpoint := fmt.Sprintf("%s/user_management/magic_auth/%s", c.Endpoint, opts.MagicAuth)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return MagicAuth{}, err
+	}
+
+	var body MagicAuth
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreateMagicAuth creates a one-time Magic Auth code that can be emailed it to the user.
+func (c *Client) CreateMagicAuth(ctx context.Context, opts CreateMagicAuthOpts) (MagicAuth, error) {
+	endpoint := fmt.Sprintf("%s/user_management/magic_auth", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return MagicAuth{}, err
+	}
+
+	var body MagicAuth
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Deprecated: Use CreateMagicAuth instead. This method will be removed in a future major version.
 func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/magic_auth/send",
@@ -1566,6 +1693,82 @@ func (c *Client) UpdateOrganizationMembership(
 		http.MethodPut,
 		endpoint,
 		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// DeactivateOrganizationMembership deactivates an Organization Membership
+func (c *Client) DeactivateOrganizationMembership(ctx context.Context, opts DeactivateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s/deactivate",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ReactivateOrganizationMembership reactivates an Organization Membership
+func (c *Client) ReactivateOrganizationMembership(ctx context.Context, opts ReactivateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s/reactivate",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		nil,
 	)
 	if err != nil {
 		return OrganizationMembership{}, err
