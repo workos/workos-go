@@ -763,6 +763,56 @@ func TestUsersUpdateOrganizationMembership(t *testing.T) {
 	require.Equal(t, expectedResponse, body)
 }
 
+func TestUserManagementDeactivateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deactivateOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Inactive,
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := DeactivateOrganizationMembership(context.Background(), DeactivateOrganizationMembershipOpts{
+		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUserManagementReactivateOrganizationMembership(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(reactivateOrganizationMembershipTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := OrganizationMembership{
+		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+		Status:         Active,
+		CreatedAt:      "2021-06-25T19:07:33.155Z",
+		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+	}
+
+	userRes, err := ReactivateOrganizationMembership(context.Background(), ReactivateOrganizationMembershipOpts{
+		OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, userRes)
+}
+
 func TestUsersGetInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(getInvitationTestHandler))
 	defer server.Close()

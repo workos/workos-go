@@ -256,6 +256,22 @@ func DeleteOrganizationMembership(
 	return DefaultClient.DeleteOrganizationMembership(ctx, opts)
 }
 
+// DeactivateOrganizationMembership deactivates an OrganizationMembership.
+func DeactivateOrganizationMembership(
+	ctx context.Context,
+	opts DeactivateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.DeactivateOrganizationMembership(ctx, opts)
+}
+
+// ReactivateOrganizationMembership reactivates an OrganizationMembership.
+func ReactivateOrganizationMembership(
+	ctx context.Context,
+	opts ReactivateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.ReactivateOrganizationMembership(ctx, opts)
+}
+
 func GetInvitation(
 	ctx context.Context,
 	opts GetInvitationOpts,

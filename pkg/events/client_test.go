@@ -93,7 +93,7 @@ func TestListEvents(t *testing.T) {
 		}
 
 		params := ListEventsOpts{
-			Events:     []string{"dsync.user.created"},
+			Events:         []string{"dsync.user.created"},
 			OrganizationId: "org_1234",
 		}
 
