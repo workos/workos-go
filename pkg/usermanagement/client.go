@@ -104,7 +104,7 @@ type OrganizationMembership struct {
 	OrganizationID string `json:"organization_id"`
 
 	// The role given to this Organization Membership
-	Role RoleResponse `json:"role"`
+	Role common.RoleResponse `json:"role"`
 
 	// The Status of the Organization.
 	Status OrganizationMembershipStatus `json:"status"`

@@ -21,6 +21,10 @@ func TestDirectorySyncListUsers(t *testing.T) {
 	}
 	SetAPIKey("test")
 
+	expectedRole := common.RoleResponse{
+		Slug: "member",
+	}
+
 	expectedResponse := ListUsersResponse{
 		Data: []User{
 			User{
@@ -45,6 +49,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				State:            Active,
 				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+				Role:             expectedRole,
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -109,6 +114,10 @@ func TestDirectorySyncGetUser(t *testing.T) {
 	}
 	SetAPIKey("test")
 
+	expectedRole := common.RoleResponse{
+		Slug: "member",
+	}
+
 	expectedResponse := User{
 		ID:        "directory_user_id",
 		FirstName: "Rick",
@@ -131,6 +140,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		State:            Active,
 		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+		Role:             expectedRole,
 	}
 	directoryUserResponse, err := GetUser(context.Background(), GetUserOpts{
 		User: "directory_user_id",
