@@ -133,7 +133,7 @@ type User struct {
 	UpdatedAt string `json:"updated_at"`
 
 	// The role given to this Directory User
-	Role RoleResponse `json:"role"`
+	Role RoleResponse `json:"role,omitempty"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
