@@ -291,6 +291,9 @@ func TestGetUser(t *testing.T) {
 				State:            Active,
 				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+				Role: RoleResponse{
+					Slug: "member",
+				},
 			},
 		},
 	}
