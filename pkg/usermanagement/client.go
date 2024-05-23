@@ -336,6 +336,7 @@ type RefreshAuthenticationResponse struct {
 }
 
 type GetEmailVerificationOpts struct {
+	// The Email Verification's unique identifier.
 	EmailVerification string
 }
 
@@ -352,6 +353,7 @@ type VerifyEmailOpts struct {
 }
 
 type GetPasswordResetOpts struct {
+	// The Password Reset's unique identifier.
 	PasswordReset string
 }
 

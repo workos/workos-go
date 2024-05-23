@@ -307,7 +307,7 @@ func TestUsersGetPasswordReset(t *testing.T) {
 		UserId:             "user_123",
 		Email:              "marcelina@foo-corp.com",
 		PasswordResetToken: "myToken",
-		PasswordResetUrl:   "https://your-app.com/invite?invitation_token=myToken",
+		PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
 		ExpiresAt:          "2021-06-25T19:07:33.155Z",
 		CreatedAt:          "2021-06-25T19:07:33.155Z",
 	}
@@ -334,7 +334,7 @@ func TestUserManagementCreatePasswordReset(t *testing.T) {
 		UserId:             "user_123",
 		Email:              "marcelina@foo-corp.com",
 		PasswordResetToken: "myToken",
-		PasswordResetUrl:   "https://your-app.com/invite?invitation_token=myToken",
+		PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
 		ExpiresAt:          "2021-06-25T19:07:33.155Z",
 		CreatedAt:          "2021-06-25T19:07:33.155Z",
 	}
