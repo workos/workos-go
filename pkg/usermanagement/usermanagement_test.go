@@ -215,6 +215,31 @@ func TestUsersDeleteUser(t *testing.T) {
 	require.Equal(t, nil, err)
 }
 
+func TestUsersGetEmailVerification(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getEmailVerificationTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := EmailVerification{
+		ID:        "email_verification_123",
+		UserId:    "user_123",
+		Email:     "marcelina@foo-corp.com",
+		ExpiresAt: "2021-06-25T19:07:33.155Z",
+		Code:      "123456",
+		CreatedAt: "2021-06-25T19:07:33.155Z",
+		UpdatedAt: "2021-06-25T19:07:33.155Z",
+	}
+
+	getByIDRes, err := GetEmailVerification(context.Background(), GetEmailVerificationOpts{
+		EmailVerification: "email_verification_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByIDRes)
+}
+
 func TestUsersSendVerificationEmail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(sendVerificationEmailTestHandler))
 	defer server.Close()
@@ -268,6 +293,58 @@ func TestUserManagementVerifyEmail(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, userRes)
+}
+
+func TestUsersGetPasswordReset(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getPasswordResetTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := PasswordReset{
+		ID:                 "password_reset_123",
+		UserId:             "user_123",
+		Email:              "marcelina@foo-corp.com",
+		PasswordResetToken: "myToken",
+		PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
+		ExpiresAt:          "2021-06-25T19:07:33.155Z",
+		CreatedAt:          "2021-06-25T19:07:33.155Z",
+	}
+
+	getByIDRes, err := GetPasswordReset(context.Background(), GetPasswordResetOpts{
+		PasswordReset: "password_reset_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByIDRes)
+}
+
+func TestUserManagementCreatePasswordReset(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(CreatePasswordResetTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := PasswordReset{
+		ID:                 "password_reset_123",
+		UserId:             "user_123",
+		Email:              "marcelina@foo-corp.com",
+		PasswordResetToken: "myToken",
+		PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
+		ExpiresAt:          "2021-06-25T19:07:33.155Z",
+		CreatedAt:          "2021-06-25T19:07:33.155Z",
+	}
+
+	createRes, err := CreatePasswordReset(context.Background(), CreatePasswordResetOpts{
+		Email: "marcelina@foo-corp.com",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, createRes)
 }
 
 func TestUserManagementCreatePasswordResetChallenge(t *testing.T) {
@@ -825,7 +902,7 @@ func TestUsersGetInvitation(t *testing.T) {
 		Email:               "marcelina@foo-corp.com",
 		State:               Pending,
 		Token:               "myToken",
-		AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+		AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 		ExpiresAt:           "2021-06-25T19:07:33.155Z",
 		CreatedAt:           "2021-06-25T19:07:33.155Z",
 		UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -854,7 +931,7 @@ func TestUsersListInvitations(t *testing.T) {
 					Email:               "marcelina@foo-corp.com",
 					State:               Pending,
 					Token:               "myToken",
-					AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+					AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 					ExpiresAt:           "2021-06-25T19:07:33.155Z",
 					CreatedAt:           "2021-06-25T19:07:33.155Z",
 					UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -887,7 +964,7 @@ func TestUsersSendInvitation(t *testing.T) {
 		Email:               "marcelina@foo-corp.com",
 		State:               Pending,
 		Token:               "myToken",
-		AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+		AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 		ExpiresAt:           "2021-06-25T19:07:33.155Z",
 		CreatedAt:           "2021-06-25T19:07:33.155Z",
 		UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -919,7 +996,7 @@ func TestUsersRevokeInvitation(t *testing.T) {
 		Email:               "marcelina@foo-corp.com",
 		State:               Pending,
 		Token:               "myToken",
-		AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+		AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 		ExpiresAt:           "2021-06-25T19:07:33.155Z",
 		CreatedAt:           "2021-06-25T19:07:33.155Z",
 		UpdatedAt:           "2021-06-25T19:07:33.155Z",

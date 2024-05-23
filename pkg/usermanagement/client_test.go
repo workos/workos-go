@@ -1105,6 +1105,87 @@ func refreshAuthenticationResponseTestHandler(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
+func TestGetEmailVerification(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetEmailVerificationOpts
+		expected EmailVerification
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns EmailVerification by ID",
+			client:   NewClient("test"),
+			options:  GetEmailVerificationOpts{EmailVerification: "email_verification_123"},
+			expected: EmailVerification{
+				ID:        "email_verification_123",
+				UserId:    "user_123",
+				Email:     "marcelina@foo-corp.com",
+				ExpiresAt: "2021-06-25T19:07:33.155Z",
+				Code:      "123456",
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getEmailVerificationTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			emailVerification, err := client.GetEmailVerification(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, emailVerification)
+		})
+	}
+}
+
+func getEmailVerificationTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/email_verification/email_verification_123" {
+		emailVerification := EmailVerification{
+			ID:        "email_verification_123",
+			UserId:    "user_123",
+			Email:     "marcelina@foo-corp.com",
+			ExpiresAt: "2021-06-25T19:07:33.155Z",
+			Code:      "123456",
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(emailVerification)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestSendVerificationEmail(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -1264,6 +1345,170 @@ func verifyEmailCodeTestHandler(w http.ResponseWriter, r *http.Request) {
 				EmailVerified: true,
 			},
 		})
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestGetPasswordReset(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetPasswordResetOpts
+		expected PasswordReset
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns PasswordReset by ID",
+			client:   NewClient("test"),
+			options:  GetPasswordResetOpts{PasswordReset: "password_reset_123"},
+			expected: PasswordReset{
+				ID:                 "password_reset_123",
+				UserId:             "user_123",
+				Email:              "marcelina@foo-corp.com",
+				PasswordResetToken: "myToken",
+				PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
+				ExpiresAt:          "2021-06-25T19:07:33.155Z",
+				CreatedAt:          "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getPasswordResetTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			passwordReset, err := client.GetPasswordReset(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, passwordReset)
+		})
+	}
+}
+
+func getPasswordResetTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/password_reset/password_reset_123" {
+		passwordReset := PasswordReset{
+			ID:                 "password_reset_123",
+			UserId:             "user_123",
+			Email:              "marcelina@foo-corp.com",
+			PasswordResetToken: "myToken",
+			PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
+			ExpiresAt:          "2021-06-25T19:07:33.155Z",
+			CreatedAt:          "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(passwordReset)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCreatePasswordReset(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreatePasswordResetOpts
+		expected PasswordReset
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns Password Reset",
+			client:   NewClient("test"),
+			options: CreatePasswordResetOpts{
+				Email: "marcelina@foo-corp.com",
+			},
+			expected: PasswordReset{
+				ID:                 "password_reset_123",
+				UserId:             "user_123",
+				Email:              "marcelina@foo-corp.com",
+				PasswordResetToken: "myToken",
+				PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
+				ExpiresAt:          "2021-06-25T19:07:33.155Z",
+				CreatedAt:          "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(CreatePasswordResetTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			passwordReset, err := client.CreatePasswordReset(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, passwordReset)
+		})
+	}
+}
+
+func CreatePasswordResetTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/password_reset" {
+		body, err = json.Marshal(
+			PasswordReset{
+				ID:                 "password_reset_123",
+				UserId:             "user_123",
+				Email:              "marcelina@foo-corp.com",
+				PasswordResetToken: "myToken",
+				PasswordResetUrl:   "https://your-app.com/reset-password?token=myToken",
+				ExpiresAt:          "2021-06-25T19:07:33.155Z",
+				CreatedAt:          "2021-06-25T19:07:33.155Z",
+			})
 	}
 
 	if err != nil {
@@ -1505,7 +1750,7 @@ func TestCreateMagicAuth(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Invitation",
+			scenario: "Request returns MagicAuth",
 			client:   NewClient("test"),
 			options: CreateMagicAuthOpts{
 				Email: "marcelina@foo-corp.com",
@@ -2466,7 +2711,7 @@ func TestGetInvitation(t *testing.T) {
 				Email:               "marcelina@foo-corp.com",
 				State:               Pending,
 				Token:               "myToken",
-				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 				ExpiresAt:           "2021-06-25T19:07:33.155Z",
 				CreatedAt:           "2021-06-25T19:07:33.155Z",
 				UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2510,7 +2755,7 @@ func getInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 			Email:               "marcelina@foo-corp.com",
 			State:               Pending,
 			Token:               "myToken",
-			AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+			AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 			ExpiresAt:           "2021-06-25T19:07:33.155Z",
 			CreatedAt:           "2021-06-25T19:07:33.155Z",
 			UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2553,7 +2798,7 @@ func TestListInvitations(t *testing.T) {
 						Email:               "marcelina@foo-corp.com",
 						State:               Pending,
 						Token:               "myToken",
-						AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+						AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 						ExpiresAt:           "2021-06-25T19:07:33.155Z",
 						CreatedAt:           "2021-06-25T19:07:33.155Z",
 						UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2604,7 +2849,7 @@ func listInvitationsTestHandler(w http.ResponseWriter, r *http.Request) {
 					Email:               "marcelina@foo-corp.com",
 					State:               Pending,
 					Token:               "myToken",
-					AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+					AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 					ExpiresAt:           "2021-06-25T19:07:33.155Z",
 					CreatedAt:           "2021-06-25T19:07:33.155Z",
 					UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2654,7 +2899,7 @@ func TestSendInvitation(t *testing.T) {
 				Email:               "marcelina@foo-corp.com",
 				State:               Pending,
 				Token:               "myToken",
-				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 				ExpiresAt:           "2021-06-25T19:07:33.155Z",
 				CreatedAt:           "2021-06-25T19:07:33.155Z",
 				UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2699,7 +2944,7 @@ func SendInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 				Email:               "marcelina@foo-corp.com",
 				State:               Pending,
 				Token:               "myToken",
-				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 				ExpiresAt:           "2021-06-25T19:07:33.155Z",
 				CreatedAt:           "2021-06-25T19:07:33.155Z",
 				UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2740,7 +2985,7 @@ func TestRevokeInvitation(t *testing.T) {
 				Email:               "marcelina@foo-corp.com",
 				State:               Pending,
 				Token:               "myToken",
-				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 				ExpiresAt:           "2021-06-25T19:07:33.155Z",
 				CreatedAt:           "2021-06-25T19:07:33.155Z",
 				UpdatedAt:           "2021-06-25T19:07:33.155Z",
@@ -2785,7 +3030,7 @@ func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 				Email:               "marcelina@foo-corp.com",
 				State:               Pending,
 				Token:               "myToken",
-				AcceptInvitationUrl: "https://myauthkit.com/invite?invitation_token=myToken",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
 				ExpiresAt:           "2021-06-25T19:07:33.155Z",
 				CreatedAt:           "2021-06-25T19:07:33.155Z",
 				UpdatedAt:           "2021-06-25T19:07:33.155Z",

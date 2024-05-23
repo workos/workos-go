@@ -144,6 +144,14 @@ func AuthenticateWithOrganizationSelection(
 	return DefaultClient.AuthenticateWithOrganizationSelection(ctx, opts)
 }
 
+// GetEmailVerification fetches an EmailVerification object by its ID.
+func GetEmailVerification(
+	ctx context.Context,
+	opts GetEmailVerificationOpts,
+) (EmailVerification, error) {
+	return DefaultClient.GetEmailVerification(ctx, opts)
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func SendVerificationEmail(
 	ctx context.Context,
@@ -160,7 +168,23 @@ func VerifyEmail(
 	return DefaultClient.VerifyEmail(ctx, opts)
 }
 
-// SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an unmanaged user.
+// GetPasswordReset fetches a Password Reset object by its ID.
+func GetPasswordReset(
+	ctx context.Context,
+	opts GetPasswordResetOpts,
+) (PasswordReset, error) {
+	return DefaultClient.GetPasswordReset(ctx, opts)
+}
+
+// CreatePasswordReset creates a password reset token that can be sent to the user's email address and used to reset the password.
+func CreatePasswordReset(
+	ctx context.Context,
+	opts CreatePasswordResetOpts,
+) (PasswordReset, error) {
+	return DefaultClient.CreatePasswordReset(ctx, opts)
+}
+
+// Deprecated: Use CreatePasswordReset instead. This method will be removed in a future major version.
 func SendPasswordResetEmail(
 	ctx context.Context,
 	opts SendPasswordResetEmailOpts,
@@ -176,6 +200,7 @@ func ResetPassword(
 	return DefaultClient.ResetPassword(ctx, opts)
 }
 
+// GetMagicAuth fetches a Magic Auth object by its ID.
 func GetMagicAuth(
 	ctx context.Context,
 	opts GetMagicAuthOpts,
