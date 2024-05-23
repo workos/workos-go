@@ -38,6 +38,16 @@ const (
 	Desc Order = "desc"
 )
 
+type EmailVerification struct {
+	ID        string `json:"id"`
+	UserId    string `json:"user_id"`
+	Email     string `json:"email"`
+	ExpiresAt string `json:"expires_at"`
+	Code      string `json:"code"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
 // InvitationState represents the state of an Invitation.
 type InvitationState string
 
@@ -58,6 +68,7 @@ type Invitation struct {
 	Token               string          `json:"token"`
 	AcceptInvitationUrl string          `json:"accept_invitation_url`
 	OrganizationID      string          `json:"organization_id,omitempty"`
+	InviterUserID       string          `json:"inviter_user_id,omitempty"`
 	ExpiresAt           string          `json:"expires_at"`
 	CreatedAt           string          `json:"created_at"`
 	UpdatedAt           string          `json:"updated_at"`
@@ -71,6 +82,16 @@ type MagicAuth struct {
 	Code      string `json:"code"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
+}
+
+type PasswordReset struct {
+	ID                 string `json:"id"`
+	UserId             string `json:"user_id"`
+	Email              string `json:"email"`
+	PasswordResetToken string `json:"password_reset_token"`
+	PasswordResetUrl   string `json:"password_reset_url"`
+	ExpiresAt          string `json:"expires_at"`
+	CreatedAt          string `json:"created_at"`
 }
 
 // Organization contains data about a particular Organization.
@@ -314,6 +335,10 @@ type RefreshAuthenticationResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type GetEmailVerificationOpts struct {
+	EmailVerification string
+}
+
 type SendVerificationEmailOpts struct {
 	// The unique ID of the User who will be sent a verification email.
 	User string
@@ -324,6 +349,15 @@ type VerifyEmailOpts struct {
 	User string
 	// The verification code emailed to the user.
 	Code string `json:"code"`
+}
+
+type GetPasswordResetOpts struct {
+	PasswordReset string
+}
+
+type CreatePasswordResetOpts struct {
+	// The email address the password reset is for.
+	Email string `json:"email"`
 }
 
 type SendPasswordResetEmailOpts struct {
@@ -1169,6 +1203,36 @@ func (c *Client) AuthenticateWithOrganizationSelection(ctx context.Context, opts
 	return body, err
 }
 
+// GetEmailVerification fetches an EmailVerification object by its ID.
+func (c *Client) GetEmailVerification(ctx context.Context, opts GetEmailVerificationOpts) (EmailVerification, error) {
+	endpoint := fmt.Sprintf("%s/user_management/email_verification/%s", c.Endpoint, opts.EmailVerification)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return EmailVerification{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EmailVerification{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EmailVerification{}, err
+	}
+
+	var body EmailVerification
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificationEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
@@ -1249,8 +1313,76 @@ func (c *Client) VerifyEmail(ctx context.Context, opts VerifyEmailOpts) (UserRes
 	return body, err
 }
 
-// SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an
-// unmanaged user.
+// GetPasswordReset fetches a PasswordReset object by its ID.
+func (c *Client) GetPasswordReset(ctx context.Context, opts GetPasswordResetOpts) (PasswordReset, error) {
+	endpoint := fmt.Sprintf("%s/user_management/password_reset/%s", c.Endpoint, opts.PasswordReset)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return PasswordReset{}, err
+	}
+
+	var body PasswordReset
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreatePasswordReset creates a PasswordReset token that can be emailed to the user.
+func (c *Client) CreatePasswordReset(ctx context.Context, opts CreatePasswordResetOpts) (PasswordReset, error) {
+	endpoint := fmt.Sprintf("%s/user_management/password_reset", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return PasswordReset{}, err
+	}
+
+	var body PasswordReset
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Deprecated: Use CreatePasswordReset instead. This method will be removed in a future major version.
 func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/password_reset/send",
@@ -1356,7 +1488,7 @@ func (c *Client) GetMagicAuth(ctx context.Context, opts GetMagicAuthOpts) (Magic
 	return body, err
 }
 
-// CreateMagicAuth creates a one-time Magic Auth code that can be emailed it to the user.
+// CreateMagicAuth creates a one-time Magic Auth code that can be emailed to the user.
 func (c *Client) CreateMagicAuth(ctx context.Context, opts CreateMagicAuthOpts) (MagicAuth, error) {
 	endpoint := fmt.Sprintf("%s/user_management/magic_auth", c.Endpoint)
 
