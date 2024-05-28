@@ -767,7 +767,7 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedRole := RoleResponse{
+	expectedRole := common.RoleResponse{
 		Slug: "member",
 	}
 
@@ -814,7 +814,7 @@ func TestUsersUpdateOrganizationMembership(t *testing.T) {
 
 	SetAPIKey("test")
 
-	expectedRole := RoleResponse{
+	expectedRole := common.RoleResponse{
 		Slug: "member",
 	}
 

@@ -113,11 +113,6 @@ const (
 	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
 )
 
-type RoleResponse struct {
-	// The slug of the role
-	Slug string `json:"slug"`
-}
-
 // OrganizationMembership contains data about a particular OrganizationMembership.
 type OrganizationMembership struct {
 	// The Organization Membership's unique identifier.
@@ -130,7 +125,7 @@ type OrganizationMembership struct {
 	OrganizationID string `json:"organization_id"`
 
 	// The role given to this Organization Membership
-	Role RoleResponse `json:"role"`
+	Role common.RoleResponse `json:"role"`
 
 	// The Status of the Organization.
 	Status OrganizationMembershipStatus `json:"status"`

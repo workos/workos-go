@@ -2313,7 +2313,7 @@ func TestCreateOrganizationMembership(t *testing.T) {
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 				Status:         Active,
-				Role: RoleResponse{
+				Role: common.RoleResponse{
 					Slug: "member",
 				},
 				CreatedAt: "2021-06-25T19:07:33.155Z",
@@ -2358,7 +2358,7 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 			Status:         Active,
-			Role: RoleResponse{
+			Role: common.RoleResponse{
 				Slug: "member",
 			},
 			CreatedAt: "2021-06-25T19:07:33.155Z",
@@ -2401,7 +2401,7 @@ func TestUpdateOrganizationMembership(t *testing.T) {
 				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 				Status:         Active,
-				Role: RoleResponse{
+				Role: common.RoleResponse{
 					Slug: "member",
 				},
 				CreatedAt: "2021-06-25T19:07:33.155Z",
@@ -2446,7 +2446,7 @@ func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
 			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 			Status:         Active,
-			Role: RoleResponse{
+			Role: common.RoleResponse{
 				Slug: "member",
 			},
 			CreatedAt: "2021-06-25T19:07:33.155Z",
