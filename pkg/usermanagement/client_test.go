@@ -568,6 +568,10 @@ func listIdentitiesTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method != http.MethodGet {
+		http.Error(w, "bad method", http.StatusBadRequest)
+	}
+
 	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
 		w.WriteHeader(http.StatusBadRequest)
 		return

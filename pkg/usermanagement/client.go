@@ -776,7 +776,7 @@ func (c *Client) ListIdentities(ctx context.Context, opts ListIdentitiesOpts) (L
 	}
 
 	req, err := http.NewRequest(
-		http.MethodPut,
+		http.MethodGet,
 		endpoint,
 		bytes.NewBuffer(data),
 	)
