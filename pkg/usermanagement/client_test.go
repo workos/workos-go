@@ -2858,6 +2858,89 @@ func getInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestFindInvitationByToken(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  FindInvitationByTokenOpts
+		expected Invitation
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns Invitation by token",
+			client:   NewClient("test"),
+			options:  FindInvitationByTokenOpts{InvitationToken: "myToken"},
+			expected: Invitation{
+				ID:                  "invitation_123",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "myToken",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(findInvitationByTokenTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			invitation, err := client.FindInvitationByToken(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, invitation)
+		})
+	}
+}
+
+func findInvitationByTokenTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/user_management/invitations/by_token/myToken" {
+		invitation := Invitation{
+			ID:                  "invitation_123",
+			Email:               "marcelina@foo-corp.com",
+			State:               Pending,
+			Token:               "myToken",
+			AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
+			ExpiresAt:           "2021-06-25T19:07:33.155Z",
+			CreatedAt:           "2021-06-25T19:07:33.155Z",
+			UpdatedAt:           "2021-06-25T19:07:33.155Z",
+		}
+		body, err = json.Marshal(invitation)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestListInvitations(t *testing.T) {
 	tests := []struct {
 		scenario string
