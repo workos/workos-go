@@ -661,8 +661,8 @@ func TestUserManagementEnrollAuthFactor(t *testing.T) {
 	}
 
 	authenticationRes, err := EnrollAuthFactor(context.Background(), EnrollAuthFactorOpts{
-		User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
-		Type: mfa.TOTP,
+		User:       "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+		Type:       mfa.TOTP,
 		TOTPSecret: "testSecret",
 	})
 
@@ -911,6 +911,32 @@ func TestUsersGetInvitation(t *testing.T) {
 
 	getByIDRes, err := GetInvitation(context.Background(), GetInvitationOpts{
 		Invitation: "invitation_123",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, getByIDRes)
+}
+
+func TestUsersFindInvitationByToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(findInvitationByTokenTestHandler))
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:                  "invitation_123",
+		Email:               "marcelina@foo-corp.com",
+		State:               Pending,
+		Token:               "myToken",
+		AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=myToken",
+		ExpiresAt:           "2021-06-25T19:07:33.155Z",
+		CreatedAt:           "2021-06-25T19:07:33.155Z",
+		UpdatedAt:           "2021-06-25T19:07:33.155Z",
+	}
+
+	getByIDRes, err := FindInvitationByToken(context.Background(), FindInvitationByTokenOpts{
+		InvitationToken: "myToken",
 	})
 
 	require.NoError(t, err)

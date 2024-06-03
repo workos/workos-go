@@ -304,6 +304,13 @@ func GetInvitation(
 	return DefaultClient.GetInvitation(ctx, opts)
 }
 
+func FindInvitationByToken(
+	ctx context.Context,
+	opts FindInvitationByTokenOpts,
+) (Invitation, error) {
+	return DefaultClient.FindInvitationByToken(ctx, opts)
+}
+
 func ListInvitations(
 	ctx context.Context,
 	opts ListInvitationsOpts,

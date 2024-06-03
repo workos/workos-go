@@ -498,6 +498,10 @@ type GetInvitationOpts struct {
 	Invitation string
 }
 
+type FindInvitationByTokenOpts struct {
+	InvitationToken string
+}
+
 // ListInvitations contains the response from the ListInvitations call.
 type ListInvitationsResponse struct {
 	// List of Invitations
@@ -1988,6 +1992,36 @@ func (c *Client) ReactivateOrganizationMembership(ctx context.Context, opts Reac
 // GetInvitation fetches an Invitation by its ID.
 func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Invitation, error) {
 	endpoint := fmt.Sprintf("%s/user_management/invitations/%s", c.Endpoint, opts.Invitation)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return Invitation{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Invitation{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Invitation{}, err
+	}
+
+	var body Invitation
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// FindInvitationByToken fetches an Invitation by its token.
+func (c *Client) FindInvitationByToken(ctx context.Context, opts FindInvitationByTokenOpts) (Invitation, error) {
+	endpoint := fmt.Sprintf("%s/user_management/invitations/by_token/%s", c.Endpoint, opts.InvitationToken)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
