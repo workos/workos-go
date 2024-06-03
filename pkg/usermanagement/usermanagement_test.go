@@ -663,6 +663,7 @@ func TestUserManagementEnrollAuthFactor(t *testing.T) {
 	authenticationRes, err := EnrollAuthFactor(context.Background(), EnrollAuthFactorOpts{
 		User: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 		Type: mfa.TOTP,
+		TOTPSecret: "testSecret",
 	})
 
 	require.NoError(t, err)

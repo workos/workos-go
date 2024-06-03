@@ -407,6 +407,7 @@ type EnrollAuthFactorOpts struct {
 	Type       mfa.FactorType `json:"type"`
 	TOTPIssuer string         `json:"totp_issuer,omitempty"`
 	TOTPUser   string         `json:"totp_user,omitempty"`
+	TOTPSecret string         `json:"totp_secret,omitempty"`
 }
 
 type EnrollAuthFactorResponse struct {
