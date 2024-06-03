@@ -66,7 +66,7 @@ type Invitation struct {
 	AcceptedAt          string          `json:"accepted_at,omitempty"`
 	RevokedAt           string          `json:"revoked_at,omitempty"`
 	Token               string          `json:"token"`
-	AcceptInvitationUrl string          `json:"accept_invitation_url`
+	AcceptInvitationUrl string          `json:"accept_invitation_url"`
 	OrganizationID      string          `json:"organization_id,omitempty"`
 	InviterUserID       string          `json:"inviter_user_id,omitempty"`
 	ExpiresAt           string          `json:"expires_at"`
@@ -163,6 +163,16 @@ type User struct {
 
 	// A URL reference to an image representing the User.
 	ProfilePictureURL string `json:"profile_picture_url"`
+}
+
+// Represents User identities obtained from external identity providers.
+type Identity struct {
+	// The unique ID of the user in the external identity provider.
+	IdpID string `json:"idp_id"`
+	// The type of the identity.
+	Type string `json:"type"`
+	// The type of OAuth provider for the identity.
+	Provider string `json:"provider"`
 }
 
 // GetUserOpts contains the options to pass in order to get a user profile.
@@ -530,6 +540,14 @@ type RevokeSessionOpts struct {
 	SessionID string `json:"session_id"`
 }
 
+type ListIdentitiesResult struct {
+	Identities []Identity `json:"identities"`
+}
+
+type ListIdentitiesOpts struct {
+	ID string `json:"id"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -743,6 +761,48 @@ func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+func (c *Client) ListIdentities(ctx context.Context, opts ListIdentitiesOpts) (ListIdentitiesResult, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/users/%s/identities",
+		c.Endpoint,
+		opts.ID,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return ListIdentitiesResult{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return ListIdentitiesResult{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListIdentitiesResult{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListIdentitiesResult{}, err
+	}
+
+	var body ListIdentitiesResult
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
 }
 
 // GetAuthorizationURLOpts contains the options to pass in order to generate

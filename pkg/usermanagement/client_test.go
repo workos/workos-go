@@ -509,6 +509,92 @@ func deleteUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestListIdentities(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListIdentitiesOpts
+		expected ListIdentitiesResult
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns identities",
+			client:   NewClient("test"),
+			options: ListIdentitiesOpts{
+				ID: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			},
+			expected: ListIdentitiesResult{
+				Identities: []Identity{
+					{
+						IdpID:    "13966412",
+						Type:     "OAuth",
+						Provider: "GitHubOAuth",
+					},
+				},
+			},
+			err: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listIdentitiesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			identities, err := client.ListIdentities(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, identities)
+		})
+	}
+}
+
+func listIdentitiesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "bad method", http.StatusBadRequest)
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(ListIdentitiesResult{
+		Identities: []Identity{
+			{
+				IdpID:    "13966412",
+				Type:     "OAuth",
+				Provider: "GitHubOAuth",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestClientAuthorizeURL(t *testing.T) {
 	tests := []struct {
 		scenario string
