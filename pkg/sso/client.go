@@ -36,6 +36,7 @@ type ConnectionType string
 const (
 	ADFSSAML              ConnectionType = "ADFSSAML"
 	AdpOidc               ConnectionType = "AdpOidc"
+	AppleOAuth            ConnectionType = "AppleOAuth"
 	Auth0SAML             ConnectionType = "Auth0SAML"
 	AzureSAML             ConnectionType = "AzureSAML"
 	CasSAML               ConnectionType = "CasSAML"
@@ -45,6 +46,7 @@ const (
 	DuoSAML               ConnectionType = "DuoSAML"
 	GenericOIDC           ConnectionType = "GenericOIDC"
 	GenericSAML           ConnectionType = "GenericSAML"
+	GitHubOAuth           ConnectionType = "GitHubOAuth"
 	GoogleOAuth           ConnectionType = "GoogleOAuth"
 	GoogleSAML            ConnectionType = "GoogleSAML"
 	JumpCloudSAML         ConnectionType = "JumpCloudSAML"
