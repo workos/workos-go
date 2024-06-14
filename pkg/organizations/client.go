@@ -79,6 +79,8 @@ type Organization struct {
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
+	//
+	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// The Organization's Domains.
@@ -148,6 +150,8 @@ type CreateOrganizationOpts struct {
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
+	//
+	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// Domains of the Organization.
@@ -172,6 +176,8 @@ type UpdateOrganizationOpts struct {
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
+	//
+	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
 	AllowProfilesOutsideOrganization bool
 
 	// Domains of the Organization.
