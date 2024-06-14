@@ -334,7 +334,7 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 		// Domains of the Organization.
-		Domains []string `json:"domains"`
+		Domains []string `json:"domains,omitempty"`
 	}
 
 	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.Domains}
