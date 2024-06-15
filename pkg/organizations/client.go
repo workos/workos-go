@@ -334,10 +334,15 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 		// Domains of the Organization.
+		DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
+
+		// Domains of the Organization.
+		//
+		// Deprecated:  Use DomainData instead.
 		Domains []string `json:"domains,omitempty"`
 	}
 
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.Domains}
+	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains}
 
 	data, err := c.JSONEncode(update_opts)
 	if err != nil {
