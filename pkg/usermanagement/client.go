@@ -512,9 +512,9 @@ type ListInvitationsResponse struct {
 }
 
 type ListInvitationsOpts struct {
-	OrganizationID string `json:"organization_id,omitempty"`
+	OrganizationID string `url:"organization_id,omitempty"`
 
-	Email string `json:"email,omitempty"`
+	Email string `url:"email,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
