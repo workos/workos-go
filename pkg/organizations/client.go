@@ -83,6 +83,27 @@ type Organization struct {
 	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
+	// Whether the Organization has Magic Link authentication enabled.
+	MagicLinkAuthEnabled bool `json:"magic_link_auth_enabled"`
+
+	// Whether the Organization has Password authentication enabled.
+	PasswordAuthEnabled bool `json:"password_auth_enabled"`
+
+	// Whether the Organization has Apple OAuth authentication enabled.
+	AppleOauthAuthEnabled bool `json:"apple_oauth_auth_enabled"`
+
+	// Whether the Organization has Google OAuth authentication enabled.
+	GoogleOauthAuthEnabled bool `json:"google_oauth_auth_enabled"`
+
+	// Whether the Organization has Azure AD OAuth authentication enabled.
+	MicrosoftOauthAuthEnabled bool `json:"microsoft_oauth_auth_enabled"`
+
+	// Whether the Organization has GitHub OAuth authentication enabled.
+	GithubOauthAuthEnabled bool `json:"github_oauth_auth_enabled"`
+
+	// Whether the Organization has Domain MFA required.
+	DomainMfaRequired bool `json:"domain_mfa_required"`
+
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
 
@@ -184,6 +205,27 @@ type UpdateOrganizationOpts struct {
 	//
 	// Deprecated:  Use DomainData instead.
 	Domains []string
+
+	// Whether the Organization has Magic Link authentication enabled.
+	MagicLinkAuthEnabled bool `json:"magic_link_auth_enabled"`
+
+	// Whether the Organization has Password authentication enabled.
+	PasswordAuthEnabled bool `json:"password_auth_enabled"`
+
+	// Whether the Organization has Apple OAuth authentication enabled.
+	AppleOauthAuthEnabled bool `json:"apple_oauth_auth_enabled"`
+
+	// Whether the Organization has Google OAuth authentication enabled.
+	GoogleOauthAuthEnabled bool `json:"google_oauth_auth_enabled"`
+
+	// Whether the Organization has Azure AD OAuth authentication enabled.
+	MicrosoftOauthAuthEnabled bool `json:"microsoft_oauth_auth_enabled"`
+
+	// Whether the Organization has GitHub OAuth authentication enabled.
+	GithubOauthAuthEnabled bool `json:"github_oauth_auth_enabled"`
+
+	// Whether the Organization has Domain MFA required.
+	DomainMfaRequired bool `json:"domain_mfa_required"`
 
 	// Domains of the Organization.
 	DomainData []OrganizationDomainData `json:"domain_data"`
@@ -340,9 +382,42 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		//
 		// Deprecated:  Use DomainData instead.
 		Domains []string `json:"domains,omitempty"`
+
+		// Whether the Organization has Magic Link authentication enabled.
+		MagicLinkAuthEnabled bool `json:"magic_link_auth_enabled"`
+
+		// Whether the Organization has Password authentication enabled.
+		PasswordAuthEnabled bool `json:"password_auth_enabled"`
+
+		// Whether the Organization has Apple OAuth authentication enabled.
+		AppleOauthAuthEnabled bool `json:"apple_oauth_auth_enabled"`
+
+		// Whether the Organization has Google OAuth authentication enabled.
+		GoogleOauthAuthEnabled bool `json:"google_oauth_auth_enabled"`
+
+		// Whether the Organization has Azure AD OAuth authentication enabled.
+		MicrosoftOauthAuthEnabled bool `json:"microsoft_oauth_auth_enabled"`
+
+		// Whether the Organization has GitHub OAuth authentication enabled.
+		GithubOauthAuthEnabled bool `json:"github_oauth_auth_enabled"`
+
+		// Whether the Organization has Domain MFA required.
+		DomainMfaRequired bool `json:"domain_mfa_required"`
 	}
 
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains}
+	update_opts := UpdateOrganizationChangeOpts{
+		opts.Name,
+		opts.AllowProfilesOutsideOrganization,
+		opts.DomainData,
+		opts.Domains,
+		opts.MagicLinkAuthEnabled,
+		opts.PasswordAuthEnabled,
+		opts.AppleOauthAuthEnabled,
+		opts.GoogleOauthAuthEnabled,
+		opts.MicrosoftOauthAuthEnabled,
+		opts.GithubOauthAuthEnabled,
+		opts.DomainMfaRequired,
+	}
 
 	data, err := c.JSONEncode(update_opts)
 	if err != nil {
