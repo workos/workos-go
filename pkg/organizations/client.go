@@ -163,7 +163,7 @@ type CreateOrganizationOpts struct {
 	DomainData []OrganizationDomainData `json:"domain_data"`
 
 	// Optional unique identifier to ensure idempotency
-	IdempotencyKey string `json:"idempotency_iey,omitempty"`
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
