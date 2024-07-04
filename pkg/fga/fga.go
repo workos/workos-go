@@ -54,6 +54,22 @@ func DeleteObject(
 	return DefaultClient.DeleteObject(ctx, opts)
 }
 
+// ListObjectTypes gets a list of ObjectTypes.
+func ListObjectTypes(
+	ctx context.Context,
+	opts ListObjectTypesOpts,
+) (ListObjectTypesResponse, error) {
+	return DefaultClient.ListObjectTypes(ctx, opts)
+}
+
+// BatchUpdateObjectTypes sets the environment's object types to match the provided types.
+func BatchUpdateObjectTypes(
+	ctx context.Context,
+	opts []UpdateObjectTypeOpts,
+) ([]ObjectType, error) {
+	return DefaultClient.BatchUpdateObjectTypes(ctx, opts)
+}
+
 // ListWarrants gets a list of Warrants.
 func ListWarrants(
 	ctx context.Context,
