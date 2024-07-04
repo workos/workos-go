@@ -137,6 +137,99 @@ func TestFGADeleteObject(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestFGAListObjectTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listObjectTypesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListObjectTypesResponse{
+		Data: []ObjectType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+			{
+				Type:      "user",
+				Relations: map[string]interface{}{},
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	objectTypesResponse, err := ListObjectTypes(context.Background(), ListObjectTypesOpts{
+		Order: "asc",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, objectTypesResponse)
+}
+
+func TestFGABatchUpdateObjectTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(batchUpdateObjectTypesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := []ObjectType{
+		{
+			Type: "report",
+			Relations: map[string]interface{}{
+				"owner": map[string]interface{}{},
+				"editor": map[string]interface{}{
+					"inherit_if": "owner",
+				},
+				"viewer": map[string]interface{}{
+					"inherit_if": "editor",
+				},
+			},
+		},
+		{
+			Type:      "user",
+			Relations: map[string]interface{}{},
+		},
+	}
+	objectTypes, err := BatchUpdateObjectTypes(context.Background(), []UpdateObjectTypeOpts{
+		{
+			Type: "report",
+			Relations: map[string]interface{}{
+				"owner": map[string]interface{}{},
+				"editor": map[string]interface{}{
+					"inherit_if": "owner",
+				},
+				"viewer": map[string]interface{}{
+					"inherit_if": "editor",
+				},
+			},
+		},
+		{
+			Type:      "user",
+			Relations: map[string]interface{}{},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, objectTypes)
+}
+
 func TestFGAListWarrants(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listWarrantsTestHandler))
 	defer server.Close()

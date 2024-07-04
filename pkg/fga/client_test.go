@@ -184,6 +184,241 @@ func listObjectsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestListObjectTypes(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListObjectTypesOpts
+		expected ListObjectTypesResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns ObjectTypes",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListObjectTypesOpts{
+				Order: "asc",
+			},
+
+			expected: ListObjectTypesResponse{
+				Data: []ObjectType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+						},
+					},
+					{
+						Type:      "user",
+						Relations: map[string]interface{}{},
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listObjectTypesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			objectTypes, err := client.ListObjectTypes(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, objectTypes)
+		})
+	}
+}
+
+func listObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListObjectTypesResponse
+	}{
+		ListObjectTypesResponse: ListObjectTypesResponse{
+			Data: []ObjectType{
+				{
+					Type: "report",
+					Relations: map[string]interface{}{
+						"owner": map[string]interface{}{},
+						"editor": map[string]interface{}{
+							"inherit_if": "owner",
+						},
+						"viewer": map[string]interface{}{
+							"inherit_if": "editor",
+						},
+					},
+				},
+				{
+					Type:      "user",
+					Relations: map[string]interface{}{},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestBatchUpdateObjectTypes(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  []UpdateObjectTypeOpts
+		expected []ObjectType
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns ObjectTypes",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: []UpdateObjectTypeOpts{
+				{
+					Type: "report",
+					Relations: map[string]interface{}{
+						"owner": map[string]interface{}{},
+						"editor": map[string]interface{}{
+							"inherit_if": "owner",
+						},
+						"viewer": map[string]interface{}{
+							"inherit_if": "editor",
+						},
+					},
+				},
+				{
+					Type:      "user",
+					Relations: map[string]interface{}{},
+				},
+			},
+
+			expected: []ObjectType{
+				{
+					Type: "report",
+					Relations: map[string]interface{}{
+						"owner": map[string]interface{}{},
+						"editor": map[string]interface{}{
+							"inherit_if": "owner",
+						},
+						"viewer": map[string]interface{}{
+							"inherit_if": "editor",
+						},
+					},
+				},
+				{
+					Type:      "user",
+					Relations: map[string]interface{}{},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(batchUpdateObjectTypesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			objectTypes, err := client.BatchUpdateObjectTypes(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, objectTypes)
+		})
+	}
+}
+
+func batchUpdateObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal([]ObjectType{
+		{
+			Type: "report",
+			Relations: map[string]interface{}{
+				"owner": map[string]interface{}{},
+				"editor": map[string]interface{}{
+					"inherit_if": "owner",
+				},
+				"viewer": map[string]interface{}{
+					"inherit_if": "editor",
+				},
+			},
+		},
+		{
+			Type:      "user",
+			Relations: map[string]interface{}{},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestCreateObject(t *testing.T) {
 	tests := []struct {
 		scenario string

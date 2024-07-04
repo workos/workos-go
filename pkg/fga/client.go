@@ -139,6 +139,45 @@ type DeleteObjectOpts struct {
 	ObjectId string
 }
 
+// Object types
+type ObjectType struct {
+	// Unique string ID of the object type.
+	Type string `json:"type"`
+
+	// Set of relationships that subjects can have on objects of this type.
+	Relations map[string]interface{} `json:"relations"`
+}
+
+type ListObjectTypesOpts struct {
+	// Maximum number of records to return.
+	Limit int `url:"limit,omitempty"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
+
+	// Pagination cursor to receive records before a provided ObjectType ID.
+	Before string `url:"before,omitempty"`
+
+	// Pagination cursor to receive records after a provided ObjectType ID.
+	After string `url:"after,omitempty"`
+}
+
+type ListObjectTypesResponse struct {
+	// List of Object Types.
+	Data []ObjectType `json:"data"`
+
+	// Cursor pagination options.
+	ListMetadata common.ListMetadata `json:"list_metadata"`
+}
+
+type UpdateObjectTypeOpts struct {
+	// Unique string ID of the object type.
+	Type string `json:"type"`
+
+	// Set of relationships that subjects can have on objects of this type.
+	Relations map[string]interface{} `json:"relations"`
+}
+
 // Warrants
 type Subject struct {
 	// The type of the subject.
@@ -525,6 +564,88 @@ func (c *Client) DeleteObject(ctx context.Context, opts DeleteObjectOpts) error 
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+// ListObjectTypes gets a list of FGA object types.
+func (c *Client) ListObjectTypes(ctx context.Context, opts ListObjectTypesOpts) (ListObjectTypesResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/fga/v1/object-types", c.Endpoint)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListObjectTypesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListObjectTypesResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListObjectTypesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListObjectTypesResponse{}, err
+	}
+
+	var body ListObjectTypesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// BatchUpdateObjectTypes sets the environment's set of object types to match the object types passed.
+func (c *Client) BatchUpdateObjectTypes(ctx context.Context, opts []UpdateObjectTypeOpts) ([]ObjectType, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return []ObjectType{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/fga/v1/object-types", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return []ObjectType{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return []ObjectType{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return []ObjectType{}, err
+	}
+
+	var body []ObjectType
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListWarrants gets a list of Warrants.
