@@ -67,8 +67,8 @@ type OAuthConnectionType string
 const (
 	AppleOauth     OAuthConnectionType = "AppleOauth"
 	GithubOauth    OAuthConnectionType = "GitHubOauth"
-	GoogleOAuth    OAuthConnectionType = "GoogleOAuth"
-	MicrosoftOAuth OAuthConnectionType = "MicrosoftOAuth"
+	GoogleOauth    OAuthConnectionType = "GoogleOauth"
+	MicrosoftOauth OAuthConnectionType = "MicrosoftOauth"
 )
 
 // OAuthConnectionState represents the state of an OAuth Connection.
@@ -320,6 +320,44 @@ func (c *Client) UpdateOAuthCredential(ctx context.Context, opts UpdateOAuthCred
 
 	endpoint := fmt.Sprintf("%s/organizations/%s", c.Endpoint, opts.ID)
 	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return OAuthCredential{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OAuthCredential{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OAuthCredential{}, err
+	}
+
+	var body OAuthCredential
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+type CreateOAuthCredentialOpts struct {
+	Type OAuthConnectionType `json:"type"`
+}
+
+func (c *Client) CreateOAuthCredential(ctx context.Context, opts CreateOAuthCredentialOpts) (OAuthCredential, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OAuthCredential{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/oauth-credentials", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return OAuthCredential{}, err
 	}

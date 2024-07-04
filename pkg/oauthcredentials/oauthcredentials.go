@@ -40,3 +40,11 @@ func UpdateOAuthCredential(
 ) (OAuthCredential, error) {
 	return DefaultClient.UpdateOAuthCredential(ctx, opts)
 }
+
+// CreateOAuthCredential creates an OAuthCredential.
+func CreateOAuthCredential(
+	ctx context.Context,
+	opts CreateOAuthCredentialOpts,
+) (OAuthCredential, error) {
+	return DefaultClient.CreateOAuthCredential(ctx, opts)
+}
