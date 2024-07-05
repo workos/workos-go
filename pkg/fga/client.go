@@ -23,8 +23,9 @@ type Order string
 
 // Constants that enumerate the available orders.
 const (
-	Asc  Order = "asc"
-	Desc Order = "desc"
+	CheckResultAuthorized       = "Authorized"
+	Asc                   Order = "asc"
+	Desc                  Order = "desc"
 )
 
 // Client represents a client that performs FGA requests to the WorkOS API.
@@ -331,6 +332,10 @@ type CheckResponse struct {
 	IsImplicit     bool                 `json:"is_implicit"`
 	ProcessingTime int64                `json:"processing_time,omitempty"`
 	DecisionPath   map[string][]Warrant `json:"decision_path,omitempty"`
+}
+
+func (checkResponse CheckResponse) Authorized() bool {
+	return checkResponse.Result == CheckResultAuthorized
 }
 
 // Query
@@ -765,7 +770,7 @@ func (c *Client) BatchWriteWarrants(ctx context.Context, opts []WriteWarrantOpts
 	return body, err
 }
 
-func (c *Client) Check(ctx context.Context, opts CheckOpts) (bool, error) {
+func (c *Client) Check(ctx context.Context, opts CheckOpts) (CheckResponse, error) {
 	return c.CheckMany(ctx, CheckManyOpts{
 		Warrants:     []WarrantCheck{opts.Warrant},
 		Debug:        opts.Debug,
@@ -773,18 +778,18 @@ func (c *Client) Check(ctx context.Context, opts CheckOpts) (bool, error) {
 	})
 }
 
-func (c *Client) CheckMany(ctx context.Context, opts CheckManyOpts) (bool, error) {
+func (c *Client) CheckMany(ctx context.Context, opts CheckManyOpts) (CheckResponse, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return false, err
+		return CheckResponse{}, err
 	}
 
 	endpoint := fmt.Sprintf("%s/fga/v1/check", c.Endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return false, err
+		return CheckResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -797,25 +802,25 @@ func (c *Client) CheckMany(ctx context.Context, opts CheckManyOpts) (bool, error
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return false, err
+		return CheckResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return false, err
+		return CheckResponse{}, err
 	}
 
 	var checkResponse CheckResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&checkResponse)
 	if err != nil {
-		return false, err
+		return CheckResponse{}, err
 	}
 
-	return checkResponse.Result == "Authorized", nil
+	return checkResponse, nil
 }
 
-func (c *Client) BatchCheck(ctx context.Context, opts BatchCheckOpts) ([]bool, error) {
+func (c *Client) BatchCheck(ctx context.Context, opts BatchCheckOpts) ([]CheckResponse, error) {
 	c.once.Do(c.init)
 
 	checkOpts := CheckManyOpts{
@@ -826,13 +831,13 @@ func (c *Client) BatchCheck(ctx context.Context, opts BatchCheckOpts) ([]bool, e
 	}
 	data, err := c.JSONEncode(checkOpts)
 	if err != nil {
-		return []bool{}, err
+		return []CheckResponse{}, err
 	}
 
 	endpoint := fmt.Sprintf("%s/fga/v1/check", c.Endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return []bool{}, err
+		return []CheckResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -845,26 +850,22 @@ func (c *Client) BatchCheck(ctx context.Context, opts BatchCheckOpts) ([]bool, e
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return []bool{}, err
+		return []CheckResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return []bool{}, err
+		return []CheckResponse{}, err
 	}
 
 	var checkResponses []CheckResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&checkResponses)
 	if err != nil {
-		return []bool{}, err
+		return []CheckResponse{}, err
 	}
 
-	var results []bool
-	for _, checkResponse := range checkResponses {
-		results = append(results, checkResponse.Result == "Authorized")
-	}
-	return results, nil
+	return checkResponses, nil
 }
 
 // Query executes a query for a set of resources.

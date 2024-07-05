@@ -98,7 +98,7 @@ func BatchWriteWarrants(
 func Check(
 	ctx context.Context,
 	opts CheckOpts,
-) (bool, error) {
+) (CheckResponse, error) {
 	return DefaultClient.Check(ctx, opts)
 }
 
@@ -106,7 +106,7 @@ func Check(
 func CheckMany(
 	ctx context.Context,
 	opts CheckManyOpts,
-) (bool, error) {
+) (CheckResponse, error) {
 	return DefaultClient.CheckMany(ctx, opts)
 }
 
@@ -114,7 +114,7 @@ func CheckMany(
 func BatchCheck(
 	ctx context.Context,
 	opts BatchCheckOpts,
-) ([]bool, error) {
+) ([]CheckResponse, error) {
 	return DefaultClient.BatchCheck(ctx, opts)
 }
 
