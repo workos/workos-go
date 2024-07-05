@@ -38,11 +38,18 @@ func TestGetOrganization(t *testing.T) {
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
+					{
 						ID:     "organization_domain_id",
 						Domain: "foo-corp.com",
 					},
 				},
+				MagicLinkAuthEnabled:      false,
+				PasswordAuthEnabled:       false,
+				AppleOauthAuthEnabled:     false,
+				GoogleOauthAuthEnabled:    false,
+				GithubOauthAuthEnabled:    false,
+				MicrosoftOauthAuthEnabled: false,
+				DomainMfaRequired:         false,
 			},
 		},
 	}
@@ -84,6 +91,13 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 				Domain: "foo-corp.com",
 			},
 		},
+		MagicLinkAuthEnabled:      false,
+		PasswordAuthEnabled:       false,
+		AppleOauthAuthEnabled:     false,
+		GoogleOauthAuthEnabled:    false,
+		GithubOauthAuthEnabled:    false,
+		MicrosoftOauthAuthEnabled: false,
+		DomainMfaRequired:         false,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
