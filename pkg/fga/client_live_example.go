@@ -392,7 +392,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, adminUserHasPermission)
+	require.False(t, adminUserHasPermission.Authorized())
 
 	// Assign create-report permission -> admin role -> admin user
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
@@ -438,7 +438,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.True(t, adminUserHasPermission)
+	require.True(t, adminUserHasPermission.Authorized())
 
 	adminUserRolesList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ObjectId),
@@ -518,7 +518,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, adminUserHasPermission)
+	require.False(t, adminUserHasPermission.Authorized())
 
 	adminUserRolesList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ObjectId),
@@ -556,7 +556,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, viewerUserHasPermission)
+	require.False(t, viewerUserHasPermission.Authorized())
 
 	viewerUserPermissionsList, err := Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ObjectId),
@@ -597,7 +597,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.True(t, viewerUserHasPermission)
+	require.True(t, viewerUserHasPermission.Authorized())
 
 	viewerUserPermissionsList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ObjectId),
@@ -645,7 +645,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, viewerUserHasPermission)
+	require.False(t, viewerUserHasPermission.Authorized())
 
 	viewerUserPermissionsList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ObjectId),
@@ -780,7 +780,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, paidUserHasFeature)
+	require.False(t, paidUserHasFeature.Authorized())
 
 	paidUserFeaturesList, err := Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ObjectId),
@@ -821,7 +821,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.True(t, paidUserHasFeature)
+	require.True(t, paidUserHasFeature.Authorized())
 
 	paidUserFeaturesList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ObjectId),
@@ -868,7 +868,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, paidUserHasFeature)
+	require.False(t, paidUserHasFeature.Authorized())
 
 	paidUserFeaturesList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ObjectId),
@@ -896,7 +896,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, freeUserHasFeature)
+	require.False(t, freeUserHasFeature.Authorized())
 
 	freeUserFeaturesList, err := Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ObjectId),
@@ -961,7 +961,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.True(t, freeUserHasFeature)
+	require.True(t, freeUserHasFeature.Authorized())
 
 	freeUserFeaturesList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ObjectId),
@@ -1036,7 +1036,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, freeUserHasFeature)
+	require.False(t, freeUserHasFeature.Authorized())
 
 	freeUserFeaturesList, err = Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ObjectId),
@@ -1154,7 +1154,7 @@ func TestWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, userHasPermission)
+	require.False(t, userHasPermission.Authorized())
 
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
 		ObjectType: newPermission.ObjectType,
@@ -1243,7 +1243,7 @@ func TestWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.True(t, userHasPermission)
+	require.True(t, userHasPermission.Authorized())
 
 	queryResponse, err := Query(context.Background(), QueryOpts{
 		Query:        fmt.Sprintf("select permission where user:%s is member", user1.ObjectId),
@@ -1287,7 +1287,7 @@ func TestWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, userHasPermission)
+	require.False(t, userHasPermission.Authorized())
 
 	// Clean up
 	err = DeleteObject(context.Background(), DeleteObjectOpts{
@@ -1372,8 +1372,8 @@ func TestBatchWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, userHasPermissions, 2)
-	require.False(t, userHasPermissions[0])
-	require.False(t, userHasPermissions[1])
+	require.False(t, userHasPermissions[0].Authorized())
+	require.False(t, userHasPermissions[1].Authorized())
 
 	warrantResponse, err := BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
 		{
@@ -1428,8 +1428,8 @@ func TestBatchWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, userHasPermissions, 2)
-	require.True(t, userHasPermissions[0])
-	require.True(t, userHasPermissions[1])
+	require.True(t, userHasPermissions[0].Authorized())
+	require.True(t, userHasPermissions[1].Authorized())
 
 	warrantResponse, err = BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
 		{
@@ -1485,8 +1485,8 @@ func TestBatchWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, userHasPermissions, 2)
-	require.False(t, userHasPermissions[0])
-	require.False(t, userHasPermissions[1])
+	require.False(t, userHasPermissions[0].Authorized())
+	require.False(t, userHasPermissions[1].Authorized())
 
 	// Clean up
 	err = DeleteObject(context.Background(), DeleteObjectOpts{
@@ -1548,7 +1548,7 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.True(t, checkResult)
+	require.True(t, checkResult.Authorized())
 
 	checkResult, err = Check(context.Background(), CheckOpts{
 		Warrant: WarrantCheck{
@@ -1568,7 +1568,7 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.False(t, checkResult)
+	require.False(t, checkResult.Authorized())
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
 		Op:         "delete",
