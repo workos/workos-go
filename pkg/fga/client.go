@@ -125,7 +125,7 @@ type UpdateObjectOpts struct {
 	ObjectType string `json:"object_type"`
 
 	// The customer defined string identifier for this object.
-	ObjectId string `json:"object_id,omitempty"`
+	ObjectId string `json:"object_id"`
 
 	// Map containing additional information about this object.
 	Meta map[string]interface{} `json:"meta,omitempty"`
