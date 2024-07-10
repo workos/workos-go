@@ -1017,7 +1017,7 @@ func TestCheckMany(t *testing.T) {
 		scenario string
 		client   *Client
 		options  CheckManyOpts
-		expected bool
+		expected CheckResponse
 		err      bool
 	}{
 		{
@@ -1043,7 +1043,11 @@ func TestCheckMany(t *testing.T) {
 					},
 				},
 			},
-			expected: true,
+			expected: CheckResponse{
+				Code:       200,
+				Result:     "Authorized",
+				IsImplicit: false,
+			},
 		},
 	}
 
@@ -1100,7 +1104,7 @@ func TestBatchCheck(t *testing.T) {
 		scenario string
 		client   *Client
 		options  BatchCheckOpts
-		expected []bool
+		expected []CheckResponse
 		err      bool
 	}{
 		{
@@ -1135,7 +1139,18 @@ func TestBatchCheck(t *testing.T) {
 					},
 				},
 			},
-			expected: []bool{true, false},
+			expected: []CheckResponse{
+				{
+					Code:       200,
+					Result:     "Authorized",
+					IsImplicit: false,
+				},
+				{
+					Code:       403,
+					Result:     "Not Authorized",
+					IsImplicit: false,
+				},
+			},
 		},
 	}
 
@@ -1148,13 +1163,13 @@ func TestBatchCheck(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			checkResult, err := client.BatchCheck(context.Background(), test.options)
+			checkResults, err := client.BatchCheck(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, checkResult)
+			require.Equal(t, test.expected, checkResults)
 		})
 	}
 }
@@ -1179,7 +1194,7 @@ func batchCheckTestHandler(w http.ResponseWriter, r *http.Request) {
 				IsImplicit: false,
 			},
 			{
-				Code:       401,
+				Code:       403,
 				Result:     "Not Authorized",
 				IsImplicit: false,
 			},

@@ -367,7 +367,7 @@ func TestFGACheckMany(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.True(t, checkResponse)
+	require.True(t, checkResponse.Authorized())
 }
 
 func TestFGABatchCheck(t *testing.T) {
@@ -396,8 +396,8 @@ func TestFGABatchCheck(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Len(t, checkResponses, 2)
-	require.True(t, checkResponses[0])
-	require.False(t, checkResponses[1])
+	require.True(t, checkResponses[0].Authorized())
+	require.False(t, checkResponses[1].Authorized())
 }
 
 func TestFGAQuery(t *testing.T) {
