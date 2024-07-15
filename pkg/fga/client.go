@@ -327,15 +327,27 @@ type BatchCheckOpts struct {
 }
 
 type CheckResponse struct {
-	Code           int64                `json:"code"`
-	Result         string               `json:"result"`
-	IsImplicit     bool                 `json:"is_implicit"`
-	ProcessingTime int64                `json:"processing_time,omitempty"`
-	DecisionPath   map[string][]Warrant `json:"decision_path,omitempty"`
+	Code       int64     `json:"code"`
+	Result     string    `json:"result"`
+	IsImplicit bool      `json:"is_implicit"`
+	DebugInfo  DebugInfo `json:"debug_info,omitempty"`
 }
 
 func (checkResponse CheckResponse) Authorized() bool {
 	return checkResponse.Result == CheckResultAuthorized
+}
+
+type DebugInfo struct {
+	ProcessingTime time.Duration     `json:"processing_time"`
+	DecisionTree   *DecisionTreeNode `json:"decision_tree"`
+}
+
+type DecisionTreeNode struct {
+	Check          WarrantCheck       `json:"check"`
+	Policy         string             `json:"policy,omitempty"`
+	Decision       string             `json:"decision"`
+	ProcessingTime time.Duration      `json:"processing_time"`
+	Children       []DecisionTreeNode `json:"children"`
 }
 
 // Query
