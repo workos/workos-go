@@ -94,7 +94,7 @@ func BatchWriteWarrants(
 	return DefaultClient.BatchWriteWarrants(ctx, opts)
 }
 
-// Check performs an access check on a Warrant.
+// Check performs access checks on multiple Warrants.
 func Check(
 	ctx context.Context,
 	opts CheckOpts,
@@ -102,16 +102,8 @@ func Check(
 	return DefaultClient.Check(ctx, opts)
 }
 
-// CheckMany performs access checks on multiple Warrants.
-func CheckMany(
-	ctx context.Context,
-	opts CheckManyOpts,
-) (CheckResponse, error) {
-	return DefaultClient.CheckMany(ctx, opts)
-}
-
-// BatchCheck performs individual access checks on multiple Warrants in one request.
-func BatchCheck(
+// CheckBatch performs individual access checks on multiple Warrants in one request.
+func CheckBatch(
 	ctx context.Context,
 	opts CheckBatchOpts,
 ) ([]CheckResponse, error) {

@@ -378,13 +378,15 @@ func TestRBAC(t *testing.T) {
 	require.Len(t, adminRolePermissionsList.Data, 0)
 
 	adminUserHasPermission, err := Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: createPermission.ObjectType,
-			ObjectId:   createPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: adminUser.ObjectType,
-				ObjectId:   adminUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: createPermission.ObjectType,
+				ObjectId:   createPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: adminUser.ObjectType,
+					ObjectId:   adminUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -424,13 +426,15 @@ func TestRBAC(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	adminUserHasPermission, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: createPermission.ObjectType,
-			ObjectId:   createPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: adminUser.ObjectType,
-				ObjectId:   adminUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: createPermission.ObjectType,
+				ObjectId:   createPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: adminUser.ObjectType,
+					ObjectId:   adminUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -504,13 +508,15 @@ func TestRBAC(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	adminUserHasPermission, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: createPermission.ObjectType,
-			ObjectId:   createPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: adminUser.ObjectType,
-				ObjectId:   adminUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: createPermission.ObjectType,
+				ObjectId:   createPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: adminUser.ObjectType,
+					ObjectId:   adminUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -542,13 +548,15 @@ func TestRBAC(t *testing.T) {
 
 	// Assign view-report -> viewer user
 	viewerUserHasPermission, err := Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: viewPermission.ObjectType,
-			ObjectId:   viewPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: viewerUser.ObjectType,
-				ObjectId:   viewerUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: viewPermission.ObjectType,
+				ObjectId:   viewPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: viewerUser.ObjectType,
+					ObjectId:   viewerUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -583,13 +591,15 @@ func TestRBAC(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	viewerUserHasPermission, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: viewPermission.ObjectType,
-			ObjectId:   viewPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: viewerUser.ObjectType,
-				ObjectId:   viewerUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: viewPermission.ObjectType,
+				ObjectId:   viewPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: viewerUser.ObjectType,
+					ObjectId:   viewerUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -631,13 +641,15 @@ func TestRBAC(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	viewerUserHasPermission, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: viewPermission.ObjectType,
-			ObjectId:   viewPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: viewerUser.ObjectType,
-				ObjectId:   viewerUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: viewPermission.ObjectType,
+				ObjectId:   viewPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: viewerUser.ObjectType,
+					ObjectId:   viewerUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -766,13 +778,15 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 
 	// Assign custom-feature -> paid user
 	paidUserHasFeature, err := Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: customFeature.ObjectType,
-			ObjectId:   customFeature.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: paidUser.ObjectType,
-				ObjectId:   paidUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: customFeature.ObjectType,
+				ObjectId:   customFeature.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: paidUser.ObjectType,
+					ObjectId:   paidUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -807,13 +821,15 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	paidUserHasFeature, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: customFeature.ObjectType,
-			ObjectId:   customFeature.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: paidUser.ObjectType,
-				ObjectId:   paidUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: customFeature.ObjectType,
+				ObjectId:   customFeature.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: paidUser.ObjectType,
+					ObjectId:   paidUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -854,13 +870,15 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	paidUserHasFeature, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: customFeature.ObjectType,
-			ObjectId:   customFeature.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: paidUser.ObjectType,
-				ObjectId:   paidUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: customFeature.ObjectType,
+				ObjectId:   customFeature.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: paidUser.ObjectType,
+					ObjectId:   paidUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -882,13 +900,15 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 
 	// Assign feature-1 -> free tier -> free user
 	freeUserHasFeature, err := Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: feature1.ObjectType,
-			ObjectId:   feature1.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: freeUser.ObjectType,
-				ObjectId:   freeUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: feature1.ObjectType,
+				ObjectId:   feature1.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: freeUser.ObjectType,
+					ObjectId:   freeUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -947,13 +967,15 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	freeUserHasFeature, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: feature1.ObjectType,
-			ObjectId:   feature1.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: freeUser.ObjectType,
-				ObjectId:   freeUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: feature1.ObjectType,
+				ObjectId:   feature1.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: freeUser.ObjectType,
+					ObjectId:   freeUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -1022,13 +1044,15 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	freeUserHasFeature, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: feature1.ObjectType,
-			ObjectId:   feature1.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: freeUser.ObjectType,
-				ObjectId:   freeUser.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: feature1.ObjectType,
+				ObjectId:   feature1.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: freeUser.ObjectType,
+					ObjectId:   freeUser.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -1140,13 +1164,15 @@ func TestWarrants(t *testing.T) {
 	}
 
 	userHasPermission, err := Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: newPermission.ObjectType,
-			ObjectId:   newPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: user1.ObjectType,
-				ObjectId:   user1.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: newPermission.ObjectType,
+				ObjectId:   newPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: user1.ObjectType,
+					ObjectId:   user1.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -1229,13 +1255,15 @@ func TestWarrants(t *testing.T) {
 	require.Equal(t, user1.ObjectId, warrants3.Data[0].Subject.ObjectId)
 
 	userHasPermission, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: newPermission.ObjectType,
-			ObjectId:   newPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: user1.ObjectType,
-				ObjectId:   user1.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: newPermission.ObjectType,
+				ObjectId:   newPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: user1.ObjectType,
+					ObjectId:   user1.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -1273,13 +1301,15 @@ func TestWarrants(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	userHasPermission, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: newPermission.ObjectType,
-			ObjectId:   newPermission.ObjectId,
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: user1.ObjectType,
-				ObjectId:   user1.ObjectId,
+		Checks: []WarrantCheck{
+			{
+				ObjectType: newPermission.ObjectType,
+				ObjectId:   newPermission.ObjectId,
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: user1.ObjectType,
+					ObjectId:   user1.ObjectId,
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -1345,8 +1375,8 @@ func TestBatchWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	userHasPermissions, err := BatchCheck(context.Background(), CheckBatchOpts{
-		Warrants: []WarrantCheck{
+	userHasPermissions, err := CheckBatch(context.Background(), CheckBatchOpts{
+		Checks: []WarrantCheck{
 			{
 				ObjectType: permission1.ObjectType,
 				ObjectId:   permission1.ObjectId,
@@ -1401,8 +1431,8 @@ func TestBatchWarrants(t *testing.T) {
 	}
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
-	userHasPermissions, err = BatchCheck(context.Background(), CheckBatchOpts{
-		Warrants: []WarrantCheck{
+	userHasPermissions, err = CheckBatch(context.Background(), CheckBatchOpts{
+		Checks: []WarrantCheck{
 			{
 				ObjectType: permission1.ObjectType,
 				ObjectId:   permission1.ObjectId,
@@ -1458,8 +1488,8 @@ func TestBatchWarrants(t *testing.T) {
 	}
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
-	userHasPermissions, err = BatchCheck(context.Background(), CheckBatchOpts{
-		Warrants: []WarrantCheck{
+	userHasPermissions, err = CheckBatch(context.Background(), CheckBatchOpts{
+		Checks: []WarrantCheck{
 			{
 				ObjectType: permission1.ObjectType,
 				ObjectId:   permission1.ObjectId,
@@ -1531,16 +1561,18 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	checkResult, err := Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: "permission",
-			ObjectId:   "test-permission",
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: "user",
-				ObjectId:   "user-1",
-			},
-			Context: map[string]interface{}{
-				"geo": "us",
+		Checks: []WarrantCheck{
+			{
+				ObjectType: "permission",
+				ObjectId:   "test-permission",
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: "user",
+					ObjectId:   "user-1",
+				},
+				Context: map[string]interface{}{
+					"geo": "us",
+				},
 			},
 		},
 		WarrantToken: "latest",
@@ -1551,16 +1583,18 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	require.True(t, checkResult.Authorized())
 
 	checkResult, err = Check(context.Background(), CheckOpts{
-		Warrant: WarrantCheck{
-			ObjectType: "permission",
-			ObjectId:   "test-permission",
-			Relation:   "member",
-			Subject: Subject{
-				ObjectType: "user",
-				ObjectId:   "user-1",
-			},
-			Context: map[string]interface{}{
-				"geo": "eu",
+		Checks: []WarrantCheck{
+			{
+				ObjectType: "permission",
+				ObjectId:   "test-permission",
+				Relation:   "member",
+				Subject: Subject{
+					ObjectType: "user",
+					ObjectId:   "user-1",
+				},
+				Context: map[string]interface{}{
+					"geo": "eu",
+				},
 			},
 		},
 		WarrantToken: "latest",

@@ -1118,7 +1118,7 @@ func TestCheckBatch(t *testing.T) {
 				APIKey: "test",
 			},
 			options: CheckBatchOpts{
-				Warrants: []WarrantCheck{
+				Checks: []WarrantCheck{
 					{
 						ObjectType: "report",
 						ObjectId:   "ljc_1029",

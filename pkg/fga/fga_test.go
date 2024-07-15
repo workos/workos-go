@@ -342,8 +342,8 @@ func TestFGABatchWriteWarrants(t *testing.T) {
 	require.Equal(t, expectedResponse, warrantResponse)
 }
 
-func TestFGACheckMany(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(checkManyTestHandler))
+func TestFGACheck(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(checkTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -352,7 +352,7 @@ func TestFGACheckMany(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	checkResponse, err := CheckMany(context.Background(), CheckManyOpts{
+	checkResponse, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
 				ObjectType: "report",
@@ -370,8 +370,8 @@ func TestFGACheckMany(t *testing.T) {
 	require.True(t, checkResponse.Authorized())
 }
 
-func TestFGABatchCheck(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(batchCheckTestHandler))
+func TestFGACheckBatch(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(checkBatchTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -380,8 +380,8 @@ func TestFGABatchCheck(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	checkResponses, err := BatchCheck(context.Background(), CheckBatchOpts{
-		Warrants: []WarrantCheck{
+	checkResponses, err := CheckBatch(context.Background(), CheckBatchOpts{
+		Checks: []WarrantCheck{
 			{
 				ObjectType: "report",
 				ObjectId:   "ljc_1029",

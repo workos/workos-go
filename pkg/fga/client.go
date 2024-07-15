@@ -306,7 +306,7 @@ type CheckOpts struct {
 
 type CheckBatchOpts struct {
 	// List of warrants to check.
-	Warrants []WarrantCheck `json:"warrants"`
+	Checks []WarrantCheck `json:"warrants"`
 
 	// Flag to include debug information in the response.
 	Debug bool `json:"debug,omitempty"`
@@ -818,7 +818,7 @@ func (c *Client) CheckBatch(ctx context.Context, opts CheckBatchOpts) ([]CheckRe
 
 	checkOpts := CheckOpts{
 		Op:           "batch",
-		Checks:       opts.Warrants,
+		Checks:       opts.Checks,
 		Debug:        opts.Debug,
 		WarrantToken: opts.WarrantToken,
 	}
