@@ -113,9 +113,9 @@ func CheckMany(
 // BatchCheck performs individual access checks on multiple Warrants in one request.
 func BatchCheck(
 	ctx context.Context,
-	opts BatchCheckOpts,
+	opts CheckBatchOpts,
 ) ([]CheckResponse, error) {
-	return DefaultClient.BatchCheck(ctx, opts)
+	return DefaultClient.CheckBatch(ctx, opts)
 }
 
 // Query performs a query for a set of resources.

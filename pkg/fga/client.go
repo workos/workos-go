@@ -315,7 +315,7 @@ type CheckManyOpts struct {
 	WarrantToken string `json:"-"`
 }
 
-type BatchCheckOpts struct {
+type CheckBatchOpts struct {
 	// List of warrants to check.
 	Warrants []WarrantCheck `json:"warrants"`
 
@@ -832,7 +832,7 @@ func (c *Client) CheckMany(ctx context.Context, opts CheckManyOpts) (CheckRespon
 	return checkResponse, nil
 }
 
-func (c *Client) BatchCheck(ctx context.Context, opts BatchCheckOpts) ([]CheckResponse, error) {
+func (c *Client) CheckBatch(ctx context.Context, opts CheckBatchOpts) ([]CheckResponse, error) {
 	c.once.Do(c.init)
 
 	checkOpts := CheckManyOpts{

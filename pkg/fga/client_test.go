@@ -1099,11 +1099,11 @@ func checkManyTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestBatchCheck(t *testing.T) {
+func TestCheckBatch(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  BatchCheckOpts
+		options  CheckBatchOpts
 		expected []CheckResponse
 		err      bool
 	}{
@@ -1117,7 +1117,7 @@ func TestBatchCheck(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: BatchCheckOpts{
+			options: CheckBatchOpts{
 				Warrants: []WarrantCheck{
 					{
 						ObjectType: "report",
@@ -1156,14 +1156,14 @@ func TestBatchCheck(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(batchCheckTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(checkBatchTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			checkResults, err := client.BatchCheck(context.Background(), test.options)
+			checkResults, err := client.CheckBatch(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1174,7 +1174,7 @@ func TestBatchCheck(t *testing.T) {
 	}
 }
 
-func batchCheckTestHandler(w http.ResponseWriter, r *http.Request) {
+func checkBatchTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)

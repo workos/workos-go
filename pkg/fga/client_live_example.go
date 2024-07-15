@@ -1345,7 +1345,7 @@ func TestBatchWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	userHasPermissions, err := BatchCheck(context.Background(), BatchCheckOpts{
+	userHasPermissions, err := BatchCheck(context.Background(), CheckBatchOpts{
 		Warrants: []WarrantCheck{
 			{
 				ObjectType: permission1.ObjectType,
@@ -1401,7 +1401,7 @@ func TestBatchWarrants(t *testing.T) {
 	}
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
-	userHasPermissions, err = BatchCheck(context.Background(), BatchCheckOpts{
+	userHasPermissions, err = BatchCheck(context.Background(), CheckBatchOpts{
 		Warrants: []WarrantCheck{
 			{
 				ObjectType: permission1.ObjectType,
@@ -1458,7 +1458,7 @@ func TestBatchWarrants(t *testing.T) {
 	}
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
-	userHasPermissions, err = BatchCheck(context.Background(), BatchCheckOpts{
+	userHasPermissions, err = BatchCheck(context.Background(), CheckBatchOpts{
 		Warrants: []WarrantCheck{
 			{
 				ObjectType: permission1.ObjectType,

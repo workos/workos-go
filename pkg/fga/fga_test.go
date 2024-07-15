@@ -380,7 +380,7 @@ func TestFGABatchCheck(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	checkResponses, err := BatchCheck(context.Background(), BatchCheckOpts{
+	checkResponses, err := BatchCheck(context.Background(), CheckBatchOpts{
 		Warrants: []WarrantCheck{
 			{
 				ObjectType: "report",
