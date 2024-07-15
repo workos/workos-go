@@ -353,7 +353,7 @@ func TestFGACheckMany(t *testing.T) {
 	SetAPIKey("test")
 
 	checkResponse, err := CheckMany(context.Background(), CheckManyOpts{
-		Warrants: []WarrantCheck{
+		Checks: []WarrantCheck{
 			{
 				ObjectType: "report",
 				ObjectId:   "ljc_1029",

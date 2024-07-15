@@ -1031,7 +1031,7 @@ func TestCheckMany(t *testing.T) {
 				APIKey: "test",
 			},
 			options: CheckManyOpts{
-				Warrants: []WarrantCheck{
+				Checks: []WarrantCheck{
 					{
 						ObjectType: "report",
 						ObjectId:   "ljc_1029",

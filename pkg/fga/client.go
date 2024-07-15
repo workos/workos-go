@@ -33,7 +33,7 @@ type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
 	APIKey string
 
-	// The http.Client that is used to get Directory Sync records from WorkOS.
+	// The http.Client that is used to get FGA records from WorkOS.
 	// Defaults to http.Client.
 	HTTPClient *http.Client
 
@@ -306,7 +306,7 @@ type CheckManyOpts struct {
 	Op string `json:"op,omitempty"`
 
 	// List of warrants to check.
-	Warrants []WarrantCheck `json:"warrants"`
+	Checks []WarrantCheck `json:"checks"`
 
 	// Flag to include debug information in the response.
 	Debug bool `json:"debug,omitempty"`
@@ -772,7 +772,7 @@ func (c *Client) BatchWriteWarrants(ctx context.Context, opts []WriteWarrantOpts
 
 func (c *Client) Check(ctx context.Context, opts CheckOpts) (CheckResponse, error) {
 	return c.CheckMany(ctx, CheckManyOpts{
-		Warrants:     []WarrantCheck{opts.Warrant},
+		Checks:       []WarrantCheck{opts.Warrant},
 		Debug:        opts.Debug,
 		WarrantToken: opts.WarrantToken,
 	})
@@ -825,7 +825,7 @@ func (c *Client) BatchCheck(ctx context.Context, opts BatchCheckOpts) ([]CheckRe
 
 	checkOpts := CheckManyOpts{
 		Op:           "batch",
-		Warrants:     opts.Warrants,
+		Checks:       opts.Warrants,
 		Debug:        opts.Debug,
 		WarrantToken: opts.WarrantToken,
 	}
