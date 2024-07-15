@@ -291,17 +291,6 @@ type WarrantCheck struct {
 }
 
 type CheckOpts struct {
-	// Warrant to check
-	Warrant WarrantCheck `json:"warrant_check"`
-
-	// Flag to include debug information in the response.
-	Debug bool `json:"debug,omitempty"`
-
-	// Optional token to specify desired read consistency
-	WarrantToken string `json:"-"`
-}
-
-type CheckManyOpts struct {
 	// The operator to use for the given warrants.
 	Op string `json:"op,omitempty"`
 
@@ -783,14 +772,6 @@ func (c *Client) BatchWriteWarrants(ctx context.Context, opts []WriteWarrantOpts
 }
 
 func (c *Client) Check(ctx context.Context, opts CheckOpts) (CheckResponse, error) {
-	return c.CheckMany(ctx, CheckManyOpts{
-		Checks:       []WarrantCheck{opts.Warrant},
-		Debug:        opts.Debug,
-		WarrantToken: opts.WarrantToken,
-	})
-}
-
-func (c *Client) CheckMany(ctx context.Context, opts CheckManyOpts) (CheckResponse, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)
@@ -835,7 +816,7 @@ func (c *Client) CheckMany(ctx context.Context, opts CheckManyOpts) (CheckRespon
 func (c *Client) CheckBatch(ctx context.Context, opts CheckBatchOpts) ([]CheckResponse, error) {
 	c.once.Do(c.init)
 
-	checkOpts := CheckManyOpts{
+	checkOpts := CheckOpts{
 		Op:           "batch",
 		Checks:       opts.Warrants,
 		Debug:        opts.Debug,

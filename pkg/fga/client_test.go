@@ -1012,11 +1012,11 @@ func writeWarrantTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCheckMany(t *testing.T) {
+func TestCheck(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CheckManyOpts
+		options  CheckOpts
 		expected CheckResponse
 		err      bool
 	}{
@@ -1030,7 +1030,7 @@ func TestCheckMany(t *testing.T) {
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CheckManyOpts{
+			options: CheckOpts{
 				Checks: []WarrantCheck{
 					{
 						ObjectType: "report",
@@ -1053,14 +1053,14 @@ func TestCheckMany(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(checkManyTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(checkTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			checkResult, err := client.CheckMany(context.Background(), test.options)
+			checkResult, err := client.Check(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -1071,7 +1071,7 @@ func TestCheckMany(t *testing.T) {
 	}
 }
 
-func checkManyTestHandler(w http.ResponseWriter, r *http.Request) {
+func checkTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
