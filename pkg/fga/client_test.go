@@ -13,12 +13,12 @@ import (
 	"github.com/workos/workos-go/v4/pkg/common"
 )
 
-func TestGetObject(t *testing.T) {
+func TestGetResource(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  GetObjectOpts
-		expected Object
+		options  GetResourceOpts
+		expected Resource
 		err      bool
 	}{
 		{
@@ -27,51 +27,51 @@ func TestGetObject(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns an Object",
+			scenario: "Request returns an Resource",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: GetObjectOpts{
-				ObjectType: "report",
-				ObjectId:   "ljc_1029",
+			options: GetResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
 			},
-			expected: Object{
-				ObjectType: "report",
-				ObjectId:   "ljc_1029",
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getObjectTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			object, err := client.GetObject(context.Background(), test.options)
+			resource, err := client.GetResource(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, object)
+			require.Equal(t, test.expected, resource)
 		})
 	}
 }
 
-func getObjectTestHandler(w http.ResponseWriter, r *http.Request) {
+func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
 		return
 	}
 
-	body, err := json.Marshal(Object{
-		ObjectType: "report",
-		ObjectId:   "ljc_1029",
+	body, err := json.Marshal(Resource{
+		ResourceType: "report",
+		ResourceId:   "ljc_1029",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -82,12 +82,12 @@ func getObjectTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestListObjects(t *testing.T) {
+func TestListResources(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  ListObjectsOpts
-		expected ListObjectsResponse
+		options  ListResourcesOpts
+		expected ListResourcesResponse
 		err      bool
 	}{
 		{
@@ -96,23 +96,23 @@ func TestListObjects(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Objects",
+			scenario: "Request returns Resources",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: ListObjectsOpts{
-				ObjectType: "report",
+			options: ListResourcesOpts{
+				ResourceType: "report",
 			},
 
-			expected: ListObjectsResponse{
-				Data: []Object{
+			expected: ListResourcesResponse{
+				Data: []Resource{
 					{
-						ObjectType: "report",
-						ObjectId:   "ljc_1029",
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
 					},
 					{
-						ObjectType: "report",
-						ObjectId:   "mso_0806",
+						ResourceType: "report",
+						ResourceId:   "mso_0806",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -125,25 +125,25 @@ func TestListObjects(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(listObjectsTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listResourcesTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			objects, err := client.ListObjects(context.Background(), test.options)
+			resources, err := client.ListResources(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, objects)
+			require.Equal(t, test.expected, resources)
 		})
 	}
 }
 
-func listObjectsTestHandler(w http.ResponseWriter, r *http.Request) {
+func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -156,17 +156,17 @@ func listObjectsTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(struct {
-		ListObjectsResponse
+		ListResourcesResponse
 	}{
-		ListObjectsResponse: ListObjectsResponse{
-			Data: []Object{
+		ListResourcesResponse: ListResourcesResponse{
+			Data: []Resource{
 				{
-					ObjectType: "report",
-					ObjectId:   "ljc_1029",
+					ResourceType: "report",
+					ResourceId:   "ljc_1029",
 				},
 				{
-					ObjectType: "report",
-					ObjectId:   "mso_0806",
+					ResourceType: "report",
+					ResourceId:   "mso_0806",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -184,12 +184,12 @@ func listObjectsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestListObjectTypes(t *testing.T) {
+func TestListResourceTypes(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  ListObjectTypesOpts
-		expected ListObjectTypesResponse
+		options  ListResourceTypesOpts
+		expected ListResourceTypesResponse
 		err      bool
 	}{
 		{
@@ -198,16 +198,16 @@ func TestListObjectTypes(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns ObjectTypes",
+			scenario: "Request returns ResourceTypes",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: ListObjectTypesOpts{
+			options: ListResourceTypesOpts{
 				Order: "asc",
 			},
 
-			expected: ListObjectTypesResponse{
-				Data: []ObjectType{
+			expected: ListResourceTypesResponse{
+				Data: []ResourceType{
 					{
 						Type: "report",
 						Relations: map[string]interface{}{
@@ -235,25 +235,25 @@ func TestListObjectTypes(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(listObjectTypesTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(listResourceTypesTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			objectTypes, err := client.ListObjectTypes(context.Background(), test.options)
+			resourceTypes, err := client.ListResourceTypes(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, objectTypes)
+			require.Equal(t, test.expected, resourceTypes)
 		})
 	}
 }
 
-func listObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+func listResourceTypesTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -266,10 +266,10 @@ func listObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(struct {
-		ListObjectTypesResponse
+		ListResourceTypesResponse
 	}{
-		ListObjectTypesResponse: ListObjectTypesResponse{
-			Data: []ObjectType{
+		ListResourceTypesResponse: ListResourceTypesResponse{
+			Data: []ResourceType{
 				{
 					Type: "report",
 					Relations: map[string]interface{}{
@@ -302,12 +302,12 @@ func listObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestBatchUpdateObjectTypes(t *testing.T) {
+func TestBatchUpdateResourceTypes(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  []UpdateObjectTypeOpts
-		expected []ObjectType
+		options  []UpdateResourceTypeOpts
+		expected []ResourceType
 		err      bool
 	}{
 		{
@@ -316,11 +316,11 @@ func TestBatchUpdateObjectTypes(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns ObjectTypes",
+			scenario: "Request returns ResourceTypes",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: []UpdateObjectTypeOpts{
+			options: []UpdateResourceTypeOpts{
 				{
 					Type: "report",
 					Relations: map[string]interface{}{
@@ -339,7 +339,7 @@ func TestBatchUpdateObjectTypes(t *testing.T) {
 				},
 			},
 
-			expected: []ObjectType{
+			expected: []ResourceType{
 				{
 					Type: "report",
 					Relations: map[string]interface{}{
@@ -362,25 +362,25 @@ func TestBatchUpdateObjectTypes(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(batchUpdateObjectTypesTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(batchUpdateResourceTypesTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			objectTypes, err := client.BatchUpdateObjectTypes(context.Background(), test.options)
+			resourceTypes, err := client.BatchUpdateResourceTypes(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, objectTypes)
+			require.Equal(t, test.expected, resourceTypes)
 		})
 	}
 }
 
-func batchUpdateObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+func batchUpdateResourceTypesTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -392,7 +392,7 @@ func batchUpdateObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal([]ObjectType{
+	body, err := json.Marshal([]ResourceType{
 		{
 			Type: "report",
 			Relations: map[string]interface{}{
@@ -419,12 +419,12 @@ func batchUpdateObjectTypesTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCreateObject(t *testing.T) {
+func TestCreateResource(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  CreateObjectOpts
-		expected Object
+		options  CreateResourceOpts
+		expected Resource
 		err      bool
 	}{
 		{
@@ -433,98 +433,98 @@ func TestCreateObject(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Object",
+			scenario: "Request returns Resource",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateObjectOpts{
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
+			options: CreateResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
 			},
-			expected: Object{
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
 			},
 		},
 		{
-			scenario: "Request returns Object with Metadata",
+			scenario: "Request returns Resource with Metadata",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateObjectOpts{
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
+			options: CreateResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
 				Meta: map[string]interface{}{
 					"description": "Some report",
 				},
 			},
-			expected: Object{
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
 				Meta: map[string]interface{}{
 					"description": "Some report",
 				},
 			},
 		},
 		{
-			scenario: "Request with no ObjectId returns an Object with generated report",
+			scenario: "Request with no ResourceId returns an Resource with generated report",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: CreateObjectOpts{
-				ObjectType: "report",
+			options: CreateResourceOpts{
+				ResourceType: "report",
 			},
-			expected: Object{
-				ObjectType: "report",
-				ObjectId:   "report_1029384756",
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "report_1029384756",
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createObjectTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(createResourceTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			object, err := client.CreateObject(context.Background(), test.options)
+			resource, err := client.CreateResource(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, object)
+			require.Equal(t, test.expected, resource)
 		})
 	}
 }
 
-func createObjectTestHandler(w http.ResponseWriter, r *http.Request) {
+func createResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
 		return
 	}
 
-	var opts CreateObjectOpts
+	var opts CreateResourceOpts
 	json.NewDecoder(r.Body).Decode(&opts)
 	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	objectId := "sso_1710"
-	if opts.ObjectId == "" {
-		objectId = "report_1029384756"
+	resourceId := "sso_1710"
+	if opts.ResourceId == "" {
+		resourceId = "report_1029384756"
 	}
 
 	body, err := json.Marshal(
-		Object{
-			ObjectType: "report",
-			ObjectId:   objectId,
-			Meta:       opts.Meta,
+		Resource{
+			ResourceType: "report",
+			ResourceId:   resourceId,
+			Meta:         opts.Meta,
 		})
 
 	if err != nil {
@@ -536,12 +536,12 @@ func createObjectTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestUpdateObject(t *testing.T) {
+func TestUpdateResource(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  UpdateObjectOpts
-		expected Object
+		options  UpdateResourceOpts
+		expected Resource
 		err      bool
 	}{
 		{
@@ -550,20 +550,20 @@ func TestUpdateObject(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Object with updated Meta",
+			scenario: "Request returns Resource with updated Meta",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: UpdateObjectOpts{
-				ObjectType: "report",
-				ObjectId:   "lad_8812",
+			options: UpdateResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "lad_8812",
 				Meta: map[string]interface{}{
 					"description": "Updated report",
 				},
 			},
-			expected: Object{
-				ObjectType: "report",
-				ObjectId:   "lad_8812",
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "lad_8812",
 				Meta: map[string]interface{}{
 					"description": "Updated report",
 				},
@@ -573,25 +573,25 @@ func TestUpdateObject(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(updateObjectTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			object, err := client.UpdateObject(context.Background(), test.options)
+			resource, err := client.UpdateResource(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, object)
+			require.Equal(t, test.expected, resource)
 		})
 	}
 }
 
-func updateObjectTestHandler(w http.ResponseWriter, r *http.Request) {
+func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -604,9 +604,9 @@ func updateObjectTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(
-		Object{
-			ObjectType: "report",
-			ObjectId:   "lad_8812",
+		Resource{
+			ResourceType: "report",
+			ResourceId:   "lad_8812",
 			Meta: map[string]interface{}{
 				"description": "Updated report",
 			},
@@ -621,11 +621,11 @@ func updateObjectTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestDeleteObject(t *testing.T) {
+func TestDeleteResource(t *testing.T) {
 	tests := []struct {
 		scenario string
 		client   *Client
-		options  DeleteObjectOpts
+		options  DeleteResourceOpts
 		expected error
 		err      bool
 	}{
@@ -635,39 +635,39 @@ func TestDeleteObject(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns Object",
+			scenario: "Request returns Resource",
 			client: &Client{
 				APIKey: "test",
 			},
-			options: DeleteObjectOpts{
-				ObjectType: "user",
-				ObjectId:   "user_01SXW182",
+			options: DeleteResourceOpts{
+				ResourceType: "user",
+				ResourceId:   "user_01SXW182",
 			},
 			expected: nil,
 		},
 		{
-			scenario: "Request for non-existent Object returns error",
+			scenario: "Request for non-existent Resource returns error",
 			client: &Client{
 				APIKey: "test",
 			},
 			err: true,
-			options: DeleteObjectOpts{
-				ObjectType: "user",
-				ObjectId:   "safgdfgs",
+			options: DeleteResourceOpts{
+				ResourceType: "user",
+				ResourceId:   "safgdfgs",
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(deleteObjectTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(deleteResourceTestHandler))
 			defer server.Close()
 
 			client := test.client
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			err := client.DeleteObject(context.Background(), test.options)
+			err := client.DeleteResource(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -678,23 +678,23 @@ func TestDeleteObject(t *testing.T) {
 	}
 }
 
-func deleteObjectTestHandler(w http.ResponseWriter, r *http.Request) {
+func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
 		return
 	}
 
-	var opts CreateObjectOpts
+	var opts CreateResourceOpts
 	json.NewDecoder(r.Body).Decode(&opts)
 
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/fga/v1/objects/user/user_01SXW182" {
+	if r.URL.Path == "/fga/v1/resources/user/user_01SXW182" {
 		body, err = nil, nil
 	} else {
-		http.Error(w, fmt.Sprintf("%s %s not found", opts.ObjectType, opts.ObjectId), http.StatusNotFound)
+		http.Error(w, fmt.Sprintf("%s %s not found", opts.ResourceType, opts.ResourceId), http.StatusNotFound)
 		return
 	}
 
@@ -726,27 +726,27 @@ func TestListWarrants(t *testing.T) {
 				APIKey: "test",
 			},
 			options: ListWarrantsOpts{
-				ObjectType: "report",
+				ResourceType: "report",
 			},
 
 			expected: ListWarrantsResponse{
 				Data: []Warrant{
 					{
-						ObjectType: "report",
-						ObjectId:   "ljc_1029",
-						Relation:   "member",
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+						Relation:     "member",
 						Subject: Subject{
-							ObjectType: "user",
-							ObjectId:   "user_01SXW182",
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
 						},
 					},
 					{
-						ObjectType: "report",
-						ObjectId:   "aut_7403",
-						Relation:   "member",
+						ResourceType: "report",
+						ResourceId:   "aut_7403",
+						Relation:     "member",
 						Subject: Subject{
-							ObjectType: "user",
-							ObjectId:   "user_01SXW182",
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
 						},
 					},
 				},
@@ -767,13 +767,13 @@ func TestListWarrants(t *testing.T) {
 			client.Endpoint = server.URL
 			client.HTTPClient = server.Client()
 
-			objects, err := client.ListWarrants(context.Background(), test.options)
+			resources, err := client.ListWarrants(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, test.expected, objects)
+			require.Equal(t, test.expected, resources)
 		})
 	}
 }
@@ -796,21 +796,21 @@ func listWarrantsTestHandler(w http.ResponseWriter, r *http.Request) {
 		ListWarrantsResponse: ListWarrantsResponse{
 			Data: []Warrant{
 				{
-					ObjectType: "report",
-					ObjectId:   "ljc_1029",
-					Relation:   "member",
+					ResourceType: "report",
+					ResourceId:   "ljc_1029",
+					Relation:     "member",
 					Subject: Subject{
-						ObjectType: "user",
-						ObjectId:   "user_01SXW182",
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
 					},
 				},
 				{
-					ObjectType: "report",
-					ObjectId:   "aut_7403",
-					Relation:   "member",
+					ResourceType: "report",
+					ResourceId:   "aut_7403",
+					Relation:     "member",
 					Subject: Subject{
-						ObjectType: "user",
-						ObjectId:   "user_01SXW182",
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
 					},
 				},
 			},
@@ -848,12 +848,12 @@ func TestWriteWarrant(t *testing.T) {
 				APIKey: "test",
 			},
 			options: WriteWarrantOpts{
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
-				Relation:   "member",
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 			expected: WriteWarrantResponse{
@@ -866,13 +866,13 @@ func TestWriteWarrant(t *testing.T) {
 				APIKey: "test",
 			},
 			options: WriteWarrantOpts{
-				Op:         "create",
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
-				Relation:   "member",
+				Op:           "create",
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 			expected: WriteWarrantResponse{
@@ -885,13 +885,13 @@ func TestWriteWarrant(t *testing.T) {
 				APIKey: "test",
 			},
 			options: WriteWarrantOpts{
-				Op:         "delete",
-				ObjectType: "report",
-				ObjectId:   "sso_1710",
-				Relation:   "member",
+				Op:           "delete",
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 			expected: WriteWarrantResponse{
@@ -940,23 +940,23 @@ func TestBatchWriteWarrants(t *testing.T) {
 			},
 			options: []WriteWarrantOpts{
 				{
-					Op:         "delete",
-					ObjectType: "report",
-					ObjectId:   "sso_1710",
-					Relation:   "viewer",
+					Op:           "delete",
+					ResourceType: "report",
+					ResourceId:   "sso_1710",
+					Relation:     "viewer",
 					Subject: Subject{
-						ObjectType: "user",
-						ObjectId:   "user_01SXW182",
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
 					},
 				},
 				{
-					Op:         "create",
-					ObjectType: "report",
-					ObjectId:   "sso_1710",
-					Relation:   "editor",
+					Op:           "create",
+					ResourceType: "report",
+					ResourceId:   "sso_1710",
+					Relation:     "editor",
 					Subject: Subject{
-						ObjectType: "user",
-						ObjectId:   "user_01SXW182",
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
 					},
 				},
 			},
@@ -1033,12 +1033,12 @@ func TestCheck(t *testing.T) {
 			options: CheckOpts{
 				Checks: []WarrantCheck{
 					{
-						ObjectType: "report",
-						ObjectId:   "ljc_1029",
-						Relation:   "member",
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+						Relation:     "member",
 						Subject: Subject{
-							ObjectType: "user",
-							ObjectId:   "user_01SXW182",
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
 						},
 					},
 				},
@@ -1120,21 +1120,21 @@ func TestCheckBatch(t *testing.T) {
 			options: CheckBatchOpts{
 				Checks: []WarrantCheck{
 					{
-						ObjectType: "report",
-						ObjectId:   "ljc_1029",
-						Relation:   "member",
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+						Relation:     "member",
 						Subject: Subject{
-							ObjectType: "user",
-							ObjectId:   "user_01SXW182",
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
 						},
 					},
 					{
-						ObjectType: "report",
-						ObjectId:   "spt_8521",
-						Relation:   "member",
+						ResourceType: "report",
+						ResourceId:   "spt_8521",
+						Relation:     "member",
 						Subject: Subject{
-							ObjectType: "user",
-							ObjectId:   "user_01SXW182",
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
 						},
 					},
 				},
@@ -1233,16 +1233,16 @@ func TestQuery(t *testing.T) {
 			expected: QueryResponse{
 				Data: []QueryResult{
 					{
-						ObjectType: "role",
-						ObjectId:   "role_01SXW182",
-						Relation:   "member",
+						ResourceType: "role",
+						ResourceId:   "role_01SXW182",
+						Relation:     "member",
 						Warrant: Warrant{
-							ObjectType: "role",
-							ObjectId:   "role_01SXW182",
-							Relation:   "member",
+							ResourceType: "role",
+							ResourceId:   "role_01SXW182",
+							Relation:     "member",
 							Subject: Subject{
-								ObjectType: "user",
-								ObjectId:   "user_01SXW182",
+								ResourceType: "user",
+								ResourceId:   "user_01SXW182",
 							},
 						},
 					},
@@ -1293,16 +1293,16 @@ func queryTestHandler(w http.ResponseWriter, r *http.Request) {
 		QueryResponse: QueryResponse{
 			Data: []QueryResult{
 				{
-					ObjectType: "role",
-					ObjectId:   "role_01SXW182",
-					Relation:   "member",
+					ResourceType: "role",
+					ResourceId:   "role_01SXW182",
+					Relation:     "member",
 					Warrant: Warrant{
-						ObjectType: "role",
-						ObjectId:   "role_01SXW182",
-						Relation:   "member",
+						ResourceType: "role",
+						ResourceId:   "role_01SXW182",
+						Relation:     "member",
 						Subject: Subject{
-							ObjectType: "user",
-							ObjectId:   "user_01SXW182",
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
 						},
 					},
 				},

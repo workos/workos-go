@@ -10,8 +10,8 @@ import (
 	"github.com/workos/workos-go/v4/pkg/common"
 )
 
-func TestFGAGetObject(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getObjectTestHandler))
+func TestFGAGetResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -20,21 +20,21 @@ func TestFGAGetObject(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := Object{
-		ObjectType: "report",
-		ObjectId:   "ljc_1029",
+	expectedResponse := Resource{
+		ResourceType: "report",
+		ResourceId:   "ljc_1029",
 	}
-	objectResponse, err := GetObject(context.Background(), GetObjectOpts{
-		ObjectType: "report",
-		ObjectId:   "ljc_1029",
+	resourceResponse, err := GetResource(context.Background(), GetResourceOpts{
+		ResourceType: "report",
+		ResourceId:   "ljc_1029",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, objectResponse)
+	require.Equal(t, expectedResponse, resourceResponse)
 }
 
-func TestFGAListObjects(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listObjectsTestHandler))
+func TestFGAListResources(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listResourcesTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -43,15 +43,15 @@ func TestFGAListObjects(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := ListObjectsResponse{
-		Data: []Object{
+	expectedResponse := ListResourcesResponse{
+		Data: []Resource{
 			{
-				ObjectType: "report",
-				ObjectId:   "ljc_1029",
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
 			},
 			{
-				ObjectType: "report",
-				ObjectId:   "mso_0806",
+				ResourceType: "report",
+				ResourceId:   "mso_0806",
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -59,16 +59,16 @@ func TestFGAListObjects(t *testing.T) {
 			After:  "",
 		},
 	}
-	objectsResponse, err := ListObjects(context.Background(), ListObjectsOpts{
-		ObjectType: "report",
+	resourcesResponse, err := ListResources(context.Background(), ListResourcesOpts{
+		ResourceType: "report",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, objectsResponse)
+	require.Equal(t, expectedResponse, resourcesResponse)
 }
 
-func TestFGACreateObject(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createObjectTestHandler))
+func TestFGACreateResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createResourceTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -77,21 +77,21 @@ func TestFGACreateObject(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := Object{
-		ObjectType: "report",
-		ObjectId:   "sso_1710",
+	expectedResponse := Resource{
+		ResourceType: "report",
+		ResourceId:   "sso_1710",
 	}
-	createdObject, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "report",
-		ObjectId:   "sso_1710",
+	createdResource, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "report",
+		ResourceId:   "sso_1710",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, createdObject)
+	require.Equal(t, expectedResponse, createdResource)
 }
 
-func TestFGAUpdateObject(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updateObjectTestHandler))
+func TestFGAUpdateResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -100,27 +100,27 @@ func TestFGAUpdateObject(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := Object{
-		ObjectType: "report",
-		ObjectId:   "lad_8812",
+	expectedResponse := Resource{
+		ResourceType: "report",
+		ResourceId:   "lad_8812",
 		Meta: map[string]interface{}{
 			"description": "Updated report",
 		},
 	}
-	updatedObject, err := UpdateObject(context.Background(), UpdateObjectOpts{
-		ObjectType: "report",
-		ObjectId:   "lad_8812",
+	updatedResource, err := UpdateResource(context.Background(), UpdateResourceOpts{
+		ResourceType: "report",
+		ResourceId:   "lad_8812",
 		Meta: map[string]interface{}{
 			"description": "Updated report",
 		},
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, updatedObject)
+	require.Equal(t, expectedResponse, updatedResource)
 }
 
-func TestFGADeleteObject(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(deleteObjectTestHandler))
+func TestFGADeleteResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteResourceTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -129,16 +129,16 @@ func TestFGADeleteObject(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	err := DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: "user",
-		ObjectId:   "user_01SXW182",
+	err := DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "user_01SXW182",
 	})
 
 	require.NoError(t, err)
 }
 
-func TestFGAListObjectTypes(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listObjectTypesTestHandler))
+func TestFGAListResourceTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listResourceTypesTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -147,8 +147,8 @@ func TestFGAListObjectTypes(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := ListObjectTypesResponse{
-		Data: []ObjectType{
+	expectedResponse := ListResourceTypesResponse{
+		Data: []ResourceType{
 			{
 				Type: "report",
 				Relations: map[string]interface{}{
@@ -171,16 +171,16 @@ func TestFGAListObjectTypes(t *testing.T) {
 			After:  "",
 		},
 	}
-	objectTypesResponse, err := ListObjectTypes(context.Background(), ListObjectTypesOpts{
+	resourceTypesResponse, err := ListResourceTypes(context.Background(), ListResourceTypesOpts{
 		Order: "asc",
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, objectTypesResponse)
+	require.Equal(t, expectedResponse, resourceTypesResponse)
 }
 
-func TestFGABatchUpdateObjectTypes(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(batchUpdateObjectTypesTestHandler))
+func TestFGABatchUpdateResourceTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(batchUpdateResourceTypesTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -189,7 +189,7 @@ func TestFGABatchUpdateObjectTypes(t *testing.T) {
 	}
 	SetAPIKey("test")
 
-	expectedResponse := []ObjectType{
+	expectedResponse := []ResourceType{
 		{
 			Type: "report",
 			Relations: map[string]interface{}{
@@ -207,7 +207,7 @@ func TestFGABatchUpdateObjectTypes(t *testing.T) {
 			Relations: map[string]interface{}{},
 		},
 	}
-	objectTypes, err := BatchUpdateObjectTypes(context.Background(), []UpdateObjectTypeOpts{
+	resourceTypes, err := BatchUpdateResourceTypes(context.Background(), []UpdateResourceTypeOpts{
 		{
 			Type: "report",
 			Relations: map[string]interface{}{
@@ -227,7 +227,7 @@ func TestFGABatchUpdateObjectTypes(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse, objectTypes)
+	require.Equal(t, expectedResponse, resourceTypes)
 }
 
 func TestFGAListWarrants(t *testing.T) {
@@ -243,21 +243,21 @@ func TestFGAListWarrants(t *testing.T) {
 	expectedResponse := ListWarrantsResponse{
 		Data: []Warrant{
 			{
-				ObjectType: "report",
-				ObjectId:   "ljc_1029",
-				Relation:   "member",
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 			{
-				ObjectType: "report",
-				ObjectId:   "aut_7403",
-				Relation:   "member",
+				ResourceType: "report",
+				ResourceId:   "aut_7403",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 		},
@@ -267,7 +267,7 @@ func TestFGAListWarrants(t *testing.T) {
 		},
 	}
 	warrantsResponse, err := ListWarrants(context.Background(), ListWarrantsOpts{
-		ObjectType: "report",
+		ResourceType: "report",
 	})
 
 	require.NoError(t, err)
@@ -288,13 +288,13 @@ func TestFGAWriteWarrant(t *testing.T) {
 		WarrantToken: "new_warrant_token",
 	}
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "create",
-		ObjectType: "report",
-		ObjectId:   "sso_1710",
-		Relation:   "member",
+		Op:           "create",
+		ResourceType: "report",
+		ResourceId:   "sso_1710",
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: "user",
-			ObjectId:   "user_01SXW182",
+			ResourceType: "user",
+			ResourceId:   "user_01SXW182",
 		},
 	})
 
@@ -317,23 +317,23 @@ func TestFGABatchWriteWarrants(t *testing.T) {
 	}
 	warrantResponse, err := BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
 		{
-			Op:         "delete",
-			ObjectType: "report",
-			ObjectId:   "sso_1710",
-			Relation:   "viewer",
+			Op:           "delete",
+			ResourceType: "report",
+			ResourceId:   "sso_1710",
+			Relation:     "viewer",
 			Subject: Subject{
-				ObjectType: "user",
-				ObjectId:   "user_01SXW182",
+				ResourceType: "user",
+				ResourceId:   "user_01SXW182",
 			},
 		},
 		{
-			Op:         "create",
-			ObjectType: "report",
-			ObjectId:   "sso_1710",
-			Relation:   "editor",
+			Op:           "create",
+			ResourceType: "report",
+			ResourceId:   "sso_1710",
+			Relation:     "editor",
 			Subject: Subject{
-				ObjectType: "user",
-				ObjectId:   "user_01SXW182",
+				ResourceType: "user",
+				ResourceId:   "user_01SXW182",
 			},
 		},
 	})
@@ -355,12 +355,12 @@ func TestFGACheck(t *testing.T) {
 	checkResponse, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: "report",
-				ObjectId:   "ljc_1029",
-				Relation:   "member",
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 		},
@@ -383,12 +383,12 @@ func TestFGACheckBatch(t *testing.T) {
 	checkResponses, err := CheckBatch(context.Background(), CheckBatchOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: "report",
-				ObjectId:   "ljc_1029",
-				Relation:   "member",
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user_01SXW182",
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
 				},
 			},
 		},
@@ -413,16 +413,16 @@ func TestFGAQuery(t *testing.T) {
 	expectedResponse := QueryResponse{
 		Data: []QueryResult{
 			{
-				ObjectType: "role",
-				ObjectId:   "role_01SXW182",
-				Relation:   "member",
+				ResourceType: "role",
+				ResourceId:   "role_01SXW182",
+				Relation:     "member",
 				Warrant: Warrant{
-					ObjectType: "role",
-					ObjectId:   "role_01SXW182",
-					Relation:   "member",
+					ResourceType: "role",
+					ResourceId:   "role_01SXW182",
+					Relation:     "member",
 					Subject: Subject{
-						ObjectType: "user",
-						ObjectId:   "user_01SXW182",
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
 					},
 				},
 			},

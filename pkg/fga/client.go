@@ -60,31 +60,31 @@ func (c *Client) init() {
 	}
 }
 
-// Objects
-type Object struct {
-	// The type of the object.
-	ObjectType string `json:"object_type"`
+// Resources
+type Resource struct {
+	// The type of the resource.
+	ResourceType string `json:"resource_type"`
 
-	// The customer defined string identifier for this object.
-	ObjectId string `json:"object_id"`
+	// The customer defined string identifier for this resource.
+	ResourceId string `json:"resource_id"`
 
-	// Map containing additional information about this object.
+	// Map containing additional information about this resource.
 	Meta map[string]interface{} `json:"meta"`
 }
 
-type GetObjectOpts struct {
-	// The type of the object.
-	ObjectType string
+type GetResourceOpts struct {
+	// The type of the resource.
+	ResourceType string
 
-	// The customer defined string identifier for this object.
-	ObjectId string
+	// The customer defined string identifier for this resource.
+	ResourceId string
 }
 
-type ListObjectsOpts struct {
-	// The type of the object.
-	ObjectType string `url:"object_type,omitempty"`
+type ListResourcesOpts struct {
+	// The type of the resource.
+	ResourceType string `url:"resource_type,omitempty"`
 
-	// Searchable text for an Object. Can be empty.
+	// Searchable text for an Resource. Can be empty.
 	Search string `url:"search,omitempty"`
 
 	// Maximum number of records to return.
@@ -93,112 +93,112 @@ type ListObjectsOpts struct {
 	// The order in which to paginate records.
 	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided Object ID.
+	// Pagination cursor to receive records before a provided Resource ID.
 	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided Object ID.
+	// Pagination cursor to receive records after a provided Resource ID.
 	After string `url:"after,omitempty"`
 }
 
-// ListObjectsResponse describes the response structure when requesting Objects
-type ListObjectsResponse struct {
-	// List of provisioned Objects.
-	Data []Object `json:"data"`
+// ListResourcesResponse describes the response structure when requesting Resources
+type ListResourcesResponse struct {
+	// List of provisioned Resources.
+	Data []Resource `json:"data"`
 
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
-type CreateObjectOpts struct {
-	// The type of the object.
-	ObjectType string `json:"object_type"`
+type CreateResourceOpts struct {
+	// The type of the resource.
+	ResourceType string `json:"resource_type"`
 
-	// The customer defined string identifier for this object.
-	ObjectId string `json:"object_id,omitempty"`
+	// The customer defined string identifier for this resource.
+	ResourceId string `json:"resource_id,omitempty"`
 
-	// Map containing additional information about this object.
+	// Map containing additional information about this resource.
 	Meta map[string]interface{} `json:"meta,omitempty"`
 }
 
-type UpdateObjectOpts struct {
-	// The type of the object.
-	ObjectType string `json:"object_type"`
+type UpdateResourceOpts struct {
+	// The type of the resource.
+	ResourceType string `json:"resource_type"`
 
-	// The customer defined string identifier for this object.
-	ObjectId string `json:"object_id"`
+	// The customer defined string identifier for this resource.
+	ResourceId string `json:"resource_id"`
 
-	// Map containing additional information about this object.
+	// Map containing additional information about this resource.
 	Meta map[string]interface{} `json:"meta,omitempty"`
 }
 
-// DeleteObjectOpts contains the options to delete an object.
-type DeleteObjectOpts struct {
-	// The type of the object.
-	ObjectType string
+// DeleteResourceOpts contains the options to delete an resource.
+type DeleteResourceOpts struct {
+	// The type of the resource.
+	ResourceType string
 
-	// The customer defined string identifier for this object.
-	ObjectId string
+	// The customer defined string identifier for this resource.
+	ResourceId string
 }
 
-// Object types
-type ObjectType struct {
-	// Unique string ID of the object type.
+// Resource types
+type ResourceType struct {
+	// Unique string ID of the resource type.
 	Type string `json:"type"`
 
-	// Set of relationships that subjects can have on objects of this type.
+	// Set of relationships that subjects can have on resources of this type.
 	Relations map[string]interface{} `json:"relations"`
 }
 
-type ListObjectTypesOpts struct {
+type ListResourceTypesOpts struct {
 	// Maximum number of records to return.
 	Limit int `url:"limit,omitempty"`
 
 	// The order in which to paginate records.
 	Order Order `url:"order,omitempty"`
 
-	// Pagination cursor to receive records before a provided ObjectType ID.
+	// Pagination cursor to receive records before a provided ResourceType ID.
 	Before string `url:"before,omitempty"`
 
-	// Pagination cursor to receive records after a provided ObjectType ID.
+	// Pagination cursor to receive records after a provided ResourceType ID.
 	After string `url:"after,omitempty"`
 }
 
-type ListObjectTypesResponse struct {
-	// List of Object Types.
-	Data []ObjectType `json:"data"`
+type ListResourceTypesResponse struct {
+	// List of Resource Types.
+	Data []ResourceType `json:"data"`
 
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
-type UpdateObjectTypeOpts struct {
-	// Unique string ID of the object type.
+type UpdateResourceTypeOpts struct {
+	// Unique string ID of the resource type.
 	Type string `json:"type"`
 
-	// Set of relationships that subjects can have on objects of this type.
+	// Set of relationships that subjects can have on resources of this type.
 	Relations map[string]interface{} `json:"relations"`
 }
 
 // Warrants
 type Subject struct {
 	// The type of the subject.
-	ObjectType string `json:"object_type"`
+	ResourceType string `json:"resource_type"`
 
 	// The customer defined string identifier for this subject.
-	ObjectId string `json:"object_id"`
+	ResourceId string `json:"resource_id"`
 
 	// The relation of the subject.
 	Relation string `json:"relation,omitempty"`
 }
 
 type Warrant struct {
-	// Type of object to assign a relation to. Must be an existing type.
-	ObjectType string `json:"object_type"`
+	// Type of resource to assign a relation to. Must be an existing type.
+	ResourceType string `json:"resource_type"`
 
-	// Id of the object to assign a relation to.
-	ObjectId string `json:"object_id"`
+	// Id of the resource to assign a relation to.
+	ResourceId string `json:"resource_id"`
 
-	// Relation to assign to the object.
+	// Relation to assign to the resource.
 	Relation string `json:"relation"`
 
 	// Subject of the warrant
@@ -209,19 +209,19 @@ type Warrant struct {
 }
 
 type ListWarrantsOpts struct {
-	// Only return warrants whose objectType matches this value.
-	ObjectType string `url:"object_type,omitempty"`
+	// Only return warrants whose resourceType matches this value.
+	ResourceType string `url:"resource_type,omitempty"`
 
-	// Only return warrants whose objectId matches this value.
-	ObjectId string `url:"object_id,omitempty"`
+	// Only return warrants whose resourceId matches this value.
+	ResourceId string `url:"resource_id,omitempty"`
 
 	// Only return warrants whose relation matches this value.
 	Relation string `url:"relation,omitempty"`
 
-	// Only return warrants with a subject whose objectType matches this value.
+	// Only return warrants with a subject whose resourceType matches this value.
 	SubjectType string `url:"subject_type,omitempty"`
 
-	// Only return warrants with a subject whose objectId matches this value.
+	// Only return warrants with a subject whose resourceId matches this value.
 	SubjectId string `url:"subject_id,omitempty"`
 
 	// Only return warrants with a subject whose relation matches this value.
@@ -250,13 +250,13 @@ type WriteWarrantOpts struct {
 	// Operation to perform for the given warrant
 	Op string `json:"op,omitempty"`
 
-	// Type of object to assign a relation to. Must be an existing type.
-	ObjectType string `json:"object_type"`
+	// Type of resource to assign a relation to. Must be an existing type.
+	ResourceType string `json:"resource_type"`
 
-	// Id of the object to assign a relation to.
-	ObjectId string `json:"object_id"`
+	// Id of the resource to assign a relation to.
+	ResourceId string `json:"resource_id"`
 
-	// Relation to assign to the object.
+	// Relation to assign to the resource.
 	Relation string `json:"relation"`
 
 	// Subject of the warrant
@@ -274,13 +274,13 @@ type WriteWarrantResponse struct {
 type Context map[string]interface{}
 
 type WarrantCheck struct {
-	// The type of the object.
-	ObjectType string `json:"object_type"`
+	// The type of the resource.
+	ResourceType string `json:"resource_type"`
 
-	// Id of the specific object.
-	ObjectId string `json:"object_id"`
+	// Id of the specific resource.
+	ResourceId string `json:"resource_id"`
 
-	// Relation to check between the object and subject.
+	// Relation to check between the resource and subject.
 	Relation string `json:"relation"`
 
 	// The subject that must have the specified relation.
@@ -364,13 +364,13 @@ type QueryOpts struct {
 }
 
 type QueryResult struct {
-	// The type of the object.
-	ObjectType string `json:"object_type"`
+	// The type of the resource.
+	ResourceType string `json:"resource_type"`
 
-	// Id of the specific object.
-	ObjectId string `json:"object_id"`
+	// Id of the specific resource.
+	ResourceId string `json:"resource_id"`
 
-	// Relation between the object and subject.
+	// Relation between the resource and subject.
 	Relation string `json:"relation"`
 
 	// Warrant matching the provided query
@@ -379,7 +379,7 @@ type QueryResult struct {
 	// Specifies whether the warrant is implicitly defined.
 	IsImplicit bool `json:"is_implicit"`
 
-	// Metadata of the object.
+	// Metadata of the resource.
 	Meta map[string]interface{} `json:"meta,omitempty"`
 }
 
@@ -391,14 +391,14 @@ type QueryResponse struct {
 	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
-// GetObject gets an Object.
-func (c *Client) GetObject(ctx context.Context, opts GetObjectOpts) (Object, error) {
+// GetResource gets an Resource.
+func (c *Client) GetResource(ctx context.Context, opts GetResourceOpts) (Resource, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/fga/v1/objects/%s/%s", c.Endpoint, opts.ObjectType, opts.ObjectId)
+	endpoint := fmt.Sprintf("%s/fga/v1/resources/%s/%s", c.Endpoint, opts.ResourceType, opts.ResourceId)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -408,28 +408,28 @@ func (c *Client) GetObject(ctx context.Context, opts GetObjectOpts) (Object, err
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
-	var body Object
+	var body Resource
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 }
 
-// ListObjects gets a list of FGA objects.
-func (c *Client) ListObjects(ctx context.Context, opts ListObjectsOpts) (ListObjectsResponse, error) {
+// ListResources gets a list of FGA resources.
+func (c *Client) ListResources(ctx context.Context, opts ListResourcesOpts) (ListResourcesResponse, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/fga/v1/objects", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/fga/v1/resources", c.Endpoint)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
-		return ListObjectsResponse{}, err
+		return ListResourcesResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -447,40 +447,40 @@ func (c *Client) ListObjects(ctx context.Context, opts ListObjectsOpts) (ListObj
 
 	q, err := query.Values(opts)
 	if err != nil {
-		return ListObjectsResponse{}, err
+		return ListResourcesResponse{}, err
 	}
 
 	req.URL.RawQuery = q.Encode()
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ListObjectsResponse{}, err
+		return ListResourcesResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ListObjectsResponse{}, err
+		return ListResourcesResponse{}, err
 	}
 
-	var body ListObjectsResponse
+	var body ListResourcesResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 }
 
-// CreateObject creates a new object
-func (c *Client) CreateObject(ctx context.Context, opts CreateObjectOpts) (Object, error) {
+// CreateResource creates a new resource
+func (c *Client) CreateResource(ctx context.Context, opts CreateResourceOpts) (Resource, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/fga/v1/objects", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/fga/v1/resources", c.Endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -490,40 +490,40 @@ func (c *Client) CreateObject(ctx context.Context, opts CreateObjectOpts) (Objec
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
-	var body Object
+	var body Resource
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 }
 
-// UpdateObject updates an existing Object
-func (c *Client) UpdateObject(ctx context.Context, opts UpdateObjectOpts) (Object, error) {
+// UpdateResource updates an existing Resource
+func (c *Client) UpdateResource(ctx context.Context, opts UpdateResourceOpts) (Resource, error) {
 	c.once.Do(c.init)
 
-	// UpdateObjectChangeOpts contains the options to update an Object minus the ObjectType and ObjectId
-	type UpdateObjectChangeOpts struct {
+	// UpdateResourceChangeOpts contains the options to update an Resource minus the ResourceType and ResourceId
+	type UpdateResourceChangeOpts struct {
 		Meta map[string]interface{} `json:"meta"`
 	}
 
-	update_opts := UpdateObjectChangeOpts{Meta: opts.Meta}
+	update_opts := UpdateResourceChangeOpts{Meta: opts.Meta}
 
 	data, err := c.JSONEncode(update_opts)
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/fga/v1/objects/%s/%s", c.Endpoint, opts.ObjectType, opts.ObjectId)
+	endpoint := fmt.Sprintf("%s/fga/v1/resources/%s/%s", c.Endpoint, opts.ResourceType, opts.ResourceId)
 	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -533,26 +533,26 @@ func (c *Client) UpdateObject(ctx context.Context, opts UpdateObjectOpts) (Objec
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return Object{}, err
+		return Resource{}, err
 	}
 
-	var body Object
+	var body Resource
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 
 }
 
-// DeleteObject deletes an Object
-func (c *Client) DeleteObject(ctx context.Context, opts DeleteObjectOpts) error {
+// DeleteResource deletes an Resource
+func (c *Client) DeleteResource(ctx context.Context, opts DeleteResourceOpts) error {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/fga/v1/objects/%s/%s", c.Endpoint, opts.ObjectType, opts.ObjectId)
+	endpoint := fmt.Sprintf("%s/fga/v1/resources/%s/%s", c.Endpoint, opts.ResourceType, opts.ResourceId)
 	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
 	if err != nil {
 		return err
@@ -572,14 +572,14 @@ func (c *Client) DeleteObject(ctx context.Context, opts DeleteObjectOpts) error 
 	return workos_errors.TryGetHTTPError(res)
 }
 
-// ListObjectTypes gets a list of FGA object types.
-func (c *Client) ListObjectTypes(ctx context.Context, opts ListObjectTypesOpts) (ListObjectTypesResponse, error) {
+// ListResourceTypes gets a list of FGA resource types.
+func (c *Client) ListResourceTypes(ctx context.Context, opts ListResourceTypesOpts) (ListResourceTypesResponse, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/fga/v1/object-types", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/fga/v1/resource-types", c.Endpoint)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
-		return ListObjectTypesResponse{}, err
+		return ListResourceTypesResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -597,40 +597,40 @@ func (c *Client) ListObjectTypes(ctx context.Context, opts ListObjectTypesOpts) 
 
 	q, err := query.Values(opts)
 	if err != nil {
-		return ListObjectTypesResponse{}, err
+		return ListResourceTypesResponse{}, err
 	}
 
 	req.URL.RawQuery = q.Encode()
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return ListObjectTypesResponse{}, err
+		return ListResourceTypesResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return ListObjectTypesResponse{}, err
+		return ListResourceTypesResponse{}, err
 	}
 
-	var body ListObjectTypesResponse
+	var body ListResourceTypesResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
 }
 
-// BatchUpdateObjectTypes sets the environment's set of object types to match the object types passed.
-func (c *Client) BatchUpdateObjectTypes(ctx context.Context, opts []UpdateObjectTypeOpts) ([]ObjectType, error) {
+// BatchUpdateResourceTypes sets the environment's set of resource types to match the resource types passed.
+func (c *Client) BatchUpdateResourceTypes(ctx context.Context, opts []UpdateResourceTypeOpts) ([]ResourceType, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return []ObjectType{}, err
+		return []ResourceType{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/fga/v1/object-types", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/fga/v1/resource-types", c.Endpoint)
 	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return []ObjectType{}, err
+		return []ResourceType{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -640,15 +640,15 @@ func (c *Client) BatchUpdateObjectTypes(ctx context.Context, opts []UpdateObject
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return []ObjectType{}, err
+		return []ResourceType{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return []ObjectType{}, err
+		return []ResourceType{}, err
 	}
 
-	var body []ObjectType
+	var body []ResourceType
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err

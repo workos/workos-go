@@ -12,140 +12,140 @@ func setup() {
 	SetAPIKey("")
 }
 
-func TestCrudObjects(t *testing.T) {
+func TestCrudResources(t *testing.T) {
 	setup()
 
-	object1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "document",
+	resource1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "document",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Equal(t, "document", object1.ObjectType)
-	require.NotEmpty(t, object1.ObjectId)
-	require.Empty(t, object1.Meta)
+	require.Equal(t, "document", resource1.ResourceType)
+	require.NotEmpty(t, resource1.ResourceId)
+	require.Empty(t, resource1.Meta)
 
-	object2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "folder",
-		ObjectId:   "planning",
+	resource2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "folder",
+		ResourceId:   "planning",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	refetchedObject, err := GetObject(context.Background(), GetObjectOpts{
-		ObjectType: object2.ObjectType,
-		ObjectId:   object2.ObjectId,
+	refetchedResource, err := GetResource(context.Background(), GetResourceOpts{
+		ResourceType: resource2.ResourceType,
+		ResourceId:   resource2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Equal(t, object2.ObjectType, refetchedObject.ObjectType)
-	require.Equal(t, object2.ObjectId, refetchedObject.ObjectId)
-	require.EqualValues(t, object2.Meta, refetchedObject.Meta)
+	require.Equal(t, resource2.ResourceType, refetchedResource.ResourceType)
+	require.Equal(t, resource2.ResourceId, refetchedResource.ResourceId)
+	require.EqualValues(t, resource2.Meta, refetchedResource.Meta)
 
-	object2, err = UpdateObject(context.Background(), UpdateObjectOpts{
-		ObjectType: object2.ObjectType,
-		ObjectId:   object2.ObjectId,
+	resource2, err = UpdateResource(context.Background(), UpdateResourceOpts{
+		ResourceType: resource2.ResourceType,
+		ResourceId:   resource2.ResourceId,
 		Meta: map[string]interface{}{
-			"description": "Folder object",
+			"description": "Folder resource",
 		},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	refetchedObject, err = GetObject(context.Background(), GetObjectOpts{
-		ObjectType: object2.ObjectType,
-		ObjectId:   object2.ObjectId,
+	refetchedResource, err = GetResource(context.Background(), GetResourceOpts{
+		ResourceType: resource2.ResourceType,
+		ResourceId:   resource2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Equal(t, object2.ObjectType, refetchedObject.ObjectType)
-	require.Equal(t, object2.ObjectId, refetchedObject.ObjectId)
-	require.EqualValues(t, object2.Meta, refetchedObject.Meta)
+	require.Equal(t, resource2.ResourceType, refetchedResource.ResourceType)
+	require.Equal(t, resource2.ResourceId, refetchedResource.ResourceId)
+	require.EqualValues(t, resource2.Meta, refetchedResource.Meta)
 
-	objectsList, err := ListObjects(context.Background(), ListObjectsOpts{
+	resourcesList, err := ListResources(context.Background(), ListResourcesOpts{
 		Limit: 10,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Len(t, objectsList.Data, 2)
-	require.Equal(t, object2.ObjectType, objectsList.Data[0].ObjectType)
-	require.Equal(t, object2.ObjectId, objectsList.Data[0].ObjectId)
-	require.Equal(t, object1.ObjectType, objectsList.Data[1].ObjectType)
-	require.Equal(t, object1.ObjectId, objectsList.Data[1].ObjectId)
+	require.Len(t, resourcesList.Data, 2)
+	require.Equal(t, resource2.ResourceType, resourcesList.Data[0].ResourceType)
+	require.Equal(t, resource2.ResourceId, resourcesList.Data[0].ResourceId)
+	require.Equal(t, resource1.ResourceType, resourcesList.Data[1].ResourceType)
+	require.Equal(t, resource1.ResourceId, resourcesList.Data[1].ResourceId)
 
 	// Sort in ascending order
-	objectsList, err = ListObjects(context.Background(), ListObjectsOpts{
+	resourcesList, err = ListResources(context.Background(), ListResourcesOpts{
 		Limit: 10,
 		Order: Asc,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Len(t, objectsList.Data, 2)
-	require.Equal(t, object1.ObjectType, objectsList.Data[0].ObjectType)
-	require.Equal(t, object1.ObjectId, objectsList.Data[0].ObjectId)
-	require.Equal(t, object2.ObjectType, objectsList.Data[1].ObjectType)
-	require.Equal(t, object2.ObjectId, objectsList.Data[1].ObjectId)
+	require.Len(t, resourcesList.Data, 2)
+	require.Equal(t, resource1.ResourceType, resourcesList.Data[0].ResourceType)
+	require.Equal(t, resource1.ResourceId, resourcesList.Data[0].ResourceId)
+	require.Equal(t, resource2.ResourceType, resourcesList.Data[1].ResourceType)
+	require.Equal(t, resource2.ResourceId, resourcesList.Data[1].ResourceId)
 
-	objectsList, err = ListObjects(context.Background(), ListObjectsOpts{
+	resourcesList, err = ListResources(context.Background(), ListResourcesOpts{
 		Limit:  10,
 		Search: "planning",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Len(t, objectsList.Data, 1)
-	require.Equal(t, object2.ObjectType, objectsList.Data[0].ObjectType)
-	require.Equal(t, object2.ObjectId, objectsList.Data[0].ObjectId)
+	require.Len(t, resourcesList.Data, 1)
+	require.Equal(t, resource2.ResourceType, resourcesList.Data[0].ResourceType)
+	require.Equal(t, resource2.ResourceId, resourcesList.Data[0].ResourceId)
 
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: object1.ObjectType,
-		ObjectId:   object1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: resource1.ResourceType,
+		ResourceId:   resource1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: object2.ObjectType,
-		ObjectId:   object2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: resource2.ResourceType,
+		ResourceId:   resource2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	objectsList, err = ListObjects(context.Background(), ListObjectsOpts{
+	resourcesList, err = ListResources(context.Background(), ListResourcesOpts{
 		Limit:  10,
 		Search: "planning",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.Len(t, objectsList.Data, 0)
+	require.Len(t, resourcesList.Data, 0)
 }
 
 func TestMultiTenancy(t *testing.T) {
 	setup()
 
 	// Create users
-	user1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	user1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	user2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	user2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create tenants
-	tenant1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "tenant",
-		ObjectId:   "tenant-1",
+	tenant1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "tenant",
+		ResourceId:   "tenant-1",
 		Meta: map[string]interface{}{
 			"name": "Tenant 1",
 		},
@@ -153,9 +153,9 @@ func TestMultiTenancy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tenant2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "tenant",
-		ObjectId:   "tenant-2",
+	tenant2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "tenant",
+		ResourceId:   "tenant-2",
 		Meta: map[string]interface{}{
 			"name": "Tenant 2",
 		},
@@ -165,7 +165,7 @@ func TestMultiTenancy(t *testing.T) {
 	}
 
 	user1TenantsList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select tenant where user:%s is member", user1.ObjectId),
+		Query:        fmt.Sprintf("select tenant where user:%s is member", user1.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -174,7 +174,7 @@ func TestMultiTenancy(t *testing.T) {
 	}
 	require.Len(t, user1TenantsList.Data, 0)
 	tenant1UsersList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select member of type user for tenant:%s", tenant1.ObjectId),
+		Query:        fmt.Sprintf("select member of type user for tenant:%s", tenant1.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -185,12 +185,12 @@ func TestMultiTenancy(t *testing.T) {
 
 	// Assign user1 -> tenant1
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: tenant1.ObjectType,
-		ObjectId:   tenant1.ObjectId,
-		Relation:   "member",
+		ResourceType: tenant1.ResourceType,
+		ResourceId:   tenant1.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: user1.ObjectType,
-			ObjectId:   user1.ObjectId,
+			ResourceType: user1.ResourceType,
+			ResourceId:   user1.ResourceId,
 		},
 	})
 	if err != nil {
@@ -199,7 +199,7 @@ func TestMultiTenancy(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	user1TenantsList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select tenant where user:%s is member", user1.ObjectId),
+		Query:        fmt.Sprintf("select tenant where user:%s is member", user1.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -207,14 +207,14 @@ func TestMultiTenancy(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, user1TenantsList.Data, 1)
-	require.Equal(t, "tenant", user1TenantsList.Data[0].ObjectType)
-	require.Equal(t, "tenant-1", user1TenantsList.Data[0].ObjectId)
+	require.Equal(t, "tenant", user1TenantsList.Data[0].ResourceType)
+	require.Equal(t, "tenant-1", user1TenantsList.Data[0].ResourceId)
 	require.EqualValues(t, map[string]interface{}{
 		"name": "Tenant 1",
 	}, user1TenantsList.Data[0].Meta)
 
 	tenant1UsersList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select member of type user for tenant:%s", tenant1.ObjectId),
+		Query:        fmt.Sprintf("select member of type user for tenant:%s", tenant1.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -222,19 +222,19 @@ func TestMultiTenancy(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, tenant1UsersList.Data, 1)
-	require.Equal(t, "user", tenant1UsersList.Data[0].ObjectType)
-	require.Equal(t, user1.ObjectId, tenant1UsersList.Data[0].ObjectId)
+	require.Equal(t, "user", tenant1UsersList.Data[0].ResourceType)
+	require.Equal(t, user1.ResourceId, tenant1UsersList.Data[0].ResourceId)
 	require.Empty(t, tenant1UsersList.Data[0].Meta)
 
 	// Remove user1 -> tenant1
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: tenant1.ObjectType,
-		ObjectId:   tenant1.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: tenant1.ResourceType,
+		ResourceId:   tenant1.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: user1.ObjectType,
-			ObjectId:   user1.ObjectId,
+			ResourceType: user1.ResourceType,
+			ResourceId:   user1.ResourceId,
 		},
 	})
 	if err != nil {
@@ -243,7 +243,7 @@ func TestMultiTenancy(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	user1TenantsList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select tenant where user:%s is member", user1.ObjectId),
+		Query:        fmt.Sprintf("select tenant where user:%s is member", user1.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -252,7 +252,7 @@ func TestMultiTenancy(t *testing.T) {
 	}
 	require.Len(t, user1TenantsList.Data, 0)
 	tenant1UsersList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select member of type user for tenant:%s", tenant1.ObjectId),
+		Query:        fmt.Sprintf("select member of type user for tenant:%s", tenant1.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -262,30 +262,30 @@ func TestMultiTenancy(t *testing.T) {
 	require.Len(t, tenant1UsersList.Data, 0)
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: user1.ObjectType,
-		ObjectId:   user1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: user1.ResourceType,
+		ResourceId:   user1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: user2.ObjectType,
-		ObjectId:   user2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: user2.ResourceType,
+		ResourceId:   user2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: tenant1.ObjectType,
-		ObjectId:   tenant1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: tenant1.ResourceType,
+		ResourceId:   tenant1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: tenant2.ObjectType,
-		ObjectId:   tenant2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: tenant2.ResourceType,
+		ResourceId:   tenant2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -296,23 +296,23 @@ func TestRBAC(t *testing.T) {
 	setup()
 
 	// Create users
-	adminUser, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	adminUser, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	viewerUser, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	viewerUser, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create roles
-	adminRole, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "role",
-		ObjectId:   "administrator",
+	adminRole, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "role",
+		ResourceId:   "administrator",
 		Meta: map[string]interface{}{
 			"name":        "Administrator",
 			"description": "The admin role",
@@ -321,9 +321,9 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	viewerRole, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "role",
-		ObjectId:   "viewer",
+	viewerRole, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "role",
+		ResourceId:   "viewer",
 		Meta: map[string]interface{}{
 			"name":        "Viewer",
 			"description": "The viewer role",
@@ -334,9 +334,9 @@ func TestRBAC(t *testing.T) {
 	}
 
 	// Create permissions
-	createPermission, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "create-report",
+	createPermission, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "create-report",
 		Meta: map[string]interface{}{
 			"name":        "Create Report",
 			"description": "Permission to create reports",
@@ -345,9 +345,9 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	viewPermission, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "view-report",
+	viewPermission, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "view-report",
 		Meta: map[string]interface{}{
 			"name":        "View Report",
 			"description": "Permission to view reports",
@@ -358,7 +358,7 @@ func TestRBAC(t *testing.T) {
 	}
 
 	adminUserRolesList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ObjectId),
+		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -368,7 +368,7 @@ func TestRBAC(t *testing.T) {
 	require.Len(t, adminUserRolesList.Data, 0)
 
 	adminRolePermissionsList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where role:%s is member", adminRole.ObjectId),
+		Query:        fmt.Sprintf("select permission where role:%s is member", adminRole.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -380,12 +380,12 @@ func TestRBAC(t *testing.T) {
 	adminUserHasPermission, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: createPermission.ObjectType,
-				ObjectId:   createPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: createPermission.ResourceType,
+				ResourceId:   createPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: adminUser.ObjectType,
-					ObjectId:   adminUser.ObjectId,
+					ResourceType: adminUser.ResourceType,
+					ResourceId:   adminUser.ResourceId,
 				},
 			},
 		},
@@ -398,12 +398,12 @@ func TestRBAC(t *testing.T) {
 
 	// Assign create-report permission -> admin role -> admin user
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: createPermission.ObjectType,
-		ObjectId:   createPermission.ObjectId,
-		Relation:   "member",
+		ResourceType: createPermission.ResourceType,
+		ResourceId:   createPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: adminRole.ObjectType,
-			ObjectId:   adminRole.ObjectId,
+			ResourceType: adminRole.ResourceType,
+			ResourceId:   adminRole.ResourceId,
 		},
 	})
 	if err != nil {
@@ -412,12 +412,12 @@ func TestRBAC(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: adminRole.ObjectType,
-		ObjectId:   adminRole.ObjectId,
-		Relation:   "member",
+		ResourceType: adminRole.ResourceType,
+		ResourceId:   adminRole.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: adminUser.ObjectType,
-			ObjectId:   adminUser.ObjectId,
+			ResourceType: adminUser.ResourceType,
+			ResourceId:   adminUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -428,12 +428,12 @@ func TestRBAC(t *testing.T) {
 	adminUserHasPermission, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: createPermission.ObjectType,
-				ObjectId:   createPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: createPermission.ResourceType,
+				ResourceId:   createPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: adminUser.ObjectType,
-					ObjectId:   adminUser.ObjectId,
+					ResourceType: adminUser.ResourceType,
+					ResourceId:   adminUser.ResourceId,
 				},
 			},
 		},
@@ -445,7 +445,7 @@ func TestRBAC(t *testing.T) {
 	require.True(t, adminUserHasPermission.Authorized())
 
 	adminUserRolesList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ObjectId),
+		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -453,15 +453,15 @@ func TestRBAC(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, adminUserRolesList.Data, 1)
-	require.Equal(t, "role", adminUserRolesList.Data[0].ObjectType)
-	require.Equal(t, adminRole.ObjectId, adminUserRolesList.Data[0].ObjectId)
+	require.Equal(t, "role", adminUserRolesList.Data[0].ResourceType)
+	require.Equal(t, adminRole.ResourceId, adminUserRolesList.Data[0].ResourceId)
 	require.Equal(t, map[string]interface{}{
 		"name":        "Administrator",
 		"description": "The admin role",
 	}, adminUserRolesList.Data[0].Meta)
 
 	adminRolePermissionsList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where role:%s is member", adminRole.ObjectId),
+		Query:        fmt.Sprintf("select permission where role:%s is member", adminRole.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -469,8 +469,8 @@ func TestRBAC(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, adminRolePermissionsList.Data, 1)
-	require.Equal(t, "permission", adminRolePermissionsList.Data[0].ObjectType)
-	require.Equal(t, createPermission.ObjectId, adminRolePermissionsList.Data[0].ObjectId)
+	require.Equal(t, "permission", adminRolePermissionsList.Data[0].ResourceType)
+	require.Equal(t, createPermission.ResourceId, adminRolePermissionsList.Data[0].ResourceId)
 	require.Equal(t, map[string]interface{}{
 		"name":        "Create Report",
 		"description": "Permission to create reports",
@@ -478,13 +478,13 @@ func TestRBAC(t *testing.T) {
 
 	// Remove create-report permission -> admin role -> admin user
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: createPermission.ObjectType,
-		ObjectId:   createPermission.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: createPermission.ResourceType,
+		ResourceId:   createPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: adminRole.ObjectType,
-			ObjectId:   adminRole.ObjectId,
+			ResourceType: adminRole.ResourceType,
+			ResourceId:   adminRole.ResourceId,
 		},
 	})
 	if err != nil {
@@ -493,13 +493,13 @@ func TestRBAC(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: adminRole.ObjectType,
-		ObjectId:   adminRole.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: adminRole.ResourceType,
+		ResourceId:   adminRole.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: adminUser.ObjectType,
-			ObjectId:   adminUser.ObjectId,
+			ResourceType: adminUser.ResourceType,
+			ResourceId:   adminUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -510,12 +510,12 @@ func TestRBAC(t *testing.T) {
 	adminUserHasPermission, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: createPermission.ObjectType,
-				ObjectId:   createPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: createPermission.ResourceType,
+				ResourceId:   createPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: adminUser.ObjectType,
-					ObjectId:   adminUser.ObjectId,
+					ResourceType: adminUser.ResourceType,
+					ResourceId:   adminUser.ResourceId,
 				},
 			},
 		},
@@ -527,7 +527,7 @@ func TestRBAC(t *testing.T) {
 	require.False(t, adminUserHasPermission.Authorized())
 
 	adminUserRolesList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ObjectId),
+		Query:        fmt.Sprintf("select role where user:%s is member", adminUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -537,7 +537,7 @@ func TestRBAC(t *testing.T) {
 	require.Len(t, adminUserRolesList.Data, 0)
 
 	adminRolePermissionsList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where role:%s is member", adminRole.ObjectId),
+		Query:        fmt.Sprintf("select permission where role:%s is member", adminRole.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -550,12 +550,12 @@ func TestRBAC(t *testing.T) {
 	viewerUserHasPermission, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: viewPermission.ObjectType,
-				ObjectId:   viewPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: viewPermission.ResourceType,
+				ResourceId:   viewPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: viewerUser.ObjectType,
-					ObjectId:   viewerUser.ObjectId,
+					ResourceType: viewerUser.ResourceType,
+					ResourceId:   viewerUser.ResourceId,
 				},
 			},
 		},
@@ -567,7 +567,7 @@ func TestRBAC(t *testing.T) {
 	require.False(t, viewerUserHasPermission.Authorized())
 
 	viewerUserPermissionsList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ObjectId),
+		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -577,12 +577,12 @@ func TestRBAC(t *testing.T) {
 	require.Empty(t, viewerUserPermissionsList.Data)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: viewPermission.ObjectType,
-		ObjectId:   viewPermission.ObjectId,
-		Relation:   "member",
+		ResourceType: viewPermission.ResourceType,
+		ResourceId:   viewPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: viewerUser.ObjectType,
-			ObjectId:   viewerUser.ObjectId,
+			ResourceType: viewerUser.ResourceType,
+			ResourceId:   viewerUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -593,12 +593,12 @@ func TestRBAC(t *testing.T) {
 	viewerUserHasPermission, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: viewPermission.ObjectType,
-				ObjectId:   viewPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: viewPermission.ResourceType,
+				ResourceId:   viewPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: viewerUser.ObjectType,
-					ObjectId:   viewerUser.ObjectId,
+					ResourceType: viewerUser.ResourceType,
+					ResourceId:   viewerUser.ResourceId,
 				},
 			},
 		},
@@ -610,7 +610,7 @@ func TestRBAC(t *testing.T) {
 	require.True(t, viewerUserHasPermission.Authorized())
 
 	viewerUserPermissionsList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ObjectId),
+		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -618,21 +618,21 @@ func TestRBAC(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, viewerUserPermissionsList.Data, 1)
-	require.Equal(t, "permission", viewerUserPermissionsList.Data[0].ObjectType)
-	require.Equal(t, viewPermission.ObjectId, viewerUserPermissionsList.Data[0].ObjectId)
+	require.Equal(t, "permission", viewerUserPermissionsList.Data[0].ResourceType)
+	require.Equal(t, viewPermission.ResourceId, viewerUserPermissionsList.Data[0].ResourceId)
 	require.Equal(t, map[string]interface{}{
 		"name":        "View Report",
 		"description": "Permission to view reports",
 	}, viewerUserPermissionsList.Data[0].Meta)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: viewPermission.ObjectType,
-		ObjectId:   viewPermission.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: viewPermission.ResourceType,
+		ResourceId:   viewPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: viewerUser.ObjectType,
-			ObjectId:   viewerUser.ObjectId,
+			ResourceType: viewerUser.ResourceType,
+			ResourceId:   viewerUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -643,12 +643,12 @@ func TestRBAC(t *testing.T) {
 	viewerUserHasPermission, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: viewPermission.ObjectType,
-				ObjectId:   viewPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: viewPermission.ResourceType,
+				ResourceId:   viewPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: viewerUser.ObjectType,
-					ObjectId:   viewerUser.ObjectId,
+					ResourceType: viewerUser.ResourceType,
+					ResourceId:   viewerUser.ResourceId,
 				},
 			},
 		},
@@ -660,7 +660,7 @@ func TestRBAC(t *testing.T) {
 	require.False(t, viewerUserHasPermission.Authorized())
 
 	viewerUserPermissionsList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ObjectId),
+		Query:        fmt.Sprintf("select permission where user:%s is member", viewerUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -670,44 +670,44 @@ func TestRBAC(t *testing.T) {
 	require.Empty(t, viewerUserPermissionsList.Data)
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: adminUser.ObjectType,
-		ObjectId:   adminUser.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: adminUser.ResourceType,
+		ResourceId:   adminUser.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: viewerUser.ObjectType,
-		ObjectId:   viewerUser.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: viewerUser.ResourceType,
+		ResourceId:   viewerUser.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: adminRole.ObjectType,
-		ObjectId:   adminRole.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: adminRole.ResourceType,
+		ResourceId:   adminRole.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: viewerRole.ObjectType,
-		ObjectId:   viewerRole.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: viewerRole.ResourceType,
+		ResourceId:   viewerRole.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: createPermission.ObjectType,
-		ObjectId:   createPermission.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: createPermission.ResourceType,
+		ResourceId:   createPermission.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: viewPermission.ObjectType,
-		ObjectId:   viewPermission.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: viewPermission.ResourceType,
+		ResourceId:   viewPermission.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -718,23 +718,23 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	setup()
 
 	// Create users
-	freeUser, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	freeUser, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	paidUser, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	paidUser, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create pricing tiers
-	freeTier, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "pricing-tier",
-		ObjectId:   "free",
+	freeTier, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "pricing-tier",
+		ResourceId:   "free",
 		Meta: map[string]interface{}{
 			"name": "Free Tier",
 		},
@@ -742,18 +742,18 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	paidTier, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "pricing-tier",
-		ObjectId:   "paid",
+	paidTier, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "pricing-tier",
+		ResourceId:   "paid",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create features
-	customFeature, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "feature",
-		ObjectId:   "custom",
+	customFeature, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "feature",
+		ResourceId:   "custom",
 		Meta: map[string]interface{}{
 			"name": "Custom Feature",
 		},
@@ -761,16 +761,16 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	feature1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "feature",
-		ObjectId:   "feature-1",
+	feature1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "feature",
+		ResourceId:   "feature-1",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	feature2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "feature",
-		ObjectId:   "feature-2",
+	feature2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "feature",
+		ResourceId:   "feature-2",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -780,12 +780,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	paidUserHasFeature, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: customFeature.ObjectType,
-				ObjectId:   customFeature.ObjectId,
-				Relation:   "member",
+				ResourceType: customFeature.ResourceType,
+				ResourceId:   customFeature.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: paidUser.ObjectType,
-					ObjectId:   paidUser.ObjectId,
+					ResourceType: paidUser.ResourceType,
+					ResourceId:   paidUser.ResourceId,
 				},
 			},
 		},
@@ -797,7 +797,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.False(t, paidUserHasFeature.Authorized())
 
 	paidUserFeaturesList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ObjectId),
+		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -807,12 +807,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.Empty(t, paidUserFeaturesList.Data)
 
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: customFeature.ObjectType,
-		ObjectId:   customFeature.ObjectId,
-		Relation:   "member",
+		ResourceType: customFeature.ResourceType,
+		ResourceId:   customFeature.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: paidUser.ObjectType,
-			ObjectId:   paidUser.ObjectId,
+			ResourceType: paidUser.ResourceType,
+			ResourceId:   paidUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -823,12 +823,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	paidUserHasFeature, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: customFeature.ObjectType,
-				ObjectId:   customFeature.ObjectId,
-				Relation:   "member",
+				ResourceType: customFeature.ResourceType,
+				ResourceId:   customFeature.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: paidUser.ObjectType,
-					ObjectId:   paidUser.ObjectId,
+					ResourceType: paidUser.ResourceType,
+					ResourceId:   paidUser.ResourceId,
 				},
 			},
 		},
@@ -840,7 +840,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.True(t, paidUserHasFeature.Authorized())
 
 	paidUserFeaturesList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ObjectId),
+		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -848,20 +848,20 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, paidUserFeaturesList.Data, 1)
-	require.Equal(t, "feature", paidUserFeaturesList.Data[0].ObjectType)
-	require.Equal(t, customFeature.ObjectId, paidUserFeaturesList.Data[0].ObjectId)
+	require.Equal(t, "feature", paidUserFeaturesList.Data[0].ResourceType)
+	require.Equal(t, customFeature.ResourceId, paidUserFeaturesList.Data[0].ResourceId)
 	require.Equal(t, map[string]interface{}{
 		"name": "Custom Feature",
 	}, paidUserFeaturesList.Data[0].Meta)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: customFeature.ObjectType,
-		ObjectId:   customFeature.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: customFeature.ResourceType,
+		ResourceId:   customFeature.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: paidUser.ObjectType,
-			ObjectId:   paidUser.ObjectId,
+			ResourceType: paidUser.ResourceType,
+			ResourceId:   paidUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -872,12 +872,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	paidUserHasFeature, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: customFeature.ObjectType,
-				ObjectId:   customFeature.ObjectId,
-				Relation:   "member",
+				ResourceType: customFeature.ResourceType,
+				ResourceId:   customFeature.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: paidUser.ObjectType,
-					ObjectId:   paidUser.ObjectId,
+					ResourceType: paidUser.ResourceType,
+					ResourceId:   paidUser.ResourceId,
 				},
 			},
 		},
@@ -889,7 +889,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.False(t, paidUserHasFeature.Authorized())
 
 	paidUserFeaturesList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ObjectId),
+		Query:        fmt.Sprintf("select feature where user:%s is member", paidUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -902,12 +902,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	freeUserHasFeature, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: feature1.ObjectType,
-				ObjectId:   feature1.ObjectId,
-				Relation:   "member",
+				ResourceType: feature1.ResourceType,
+				ResourceId:   feature1.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: freeUser.ObjectType,
-					ObjectId:   freeUser.ObjectId,
+					ResourceType: freeUser.ResourceType,
+					ResourceId:   freeUser.ResourceId,
 				},
 			},
 		},
@@ -919,7 +919,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.False(t, freeUserHasFeature.Authorized())
 
 	freeUserFeaturesList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ObjectId),
+		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -929,7 +929,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.Empty(t, freeUserFeaturesList.Data)
 
 	featureUserTiersList, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select pricing-tier where user:%s is member", freeUser.ObjectId),
+		Query:        fmt.Sprintf("select pricing-tier where user:%s is member", freeUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -939,12 +939,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.Empty(t, featureUserTiersList.Data)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: feature1.ObjectType,
-		ObjectId:   feature1.ObjectId,
-		Relation:   "member",
+		ResourceType: feature1.ResourceType,
+		ResourceId:   feature1.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: freeTier.ObjectType,
-			ObjectId:   freeTier.ObjectId,
+			ResourceType: freeTier.ResourceType,
+			ResourceId:   freeTier.ResourceId,
 		},
 	})
 	if err != nil {
@@ -953,12 +953,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: freeTier.ObjectType,
-		ObjectId:   freeTier.ObjectId,
-		Relation:   "member",
+		ResourceType: freeTier.ResourceType,
+		ResourceId:   freeTier.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: freeUser.ObjectType,
-			ObjectId:   freeUser.ObjectId,
+			ResourceType: freeUser.ResourceType,
+			ResourceId:   freeUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -969,12 +969,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	freeUserHasFeature, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: feature1.ObjectType,
-				ObjectId:   feature1.ObjectId,
-				Relation:   "member",
+				ResourceType: feature1.ResourceType,
+				ResourceId:   feature1.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: freeUser.ObjectType,
-					ObjectId:   freeUser.ObjectId,
+					ResourceType: freeUser.ResourceType,
+					ResourceId:   freeUser.ResourceId,
 				},
 			},
 		},
@@ -986,7 +986,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.True(t, freeUserHasFeature.Authorized())
 
 	freeUserFeaturesList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ObjectId),
+		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -994,12 +994,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, freeUserFeaturesList.Data, 1)
-	require.Equal(t, "feature", freeUserFeaturesList.Data[0].ObjectType)
-	require.Equal(t, feature1.ObjectId, freeUserFeaturesList.Data[0].ObjectId)
+	require.Equal(t, "feature", freeUserFeaturesList.Data[0].ResourceType)
+	require.Equal(t, feature1.ResourceId, freeUserFeaturesList.Data[0].ResourceId)
 	require.Empty(t, freeUserFeaturesList.Data[0].Meta)
 
 	featureUserTiersList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select pricing-tier where user:%s is member", freeUser.ObjectId),
+		Query:        fmt.Sprintf("select pricing-tier where user:%s is member", freeUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -1007,20 +1007,20 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, featureUserTiersList.Data, 1)
-	require.Equal(t, "pricing-tier", featureUserTiersList.Data[0].ObjectType)
-	require.Equal(t, freeTier.ObjectId, featureUserTiersList.Data[0].ObjectId)
+	require.Equal(t, "pricing-tier", featureUserTiersList.Data[0].ResourceType)
+	require.Equal(t, freeTier.ResourceId, featureUserTiersList.Data[0].ResourceId)
 	require.Equal(t, map[string]interface{}{
 		"name": "Free Tier",
 	}, featureUserTiersList.Data[0].Meta)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: feature1.ObjectType,
-		ObjectId:   feature1.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: feature1.ResourceType,
+		ResourceId:   feature1.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: freeTier.ObjectType,
-			ObjectId:   freeTier.ObjectId,
+			ResourceType: freeTier.ResourceType,
+			ResourceId:   freeTier.ResourceId,
 		},
 	})
 	if err != nil {
@@ -1029,13 +1029,13 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: freeTier.ObjectType,
-		ObjectId:   freeTier.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: freeTier.ResourceType,
+		ResourceId:   freeTier.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: freeUser.ObjectType,
-			ObjectId:   freeUser.ObjectId,
+			ResourceType: freeUser.ResourceType,
+			ResourceId:   freeUser.ResourceId,
 		},
 	})
 	if err != nil {
@@ -1046,12 +1046,12 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	freeUserHasFeature, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: feature1.ObjectType,
-				ObjectId:   feature1.ObjectId,
-				Relation:   "member",
+				ResourceType: feature1.ResourceType,
+				ResourceId:   feature1.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: freeUser.ObjectType,
-					ObjectId:   freeUser.ObjectId,
+					ResourceType: freeUser.ResourceType,
+					ResourceId:   freeUser.ResourceId,
 				},
 			},
 		},
@@ -1063,7 +1063,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.False(t, freeUserHasFeature.Authorized())
 
 	freeUserFeaturesList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ObjectId),
+		Query:        fmt.Sprintf("select feature where user:%s is member", freeUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -1073,7 +1073,7 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.Empty(t, freeUserFeaturesList.Data)
 
 	featureUserTiersList, err = Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select pricing-tier where user:%s is member", freeUser.ObjectId),
+		Query:        fmt.Sprintf("select pricing-tier where user:%s is member", freeUser.ResourceId),
 		Limit:        10,
 		WarrantToken: "latest",
 	})
@@ -1083,51 +1083,51 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 	require.Empty(t, featureUserTiersList.Data)
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: freeUser.ObjectType,
-		ObjectId:   freeUser.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: freeUser.ResourceType,
+		ResourceId:   freeUser.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: paidUser.ObjectType,
-		ObjectId:   paidUser.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: paidUser.ResourceType,
+		ResourceId:   paidUser.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: freeTier.ObjectType,
-		ObjectId:   freeTier.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: freeTier.ResourceType,
+		ResourceId:   freeTier.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: paidTier.ObjectType,
-		ObjectId:   paidTier.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: paidTier.ResourceType,
+		ResourceId:   paidTier.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: customFeature.ObjectType,
-		ObjectId:   customFeature.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: customFeature.ResourceType,
+		ResourceId:   customFeature.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: feature1.ObjectType,
-		ObjectId:   feature1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: feature1.ResourceType,
+		ResourceId:   feature1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: feature2.ObjectType,
-		ObjectId:   feature2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: feature2.ResourceType,
+		ResourceId:   feature2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -1137,23 +1137,23 @@ func TestPricingTiersFeaturesAndUsers(t *testing.T) {
 func TestWarrants(t *testing.T) {
 	setup()
 
-	user1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
-		ObjectId:   "userA",
+	user1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "userA",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	user2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
-		ObjectId:   "userB",
+	user2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "userB",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	newPermission, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "perm1",
+	newPermission, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "perm1",
 		Meta: map[string]interface{}{
 			"name":        "Permission 1",
 			"description": "Permission 1",
@@ -1166,12 +1166,12 @@ func TestWarrants(t *testing.T) {
 	userHasPermission, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: newPermission.ObjectType,
-				ObjectId:   newPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: newPermission.ResourceType,
+				ResourceId:   newPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: user1.ObjectType,
-					ObjectId:   user1.ObjectId,
+					ResourceType: user1.ResourceType,
+					ResourceId:   user1.ResourceId,
 				},
 			},
 		},
@@ -1183,12 +1183,12 @@ func TestWarrants(t *testing.T) {
 	require.False(t, userHasPermission.Authorized())
 
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: newPermission.ObjectType,
-		ObjectId:   newPermission.ObjectId,
-		Relation:   "member",
+		ResourceType: newPermission.ResourceType,
+		ResourceId:   newPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: user1.ObjectType,
-			ObjectId:   user1.ObjectId,
+			ResourceType: user1.ResourceType,
+			ResourceId:   user1.ResourceId,
 		},
 	})
 	if err != nil {
@@ -1197,12 +1197,12 @@ func TestWarrants(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: newPermission.ObjectType,
-		ObjectId:   newPermission.ObjectId,
-		Relation:   "member",
+		ResourceType: newPermission.ResourceType,
+		ResourceId:   newPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: user2.ObjectType,
-			ObjectId:   user2.ObjectId,
+			ResourceType: user2.ResourceType,
+			ResourceId:   user2.ResourceId,
 		},
 	})
 	if err != nil {
@@ -1218,11 +1218,11 @@ func TestWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, warrants1.Data, 1)
-	require.Equal(t, newPermission.ObjectType, warrants1.Data[0].ObjectType)
-	require.Equal(t, newPermission.ObjectId, warrants1.Data[0].ObjectId)
+	require.Equal(t, newPermission.ResourceType, warrants1.Data[0].ResourceType)
+	require.Equal(t, newPermission.ResourceId, warrants1.Data[0].ResourceId)
 	require.Equal(t, "member", warrants1.Data[0].Relation)
-	require.Equal(t, user2.ObjectType, warrants1.Data[0].Subject.ObjectType)
-	require.Equal(t, user2.ObjectId, warrants1.Data[0].Subject.ObjectId)
+	require.Equal(t, user2.ResourceType, warrants1.Data[0].Subject.ResourceType)
+	require.Equal(t, user2.ResourceId, warrants1.Data[0].Subject.ResourceId)
 
 	warrants2, err := ListWarrants(context.Background(), ListWarrantsOpts{
 		Limit:        1,
@@ -1233,36 +1233,36 @@ func TestWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, warrants2.Data, 1)
-	require.Equal(t, newPermission.ObjectType, warrants2.Data[0].ObjectType)
-	require.Equal(t, newPermission.ObjectId, warrants2.Data[0].ObjectId)
+	require.Equal(t, newPermission.ResourceType, warrants2.Data[0].ResourceType)
+	require.Equal(t, newPermission.ResourceId, warrants2.Data[0].ResourceId)
 	require.Equal(t, "member", warrants2.Data[0].Relation)
-	require.Equal(t, user1.ObjectType, warrants2.Data[0].Subject.ObjectType)
-	require.Equal(t, user1.ObjectId, warrants2.Data[0].Subject.ObjectId)
+	require.Equal(t, user1.ResourceType, warrants2.Data[0].Subject.ResourceType)
+	require.Equal(t, user1.ResourceId, warrants2.Data[0].Subject.ResourceId)
 
 	warrants3, err := ListWarrants(context.Background(), ListWarrantsOpts{
 		SubjectType:  "user",
-		SubjectId:    user1.ObjectId,
+		SubjectId:    user1.ResourceId,
 		WarrantToken: "latest",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	require.Len(t, warrants3.Data, 1)
-	require.Equal(t, newPermission.ObjectType, warrants3.Data[0].ObjectType)
-	require.Equal(t, newPermission.ObjectId, warrants3.Data[0].ObjectId)
+	require.Equal(t, newPermission.ResourceType, warrants3.Data[0].ResourceType)
+	require.Equal(t, newPermission.ResourceId, warrants3.Data[0].ResourceId)
 	require.Equal(t, "member", warrants3.Data[0].Relation)
-	require.Equal(t, user1.ObjectType, warrants3.Data[0].Subject.ObjectType)
-	require.Equal(t, user1.ObjectId, warrants3.Data[0].Subject.ObjectId)
+	require.Equal(t, user1.ResourceType, warrants3.Data[0].Subject.ResourceType)
+	require.Equal(t, user1.ResourceId, warrants3.Data[0].Subject.ResourceId)
 
 	userHasPermission, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: newPermission.ObjectType,
-				ObjectId:   newPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: newPermission.ResourceType,
+				ResourceId:   newPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: user1.ObjectType,
-					ObjectId:   user1.ObjectId,
+					ResourceType: user1.ResourceType,
+					ResourceId:   user1.ResourceId,
 				},
 			},
 		},
@@ -1274,25 +1274,25 @@ func TestWarrants(t *testing.T) {
 	require.True(t, userHasPermission.Authorized())
 
 	queryResponse, err := Query(context.Background(), QueryOpts{
-		Query:        fmt.Sprintf("select permission where user:%s is member", user1.ObjectId),
+		Query:        fmt.Sprintf("select permission where user:%s is member", user1.ResourceId),
 		WarrantToken: "latest",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	require.Len(t, queryResponse.Data, 1)
-	require.Equal(t, newPermission.ObjectType, queryResponse.Data[0].ObjectType)
-	require.Equal(t, newPermission.ObjectId, queryResponse.Data[0].ObjectId)
+	require.Equal(t, newPermission.ResourceType, queryResponse.Data[0].ResourceType)
+	require.Equal(t, newPermission.ResourceId, queryResponse.Data[0].ResourceId)
 	require.Equal(t, "member", queryResponse.Data[0].Relation)
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: newPermission.ObjectType,
-		ObjectId:   newPermission.ObjectId,
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: newPermission.ResourceType,
+		ResourceId:   newPermission.ResourceId,
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: user1.ObjectType,
-			ObjectId:   user1.ObjectId,
+			ResourceType: user1.ResourceType,
+			ResourceId:   user1.ResourceId,
 		},
 	})
 	if err != nil {
@@ -1303,12 +1303,12 @@ func TestWarrants(t *testing.T) {
 	userHasPermission, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: newPermission.ObjectType,
-				ObjectId:   newPermission.ObjectId,
-				Relation:   "member",
+				ResourceType: newPermission.ResourceType,
+				ResourceId:   newPermission.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: user1.ObjectType,
-					ObjectId:   user1.ObjectId,
+					ResourceType: user1.ResourceType,
+					ResourceId:   user1.ResourceId,
 				},
 			},
 		},
@@ -1320,23 +1320,23 @@ func TestWarrants(t *testing.T) {
 	require.False(t, userHasPermission.Authorized())
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: user1.ObjectType,
-		ObjectId:   user1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: user1.ResourceType,
+		ResourceId:   user1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: user2.ObjectType,
-		ObjectId:   user2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: user2.ResourceType,
+		ResourceId:   user2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: newPermission.ObjectType,
-		ObjectId:   newPermission.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: newPermission.ResourceType,
+		ResourceId:   newPermission.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -1346,15 +1346,15 @@ func TestWarrants(t *testing.T) {
 func TestBatchWarrants(t *testing.T) {
 	setup()
 
-	newUser, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
+	newUser, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	permission1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "perm1",
+	permission1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "perm1",
 		Meta: map[string]interface{}{
 			"name":        "Permission 1",
 			"description": "Permission 1",
@@ -1363,9 +1363,9 @@ func TestBatchWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	permission2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "perm2",
+	permission2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "perm2",
 		Meta: map[string]interface{}{
 			"name":        "Permission 2",
 			"description": "Permission 2",
@@ -1378,21 +1378,21 @@ func TestBatchWarrants(t *testing.T) {
 	userHasPermissions, err := CheckBatch(context.Background(), CheckBatchOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: permission1.ObjectType,
-				ObjectId:   permission1.ObjectId,
-				Relation:   "member",
+				ResourceType: permission1.ResourceType,
+				ResourceId:   permission1.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: newUser.ObjectType,
-					ObjectId:   newUser.ObjectId,
+					ResourceType: newUser.ResourceType,
+					ResourceId:   newUser.ResourceId,
 				},
 			},
 			{
-				ObjectType: permission2.ObjectType,
-				ObjectId:   permission2.ObjectId,
-				Relation:   "member",
+				ResourceType: permission2.ResourceType,
+				ResourceId:   permission2.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: newUser.ObjectType,
-					ObjectId:   newUser.ObjectId,
+					ResourceType: newUser.ResourceType,
+					ResourceId:   newUser.ResourceId,
 				},
 			},
 		},
@@ -1407,22 +1407,22 @@ func TestBatchWarrants(t *testing.T) {
 
 	warrantResponse, err := BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
 		{
-			ObjectType: permission1.ObjectType,
-			ObjectId:   permission1.ObjectId,
-			Relation:   "member",
+			ResourceType: permission1.ResourceType,
+			ResourceId:   permission1.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: newUser.ObjectType,
-				ObjectId:   newUser.ObjectId,
+				ResourceType: newUser.ResourceType,
+				ResourceId:   newUser.ResourceId,
 			},
 		},
 		{
-			Op:         "create",
-			ObjectType: permission2.ObjectType,
-			ObjectId:   permission2.ObjectId,
-			Relation:   "member",
+			Op:           "create",
+			ResourceType: permission2.ResourceType,
+			ResourceId:   permission2.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: newUser.ObjectType,
-				ObjectId:   newUser.ObjectId,
+				ResourceType: newUser.ResourceType,
+				ResourceId:   newUser.ResourceId,
 			},
 		},
 	})
@@ -1434,21 +1434,21 @@ func TestBatchWarrants(t *testing.T) {
 	userHasPermissions, err = CheckBatch(context.Background(), CheckBatchOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: permission1.ObjectType,
-				ObjectId:   permission1.ObjectId,
-				Relation:   "member",
+				ResourceType: permission1.ResourceType,
+				ResourceId:   permission1.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: newUser.ObjectType,
-					ObjectId:   newUser.ObjectId,
+					ResourceType: newUser.ResourceType,
+					ResourceId:   newUser.ResourceId,
 				},
 			},
 			{
-				ObjectType: permission2.ObjectType,
-				ObjectId:   permission2.ObjectId,
-				Relation:   "member",
+				ResourceType: permission2.ResourceType,
+				ResourceId:   permission2.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: newUser.ObjectType,
-					ObjectId:   newUser.ObjectId,
+					ResourceType: newUser.ResourceType,
+					ResourceId:   newUser.ResourceId,
 				},
 			},
 		},
@@ -1463,23 +1463,23 @@ func TestBatchWarrants(t *testing.T) {
 
 	warrantResponse, err = BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
 		{
-			Op:         "delete",
-			ObjectType: permission1.ObjectType,
-			ObjectId:   permission1.ObjectId,
-			Relation:   "member",
+			Op:           "delete",
+			ResourceType: permission1.ResourceType,
+			ResourceId:   permission1.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: newUser.ObjectType,
-				ObjectId:   newUser.ObjectId,
+				ResourceType: newUser.ResourceType,
+				ResourceId:   newUser.ResourceId,
 			},
 		},
 		{
-			Op:         "delete",
-			ObjectType: permission2.ObjectType,
-			ObjectId:   permission2.ObjectId,
-			Relation:   "member",
+			Op:           "delete",
+			ResourceType: permission2.ResourceType,
+			ResourceId:   permission2.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: newUser.ObjectType,
-				ObjectId:   newUser.ObjectId,
+				ResourceType: newUser.ResourceType,
+				ResourceId:   newUser.ResourceId,
 			},
 		},
 	})
@@ -1491,21 +1491,21 @@ func TestBatchWarrants(t *testing.T) {
 	userHasPermissions, err = CheckBatch(context.Background(), CheckBatchOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: permission1.ObjectType,
-				ObjectId:   permission1.ObjectId,
-				Relation:   "member",
+				ResourceType: permission1.ResourceType,
+				ResourceId:   permission1.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: newUser.ObjectType,
-					ObjectId:   newUser.ObjectId,
+					ResourceType: newUser.ResourceType,
+					ResourceId:   newUser.ResourceId,
 				},
 			},
 			{
-				ObjectType: permission2.ObjectType,
-				ObjectId:   permission2.ObjectId,
-				Relation:   "member",
+				ResourceType: permission2.ResourceType,
+				ResourceId:   permission2.ResourceId,
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: newUser.ObjectType,
-					ObjectId:   newUser.ObjectId,
+					ResourceType: newUser.ResourceType,
+					ResourceId:   newUser.ResourceId,
 				},
 			},
 		},
@@ -1519,23 +1519,23 @@ func TestBatchWarrants(t *testing.T) {
 	require.False(t, userHasPermissions[1].Authorized())
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: newUser.ObjectType,
-		ObjectId:   newUser.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: newUser.ResourceType,
+		ResourceId:   newUser.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: permission1.ObjectType,
-		ObjectId:   permission1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: permission1.ResourceType,
+		ResourceId:   permission1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: permission2.ObjectType,
-		ObjectId:   permission2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: permission2.ResourceType,
+		ResourceId:   permission2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -1546,12 +1546,12 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	setup()
 
 	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
-		ObjectType: "permission",
-		ObjectId:   "test-permission",
-		Relation:   "member",
+		ResourceType: "permission",
+		ResourceId:   "test-permission",
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: "user",
-			ObjectId:   "user-1",
+			ResourceType: "user",
+			ResourceId:   "user-1",
 		},
 		Policy: `geo == "us"`,
 	})
@@ -1563,12 +1563,12 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	checkResult, err := Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: "permission",
-				ObjectId:   "test-permission",
-				Relation:   "member",
+				ResourceType: "permission",
+				ResourceId:   "test-permission",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user-1",
+					ResourceType: "user",
+					ResourceId:   "user-1",
 				},
 				Context: map[string]interface{}{
 					"geo": "us",
@@ -1585,12 +1585,12 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	checkResult, err = Check(context.Background(), CheckOpts{
 		Checks: []WarrantCheck{
 			{
-				ObjectType: "permission",
-				ObjectId:   "test-permission",
-				Relation:   "member",
+				ResourceType: "permission",
+				ResourceId:   "test-permission",
+				Relation:     "member",
 				Subject: Subject{
-					ObjectType: "user",
-					ObjectId:   "user-1",
+					ResourceType: "user",
+					ResourceId:   "user-1",
 				},
 				Context: map[string]interface{}{
 					"geo": "eu",
@@ -1605,13 +1605,13 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	require.False(t, checkResult.Authorized())
 
 	warrantResponse, err = WriteWarrant(context.Background(), WriteWarrantOpts{
-		Op:         "delete",
-		ObjectType: "permission",
-		ObjectId:   "test-permission",
-		Relation:   "member",
+		Op:           "delete",
+		ResourceType: "permission",
+		ResourceId:   "test-permission",
+		Relation:     "member",
 		Subject: Subject{
-			ObjectType: "user",
-			ObjectId:   "user-1",
+			ResourceType: "user",
+			ResourceId:   "user-1",
 		},
 		Policy: `geo == "us"`,
 	})
@@ -1621,16 +1621,16 @@ func TestWarrantsWithPolicy(t *testing.T) {
 	require.NotEmpty(t, warrantResponse.WarrantToken)
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "test-permission",
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "test-permission",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: "user",
-		ObjectId:   "user-1",
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "user-1",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -1640,23 +1640,23 @@ func TestWarrantsWithPolicy(t *testing.T) {
 func TestQueryWarrants(t *testing.T) {
 	setup()
 
-	userA, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
-		ObjectId:   "userA",
+	userA, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "userA",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	userB, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "user",
-		ObjectId:   "userB",
+	userB, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "userB",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	permission1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "perm1",
+	permission1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "perm1",
 		Meta: map[string]interface{}{
 			"name":        "Permission 1",
 			"description": "This is permission 1.",
@@ -1665,16 +1665,16 @@ func TestQueryWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	permission2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "perm2",
+	permission2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "perm2",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	permission3, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "permission",
-		ObjectId:   "perm3",
+	permission3, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "permission",
+		ResourceId:   "perm3",
 		Meta: map[string]interface{}{
 			"name":        "Permission 3",
 			"description": "This is permission 3.",
@@ -1683,9 +1683,9 @@ func TestQueryWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	role1, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "role",
-		ObjectId:   "role1",
+	role1, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "role",
+		ResourceId:   "role1",
 		Meta: map[string]interface{}{
 			"name":        "Role 1",
 			"description": "This is role 1.",
@@ -1694,9 +1694,9 @@ func TestQueryWarrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	role2, err := CreateObject(context.Background(), CreateObjectOpts{
-		ObjectType: "role",
-		ObjectId:   "role2",
+	role2, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "role",
+		ResourceId:   "role2",
 		Meta: map[string]interface{}{
 			"name": "Role 2",
 		},
@@ -1707,67 +1707,67 @@ func TestQueryWarrants(t *testing.T) {
 
 	warrantResponse, err := BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
 		{
-			ObjectType: permission1.ObjectType,
-			ObjectId:   permission1.ObjectId,
-			Relation:   "member",
+			ResourceType: permission1.ResourceType,
+			ResourceId:   permission1.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: role1.ObjectType,
-				ObjectId:   role1.ObjectId,
+				ResourceType: role1.ResourceType,
+				ResourceId:   role1.ResourceId,
 			},
 		},
 		{
-			ObjectType: permission2.ObjectType,
-			ObjectId:   permission2.ObjectId,
-			Relation:   "member",
+			ResourceType: permission2.ResourceType,
+			ResourceId:   permission2.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: role2.ObjectType,
-				ObjectId:   role2.ObjectId,
+				ResourceType: role2.ResourceType,
+				ResourceId:   role2.ResourceId,
 			},
 		},
 		{
-			ObjectType: permission3.ObjectType,
-			ObjectId:   permission3.ObjectId,
-			Relation:   "member",
+			ResourceType: permission3.ResourceType,
+			ResourceId:   permission3.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: role2.ObjectType,
-				ObjectId:   role2.ObjectId,
+				ResourceType: role2.ResourceType,
+				ResourceId:   role2.ResourceId,
 			},
 		},
 		{
-			ObjectType: role2.ObjectType,
-			ObjectId:   role2.ObjectId,
-			Relation:   "member",
+			ResourceType: role2.ResourceType,
+			ResourceId:   role2.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: role1.ObjectType,
-				ObjectId:   role1.ObjectId,
+				ResourceType: role1.ResourceType,
+				ResourceId:   role1.ResourceId,
 			},
 		},
 		{
-			ObjectType: permission1.ObjectType,
-			ObjectId:   permission1.ObjectId,
-			Relation:   "member",
+			ResourceType: permission1.ResourceType,
+			ResourceId:   permission1.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: role2.ObjectType,
-				ObjectId:   role2.ObjectId,
+				ResourceType: role2.ResourceType,
+				ResourceId:   role2.ResourceId,
 			},
 			Policy: "tenantId == 123",
 		},
 		{
-			ObjectType: role1.ObjectType,
-			ObjectId:   role1.ObjectId,
-			Relation:   "member",
+			ResourceType: role1.ResourceType,
+			ResourceId:   role1.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: userA.ObjectType,
-				ObjectId:   userA.ObjectId,
+				ResourceType: userA.ResourceType,
+				ResourceId:   userA.ResourceId,
 			},
 		},
 		{
-			ObjectType: role2.ObjectType,
-			ObjectId:   role2.ObjectId,
-			Relation:   "member",
+			ResourceType: role2.ResourceType,
+			ResourceId:   role2.ResourceId,
+			Relation:     "member",
 			Subject: Subject{
-				ObjectType: userB.ObjectType,
-				ObjectId:   userB.ObjectId,
+				ResourceType: userB.ResourceType,
+				ResourceId:   userB.ResourceId,
 			},
 		},
 	})
@@ -1786,14 +1786,14 @@ func TestQueryWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, queryResponse.Data, 1)
-	require.Equal(t, role1.ObjectType, queryResponse.Data[0].ObjectType)
-	require.Equal(t, role1.ObjectId, queryResponse.Data[0].ObjectId)
+	require.Equal(t, role1.ResourceType, queryResponse.Data[0].ResourceType)
+	require.Equal(t, role1.ResourceId, queryResponse.Data[0].ResourceId)
 	require.Equal(t, "member", queryResponse.Data[0].Relation)
-	require.Equal(t, role1.ObjectType, queryResponse.Data[0].Warrant.ObjectType)
-	require.Equal(t, role1.ObjectId, queryResponse.Data[0].Warrant.ObjectId)
+	require.Equal(t, role1.ResourceType, queryResponse.Data[0].Warrant.ResourceType)
+	require.Equal(t, role1.ResourceId, queryResponse.Data[0].Warrant.ResourceId)
 	require.Equal(t, "member", queryResponse.Data[0].Warrant.Relation)
-	require.Equal(t, userA.ObjectType, queryResponse.Data[0].Warrant.Subject.ObjectType)
-	require.Equal(t, userA.ObjectId, queryResponse.Data[0].Warrant.Subject.ObjectId)
+	require.Equal(t, userA.ResourceType, queryResponse.Data[0].Warrant.Subject.ResourceType)
+	require.Equal(t, userA.ResourceId, queryResponse.Data[0].Warrant.Subject.ResourceId)
 	require.Empty(t, queryResponse.Data[0].Warrant.Policy)
 	require.False(t, queryResponse.Data[0].IsImplicit)
 
@@ -1808,14 +1808,14 @@ func TestQueryWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, queryResponse.Data, 1)
-	require.Equal(t, role2.ObjectType, queryResponse.Data[0].ObjectType)
-	require.Equal(t, role2.ObjectId, queryResponse.Data[0].ObjectId)
+	require.Equal(t, role2.ResourceType, queryResponse.Data[0].ResourceType)
+	require.Equal(t, role2.ResourceId, queryResponse.Data[0].ResourceId)
 	require.Equal(t, "member", queryResponse.Data[0].Relation)
-	require.Equal(t, role2.ObjectType, queryResponse.Data[0].Warrant.ObjectType)
-	require.Equal(t, role2.ObjectId, queryResponse.Data[0].Warrant.ObjectId)
+	require.Equal(t, role2.ResourceType, queryResponse.Data[0].Warrant.ResourceType)
+	require.Equal(t, role2.ResourceId, queryResponse.Data[0].Warrant.ResourceId)
 	require.Equal(t, "member", queryResponse.Data[0].Warrant.Relation)
-	require.Equal(t, role1.ObjectType, queryResponse.Data[0].Warrant.Subject.ObjectType)
-	require.Equal(t, role1.ObjectId, queryResponse.Data[0].Warrant.Subject.ObjectId)
+	require.Equal(t, role1.ResourceType, queryResponse.Data[0].Warrant.Subject.ResourceType)
+	require.Equal(t, role1.ResourceId, queryResponse.Data[0].Warrant.Subject.ResourceId)
 	require.Empty(t, queryResponse.Data[0].Warrant.Policy)
 	require.True(t, queryResponse.Data[0].IsImplicit)
 
@@ -1831,62 +1831,62 @@ func TestQueryWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Len(t, queryResponse.Data, 3)
-	require.Equal(t, permission1.ObjectType, queryResponse.Data[0].ObjectType)
-	require.Equal(t, permission1.ObjectId, queryResponse.Data[0].ObjectId)
+	require.Equal(t, permission1.ResourceType, queryResponse.Data[0].ResourceType)
+	require.Equal(t, permission1.ResourceId, queryResponse.Data[0].ResourceId)
 	require.Equal(t, "member", queryResponse.Data[0].Relation)
-	require.Equal(t, permission2.ObjectType, queryResponse.Data[1].ObjectType)
-	require.Equal(t, permission2.ObjectId, queryResponse.Data[1].ObjectId)
+	require.Equal(t, permission2.ResourceType, queryResponse.Data[1].ResourceType)
+	require.Equal(t, permission2.ResourceId, queryResponse.Data[1].ResourceId)
 	require.Equal(t, "member", queryResponse.Data[1].Relation)
-	require.Equal(t, permission3.ObjectType, queryResponse.Data[2].ObjectType)
-	require.Equal(t, permission3.ObjectId, queryResponse.Data[2].ObjectId)
+	require.Equal(t, permission3.ResourceType, queryResponse.Data[2].ResourceType)
+	require.Equal(t, permission3.ResourceId, queryResponse.Data[2].ResourceId)
 	require.Equal(t, "member", queryResponse.Data[2].Relation)
 
 	// Clean up
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: role1.ObjectType,
-		ObjectId:   role1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: role1.ResourceType,
+		ResourceId:   role1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: role2.ObjectType,
-		ObjectId:   role2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: role2.ResourceType,
+		ResourceId:   role2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: permission1.ObjectType,
-		ObjectId:   permission1.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: permission1.ResourceType,
+		ResourceId:   permission1.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: permission2.ObjectType,
-		ObjectId:   permission2.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: permission2.ResourceType,
+		ResourceId:   permission2.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: permission3.ObjectType,
-		ObjectId:   permission3.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: permission3.ResourceType,
+		ResourceId:   permission3.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: userA.ObjectType,
-		ObjectId:   userA.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: userA.ResourceType,
+		ResourceId:   userA.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DeleteObject(context.Background(), DeleteObjectOpts{
-		ObjectType: userB.ObjectType,
-		ObjectId:   userB.ObjectId,
+	err = DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: userB.ResourceType,
+		ResourceId:   userB.ResourceId,
 	})
 	if err != nil {
 		t.Fatal(err)

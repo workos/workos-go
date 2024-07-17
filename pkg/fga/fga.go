@@ -14,60 +14,60 @@ func SetAPIKey(apiKey string) {
 	DefaultClient.APIKey = apiKey
 }
 
-// GetObject gets an Object.
-func GetObject(
+// GetResource gets a Resource.
+func GetResource(
 	ctx context.Context,
-	opts GetObjectOpts,
-) (Object, error) {
-	return DefaultClient.GetObject(ctx, opts)
+	opts GetResourceOpts,
+) (Resource, error) {
+	return DefaultClient.GetResource(ctx, opts)
 }
 
-// ListObjects gets a list of Objects.
-func ListObjects(
+// ListResources gets a list of Resources.
+func ListResources(
 	ctx context.Context,
-	opts ListObjectsOpts,
-) (ListObjectsResponse, error) {
-	return DefaultClient.ListObjects(ctx, opts)
+	opts ListResourcesOpts,
+) (ListResourcesResponse, error) {
+	return DefaultClient.ListResources(ctx, opts)
 }
 
-// CreateObject creates an Object.
-func CreateObject(
+// CreateResource creates a Resource.
+func CreateResource(
 	ctx context.Context,
-	opts CreateObjectOpts,
-) (Object, error) {
-	return DefaultClient.CreateObject(ctx, opts)
+	opts CreateResourceOpts,
+) (Resource, error) {
+	return DefaultClient.CreateResource(ctx, opts)
 }
 
-// UpdateObject updates an Object.
-func UpdateObject(
+// UpdateResource updates a Resource.
+func UpdateResource(
 	ctx context.Context,
-	opts UpdateObjectOpts,
-) (Object, error) {
-	return DefaultClient.UpdateObject(ctx, opts)
+	opts UpdateResourceOpts,
+) (Resource, error) {
+	return DefaultClient.UpdateResource(ctx, opts)
 }
 
-// DeleteObject deletes an Object.
-func DeleteObject(
+// DeleteResource deletes a Resource.
+func DeleteResource(
 	ctx context.Context,
-	opts DeleteObjectOpts,
+	opts DeleteResourceOpts,
 ) error {
-	return DefaultClient.DeleteObject(ctx, opts)
+	return DefaultClient.DeleteResource(ctx, opts)
 }
 
-// ListObjectTypes gets a list of ObjectTypes.
-func ListObjectTypes(
+// ListResourceTypes gets a list of ResourceTypes.
+func ListResourceTypes(
 	ctx context.Context,
-	opts ListObjectTypesOpts,
-) (ListObjectTypesResponse, error) {
-	return DefaultClient.ListObjectTypes(ctx, opts)
+	opts ListResourceTypesOpts,
+) (ListResourceTypesResponse, error) {
+	return DefaultClient.ListResourceTypes(ctx, opts)
 }
 
-// BatchUpdateObjectTypes sets the environment's object types to match the provided types.
-func BatchUpdateObjectTypes(
+// BatchUpdateResourceTypes sets the environment's object types to match the provided types.
+func BatchUpdateResourceTypes(
 	ctx context.Context,
-	opts []UpdateObjectTypeOpts,
-) ([]ObjectType, error) {
-	return DefaultClient.BatchUpdateObjectTypes(ctx, opts)
+	opts []UpdateResourceTypeOpts,
+) ([]ResourceType, error) {
+	return DefaultClient.BatchUpdateResourceTypes(ctx, opts)
 }
 
 // ListWarrants gets a list of Warrants.
