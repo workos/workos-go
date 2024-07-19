@@ -306,7 +306,7 @@ type CheckOpts struct {
 
 type CheckBatchOpts struct {
 	// List of warrants to check.
-	Checks []WarrantCheck `json:"warrants"`
+	Checks []WarrantCheck `json:"checks"`
 
 	// Flag to include debug information in the response.
 	Debug bool `json:"debug,omitempty"`
