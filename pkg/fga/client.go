@@ -23,9 +23,10 @@ type Order string
 
 // Constants that enumerate the available orders.
 const (
-	CheckResultAuthorized       = "Authorized"
-	Asc                   Order = "asc"
-	Desc                  Order = "desc"
+	CheckResultAuthorized          = "authorized"
+	CheckResultNotAuthorized       = "not_authorized"
+	Asc                      Order = "asc"
+	Desc                     Order = "desc"
 )
 
 // Client represents a client that performs FGA requests to the WorkOS API.
@@ -316,7 +317,6 @@ type CheckBatchOpts struct {
 }
 
 type CheckResponse struct {
-	Code       int64     `json:"code"`
 	Result     string    `json:"result"`
 	IsImplicit bool      `json:"is_implicit"`
 	DebugInfo  DebugInfo `json:"debug_info,omitempty"`

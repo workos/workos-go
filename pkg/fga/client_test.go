@@ -1044,8 +1044,7 @@ func TestCheck(t *testing.T) {
 				},
 			},
 			expected: CheckResponse{
-				Code:       200,
-				Result:     "Authorized",
+				Result:     CheckResultAuthorized,
 				IsImplicit: false,
 			},
 		},
@@ -1085,8 +1084,7 @@ func checkTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(
 		CheckResponse{
-			Code:       200,
-			Result:     "Authorized",
+			Result:     CheckResultAuthorized,
 			IsImplicit: false,
 		})
 
@@ -1141,13 +1139,11 @@ func TestCheckBatch(t *testing.T) {
 			},
 			expected: []CheckResponse{
 				{
-					Code:       200,
-					Result:     "Authorized",
+					Result:     CheckResultAuthorized,
 					IsImplicit: false,
 				},
 				{
-					Code:       403,
-					Result:     "Not Authorized",
+					Result:     CheckResultNotAuthorized,
 					IsImplicit: false,
 				},
 			},
@@ -1189,13 +1185,11 @@ func checkBatchTestHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(
 		[]CheckResponse{
 			{
-				Code:       200,
-				Result:     "Authorized",
+				Result:     CheckResultAuthorized,
 				IsImplicit: false,
 			},
 			{
-				Code:       403,
-				Result:     "Not Authorized",
+				Result:     CheckResultNotAuthorized,
 				IsImplicit: false,
 			},
 		})
