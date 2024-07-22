@@ -866,7 +866,7 @@ func TestWriteWarrant(t *testing.T) {
 				APIKey: "test",
 			},
 			options: WriteWarrantOpts{
-				Op:           "create",
+				Op:           WarrantOpCreate,
 				ResourceType: "report",
 				ResourceId:   "sso_1710",
 				Relation:     "member",
@@ -885,7 +885,7 @@ func TestWriteWarrant(t *testing.T) {
 				APIKey: "test",
 			},
 			options: WriteWarrantOpts{
-				Op:           "delete",
+				Op:           WarrantOpDelete,
 				ResourceType: "report",
 				ResourceId:   "sso_1710",
 				Relation:     "member",
@@ -940,7 +940,7 @@ func TestBatchWriteWarrants(t *testing.T) {
 			},
 			options: []WriteWarrantOpts{
 				{
-					Op:           "delete",
+					Op:           WarrantOpDelete,
 					ResourceType: "report",
 					ResourceId:   "sso_1710",
 					Relation:     "viewer",
@@ -950,7 +950,7 @@ func TestBatchWriteWarrants(t *testing.T) {
 					},
 				},
 				{
-					Op:           "create",
+					Op:           WarrantOpCreate,
 					ResourceType: "report",
 					ResourceId:   "sso_1710",
 					Relation:     "editor",

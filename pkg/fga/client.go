@@ -23,10 +23,15 @@ type Order string
 
 // Constants that enumerate the available orders.
 const (
-	CheckResultAuthorized          = "authorized"
-	CheckResultNotAuthorized       = "not_authorized"
 	Asc                      Order = "asc"
 	Desc                     Order = "desc"
+	CheckOpAllOf                   = "all_of"
+	CheckOpAnyOf                   = "any_of"
+	CheckOpBatch                   = "batch"
+	CheckResultAuthorized          = "authorized"
+	CheckResultNotAuthorized       = "not_authorized"
+	WarrantOpCreate                = "create"
+	WarrantOpDelete                = "delete"
 )
 
 // Client represents a client that performs FGA requests to the WorkOS API.
@@ -817,7 +822,7 @@ func (c *Client) CheckBatch(ctx context.Context, opts CheckBatchOpts) ([]CheckRe
 	c.once.Do(c.init)
 
 	checkOpts := CheckOpts{
-		Op:           "batch",
+		Op:           CheckOpBatch,
 		Checks:       opts.Checks,
 		Debug:        opts.Debug,
 		WarrantToken: opts.WarrantToken,
