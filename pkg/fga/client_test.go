@@ -27,7 +27,7 @@ func TestGetResource(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns an Resource",
+			scenario: "Request returns a Resource",
 			client: &Client{
 				APIKey: "test",
 			},
@@ -467,7 +467,7 @@ func TestCreateResource(t *testing.T) {
 			},
 		},
 		{
-			scenario: "Request with no ResourceId returns an Resource with generated report",
+			scenario: "Request with no ResourceId returns a Resource with generated report id",
 			client: &Client{
 				APIKey: "test",
 			},

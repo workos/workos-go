@@ -90,7 +90,7 @@ type ListResourcesOpts struct {
 	// The type of the resource.
 	ResourceType string `url:"resource_type,omitempty"`
 
-	// Searchable text for an Resource. Can be empty.
+	// Searchable text for a Resource. Can be empty.
 	Search string `url:"search,omitempty"`
 
 	// Maximum number of records to return.
@@ -137,7 +137,7 @@ type UpdateResourceOpts struct {
 	Meta map[string]interface{} `json:"meta,omitempty"`
 }
 
-// DeleteResourceOpts contains the options to delete an resource.
+// DeleteResourceOpts contains the options to delete a resource.
 type DeleteResourceOpts struct {
 	// The type of the resource.
 	ResourceType string
@@ -396,7 +396,7 @@ type QueryResponse struct {
 	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
-// GetResource gets an Resource.
+// GetResource gets a Resource.
 func (c *Client) GetResource(ctx context.Context, opts GetResourceOpts) (Resource, error) {
 	c.once.Do(c.init)
 
@@ -513,7 +513,7 @@ func (c *Client) CreateResource(ctx context.Context, opts CreateResourceOpts) (R
 func (c *Client) UpdateResource(ctx context.Context, opts UpdateResourceOpts) (Resource, error) {
 	c.once.Do(c.init)
 
-	// UpdateResourceChangeOpts contains the options to update an Resource minus the ResourceType and ResourceId
+	// UpdateResourceChangeOpts contains the options to update a Resource minus the ResourceType and ResourceId
 	type UpdateResourceChangeOpts struct {
 		Meta map[string]interface{} `json:"meta"`
 	}
@@ -553,7 +553,7 @@ func (c *Client) UpdateResource(ctx context.Context, opts UpdateResourceOpts) (R
 
 }
 
-// DeleteResource deletes an Resource
+// DeleteResource deletes a Resource
 func (c *Client) DeleteResource(ctx context.Context, opts DeleteResourceOpts) error {
 	c.once.Do(c.init)
 
