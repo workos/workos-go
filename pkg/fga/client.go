@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -278,6 +279,15 @@ type WriteWarrantResponse struct {
 
 // Check
 type Context map[string]interface{}
+
+func (context Context) EncodeValues(key string, values *url.Values) error {
+	jsonCtx, err := json.Marshal(context)
+	if err != nil {
+		return err
+	}
+	values.Set(key, string(jsonCtx))
+	return nil
+}
 
 type WarrantCheck struct {
 	// The type of the resource.
@@ -892,33 +902,7 @@ func (c *Client) Query(ctx context.Context, opts QueryOpts) (QueryResponse, erro
 		opts.Order = Desc
 	}
 
-	type QueryUrlOpts struct {
-		Query        string `url:"q"`
-		Context      string `url:"context,omitempty"`
-		Limit        int    `url:"limit,omitempty"`
-		Order        Order  `url:"order,omitempty"`
-		Before       string `url:"before,omitempty"`
-		After        string `url:"after,omitempty"`
-		WarrantToken string `url:"-"`
-	}
-
-	var jsonCtx []byte
-	if opts.Context != nil {
-		jsonCtx, err = json.Marshal(opts.Context)
-		if err != nil {
-			return QueryResponse{}, err
-		}
-	}
-	queryUrlOpts := QueryUrlOpts{
-		Query:   opts.Query,
-		Context: string(jsonCtx),
-		Limit:   opts.Limit,
-		Order:   opts.Order,
-		Before:  opts.Before,
-		After:   opts.After,
-	}
-
-	q, err := query.Values(queryUrlOpts)
+	q, err := query.Values(opts)
 	if err != nil {
 		return QueryResponse{}, err
 	}
