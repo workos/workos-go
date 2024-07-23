@@ -1,0 +1,441 @@
+package fga
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v4/pkg/common"
+)
+
+func TestFGAGetResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := Resource{
+		ResourceType: "report",
+		ResourceId:   "ljc_1029",
+	}
+	resourceResponse, err := GetResource(context.Background(), GetResourceOpts{
+		ResourceType: "report",
+		ResourceId:   "ljc_1029",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, resourceResponse)
+}
+
+func TestFGAListResources(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listResourcesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListResourcesResponse{
+		Data: []Resource{
+			{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+			},
+			{
+				ResourceType: "report",
+				ResourceId:   "mso_0806",
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	resourcesResponse, err := ListResources(context.Background(), ListResourcesOpts{
+		ResourceType: "report",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, resourcesResponse)
+}
+
+func TestFGACreateResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(createResourceTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := Resource{
+		ResourceType: "report",
+		ResourceId:   "sso_1710",
+	}
+	createdResource, err := CreateResource(context.Background(), CreateResourceOpts{
+		ResourceType: "report",
+		ResourceId:   "sso_1710",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, createdResource)
+}
+
+func TestFGAUpdateResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := Resource{
+		ResourceType: "report",
+		ResourceId:   "lad_8812",
+		Meta: map[string]interface{}{
+			"description": "Updated report",
+		},
+	}
+	updatedResource, err := UpdateResource(context.Background(), UpdateResourceOpts{
+		ResourceType: "report",
+		ResourceId:   "lad_8812",
+		Meta: map[string]interface{}{
+			"description": "Updated report",
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, updatedResource)
+}
+
+func TestFGADeleteResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteResourceTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	err := DeleteResource(context.Background(), DeleteResourceOpts{
+		ResourceType: "user",
+		ResourceId:   "user_01SXW182",
+	})
+
+	require.NoError(t, err)
+}
+
+func TestFGAListResourceTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listResourceTypesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListResourceTypesResponse{
+		Data: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+			{
+				Type:      "user",
+				Relations: map[string]interface{}{},
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	resourceTypesResponse, err := ListResourceTypes(context.Background(), ListResourceTypesOpts{
+		Order: "asc",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, resourceTypesResponse)
+}
+
+func TestFGABatchUpdateResourceTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(batchUpdateResourceTypesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := []ResourceType{
+		{
+			Type: "report",
+			Relations: map[string]interface{}{
+				"owner": map[string]interface{}{},
+				"editor": map[string]interface{}{
+					"inherit_if": "owner",
+				},
+				"viewer": map[string]interface{}{
+					"inherit_if": "editor",
+				},
+			},
+		},
+		{
+			Type:      "user",
+			Relations: map[string]interface{}{},
+		},
+	}
+	resourceTypes, err := BatchUpdateResourceTypes(context.Background(), []UpdateResourceTypeOpts{
+		{
+			Type: "report",
+			Relations: map[string]interface{}{
+				"owner": map[string]interface{}{},
+				"editor": map[string]interface{}{
+					"inherit_if": "owner",
+				},
+				"viewer": map[string]interface{}{
+					"inherit_if": "editor",
+				},
+			},
+		},
+		{
+			Type:      "user",
+			Relations: map[string]interface{}{},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, resourceTypes)
+}
+
+func TestFGAListWarrants(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listWarrantsTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListWarrantsResponse{
+		Data: []Warrant{
+			{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+			{
+				ResourceType: "report",
+				ResourceId:   "aut_7403",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	warrantsResponse, err := ListWarrants(context.Background(), ListWarrantsOpts{
+		ResourceType: "report",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, warrantsResponse)
+}
+
+func TestFGAWriteWarrant(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(writeWarrantTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := WriteWarrantResponse{
+		WarrantToken: "new_warrant_token",
+	}
+	warrantResponse, err := WriteWarrant(context.Background(), WriteWarrantOpts{
+		Op:           "create",
+		ResourceType: "report",
+		ResourceId:   "sso_1710",
+		Relation:     "member",
+		Subject: Subject{
+			ResourceType: "user",
+			ResourceId:   "user_01SXW182",
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, warrantResponse)
+}
+
+func TestFGABatchWriteWarrants(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(writeWarrantTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := WriteWarrantResponse{
+		WarrantToken: "new_warrant_token",
+	}
+	warrantResponse, err := BatchWriteWarrants(context.Background(), []WriteWarrantOpts{
+		{
+			Op:           "delete",
+			ResourceType: "report",
+			ResourceId:   "sso_1710",
+			Relation:     "viewer",
+			Subject: Subject{
+				ResourceType: "user",
+				ResourceId:   "user_01SXW182",
+			},
+		},
+		{
+			Op:           "create",
+			ResourceType: "report",
+			ResourceId:   "sso_1710",
+			Relation:     "editor",
+			Subject: Subject{
+				ResourceType: "user",
+				ResourceId:   "user_01SXW182",
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, warrantResponse)
+}
+
+func TestFGACheck(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(checkTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	checkResponse, err := Check(context.Background(), CheckOpts{
+		Checks: []WarrantCheck{
+			{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.True(t, checkResponse.Authorized())
+}
+
+func TestFGACheckBatch(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(checkBatchTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	checkResponses, err := CheckBatch(context.Background(), CheckBatchOpts{
+		Checks: []WarrantCheck{
+			{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Len(t, checkResponses, 2)
+	require.True(t, checkResponses[0].Authorized())
+	require.False(t, checkResponses[1].Authorized())
+}
+
+func TestFGAQuery(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(queryTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := QueryResponse{
+		Data: []QueryResult{
+			{
+				ResourceType: "role",
+				ResourceId:   "role_01SXW182",
+				Relation:     "member",
+				Warrant: Warrant{
+					ResourceType: "role",
+					ResourceId:   "role_01SXW182",
+					Relation:     "member",
+					Subject: Subject{
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
+					},
+				},
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "",
+		},
+	}
+	queryResponse, err := Query(context.Background(), QueryOpts{
+		Query: "select role where user:user_01SXW182 is member",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, queryResponse)
+}
