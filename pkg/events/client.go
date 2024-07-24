@@ -37,19 +37,27 @@ const (
 	DirectoryGroupUserAdded   = "dsync.group.user_added"
 	DirectroyGroupUserRemoved = "dsync.group.user_removed"
 	// User Management Events
-	UserCreated                   = "user.created"
-	UserUpdated                   = "user.updated"
-	UserDeleted                   = "user.deleted"
-	OrganizationMembershipAdded   = "organization_membership.added" // Deprecated: use OrganizationMembershipCreated instead
-	OrganizationMembershipCreated = "organization_membership.created"
-	OrganizationMembershipDeleted = "organization_membership.deleted"
-	OrganizationMembershipUpdated = "organization_membership.updated"
-	OrganizationMembershipRemoved = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
-	SessionCreated                = "session.created"
-	EmailVerificationCreated      = "email_verification.created"
-	InvitationCreated             = "invitation.created"
-	MagicAuthCreated              = "magic_auth.created"
-	PasswordResetCreated          = "password_reset.created"
+	AuthenticationEmailVerificationSucceeded = "authentication.email_verification_succeeded"
+	AuthenticationMagicAuthFailed            = "authentication.magic_auth_failed"
+	AuthenticationMagicAuthSucceeded         = "authentication.magic_auth_succeeded"
+	AuthenticationMfaSucceeded               = "authentication.mfa_succeeded"
+	AuthenticationOauthSucceeded             = "authentication.oauth_succeeded"
+	AuthenticationPasswordFailed             = "authentication.password_failed"
+	AuthenticationPasswordSucceeded          = "authentication.password_succeeded"
+	AuthenticationSsoSucceeded               = "authentication.sso_succeeded"
+	UserCreated                              = "user.created"
+	UserUpdated                              = "user.updated"
+	UserDeleted                              = "user.deleted"
+	OrganizationMembershipAdded              = "organization_membership.added" // Deprecated: use OrganizationMembershipCreated instead
+	OrganizationMembershipCreated            = "organization_membership.created"
+	OrganizationMembershipDeleted            = "organization_membership.deleted"
+	OrganizationMembershipUpdated            = "organization_membership.updated"
+	OrganizationMembershipRemoved            = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
+	SessionCreated                           = "session.created"
+	EmailVerificationCreated                 = "email_verification.created"
+	InvitationCreated                        = "invitation.created"
+	MagicAuthCreated                         = "magic_auth.created"
+	PasswordResetCreated                     = "password_reset.created"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
