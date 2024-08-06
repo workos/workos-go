@@ -13,6 +13,7 @@ import (
 	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v4/internal/workos"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/retryablehttp"
 	"github.com/workos/workos-go/v4/pkg/workos_errors"
 )
 
@@ -42,7 +43,7 @@ type Client struct {
 
 	// The http.Client that is used to get FGA records from WorkOS.
 	// Defaults to http.Client.
-	HTTPClient *http.Client
+	HTTPClient *retryablehttp.HttpClient
 
 	// The endpoint to WorkOS API. Defaults to https://api.workos.com.
 	Endpoint string
@@ -55,7 +56,7 @@ type Client struct {
 
 func (c *Client) init() {
 	if c.HTTPClient == nil {
-		c.HTTPClient = &http.Client{Timeout: 10 * time.Second}
+		c.HTTPClient = &retryablehttp.HttpClient{Client: http.Client{Timeout: 10 * time.Second}}
 	}
 
 	if c.Endpoint == "" {

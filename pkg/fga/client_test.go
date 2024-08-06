@@ -11,6 +11,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/retryablehttp"
 )
 
 func TestGetResource(t *testing.T) {
@@ -49,7 +50,7 @@ func TestGetResource(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resource, err := client.GetResource(context.Background(), test.options)
 			if test.err {
@@ -130,7 +131,7 @@ func TestListResources(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resources, err := client.ListResources(context.Background(), test.options)
 			if test.err {
@@ -240,7 +241,7 @@ func TestListResourceTypes(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resourceTypes, err := client.ListResourceTypes(context.Background(), test.options)
 			if test.err {
@@ -367,7 +368,7 @@ func TestBatchUpdateResourceTypes(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resourceTypes, err := client.BatchUpdateResourceTypes(context.Background(), test.options)
 			if test.err {
@@ -488,7 +489,7 @@ func TestCreateResource(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resource, err := client.CreateResource(context.Background(), test.options)
 			if test.err {
@@ -578,7 +579,7 @@ func TestUpdateResource(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resource, err := client.UpdateResource(context.Background(), test.options)
 			if test.err {
@@ -665,7 +666,7 @@ func TestDeleteResource(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			err := client.DeleteResource(context.Background(), test.options)
 			if test.err {
@@ -765,7 +766,7 @@ func TestListWarrants(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			resources, err := client.ListWarrants(context.Background(), test.options)
 			if test.err {
@@ -907,7 +908,7 @@ func TestWriteWarrant(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			warrantResponse, err := client.WriteWarrant(context.Background(), test.options)
 			if test.err {
@@ -973,7 +974,7 @@ func TestBatchWriteWarrants(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			warrantResponse, err := client.BatchWriteWarrants(context.Background(), test.options)
 			if test.err {
@@ -1057,7 +1058,7 @@ func TestCheck(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			checkResult, err := client.Check(context.Background(), test.options)
 			if test.err {
@@ -1157,7 +1158,7 @@ func TestCheckBatch(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			checkResults, err := client.CheckBatch(context.Background(), test.options)
 			if test.err {
@@ -1256,7 +1257,7 @@ func TestQuery(t *testing.T) {
 
 			client := test.client
 			client.Endpoint = server.URL
-			client.HTTPClient = server.Client()
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
 
 			queryResults, err := client.Query(context.Background(), test.options)
 			if test.err {
