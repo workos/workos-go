@@ -258,10 +258,11 @@ type AuthenticateWithCodeOpts struct {
 }
 
 type AuthenticateWithRefreshTokenOpts struct {
-	ClientID     string `json:"client_id"`
-	RefreshToken string `json:"refresh_token"`
-	IPAddress    string `json:"ip_address,omitempty"`
-	UserAgent    string `json:"user_agent,omitempty"`
+	ClientID       string `json:"client_id"`
+	RefreshToken   string `json:"refresh_token"`
+	OrganizationID string `json:"organization_id,omitempty"`
+	IPAddress      string `json:"ip_address,omitempty"`
+	UserAgent      string `json:"user_agent,omitempty"`
 }
 
 type AuthenticateWithMagicAuthOpts struct {
