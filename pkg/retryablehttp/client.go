@@ -51,7 +51,14 @@ func (client *HttpClient) Do(req *http.Request) (*http.Response, error) {
 		sleepTime := client.sleepTime(retry)
 		retry++
 
-		time.Sleep(sleepTime)
+		timer := time.NewTimer(sleepTime)
+		select {
+		case <-req.Context().Done():
+			timer.Stop()
+			client.CloseIdleConnections()
+			return nil, req.Context().Err()
+		case <-timer.C:
+		}
 	}
 
 	if err != nil {
@@ -63,10 +70,6 @@ func (client *HttpClient) Do(req *http.Request) (*http.Response, error) {
 
 func (client *HttpClient) shouldRetry(req *http.Request, resp *http.Response, err error, retryAttempt int) bool {
 	if retryAttempt >= MaxRetryAttempts {
-		return false
-	}
-
-	if req.Context() != nil && req.Context().Err() != nil {
 		return false
 	}
 
