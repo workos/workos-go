@@ -10,7 +10,7 @@ import (
 
 const MaxRetryAttempts = 3
 const MinimumDelay = 500
-const MinimumDelayDuration = 500 * time.Millisecond
+const MinimumDelayDuration = 250 * time.Millisecond
 const MaximumDelayDuration = 5 * time.Second
 const RandomizationFactor = 0.5
 const BackoffMultiplier = 1.5
