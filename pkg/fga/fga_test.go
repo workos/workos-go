@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/retryablehttp"
 )
 
 func TestFGAGetResource(t *testing.T) {
@@ -15,7 +16,7 @@ func TestFGAGetResource(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -38,7 +39,7 @@ func TestFGAListResources(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -72,7 +73,7 @@ func TestFGACreateResource(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -95,7 +96,7 @@ func TestFGAUpdateResource(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -124,7 +125,7 @@ func TestFGADeleteResource(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -142,7 +143,7 @@ func TestFGAListResourceTypes(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -184,7 +185,7 @@ func TestFGABatchUpdateResourceTypes(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -235,7 +236,7 @@ func TestFGAListWarrants(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -279,7 +280,7 @@ func TestFGAWriteWarrant(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -307,7 +308,7 @@ func TestFGABatchWriteWarrants(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -347,7 +348,7 @@ func TestFGACheck(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -375,7 +376,7 @@ func TestFGACheckBatch(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
@@ -405,7 +406,7 @@ func TestFGAQuery(t *testing.T) {
 	defer server.Close()
 
 	DefaultClient = &Client{
-		HTTPClient: server.Client(),
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
 	}
 	SetAPIKey("test")
