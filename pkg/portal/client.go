@@ -67,6 +67,7 @@ const (
 	DSync      GenerateLinkIntent = "dsync"
 	AuditLogs  GenerateLinkIntent = "audit_logs"
 	LogStreams GenerateLinkIntent = "log_streams"
+	CertificateRenewal GenerateLinkIntent = "certificate_renewal"
 )
 
 // GenerateLinkOpts contains the options to request Organizations.

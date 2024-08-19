@@ -71,6 +71,18 @@ func TestGenerateLink(t *testing.T) {
 			},
 			expected: "https://id.workos.test/portal/launch?secret=1234",
 		},
+		{
+			scenario: "Request returns link with certificate_renewal intent",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GenerateLinkOpts{
+				Intent:       CertificateRenewal,
+				Organization: "organization_id",
+				ReturnURL:    "https://foo-corp.app.com/settings",
+			},
+			expected: "https://id.workos.test/portal/launch?secret=1234",
+		},
 	}
 
 	for _, test := range tests {
