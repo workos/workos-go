@@ -414,6 +414,11 @@ type ConvertSchemaToResourceTypesOpts struct {
 	Schema string
 }
 
+type ConvertSchemaWarning struct {
+	// The warning message.
+	Message string `json:"message"`
+}
+
 type ConvertResourceTypesToSchemaOpts struct {
 	// The version of the transpiler to use.
 	Version string `json:"version"`
@@ -427,7 +432,7 @@ type ConvertSchemaResponse struct {
 	Version string `json:"version"`
 
 	// Warnings generated from schema issues.
-	Warnings []string `json:"warnings,omitempty"`
+	Warnings []ConvertSchemaWarning `json:"warnings,omitempty"`
 
 	// The schema generated from the resource types.
 	Schema *string `json:"schema,omitempty"`
