@@ -1316,3 +1316,119 @@ func queryTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func convertSchemaToResourceTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := json.Marshal(ConvertSchemaResponse{
+		Version: "0.1",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestConvertSchemaToResourceTypes(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ConvertSchemaToResourceTypesOpts
+		expected ConvertSchemaResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns ResourceTypes",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ConvertSchemaToResourceTypesOpts{
+				Schema: "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor",
+			},
+			expected: ConvertSchemaResponse{
+				Version: "0.1",
+				ResourceTypes: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(convertSchemaToResourceTypesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resourceTypes, err := client.ConvertSchemaToResourceTypes(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resourceTypes)
+		})
+	}
+}
+
+func convertResourceTypesToSchemaTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	schema := "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor"
+	body, err := json.Marshal(ConvertSchemaResponse{
+		Version: "0.1",
+		Schema:  &schema,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
