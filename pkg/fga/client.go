@@ -21,6 +21,10 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
+const (
+	SchemaConvertEndpoint = "%s/fga/v1/schemas/convert"
+)
+
 // Order represents the order of records.
 type Order string
 
@@ -964,7 +968,7 @@ func (c *Client) Query(ctx context.Context, opts QueryOpts) (QueryResponse, erro
 func (c *Client) ConvertSchemaToResourceTypes(ctx context.Context, opts ConvertSchemaToResourceTypesOpts) (ConvertSchemaResponse, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/fga/v1/schemas/convert", c.Endpoint)
+	endpoint := fmt.Sprintf(SchemaConvertEndpoint, c.Endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, strings.NewReader(opts.Schema))
 	if err != nil {
 		return ConvertSchemaResponse{}, err
@@ -1000,7 +1004,7 @@ func (c *Client) ConvertResourceTypesToSchema(ctx context.Context, opts ConvertR
 		return ConvertSchemaResponse{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/fga/v1/schemas/convert", c.Endpoint)
+	endpoint := fmt.Sprintf(SchemaConvertEndpoint, c.Endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return ConvertSchemaResponse{}, err
