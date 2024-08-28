@@ -2,6 +2,7 @@ package workos_errors
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -68,7 +69,7 @@ func (e *ResponseErrors) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	return fmt.Errorf("Errors field is not a valid format")
+	return errors.New("errors field is not a valid format")
 }
 
 func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []FieldError) {
