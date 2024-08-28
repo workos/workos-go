@@ -440,3 +440,74 @@ func TestFGAQuery(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, queryResponse)
 }
+
+func TestFGAConvertSchemaToResourceTypes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(convertSchemaToResourceTypesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ConvertSchemaResponse{
+		Version: "0.1",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	}
+	convertedSchema, err := ConvertSchemaToResourceTypes(context.Background(), ConvertSchemaToResourceTypesOpts{
+		Schema: "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, convertedSchema)
+}
+
+func TestFGAConvertResourceTypesToSchema(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(convertResourceTypesToSchemaTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedSchema := "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor"
+	expectedResponse := ConvertSchemaResponse{
+		Version: "0.1",
+		Schema:  &expectedSchema,
+	}
+	convertedSchema, err := ConvertResourceTypesToSchema(context.Background(), ConvertResourceTypesToSchemaOpts{
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, convertedSchema)
+}

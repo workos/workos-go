@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,6 +20,10 @@ import (
 
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
+
+const (
+	SchemaConvertEndpoint = "%s/fga/v1/schemas/convert"
+)
 
 // Order represents the order of records.
 type Order string
@@ -405,6 +410,39 @@ type QueryResponse struct {
 
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"list_metadata"`
+}
+
+// Schema
+type ConvertSchemaToResourceTypesOpts struct {
+	// The schema to convert to resource types.
+	Schema string
+}
+
+type ConvertSchemaWarning struct {
+	// The warning message.
+	Message string `json:"message"`
+}
+
+type ConvertResourceTypesToSchemaOpts struct {
+	// The version of the transpiler to use.
+	Version string `json:"version"`
+
+	// The resource types to convert to a schema.
+	ResourceTypes []ResourceType `json:"resource_types"`
+}
+
+type ConvertSchemaResponse struct {
+	// The version transpiler used to convert the schema.
+	Version string `json:"version"`
+
+	// Warnings generated from schema issues.
+	Warnings []ConvertSchemaWarning `json:"warnings,omitempty"`
+
+	// The schema generated from the resource types.
+	Schema *string `json:"schema,omitempty"`
+
+	// The resource types generated from the schema.
+	ResourceTypes []ResourceType `json:"resource_types,omitempty"`
 }
 
 // GetResource gets a Resource.
@@ -921,6 +959,73 @@ func (c *Client) Query(ctx context.Context, opts QueryOpts) (QueryResponse, erro
 	}
 
 	var body QueryResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// ConvertSchemaToResourceTypes converts a schema to resource types.
+func (c *Client) ConvertSchemaToResourceTypes(ctx context.Context, opts ConvertSchemaToResourceTypesOpts) (ConvertSchemaResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(SchemaConvertEndpoint, c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, strings.NewReader(opts.Schema))
+	if err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "text/plain")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+
+	var body ConvertSchemaResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// ConvertResourceTypesToSchema converts resource types to a schema.
+func (c *Client) ConvertResourceTypesToSchema(ctx context.Context, opts ConvertResourceTypesToSchemaOpts) (ConvertSchemaResponse, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+
+	endpoint := fmt.Sprintf(SchemaConvertEndpoint, c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ConvertSchemaResponse{}, err
+	}
+
+	var body ConvertSchemaResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err

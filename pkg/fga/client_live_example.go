@@ -1892,3 +1892,87 @@ func TestQueryWarrants(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestConvertSchemaLive(t *testing.T) {
+	setup()
+	schema := "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor"
+
+	response, err := ConvertSchemaToResourceTypes(context.Background(), ConvertSchemaToResourceTypesOpts{
+		Schema: schema,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	require.Len(t, response.ResourceTypes, 1)
+	require.Equal(t, response.Version, "0.1")
+	require.Equal(t, response, ConvertSchemaResponse{
+		Version: "0.1",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestConvertResourceTypesLive(t *testing.T) {
+	setup()
+
+	response, err := ConvertResourceTypesToSchema(context.Background(), ConvertResourceTypesToSchemaOpts{
+		Version: "0.1",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	require.Equal(t, response.Version, "0.1")
+	require.NotNil(t, response.Schema)
+
+	resourceTypeResponse, err := ConvertSchemaToResourceTypes(context.Background(), ConvertSchemaToResourceTypesOpts{
+		Schema: *response.Schema,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	require.Equal(t, resourceTypeResponse, ConvertSchemaResponse{
+		Version: "0.1",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	})
+}

@@ -117,3 +117,17 @@ func Query(
 ) (QueryResponse, error) {
 	return DefaultClient.Query(ctx, opts)
 }
+
+func ConvertSchemaToResourceTypes(
+	ctx context.Context,
+	opts ConvertSchemaToResourceTypesOpts,
+) (ConvertSchemaResponse, error) {
+	return DefaultClient.ConvertSchemaToResourceTypes(ctx, opts)
+}
+
+func ConvertResourceTypesToSchema(
+	ctx context.Context,
+	opts ConvertResourceTypesToSchemaOpts,
+) (ConvertSchemaResponse, error) {
+	return DefaultClient.ConvertResourceTypesToSchema(ctx, opts)
+}

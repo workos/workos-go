@@ -2,6 +2,7 @@ package workos_errors
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -43,6 +44,34 @@ func isJsonResponse(r *http.Response) bool {
 	return strings.Contains(r.Header.Get("Content-Type"), "application/json")
 }
 
+// ErrorWithMessage struct to hold a single error with a message
+type ErrorWithMessage struct {
+	Message string `json:"message"`
+}
+
+// ResponseErrors is a custom type that can handle unmarshaling []string or []ErrorWithMessage
+type ResponseErrors []string
+
+func (e *ResponseErrors) UnmarshalJSON(data []byte) error {
+	// Try unmarshaling as []string
+	var stringErrors []string
+	if err := json.Unmarshal(data, &stringErrors); err == nil {
+		*e = stringErrors
+		return nil
+	}
+
+	// Try unmarshaling as []ErrorWithMessage
+	var structErrors []ErrorWithMessage
+	if err := json.Unmarshal(data, &structErrors); err == nil {
+		for _, se := range structErrors {
+			*e = append(*e, se.Message)
+		}
+		return nil
+	}
+
+	return errors.New("errors field is not a valid format")
+}
+
 func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []FieldError) {
 	if statusCode == 422 {
 		var unprocesableEntityPayload struct {
@@ -61,11 +90,11 @@ func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []
 	}
 
 	var payload struct {
-		Message          string   `json:"message"`
-		Error            string   `json:"error"`
-		ErrorDescription string   `json:"error_description"`
-		Errors           []string `json:"errors"`
-		Code             string   `json:"code"`
+		Message          string         `json:"message"`
+		Error            string         `json:"error"`
+		ErrorDescription string         `json:"error_description"`
+		Errors           ResponseErrors `json:"errors"`
+		Code             string         `json:"code"`
 	}
 
 	if err := json.Unmarshal(b, &payload); err != nil {
