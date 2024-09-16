@@ -303,6 +303,21 @@ type AuthenticateWithOrganizationSelectionOpts struct {
 	UserAgent                  string `json:"user_agent,omitempty"`
 }
 
+// AuthenticationMethod represents the authentication method used to authenticate the user.
+type AuthenticationMethod string
+
+// Constants that enumerate the available authentication methods.
+const (
+	SSO                           AuthenticationMethod = "SSO"
+	Password                      AuthenticationMethod = "Password"
+	AppleOAuth                    AuthenticationMethod = "AppleOAuth"
+	GitHubOAuth                   AuthenticationMethod = "GitHubOAuth"
+	GoogleOAuth                   AuthenticationMethod = "GoogleOAuth"
+	MicrosoftOAuth                AuthenticationMethod = "MicrosoftOAuth"
+	MagicAuthAuthenticationMethod AuthenticationMethod = "MagicAuth"
+	Impersonation                 AuthenticationMethod = "Impersonation"
+)
+
 type Impersonator struct {
 	// The email address of the WorkOS Dashboard user using impersonation.
 	Email string `json:"email"`
@@ -327,6 +342,9 @@ type AuthenticateResponse struct {
 	// This RefreshToken can be used to obtain a new AccessToken using
 	// `AuthenticateWithRefreshToken`
 	RefreshToken string `json:"refresh_token"`
+
+	// The authentication method used to authenticate the user.
+	AuthenticationMethod AuthenticationMethod `json:"authentication_method"`
 
 	// Present if the authenticated user is being impersonated.
 	Impersonator *Impersonator `json:"impersonator"`
