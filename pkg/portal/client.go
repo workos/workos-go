@@ -63,11 +63,12 @@ type GenerateLinkIntent string
 
 // Constants that enumerate the available GenerateLinkIntent types.
 const (
-	SSO        GenerateLinkIntent = "sso"
-	DSync      GenerateLinkIntent = "dsync"
-	AuditLogs  GenerateLinkIntent = "audit_logs"
-	LogStreams GenerateLinkIntent = "log_streams"
+	SSO                GenerateLinkIntent = "sso"
+	DSync              GenerateLinkIntent = "dsync"
+	AuditLogs          GenerateLinkIntent = "audit_logs"
+	LogStreams         GenerateLinkIntent = "log_streams"
 	CertificateRenewal GenerateLinkIntent = "certificate_renewal"
+	DomainVerification GenerateLinkIntent = "domain_verification"
 )
 
 // GenerateLinkOpts contains the options to request Organizations.
