@@ -61,6 +61,9 @@ const (
 	InvitationCreated                        = "invitation.created"
 	MagicAuthCreated                         = "magic_auth.created"
 	PasswordResetCreated                     = "password_reset.created"
+	// Organization Domain Events
+	OrganizationDomainVerified           = "organization_domain.verified"
+	OrganizationDomainVerificationFailed = "organization_domain.verification_failed"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
