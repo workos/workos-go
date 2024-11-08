@@ -63,10 +63,10 @@ func (c *Client) init() {
 type OrganizationDomainState string
 
 const (
-	// Pending        OrganizationDomainState = "pending"
-	// Verified       OrganizationDomainState = "verified"
-	Failed         OrganizationDomainState = "failed"
-	LegacyVerified OrganizationDomainState = "legacy_verified"
+	OrganizationDomainPending        OrganizationDomainState = "pending"
+	OrganizationDomainVerified       OrganizationDomainState = "verified"
+	OrganizationDomainFailed         OrganizationDomainState = "failed"
+	OrganizationDomainLegacyVerified OrganizationDomainState = "legacy_verified"
 )
 
 type OrganizationDomainVerificationStrategy string
