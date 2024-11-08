@@ -84,6 +84,9 @@ type OrganizationDomain struct {
 	// The domain value
 	Domain string `json:"domain"`
 
+	// The Organization's unique identifier.
+	OrganizationID string `json:"organization_id"`
+
 	// Verification state of the domain.
 	State OrganizationDomainState `json:"state"`
 
