@@ -25,9 +25,11 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
-			OrganizationDomain{
-				ID:     "organization_domain_id",
-				Domain: "foo-corp.com",
+			{
+				ID:             "organization_domain_id",
+				Domain:         "foo-corp.com",
+				OrganizationID: "organization_id",
+				State:          "verified",
 			},
 		},
 	}
@@ -51,14 +53,16 @@ func TestOrganizationsListOrganizations(t *testing.T) {
 
 	expectedResponse := ListOrganizationsResponse{
 		Data: []Organization{
-			Organization{
+			{
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -93,9 +97,11 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
+				{
+					ID:             "organization_domain_id",
+					Domain:         "foo-corp.com",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
 			},
 		}
@@ -126,13 +132,17 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
+				{
+					ID:             "organization_domain_id",
+					Domain:         "foo-corp.com",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
-				OrganizationDomain{
-					ID:     "organization_domain_id_2",
-					Domain: "foo-corp.io",
+				{
+					ID:             "organization_domain_id_2",
+					Domain:         "foo-corp.io",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
 			},
 		}

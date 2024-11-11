@@ -60,6 +60,22 @@ func (c *Client) init() {
 	}
 }
 
+type OrganizationDomainState string
+
+const (
+	OrganizationDomainPending        OrganizationDomainState = "pending"
+	OrganizationDomainVerified       OrganizationDomainState = "verified"
+	OrganizationDomainFailed         OrganizationDomainState = "failed"
+	OrganizationDomainLegacyVerified OrganizationDomainState = "legacy_verified"
+)
+
+type OrganizationDomainVerificationStrategy string
+
+const (
+	Dns    OrganizationDomainVerificationStrategy = "dns"
+	Manual OrganizationDomainVerificationStrategy = "manual"
+)
+
 // OrganizationDomain contains data about an Organization's Domains.
 type OrganizationDomain struct {
 	// The Organization Domain's unique identifier.
@@ -67,6 +83,18 @@ type OrganizationDomain struct {
 
 	// The domain value
 	Domain string `json:"domain"`
+
+	// The Organization's unique identifier.
+	OrganizationID string `json:"organization_id"`
+
+	// Verification state of the domain.
+	State OrganizationDomainState `json:"state"`
+
+	// Strategy used to verify the domain.
+	VerificationStrategy OrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+
+	// Token used for DNS verification.
+	VerificationToken string `json:"verification_token,omitempty"`
 }
 
 // Organization contains data about a WorkOS Organization.

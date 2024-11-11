@@ -38,9 +38,11 @@ func TestGetOrganization(t *testing.T) {
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -79,9 +81,11 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
-			OrganizationDomain{
-				ID:     "organization_domain_id",
-				Domain: "foo-corp.com",
+			{
+				ID:             "organization_domain_id",
+				Domain:         "foo-corp.com",
+				OrganizationID: "organization_id",
+				State:          "verified",
 			},
 		},
 	})
@@ -118,14 +122,16 @@ func TestListOrganizations(t *testing.T) {
 
 			expected: ListOrganizationsResponse{
 				Data: []Organization{
-					Organization{
+					{
 						ID:                               "organization_id",
 						Name:                             "Foo Corp",
 						AllowProfilesOutsideOrganization: false,
 						Domains: []OrganizationDomain{
-							OrganizationDomain{
-								ID:     "organization_domain_id",
-								Domain: "foo-corp.com",
+							{
+								ID:             "organization_domain_id",
+								Domain:         "foo-corp.com",
+								OrganizationID: "organization_id",
+								State:          "verified",
 							},
 						},
 					},
@@ -175,14 +181,16 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		ListOrganizationsResponse: ListOrganizationsResponse{
 			Data: []Organization{
-				Organization{
+				{
 					ID:                               "organization_id",
 					Name:                             "Foo Corp",
 					AllowProfilesOutsideOrganization: false,
 					Domains: []OrganizationDomain{
-						OrganizationDomain{
-							ID:     "organization_domain_id",
-							Domain: "foo-corp.com",
+						{
+							ID:             "organization_domain_id",
+							Domain:         "foo-corp.com",
+							OrganizationID: "organization_id",
+							State:          "verified",
 						},
 					},
 				},
@@ -229,9 +237,11 @@ func TestCreateOrganization(t *testing.T) {
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -244,7 +254,7 @@ func TestCreateOrganization(t *testing.T) {
 			options: CreateOrganizationOpts{
 				Name: "Foo Corp",
 				DomainData: []OrganizationDomainData{
-					OrganizationDomainData{
+					{
 						Domain: "foo-corp.com",
 						State:  "verified",
 					},
@@ -255,9 +265,11 @@ func TestCreateOrganization(t *testing.T) {
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -346,9 +358,11 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
+				{
+					ID:             "organization_domain_id",
+					Domain:         "foo-corp.com",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
 			},
 		})
@@ -390,13 +404,17 @@ func TestUpdateOrganization(t *testing.T) {
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
-					OrganizationDomain{
-						ID:     "organization_domain_id_2",
-						Domain: "foo-corp.io",
+					{
+						ID:             "organization_domain_id_2",
+						Domain:         "foo-corp.io",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -410,11 +428,11 @@ func TestUpdateOrganization(t *testing.T) {
 				Organization: "organization_id",
 				Name:         "Foo Corp",
 				DomainData: []OrganizationDomainData{
-					OrganizationDomainData{
+					{
 						Domain: "foo-corp.com",
 						State:  "verified",
 					},
-					OrganizationDomainData{
+					{
 						Domain: "foo-corp.io",
 						State:  "verified",
 					},
@@ -425,13 +443,17 @@ func TestUpdateOrganization(t *testing.T) {
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
-					OrganizationDomain{
-						ID:     "organization_domain_id_2",
-						Domain: "foo-corp.io",
+					{
+						ID:             "organization_domain_id_2",
+						Domain:         "foo-corp.io",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -497,13 +519,17 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
+				{
+					ID:             "organization_domain_id",
+					Domain:         "foo-corp.com",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
-				OrganizationDomain{
-					ID:     "organization_domain_id_2",
-					Domain: "foo-corp.io",
+				{
+					ID:             "organization_domain_id_2",
+					Domain:         "foo-corp.io",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
 			},
 		})
