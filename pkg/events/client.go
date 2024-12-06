@@ -37,6 +37,10 @@ const (
 	DirectoryGroupUserAdded   = "dsync.group.user_added"
 	DirectoryGroupUserRemoved = "dsync.group.user_removed"
 	DirectroyGroupUserRemoved = "dsync.group.user_removed" // Deprecated: use DirectoryGroupUserRemoved instead
+	// Organization Events
+	OrganizationCreated = "organization.created"
+	OrganizationUpdated = "organization.updated"
+	OrganizationDeleted = "organization.deleted"
 	// User Management Events
 	AuthenticationEmailVerificationSucceeded = "authentication.email_verification_succeeded"
 	AuthenticationMagicAuthFailed            = "authentication.magic_auth_failed"
