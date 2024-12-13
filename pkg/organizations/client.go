@@ -46,6 +46,15 @@ type Client struct {
 	once sync.Once
 }
 
+func NewClient(apiKey string) *Client {
+	return &Client{
+		APIKey:     apiKey,
+		Endpoint:   "https://api.workos.com",
+		HTTPClient: &http.Client{Timeout: time.Second * 10},
+		JSONEncode: json.Marshal,
+	}
+}
+
 func (c *Client) init() {
 	if c.HTTPClient == nil {
 		c.HTTPClient = &http.Client{Timeout: 10 * time.Second}
