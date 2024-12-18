@@ -3,41 +3,16 @@ package auditlogs
 import (
 	"context"
 	"encoding/json"
-	"github.com/workos/workos-go/v4/pkg/workos_errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
-	"time"
+
+	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
 	"github.com/stretchr/testify/require"
 )
-
-var event = CreateEventOpts{
-	OrganizationID: "org_123456",
-	Event: Event{
-		Action:     "document.updated",
-		OccurredAt: time.Now(),
-		Actor: Actor{
-			ID:   "user_1",
-			Name: "Jon Smith",
-			Type: "User",
-		},
-		Targets: []Target{
-			{
-				ID:   "document_39127",
-				Type: "document",
-			},
-		},
-		Context: Context{
-			Location:  "192.0.0.8",
-			UserAgent: "Firefox",
-		},
-		Metadata: map[string]interface{}{
-			"successful": true,
-		},
-	},
-	IdempotencyKey: "key",
-}
 
 func TestCreateEvent(t *testing.T) {
 	t.Run("Idempotency Key is sent in the header", func(t *testing.T) {
@@ -129,7 +104,7 @@ func TestCreateEvent(t *testing.T) {
 			errorResponse := Error{
 				Message: "Audit Log could not be processed due to missing or incorrect data.",
 				Code:    "invalid_audit_log",
-				Errors:  []workos_errors.FieldError{workos_errors.FieldError{Field: "name", Code: "required_field"}},
+				Errors:  []workos_errors.FieldError{{Field: "name", Code: "required_field"}},
 			}
 			body, _ := json.Marshal(errorResponse)
 			w.Header().Set("Content-Type", "application/json")
@@ -151,7 +126,7 @@ func TestCreateEvent(t *testing.T) {
 
 		httpError := err.(workos_errors.HTTPError)
 		require.Equal(t, httpError.Message, "Audit Log could not be processed due to missing or incorrect data.")
-		require.Equal(t, httpError.FieldErrors, []workos_errors.FieldError{workos_errors.FieldError{Field: "name", Code: "required_field"}})
+		require.Equal(t, httpError.FieldErrors, []workos_errors.FieldError{{Field: "name", Code: "required_field"}})
 		require.Equal(t, httpError.ErrorCode, "invalid_audit_log")
 	})
 }
@@ -278,6 +253,137 @@ func TestGetExports(t *testing.T) {
 		_, err := GetExport(context.TODO(), GetExportOpts{})
 		require.Error(t, err)
 	})
+}
+
+func TestListActions(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListActionsOpts
+		expected ListActionsResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Audit Log Actions",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListActionsOpts{},
+			expected: ListActionsResponse{
+				Data: []AuditLogAction{
+					{
+						Name: "document.updated",
+						Schema: AuditLogActionSchema{
+							Version: 1,
+							Actor: Actor{
+								ID:   "user_1",
+								Name: "Test User",
+								Type: "User",
+							},
+							Targets: []Target{
+								{
+									ID:   "document_39127",
+									Name: "Test Document",
+									Type: "document",
+								},
+							},
+							Context: Context{
+								Location:  "192.0.0.8",
+								UserAgent: "Firefox",
+							},
+						},
+						CreatedAt: "2024-01-01T00:00:00Z",
+						UpdatedAt: "2024-01-01T00:00:00Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listActionsTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			actions, err := client.ListActions(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, actions)
+		})
+	}
+}
+
+func listActionsTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListActionsResponse
+	}{
+		ListActionsResponse: ListActionsResponse{
+			Data: []AuditLogAction{
+				{
+					Name: "document.updated",
+					Schema: AuditLogActionSchema{
+						Version: 1,
+						Actor: Actor{
+							ID:   "user_1",
+							Name: "Test User",
+							Type: "User",
+						},
+						Targets: []Target{
+							{
+								ID:   "document_39127",
+								Name: "Test Document",
+								Type: "document",
+							},
+						},
+						Context: Context{
+							Location:  "192.0.0.8",
+							UserAgent: "Firefox",
+						},
+					},
+					CreatedAt: "2024-01-01T00:00:00Z",
+					UpdatedAt: "2024-01-01T00:00:00Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
 
 type defaultTestHandler struct {
