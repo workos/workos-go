@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v4/pkg/common"
 	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
 	"github.com/workos/workos-go/v4/internal/workos"
@@ -34,6 +37,9 @@ type Client struct {
 	// The http.Client that is used to post Audit Log events to WorkOS. Defaults
 	// to http.Client.
 	HTTPClient *http.Client
+
+	// The WorkOS API URL. Defaults to https://api.workos.com.
+	Endpoint string
 
 	// The endpoint used to request WorkOS AuditLog events creation endpoint.
 	// Defaults to https://api.workos.com/audit_logs/events.
@@ -186,6 +192,10 @@ func (c *Client) init() {
 		c.HTTPClient = &http.Client{Timeout: 10 * time.Second}
 	}
 
+	if c.Endpoint == "" {
+		c.Endpoint = "https://api.workos.com"
+	}
+
 	if c.EventsEndpoint == "" {
 		c.EventsEndpoint = "https://api.workos.com/audit_logs/events"
 	}
@@ -197,6 +207,48 @@ func (c *Client) init() {
 	if c.JSONEncode == nil {
 		c.JSONEncode = json.Marshal
 	}
+}
+
+type AuditLogActionSchema struct {
+	Version  int                    `json:"version"`
+	Actor    Actor                  `json:"actor"`
+	Targets  []Target               `json:"targets"`
+	Context  Context                `json:"context"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+type AuditLogAction struct {
+	Name   string               `json:"name"`
+	Schema AuditLogActionSchema `json:"schema"`
+	// The timestamp of when the Organization was created.
+	CreatedAt string `json:"created_at"`
+	// The timestamp of when the Organization was updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// ListActionsOpts contains the options to request Audit Log Actions.
+type ListActionsOpts struct {
+	// Maximum number of records to return.
+	Limit int `url:"limit,omitempty"`
+
+	// The order in which to paginate records.
+	Order Order `url:"order,omitempty"`
+
+	// Pagination cursor to receive records before a provided Organization ID.
+	Before string `url:"before,omitempty"`
+
+	// Pagination cursor to receive records after a provided Organization ID.
+	After string `url:"after,omitempty"`
+}
+
+// ListActionsResponse describes the response structure when requesting
+// Audit Log Actions.
+type ListActionsResponse struct {
+	// List of Audit Log Actions.
+	Data []AuditLogAction `json:"data"`
+
+	// Cursor pagination options.
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // CreateEvent creates an Audit Log event.
@@ -290,6 +342,59 @@ func (c *Client) GetExport(ctx context.Context, e GetExportOpts) (AuditLogExport
 	}
 
 	var body AuditLogExport
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// ListActions gets a list of Audit Log Actions.
+func (c *Client) ListActions(
+	ctx context.Context,
+	opts ListActionsOpts,
+) (ListActionsResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/audit_logs/actions", c.Endpoint)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListActionsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListActionsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListActionsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListActionsResponse{}, err
+	}
+
+	var body ListActionsResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
