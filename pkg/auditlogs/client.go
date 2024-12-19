@@ -209,12 +209,36 @@ func (c *Client) init() {
 	}
 }
 
+type AuditLogActionSchemaMetadataProperty struct {
+	Type     string `json:"type"`
+	Nullable *bool  `json:"nullable,omitempty"`
+}
+
+type AuditLogActionSchemaMetadata struct {
+	Type       string                                          `json:"type"`
+	Properties map[string]AuditLogActionSchemaMetadataProperty `json:"metadata,omitempty"`
+}
+
+type AuditLogActionSchemaActor struct {
+	ID       string                       `json:"id"`
+	Name     string                       `json:"name"`
+	Type     string                       `json:"type"`
+	Metadata AuditLogActionSchemaMetadata `json:"metadata,omitempty"`
+}
+
+type AuditLogActionSchemaTarget struct {
+	ID       string                       `json:"id"`
+	Name     string                       `json:"name"`
+	Type     string                       `json:"type"`
+	Metadata AuditLogActionSchemaMetadata `json:"metadata,omitempty"`
+}
+
 type AuditLogActionSchema struct {
-	Version  int                    `json:"version"`
-	Actor    Actor                  `json:"actor"`
-	Targets  []Target               `json:"targets"`
-	Context  Context                `json:"context"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Version  int                          `json:"version"`
+	Actor    AuditLogActionSchemaActor    `json:"actor"`
+	Targets  []AuditLogActionSchemaTarget `json:"targets"`
+	Context  Context                      `json:"context"`
+	Metadata AuditLogActionSchemaMetadata `json:"metadata,omitempty"`
 }
 
 type AuditLogAction struct {
