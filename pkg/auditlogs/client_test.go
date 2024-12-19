@@ -280,12 +280,12 @@ func TestListActions(t *testing.T) {
 						Name: "document.updated",
 						Schema: AuditLogActionSchema{
 							Version: 1,
-							Actor: Actor{
+							Actor: AuditLogActionSchemaActor{
 								ID:   "user_1",
 								Name: "Test User",
 								Type: "User",
 							},
-							Targets: []Target{
+							Targets: []AuditLogActionSchemaTarget{
 								{
 									ID:   "document_39127",
 									Name: "Test Document",
@@ -350,12 +350,12 @@ func listActionsTestHandler(w http.ResponseWriter, r *http.Request) {
 					Name: "document.updated",
 					Schema: AuditLogActionSchema{
 						Version: 1,
-						Actor: Actor{
+						Actor: AuditLogActionSchemaActor{
 							ID:   "user_1",
 							Name: "Test User",
 							Type: "User",
 						},
-						Targets: []Target{
+						Targets: []AuditLogActionSchemaTarget{
 							{
 								ID:   "document_39127",
 								Name: "Test Document",
