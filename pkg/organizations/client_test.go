@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/roles"
 )
 
 func TestGetOrganization(t *testing.T) {
@@ -533,6 +534,113 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestListOrganizationRoles(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListOrganizationRolesOpts
+		expected ListOrganizationRolesResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns list of roles",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListOrganizationRolesOpts{
+				OrganizationID: "organization_id",
+			},
+			expected: ListOrganizationRolesResponse{
+				Data: []roles.Role{
+					{
+						ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJNY",
+						Name:        "Member",
+						Slug:        "member",
+						Description: "The default role for all users.",
+						Type:        roles.Environment,
+						CreatedAt:   "2024-12-01T00:00:00.000Z",
+						UpdatedAt:   "2024-12-01T00:00:00.000Z",
+					},
+					{
+						ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJSE",
+						Name:        "Org. Member",
+						Slug:        "org-member",
+						Description: "The default role for org. members.",
+						Type:        roles.Organization,
+						CreatedAt:   "2024-12-02T00:00:00.000Z",
+						UpdatedAt:   "2024-12-02T00:00:00.000Z",
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listOrganizationRolesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			response, err := client.ListOrganizationRoles(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, response)
+		})
+	}
+}
+
+func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListOrganizationRolesResponse
+	}{ListOrganizationRolesResponse{
+		Data: []roles.Role{
+			{
+				ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJNY",
+				Name:        "Member",
+				Slug:        "member",
+				Description: "The default role for all users.",
+				Type:        roles.Environment,
+				CreatedAt:   "2024-12-01T00:00:00.000Z",
+				UpdatedAt:   "2024-12-01T00:00:00.000Z",
+			},
+			{
+				ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJSE",
+				Name:        "Org. Member",
+				Slug:        "org-member",
+				Description: "The default role for org. members.",
+				Type:        roles.Organization,
+				CreatedAt:   "2024-12-02T00:00:00.000Z",
+				UpdatedAt:   "2024-12-02T00:00:00.000Z",
+			},
+		},
+	}})
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
