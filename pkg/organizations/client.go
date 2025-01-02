@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/v4/pkg/roles"
 	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
 	"github.com/google/go-querystring/query"
@@ -215,6 +216,17 @@ type UpdateOrganizationOpts struct {
 
 	// Domains of the Organization.
 	DomainData []OrganizationDomainData `json:"domain_data"`
+}
+
+// ListOrganizationsOpts contains the options to request Organizations.
+type ListOrganizationRolesOpts struct {
+	// The Organization's unique identifier.
+	OrganizationID string
+}
+
+type ListOrganizationRolesResponse struct {
+	// List of roles for the given organization.
+	Data []roles.Role `json:"data"`
 }
 
 // GetOrganization gets an Organization.
@@ -442,4 +454,42 @@ func (c *Client) DeleteOrganization(
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+// ListOrganizationRoles gets a list of roles for the given organization.
+func (c *Client) ListOrganizationRoles(
+	ctx context.Context,
+	opts ListOrganizationRolesOpts,
+) (ListOrganizationRolesResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/organizations/%s/roles", c.Endpoint, opts.OrganizationID)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+
+	var body ListOrganizationRolesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }

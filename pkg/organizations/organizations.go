@@ -56,3 +56,11 @@ func DeleteOrganization(
 ) error {
 	return DefaultClient.DeleteOrganization(ctx, opts)
 }
+
+// ListOrganizationRoles lists roles for an Organization.
+func ListOrganizationRoles(
+	ctx context.Context,
+	opts ListOrganizationRolesOpts,
+) (ListOrganizationRolesResponse, error) {
+	return DefaultClient.ListOrganizationRoles(ctx, opts)
+}

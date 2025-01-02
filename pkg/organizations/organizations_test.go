@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/roles"
 )
 
 func TestOrganizationsGetOrganization(t *testing.T) {
@@ -155,4 +156,45 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, organization)
+}
+
+func TestOrganizationsListOrganizationRoles(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listOrganizationRolesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListOrganizationRolesResponse{
+		Data: []roles.Role{
+			{
+				ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJNY",
+				Name:        "Member",
+				Slug:        "member",
+				Description: "The default role for all users.",
+				Type:        roles.Environment,
+				CreatedAt:   "2024-12-01T00:00:00.000Z",
+				UpdatedAt:   "2024-12-01T00:00:00.000Z",
+			},
+			{
+				ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJSE",
+				Name:        "Org. Member",
+				Slug:        "org-member",
+				Description: "The default role for org. members.",
+				Type:        roles.Organization,
+				CreatedAt:   "2024-12-02T00:00:00.000Z",
+				UpdatedAt:   "2024-12-02T00:00:00.000Z",
+			},
+		},
+	}
+
+	rolesResponse, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+		OrganizationID: "organization_id",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, rolesResponse)
 }
