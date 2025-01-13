@@ -2206,6 +2206,9 @@ type GetLogoutURLOpts struct {
 	//
 	// REQUIRED
 	SessionID string
+
+	// The URL to redirect the user to after they have logged out.
+	ReturnTo string
 }
 
 func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
@@ -2219,7 +2222,12 @@ func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
 	}
 
 	query := make(url.Values, 1)
+
 	query.Set("session_id", opts.SessionID)
+	if opts.ReturnTo != "" {
+		query.Set("return_to", opts.ReturnTo)
+	}
+
 	u.RawQuery = query.Encode()
 
 	return u, nil

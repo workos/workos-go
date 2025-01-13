@@ -3182,6 +3182,50 @@ func TestRevokeInvitation(t *testing.T) {
 	}
 }
 
+func TestGetLogoutURL(t *testing.T) {
+	tests := []struct {
+		scenario string
+		options  GetLogoutURLOpts
+		expected string
+		err      bool
+	}{
+		{
+			scenario: "Returns the logout URL",
+			options: GetLogoutURLOpts{
+				SessionID: "session_123",
+			},
+			expected: "https://api.workos.com/user_management/sessions/logout?session_id=session_123",
+		},
+		{
+			scenario: "Returns an error if no SessionID is given",
+			options:  GetLogoutURLOpts{},
+			err:      true,
+		},
+		{
+			scenario: "Includes return_to if given",
+			options: GetLogoutURLOpts{
+				SessionID: "session_123",
+				ReturnTo:  "https://your-app.com",
+			},
+			expected: "https://api.workos.com/user_management/sessions/logout?return_to=https%3A%2F%2Fyour-app.com&session_id=session_123",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			client := NewClient("test")
+
+			url, err := client.GetLogoutURL(test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, url.String())
+		})
+	}
+}
+
 func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
