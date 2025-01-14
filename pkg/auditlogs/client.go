@@ -216,7 +216,7 @@ type AuditLogActionSchemaMetadataProperty struct {
 
 type AuditLogActionSchemaMetadata struct {
 	Type       string                                          `json:"type"`
-	Properties map[string]AuditLogActionSchemaMetadataProperty `json:"metadata,omitempty"`
+	Properties map[string]AuditLogActionSchemaMetadataProperty `json:"properties,omitempty"`
 }
 
 type AuditLogActionSchemaActor struct {
@@ -237,16 +237,16 @@ type AuditLogActionSchema struct {
 	Version  int                          `json:"version"`
 	Actor    AuditLogActionSchemaActor    `json:"actor"`
 	Targets  []AuditLogActionSchemaTarget `json:"targets"`
-	Context  Context                      `json:"context"`
+	Context  Context                      `json:"context,omitempty"`
 	Metadata AuditLogActionSchemaMetadata `json:"metadata,omitempty"`
 }
 
 type AuditLogAction struct {
 	Name   string               `json:"name"`
 	Schema AuditLogActionSchema `json:"schema"`
-	// The timestamp of when the Organization was created.
+	// The timestamp of when the Audit Log Action was created.
 	CreatedAt string `json:"created_at"`
-	// The timestamp of when the Organization was updated.
+	// The timestamp of when the Audit Log Action was updated.
 	UpdatedAt string `json:"updated_at"`
 }
 
