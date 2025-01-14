@@ -12,4 +12,4 @@ go get -u github.com/workos/workos-go/v4/pkg/roles
 
 ## How it works
 
-See the [Roles and Permissions documentation](https://workos.com/docs/user-management/roles-and-permissions).
+See the [Roles API reference](https://workos.com/docs/reference/roles).
