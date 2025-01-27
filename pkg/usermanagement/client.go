@@ -251,10 +251,11 @@ type AuthenticateWithPasswordOpts struct {
 }
 
 type AuthenticateWithCodeOpts struct {
-	ClientID  string `json:"client_id"`
-	Code      string `json:"code"`
-	IPAddress string `json:"ip_address,omitempty"`
-	UserAgent string `json:"user_agent,omitempty"`
+	ClientID     string `json:"client_id"`
+	Code         string `json:"code"`
+	CodeVerifier string `json:"code_verifier,omitempty"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
 }
 
 type AuthenticateWithRefreshTokenOpts struct {
@@ -836,7 +837,10 @@ type GetAuthorizationURLOpts struct {
 	//
 	// REQUIRED.
 	ClientID string
-
+	//Optional Used for PKCE
+	CodeChallenge string
+	//Optional Used for PKCE
+	CodeChallengeMethod string
 	// The callback URL where your app redirects the user after an
 	// authorization code is granted (eg. https://foo.com/callback).
 	//
@@ -895,6 +899,12 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	}
 	if opts.ConnectionID != "" {
 		query.Set("connection_id", opts.ConnectionID)
+	}
+	if opts.CodeChallenge != "" {
+		query.Set("code_challenge", opts.CodeChallenge)
+	}
+	if opts.CodeChallengeMethod != "" {
+		query.Set("code_challenge_method", opts.CodeChallengeMethod)
 	}
 	if opts.OrganizationID != "" {
 		query.Set("organization_id", opts.OrganizationID)
