@@ -21,7 +21,7 @@ const ResponseLimit = 10
 const (
 	// Connection Events
 	ConnectionActivated   = "connection.activated"
-	ConnectionDeactivated = "connection.deactived"
+	ConnectionDeactivated = "connection.deactivated"
 	ConnectionDeleted     = "connection.deleted"
 	// Directory Events
 	DirectoryActivated = "dsync.activated"
