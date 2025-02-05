@@ -684,6 +684,17 @@ func TestClientAuthorizeURL(t *testing.T) {
 			},
 			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&connection_id=connection_123&login_hint=foo%40workos.com&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state",
 		},
+		{
+			scenario: "generate url with Code Challenge",
+			options: GetAuthorizationURLOpts{
+				ClientID:            "client_123",
+				ConnectionID:        "connection_123",
+				RedirectURI:         "https://example.com/sso/workos/callback",
+				CodeChallenge:       "code_verifier_value",
+				CodeChallengeMethod: "S256",
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&code_challenge=code_verifier_value&code_challenge_method=S256&connection_id=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
+		},
 	}
 
 	for _, test := range tests {
