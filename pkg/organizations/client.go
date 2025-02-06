@@ -96,6 +96,9 @@ type OrganizationDomain struct {
 
 	// Token used for DNS verification.
 	VerificationToken string `json:"verification_token,omitempty"`
+
+	// Prefix used for DNS verification.
+	VerificationPrefix string `json:"verification_prefix,omitempty"`
 }
 
 // Organization contains data about a WorkOS Organization.
