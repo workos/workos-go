@@ -22,20 +22,23 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Organization{
-		ID:                               "organization_id",
+		ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
 			{
-				ID:             "organization_domain_id",
-				Domain:         "foo-corp.com",
-				OrganizationID: "organization_id",
-				State:          "verified",
+				ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
+				Domain:               "foo-corp.com",
+				OrganizationID:       "org_01EHT88Z8J8795GZNQ4ZP1J81T",
+				State:                "verified",
+				VerificationStrategy: "dns",
+				VerificationToken:    "aW5HQ8Sgps1y3LQyrShsFRo3F",
+				VerificationPrefix:   "superapp-domain-verification-0fmfet",
 			},
 		},
 	}
 	organizationResponse, err := GetOrganization(context.Background(), GetOrganizationOpts{
-		Organization: "organization_id",
+		Organization: "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 	})
 
 	require.NoError(t, err)
