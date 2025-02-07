@@ -13,6 +13,6 @@ ifdef VERSION
 	open https://github.com/workos/workos-go/compare/${VERSION}?expand=1
 
 else
-	@echo "\033[91mVERSION is not defided\033[00m"
+	@echo "\033[91mVERSION is not defined\033[00m"
 	@echo "~> make VERSION=\033[90mv0.0.0\033[00m release"
 endif
