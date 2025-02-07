@@ -39,7 +39,7 @@ func TestGetToken(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(generateLinkTestHandler))
+			server := httptest.NewServer(http.HandlerFunc(getTokenTestHandler))
 			defer server.Close()
 
 			client := test.client
@@ -57,7 +57,7 @@ func TestGetToken(t *testing.T) {
 	}
 }
 
-func generateLinkTestHandler(w http.ResponseWriter, r *http.Request) {
+func getTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
