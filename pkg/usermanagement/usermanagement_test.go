@@ -33,6 +33,7 @@ func TestUserManagementGetUser(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		LastSignInAt:  "2021-06-25T19:07:33.155Z",
 		CreatedAt:     "2021-06-25T19:07:33.155Z",
 		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
@@ -62,6 +63,7 @@ func TestUserManagementListUsers(t *testing.T) {
 				FirstName:     "Marcelina",
 				LastName:      "Davis",
 				EmailVerified: true,
+				LastSignInAt:  "2021-06-25T19:07:33.155Z",
 				CreatedAt:     "2021-06-25T19:07:33.155Z",
 				UpdatedAt:     "2021-06-25T19:07:33.155Z",
 			},
@@ -91,6 +93,7 @@ func TestUserManagementCreateUser(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		LastSignInAt:  "2021-06-25T19:07:33.155Z",
 		CreatedAt:     "2021-06-25T19:07:33.155Z",
 		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
@@ -121,6 +124,7 @@ func TestUserManagementCreateUserPasswordHash(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		LastSignInAt:  "2021-06-25T19:07:33.155Z",
 		CreatedAt:     "2021-06-25T19:07:33.155Z",
 		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
@@ -152,6 +156,7 @@ func TestUserManagementUpdateUser(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		LastSignInAt:  "2021-06-25T19:07:33.155Z",
 		CreatedAt:     "2021-06-25T19:07:33.155Z",
 		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
@@ -182,6 +187,7 @@ func TestUserManagementUpdateUserPasswordHash(t *testing.T) {
 		FirstName:     "Marcelina",
 		LastName:      "Davis",
 		EmailVerified: true,
+		LastSignInAt:  "2021-06-25T19:07:33.155Z",
 		CreatedAt:     "2021-06-25T19:07:33.155Z",
 		UpdatedAt:     "2021-06-25T19:07:33.155Z",
 	}
@@ -255,6 +261,7 @@ func TestUsersSendVerificationEmail(t *testing.T) {
 			FirstName:     "Marcelina",
 			LastName:      "Davis",
 			EmailVerified: true,
+			LastSignInAt:  "2021-06-25T19:07:33.155Z",
 			CreatedAt:     "2021-06-25T19:07:33.155Z",
 			UpdatedAt:     "2021-06-25T19:07:33.155Z",
 		},
