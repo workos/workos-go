@@ -163,6 +163,9 @@ type User struct {
 
 	// A URL reference to an image representing the User.
 	ProfilePictureURL string `json:"profile_picture_url"`
+
+	// The timestamp when the user last signed in.
+	LastSignInAt string `json:"last_sign_in_at"`
 }
 
 // Represents User identities obtained from external identity providers.
