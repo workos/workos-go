@@ -10,7 +10,7 @@ import (
 )
 
 func TestWidgetsGetToken(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(generateLinkTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(getTokenTestHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
