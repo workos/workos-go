@@ -40,6 +40,7 @@ func TestListUsers(t *testing.T) {
 						FirstName: "Rick",
 						LastName:  "Sanchez",
 						JobTitle:  "Software Engineer",
+						Email:     "rick@sanchez.com",
 						Emails: []UserEmail{
 							UserEmail{
 								Primary: true,
@@ -112,6 +113,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					FirstName: "Rick",
 					LastName:  "Sanchez",
 					JobTitle:  "Software Engineer",
+					Email:     "rick@sanchez.com",
 					Emails: []UserEmail{
 						UserEmail{
 							Primary: true,
@@ -278,6 +280,7 @@ func TestGetUser(t *testing.T) {
 				FirstName: "Rick",
 				LastName:  "Sanchez",
 				JobTitle:  "Software Engineer",
+				Email:     "rick@sanchez.com",
 				Emails: []UserEmail{
 					UserEmail{
 						Primary: true,
@@ -337,6 +340,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 		FirstName: "Rick",
 		LastName:  "Sanchez",
 		JobTitle:  "Software Engineer",
+		Email:     "rick@sanchez.com",
 		Emails: []UserEmail{
 			UserEmail{
 				Primary: true,
