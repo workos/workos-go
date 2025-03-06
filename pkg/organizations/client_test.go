@@ -23,14 +23,12 @@ func TestGetOrganization(t *testing.T) {
 	}{
 		{
 			scenario: "Request without API Key returns an error",
-			client:   &Client{},
+			client:   NewClient(""),
 			err:      true,
 		},
 		{
 			scenario: "Request returns an Organization",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: GetOrganizationOpts{
 				Organization: "organization_id",
 			},
@@ -115,14 +113,12 @@ func TestListOrganizations(t *testing.T) {
 	}{
 		{
 			scenario: "Request without API Key returns an error",
-			client:   &Client{},
+			client:   NewClient(""),
 			err:      true,
 		},
 		{
 			scenario: "Request returns Organizations",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: ListOrganizationsOpts{
 				Domains: []string{"foo-corp.com"},
 			},
@@ -227,14 +223,12 @@ func TestCreateOrganization(t *testing.T) {
 	}{
 		{
 			scenario: "Request without API Key returns an error",
-			client:   &Client{},
+			client:   NewClient(""),
 			err:      true,
 		},
 		{
 			scenario: "Request returns Organization with Domains",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"foo-corp.com"},
@@ -255,9 +249,7 @@ func TestCreateOrganization(t *testing.T) {
 		},
 		{
 			scenario: "Request returns Organization with DomainData",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: CreateOrganizationOpts{
 				Name: "Foo Corp",
 				DomainData: []OrganizationDomainData{
@@ -283,10 +275,8 @@ func TestCreateOrganization(t *testing.T) {
 		},
 		{
 			scenario: "Request with duplicate Organization Domain returns error",
-			client: &Client{
-				APIKey: "test",
-			},
-			err: true,
+			client:   NewClient("test"),
+			err:      true,
 			options: CreateOrganizationOpts{
 				Name:    "Foo Corp",
 				Domains: []string{"duplicate.com"},
@@ -294,10 +284,8 @@ func TestCreateOrganization(t *testing.T) {
 		},
 		{
 			scenario: "Idempotency Key with different event payloads returns error",
-			client: &Client{
-				APIKey: "test",
-			},
-			err: true,
+			client:   NewClient("test"),
+			err:      true,
 			options: CreateOrganizationOpts{
 				Name:           "New Corp",
 				Domains:        []string{"foo-corp.com"},
@@ -393,14 +381,12 @@ func TestUpdateOrganization(t *testing.T) {
 	}{
 		{
 			scenario: "Request without API Key returns an error",
-			client:   &Client{},
+			client:   NewClient(""),
 			err:      true,
 		},
 		{
 			scenario: "Request returns Organization with Domains",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
@@ -428,9 +414,7 @@ func TestUpdateOrganization(t *testing.T) {
 		},
 		{
 			scenario: "Request returns Organization with DomainData",
-			client: &Client{
-				APIKey: "test",
-			},
+			client:   NewClient("test"),
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
@@ -467,10 +451,8 @@ func TestUpdateOrganization(t *testing.T) {
 		},
 		{
 			scenario: "Request with duplicate Organization Domain returns error",
-			client: &Client{
-				APIKey: "test",
-			},
-			err: true,
+			client:   NewClient("test"),
+			err:      true,
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
