@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -19,28 +19,38 @@ func TryGetHTTPError(r *http.Response) error {
 	var msg, code string
 	var errors []string
 	var fieldErrors []FieldError
+	var pendingAuthToken, emailVerificationID string
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		msg = err.Error()
-	} else if isJsonResponse(r) {
-		msg, code, errors, fieldErrors = getJsonErrorMessage(body, r.StatusCode)
 	} else {
-		msg = string(body)
+		// Print the raw response body
+		rawBody := string(body)
+
+		if isJsonResponse(r) {
+			msg, code, errors, fieldErrors, pendingAuthToken, emailVerificationID = getJsonErrorMessage(body, r.StatusCode)
+		} else {
+			msg = rawBody
+		}
 	}
 
 	return HTTPError{
-		Code:        r.StatusCode,
-		Status:      r.Status,
-		RequestID:   r.Header.Get("X-Request-ID"),
-		Message:     msg,
-		ErrorCode:   code,
-		Errors:      errors,
-		FieldErrors: fieldErrors,
+		Code:                       r.StatusCode,
+		Status:                     r.Status,
+		RequestID:                  r.Header.Get("X-Request-ID"),
+		Message:                    msg,
+		ErrorCode:                  code,
+		Errors:                     errors,
+		FieldErrors:                fieldErrors,
+		RawBody:                    string(body),
+		PendingAuthenticationToken: pendingAuthToken,
+		EmailVerificationID:        emailVerificationID,
 	}
 }
 
 func isJsonResponse(r *http.Response) bool {
+
 	return strings.Contains(r.Header.Get("Content-Type"), "application/json")
 }
 
@@ -72,55 +82,68 @@ func (e *ResponseErrors) UnmarshalJSON(data []byte) error {
 	return errors.New("errors field is not a valid format")
 }
 
-func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []FieldError) {
+func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []FieldError, string, string) {
 	if statusCode == 422 {
 		var unprocesableEntityPayload struct {
-			Message          string       `json:"message"`
-			Error            string       `json:"error"`
-			ErrorDescription string       `json:"error_description"`
-			FieldErrors      []FieldError `json:"errors"`
-			Code             string       `json:"code"`
+			Message                    string       `json:"message"`
+			Error                      string       `json:"error"`
+			ErrorDescription           string       `json:"error_description"`
+			FieldErrors                []FieldError `json:"errors"`
+			Code                       string       `json:"code"`
+			PendingAuthenticationToken string       `json:"pending_authentication_token"`
+			EmailVerificationID        string       `json:"email_verification_id"`
 		}
 
 		if err := json.Unmarshal(b, &unprocesableEntityPayload); err != nil {
-			return string(b), "", nil, nil
+			return string(b), "", nil, nil, "", ""
 		}
 
-		return unprocesableEntityPayload.Message, unprocesableEntityPayload.Code, nil, unprocesableEntityPayload.FieldErrors
+		return unprocesableEntityPayload.Message,
+			unprocesableEntityPayload.Code,
+			nil,
+			unprocesableEntityPayload.FieldErrors,
+			unprocesableEntityPayload.PendingAuthenticationToken,
+			unprocesableEntityPayload.EmailVerificationID
 	}
 
 	var payload struct {
-		Message          string         `json:"message"`
-		Error            string         `json:"error"`
-		ErrorDescription string         `json:"error_description"`
-		Errors           ResponseErrors `json:"errors"`
-		Code             string         `json:"code"`
+		Message                    string         `json:"message"`
+		Error                      string         `json:"error"`
+		ErrorDescription           string         `json:"error_description"`
+		Errors                     ResponseErrors `json:"errors"`
+		Code                       string         `json:"code"`
+		PendingAuthenticationToken string         `json:"pending_authentication_token"`
+		EmailVerificationID        string         `json:"email_verification_id"`
 	}
 
 	if err := json.Unmarshal(b, &payload); err != nil {
-		return string(b), "", nil, nil
+		return string(b), "", nil, nil, "", ""
 	}
 
 	if payload.Error != "" && payload.ErrorDescription != "" {
-		return fmt.Sprintf("%s %s", payload.Error, payload.ErrorDescription), "", nil, nil
+		return fmt.Sprintf("%s %s", payload.Error, payload.ErrorDescription), "", nil, nil, payload.PendingAuthenticationToken, payload.EmailVerificationID
 	} else if payload.Message != "" && len(payload.Errors) == 0 {
-		return payload.Message, "", nil, nil
+		return payload.Message, "", nil, nil, payload.PendingAuthenticationToken, payload.EmailVerificationID
 	} else if payload.Message != "" && len(payload.Errors) > 0 {
-		return payload.Message, payload.Code, payload.Errors, nil
+		return payload.Message, payload.Code, payload.Errors, nil, payload.PendingAuthenticationToken, payload.EmailVerificationID
 	}
 
-	return string(b), "", nil, nil
+	return string(b), "", nil, nil, "", ""
 }
 
 // HTTPError represents an http error.
 type HTTPError struct {
-	Code        int
-	Status      string
-	RequestID   string
-	Message     string
-	ErrorCode   string
-	Errors      []string
-	FieldErrors []FieldError
+	Code                       int
+	Status                     string
+	RequestID                  string
+	Message                    string
+	ErrorCode                  string
+	Errors                     []string
+	FieldErrors                []FieldError
+	ErrorDescription           string
+	RawBody                    string
+	PendingAuthenticationToken string
+	EmailVerificationID        string
 }
 
 type FieldError struct {
@@ -129,5 +152,16 @@ type FieldError struct {
 }
 
 func (e HTTPError) Error() string {
-	return fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Message)
+	baseMsg := fmt.Sprintf("%s: request id %q: %s", e.Status, e.RequestID, e.Message)
+
+	// Add additional fields if they exist
+	if e.PendingAuthenticationToken != "" {
+		baseMsg += fmt.Sprintf(", pending_authentication_token: %q", e.PendingAuthenticationToken)
+	}
+
+	if e.EmailVerificationID != "" {
+		baseMsg += fmt.Sprintf(", email_verification_id: %q", e.EmailVerificationID)
+	}
+
+	return baseMsg
 }
