@@ -844,6 +844,8 @@ type GetAuthorizationURLOpts struct {
 	CodeChallenge string
 	//Optional Used for PKCE
 	CodeChallengeMethod string
+
+	Context string
 	// The callback URL where your app redirects the user after an
 	// authorization code is granted (eg. https://foo.com/callback).
 	//
@@ -908,6 +910,9 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	}
 	if opts.CodeChallengeMethod != "" {
 		query.Set("code_challenge_method", opts.CodeChallengeMethod)
+	}
+	if opts.Context != "" {
+		query.Set("context", opts.Context)
 	}
 	if opts.OrganizationID != "" {
 		query.Set("organization_id", opts.OrganizationID)
