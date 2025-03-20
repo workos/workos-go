@@ -42,6 +42,7 @@ func TestGetUser(t *testing.T) {
 				LastSignInAt:  "2021-06-25T19:07:33.155Z",
 				CreatedAt:     "2021-06-25T19:07:33.155Z",
 				UpdatedAt:     "2021-06-25T19:07:33.155Z",
+				ExternalID:    "123",
 			},
 		},
 		{
@@ -60,6 +61,7 @@ func TestGetUser(t *testing.T) {
 				LastSignInAt:      "2021-06-25T19:07:33.155Z",
 				CreatedAt:         "2021-06-25T19:07:33.155Z",
 				UpdatedAt:         "2021-06-25T19:07:33.155Z",
+				ExternalID:        "456",
 			},
 		},
 	}
@@ -104,6 +106,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			LastSignInAt:  "2021-06-25T19:07:33.155Z",
 			CreatedAt:     "2021-06-25T19:07:33.155Z",
 			UpdatedAt:     "2021-06-25T19:07:33.155Z",
+			ExternalID:    "123",
 		})
 	}
 
@@ -118,6 +121,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 			LastSignInAt:      "2021-06-25T19:07:33.155Z",
 			CreatedAt:         "2021-06-25T19:07:33.155Z",
 			UpdatedAt:         "2021-06-25T19:07:33.155Z",
+			ExternalID:        "456",
 		})
 	}
 
