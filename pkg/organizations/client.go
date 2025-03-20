@@ -123,6 +123,12 @@ type Organization struct {
 
 	// The timestamp of when the Organization was updated.
 	UpdatedAt string `json:"updated_at"`
+
+	// The Organization's external id.
+	ExternalID string `json:"external_id"`
+
+	// The Organization's metadata.
+	Metadata map[string]string `json:"metadata"`
 }
 
 // GetOrganizationOpts contains the options to request details for an Organization.
@@ -196,6 +202,12 @@ type CreateOrganizationOpts struct {
 
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
+
+	// The Organization's external id.
+	ExternalID string `json:"external_id"`
+
+	// The Organization's metadata.
+	Metadata map[string]string `json:"metadata"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
@@ -219,6 +231,12 @@ type UpdateOrganizationOpts struct {
 
 	// Domains of the Organization.
 	DomainData []OrganizationDomainData `json:"domain_data"`
+
+	// The Organization's external id.
+	ExternalID string `json:"external_id"`
+
+	// The Organization's metadata.
+	Metadata map[string]string `json:"metadata"`
 }
 
 // ListOrganizationsOpts contains the options to request Organizations.
