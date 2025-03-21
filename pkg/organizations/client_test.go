@@ -49,6 +49,7 @@ func TestGetOrganization(t *testing.T) {
 						VerificationPrefix:   "superapp-domain-verification-0fmfet",
 					},
 				},
+				ExternalID: "external_id",
 			},
 		},
 	}
@@ -63,6 +64,67 @@ func TestGetOrganization(t *testing.T) {
 			client.HTTPClient = server.Client()
 
 			organization, err := client.GetOrganization(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, organization)
+		})
+	}
+}
+
+func TestGetOrganizationByExternalID(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetOrganizationByExternalIDOpts
+		expected Organization
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns an Organization",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GetOrganizationByExternalIDOpts{
+				ExternalID: "external_id",
+			},
+			expected: Organization{
+				ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
+				Name:                             "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
+				Domains: []OrganizationDomain{
+					{
+						ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
+						Domain:               "foo-corp.com",
+						OrganizationID:       "org_01EHT88Z8J8795GZNQ4ZP1J81T",
+						State:                "verified",
+						VerificationStrategy: "dns",
+						VerificationToken:    "aW5HQ8Sgps1y3LQyrShsFRo3F",
+						VerificationPrefix:   "superapp-domain-verification-0fmfet",
+					},
+				},
+				ExternalID: "external_id",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getOrganizationTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			organization, err := client.GetOrganizationByExternalID(context.Background(), test.options)
 			if test.err {
 				require.Error(t, err)
 				return
@@ -95,6 +157,7 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 				VerificationPrefix:   "superapp-domain-verification-0fmfet",
 			},
 		},
+		ExternalID: "external_id",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

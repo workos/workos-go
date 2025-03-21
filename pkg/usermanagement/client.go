@@ -139,7 +139,6 @@ type OrganizationMembership struct {
 
 // User contains data about a particular User.
 type User struct {
-
 	// The User's unique identifier.
 	ID string `json:"id"`
 
@@ -166,6 +165,12 @@ type User struct {
 
 	// The timestamp when the user last signed in.
 	LastSignInAt string `json:"last_sign_in_at"`
+
+	// The User's external id.
+	ExternalID string `json:"external_id"`
+
+	// The User's metadata.
+	Metadata map[string]string `json:"metadata"`
 }
 
 // Represents User identities obtained from external identity providers.
@@ -182,6 +187,10 @@ type Identity struct {
 type GetUserOpts struct {
 	// User unique identifier
 	User string `json:"id"`
+}
+
+type GetUserByExternalIDOpts struct {
+	ExternalID string
 }
 
 // ListUsersResponse contains the response from the ListUsers call.
@@ -214,13 +223,15 @@ type ListUsersOpts struct {
 }
 
 type CreateUserOpts struct {
-	Email            string           `json:"email"`
-	Password         string           `json:"password,omitempty"`
-	PasswordHash     string           `json:"password_hash,omitempty"`
-	PasswordHashType PasswordHashType `json:"password_hash_type,omitempty"`
-	FirstName        string           `json:"first_name,omitempty"`
-	LastName         string           `json:"last_name,omitempty"`
-	EmailVerified    bool             `json:"email_verified,omitempty"`
+	Email            string            `json:"email"`
+	Password         string            `json:"password,omitempty"`
+	PasswordHash     string            `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType  `json:"password_hash_type,omitempty"`
+	FirstName        string            `json:"first_name,omitempty"`
+	LastName         string            `json:"last_name,omitempty"`
+	EmailVerified    bool              `json:"email_verified,omitempty"`
+	ExternalID       string            `json:"external_id,omitempty"`
+	Metadata         map[string]string `json:"metadata,omitempty"`
 }
 
 // The algorithm originally used to hash the password.
@@ -233,12 +244,14 @@ const (
 
 type UpdateUserOpts struct {
 	User             string
-	FirstName        string           `json:"first_name,omitempty"`
-	LastName         string           `json:"last_name,omitempty"`
-	EmailVerified    bool             `json:"email_verified,omitempty"`
-	Password         string           `json:"password,omitempty"`
-	PasswordHash     string           `json:"password_hash,omitempty"`
-	PasswordHashType PasswordHashType `json:"password_hash_type,omitempty"`
+	FirstName        string            `json:"first_name,omitempty"`
+	LastName         string            `json:"last_name,omitempty"`
+	EmailVerified    bool              `json:"email_verified,omitempty"`
+	Password         string            `json:"password,omitempty"`
+	PasswordHash     string            `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType  `json:"password_hash_type,omitempty"`
+	ExternalID       string            `json:"external_id,omitempty"`
+	Metadata         map[string]string `json:"metadata,omitempty"`
 }
 
 type DeleteUserOpts struct {
@@ -591,6 +604,43 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 		"%s/user_management/users/%s",
 		c.Endpoint,
 		opts.User,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) GetUserByExternalID(ctx context.Context, opts GetUserByExternalIDOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/users/external_id/%s",
+		c.Endpoint,
+		opts.ExternalID,
 	)
 
 	req, err := http.NewRequest(

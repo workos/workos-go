@@ -36,6 +36,7 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 				VerificationPrefix:   "superapp-domain-verification-0fmfet",
 			},
 		},
+		ExternalID: "external_id",
 	}
 	organizationResponse, err := GetOrganization(context.Background(), GetOrganizationOpts{
 		Organization: "org_01EHT88Z8J8795GZNQ4ZP1J81T",

@@ -36,6 +36,7 @@ func TestUserManagementGetUser(t *testing.T) {
 		LastSignInAt:  "2021-06-25T19:07:33.155Z",
 		CreatedAt:     "2021-06-25T19:07:33.155Z",
 		UpdatedAt:     "2021-06-25T19:07:33.155Z",
+		ExternalID:    "123",
 	}
 
 	userRes, err := GetUser(context.Background(), GetUserOpts{

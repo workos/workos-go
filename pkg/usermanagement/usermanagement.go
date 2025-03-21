@@ -48,6 +48,14 @@ func GetUser(
 	return DefaultClient.GetUser(ctx, opts)
 }
 
+// GetUser gets a User.
+func GetUserByExternalID(
+	ctx context.Context,
+	opts GetUserByExternalIDOpts,
+) (User, error) {
+	return DefaultClient.GetUserByExternalID(ctx, opts)
+}
+
 // ListUsers gets a list of Users.
 func ListUsers(
 	ctx context.Context,

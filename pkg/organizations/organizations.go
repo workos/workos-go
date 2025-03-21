@@ -25,6 +25,14 @@ func GetOrganization(
 	return DefaultClient.GetOrganization(ctx, opts)
 }
 
+// GetOrganization gets an Organization by its external id
+func GetOrganizationByExternalID(
+	ctx context.Context,
+	opts GetOrganizationByExternalIDOpts,
+) (Organization, error) {
+	return DefaultClient.GetOrganizationByExternalID(ctx, opts)
+}
+
 // ListOrganizations gets a list of Organizations.
 func ListOrganizations(
 	ctx context.Context,
