@@ -137,6 +137,10 @@ type GetOrganizationOpts struct {
 	Organization string
 }
 
+type GetOrganizationByExternalIDOpts struct {
+	ExternalID string
+}
+
 // ListOrganizationsOpts contains the options to request Organizations.
 type ListOrganizationsOpts struct {
 	// Domains of the Organization.
@@ -261,6 +265,48 @@ func (c *Client) GetOrganization(
 		"%s/organizations/%s",
 		c.Endpoint,
 		opts.Organization,
+	)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return Organization{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Organization{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Organization{}, err
+	}
+
+	var body Organization
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// GetOrganizationByExternalID gets an Organization by its External ID.
+func (c *Client) GetOrganizationByExternalID(
+	ctx context.Context,
+	opts GetOrganizationByExternalIDOpts,
+) (Organization, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/organizations/external_id/%s",
+		c.Endpoint,
+		opts.ExternalID,
 	)
 	req, err := http.NewRequest(
 		http.MethodGet,

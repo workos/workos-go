@@ -86,6 +86,59 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
+func TestGetUserByExternalID(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetUserByExternalIDOpts
+		expected User
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns a User",
+			client:   NewClient("test"),
+			options: GetUserByExternalIDOpts{
+				ExternalID: "123",
+			},
+			expected: User{
+				ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+				Email:         "marcelina@foo-corp.com",
+				FirstName:     "Marcelina",
+				LastName:      "Davis",
+				EmailVerified: true,
+				LastSignInAt:  "2021-06-25T19:07:33.155Z",
+				CreatedAt:     "2021-06-25T19:07:33.155Z",
+				UpdatedAt:     "2021-06-25T19:07:33.155Z",
+				ExternalID:    "123",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getUserTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			user, err := client.GetUserByExternalID(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, user)
+		})
+	}
+}
+
 func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
@@ -97,6 +150,20 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.URL.Path == "/user_management/users/user_123" {
+		body, err = json.Marshal(User{
+			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
+			Email:         "marcelina@foo-corp.com",
+			FirstName:     "Marcelina",
+			LastName:      "Davis",
+			EmailVerified: true,
+			LastSignInAt:  "2021-06-25T19:07:33.155Z",
+			CreatedAt:     "2021-06-25T19:07:33.155Z",
+			UpdatedAt:     "2021-06-25T19:07:33.155Z",
+			ExternalID:    "123",
+		})
+	}
+
+	if r.URL.Path == "/user_management/users/external_id/123" {
 		body, err = json.Marshal(User{
 			ID:            "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			Email:         "marcelina@foo-corp.com",

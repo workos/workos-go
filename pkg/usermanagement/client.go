@@ -189,6 +189,10 @@ type GetUserOpts struct {
 	User string `json:"id"`
 }
 
+type GetUserByExternalIDOpts struct {
+	ExternalID string
+}
+
 // ListUsersResponse contains the response from the ListUsers call.
 type ListUsersResponse struct {
 	// List of Users
@@ -600,6 +604,43 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 		"%s/user_management/users/%s",
 		c.Endpoint,
 		opts.User,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) GetUserByExternalID(ctx context.Context, opts GetUserByExternalIDOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/users/external_id/%s",
+		c.Endpoint,
+		opts.ExternalID,
 	)
 
 	req, err := http.NewRequest(
