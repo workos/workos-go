@@ -511,3 +511,141 @@ func TestFGAConvertResourceTypesToSchema(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, convertedSchema)
 }
+
+func TestFGAGetSchema(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getSchemaHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := GetSchemaResponse{
+		Version: "0.3",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+					"admin": map[string]interface{}{
+						"inherit_if": "viewer",
+					},
+					"policy": map[string]interface{}{
+						"policy": "policy_1",
+					},
+				},
+			},
+		},
+		Policies: map[string]Policy{
+			"policy_1": {
+				Name:       "policy_1",
+				Language:   "expr",
+				Expression: "true",
+				Parameters: []PolicyParameter{
+					{
+						Name: "param_1",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+	schemaResponse, err := GetSchema(context.Background())
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, schemaResponse)
+}
+
+func TestFGAUpdateSchema(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getSchemaHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := GetSchemaResponse{
+		Version: "0.3",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+					"admin": map[string]interface{}{
+						"inherit_if": "viewer",
+					},
+					"policy": map[string]interface{}{
+						"policy": "policy_1",
+					},
+				},
+			},
+		},
+		Policies: map[string]Policy{
+			"policy_1": {
+				Name:       "policy_1",
+				Language:   "expr",
+				Expression: "true",
+				Parameters: []PolicyParameter{
+					{
+						Name: "param_1",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+	schemaResponse, err := UpdateSchema(context.Background(), UpdateSchemaOpts{
+		ResourceTypes: []UpdateResourceTypeOpts{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+					"admin": map[string]interface{}{
+						"inherit_if": "viewer",
+					},
+					"policy": map[string]interface{}{
+						"policy": "policy_1",
+					},
+				},
+			},
+		},
+		Policies: map[string]UpdatePolicyOpts{
+			"policy_1": {
+				Name:       "policy_1",
+				Language:   "expr",
+				Expression: "true",
+				Parameters: []PolicyParameter{
+					{
+						Name: "param_1",
+						Type: "string",
+					},
+				},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, schemaResponse)
+}
