@@ -1432,3 +1432,249 @@ func convertResourceTypesToSchemaTestHandler(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestGetSchema(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		expected GetSchemaResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Schema",
+			client: &Client{
+				APIKey: "test",
+			},
+			expected: GetSchemaResponse{
+				Version: "0.3",
+				ResourceTypes: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+							"admin": map[string]interface{}{
+								"inherit_if": "viewer",
+							},
+							"policy": map[string]interface{}{
+								"policy": "policy_1",
+							},
+						},
+					},
+				},
+				Policies: map[string]Policy{
+					"policy_1": {
+						Name:       "policy_1",
+						Language:   "expr",
+						Expression: "true",
+						Parameters: []PolicyParameter{
+							{
+								Name: "param_1",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getSchemaHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			schema, err := client.GetSchema(context.Background())
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, schema)
+		})
+	}
+}
+
+func getSchemaHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(GetSchemaResponse{
+		Version: "0.3",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+					"admin": map[string]interface{}{
+						"inherit_if": "viewer",
+					},
+					"policy": map[string]interface{}{
+						"policy": "policy_1",
+					},
+				},
+			},
+		},
+		Policies: map[string]Policy{
+			"policy_1": {
+				Name:       "policy_1",
+				Language:   "expr",
+				Expression: "true",
+				Parameters: []PolicyParameter{
+					{
+						Name: "param_1",
+						Type: "string",
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestUpdateSchema(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  UpdateSchemaOpts
+		expected GetSchemaResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request applies Schema successfully",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdateSchemaOpts{
+				ResourceTypes: []UpdateResourceTypeOpts{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+							"admin": map[string]interface{}{
+								"inherit_if": "viewer",
+							},
+							"policy": map[string]interface{}{
+								"policy": "policy_1",
+							},
+						},
+					},
+				},
+				Policies: map[string]UpdatePolicyOpts{
+					"policy_1": {
+						Name:       "policy_1",
+						Language:   "expr",
+						Expression: "true",
+						Parameters: []PolicyParameter{
+							{
+								Name: "param_1",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			expected: GetSchemaResponse{
+				Version: "0.3",
+				ResourceTypes: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+							"admin": map[string]interface{}{
+								"inherit_if": "viewer",
+							},
+							"policy": map[string]interface{}{
+								"policy": "policy_1",
+							},
+						},
+					},
+				},
+				Policies: map[string]Policy{
+					"policy_1": {
+						Name:       "policy_1",
+						Language:   "expr",
+						Expression: "true",
+						Parameters: []PolicyParameter{
+							{
+								Name: "param_1",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getSchemaHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			schema, err := client.UpdateSchema(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, schema)
+		})
+	}
+}

@@ -131,3 +131,18 @@ func ConvertResourceTypesToSchema(
 ) (ConvertSchemaResponse, error) {
 	return DefaultClient.ConvertResourceTypesToSchema(ctx, opts)
 }
+
+// GetSchema retrieves the current schema for the environment.
+func GetSchema(
+	ctx context.Context,
+) (GetSchemaResponse, error) {
+	return DefaultClient.GetSchema(ctx)
+}
+
+// UpdateSchema applies a schema to the environment, updating the current schema.
+func UpdateSchema(
+	ctx context.Context,
+	opts UpdateSchemaOpts,
+) (GetSchemaResponse, error) {
+	return DefaultClient.UpdateSchema(ctx, opts)
+}

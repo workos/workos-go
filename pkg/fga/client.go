@@ -283,6 +283,48 @@ type WriteWarrantResponse struct {
 	WarrantToken string `json:"warrant_token"`
 }
 
+// Policies
+type Policy struct {
+	// The name of the policy.
+	Name string `json:"name"`
+
+	// The language of the policy expression.
+	Language string `json:"language"`
+
+	//The description of the policy.
+	Description string `json:"description,omitempty"`
+
+	// Parameters for the policy.
+	Parameters []PolicyParameter `json:"parameters"`
+
+	// The expression of the policy.
+	Expression string `json:"expression"`
+}
+
+type PolicyParameter struct {
+	// The name of the parameter.
+	Name string `json:"name"`
+	// The type of the parameter.
+	Type string `json:"type"`
+}
+
+type UpdatePolicyOpts struct {
+	// The name of the policy.
+	Name string `json:"name"`
+
+	// The language of the policy expression.
+	Language string `json:"language"`
+
+	// The description of the policy.
+	Description string `json:"description,omitempty"`
+
+	// Parameters for the policy.
+	Parameters []PolicyParameter `json:"parameters"`
+
+	// The expression of the policy.
+	Expression string `json:"expression"`
+}
+
 // Check
 type Context map[string]interface{}
 
@@ -443,6 +485,25 @@ type ConvertSchemaResponse struct {
 
 	// The resource types generated from the schema.
 	ResourceTypes []ResourceType `json:"resource_types,omitempty"`
+}
+
+type GetSchemaResponse struct {
+	// The version of the schema.
+	Version string `json:"version"`
+
+	// The resource types generated from the schema.
+	ResourceTypes []ResourceType `json:"resource_types"`
+
+	// The policies generated from the schema.
+	Policies map[string]Policy `json:"policies"`
+}
+
+type UpdateSchemaOpts struct {
+	// The resource types generated from the schema.
+	ResourceTypes []UpdateResourceTypeOpts `json:"resource_types"`
+
+	// The policies generated from the schema.
+	Policies map[string]UpdatePolicyOpts `json:"policies"`
 }
 
 // GetResource gets a Resource.
@@ -1026,6 +1087,73 @@ func (c *Client) ConvertResourceTypesToSchema(ctx context.Context, opts ConvertR
 	}
 
 	var body ConvertSchemaResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// GetSchema gets the current schema for the environment.
+func (c *Client) GetSchema(ctx context.Context) (GetSchemaResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/fga/v1/schema", c.Endpoint)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return GetSchemaResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return GetSchemaResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return GetSchemaResponse{}, err
+	}
+
+	var body GetSchemaResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// UpdateSchema updates the current schema for the environment.
+func (c *Client) UpdateSchema(ctx context.Context, opts UpdateSchemaOpts) (GetSchemaResponse, error) {
+	c.once.Do(c.init)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return GetSchemaResponse{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/fga/v1/schema", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return GetSchemaResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return GetSchemaResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return GetSchemaResponse{}, err
+	}
+
+	var body GetSchemaResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
