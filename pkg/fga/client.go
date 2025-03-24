@@ -471,6 +471,9 @@ type ConvertResourceTypesToSchemaOpts struct {
 
 	// The resource types to convert to a schema.
 	ResourceTypes []ResourceType `json:"resource_types"`
+
+	// The policies to convert to a schema.
+	Policies map[string]Policy `json:"policies,omitempty"`
 }
 
 type ConvertSchemaResponse struct {
@@ -485,6 +488,9 @@ type ConvertSchemaResponse struct {
 
 	// The resource types generated from the schema.
 	ResourceTypes []ResourceType `json:"resource_types,omitempty"`
+
+	// The policies generated from the schema.
+	Policies map[string]Policy `json:"policies,omitempty"`
 }
 
 type GetSchemaResponse struct {
