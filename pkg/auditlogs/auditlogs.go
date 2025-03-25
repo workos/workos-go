@@ -64,3 +64,8 @@ func CreateExport(ctx context.Context, e CreateExportOpts) (AuditLogExport, erro
 func GetExport(ctx context.Context, e GetExportOpts) (AuditLogExport, error) {
 	return DefaultClient.GetExport(ctx, e)
 }
+
+// ListActions list all the audit log actions.
+func ListActions(ctx context.Context, opts ListActionsOpts) (ListActionsResponse, error) {
+	return DefaultClient.ListActions(ctx, opts)
+}
