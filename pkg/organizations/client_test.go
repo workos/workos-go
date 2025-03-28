@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/organization_domains"
 	"github.com/workos/workos-go/v4/pkg/roles"
 )
 
@@ -38,7 +39,7 @@ func TestGetOrganization(t *testing.T) {
 				ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
 						Domain:               "foo-corp.com",
@@ -99,7 +100,7 @@ func TestGetOrganizationByExternalID(t *testing.T) {
 				ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
 						Domain:               "foo-corp.com",
@@ -146,7 +147,7 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
-		Domains: []OrganizationDomain{
+		Domains: []organization_domains.OrganizationDomain{
 			{
 				ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
 				Domain:               "foo-corp.com",
@@ -196,7 +197,7 @@ func TestListOrganizations(t *testing.T) {
 						ID:                               "organization_id",
 						Name:                             "Foo Corp",
 						AllowProfilesOutsideOrganization: false,
-						Domains: []OrganizationDomain{
+						Domains: []organization_domains.OrganizationDomain{
 							{
 								ID:             "organization_domain_id",
 								Domain:         "foo-corp.com",
@@ -255,7 +256,7 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 					ID:                               "organization_id",
 					Name:                             "Foo Corp",
 					AllowProfilesOutsideOrganization: false,
-					Domains: []OrganizationDomain{
+					Domains: []organization_domains.OrganizationDomain{
 						{
 							ID:             "organization_domain_id",
 							Domain:         "foo-corp.com",
@@ -306,7 +307,7 @@ func TestCreateOrganization(t *testing.T) {
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:             "organization_domain_id",
 						Domain:         "foo-corp.com",
@@ -323,7 +324,7 @@ func TestCreateOrganization(t *testing.T) {
 			},
 			options: CreateOrganizationOpts{
 				Name: "Foo Corp",
-				DomainData: []OrganizationDomainData{
+				DomainData: []organization_domains.OrganizationDomainData{
 					{
 						Domain: "foo-corp.com",
 						State:  "verified",
@@ -334,7 +335,7 @@ func TestCreateOrganization(t *testing.T) {
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:             "organization_domain_id",
 						Domain:         "foo-corp.com",
@@ -427,7 +428,7 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 			ID:                               "organization_id",
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
+			Domains: []organization_domains.OrganizationDomain{
 				{
 					ID:             "organization_domain_id",
 					Domain:         "foo-corp.com",
@@ -473,7 +474,7 @@ func TestUpdateOrganization(t *testing.T) {
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:             "organization_domain_id",
 						Domain:         "foo-corp.com",
@@ -497,7 +498,7 @@ func TestUpdateOrganization(t *testing.T) {
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
-				DomainData: []OrganizationDomainData{
+				DomainData: []organization_domains.OrganizationDomainData{
 					{
 						Domain: "foo-corp.com",
 						State:  "verified",
@@ -512,7 +513,7 @@ func TestUpdateOrganization(t *testing.T) {
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:             "organization_domain_id",
 						Domain:         "foo-corp.com",
@@ -588,7 +589,7 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 			ID:                               "organization_id",
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
+			Domains: []organization_domains.OrganizationDomain{
 				{
 					ID:             "organization_domain_id",
 					Domain:         "foo-corp.com",

@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/organization_domains"
 	"github.com/workos/workos-go/v4/pkg/roles"
 )
 
@@ -25,7 +26,7 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 		ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
-		Domains: []OrganizationDomain{
+		Domains: []organization_domains.OrganizationDomain{
 			{
 				ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
 				Domain:               "foo-corp.com",
@@ -62,7 +63,7 @@ func TestOrganizationsListOrganizations(t *testing.T) {
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
-				Domains: []OrganizationDomain{
+				Domains: []organization_domains.OrganizationDomain{
 					{
 						ID:             "organization_domain_id",
 						Domain:         "foo-corp.com",
@@ -101,7 +102,7 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 			ID:                               "organization_id",
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
+			Domains: []organization_domains.OrganizationDomain{
 				{
 					ID:             "organization_domain_id",
 					Domain:         "foo-corp.com",
@@ -136,7 +137,7 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 			ID:                               "organization_id",
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
+			Domains: []organization_domains.OrganizationDomain{
 				{
 					ID:             "organization_domain_id",
 					Domain:         "foo-corp.com",
