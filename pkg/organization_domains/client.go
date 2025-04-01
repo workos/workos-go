@@ -53,22 +53,6 @@ type OrganizationDomain struct {
 	VerificationPrefix string `json:"verification_prefix,omitempty"`
 }
 
-type OrganizationDomainDataState string
-
-const (
-	Verified OrganizationDomainDataState = "verified"
-	Pending  OrganizationDomainDataState = "pending"
-)
-
-// OrganizationDomainData contains data used to create an OrganizationDomain.
-type OrganizationDomainData struct {
-	// The domain's value.
-	Domain string `json:"domain"`
-
-	// The domain's state.
-	State OrganizationDomainDataState `json:"state"`
-}
-
 // GetOrganizationDomainOpts contains the options to get a domain.
 type GetOrganizationDomainOpts struct {
 	DomainID string
