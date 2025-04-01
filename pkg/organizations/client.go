@@ -64,7 +64,19 @@ func (c *Client) init() {
 
 type OrganizationDomainState = organization_domains.OrganizationDomainState
 
+const (
+	OrganizationDomainPending        OrganizationDomainState = organization_domains.OrganizationDomainPending
+	OrganizationDomainVerified       OrganizationDomainState = organization_domains.OrganizationDomainVerified
+	OrganizationDomainFailed         OrganizationDomainState = organization_domains.OrganizationDomainFailed
+	OrganizationDomainLegacyVerified OrganizationDomainState = organization_domains.OrganizationDomainLegacyVerified
+)
+
 type OrganizationDomainVerificationStrategy = organization_domains.OrganizationDomainVerificationStrategy
+
+const (
+	Dns    OrganizationDomainVerificationStrategy = organization_domains.Dns
+	Manual OrganizationDomainVerificationStrategy = organization_domains.Manual
+)
 
 type OrganizationDomain = organization_domains.OrganizationDomain
 
@@ -136,9 +148,21 @@ type ListOrganizationsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
-type OrganizationDomainDataState = organization_domains.OrganizationDomainDataState
+type OrganizationDomainDataState string
 
-type OrganizationDomainData = organization_domains.OrganizationDomainData
+const (
+	Verified OrganizationDomainDataState = OrganizationDomainDataState(organization_domains.OrganizationDomainVerified)
+	Pending  OrganizationDomainDataState = OrganizationDomainDataState(organization_domains.OrganizationDomainPending)
+)
+
+// OrganizationDomainData contains data used to create an OrganizationDomain.
+type OrganizationDomainData struct {
+	// The domain's value.
+	Domain string `json:"domain"`
+
+	// The domain's state.
+	State OrganizationDomainDataState `json:"state"`
+}
 
 // CreateOrganizationOpts contains the options to create an Organization.
 type CreateOrganizationOpts struct {
