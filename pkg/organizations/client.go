@@ -62,6 +62,12 @@ func (c *Client) init() {
 	}
 }
 
+type OrganizationDomainState = organization_domains.OrganizationDomainState
+
+type OrganizationDomainVerificationStrategy = organization_domains.OrganizationDomainVerificationStrategy
+
+type OrganizationDomain = organization_domains.OrganizationDomain
+
 // Organization contains data about a WorkOS Organization.
 type Organization struct {
 	// The Organization's unique identifier.
@@ -77,7 +83,7 @@ type Organization struct {
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// The Organization's Domains.
-	Domains []organization_domains.OrganizationDomain `json:"domains"`
+	Domains []OrganizationDomain `json:"domains"`
 
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
@@ -130,21 +136,9 @@ type ListOrganizationsResponse struct {
 	ListMetadata common.ListMetadata `json:"listMetadata"`
 }
 
-type OrganizationDomainDataState string
+type OrganizationDomainDataState = organization_domains.OrganizationDomainDataState
 
-const (
-	Verified OrganizationDomainDataState = "verified"
-	Pending  OrganizationDomainDataState = "pending"
-)
-
-// OrganizationDomainData contains data used to create an OrganizationDomain.
-type OrganizationDomainData struct {
-	// The domain's value.
-	Domain string `json:"domain"`
-
-	// The domain's state.
-	State OrganizationDomainDataState `json:"state"`
-}
+type OrganizationDomainData = organization_domains.OrganizationDomainData
 
 // CreateOrganizationOpts contains the options to create an Organization.
 type CreateOrganizationOpts struct {
@@ -163,7 +157,7 @@ type CreateOrganizationOpts struct {
 	Domains []string `json:"domains"`
 
 	// Domains of the Organization.
-	DomainData []organization_domains.OrganizationDomainData `json:"domain_data"`
+	DomainData []OrganizationDomainData `json:"domain_data"`
 
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
@@ -195,7 +189,7 @@ type UpdateOrganizationOpts struct {
 	Domains []string
 
 	// Domains of the Organization.
-	DomainData []organization_domains.OrganizationDomainData `json:"domain_data"`
+	DomainData []OrganizationDomainData `json:"domain_data"`
 
 	// The Organization's external id.
 	ExternalID string `json:"external_id"`
@@ -402,7 +396,7 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 		// Domains of the Organization.
-		DomainData []organization_domains.OrganizationDomainData `json:"domain_data,omitempty"`
+		DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
 
 		// Domains of the Organization.
 		//
