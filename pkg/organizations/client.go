@@ -15,6 +15,7 @@ import (
 	"github.com/google/go-querystring/query"
 	"github.com/workos/workos-go/v4/internal/workos"
 	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v4/pkg/organization_domains"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -61,46 +62,6 @@ func (c *Client) init() {
 	}
 }
 
-type OrganizationDomainState string
-
-const (
-	OrganizationDomainPending        OrganizationDomainState = "pending"
-	OrganizationDomainVerified       OrganizationDomainState = "verified"
-	OrganizationDomainFailed         OrganizationDomainState = "failed"
-	OrganizationDomainLegacyVerified OrganizationDomainState = "legacy_verified"
-)
-
-type OrganizationDomainVerificationStrategy string
-
-const (
-	Dns    OrganizationDomainVerificationStrategy = "dns"
-	Manual OrganizationDomainVerificationStrategy = "manual"
-)
-
-// OrganizationDomain contains data about an Organization's Domains.
-type OrganizationDomain struct {
-	// The Organization Domain's unique identifier.
-	ID string `json:"id"`
-
-	// The domain value
-	Domain string `json:"domain"`
-
-	// The Organization's unique identifier.
-	OrganizationID string `json:"organization_id"`
-
-	// Verification state of the domain.
-	State OrganizationDomainState `json:"state"`
-
-	// Strategy used to verify the domain.
-	VerificationStrategy OrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
-
-	// Token used for DNS verification.
-	VerificationToken string `json:"verification_token,omitempty"`
-
-	// Prefix used for DNS verification.
-	VerificationPrefix string `json:"verification_prefix,omitempty"`
-}
-
 // Organization contains data about a WorkOS Organization.
 type Organization struct {
 	// The Organization's unique identifier.
@@ -116,7 +77,7 @@ type Organization struct {
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// The Organization's Domains.
-	Domains []OrganizationDomain `json:"domains"`
+	Domains []organization_domains.OrganizationDomain `json:"domains"`
 
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
@@ -202,7 +163,7 @@ type CreateOrganizationOpts struct {
 	Domains []string `json:"domains"`
 
 	// Domains of the Organization.
-	DomainData []OrganizationDomainData `json:"domain_data"`
+	DomainData []organization_domains.OrganizationDomainData `json:"domain_data"`
 
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
@@ -234,7 +195,7 @@ type UpdateOrganizationOpts struct {
 	Domains []string
 
 	// Domains of the Organization.
-	DomainData []OrganizationDomainData `json:"domain_data"`
+	DomainData []organization_domains.OrganizationDomainData `json:"domain_data"`
 
 	// The Organization's external id.
 	ExternalID string `json:"external_id"`
@@ -441,7 +402,7 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 		// Domains of the Organization.
-		DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
+		DomainData []organization_domains.OrganizationDomainData `json:"domain_data,omitempty"`
 
 		// Domains of the Organization.
 		//
