@@ -163,6 +163,12 @@ type ObjectVersion struct {
 
 	// Indicator of whether this is the active, default version.
 	CurrentVersion bool `json:"current_version"`
+
+	// A hash of the value of the object.
+	Etag string `json:"etag"`
+
+	/// Number of bytes of data stored in the object.
+	Size int `json:"size"`
 }
 
 type ListObjectVersionsResponse struct {
