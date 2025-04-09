@@ -65,6 +65,7 @@ const (
 	InvitationCreated                        = "invitation.created"
 	MagicAuthCreated                         = "magic_auth.created"
 	PasswordResetCreated                     = "password_reset.created"
+	PasswordResetSucceeded                   = "password_reset.succeeded"
 	// Organization Domain Events
 	OrganizationDomainVerified           = "organization_domain.verified"
 	OrganizationDomainVerificationFailed = "organization_domain.verification_failed"
