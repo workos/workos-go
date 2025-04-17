@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v4/pkg/workos_errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v4/pkg/workos_errors"
 
 	"github.com/workos/workos-go/v4/internal/workos"
 	"github.com/workos/workos-go/v4/pkg/common"
@@ -254,6 +255,9 @@ type Profile struct {
 
 	// The user's group memberships. Can be empty.
 	Groups []string `json:"groups"`
+
+	// The mapped custom attributes from the identity provider. Can be empty.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
 
 	// The raw response of Profile attributes from the identity provider
 	RawAttributes map[string]interface{} `json:"raw_attributes"`

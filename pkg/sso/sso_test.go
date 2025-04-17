@@ -37,12 +37,16 @@ func TestLogin(t *testing.T) {
 		Role: common.RoleResponse{
 			Slug: "admin",
 		},
-		Groups:         []string{"Admins", "Developers"},
+		Groups: []string{"Admins", "Developers"},
+		CustomAttributes: map[string]interface{}{
+			"license": "professional",
+		},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
 			"first_name": "foo",
 			"last_name":  "bar",
+			"license":    "professional",
 		},
 	}
 
@@ -172,12 +176,16 @@ func TestSsoGetProfile(t *testing.T) {
 		Role: common.RoleResponse{
 			Slug: "admin",
 		},
-		Groups:         []string{"Admins", "Developers"},
+		Groups: []string{"Admins", "Developers"},
+		CustomAttributes: map[string]interface{}{
+			"license": "professional",
+		},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
 			"first_name": "foo",
 			"last_name":  "bar",
+			"license":    "professional",
 		},
 	}
 	profileResponse, err := GetProfile(context.Background(), GetProfileOpts{
