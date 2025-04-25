@@ -158,12 +158,16 @@ func TestClientGetProfileAndToken(t *testing.T) {
 				Role: common.RoleResponse{
 					Slug: "admin",
 				},
-				Groups:         []string{"Admins", "Developers"},
+				Groups: []string{"Admins", "Developers"},
+				CustomAttributes: map[string]interface{}{
+					"license": "professional",
+				},
 				RawAttributes: map[string]interface{}{
 					"idp_id":     "123",
 					"email":      "foo@test.com",
 					"first_name": "foo",
 					"last_name":  "bar",
+					"license":    "professional",
 				},
 			},
 		},
@@ -223,12 +227,16 @@ func profileAndTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 			Role: common.RoleResponse{
 				Slug: "admin",
 			},
-			Groups:         []string{"Admins", "Developers"},
+			Groups: []string{"Admins", "Developers"},
+			CustomAttributes: map[string]interface{}{
+				"license": "professional",
+			},
 			RawAttributes: map[string]interface{}{
 				"idp_id":     "123",
 				"email":      "foo@test.com",
 				"first_name": "foo",
 				"last_name":  "bar",
+				"license":    "professional",
 			},
 		},
 	})
@@ -270,12 +278,16 @@ func TestClientGetProfile(t *testing.T) {
 				Role: common.RoleResponse{
 					Slug: "admin",
 				},
-				Groups:         []string{"Admins", "Developers"},
+				Groups: []string{"Admins", "Developers"},
+				CustomAttributes: map[string]interface{}{
+					"license": "professional",
+				},
 				RawAttributes: map[string]interface{}{
 					"idp_id":     "123",
 					"email":      "foo@test.com",
 					"first_name": "foo",
 					"last_name":  "bar",
+					"license":    "professional",
 				},
 			},
 		},
@@ -325,12 +337,16 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		Role: common.RoleResponse{
 			Slug: "admin",
 		},
-		Groups:         []string{"Admins", "Developers"},
+		Groups: []string{"Admins", "Developers"},
+		CustomAttributes: map[string]interface{}{
+			"license": "professional",
+		},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
 			"first_name": "foo",
 			"last_name":  "bar",
+			"license":    "professional",
 		},
 	},
 	)
