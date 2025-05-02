@@ -9,12 +9,14 @@ import (
 )
 
 type EncryptOpts struct {
-	Data       string
-	KeyContext KeyContext
+	Data           string
+	KeyContext     KeyContext
+	AssociatedData string
 }
 
 type DecryptOpts struct {
-	Data string
+	Data           string
+	AssociatedData string
 }
 
 type Decoded struct {
@@ -28,6 +30,7 @@ type Decoded struct {
 func LocalEncrypt(
 	data string,
 	keyPair DataKeyPair,
+	associatedData string,
 ) (string, error) {
 	// Decode the plaintext data key
 	dataKey, err := base64.StdEncoding.DecodeString(keyPair.DataKey)
@@ -56,7 +59,7 @@ func LocalEncrypt(
 	iv := make([]byte, 32)
 	rand.Read(iv)
 
-	ciphertext := aesgcm.Seal(nil, iv, []byte(data), nil)
+	ciphertext := aesgcm.Seal(nil, iv, []byte(data), []byte(associatedData))
 	ciphertextLen := len(ciphertext) - 16
 	authTag := ciphertext[ciphertextLen:]
 	payload := append(iv, authTag[:]...)
@@ -71,6 +74,7 @@ func LocalEncrypt(
 func LocalDecrypt(
 	decoded Decoded,
 	dataKey DataKey,
+	associatedData string,
 ) (string, error) {
 	key, err := base64.StdEncoding.DecodeString(dataKey.Key)
 	if err != nil {
@@ -87,7 +91,7 @@ func LocalDecrypt(
 		return "", err
 	}
 
-	plaintext, err := aesgcm.Open(nil, decoded.Iv, append(decoded.Ciphertext, decoded.Tag[:]...), nil)
+	plaintext, err := aesgcm.Open(nil, decoded.Iv, append(decoded.Ciphertext, decoded.Tag[:]...), []byte(associatedData))
 	if err != nil {
 		return "", err
 	}

@@ -55,7 +55,7 @@ func TestLocalDecrypt(t *testing.T) {
 	require.Equal(t, iv, decoded.Iv)
 	require.Equal(t, authTag, decoded.Tag)
 
-	plaintext, err := LocalDecrypt(decoded, dataKey)
+	plaintext, err := LocalDecrypt(decoded, dataKey, "")
 	require.NoError(t, err)
 	require.Equal(t, expected, plaintext)
 }
@@ -68,13 +68,37 @@ func TestLocalEncryptAndDecrypt(t *testing.T) {
 	}
 	data := "super secret access codes"
 
-	ciphertext, err := LocalEncrypt(data, keyPair)
+	ciphertext, err := LocalEncrypt(data, keyPair, "")
 	require.NoError(t, err)
 
 	decoded, err := Decode(ciphertext)
 	require.NoError(t, err)
 
-	plaintext, err := LocalDecrypt(decoded, DataKey{Id: keyPair.Id, Key: keyPair.DataKey})
+	plaintext, err := LocalDecrypt(decoded, DataKey{Id: keyPair.Id, Key: keyPair.DataKey}, "")
+	require.NoError(t, err)
+	require.Equal(t, data, plaintext)
+}
+
+func TestLocalEncryptWithAssociatedData(t *testing.T) {
+	keyPair := DataKeyPair{
+		DataKey:       "hNjAWl++MJjDZ64dUeYlgJZDEbemRmdKvNHUnnRFUNg=",
+		Id:            "0205e0ec-828e-5594-96ac-a68fc8257fb7",
+		EncryptedKeys: "V09TLkVLTS52MQAwMjA1ZTBlYy04MjhlLTU1OTQtOTZhYy1hNjhmYzgyNTdmYjcBATEBJGNmMjllNjhhLWYzMmQtNDI4YS05NDg2LTY5YjAyM2JmNjUyNAF0Y2YyOWU2OGEtZjMyZC00MjhhLTk0ODYtNjliMDIzYmY2NTI0uRXneWi4j8iJN4vYJQfGWJVDhk3ogkZmUda857GKGPgneo0xw+M7O5Tg/Z1WbfPPc+C5ncUpj1sHz5LUaU6uSyAO48f4CdpK3dn6UjErRUM=",
+	}
+	data := "super secret access codes"
+	aad := "seq1"
+
+	ciphertext, err := LocalEncrypt(data, keyPair, aad)
+	require.NoError(t, err)
+
+	decoded, err := Decode(ciphertext)
+	require.NoError(t, err)
+
+	plaintext, err := LocalDecrypt(decoded, DataKey{Id: keyPair.Id, Key: keyPair.DataKey}, "seq2")
+	require.EqualError(t, err, "cipher: message authentication failed")
+	require.Equal(t, "", plaintext)
+
+	plaintext, err = LocalDecrypt(decoded, DataKey{Id: keyPair.Id, Key: keyPair.DataKey}, aad)
 	require.NoError(t, err)
 	require.Equal(t, data, plaintext)
 }

@@ -97,7 +97,7 @@ func Encrypt(
 		return "", err
 	}
 
-	return LocalEncrypt(opts.Data, dataKeyPair)
+	return LocalEncrypt(opts.Data, dataKeyPair, opts.AssociatedData)
 }
 
 // Decrypt perfroms a local decryption of data that was previously encrypted with Vault.
@@ -116,5 +116,5 @@ func Decrypt(
 		return "", err
 	}
 
-	return LocalDecrypt(decoded, dataKey)
+	return LocalDecrypt(decoded, dataKey, opts.AssociatedData)
 }
