@@ -2,7 +2,6 @@ package fga
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sort"
@@ -412,7 +411,6 @@ func TestFGACheckWithWarnings(t *testing.T) {
 	require.True(t, ok)
 	require.ElementsMatch(t, mw.Keys, []string{"user_id", "org_id"})
 
-	fmt.Println(second)
 	bw, ok := second.(*BaseWarning)
 	require.True(t, ok)
 	require.Equal(t, "unknown", bw.Code)
