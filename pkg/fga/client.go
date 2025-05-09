@@ -379,10 +379,79 @@ type CheckBatchOpts struct {
 	WarrantToken string `json:"-"`
 }
 
+type Warning interface {
+	GetWarning() string
+	GetCode() string
+}
+
+type BaseWarning struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+func (b BaseWarning) GetWarning() string {
+	return b.Message
+}
+
+func (b BaseWarning) GetCode() string {
+	return b.Code
+}
+
+type MissingContextKeysWarning struct {
+	BaseWarning
+	Keys []string `json:"keys"`
+}
+
+type ConvertSchemaWarning struct {
+	BaseWarning
+}
+
+var warningRegistry = map[string]func() Warning{
+	"missing_context_keys": func() Warning { return &MissingContextKeysWarning{} },
+	"validation_warning":   func() Warning { return &ConvertSchemaWarning{} },
+}
+
+type WarningWrapper struct {
+	Warning
+}
+
+func (w *WarningWrapper) MarshalJSON() ([]byte, error) {
+	return json.Marshal(w.Warning)
+}
+
+func (w *WarningWrapper) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		Code string `json:"code"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	// Lookup in registry
+	if constructor, ok := warningRegistry[raw.Code]; ok {
+		instance := constructor()
+		if err := json.Unmarshal(data, instance); err != nil {
+			return err
+		}
+		w.Warning = instance
+		return nil
+	}
+
+	// Fallback to base
+	var fallback BaseWarning
+	if err := json.Unmarshal(data, &fallback); err != nil {
+		return err
+	}
+	w.Warning = &fallback
+	return nil
+}
+
 type CheckResponse struct {
-	Result     string    `json:"result"`
-	IsImplicit bool      `json:"is_implicit"`
-	DebugInfo  DebugInfo `json:"debug_info,omitempty"`
+	Result     string           `json:"result"`
+	IsImplicit bool             `json:"is_implicit"`
+	DebugInfo  DebugInfo        `json:"debug_info,omitempty"`
+	Warnings   []WarningWrapper `json:"warnings,omitempty"`
 }
 
 func (checkResponse CheckResponse) Authorized() bool {
@@ -452,17 +521,15 @@ type QueryResponse struct {
 
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"list_metadata"`
+
+	// Warnings generated from query issues.
+	Warnings []WarningWrapper `json:"warnings,omitempty"`
 }
 
 // Schema
 type ConvertSchemaToResourceTypesOpts struct {
 	// The schema to convert to resource types.
 	Schema string
-}
-
-type ConvertSchemaWarning struct {
-	// The warning message.
-	Message string `json:"message"`
 }
 
 type ConvertResourceTypesToSchemaOpts struct {

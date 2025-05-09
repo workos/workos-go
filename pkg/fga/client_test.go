@@ -1098,6 +1098,61 @@ func checkTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func checkTestHandlerWarnings(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Create concrete warnings and wrap them
+	warnings := []WarningWrapper{
+		{
+			Warning: &MissingContextKeysWarning{
+				BaseWarning: BaseWarning{
+					Code:    "missing_context_keys",
+					Message: "Some context keys were not provided.",
+				},
+				Keys: []string{"user_id", "org_id"},
+			},
+		},
+		{
+			Warning: &BaseWarning{
+				Code:    "unknown",
+				Message: "Unknown warning occurred.",
+			},
+		},
+		{
+			Warning: &ConvertSchemaWarning{
+				BaseWarning: BaseWarning{
+					Code:    "validation_warning",
+					Message: "Schema validation produced a warning.",
+				},
+			},
+		},
+	}
+
+	body, err := json.Marshal(
+		CheckResponse{
+			Result:     CheckResultAuthorized,
+			IsImplicit: false,
+			Warnings:   warnings,
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestCheckBatch(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -1306,6 +1361,81 @@ func queryTestHandler(w http.ResponseWriter, r *http.Request) {
 				Before: "",
 				After:  "",
 			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func queryTestHandlerWarnings(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Create concrete warnings and wrap them
+	warnings := []WarningWrapper{
+		{
+			Warning: &MissingContextKeysWarning{
+				BaseWarning: BaseWarning{
+					Code:    "missing_context_keys",
+					Message: "Some context keys were not provided.",
+				},
+				Keys: []string{"user_id", "org_id"},
+			},
+		},
+		{
+			Warning: &BaseWarning{
+				Code:    "unknown",
+				Message: "Unknown warning occurred.",
+			},
+		},
+		{
+			Warning: &ConvertSchemaWarning{
+				BaseWarning: BaseWarning{
+					Code:    "validation_warning",
+					Message: "Schema validation produced a warning.",
+				},
+			},
+		},
+	}
+
+	body, err := json.Marshal(struct {
+		QueryResponse
+	}{
+		QueryResponse: QueryResponse{
+			Data: []QueryResult{
+				{
+					ResourceType: "role",
+					ResourceId:   "role_01SXW182",
+					Relation:     "member",
+					Warrant: Warrant{
+						ResourceType: "role",
+						ResourceId:   "role_01SXW182",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+			Warnings: warnings,
 		},
 	})
 	if err != nil {

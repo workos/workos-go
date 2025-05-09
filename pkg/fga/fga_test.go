@@ -2,8 +2,10 @@ package fga
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -371,6 +373,55 @@ func TestFGACheck(t *testing.T) {
 	require.True(t, checkResponse.Authorized())
 }
 
+func TestFGACheckWithWarnings(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(checkTestHandlerWarnings))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	checkResponse, err := Check(context.Background(), CheckOpts{
+		Checks: []WarrantCheck{
+			{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Len(t, checkResponse.Warnings, 3)
+
+	sort.Slice(checkResponse.Warnings, func(i, j int) bool {
+		return checkResponse.Warnings[i].Warning.GetCode() < checkResponse.Warnings[j].Warning.GetCode()
+	})
+
+	first := checkResponse.Warnings[0].Warning
+	second := checkResponse.Warnings[1].Warning
+	third := checkResponse.Warnings[2].Warning
+
+	mw, ok := first.(*MissingContextKeysWarning)
+	require.True(t, ok)
+	require.ElementsMatch(t, mw.Keys, []string{"user_id", "org_id"})
+
+	fmt.Println(second)
+	bw, ok := second.(*BaseWarning)
+	require.True(t, ok)
+	require.Equal(t, "unknown", bw.Code)
+
+	cw, ok := third.(*ConvertSchemaWarning)
+	require.True(t, ok)
+	require.Equal(t, "validation_warning", cw.Code)
+}
+
 func TestFGACheckBatch(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(checkBatchTestHandler))
 	defer server.Close()
@@ -439,6 +490,44 @@ func TestFGAQuery(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, queryResponse)
+}
+
+func TestFGAQueryWithWarnings(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(queryTestHandlerWarnings))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	queryResponse, err := Query(context.Background(), QueryOpts{
+		Query: "select role where user:user_01SXW182 is member",
+	})
+
+	require.NoError(t, err)
+	require.Len(t, queryResponse.Warnings, 3)
+
+	sort.Slice(queryResponse.Warnings, func(i, j int) bool {
+		return queryResponse.Warnings[i].Warning.GetCode() < queryResponse.Warnings[j].Warning.GetCode()
+	})
+
+	first := queryResponse.Warnings[0].Warning
+	second := queryResponse.Warnings[1].Warning
+	third := queryResponse.Warnings[2].Warning
+
+	mw, ok := first.(*MissingContextKeysWarning)
+	require.True(t, ok)
+	require.ElementsMatch(t, mw.Keys, []string{"user_id", "org_id"})
+
+	bw, ok := second.(*BaseWarning)
+	require.True(t, ok)
+	require.Equal(t, "unknown", bw.Code)
+
+	cw, ok := third.(*ConvertSchemaWarning)
+	require.True(t, ok)
+	require.Equal(t, "validation_warning", cw.Code)
 }
 
 func TestFGAConvertSchemaToResourceTypes(t *testing.T) {
