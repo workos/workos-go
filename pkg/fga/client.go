@@ -380,7 +380,7 @@ type CheckBatchOpts struct {
 }
 
 type Warning interface {
-	GetWarning() string
+	GetMessage() string
 	GetCode() string
 }
 
@@ -389,7 +389,7 @@ type BaseWarning struct {
 	Message string `json:"message"`
 }
 
-func (b BaseWarning) GetWarning() string {
+func (b BaseWarning) GetMessage() string {
 	return b.Message
 }
 
