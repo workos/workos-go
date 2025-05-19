@@ -1114,21 +1114,21 @@ func checkTestHandlerWarnings(w http.ResponseWriter, r *http.Request) {
 	warnings := []Warning{
 		&MissingContextKeysWarning{
 			BaseWarning: BaseWarning{
-				C:   "missing_context_keys",
-				Msg: "Some context keys were not provided.",
+				Code:    "missing_context_keys",
+				Message: "Some context keys were not provided.",
 			},
 			Keys: []string{"user_id", "org_id"},
 		},
 
 		&BaseWarning{
-			C:   "unknown",
-			Msg: "Unknown warning occurred.",
+			Code:    "unknown",
+			Message: "Unknown warning occurred.",
 		},
 
 		&ConvertSchemaWarning{
 			BaseWarning: BaseWarning{
-				C:   "validation_warning",
-				Msg: "Schema validation produced a warning.",
+				Code:    "validation_warning",
+				Message: "Schema validation produced a warning.",
 			},
 		},
 	}
@@ -1384,19 +1384,19 @@ func queryTestHandlerWarnings(w http.ResponseWriter, r *http.Request) {
 	warnings := []Warning{
 		&MissingContextKeysWarning{
 			BaseWarning: BaseWarning{
-				C:   "missing_context_keys",
-				Msg: "Some context keys were not provided.",
+				Code:    "missing_context_keys",
+				Message: "Some context keys were not provided.",
 			},
 			Keys: []string{"user_id", "org_id"},
 		},
 		&BaseWarning{
-			C:   "unknown",
-			Msg: "Unknown warning occurred.",
+			Code:    "unknown",
+			Message: "Unknown warning occurred.",
 		},
 		&ConvertSchemaWarning{
 			BaseWarning: BaseWarning{
-				C:   "validation_warning",
-				Msg: "Schema validation produced a warning.",
+				Code:    "validation_warning",
+				Message: "Schema validation produced a warning.",
 			},
 		},
 	}

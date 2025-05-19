@@ -400,7 +400,7 @@ func TestFGACheckWithWarnings(t *testing.T) {
 	require.Len(t, checkResponse.Warnings, 3)
 
 	sort.Slice(checkResponse.Warnings, func(i, j int) bool {
-		return checkResponse.Warnings[i].Code() < checkResponse.Warnings[j].Code()
+		return checkResponse.Warnings[i].Warning() < checkResponse.Warnings[j].Warning()
 	})
 
 	first := checkResponse.Warnings[0]
@@ -413,11 +413,11 @@ func TestFGACheckWithWarnings(t *testing.T) {
 
 	bw, ok := second.(*BaseWarning)
 	require.True(t, ok)
-	require.Equal(t, "unknown", bw.Code())
+	require.Equal(t, "unknown", bw.Code)
 
 	cw, ok := third.(*ConvertSchemaWarning)
 	require.True(t, ok)
-	require.Equal(t, "validation_warning", cw.Code())
+	require.Equal(t, "validation_warning", cw.Code)
 }
 
 func TestFGACheckBatch(t *testing.T) {
@@ -508,7 +508,7 @@ func TestFGAQueryWithWarnings(t *testing.T) {
 	require.Len(t, queryResponse.Warnings, 3)
 
 	sort.Slice(queryResponse.Warnings, func(i, j int) bool {
-		return queryResponse.Warnings[i].Code() < queryResponse.Warnings[j].Code()
+		return queryResponse.Warnings[i].Warning() < queryResponse.Warnings[j].Warning()
 	})
 
 	first := queryResponse.Warnings[0]
@@ -521,11 +521,11 @@ func TestFGAQueryWithWarnings(t *testing.T) {
 
 	bw, ok := second.(*BaseWarning)
 	require.True(t, ok)
-	require.Equal(t, "unknown", bw.Code())
+	require.Equal(t, "unknown", bw.Code)
 
 	cw, ok := third.(*ConvertSchemaWarning)
 	require.True(t, ok)
-	require.Equal(t, "validation_warning", cw.Code())
+	require.Equal(t, "validation_warning", cw.Code)
 }
 
 func TestFGAConvertSchemaToResourceTypes(t *testing.T) {

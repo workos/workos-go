@@ -380,21 +380,23 @@ type CheckBatchOpts struct {
 }
 
 type Warning interface {
-	Message() string
-	Code() string
+	Warning() string
 }
 
 type BaseWarning struct {
-	C   string `json:"code"`
-	Msg string `json:"message"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
-func (b BaseWarning) Code() string    { return b.C }
-func (b BaseWarning) Message() string { return b.Msg }
+func (b BaseWarning) Warning() string { return fmt.Sprintf("%s: %s", b.Code, b.Message) }
 
 type MissingContextKeysWarning struct {
 	BaseWarning
 	Keys []string `json:"keys"`
+}
+
+func (m MissingContextKeysWarning) Warning() string {
+	return fmt.Sprintf("%s: %s [%s]", m.Code, m.Message, strings.Join(m.Keys, ", "))
 }
 
 type ConvertSchemaWarning struct {
