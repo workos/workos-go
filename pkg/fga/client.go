@@ -379,10 +379,96 @@ type CheckBatchOpts struct {
 	WarrantToken string `json:"-"`
 }
 
+type Warning interface {
+	Warning() string
+}
+
+type BaseWarning struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+func (b BaseWarning) Warning() string { return fmt.Sprintf("%s: %s", b.Code, b.Message) }
+
+type MissingContextKeysWarning struct {
+	BaseWarning
+	Keys []string `json:"keys"`
+}
+
+func (m MissingContextKeysWarning) Warning() string {
+	return fmt.Sprintf("%s: %s [%s]", m.Code, m.Message, strings.Join(m.Keys, ", "))
+}
+
+type ConvertSchemaWarning struct {
+	BaseWarning
+}
+
+var warningRegistry = map[string]func() Warning{
+	"missing_context_keys": func() Warning { return &MissingContextKeysWarning{} },
+	"validation_warning":   func() Warning { return &ConvertSchemaWarning{} },
+}
+
+func unmarshalWarnings(raw json.RawMessage) ([]Warning, error) {
+	var rawList []json.RawMessage
+	if err := json.Unmarshal(raw, &rawList); err != nil {
+		return nil, fmt.Errorf("unmarshaling warnings list: %s", err.Error())
+	}
+
+	var warnings []Warning
+	for _, rawItem := range rawList {
+		var rawWarning struct {
+			Code string `json:"code"`
+		}
+		if err := json.Unmarshal(rawItem, &rawWarning); err != nil {
+			return nil, fmt.Errorf("extracting warning code: %s", err.Error())
+		}
+
+		var warning Warning
+		if constructor, ok := warningRegistry[rawWarning.Code]; ok {
+			warning = constructor()
+		} else {
+			warning = &BaseWarning{}
+		}
+
+		if err := json.Unmarshal(rawItem, warning); err != nil {
+			return nil, fmt.Errorf("decoding warning: %s", err.Error())
+		}
+
+		warnings = append(warnings, warning)
+	}
+
+	return warnings, nil
+}
+
+func (checkResponse *CheckResponse) UnmarshalJSON(data []byte) error {
+	type Alias CheckResponse
+	var raw struct {
+		Alias
+		Warnings json.RawMessage `json:"warnings,omitempty"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	*checkResponse = CheckResponse(raw.Alias)
+
+	if len(raw.Warnings) > 0 {
+		warnings, err := unmarshalWarnings(raw.Warnings)
+		if err != nil {
+			return err
+		}
+		checkResponse.Warnings = warnings
+	}
+
+	return nil
+}
+
 type CheckResponse struct {
 	Result     string    `json:"result"`
 	IsImplicit bool      `json:"is_implicit"`
 	DebugInfo  DebugInfo `json:"debug_info,omitempty"`
+	Warnings   []Warning `json:"warnings,omitempty"`
 }
 
 func (checkResponse CheckResponse) Authorized() bool {
@@ -403,6 +489,7 @@ type DecisionTreeNode struct {
 }
 
 // Query
+
 type QueryOpts struct {
 	// Query to be executed.
 	Query string `url:"q"`
@@ -452,17 +539,40 @@ type QueryResponse struct {
 
 	// Cursor pagination options.
 	ListMetadata common.ListMetadata `json:"list_metadata"`
+
+	// Warnings generated from query issues.
+	Warnings []Warning `json:"warnings,omitempty"`
+}
+
+func (queryResponse *QueryResponse) UnmarshalJSON(data []byte) error {
+	type Alias QueryResponse
+	var raw struct {
+		Alias
+		Warnings json.RawMessage `json:"warnings,omitempty"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	*queryResponse = QueryResponse(raw.Alias)
+
+	if len(raw.Warnings) > 0 {
+		warnings, err := unmarshalWarnings(raw.Warnings)
+		if err != nil {
+			return err
+		}
+		queryResponse.Warnings = warnings
+	}
+
+	return nil
 }
 
 // Schema
+
 type ConvertSchemaToResourceTypesOpts struct {
 	// The schema to convert to resource types.
 	Schema string
-}
-
-type ConvertSchemaWarning struct {
-	// The warning message.
-	Message string `json:"message"`
 }
 
 type ConvertResourceTypesToSchemaOpts struct {
