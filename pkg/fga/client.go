@@ -380,22 +380,17 @@ type CheckBatchOpts struct {
 }
 
 type Warning interface {
-	GetMessage() string
-	GetCode() string
+	Message() string
+	Code() string
 }
 
 type BaseWarning struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	C   string `json:"code"`
+	Msg string `json:"message"`
 }
 
-func (b BaseWarning) GetMessage() string {
-	return b.Message
-}
-
-func (b BaseWarning) GetCode() string {
-	return b.Code
-}
+func (b BaseWarning) Code() string    { return b.C }
+func (b BaseWarning) Message() string { return b.Msg }
 
 type MissingContextKeysWarning struct {
 	BaseWarning
@@ -411,47 +406,67 @@ var warningRegistry = map[string]func() Warning{
 	"validation_warning":   func() Warning { return &ConvertSchemaWarning{} },
 }
 
-type WarningWrapper struct {
-	Warning
+func unmarshalWarnings(raw json.RawMessage) ([]Warning, error) {
+	var rawList []json.RawMessage
+	if err := json.Unmarshal(raw, &rawList); err != nil {
+		return nil, fmt.Errorf("unmarshaling warnings list: %s", err.Error())
+	}
+
+	var warnings []Warning
+	for _, rawItem := range rawList {
+		var rawWarning struct {
+			Code string `json:"code"`
+		}
+		if err := json.Unmarshal(rawItem, &rawWarning); err != nil {
+			return nil, fmt.Errorf("extracting warning code: %s", err.Error())
+		}
+
+		var warning Warning
+		if constructor, ok := warningRegistry[rawWarning.Code]; ok {
+			warning = constructor()
+		} else {
+			warning = &BaseWarning{}
+		}
+
+		if err := json.Unmarshal(rawItem, warning); err != nil {
+			return nil, fmt.Errorf("decoding warning: %s", err.Error())
+		}
+
+		warnings = append(warnings, warning)
+	}
+
+	return warnings, nil
 }
 
-func (w *WarningWrapper) MarshalJSON() ([]byte, error) {
-	return json.Marshal(w.Warning)
-}
-
-func (w *WarningWrapper) UnmarshalJSON(data []byte) error {
+func (checkResponse *CheckResponse) UnmarshalJSON(data []byte) error {
+	type Alias CheckResponse
 	var raw struct {
-		Code string `json:"code"`
+		Alias
+		Warnings json.RawMessage `json:"warnings,omitempty"`
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
-	// Lookup in registry
-	if constructor, ok := warningRegistry[raw.Code]; ok {
-		instance := constructor()
-		if err := json.Unmarshal(data, instance); err != nil {
+	*checkResponse = CheckResponse(raw.Alias)
+
+	if len(raw.Warnings) > 0 {
+		warnings, err := unmarshalWarnings(raw.Warnings)
+		if err != nil {
 			return err
 		}
-		w.Warning = instance
-		return nil
+		checkResponse.Warnings = warnings
 	}
 
-	// Fallback to base
-	var fallback BaseWarning
-	if err := json.Unmarshal(data, &fallback); err != nil {
-		return err
-	}
-	w.Warning = &fallback
 	return nil
 }
 
 type CheckResponse struct {
-	Result     string           `json:"result"`
-	IsImplicit bool             `json:"is_implicit"`
-	DebugInfo  DebugInfo        `json:"debug_info,omitempty"`
-	Warnings   []WarningWrapper `json:"warnings,omitempty"`
+	Result     string    `json:"result"`
+	IsImplicit bool      `json:"is_implicit"`
+	DebugInfo  DebugInfo `json:"debug_info,omitempty"`
+	Warnings   []Warning `json:"warnings,omitempty"`
 }
 
 func (checkResponse CheckResponse) Authorized() bool {
@@ -472,6 +487,7 @@ type DecisionTreeNode struct {
 }
 
 // Query
+
 type QueryOpts struct {
 	// Query to be executed.
 	Query string `url:"q"`
@@ -523,10 +539,35 @@ type QueryResponse struct {
 	ListMetadata common.ListMetadata `json:"list_metadata"`
 
 	// Warnings generated from query issues.
-	Warnings []WarningWrapper `json:"warnings,omitempty"`
+	Warnings []Warning `json:"warnings,omitempty"`
+}
+
+func (queryResponse *QueryResponse) UnmarshalJSON(data []byte) error {
+	type Alias QueryResponse
+	var raw struct {
+		Alias
+		Warnings json.RawMessage `json:"warnings,omitempty"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	*queryResponse = QueryResponse(raw.Alias)
+
+	if len(raw.Warnings) > 0 {
+		warnings, err := unmarshalWarnings(raw.Warnings)
+		if err != nil {
+			return err
+		}
+		queryResponse.Warnings = warnings
+	}
+
+	return nil
 }
 
 // Schema
+
 type ConvertSchemaToResourceTypesOpts struct {
 	// The schema to convert to resource types.
 	Schema string
