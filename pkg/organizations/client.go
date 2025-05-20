@@ -187,7 +187,7 @@ type CreateOrganizationOpts struct {
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
 
 	// The Organization's external id.
-	ExternalID string `json:"external_id"`
+	ExternalID string `json:"external_id,omitempty"`
 
 	// The Organization's metadata.
 	Metadata map[string]string `json:"metadata"`
