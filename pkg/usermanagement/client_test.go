@@ -778,6 +778,16 @@ func TestClientAuthorizeURL(t *testing.T) {
 			},
 			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&code_challenge=code_verifier_value&code_challenge_method=S256&connection_id=connection_123&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
 		},
+		{
+			scenario: "generate url with provider scopes",
+			options: GetAuthorizationURLOpts{
+				ClientID:       "client_123",
+				Provider:       "GoogleOAuth",
+				RedirectURI:    "https://example.com/sso/workos/callback",
+				ProviderScopes: []string{"custom-scope-1", "custom-scope-2"},
+			},
+			expected: "https://api.workos.com/user_management/authorize?client_id=client_123&provider=GoogleOAuth&provider_scopes=custom-scope-1%2Ccustom-scope-2&redirect_uri=https%3A%2F%2Fexample.com%2Fsso%2Fworkos%2Fcallback&response_type=code",
+		},
 	}
 
 	for _, test := range tests {
@@ -932,6 +942,31 @@ func TestAuthenticateUserWithCode(t *testing.T) {
 				Impersonator: &Impersonator{
 					Email:  "admin@example.com",
 					Reason: "Helping debug a customer issue.",
+				},
+			},
+		},
+		{
+			scenario: "Request returns a User and OAuthTokens metadata",
+			client:   NewClient("test_with_oauth_tokens"),
+			options: AuthenticateWithCodeOpts{
+				ClientID: "project_123",
+				Code:     "test_123",
+			},
+			expected: AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				OAuthTokens: &OAuthTokens{
+					AccessToken:  "provider_access_token",
+					RefreshToken: "provider_refresh_token",
+					Scopes:       []string{"custom-scope-1", "custom-scope-2"},
+					ExpiresAt:    3600,
 				},
 			},
 		},
@@ -1252,6 +1287,24 @@ func authenticationResponseTestHandler(w http.ResponseWriter, r *http.Request) {
 				Impersonator: &Impersonator{
 					Email:  "admin@example.com",
 					Reason: "Helping debug a customer issue.",
+				},
+			}
+		case "test_with_oauth_tokens":
+			response = AuthenticateResponse{
+				User: User{
+					ID:        "testUserID",
+					FirstName: "John",
+					LastName:  "Doe",
+					Email:     "employee@foo-corp.com",
+				},
+				OrganizationID: "org_123",
+				AccessToken:    "access_token",
+				RefreshToken:   "refresh_token",
+				OAuthTokens: &OAuthTokens{
+					AccessToken:  "provider_access_token",
+					RefreshToken: "provider_refresh_token",
+					Scopes:       []string{"custom-scope-1", "custom-scope-2"},
+					ExpiresAt:    3600,
 				},
 			}
 		}
