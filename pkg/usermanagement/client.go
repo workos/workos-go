@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -344,6 +345,20 @@ type Impersonator struct {
 	Reason string `json:"reason"`
 }
 
+type OAuthTokens struct {
+	// The access token from the OAuth provider
+	AccessToken string `json:"access_token"`
+
+	// The refresh token from the OAuth provider
+	RefreshToken string `json:"refresh_token"`
+
+	// The scopes granted by the OAuth provider
+	Scopes []string `json:"scopes"`
+
+	// The expiration time of the access token
+	ExpiresAt int `json:"expires_at"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -366,6 +381,9 @@ type AuthenticateResponse struct {
 
 	// Present if the authenticated user is being impersonated.
 	Impersonator *Impersonator `json:"impersonator"`
+
+	// Third party OAuth provider tokens. Present if configured in the WorkOS Dashboard.
+	OAuthTokens *OAuthTokens `json:"oauth_tokens,omitempty"`
 }
 
 type RefreshAuthenticationResponse struct {
@@ -926,6 +944,10 @@ type GetAuthorizationURLOpts struct {
 	// ScreenHint represents the screen to redirect the user to when the provider is Authkit.
 	// OPTIONAL.
 	ScreenHint ScreenHint
+
+	// Additional OAuth scopes to request during authentication
+	// OPTIONAL.
+	ProviderScopes []string `json:"provider_scopes,omitempty"`
 }
 
 // GetAuthorizationURL generates an OAuth 2.0 authorization URL.
@@ -978,6 +1000,10 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 			return nil, errors.New("provider must be 'authkit' to include a screen hint")
 		}
 		query.Set("screen_hint", string(opts.ScreenHint))
+	}
+
+	if len(opts.ProviderScopes) > 0 {
+		query.Set("provider_scopes", strings.Join(opts.ProviderScopes, ","))
 	}
 
 	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")
