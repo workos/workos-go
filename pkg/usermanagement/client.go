@@ -600,9 +600,7 @@ type RevokeSessionOpts struct {
 	SessionID string `json:"session_id"`
 }
 
-type ListIdentitiesResult struct {
-	Identities []Identity `json:"identities"`
-}
+type ListIdentitiesResult = []Identity
 
 type ListIdentitiesOpts struct {
 	ID string `json:"id"`
