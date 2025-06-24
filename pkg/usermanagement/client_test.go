@@ -612,12 +612,10 @@ func TestListIdentities(t *testing.T) {
 				ID: "user_01E3JC5F5Z1YJNPGVYWV9SX6GH",
 			},
 			expected: ListIdentitiesResult{
-				Identities: []Identity{
-					{
-						IdpID:    "13966412",
-						Type:     "OAuth",
-						Provider: "GitHubOAuth",
-					},
+				{
+					IdpID:    "13966412",
+					Type:     "OAuth",
+					Provider: "GitHubOAuth",
 				},
 			},
 			err: false,
@@ -661,12 +659,10 @@ func listIdentitiesTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(ListIdentitiesResult{
-		Identities: []Identity{
-			{
-				IdpID:    "13966412",
-				Type:     "OAuth",
-				Provider: "GitHubOAuth",
-			},
+		{
+			IdpID:    "13966412",
+			Type:     "OAuth",
+			Provider: "GitHubOAuth",
 		},
 	})
 	if err != nil {
