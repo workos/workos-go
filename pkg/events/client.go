@@ -67,6 +67,9 @@ const (
 	PasswordResetCreated                     = "password_reset.created"
 	PasswordResetSucceeded                   = "password_reset.succeeded"
 	// Organization Domain Events
+	OrganizationDomainCreated            = "organization_domain.created"
+	OrganizationDomainUpdated            = "organization_domain.updated"
+	OrganizationDomainDeleted            = "organization_domain.deleted"
 	OrganizationDomainVerified           = "organization_domain.verified"
 	OrganizationDomainVerificationFailed = "organization_domain.verification_failed"
 )
