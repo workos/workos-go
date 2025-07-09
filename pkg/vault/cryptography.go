@@ -87,6 +87,9 @@ func LocalDecrypt(
 		return "", err
 	}
 
+	if len(decoded.Iv) != 12 && len(decoded.Iv) != 32 {
+		return "", errors.New("invalid nonce size: must be 12 or 32 bytes")
+	}
 	aesgcm, err := cipher.NewGCMWithNonceSize(block, len(decoded.Iv))
 	if err != nil {
 		return "", err
