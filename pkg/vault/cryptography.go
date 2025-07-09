@@ -110,6 +110,9 @@ func Decode(data string, nonceSize int) (Decoded, error) {
 		return Decoded{}, err
 	}
 
+	if len(payload) < nonceSize + 16 {
+		return Decoded{}, errors.New("payload too short for iv and tag")
+	}
 	iv := payload[0:nonceSize]
 	tag := payload[nonceSize:nonceSize+16]
 	keyLen, lebLen, err := DecodeU32(payload[nonceSize+16:])
