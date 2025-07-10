@@ -17,6 +17,7 @@ type EncryptOpts struct {
 type DecryptOpts struct {
 	Data           string
 	AssociatedData string
+	NonceSize      int
 }
 
 type Decoded struct {
@@ -51,12 +52,12 @@ func LocalEncrypt(
 		return "", err
 	}
 
-	aesgcm, err := cipher.NewGCMWithNonceSize(block, 32)
+	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return "", err
 	}
 
-	iv := make([]byte, 32)
+	iv := make([]byte, 12)
 	rand.Read(iv)
 
 	ciphertext := aesgcm.Seal(nil, iv, []byte(data), []byte(associatedData))
@@ -86,7 +87,10 @@ func LocalDecrypt(
 		return "", err
 	}
 
-	aesgcm, err := cipher.NewGCMWithNonceSize(block, 32)
+	if len(decoded.Iv) != 12 && len(decoded.Iv) != 32 {
+		return "", errors.New("invalid nonce size: must be 12 or 32 bytes")
+	}
+	aesgcm, err := cipher.NewGCMWithNonceSize(block, len(decoded.Iv))
 	if err != nil {
 		return "", err
 	}
@@ -100,20 +104,23 @@ func LocalDecrypt(
 }
 
 // Decode parses an encrypted blob into its parts without attempting to decrypt it.
-func Decode(data string) (Decoded, error) {
+func Decode(data string, nonceSize int) (Decoded, error) {
 	payload, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return Decoded{}, err
 	}
 
-	iv := payload[0:32]
-	tag := payload[32:48]
-	keyLen, lebLen, err := DecodeU32(payload[48:])
+	if len(payload) < nonceSize + 16 {
+		return Decoded{}, errors.New("payload too short for iv and tag")
+	}
+	iv := payload[0:nonceSize]
+	tag := payload[nonceSize:nonceSize+16]
+	keyLen, lebLen, err := DecodeU32(payload[nonceSize+16:])
 	if err != nil {
 		return Decoded{}, err
 	}
 
-	keysIndex := 48 + lebLen
+	keysIndex := nonceSize + 16 + lebLen
 	keysEnd := keysIndex + int(keyLen)
 	keys := base64.StdEncoding.EncodeToString(payload[keysIndex:keysEnd])
 	ciphertext := payload[keysEnd:]

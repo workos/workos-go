@@ -105,7 +105,11 @@ func Decrypt(
 	ctx context.Context,
 	opts DecryptOpts,
 ) (string, error) {
-	decoded, err := Decode(opts.Data)
+	nonceSize := opts.NonceSize
+	if nonceSize == 0 {
+		nonceSize = 12 // Default to 12 bytes to match AES-GCM standard
+	}
+	decoded, err := Decode(opts.Data, nonceSize)
 	if err != nil {
 		return "", err
 	}
