@@ -426,9 +426,12 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		//
 		// Deprecated:  Use DomainData instead.
 		Domains []string `json:"domains,omitempty"`
+
+		// The Organization's metadata.
+		Metadata map[string]string `json:"metadata,omitempty"`
 	}
 
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains}
+	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains, opts.Metadata}
 
 	data, err := c.JSONEncode(update_opts)
 	if err != nil {
