@@ -431,9 +431,9 @@ func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganization
 		Metadata map[string]string `json:"metadata,omitempty"`
 	}
 
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains, opts.Metadata}
+	updateOpts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains, opts.Metadata}
 
-	data, err := c.JSONEncode(update_opts)
+	data, err := c.JSONEncode(updateOpts)
 	if err != nil {
 		return Organization{}, err
 	}
