@@ -410,27 +410,7 @@ func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganization
 func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganizationOpts) (Organization, error) {
 	c.once.Do(c.init)
 
-	// UpdateOrganizationChangeOpts contains the options to update an Organization minus the org ID
-	type UpdateOrganizationChangeOpts struct {
-		// Name of the Organization.
-		Name string `json:"name"`
-
-		// Whether Connections within the Organization allow profiles that are
-		// outside of the Organization's configured User Email Domains.
-		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
-
-		// Domains of the Organization.
-		DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
-
-		// Domains of the Organization.
-		//
-		// Deprecated:  Use DomainData instead.
-		Domains []string `json:"domains,omitempty"`
-	}
-
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.DomainData, opts.Domains}
-
-	data, err := c.JSONEncode(update_opts)
+	data, err := c.JSONEncode(opts)
 	if err != nil {
 		return Organization{}, err
 	}

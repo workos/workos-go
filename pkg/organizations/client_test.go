@@ -540,6 +540,43 @@ func TestUpdateOrganization(t *testing.T) {
 				Domains:      []string{"duplicate.com"},
 			},
 		},
+		{
+			scenario: "Request returns Organization with metadata",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdateOrganizationOpts{
+				Organization: "organization_id",
+				Name:         "Foo Corp",
+				Metadata: map[string]string{
+					"key1": "value1",
+					"key2": "value2",
+				},
+			},
+			expected: Organization{
+				ID:                               "organization_id",
+				Name:                             "Foo Corp",
+				AllowProfilesOutsideOrganization: false,
+				Domains: []OrganizationDomain{
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
+					},
+					{
+						ID:             "organization_domain_id_2",
+						Domain:         "foo-corp.io",
+						OrganizationID: "organization_id",
+						State:          "verified",
+					},
+				},
+				Metadata: map[string]string{
+					"key1": "value1",
+					"key2": "value2",
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -583,26 +620,33 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := json.Marshal(
-		Organization{
-			ID:                               "organization_id",
-			Name:                             "Foo Corp",
-			AllowProfilesOutsideOrganization: false,
-			Domains: []OrganizationDomain{
-				{
-					ID:             "organization_domain_id",
-					Domain:         "foo-corp.com",
-					OrganizationID: "organization_id",
-					State:          "verified",
-				},
-				{
-					ID:             "organization_domain_id_2",
-					Domain:         "foo-corp.io",
-					OrganizationID: "organization_id",
-					State:          "verified",
-				},
+	// Create response organization with metadata if present in request
+	responseOrg := Organization{
+		ID:                               "organization_id",
+		Name:                             "Foo Corp",
+		AllowProfilesOutsideOrganization: false,
+		Domains: []OrganizationDomain{
+			{
+				ID:             "organization_domain_id",
+				Domain:         "foo-corp.com",
+				OrganizationID: "organization_id",
+				State:          "verified",
 			},
-		})
+			{
+				ID:             "organization_domain_id_2",
+				Domain:         "foo-corp.io",
+				OrganizationID: "organization_id",
+				State:          "verified",
+			},
+		},
+	}
+
+	// Include metadata in response if it was present in the request
+	if opts.Metadata != nil {
+		responseOrg.Metadata = opts.Metadata
+	}
+
+	body, err := json.Marshal(responseOrg)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
