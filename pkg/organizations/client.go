@@ -97,6 +97,9 @@ type Organization struct {
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
 
+	// The Organization's Stripe Customer ID.
+	StripeCustomerID string `json:"stripe_customer_id"`
+
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
 
