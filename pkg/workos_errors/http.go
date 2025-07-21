@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 // TryGetHTTPError returns an error when the http response contains invalid
@@ -168,17 +170,17 @@ func getJsonErrorMessage(b []byte, statusCode int) (string, string, []string, []
 func parseAuthenticationError(b []byte, statusCode int) error {
 	// Try parsing with code/message format first
 	var payload struct {
-		Message                    string                 `json:"message"`
-		Code                       string                 `json:"code"`
-		PendingAuthenticationToken string                 `json:"pending_authentication_token"`
-		EmailVerificationID        string                 `json:"email_verification_id"`
-		Email                      string                 `json:"email"`
-		User                       *User                  `json:"user"`
-		AuthenticationFactors      []AuthenticationFactor `json:"authentication_factors"`
-		Organizations              []Organization         `json:"organizations"`
-		ConnectionIDs              []string               `json:"connection_ids"`
-		SSOConnectionIDs           []string               `json:"sso_connection_ids"`
-		AuthMethods                map[string]bool        `json:"auth_methods"`
+		Message                    string                                  `json:"message"`
+		Code                       string                                  `json:"code"`
+		PendingAuthenticationToken string                                  `json:"pending_authentication_token"`
+		EmailVerificationID        string                                  `json:"email_verification_id"`
+		Email                      string                                  `json:"email"`
+		User                       *common.User                            `json:"user"`
+		AuthenticationFactors      []AuthenticationFactor                  `json:"authentication_factors"`
+		Organizations              []PendingAuthenticationOrganizationInfo `json:"organizations"`
+		ConnectionIDs              []string                                `json:"connection_ids"`
+		SSOConnectionIDs           []string                                `json:"sso_connection_ids"`
+		AuthMethods                map[string]bool                         `json:"auth_methods"`
 	}
 
 	if err := json.Unmarshal(b, &payload); err == nil && payload.Code != "" {
@@ -219,6 +221,9 @@ func parseAuthenticationError(b []byte, statusCode int) error {
 					User:                       *payload.User,
 					PendingAuthenticationToken: payload.PendingAuthenticationToken,
 				}
+			} else {
+				// If User is nil, fall back to generic error parsing
+				return nil
 			}
 		case MFAChallengeCode:
 			if payload.User != nil {
@@ -230,6 +235,9 @@ func parseAuthenticationError(b []byte, statusCode int) error {
 					AuthenticationFactors:      payload.AuthenticationFactors,
 					PendingAuthenticationToken: payload.PendingAuthenticationToken,
 				}
+			} else {
+				// If User is nil, fall back to generic error parsing
+				return nil
 			}
 		case OrganizationSelectionRequiredCode:
 			if payload.User != nil {
@@ -241,6 +249,9 @@ func parseAuthenticationError(b []byte, statusCode int) error {
 					Organizations:              payload.Organizations,
 					PendingAuthenticationToken: payload.PendingAuthenticationToken,
 				}
+			} else {
+				// If User is nil, fall back to generic error parsing
+				return nil
 			}
 		}
 	}
@@ -312,12 +323,12 @@ type HTTPError struct {
 	PendingAuthenticationToken string
 	EmailVerificationID        string
 	// Authentication error specific fields
-	AuthenticationFactors []AuthenticationFactor `json:"authentication_factors,omitempty"`
-	Organizations         []Organization         `json:"organizations,omitempty"`
-	ConnectionIDs         []string               `json:"connection_ids,omitempty"`
-	SSOConnectionIDs      []string               `json:"sso_connection_ids,omitempty"`
-	AuthMethods           map[string]bool        `json:"auth_methods,omitempty"`
-	User                  *User                  `json:"user,omitempty"`
+	AuthenticationFactors []AuthenticationFactor                  `json:"authentication_factors,omitempty"`
+	Organizations         []PendingAuthenticationOrganizationInfo `json:"organizations,omitempty"`
+	ConnectionIDs         []string                                `json:"connection_ids,omitempty"`
+	SSOConnectionIDs      []string                                `json:"sso_connection_ids,omitempty"`
+	AuthMethods           map[string]bool                         `json:"auth_methods,omitempty"`
+	User                  *common.User                            `json:"user,omitempty"`
 }
 
 type FieldError struct {

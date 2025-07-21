@@ -1,7 +1,7 @@
 package workos_errors
 
 import (
-	"errors"
+	"github.com/workos/workos-go/v4/pkg/common"
 )
 
 // Authentication error code constants
@@ -14,30 +14,29 @@ const (
 	OrganizationAuthenticationMethodsRequiredCode = "organization_authentication_methods_required"
 )
 
+// FactorType represents the type of Authentication Factor
+type FactorType string
+
+// Constants that enumerate the available Types (matching mfa.FactorType)
+const (
+	SMS  FactorType = "sms"
+	TOTP FactorType = "totp"
+)
+
 // AuthenticationFactor represents an MFA factor
 type AuthenticationFactor struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
+	ID   string     `json:"id"`
+	Type FactorType `json:"type"`
 }
 
-// Organization represents an organization in selection error
-type Organization struct {
+// PendingAuthenticationOrganizationInfo represents an organization in selection error
+type PendingAuthenticationOrganizationInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
-// User represents a user in authentication errors
-type User struct {
-	Object            string `json:"object"`
-	ID                string `json:"id"`
-	Email             string `json:"email"`
-	FirstName         string `json:"first_name"`
-	LastName          string `json:"last_name"`
-	EmailVerified     bool   `json:"email_verified"`
-	ProfilePictureURL string `json:"profile_picture_url"`
-	CreatedAt         string `json:"created_at"`
-	UpdatedAt         string `json:"updated_at"`
-}
+// User is an alias for common.User to maintain consistency
+type User = common.User
 
 // EmailVerificationRequiredError occurs when a user with unverified email attempts authentication
 type EmailVerificationRequiredError struct {
@@ -83,11 +82,11 @@ func (e MFAChallengeError) Error() string {
 // OrganizationSelectionRequiredError occurs when user must choose an organization
 type OrganizationSelectionRequiredError struct {
 	HTTPError
-	Code                       string         `json:"code"`
-	Message                    string         `json:"message"`
-	User                       User           `json:"user"`
-	Organizations              []Organization `json:"organizations"`
-	PendingAuthenticationToken string         `json:"pending_authentication_token"`
+	Code                       string                                  `json:"code"`
+	Message                    string                                  `json:"message"`
+	User                       User                                    `json:"user"`
+	Organizations              []PendingAuthenticationOrganizationInfo `json:"organizations"`
+	PendingAuthenticationToken string                                  `json:"pending_authentication_token"`
 }
 
 func (e OrganizationSelectionRequiredError) Error() string {
@@ -121,84 +120,4 @@ type OrganizationAuthenticationMethodsRequiredError struct {
 
 func (e OrganizationAuthenticationMethodsRequiredError) Error() string {
 	return e.HTTPError.Error()
-}
-
-// Type checking functions
-func IsEmailVerificationRequired(err error) bool {
-	var emailErr *EmailVerificationRequiredError
-	return errors.As(err, &emailErr)
-}
-
-func IsMFAEnrollment(err error) bool {
-	var mfaErr *MFAEnrollmentError
-	return errors.As(err, &mfaErr)
-}
-
-func IsMFAChallenge(err error) bool {
-	var mfaErr *MFAChallengeError
-	return errors.As(err, &mfaErr)
-}
-
-func IsOrganizationSelectionRequired(err error) bool {
-	var orgErr *OrganizationSelectionRequiredError
-	return errors.As(err, &orgErr)
-}
-
-func IsSSORequired(err error) bool {
-	var ssoErr *SSORequiredError
-	return errors.As(err, &ssoErr)
-}
-
-func IsOrganizationAuthenticationMethodsRequired(err error) bool {
-	var orgAuthErr *OrganizationAuthenticationMethodsRequiredError
-	return errors.As(err, &orgAuthErr)
-}
-
-// Type assertion functions
-func AsEmailVerificationRequired(err error) (*EmailVerificationRequiredError, bool) {
-	var emailErr *EmailVerificationRequiredError
-	if errors.As(err, &emailErr) {
-		return emailErr, true
-	}
-	return nil, false
-}
-
-func AsMFAEnrollment(err error) (*MFAEnrollmentError, bool) {
-	var mfaErr *MFAEnrollmentError
-	if errors.As(err, &mfaErr) {
-		return mfaErr, true
-	}
-	return nil, false
-}
-
-func AsMFAChallenge(err error) (*MFAChallengeError, bool) {
-	var mfaErr *MFAChallengeError
-	if errors.As(err, &mfaErr) {
-		return mfaErr, true
-	}
-	return nil, false
-}
-
-func AsOrganizationSelectionRequired(err error) (*OrganizationSelectionRequiredError, bool) {
-	var orgErr *OrganizationSelectionRequiredError
-	if errors.As(err, &orgErr) {
-		return orgErr, true
-	}
-	return nil, false
-}
-
-func AsSSORequired(err error) (*SSORequiredError, bool) {
-	var ssoErr *SSORequiredError
-	if errors.As(err, &ssoErr) {
-		return ssoErr, true
-	}
-	return nil, false
-}
-
-func AsOrganizationAuthenticationMethodsRequired(err error) (*OrganizationAuthenticationMethodsRequiredError, bool) {
-	var orgAuthErr *OrganizationAuthenticationMethodsRequiredError
-	if errors.As(err, &orgAuthErr) {
-		return orgAuthErr, true
-	}
-	return nil, false
 }

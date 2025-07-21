@@ -1,6 +1,8 @@
 package workos_errors
 
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,12 +26,9 @@ func TestEmailVerificationRequiredError(t *testing.T) {
 	err := TryGetHTTPError(rec.Result())
 	require.Error(t, err)
 
-	// Test type checking
-	require.True(t, IsEmailVerificationRequired(err))
-
-	// Test type assertion
-	emailErr, ok := AsEmailVerificationRequired(err)
-	require.True(t, ok)
+	// Test type assertion using standard errors.As
+	var emailErr *EmailVerificationRequiredError
+	require.True(t, errors.As(err, &emailErr))
 	require.NotNil(t, emailErr)
 	require.Equal(t, "email_verification_required", emailErr.ErrorCode)
 	require.Equal(t, "email_verification_required", emailErr.Code)
@@ -65,12 +64,9 @@ func TestMFAEnrollmentError(t *testing.T) {
 	err := TryGetHTTPError(rec.Result())
 	require.Error(t, err)
 
-	// Test type checking
-	require.True(t, IsMFAEnrollment(err))
-
-	// Test type assertion
-	mfaErr, ok := AsMFAEnrollment(err)
-	require.True(t, ok)
+	// Test type assertion using standard errors.As
+	var mfaErr *MFAEnrollmentError
+	require.True(t, errors.As(err, &mfaErr))
 	require.NotNil(t, mfaErr)
 	require.Equal(t, "mfa_enrollment", mfaErr.ErrorCode)
 	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", mfaErr.User.ID)
@@ -112,19 +108,16 @@ func TestMFAChallengeError(t *testing.T) {
 	err := TryGetHTTPError(rec.Result())
 	require.Error(t, err)
 
-	// Test type checking
-	require.True(t, IsMFAChallenge(err))
-
-	// Test type assertion
-	mfaErr, ok := AsMFAChallenge(err)
-	require.True(t, ok)
+	// Test type assertion using standard errors.As
+	var mfaErr *MFAChallengeError
+	require.True(t, errors.As(err, &mfaErr))
 	require.NotNil(t, mfaErr)
 	require.Equal(t, "mfa_challenge", mfaErr.ErrorCode)
 	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", mfaErr.User.ID)
 	require.Equal(t, "marcelina.davis@example.com", mfaErr.User.Email)
 	require.Len(t, mfaErr.AuthenticationFactors, 1)
 	require.Equal(t, "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ", mfaErr.AuthenticationFactors[0].ID)
-	require.Equal(t, "totp", mfaErr.AuthenticationFactors[0].Type)
+	require.Equal(t, TOTP, mfaErr.AuthenticationFactors[0].Type)
 	require.Equal(t, "YQyCkYfuVw2mI3tzSrk2C1Y7S", mfaErr.PendingAuthenticationToken)
 }
 
@@ -163,12 +156,9 @@ func TestOrganizationSelectionRequiredError(t *testing.T) {
 	err := TryGetHTTPError(rec.Result())
 	require.Error(t, err)
 
-	// Test type checking
-	require.True(t, IsOrganizationSelectionRequired(err))
-
-	// Test type assertion
-	orgErr, ok := AsOrganizationSelectionRequired(err)
-	require.True(t, ok)
+	// Test type assertion using standard errors.As
+	var orgErr *OrganizationSelectionRequiredError
+	require.True(t, errors.As(err, &orgErr))
 	require.NotNil(t, orgErr)
 	require.Equal(t, "organization_selection_required", orgErr.ErrorCode)
 	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", orgErr.User.ID)
@@ -197,12 +187,9 @@ func TestSSORequiredError(t *testing.T) {
 	err := TryGetHTTPError(rec.Result())
 	require.Error(t, err)
 
-	// Test type checking
-	require.True(t, IsSSORequired(err))
-
-	// Test type assertion
-	ssoErr, ok := AsSSORequired(err)
-	require.True(t, ok)
+	// Test type assertion using standard errors.As
+	var ssoErr *SSORequiredError
+	require.True(t, errors.As(err, &ssoErr))
 	require.NotNil(t, ssoErr)
 	require.Equal(t, "sso_required", ssoErr.ErrorCode)
 	require.Equal(t, "marcelina.davis@example.com", ssoErr.Email)
@@ -235,12 +222,9 @@ func TestOrganizationAuthenticationMethodsRequiredError(t *testing.T) {
 	err := TryGetHTTPError(rec.Result())
 	require.Error(t, err)
 
-	// Test type checking
-	require.True(t, IsOrganizationAuthenticationMethodsRequired(err))
-
-	// Test type assertion
-	orgAuthErr, ok := AsOrganizationAuthenticationMethodsRequired(err)
-	require.True(t, ok)
+	// Test type assertion using standard errors.As
+	var orgAuthErr *OrganizationAuthenticationMethodsRequiredError
+	require.True(t, errors.As(err, &orgAuthErr))
 	require.NotNil(t, orgAuthErr)
 	require.Equal(t, "organization_authentication_methods_required", orgAuthErr.ErrorCode)
 	require.Equal(t, "marcelina.davis@example.com", orgAuthErr.Email)
@@ -270,12 +254,19 @@ func TestNonAuthenticationErrorFallsBackToGeneric(t *testing.T) {
 	require.Error(t, err)
 
 	// Should not be any of the authentication error types
-	require.False(t, IsEmailVerificationRequired(err))
-	require.False(t, IsMFAEnrollment(err))
-	require.False(t, IsMFAChallenge(err))
-	require.False(t, IsOrganizationSelectionRequired(err))
-	require.False(t, IsSSORequired(err))
-	require.False(t, IsOrganizationAuthenticationMethodsRequired(err))
+	var emailErr *EmailVerificationRequiredError
+	var mfaErr *MFAEnrollmentError
+	var mfaChallengeErr *MFAChallengeError
+	var orgErr *OrganizationSelectionRequiredError
+	var ssoErr *SSORequiredError
+	var orgAuthErr *OrganizationAuthenticationMethodsRequiredError
+
+	require.False(t, errors.As(err, &emailErr))
+	require.False(t, errors.As(err, &mfaErr))
+	require.False(t, errors.As(err, &mfaChallengeErr))
+	require.False(t, errors.As(err, &orgErr))
+	require.False(t, errors.As(err, &ssoErr))
+	require.False(t, errors.As(err, &orgAuthErr))
 
 	// Should be a generic HTTPError
 	httpErr, ok := err.(HTTPError)
@@ -298,23 +289,19 @@ func TestTypeAssertionFunctionsReturnFalseForWrongTypes(t *testing.T) {
 	require.Error(t, err)
 
 	// All type assertions should return false for non-authentication errors
-	_, ok := AsEmailVerificationRequired(err)
-	require.False(t, ok)
+	var emailErr *EmailVerificationRequiredError
+	var mfaErr *MFAEnrollmentError
+	var mfaChallengeErr *MFAChallengeError
+	var orgErr *OrganizationSelectionRequiredError
+	var ssoErr *SSORequiredError
+	var orgAuthErr *OrganizationAuthenticationMethodsRequiredError
 
-	_, ok = AsMFAEnrollment(err)
-	require.False(t, ok)
-
-	_, ok = AsMFAChallenge(err)
-	require.False(t, ok)
-
-	_, ok = AsOrganizationSelectionRequired(err)
-	require.False(t, ok)
-
-	_, ok = AsSSORequired(err)
-	require.False(t, ok)
-
-	_, ok = AsOrganizationAuthenticationMethodsRequired(err)
-	require.False(t, ok)
+	require.False(t, errors.As(err, &emailErr))
+	require.False(t, errors.As(err, &mfaErr))
+	require.False(t, errors.As(err, &mfaChallengeErr))
+	require.False(t, errors.As(err, &orgErr))
+	require.False(t, errors.As(err, &ssoErr))
+	require.False(t, errors.As(err, &orgAuthErr))
 }
 
 func TestErrorStringFormatting(t *testing.T) {
@@ -340,4 +327,53 @@ func TestErrorStringFormatting(t *testing.T) {
 	require.Contains(t, errMsg, "Email ownership must be verified before authentication")
 	require.Contains(t, errMsg, "pending_authentication_token: \"YQyCkYfuVw2mI3tzSrk2C1Y7S\"")
 	require.Contains(t, errMsg, "email_verification_id: \"email_verification_01HYGGEB6FYMWQNWF3XDZG7VV3\"")
+}
+
+func TestFactorTypeEnum(t *testing.T) {
+	// Test that FactorType constants are correctly defined
+	require.Equal(t, "sms", string(SMS))
+	require.Equal(t, "totp", string(TOTP))
+
+	// Test JSON marshaling/unmarshaling
+	factor := AuthenticationFactor{
+		ID:   "test_id",
+		Type: TOTP,
+	}
+
+	data, err := json.Marshal(factor)
+	require.NoError(t, err)
+
+	var unmarshaledFactor AuthenticationFactor
+	err = json.Unmarshal(data, &unmarshaledFactor)
+	require.NoError(t, err)
+
+	require.Equal(t, factor.ID, unmarshaledFactor.ID)
+	require.Equal(t, factor.Type, unmarshaledFactor.Type)
+	require.Equal(t, TOTP, unmarshaledFactor.Type)
+}
+
+func TestAuthenticationErrorWithNilUserFallsBackToGeneric(t *testing.T) {
+	rec := httptest.NewRecorder()
+	rec.Header().Set("X-Request-ID", "test-request-id")
+	rec.Header().Set("Content-Type", "application/json")
+	rec.WriteHeader(http.StatusUnprocessableEntity)
+	rec.WriteString(`{
+		"code": "mfa_enrollment",
+		"message": "User needs to enroll in MFA.",
+		"pending_authentication_token": "YQyCkYfuVw2mI3tzSrk2C1Y7S"
+	}`)
+
+	err := TryGetHTTPError(rec.Result())
+	require.Error(t, err)
+
+	// Should fall back to generic HTTPError, not structured MFAEnrollmentError
+	var mfaErr *MFAEnrollmentError
+	require.False(t, errors.As(err, &mfaErr))
+
+	// Should be a generic HTTPError
+	var httpErr HTTPError
+	require.True(t, errors.As(err, &httpErr))
+	require.Equal(t, "mfa_enrollment", httpErr.ErrorCode)
+	require.Equal(t, "User needs to enroll in MFA.", httpErr.Message)
+	require.Equal(t, "YQyCkYfuVw2mI3tzSrk2C1Y7S", httpErr.PendingAuthenticationToken)
 }
