@@ -98,7 +98,7 @@ type Organization struct {
 	Domains []OrganizationDomain `json:"domains"`
 
 	// The Organization's Stripe Customer ID.
-	StripeCustomerID string `json:"stripe_customer_id"`
+	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
 
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
@@ -187,7 +187,7 @@ type CreateOrganizationOpts struct {
 	DomainData []OrganizationDomainData `json:"domain_data"`
 
 	// The Organization's Stripe Customer ID.
-	StripeCustomerID string `json:"stripe_customer_id"`
+	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
 
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
