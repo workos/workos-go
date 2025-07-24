@@ -186,6 +186,9 @@ type CreateOrganizationOpts struct {
 	// Domains of the Organization.
 	DomainData []OrganizationDomainData `json:"domain_data"`
 
+	// The Organization's Stripe Customer ID.
+	StripeCustomerID string `json:"stripe_customer_id"`
+
 	// Optional unique identifier to ensure idempotency
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
 
