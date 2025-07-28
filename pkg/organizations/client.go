@@ -97,6 +97,9 @@ type Organization struct {
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
 
+	// The Organization's Stripe Customer ID.
+	StripeCustomerID string `json:"stripe_customer_id,omitempty	"`
+
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
 
@@ -217,6 +220,9 @@ type UpdateOrganizationOpts struct {
 
 	// The Organization's external id.
 	ExternalID string `json:"external_id"`
+
+	// The Organization's Stripe Customer ID.
+	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
 
 	// The Organization's metadata.
 	Metadata map[string]string `json:"metadata"`
