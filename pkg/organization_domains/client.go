@@ -69,6 +69,11 @@ type VerifyOrganizationDomainOpts struct {
 	DomainID string
 }
 
+// DeleteOrganizationDomainOpts contains the options to delete a domain.
+type DeleteOrganizationDomainOpts struct {
+	DomainID string
+}
+
 // Client represents a client that performs Organization Domain requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -203,4 +208,40 @@ func (c *Client) VerifyDomain(ctx context.Context, opts VerifyOrganizationDomain
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 	return body, err
+}
+
+// DeleteDomain deletes an Organization Domain.
+func (c *Client) DeleteDomain(ctx context.Context, opts DeleteOrganizationDomainOpts) error {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/organization_domains/%s",
+		c.Endpoint,
+		opts.DomainID,
+	)
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return err
+	}
+
+	return nil
 }

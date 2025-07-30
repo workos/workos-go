@@ -40,3 +40,11 @@ func VerifyOrganizationDomain(
 ) (OrganizationDomain, error) {
 	return DefaultClient.VerifyDomain(ctx, opts)
 }
+
+// DeleteOrganizationDomain deletes an Organization Domain.
+func DeleteOrganizationDomain(
+	ctx context.Context,
+	opts DeleteOrganizationDomainOpts,
+) error {
+	return DefaultClient.DeleteDomain(ctx, opts)
+}
