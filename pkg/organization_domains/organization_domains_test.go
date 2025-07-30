@@ -93,3 +93,20 @@ func TestOrganizationDomainsVerifyDomain(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, domain)
 }
+
+func TestOrganizationDomainsDeleteDomain(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteDomainTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	err := DeleteOrganizationDomain(context.Background(), DeleteOrganizationDomainOpts{
+		DomainID: "org_domain_01EHWNCE74X7JSDV0X3SZ3KJNY",
+	})
+
+	require.NoError(t, err)
+}

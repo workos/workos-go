@@ -260,3 +260,65 @@ func verifyDomainTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestDeleteDomain(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeleteOrganizationDomainOpts
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request deletes an Organization Domain",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: DeleteOrganizationDomainOpts{
+				DomainID: "org_domain_01EHWNCE74X7JSDV0X3SZ3KJNY",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deleteDomainTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			err := client.DeleteDomain(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func deleteDomainTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
