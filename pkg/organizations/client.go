@@ -148,7 +148,7 @@ type ListOrganizationsResponse struct {
 	Data []Organization `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 type OrganizationDomainDataState string

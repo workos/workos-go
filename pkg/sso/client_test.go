@@ -525,3 +525,15 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestListConnections_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "conn_abc123" }
+    }`)
+
+	var resp ListConnectionsResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "conn_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}

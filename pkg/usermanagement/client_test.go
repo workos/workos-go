@@ -3416,3 +3416,15 @@ func RevokeSessionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestListInvitations_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": null, "after": "invitation_abc123" }
+    }`)
+
+	var resp ListInvitationsResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "invitation_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}
