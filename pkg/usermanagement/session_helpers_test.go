@@ -57,7 +57,7 @@ func TestNewSessionHelper(t *testing.T) {
 			name:           "valid parameters",
 			clientID:       "client_123",
 			sessionData:    "session_data",
-			cookiePassword: "test_password_1234567890123456",
+			cookiePassword: "12345678901234567890123456789012", // exactly 32 bytes
 			wantErr:        false,
 		},
 		{
@@ -134,14 +134,14 @@ func TestSealAndUnsealData(t *testing.T) {
 				User:         map[string]interface{}{"id": "user_123", "email": "test@example.com"},
 				Impersonator: map[string]interface{}{"id": "imp_123"},
 			},
-			key: "test_password_1234567890123456",
+			key: "12345678901234567890123456789012", // exactly 32 bytes
 		},
 		{
 			name: "minimal session data",
 			data: SessionData{
 				AccessToken: "test_access_token",
 			},
-			key: "short_key",
+			key: "abcdefghijklmnopqrstuvwxyz123456", // exactly 32 bytes
 		},
 	}
 
@@ -182,16 +182,39 @@ func TestSealAndUnsealData(t *testing.T) {
 
 func TestSealDataErrors(t *testing.T) {
 	tests := []struct {
-		name    string
-		data    interface{}
-		key     string
-		wantErr bool
+		name        string
+		data        interface{}
+		key         string
+		wantErr     bool
+		errContains string
 	}{
 		{
-			name:    "unmarshalable data",
-			data:    make(chan int), // channels can't be marshaled to JSON
-			key:     "test_key",
-			wantErr: true,
+			name:        "unmarshalable data",
+			data:        make(chan int),                     // channels can't be marshaled to JSON
+			key:         "12345678901234567890123456789012", // valid 32-byte key
+			wantErr:     true,
+			errContains: "failed to marshal data",
+		},
+		{
+			name:        "key too short",
+			data:        SessionData{AccessToken: "test"},
+			key:         "short_key", // only 9 bytes
+			wantErr:     true,
+			errContains: "key must be exactly 32 bytes for AES-256, got 9 bytes",
+		},
+		{
+			name:        "key too long",
+			data:        SessionData{AccessToken: "test"},
+			key:         "this_key_is_way_too_long_for_aes_256_encryption_and_should_fail", // 63 bytes
+			wantErr:     true,
+			errContains: "key must be exactly 32 bytes for AES-256, got 63 bytes",
+		},
+		{
+			name:        "empty key",
+			data:        SessionData{AccessToken: "test"},
+			key:         "", // 0 bytes
+			wantErr:     true,
+			errContains: "key must be exactly 32 bytes for AES-256, got 0 bytes",
 		},
 	}
 
@@ -201,6 +224,9 @@ func TestSealDataErrors(t *testing.T) {
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Empty(t, sealed)
+				if tt.errContains != "" {
+					assert.Contains(t, err.Error(), tt.errContains)
+				}
 			} else {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, sealed)
@@ -220,23 +246,44 @@ func TestUnsealDataErrors(t *testing.T) {
 		{
 			name:        "invalid base64",
 			sealedData:  "invalid_base64!@#",
-			key:         "test_key",
+			key:         "12345678901234567890123456789012", // valid 32-byte key
 			wantErr:     true,
 			errContains: "failed to decode base64",
 		},
 		{
 			name:        "too short data",
-			sealedData:  "dGVzdA==", // "test" in base64 (too short)
-			key:         "test_key",
+			sealedData:  "dGVzdA==",                         // "test" in base64 (too short)
+			key:         "12345678901234567890123456789012", // valid 32-byte key
 			wantErr:     true,
 			errContains: "sealed data too short",
 		},
 		{
 			name:        "invalid encrypted data",
 			sealedData:  "dGVzdGRhdGF0aGF0aXNsb25nZW5vdWdoYnV0aW52YWxpZA==", // Valid base64 but invalid encrypted data
-			key:         "test_key",
+			key:         "12345678901234567890123456789012",                 // valid 32-byte key
 			wantErr:     true,
 			errContains: "failed to decrypt",
+		},
+		{
+			name:        "key too short for unseal",
+			sealedData:  "dGVzdGRhdGF0aGF0aXNsb25nZW5vdWdoYnV0aW52YWxpZA==",
+			key:         "short_key", // only 9 bytes
+			wantErr:     true,
+			errContains: "key must be exactly 32 bytes for AES-256, got 9 bytes",
+		},
+		{
+			name:        "key too long for unseal",
+			sealedData:  "dGVzdGRhdGF0aGF0aXNsb25nZW5vdWdoYnV0aW52YWxpZA==",
+			key:         "this_key_is_way_too_long_for_aes_256_encryption_and_should_fail", // 63 bytes
+			wantErr:     true,
+			errContains: "key must be exactly 32 bytes for AES-256, got 63 bytes",
+		},
+		{
+			name:        "empty key for unseal",
+			sealedData:  "dGVzdGRhdGF0aGF0aXNsb25nZW5vdWdoYnV0aW52YWxpZA==",
+			key:         "", // 0 bytes
+			wantErr:     true,
+			errContains: "key must be exactly 32 bytes for AES-256, got 0 bytes",
 		},
 	}
 
