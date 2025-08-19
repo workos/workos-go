@@ -344,10 +344,7 @@ func SealData(data interface{}, key string) (string, error) {
 	}
 
 	// Encrypt data
-	ciphertext := gcm.Seal(nil, nonce, jsonData, nil)
-
-	// Combine nonce and ciphertext
-	combined := append(nonce, ciphertext...)
+	ciphertext := gcm.Seal(nonce, nonce, jsonData, nil)
 
 	// Encode as base64
 	return base64.StdEncoding.EncodeToString(combined), nil
