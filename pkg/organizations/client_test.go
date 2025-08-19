@@ -763,3 +763,15 @@ func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
 }
+
+func TestListOrganizations_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "org_abc123" }
+    }`)
+
+	var resp ListOrganizationsResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "org_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}

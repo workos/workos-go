@@ -595,3 +595,39 @@ func deleteDirectoryTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 
 }
+
+func TestListUsers_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "user_abc123" }
+    }`)
+
+	var resp ListUsersResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "user_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}
+
+func TestListGroups_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "group_abc123" }
+    }`)
+
+	var resp ListGroupsResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "group_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}
+
+func TestListDirectories_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "dir_abc123" }
+    }`)
+
+	var resp ListDirectoriesResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "dir_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}

@@ -531,7 +531,7 @@ type ListInvitationsResponse struct {
 	Data []Invitation `json:"data"`
 
 	// Cursor to paginate through the list of Invitations
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 type ListInvitationsOpts struct {
