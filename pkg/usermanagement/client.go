@@ -957,8 +957,6 @@ type GetAuthorizationURLOpts struct {
 	ProviderScopes []string `json:"provider_scopes,omitempty"`
 }
 
-//helper to Seal Session
-
 // GetAuthorizationURL generates an OAuth 2.0 authorization URL.
 // To indicate the connection to use for authentication, use one of the following connection selectors:
 // connection_id, organization_id, or provider.

@@ -314,16 +314,7 @@ func SealData(data interface{}, key string) (string, error) {
 	// Create cipher
 	keyBytes := []byte(key)
 	if len(keyBytes) != 32 {
-		// Ensure key is 32 bytes for AES-256
-		if len(keyBytes) < 32 {
-			// Pad with zeros
-			padded := make([]byte, 32)
-			copy(padded, keyBytes)
-			keyBytes = padded
-		} else {
-			// Truncate to 32 bytes
-			keyBytes = keyBytes[:32]
-		}
+		return "", fmt.Errorf("key must be exactly 32 bytes for AES-256, got %d bytes", len(keyBytes))
 	}
 
 	block, err := aes.NewCipher(keyBytes)
@@ -361,16 +352,7 @@ func UnsealData(sealedData, key string) (*SessionData, error) {
 	// Create cipher
 	keyBytes := []byte(key)
 	if len(keyBytes) != 32 {
-		// Ensure key is 32 bytes for AES-256
-		if len(keyBytes) < 32 {
-			// Pad with zeros
-			padded := make([]byte, 32)
-			copy(padded, keyBytes)
-			keyBytes = padded
-		} else {
-			// Truncate to 32 bytes
-			keyBytes = keyBytes[:32]
-		}
+		return nil, fmt.Errorf("key must be exactly 32 bytes for AES-256, got %d bytes", len(keyBytes))
 	}
 
 	block, err := aes.NewCipher(keyBytes)

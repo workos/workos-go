@@ -5,8 +5,8 @@ import (
 )
 
 type Session struct {
-	SealSession    bool   `json:"seal_session,omitempty"`
-	CookiePassword string `json:"cookie_password,omitempty"`
+	SealSession    bool
+	CookiePassword string
 }
 
 type SealedSessionOpts struct {
@@ -16,8 +16,8 @@ type SealedSessionOpts struct {
 }
 
 type AuthenticateOpts struct {
-	ClientID    string `json:"client_id"`
-	SessionData string `json:"session_data"`
+	ClientID    string
+	SessionData string
 }
 
 // AuthenticateWithSessionCookieFailureReason is the set of allowed reasons.
