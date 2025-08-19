@@ -338,7 +338,7 @@ func SealData(data interface{}, key string) (string, error) {
 	ciphertext := gcm.Seal(nonce, nonce, jsonData, nil)
 
 	// Encode as base64
-	return base64.StdEncoding.EncodeToString(combined), nil
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
 // UnsealData decrypts and unseals data using AES-256-GCM
