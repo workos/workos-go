@@ -29,7 +29,7 @@ const (
 	ReasonNoSessionCookieProvided AuthenticateWithSessionCookieFailureReason = "no_session_cookie_provided"
 )
 
-// SessionResponse is the JSON object returned by authenticate/refresh calls.
+// AuthenticateWithSessionCookieResponse is the JSON object returned by authenticate/refresh calls.
 type AuthenticateWithSessionCookieResponse struct {
 	Authenticated  bool                                        `json:"authenticated"`
 	SessionID      string                                      `json:"session_id"`
