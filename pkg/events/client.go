@@ -62,7 +62,9 @@ const (
 	OrganizationMembershipRemoved            = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
 	SessionCreated                           = "session.created"
 	EmailVerificationCreated                 = "email_verification.created"
+	InvitationAccepted                       = "invitation.accepted"
 	InvitationCreated                        = "invitation.created"
+	InvitationRevoked                        = "invitation.revoked"
 	MagicAuthCreated                         = "magic_auth.created"
 	PasswordResetCreated                     = "password_reset.created"
 	PasswordResetSucceeded                   = "password_reset.succeeded"
