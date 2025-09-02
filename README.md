@@ -12,8 +12,8 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 
 Install the package with:
 
-```
-go get -u github.com/workos/workos-go/v4...
+```bash
+go get -u github.com/workos/workos-go/v4
 ```
 
 ## Configuration
@@ -24,17 +24,39 @@ To use the library you must provide an API key, located in the WorkOS dashboard,
 WORKOS_API_KEY="sk_1234"
 ```
 
-Or, you can set it on your own before your application starts:
+Or, you can configure it programmatically before your application starts:
 
-```ts
-sso.Configure(
-  "<WORKOS_API_KEY>",
-  "<CLIENT_ID>",
-  "https://foo-corp.com/redirect-uri"
-);
+```go
+import (
+    "github.com/workos/workos-go/v4/pkg/sso"
+    "github.com/workos/workos-go/v4/pkg/directorysync"
+)
 
-directorysync.SetAPIKey("<WORKOS_API_KEY>");
+func main() {
+    // Configure SSO with API key and Client ID (found in WorkOS dashboard)
+    sso.Configure("<WORKOS_API_KEY>", "<CLIENT_ID>")
+    
+    // Configure Directory Sync with API key
+    directorysync.SetAPIKey("<WORKOS_API_KEY>")
+}
 ```
+
+## Package Structure
+
+The WorkOS Go library is organized into focused packages. Import only what you need:
+
+```go
+import (
+    "github.com/workos/workos-go/v4/pkg/sso"            // Single Sign-On
+    "github.com/workos/workos-go/v4/pkg/directorysync"  // Directory Sync (SCIM)  
+    "github.com/workos/workos-go/v4/pkg/usermanagement" // User Management
+    "github.com/workos/workos-go/v4/pkg/auditlogs"      // Audit Logs
+    "github.com/workos/workos-go/v4/pkg/organizations"  // Organizations
+    "github.com/workos/workos-go/v4/pkg/webhooks"       // Webhooks
+)
+```
+
+Each package provides both a default client (configured via package functions) and a `Client` struct for custom configurations.
 
 ## SDK Versioning
 
