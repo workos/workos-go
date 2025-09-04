@@ -213,15 +213,15 @@ const (
 
 type UpdateUserOpts struct {
 	User             string
-	Email            string            `json:"email,omitempty"`
-	FirstName        string            `json:"first_name,omitempty"`
-	LastName         string            `json:"last_name,omitempty"`
-	EmailVerified    bool              `json:"email_verified,omitempty"`
-	Password         string            `json:"password,omitempty"`
-	PasswordHash     string            `json:"password_hash,omitempty"`
-	PasswordHashType PasswordHashType  `json:"password_hash_type,omitempty"`
-	ExternalID       string            `json:"external_id,omitempty"`
-	Metadata         map[string]string `json:"metadata,omitempty"`
+	Email            string             `json:"email,omitempty"`
+	FirstName        string             `json:"first_name,omitempty"`
+	LastName         string             `json:"last_name,omitempty"`
+	EmailVerified    bool               `json:"email_verified,omitempty"`
+	Password         string             `json:"password,omitempty"`
+	PasswordHash     string             `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType   `json:"password_hash_type,omitempty"`
+	ExternalID       string             `json:"external_id,omitempty"`
+	Metadata         map[string]*string `json:"metadata,omitempty"`
 }
 
 type DeleteUserOpts struct {

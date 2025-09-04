@@ -526,6 +526,64 @@ func updateUserTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestUpdateUser_MetadataJSONSerialization_StringValues(t *testing.T) {
+	lang := "en"
+	opts := UpdateUserOpts{
+		Metadata: map[string]*string{
+			"language": &lang,
+		},
+	}
+
+	b, err := json.Marshal(opts)
+	require.NoError(t, err)
+
+	var got map[string]interface{}
+	require.NoError(t, json.Unmarshal(b, &got))
+
+	meta, ok := got["metadata"].(map[string]interface{})
+	require.True(t, ok)
+	require.Equal(t, "en", meta["language"])
+}
+
+func TestUpdateUser_MetadataJSONSerialization_NilValueAsNull(t *testing.T) {
+	opts := UpdateUserOpts{
+		Metadata: map[string]*string{
+			"legacy_code": nil,
+		},
+	}
+
+	b, err := json.Marshal(opts)
+	require.NoError(t, err)
+
+	// Check raw contains null for the key
+	require.Contains(t, string(b), "\"legacy_code\":null")
+
+	var got map[string]interface{}
+	require.NoError(t, json.Unmarshal(b, &got))
+
+	meta, ok := got["metadata"].(map[string]interface{})
+	require.True(t, ok)
+	// JSON null becomes a nil interface value when decoding into map[string]any
+	_, present := meta["legacy_code"]
+	require.True(t, present)
+	require.Nil(t, meta["legacy_code"])
+}
+
+func TestUpdateUser_MetadataJSONSerialization_EmptyMapOmitted(t *testing.T) {
+	opts := UpdateUserOpts{
+		Metadata: map[string]*string{},
+	}
+
+	b, err := json.Marshal(opts)
+	require.NoError(t, err)
+
+	var got map[string]interface{}
+	require.NoError(t, json.Unmarshal(b, &got))
+
+	_, present := got["metadata"]
+	require.False(t, present)
+}
+
 func TestDeleteUser(t *testing.T) {
 	tests := []struct {
 		scenario string
