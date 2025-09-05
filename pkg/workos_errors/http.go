@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/workos/workos-go/v4/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 // TryGetHTTPError returns an error when the http response contains invalid

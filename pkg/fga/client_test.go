@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v4/pkg/common"
-	"github.com/workos/workos-go/v4/pkg/retryablehttp"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/retryablehttp"
 )
 
 func TestGetResource(t *testing.T) {
