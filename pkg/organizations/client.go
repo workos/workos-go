@@ -9,13 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v4/pkg/roles"
-	"github.com/workos/workos-go/v4/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/pkg/roles"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v4/internal/workos"
-	"github.com/workos/workos-go/v4/pkg/common"
-	"github.com/workos/workos-go/v4/pkg/organization_domains"
+	"github.com/workos/workos-go/v5/internal/workos"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/organization_domains"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
