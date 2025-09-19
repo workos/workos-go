@@ -508,7 +508,7 @@ type UpdateOrganizationMembershipOpts struct {
 	// OPTIONAL
 	RoleSlug string `json:"role_slug,omitempty"`
 
-	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted. Mutually exclusive with `role_slug`. Limited to one role when Multiple Roles is disabled.
+	// The slugs of the Roles to update this membership to. Mutually exclusive with `role_slug`. Limited to one role when Multiple Roles is disabled.
 	// OPTIONAL
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
