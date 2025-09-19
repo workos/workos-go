@@ -125,8 +125,11 @@ type OrganizationMembership struct {
 	// The ID of the Organization.
 	OrganizationID string `json:"organization_id"`
 
-	// The role given to this Organization Membership
+	// The role given to this Organization Membership or priority role if multiple roles are assigned.
 	Role common.RoleResponse `json:"role"`
+
+	// All roles for the Organization Membership
+	Roles []common.RoleResponse `json:"roles"`
 
 	// The Status of the Organization.
 	Status OrganizationMembershipStatus `json:"status"`
@@ -491,15 +494,23 @@ type CreateOrganizationMembershipOpts struct {
 	// The ID of the Organization in which to add the User as a member.
 	OrganizationID string `json:"organization_id"`
 
-	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted.
+	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted. Mutually exclusive with RoleSlugs.
 	// OPTIONAL
 	RoleSlug string `json:"role_slug,omitempty"`
+
+	// The slugs of the Roles in which to grant this membership. Mutually exclusive with `role_slug`. Limited to one role when Multiple Roles is disabled.
+	// OPTIONAL
+	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
 type UpdateOrganizationMembershipOpts struct {
 	// The slug of the Role to update to for this membership.
 	// OPTIONAL
 	RoleSlug string `json:"role_slug,omitempty"`
+
+	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted. Mutually exclusive with `role_slug`. Limited to one role when Multiple Roles is disabled.
+	// OPTIONAL
+	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
 type DeleteOrganizationMembershipOpts struct {
