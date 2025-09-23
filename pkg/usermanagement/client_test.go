@@ -2605,6 +2605,31 @@ func TestCreateOrganizationMembership(t *testing.T) {
 				Role: common.RoleResponse{
 					Slug: "member",
 				},
+				Roles:     nil,
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+		{
+			scenario: "Request returns OrganizationMembership with multiple roles",
+			client:   NewClient("test"),
+			options: CreateOrganizationMembershipOpts{
+				UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
+				OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
+				RoleSlugs:      []string{"admin", "member"},
+			},
+			expected: OrganizationMembership{
+				ID:             "om_01K2DJ6322T1HVVVFRESKAH1GW",
+				UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
+				OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
+				Status:         Active,
+				Role: common.RoleResponse{
+					Slug: "admin",
+				},
+				Roles: []common.RoleResponse{
+					{Slug: "admin"},
+					{Slug: "member"},
+				},
 				CreatedAt: "2021-06-25T19:07:33.155Z",
 				UpdatedAt: "2021-06-25T19:07:33.155Z",
 			},
@@ -2641,7 +2666,16 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/organization_memberships" {
+	// Decode JSON body into a generic map
+	var data map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	orgId := data["organization_id"]
+	switch {
+	case r.URL.Path == "/user_management/organization_memberships" && orgId == "org_01E4ZCR3C56J083X43JQXF3JK5":
 		body, err = json.Marshal(OrganizationMembership{
 			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
@@ -2649,6 +2683,22 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 			Status:         Active,
 			Role: common.RoleResponse{
 				Slug: "member",
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		})
+	case r.URL.Path == "/user_management/organization_memberships" && orgId == "org_01K2DJ6322T1HVVVFRESKAH1GW":
+		body, err = json.Marshal(OrganizationMembership{
+			ID:             "om_01K2DJ6322T1HVVVFRESKAH1GW",
+			UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
+			OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
+			Status:         Active,
+			Role: common.RoleResponse{
+				Slug: "admin",
+			},
+			Roles: []common.RoleResponse{
+				{Slug: "admin"},
+				{Slug: "member"},
 			},
 			CreatedAt: "2021-06-25T19:07:33.155Z",
 			UpdatedAt: "2021-06-25T19:07:33.155Z",
@@ -2693,6 +2743,30 @@ func TestUpdateOrganizationMembership(t *testing.T) {
 				Role: common.RoleResponse{
 					Slug: "member",
 				},
+				Roles:     nil,
+				CreatedAt: "2021-06-25T19:07:33.155Z",
+				UpdatedAt: "2021-06-25T19:07:33.155Z",
+			},
+		},
+		{
+			scenario:                 "Request returns OrganizationMembership with multiple roles",
+			client:                   NewClient("test"),
+			organizationMembershipId: "om_01K2DJ6322T1HVVVFRESKAH1GW",
+			options: UpdateOrganizationMembershipOpts{
+				RoleSlug: "member",
+			},
+			expected: OrganizationMembership{
+				ID:             "om_01K2DJ6322T1HVVVFRESKAH1GW",
+				UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
+				OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
+				Status:         Active,
+				Role: common.RoleResponse{
+					Slug: "admin",
+				},
+				Roles: []common.RoleResponse{
+					{Slug: "admin"},
+					{Slug: "member"},
+				},
 				CreatedAt: "2021-06-25T19:07:33.155Z",
 				UpdatedAt: "2021-06-25T19:07:33.155Z",
 			},
@@ -2729,7 +2803,8 @@ func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 	var body []byte
 	var err error
 
-	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5" {
+	switch {
+	case r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5":
 		body, err = json.Marshal(OrganizationMembership{
 			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
 			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
@@ -2737,6 +2812,22 @@ func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 			Status:         Active,
 			Role: common.RoleResponse{
 				Slug: "member",
+			},
+			CreatedAt: "2021-06-25T19:07:33.155Z",
+			UpdatedAt: "2021-06-25T19:07:33.155Z",
+		})
+	case r.URL.Path == "/user_management/organization_memberships/om_01K2DJ6322T1HVVVFRESKAH1GW":
+		body, err = json.Marshal(OrganizationMembership{
+			ID:             "om_01K2DJ6322T1HVVVFRESKAH1GW",
+			UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
+			OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
+			Status:         Active,
+			Role: common.RoleResponse{
+				Slug: "admin",
+			},
+			Roles: []common.RoleResponse{
+				{Slug: "admin"},
+				{Slug: "member"},
 			},
 			CreatedAt: "2021-06-25T19:07:33.155Z",
 			UpdatedAt: "2021-06-25T19:07:33.155Z",
