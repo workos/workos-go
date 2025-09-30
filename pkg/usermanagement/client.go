@@ -125,6 +125,9 @@ type OrganizationMembership struct {
 	// The ID of the Organization.
 	OrganizationID string `json:"organization_id"`
 
+	// The name of the Organization.
+	OrganizationName string `json:"organization_name"`
+
 	// The role given to this Organization Membership or priority role if multiple roles are assigned.
 	Role common.RoleResponse `json:"role"`
 

@@ -721,12 +721,13 @@ func TestUserManagementGetOrganizationMembership(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := OrganizationMembership{
-		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-		Status:         Active,
-		CreatedAt:      "2021-06-25T19:07:33.155Z",
-		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationName: "Acme Corp",
+		Status:           Active,
+		CreatedAt:        "2021-06-25T19:07:33.155Z",
+		UpdatedAt:        "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := GetOrganizationMembership(context.Background(), GetOrganizationMembershipOpts{
@@ -749,12 +750,13 @@ func TestUserManagementListOrganizationMemberships(t *testing.T) {
 	expectedResponse := ListOrganizationMembershipsResponse{
 		Data: []OrganizationMembership{
 			{
-				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-				Status:         Active,
-				CreatedAt:      "2021-06-25T19:07:33.155Z",
-				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+				ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+				OrganizationName: "Acme Corp",
+				Status:           Active,
+				CreatedAt:        "2021-06-25T19:07:33.155Z",
+				UpdatedAt:        "2021-06-25T19:07:33.155Z",
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -781,13 +783,14 @@ func TestUserManagementCreateOrganizationMembership(t *testing.T) {
 	}
 
 	expectedResponse := OrganizationMembership{
-		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-		Status:         Active,
-		Role:           expectedRole,
-		CreatedAt:      "2021-06-25T19:07:33.155Z",
-		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationName: "Acme Corp",
+		Status:           Active,
+		Role:             expectedRole,
+		CreatedAt:        "2021-06-25T19:07:33.155Z",
+		UpdatedAt:        "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := CreateOrganizationMembership(context.Background(), CreateOrganizationMembershipOpts{
@@ -828,13 +831,14 @@ func TestUsersUpdateOrganizationMembership(t *testing.T) {
 	}
 
 	expectedResponse := OrganizationMembership{
-		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-		Status:         Active,
-		Role:           expectedRole,
-		CreatedAt:      "2021-06-25T19:07:33.155Z",
-		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationName: "Acme Corp",
+		Status:           Active,
+		Role:             expectedRole,
+		CreatedAt:        "2021-06-25T19:07:33.155Z",
+		UpdatedAt:        "2021-06-25T19:07:33.155Z",
 	}
 
 	body, err := UpdateOrganizationMembership(
@@ -858,12 +862,13 @@ func TestUserManagementDeactivateOrganizationMembership(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := OrganizationMembership{
-		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-		Status:         Inactive,
-		CreatedAt:      "2021-06-25T19:07:33.155Z",
-		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationName: "Acme Corp",
+		Status:           Inactive,
+		CreatedAt:        "2021-06-25T19:07:33.155Z",
+		UpdatedAt:        "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := DeactivateOrganizationMembership(context.Background(), DeactivateOrganizationMembershipOpts{
@@ -883,12 +888,13 @@ func TestUserManagementReactivateOrganizationMembership(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := OrganizationMembership{
-		ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-		UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-		OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-		Status:         Active,
-		CreatedAt:      "2021-06-25T19:07:33.155Z",
-		UpdatedAt:      "2021-06-25T19:07:33.155Z",
+		ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+		UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+		OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+		OrganizationName: "Acme Corp",
+		Status:           Active,
+		CreatedAt:        "2021-06-25T19:07:33.155Z",
+		UpdatedAt:        "2021-06-25T19:07:33.155Z",
 	}
 
 	userRes, err := ReactivateOrganizationMembership(context.Background(), ReactivateOrganizationMembershipOpts{

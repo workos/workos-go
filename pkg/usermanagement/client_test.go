@@ -2368,12 +2368,13 @@ func TestGetOrganizationMembership(t *testing.T) {
 				OrganizationMembership: "om_01E4ZCR3C56J083X43JQXF3JK5",
 			},
 			expected: OrganizationMembership{
-				ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-				Status:         Active,
-				CreatedAt:      "2021-06-25T19:07:33.155Z",
-				UpdatedAt:      "2021-06-25T19:07:33.155Z",
+				ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+				OrganizationName: "Acme Corp",
+				Status:           Active,
+				CreatedAt:        "2021-06-25T19:07:33.155Z",
+				UpdatedAt:        "2021-06-25T19:07:33.155Z",
 			},
 		},
 	}
@@ -2410,12 +2411,13 @@ func getOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Request
 
 	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5" {
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-			Status:         Active,
-			CreatedAt:      "2021-06-25T19:07:33.155Z",
-			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+			OrganizationName: "Acme Corp",
+			Status:           Active,
+			CreatedAt:        "2021-06-25T19:07:33.155Z",
+			UpdatedAt:        "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -2441,12 +2443,13 @@ func TestListOrganizationMemberships(t *testing.T) {
 		expectedResponse := ListOrganizationMembershipsResponse{
 			Data: []OrganizationMembership{
 				{
-					ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-					Status:         Active,
-					CreatedAt:      "2021-06-25T19:07:33.155Z",
-					UpdatedAt:      "2021-06-25T19:07:33.155Z",
+					ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+					UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+					OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					OrganizationName: "Acme Corp",
+					Status:           Active,
+					CreatedAt:        "2021-06-25T19:07:33.155Z",
+					UpdatedAt:        "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -2475,12 +2478,13 @@ func TestListOrganizationMemberships(t *testing.T) {
 		expectedResponse := ListOrganizationMembershipsResponse{
 			Data: []OrganizationMembership{
 				{
-					ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-					Status:         Active,
-					CreatedAt:      "2021-06-25T19:07:33.155Z",
-					UpdatedAt:      "2021-06-25T19:07:33.155Z",
+					ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+					UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+					OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					OrganizationName: "Acme Corp",
+					Status:           Active,
+					CreatedAt:        "2021-06-25T19:07:33.155Z",
+					UpdatedAt:        "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -2509,12 +2513,13 @@ func TestListOrganizationMemberships(t *testing.T) {
 		expectedResponse := ListOrganizationMembershipsResponse{
 			Data: []OrganizationMembership{
 				{
-					ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-					Status:         Active,
-					CreatedAt:      "2021-06-25T19:07:33.155Z",
-					UpdatedAt:      "2021-06-25T19:07:33.155Z",
+					ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+					UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+					OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+					OrganizationName: "Acme Corp",
+					Status:           Active,
+					CreatedAt:        "2021-06-25T19:07:33.155Z",
+					UpdatedAt:        "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -2554,12 +2559,13 @@ func listOrganizationMembershipsTestHandler(w http.ResponseWriter, r *http.Reque
 			ListOrganizationMembershipsResponse: ListOrganizationMembershipsResponse{
 				Data: []OrganizationMembership{
 					{
-						ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-						UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-						OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-						Status:         Active,
-						CreatedAt:      "2021-06-25T19:07:33.155Z",
-						UpdatedAt:      "2021-06-25T19:07:33.155Z",
+						ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+						UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+						OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+						OrganizationName: "Acme Corp",
+						Status:           Active,
+						CreatedAt:        "2021-06-25T19:07:33.155Z",
+						UpdatedAt:        "2021-06-25T19:07:33.155Z",
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -2677,10 +2683,11 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 	switch {
 	case r.URL.Path == "/user_management/organization_memberships" && orgId == "org_01E4ZCR3C56J083X43JQXF3JK5":
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-			Status:         Active,
+			ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+			OrganizationName: "Acme Corp",
+			Status:           Active,
 			Role: common.RoleResponse{
 				Slug: "member",
 			},
@@ -2689,10 +2696,11 @@ func createOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 		})
 	case r.URL.Path == "/user_management/organization_memberships" && orgId == "org_01K2DJ6322T1HVVVFRESKAH1GW":
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01K2DJ6322T1HVVVFRESKAH1GW",
-			UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
-			OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
-			Status:         Active,
+			ID:               "om_01K2DJ6322T1HVVVFRESKAH1GW",
+			UserID:           "user_01JPQN38A88C7HC0AXDHG09EE7",
+			OrganizationID:   "org_01K2DJ6322T1HVVVFRESKAH1GW",
+			OrganizationName: "Test Corp",
+			Status:           Active,
 			Role: common.RoleResponse{
 				Slug: "admin",
 			},
@@ -2806,10 +2814,11 @@ func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 	switch {
 	case r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5":
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-			Status:         Active,
+			ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+			OrganizationName: "Acme Corp",
+			Status:           Active,
 			Role: common.RoleResponse{
 				Slug: "member",
 			},
@@ -2818,10 +2827,11 @@ func updateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.Requ
 		})
 	case r.URL.Path == "/user_management/organization_memberships/om_01K2DJ6322T1HVVVFRESKAH1GW":
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01K2DJ6322T1HVVVFRESKAH1GW",
-			UserID:         "user_01JPQN38A88C7HC0AXDHG09EE7",
-			OrganizationID: "org_01K2DJ6322T1HVVVFRESKAH1GW",
-			Status:         Active,
+			ID:               "om_01K2DJ6322T1HVVVFRESKAH1GW",
+			UserID:           "user_01JPQN38A88C7HC0AXDHG09EE7",
+			OrganizationID:   "org_01K2DJ6322T1HVVVFRESKAH1GW",
+			OrganizationName: "Test Corp",
+			Status:           Active,
 			Role: common.RoleResponse{
 				Slug: "admin",
 			},
@@ -2971,12 +2981,13 @@ func deactivateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.
 
 	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5/deactivate" {
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-			Status:         Inactive,
-			CreatedAt:      "2021-06-25T19:07:33.155Z",
-			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+			OrganizationName: "Acme Corp",
+			Status:           Inactive,
+			CreatedAt:        "2021-06-25T19:07:33.155Z",
+			UpdatedAt:        "2021-06-25T19:07:33.155Z",
 		})
 	}
 
@@ -3051,12 +3062,13 @@ func reactivateOrganizationMembershipTestHandler(w http.ResponseWriter, r *http.
 
 	if r.URL.Path == "/user_management/organization_memberships/om_01E4ZCR3C56J083X43JQXF3JK5/reactivate" {
 		body, err = json.Marshal(OrganizationMembership{
-			ID:             "om_01E4ZCR3C56J083X43JQXF3JK5",
-			UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
-			OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
-			Status:         Active,
-			CreatedAt:      "2021-06-25T19:07:33.155Z",
-			UpdatedAt:      "2021-06-25T19:07:33.155Z",
+			ID:               "om_01E4ZCR3C56J083X43JQXF3JK5",
+			UserID:           "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+			OrganizationID:   "org_01E4ZCR3C56J083X43JQXF3JK5",
+			OrganizationName: "Acme Corp",
+			Status:           Active,
+			CreatedAt:        "2021-06-25T19:07:33.155Z",
+			UpdatedAt:        "2021-06-25T19:07:33.155Z",
 		})
 	}
 
