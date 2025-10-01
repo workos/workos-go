@@ -202,7 +202,7 @@ type UpdateOrganizationOpts struct {
 	Organization string
 
 	// Name of the Organization.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
