@@ -202,7 +202,7 @@ type UpdateOrganizationOpts struct {
 	Organization string
 
 	// Name of the Organization.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
@@ -216,16 +216,16 @@ type UpdateOrganizationOpts struct {
 	Domains []string
 
 	// Domains of the Organization.
-	DomainData []OrganizationDomainData `json:"domain_data"`
+	DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
 
 	// The Organization's external id.
-	ExternalID string `json:"external_id"`
+	ExternalID string `json:"external_id,omitempty"`
 
 	// The Organization's Stripe Customer ID.
 	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
 
 	// The Organization's metadata.
-	Metadata map[string]string `json:"metadata"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // ListOrganizationsOpts contains the options to request Organizations.
