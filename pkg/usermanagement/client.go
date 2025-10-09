@@ -235,19 +235,21 @@ type DeleteUserOpts struct {
 }
 
 type AuthenticateWithPasswordOpts struct {
-	ClientID  string `json:"client_id"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	IPAddress string `json:"ip_address,omitempty"`
-	UserAgent string `json:"user_agent,omitempty"`
+	ClientID  string  `json:"client_id"`
+	Email     string  `json:"email"`
+	Password  string  `json:"password"`
+	IPAddress string  `json:"ip_address,omitempty"`
+	UserAgent string  `json:"user_agent,omitempty"`
+	Session   Session `json:"session,omitempty"`
 }
 
 type AuthenticateWithCodeOpts struct {
-	ClientID     string `json:"client_id"`
-	Code         string `json:"code"`
-	CodeVerifier string `json:"code_verifier,omitempty"`
-	IPAddress    string `json:"ip_address,omitempty"`
-	UserAgent    string `json:"user_agent,omitempty"`
+	ClientID     string  `json:"client_id"`
+	Code         string  `json:"code"`
+	CodeVerifier string  `json:"code_verifier,omitempty"`
+	IPAddress    string  `json:"ip_address,omitempty"`
+	UserAgent    string  `json:"user_agent,omitempty"`
+	Session      Session `json:"session,omitempty"`
 }
 
 type AuthenticateWithRefreshTokenOpts struct {
@@ -266,34 +268,38 @@ type AuthenticateWithMagicAuthOpts struct {
 	// An authorization code used in a previous authenticate request that resulted in an existing user error response.
 	// By specifying link_authorization_code, the Magic Auth authentication will link the credentials of the previous
 	// authorization code with this user.
-	LinkAuthorizationCode string `json:"link_authorization_code,omitempty"`
-	IPAddress             string `json:"ip_address,omitempty"`
-	UserAgent             string `json:"user_agent,omitempty"`
+	LinkAuthorizationCode string  `json:"link_authorization_code,omitempty"`
+	IPAddress             string  `json:"ip_address,omitempty"`
+	UserAgent             string  `json:"user_agent,omitempty"`
+	Session               Session `json:"session,omitempty"`
 }
 
 type AuthenticateWithTOTPOpts struct {
-	ClientID                   string `json:"client_id"`
-	Code                       string `json:"code"`
-	IPAddress                  string `json:"ip_address,omitempty"`
-	UserAgent                  string `json:"user_agent,omitempty"`
-	PendingAuthenticationToken string `json:"pending_authentication_token"`
-	AuthenticationChallengeID  string `json:"authentication_challenge_id"`
+	ClientID                   string  `json:"client_id"`
+	Code                       string  `json:"code"`
+	IPAddress                  string  `json:"ip_address,omitempty"`
+	UserAgent                  string  `json:"user_agent,omitempty"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	AuthenticationChallengeID  string  `json:"authentication_challenge_id"`
+	Session                    Session `json:"session,omitempty"`
 }
 
 type AuthenticateWithEmailVerificationCodeOpts struct {
-	ClientID                   string `json:"client_id"`
-	Code                       string `json:"code"`
-	PendingAuthenticationToken string `json:"pending_authentication_token"`
-	IPAddress                  string `json:"ip_address,omitempty"`
-	UserAgent                  string `json:"user_agent,omitempty"`
+	ClientID                   string  `json:"client_id"`
+	Code                       string  `json:"code"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	IPAddress                  string  `json:"ip_address,omitempty"`
+	UserAgent                  string  `json:"user_agent,omitempty"`
+	Session                    Session `json:"session,omitempty"`
 }
 
 type AuthenticateWithOrganizationSelectionOpts struct {
-	ClientID                   string `json:"client_id"`
-	PendingAuthenticationToken string `json:"pending_authentication_token"`
-	OrganizationID             string `json:"organization_id"`
-	IPAddress                  string `json:"ip_address,omitempty"`
-	UserAgent                  string `json:"user_agent,omitempty"`
+	ClientID                   string  `json:"client_id"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	OrganizationID             string  `json:"organization_id"`
+	IPAddress                  string  `json:"ip_address,omitempty"`
+	UserAgent                  string  `json:"user_agent,omitempty"`
+	Session                    Session `json:"session,omitempty"`
 }
 
 // AuthenticationMethod represents the authentication method used to authenticate the user.
@@ -358,6 +364,9 @@ type AuthenticateResponse struct {
 
 	// Third party OAuth provider tokens. Present if configured in the WorkOS Dashboard.
 	OAuthTokens *OAuthTokens `json:"oauth_tokens,omitempty"`
+
+	// The session data. Present if the session is sealed.
+	SealedSession string `json:"sealed_session,omitempty"`
 }
 
 type RefreshAuthenticationResponse struct {
@@ -1042,8 +1051,28 @@ func (c *Client) AuthenticateWithPassword(ctx context.Context, opts Authenticate
 	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
 
-	return body, err
+	// Seal session if requested
+	if err := c.sealSessionIfRequested(&body, opts.Session); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	return body, nil
+}
+
+// sealSessionIfRequested seals the session data if requested in the session options
+func (c *Client) sealSessionIfRequested(response *AuthenticateResponse, session Session) error {
+	if session.SealSession {
+		sealedSession, err := SealData(*response, session.CookiePassword)
+		if err != nil {
+			return err
+		}
+		response.SealedSession = sealedSession
+	}
+	return nil
 }
 
 // AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
@@ -1093,8 +1122,16 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
 
-	return body, err
+	// Seal session if requested
+	if err := c.sealSessionIfRequested(&body, opts.Session); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	return body, nil
 }
 
 // AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
@@ -1197,8 +1234,16 @@ func (c *Client) AuthenticateWithMagicAuth(ctx context.Context, opts Authenticat
 	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
 
-	return body, err
+	// Seal session if requested
+	if err := c.sealSessionIfRequested(&body, opts.Session); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	return body, nil
 }
 
 // AuthenticateWithTOTP authenticates a user by verifying a time-based one-time password (TOTP)
@@ -1248,8 +1293,16 @@ func (c *Client) AuthenticateWithTOTP(ctx context.Context, opts AuthenticateWith
 	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
 
-	return body, err
+	// Seal session if requested
+	if err := c.sealSessionIfRequested(&body, opts.Session); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	return body, nil
 }
 
 // AuthenticateWithEmailVerificationCode authenticates a user by verifying a code sent to their email address
@@ -1299,8 +1352,16 @@ func (c *Client) AuthenticateWithEmailVerificationCode(ctx context.Context, opts
 	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
 
-	return body, err
+	// Seal session if requested
+	if err := c.sealSessionIfRequested(&body, opts.Session); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	return body, nil
 }
 
 // AuthenticateWithOrganizationSelection completes authentication for a user given an organization they've selected.
@@ -1350,8 +1411,16 @@ func (c *Client) AuthenticateWithOrganizationSelection(ctx context.Context, opts
 	var body AuthenticateResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
+	if err != nil {
+		return AuthenticateResponse{}, err
+	}
 
-	return body, err
+	// Seal session if requested
+	if err := c.sealSessionIfRequested(&body, opts.Session); err != nil {
+		return AuthenticateResponse{}, err
+	}
+
+	return body, nil
 }
 
 // GetEmailVerification fetches an EmailVerification object by its ID.
