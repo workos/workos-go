@@ -351,3 +351,10 @@ func GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
 func RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
 	return DefaultClient.RevokeSession(ctx, opts)
 }
+
+func ListSessions(
+	ctx context.Context,
+	opts ListSessionsOpts,
+) (ListSessionsResponse, error) {
+	return DefaultClient.ListSessions(ctx, opts)
+}

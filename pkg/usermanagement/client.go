@@ -588,6 +588,50 @@ type ListIdentitiesOpts struct {
 	ID string `json:"id"`
 }
 
+type Session struct {
+	// The Object will always be "session".
+	Object string `json:"object"`
+	// The unique identifier for the Session.
+	ID string `json:"id"`
+	// The unique identifier for the User.
+	UserID string `json:"user_id"`
+	// The unique identifier for the Organization.
+	OrganizationID string `json:"organization_id"`
+	// The status of the Session.
+	Status string `json:"status"`
+	// The authentication method used to create the Session.
+	AuthMethod string `json:"auth_method"`
+	// The IP address from which the Session was created.
+	IPAddress string `json:"ip_address"`
+	// The user agent from which the Session was created.
+	UserAgent string `json:"user_agent"`
+	// The time at which the Session expires.
+	ExpiresAt time.Time `json:"expires_at"`
+	// The time at which the Session ended, if applicable.
+	EndedAt *time.Time `json:"ended_at"`
+	// The time at which the Session was created.
+	CreatedAt time.Time `json:"created_at"`
+	// The time at which the Session was last updated.
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type ListSessionsOpts struct {
+	UserID string
+	Limit  int
+	Before string
+	After  string
+	Order  Order
+}
+
+type ListSessionsResponse struct {
+	// The Object will always be "list".
+	Object string `json:"object"`
+	// List of Sessions
+	Data []Session `json:"data"`
+	// Cursor to paginate through the list of Users
+	ListMetadata common.ListMetadata `json:"list_metadata"`
+}
+
 func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:     apiKey,
@@ -2333,4 +2377,49 @@ func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) erro
 	}
 
 	return nil
+}
+
+func (c *Client) ListSessions(ctx context.Context, opts ListSessionsOpts) (ListSessionsResponse, error) {
+	req, err := http.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf("%s/user_management/sessions", c.Endpoint),
+		nil,
+	)
+	if err != nil {
+		return ListSessionsResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if opts.Limit == 0 {
+		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
+	queryValues, err := query.Values(opts)
+	if err != nil {
+		return ListSessionsResponse{}, err
+	}
+
+	req.URL.RawQuery = queryValues.Encode()
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListSessionsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListSessionsResponse{}, err
+	}
+
+	var body ListSessionsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
 }

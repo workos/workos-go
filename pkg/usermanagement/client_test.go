@@ -3584,6 +3584,52 @@ func RevokeSessionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func listSessionsTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListSessionsResponse
+	}{
+		ListSessionsResponse: ListSessionsResponse{
+			Object: "list",
+			Data: []Session{
+				{
+					Object:         "session",
+					ID:             "session_01E4ZCR3C56J083X43JQXF3JK5",
+					UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+					OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+					Status:         "active",
+					AuthMethod:     "password",
+					IPAddress:      "192.168.1.1",
+					UserAgent:      "Mozilla/5.0",
+					ExpiresAt:      time.Date(2021, 6, 25, 19, 7, 33, 155000000, time.UTC),
+					CreatedAt:      time.Date(2021, 6, 25, 19, 7, 33, 155000000, time.UTC),
+					UpdatedAt:      time.Date(2021, 6, 25, 19, 7, 33, 155000000, time.UTC),
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestListInvitations_UnmarshalSnakeCaseListMetadata(t *testing.T) {
 	raw := []byte(`{
         "data": [],
