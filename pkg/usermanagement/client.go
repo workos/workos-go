@@ -616,11 +616,11 @@ type Session struct {
 }
 
 type ListSessionsOpts struct {
-	UserID string
-	Limit  int
-	Before string
-	After  string
-	Order  Order
+	UserID string `url:"user_id,omitempty"`
+	Limit  int    `url:"limit"`
+	Before string `url:"before,omitempty"`
+	After  string `url:"after,omitempty"`
+	Order  Order  `url:"order,omitempty"`
 }
 
 type ListSessionsResponse struct {
