@@ -1090,3 +1090,41 @@ func TestUsersRevokeSession(t *testing.T) {
 
 	require.NoError(t, err)
 }
+
+func TestUserManagementListSessions(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listSessionsTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := ListSessionsResponse{
+		Object: "list",
+		Data: []Session{
+			{
+				Object:         "session",
+				ID:             "session_01E4ZCR3C56J083X43JQXF3JK5",
+				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
+				Status:         "active",
+				AuthMethod:     "password",
+				IPAddress:      "192.168.1.1",
+				UserAgent:      "Mozilla/5.0",
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			After: "",
+		},
+	}
+
+	sessionsRes, err := ListSessions(context.Background(), ListSessionsOpts{})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse.Object, sessionsRes.Object)
+	require.Equal(t, len(expectedResponse.Data), len(sessionsRes.Data))
+	require.Equal(t, expectedResponse.Data[0].ID, sessionsRes.Data[0].ID)
+	require.Equal(t, expectedResponse.Data[0].UserID, sessionsRes.Data[0].UserID)
+	require.Equal(t, expectedResponse.Data[0].Status, sessionsRes.Data[0].Status)
+}
