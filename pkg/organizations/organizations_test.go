@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/roles"
+	"github.com/workos/workos-go/v6/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/roles"
 )
 
 func TestOrganizationsGetOrganization(t *testing.T) {

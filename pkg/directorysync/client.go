@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v5/pkg/workos_errors"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v5/internal/workos"
-	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v6/internal/workos"
+	"github.com/workos/workos-go/v6/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.

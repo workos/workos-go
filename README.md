@@ -1,6 +1,6 @@
 # WorkOS Go Library
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v5.svg)](https://pkg.go.dev/github.com/workos/workos-go/v5)
+[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v6.svg)](https://pkg.go.dev/github.com/workos/workos-go/v6)
 
 The WorkOS library for Go provides convenient access to the WorkOS API from applications written in Go.
 
@@ -13,7 +13,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 Install the package with:
 
 ```bash
-go get -u github.com/workos/workos-go/v5
+go get -u github.com/workos/workos-go/v6
 ```
 
 ## Configuration
@@ -28,8 +28,8 @@ Or, you can configure it programmatically before your application starts:
 
 ```go
 import (
-    "github.com/workos/workos-go/v5/pkg/sso"
-    "github.com/workos/workos-go/v5/pkg/directorysync"
+    "github.com/workos/workos-go/v6/pkg/sso"
+    "github.com/workos/workos-go/v6/pkg/directorysync"
 )
 
 func main() {
@@ -47,12 +47,12 @@ The WorkOS Go library is organized into focused packages. Import only what you n
 
 ```go
 import (
-    "github.com/workos/workos-go/v5/pkg/sso"            // Single Sign-On
-    "github.com/workos/workos-go/v5/pkg/directorysync"  // Directory Sync (SCIM)  
-    "github.com/workos/workos-go/v5/pkg/usermanagement" // User Management
-    "github.com/workos/workos-go/v5/pkg/auditlogs"      // Audit Logs
-    "github.com/workos/workos-go/v5/pkg/organizations"  // Organizations
-    "github.com/workos/workos-go/v5/pkg/webhooks"       // Webhooks
+    "github.com/workos/workos-go/v6/pkg/sso"            // Single Sign-On
+    "github.com/workos/workos-go/v6/pkg/directorysync"  // Directory Sync (SCIM)  
+    "github.com/workos/workos-go/v6/pkg/usermanagement" // User Management
+    "github.com/workos/workos-go/v6/pkg/auditlogs"      // Audit Logs
+    "github.com/workos/workos-go/v6/pkg/organizations"  // Organizations
+    "github.com/workos/workos-go/v6/pkg/webhooks"       // Webhooks
 )
 ```
 

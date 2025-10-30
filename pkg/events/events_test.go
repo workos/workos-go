@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/common"
 )
 
 func TestEventsListEvents(t *testing.T) {

@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/roles"
+	"github.com/workos/workos-go/v6/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/roles"
 )
 
 func TestGetOrganization(t *testing.T) {
@@ -575,10 +575,10 @@ func TestUpdateOrganization(t *testing.T) {
 						State:          "verified",
 					},
 				},
-			Metadata: map[string]string{
-				"key1": "value1",
-				"key2": "value2",
-			},
+				Metadata: map[string]string{
+					"key1": "value1",
+					"key2": "value2",
+				},
 			},
 		},
 	}
