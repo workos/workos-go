@@ -21,6 +21,9 @@ type Role struct {
 
 	Description string `json:"description"`
 
+	// The permissions assigned to the Role.
+	Permissions []string `json:"permissions"`
+
 	// The type of role
 	Type RoleType `json:"type"`
 
