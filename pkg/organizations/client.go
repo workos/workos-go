@@ -193,7 +193,7 @@ type CreateOrganizationOpts struct {
 	ExternalID string `json:"external_id,omitempty"`
 
 	// The Organization's metadata.
-	Metadata map[string]string `json:"metadata"`
+	Metadata map[string]*string `json:"metadata"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
@@ -225,7 +225,7 @@ type UpdateOrganizationOpts struct {
 	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
 
 	// The Organization's metadata.
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]*string `json:"metadata,omitempty"`
 }
 
 // ListOrganizationsOpts contains the options to request Organizations.
