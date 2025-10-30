@@ -193,7 +193,7 @@ type CreateOrganizationOpts struct {
 	ExternalID string `json:"external_id,omitempty"`
 
 	// The Organization's metadata.
-	Metadata map[string]*string `json:"metadata"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
