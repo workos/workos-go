@@ -548,10 +548,14 @@ func TestUpdateOrganization(t *testing.T) {
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
-				Metadata: map[string]string{
-					"key1": "value1",
-					"key2": "value2",
-				},
+				Metadata: func() map[string]*string {
+					value1 := "value1"
+					value2 := "value2"
+					return map[string]*string{
+						"key1": &value1,
+						"key2": &value2,
+					}
+				}(),
 			},
 			expected: Organization{
 				ID:                               "organization_id",
@@ -571,10 +575,10 @@ func TestUpdateOrganization(t *testing.T) {
 						State:          "verified",
 					},
 				},
-				Metadata: map[string]string{
-					"key1": "value1",
-					"key2": "value2",
-				},
+			Metadata: map[string]string{
+				"key1": "value1",
+				"key2": "value2",
+			},
 			},
 		},
 	}
@@ -643,7 +647,12 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Include metadata in response if it was present in the request
 	if opts.Metadata != nil {
-		responseOrg.Metadata = opts.Metadata
+		responseOrg.Metadata = make(map[string]string)
+		for k, v := range opts.Metadata {
+			if v != nil {
+				responseOrg.Metadata[k] = *v
+			}
+		}
 	}
 
 	body, err := json.Marshal(responseOrg)
