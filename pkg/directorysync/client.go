@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/internal/workos"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -99,10 +99,19 @@ type User struct {
 	// The identifier for the Organization in which the Directory resides.
 	OrganizationID string `json:"organization_id"`
 
+	// The User's primary email
+	Email string `json:"email"`
+
 	// The User's username.
+	// Deprecated: Will be removed in a future major version. Enable the `username` custom attribute
+	// in dashboard and pull from customAttributes instead. See
+	// https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
 	Username string `json:"username"`
 
 	// The User's e-mails.
+	// Deprecated: Will be removed in a future major version. Enable the `emails` custom attribute
+	// in dashboard and pull from customAttributes instead. See
+	// https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
 	Emails []UserEmail `json:"emails"`
 
 	// The User's groups.
@@ -115,6 +124,9 @@ type User struct {
 	LastName string `json:"last_name"`
 
 	// The User's job title.
+	// Deprecated: Will be removed in a future major version. Enable the `job_title` custom attribute
+	// in dashboard and pull from customAttributes instead. See
+	// https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
 	JobTitle string `json:"job_title"`
 
 	// The User's state.
@@ -131,6 +143,9 @@ type User struct {
 
 	// The User's updated at date
 	UpdatedAt string `json:"updated_at"`
+
+	// The role given to this Directory User
+	Role common.RoleResponse `json:"role,omitempty"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
@@ -161,7 +176,7 @@ type ListUsersResponse struct {
 	Data []User `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // ListUsers gets a list of provisioned Users for a Directory.
@@ -187,6 +202,10 @@ func (c *Client) ListUsers(
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)
@@ -266,7 +285,7 @@ type ListGroupsResponse struct {
 	Data []Group `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // ListGroups gets a list of provisioned Groups for a Directory Endpoint.
@@ -293,6 +312,10 @@ func (c *Client) ListGroups(
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)
@@ -510,7 +533,7 @@ type ListDirectoriesResponse struct {
 	Data []Directory `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // ListDirectories gets details of existing Directories.
@@ -536,6 +559,10 @@ func (c *Client) ListDirectories(
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)

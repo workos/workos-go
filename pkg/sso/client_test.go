@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 func TestClientAuthorizeURL(t *testing.T) {
@@ -155,12 +155,19 @@ func TestClientGetProfileAndToken(t *testing.T) {
 				Email:          "foo@test.com",
 				FirstName:      "foo",
 				LastName:       "bar",
-				Groups:         []string{"Admins", "Developers"},
+				Role: common.RoleResponse{
+					Slug: "admin",
+				},
+				Groups: []string{"Admins", "Developers"},
+				CustomAttributes: map[string]interface{}{
+					"license": "professional",
+				},
 				RawAttributes: map[string]interface{}{
 					"idp_id":     "123",
 					"email":      "foo@test.com",
 					"first_name": "foo",
 					"last_name":  "bar",
+					"license":    "professional",
 				},
 			},
 		},
@@ -217,12 +224,19 @@ func profileAndTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 			Email:          "foo@test.com",
 			FirstName:      "foo",
 			LastName:       "bar",
-			Groups:         []string{"Admins", "Developers"},
+			Role: common.RoleResponse{
+				Slug: "admin",
+			},
+			Groups: []string{"Admins", "Developers"},
+			CustomAttributes: map[string]interface{}{
+				"license": "professional",
+			},
 			RawAttributes: map[string]interface{}{
 				"idp_id":     "123",
 				"email":      "foo@test.com",
 				"first_name": "foo",
 				"last_name":  "bar",
+				"license":    "professional",
 			},
 		},
 	})
@@ -261,12 +275,19 @@ func TestClientGetProfile(t *testing.T) {
 				Email:          "foo@test.com",
 				FirstName:      "foo",
 				LastName:       "bar",
-				Groups:         []string{"Admins", "Developers"},
+				Role: common.RoleResponse{
+					Slug: "admin",
+				},
+				Groups: []string{"Admins", "Developers"},
+				CustomAttributes: map[string]interface{}{
+					"license": "professional",
+				},
 				RawAttributes: map[string]interface{}{
 					"idp_id":     "123",
 					"email":      "foo@test.com",
 					"first_name": "foo",
 					"last_name":  "bar",
+					"license":    "professional",
 				},
 			},
 		},
@@ -313,12 +334,19 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
-		Groups:         []string{"Admins", "Developers"},
+		Role: common.RoleResponse{
+			Slug: "admin",
+		},
+		Groups: []string{"Admins", "Developers"},
+		CustomAttributes: map[string]interface{}{
+			"license": "professional",
+		},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
 			"first_name": "foo",
 			"last_name":  "bar",
+			"license":    "professional",
 		},
 	},
 	)
@@ -496,4 +524,16 @@ func listConnectionsTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
+}
+
+func TestListConnections_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "conn_abc123" }
+    }`)
+
+	var resp ListConnectionsResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "conn_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
 }

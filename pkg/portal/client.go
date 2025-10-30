@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v3/internal/workos"
+	"github.com/workos/workos-go/v5/internal/workos"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -63,10 +63,12 @@ type GenerateLinkIntent string
 
 // Constants that enumerate the available GenerateLinkIntent types.
 const (
-	SSO        GenerateLinkIntent = "sso"
-	DSync      GenerateLinkIntent = "dsync"
-	AuditLogs  GenerateLinkIntent = "audit_logs"
-	LogStreams GenerateLinkIntent = "log_streams"
+	SSO                GenerateLinkIntent = "sso"
+	DSync              GenerateLinkIntent = "dsync"
+	AuditLogs          GenerateLinkIntent = "audit_logs"
+	LogStreams         GenerateLinkIntent = "log_streams"
+	CertificateRenewal GenerateLinkIntent = "certificate_renewal"
+	DomainVerification GenerateLinkIntent = "domain_verification"
 )
 
 // GenerateLinkOpts contains the options to request Organizations.

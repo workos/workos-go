@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/internal/workos"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -21,7 +21,7 @@ const ResponseLimit = 10
 const (
 	// Connection Events
 	ConnectionActivated   = "connection.activated"
-	ConnectionDeactivated = "connection.deactived"
+	ConnectionDeactivated = "connection.deactivated"
 	ConnectionDeleted     = "connection.deleted"
 	// Directory Events
 	DirectoryActivated = "dsync.activated"
@@ -35,13 +35,45 @@ const (
 	DirectoryGroupUpdated     = "dsync.group.updated"
 	DirectoryGroupDeleted     = "dsync.group.deleted"
 	DirectoryGroupUserAdded   = "dsync.group.user_added"
-	DirectroyGroupUserRemoved = "dsync.group.user_removed"
+	DirectoryGroupUserRemoved = "dsync.group.user_removed"
+	DirectroyGroupUserRemoved = "dsync.group.user_removed" // Deprecated: use DirectoryGroupUserRemoved instead
+	// Organization Events
+	OrganizationCreated = "organization.created"
+	OrganizationUpdated = "organization.updated"
+	OrganizationDeleted = "organization.deleted"
 	// User Management Events
-	UserCreated                   = "user.created"
-	UserUpdated                   = "user.updated"
-	UserDeleted                   = "user.deleted"
-	OrganizationMembershipAdded   = "organization_membership.added"
-	OrganizationMembershipRemoved = "organization_membership.removed"
+	AuthenticationEmailVerificationSucceeded = "authentication.email_verification_succeeded"
+	AuthenticationMagicAuthFailed            = "authentication.magic_auth_failed"
+	AuthenticationMagicAuthSucceeded         = "authentication.magic_auth_succeeded"
+	AuthenticationMfaSucceeded               = "authentication.mfa_succeeded"
+	AuthenticationOauthFailed                = "authentication.oauth_failed"
+	AuthenticationOauthSucceeded             = "authentication.oauth_succeeded"
+	AuthenticationPasswordFailed             = "authentication.password_failed"
+	AuthenticationPasswordSucceeded          = "authentication.password_succeeded"
+	AuthenticationSsoFailed                  = "authentication.sso_failed"
+	AuthenticationSsoSucceeded               = "authentication.sso_succeeded"
+	UserCreated                              = "user.created"
+	UserUpdated                              = "user.updated"
+	UserDeleted                              = "user.deleted"
+	OrganizationMembershipAdded              = "organization_membership.added" // Deprecated: use OrganizationMembershipCreated instead
+	OrganizationMembershipCreated            = "organization_membership.created"
+	OrganizationMembershipDeleted            = "organization_membership.deleted"
+	OrganizationMembershipUpdated            = "organization_membership.updated"
+	OrganizationMembershipRemoved            = "organization_membership.removed" // Deprecated: use OrganizationMembershipDeleted instead
+	SessionCreated                           = "session.created"
+	EmailVerificationCreated                 = "email_verification.created"
+	InvitationAccepted                       = "invitation.accepted"
+	InvitationCreated                        = "invitation.created"
+	InvitationRevoked                        = "invitation.revoked"
+	MagicAuthCreated                         = "magic_auth.created"
+	PasswordResetCreated                     = "password_reset.created"
+	PasswordResetSucceeded                   = "password_reset.succeeded"
+	// Organization Domain Events
+	OrganizationDomainCreated            = "organization_domain.created"
+	OrganizationDomainUpdated            = "organization_domain.updated"
+	OrganizationDomainDeleted            = "organization_domain.deleted"
+	OrganizationDomainVerified           = "organization_domain.verified"
+	OrganizationDomainVerificationFailed = "organization_domain.verification_failed"
 )
 
 // Client represents a client that performs Event requests to the WorkOS API.
@@ -87,7 +119,7 @@ type Event struct {
 // ListEventsOpts contains the options to request provisioned Events.
 type ListEventsOpts struct {
 	// Filter to only return Events of particular types.
-	Events []string `url:"events,omitempty"`
+	Events []string `url:"events"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -100,6 +132,8 @@ type ListEventsOpts struct {
 
 	// Date range end for stream of Events.
 	RangeEnd string `url:"range_end,omitempty"`
+
+	OrganizationId string `url:"organization_id,omitempty"`
 }
 
 // GetEventsResponse describes the response structure when requesting

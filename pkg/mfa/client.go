@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 
-	"github.com/workos/workos-go/v3/internal/workos"
+	"github.com/workos/workos-go/v5/internal/workos"
 )
 
 // This represents the list of errors that could be raised when using the mfa package

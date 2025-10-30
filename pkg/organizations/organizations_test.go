@@ -7,7 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/roles"
 )
 
 func TestOrganizationsGetOrganization(t *testing.T) {
@@ -21,18 +22,24 @@ func TestOrganizationsGetOrganization(t *testing.T) {
 	SetAPIKey("test")
 
 	expectedResponse := Organization{
-		ID:                               "organization_id",
+		ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 		Name:                             "Foo Corp",
 		AllowProfilesOutsideOrganization: false,
 		Domains: []OrganizationDomain{
-			OrganizationDomain{
-				ID:     "organization_domain_id",
-				Domain: "foo-corp.com",
+			{
+				ID:                   "org_domain_01HEJXJSTVEDT7T58BM70FMFET",
+				Domain:               "foo-corp.com",
+				OrganizationID:       "org_01EHT88Z8J8795GZNQ4ZP1J81T",
+				State:                "verified",
+				VerificationStrategy: "dns",
+				VerificationToken:    "aW5HQ8Sgps1y3LQyrShsFRo3F",
+				VerificationPrefix:   "superapp-domain-verification-0fmfet",
 			},
 		},
+		ExternalID: "external_id",
 	}
 	organizationResponse, err := GetOrganization(context.Background(), GetOrganizationOpts{
-		Organization: "organization_id",
+		Organization: "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 	})
 
 	require.NoError(t, err)
@@ -51,14 +58,16 @@ func TestOrganizationsListOrganizations(t *testing.T) {
 
 	expectedResponse := ListOrganizationsResponse{
 		Data: []Organization{
-			Organization{
+			{
 				ID:                               "organization_id",
 				Name:                             "Foo Corp",
 				AllowProfilesOutsideOrganization: false,
 				Domains: []OrganizationDomain{
-					OrganizationDomain{
-						ID:     "organization_domain_id",
-						Domain: "foo-corp.com",
+					{
+						ID:             "organization_domain_id",
+						Domain:         "foo-corp.com",
+						OrganizationID: "organization_id",
+						State:          "verified",
 					},
 				},
 			},
@@ -93,9 +102,11 @@ func TestOrganizationsCreateOrganization(t *testing.T) {
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
+				{
+					ID:             "organization_domain_id",
+					Domain:         "foo-corp.com",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
 			},
 		}
@@ -126,13 +137,17 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 			Name:                             "Foo Corp",
 			AllowProfilesOutsideOrganization: false,
 			Domains: []OrganizationDomain{
-				OrganizationDomain{
-					ID:     "organization_domain_id",
-					Domain: "foo-corp.com",
+				{
+					ID:             "organization_domain_id",
+					Domain:         "foo-corp.com",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
-				OrganizationDomain{
-					ID:     "organization_domain_id_2",
-					Domain: "foo-corp.io",
+				{
+					ID:             "organization_domain_id_2",
+					Domain:         "foo-corp.io",
+					OrganizationID: "organization_id",
+					State:          "verified",
 				},
 			},
 		}
@@ -145,4 +160,47 @@ func TestOrganizationsUpdateOrganization(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, organization)
+}
+
+func TestOrganizationsListOrganizationRoles(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(listOrganizationRolesTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	expectedResponse := ListOrganizationRolesResponse{
+		Data: []roles.Role{
+			{
+				ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJNY",
+				Name:        "Member",
+				Slug:        "member",
+				Description: "The default role for all users.",
+				Permissions: []string{"read:test", "write:test"},
+				Type:        roles.Environment,
+				CreatedAt:   "2024-12-01T00:00:00.000Z",
+				UpdatedAt:   "2024-12-01T00:00:00.000Z",
+			},
+			{
+				ID:          "role_01EHWNCE74X7JSDV0X3SZ3KJSE",
+				Name:        "Org. Member",
+				Slug:        "org-member",
+				Description: "The default role for org. members.",
+				Permissions: []string{"read:test", "write:test"},
+				Type:        roles.Organization,
+				CreatedAt:   "2024-12-02T00:00:00.000Z",
+				UpdatedAt:   "2024-12-02T00:00:00.000Z",
+			},
+		},
+	}
+
+	rolesResponse, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+		OrganizationID: "organization_id",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, rolesResponse)
 }

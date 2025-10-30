@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 func TestListUsers(t *testing.T) {
@@ -40,6 +40,7 @@ func TestListUsers(t *testing.T) {
 						FirstName: "Rick",
 						LastName:  "Sanchez",
 						JobTitle:  "Software Engineer",
+						Email:     "rick@sanchez.com",
 						Emails: []UserEmail{
 							UserEmail{
 								Primary: true,
@@ -57,6 +58,9 @@ func TestListUsers(t *testing.T) {
 						State:            Active,
 						RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 						CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+						Role: common.RoleResponse{
+							Slug: "member",
+						},
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -109,6 +113,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					FirstName: "Rick",
 					LastName:  "Sanchez",
 					JobTitle:  "Software Engineer",
+					Email:     "rick@sanchez.com",
 					Emails: []UserEmail{
 						UserEmail{
 							Primary: true,
@@ -126,6 +131,7 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					State:            Active,
 					RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 					CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+					Role:             common.RoleResponse{Slug: "member"},
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -274,6 +280,7 @@ func TestGetUser(t *testing.T) {
 				FirstName: "Rick",
 				LastName:  "Sanchez",
 				JobTitle:  "Software Engineer",
+				Email:     "rick@sanchez.com",
 				Emails: []UserEmail{
 					UserEmail{
 						Primary: true,
@@ -291,6 +298,7 @@ func TestGetUser(t *testing.T) {
 				State:            Active,
 				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+				Role:             common.RoleResponse{Slug: "member"},
 			},
 		},
 	}
@@ -332,6 +340,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 		FirstName: "Rick",
 		LastName:  "Sanchez",
 		JobTitle:  "Software Engineer",
+		Email:     "rick@sanchez.com",
 		Emails: []UserEmail{
 			UserEmail{
 				Primary: true,
@@ -349,6 +358,7 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 		State:            Active,
 		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+		Role:             common.RoleResponse{Slug: "member"},
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -584,4 +594,40 @@ func deleteDirectoryTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 
+}
+
+func TestListUsers_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "user_abc123" }
+    }`)
+
+	var resp ListUsersResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "user_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}
+
+func TestListGroups_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "group_abc123" }
+    }`)
+
+	var resp ListGroupsResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "group_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
+}
+
+func TestListDirectories_UnmarshalSnakeCaseListMetadata(t *testing.T) {
+	raw := []byte(`{
+        "data": [],
+        "list_metadata": { "before": "", "after": "dir_abc123" }
+    }`)
+
+	var resp ListDirectoriesResponse
+	require.NoError(t, json.Unmarshal(raw, &resp))
+	require.Equal(t, "dir_abc123", resp.ListMetadata.After)
+	require.Equal(t, "", resp.ListMetadata.Before)
 }

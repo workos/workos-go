@@ -5,16 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
+
+	"github.com/workos/workos-go/v5/internal/workos"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -36,6 +37,7 @@ type ConnectionType string
 const (
 	ADFSSAML              ConnectionType = "ADFSSAML"
 	AdpOidc               ConnectionType = "AdpOidc"
+	AppleOAuth            ConnectionType = "AppleOAuth"
 	Auth0SAML             ConnectionType = "Auth0SAML"
 	AzureSAML             ConnectionType = "AzureSAML"
 	CasSAML               ConnectionType = "CasSAML"
@@ -45,6 +47,7 @@ const (
 	DuoSAML               ConnectionType = "DuoSAML"
 	GenericOIDC           ConnectionType = "GenericOIDC"
 	GenericSAML           ConnectionType = "GenericSAML"
+	GitHubOAuth           ConnectionType = "GitHubOAuth"
 	GoogleOAuth           ConnectionType = "GoogleOAuth"
 	GoogleSAML            ConnectionType = "GoogleSAML"
 	JumpCloudSAML         ConnectionType = "JumpCloudSAML"
@@ -247,8 +250,14 @@ type Profile struct {
 	// The user last name. Can be empty.
 	LastName string `json:"last_name"`
 
+	// The role given to this user profile. Can be empty.
+	Role common.RoleResponse `json:"role"`
+
 	// The user's group memberships. Can be empty.
 	Groups []string `json:"groups"`
+
+	// The mapped custom attributes from the identity provider. Can be empty.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
 
 	// The raw response of Profile attributes from the identity provider
 	RawAttributes map[string]interface{} `json:"raw_attributes"`
@@ -484,7 +493,7 @@ type ListConnectionsResponse struct {
 	Data []Connection `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 // ListConnections gets details of existing Connections.
@@ -510,6 +519,10 @@ func (c *Client) ListConnections(
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	v, err := query.Values(opts)

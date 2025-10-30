@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 func TestLogin(t *testing.T) {
@@ -34,12 +34,19 @@ func TestLogin(t *testing.T) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
-		Groups:         []string{"Admins", "Developers"},
+		Role: common.RoleResponse{
+			Slug: "admin",
+		},
+		Groups: []string{"Admins", "Developers"},
+		CustomAttributes: map[string]interface{}{
+			"license": "professional",
+		},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
 			"first_name": "foo",
 			"last_name":  "bar",
+			"license":    "professional",
 		},
 	}
 
@@ -166,12 +173,19 @@ func TestSsoGetProfile(t *testing.T) {
 		Email:          "foo@test.com",
 		FirstName:      "foo",
 		LastName:       "bar",
-		Groups:         []string{"Admins", "Developers"},
+		Role: common.RoleResponse{
+			Slug: "admin",
+		},
+		Groups: []string{"Admins", "Developers"},
+		CustomAttributes: map[string]interface{}{
+			"license": "professional",
+		},
 		RawAttributes: map[string]interface{}{
 			"idp_id":     "123",
 			"email":      "foo@test.com",
 			"first_name": "foo",
 			"last_name":  "bar",
+			"license":    "professional",
 		},
 	}
 	profileResponse, err := GetProfile(context.Background(), GetProfileOpts{

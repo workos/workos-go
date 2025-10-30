@@ -9,11 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/pkg/roles"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/internal/workos"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/organization_domains"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -60,14 +62,23 @@ func (c *Client) init() {
 	}
 }
 
-// OrganizationDomain contains data about an Organization's Domains.
-type OrganizationDomain struct {
-	// The Organization Domain's unique identifier.
-	ID string `json:"id"`
+type OrganizationDomainState = organization_domains.OrganizationDomainState
 
-	// The domain value
-	Domain string `json:"domain"`
-}
+const (
+	OrganizationDomainPending        OrganizationDomainState = organization_domains.OrganizationDomainPending
+	OrganizationDomainVerified       OrganizationDomainState = organization_domains.OrganizationDomainVerified
+	OrganizationDomainFailed         OrganizationDomainState = organization_domains.OrganizationDomainFailed
+	OrganizationDomainLegacyVerified OrganizationDomainState = organization_domains.OrganizationDomainLegacyVerified
+)
+
+type OrganizationDomainVerificationStrategy = organization_domains.OrganizationDomainVerificationStrategy
+
+const (
+	Dns    OrganizationDomainVerificationStrategy = organization_domains.Dns
+	Manual OrganizationDomainVerificationStrategy = organization_domains.Manual
+)
+
+type OrganizationDomain = organization_domains.OrganizationDomain
 
 // Organization contains data about a WorkOS Organization.
 type Organization struct {
@@ -79,22 +90,37 @@ type Organization struct {
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
+	//
+	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// The Organization's Domains.
 	Domains []OrganizationDomain `json:"domains"`
+
+	// The Organization's Stripe Customer ID.
+	StripeCustomerID string `json:"stripe_customer_id,omitempty	"`
 
 	// The timestamp of when the Organization was created.
 	CreatedAt string `json:"created_at"`
 
 	// The timestamp of when the Organization was updated.
 	UpdatedAt string `json:"updated_at"`
+
+	// The Organization's external id.
+	ExternalID string `json:"external_id"`
+
+	// The Organization's metadata.
+	Metadata map[string]string `json:"metadata"`
 }
 
 // GetOrganizationOpts contains the options to request details for an Organization.
 type GetOrganizationOpts struct {
 	// Organization unique identifier.
 	Organization string
+}
+
+type GetOrganizationByExternalIDOpts struct {
+	ExternalID string
 }
 
 // ListOrganizationsOpts contains the options to request Organizations.
@@ -122,7 +148,23 @@ type ListOrganizationsResponse struct {
 	Data []Organization `json:"data"`
 
 	// Cursor pagination options.
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
+}
+
+type OrganizationDomainDataState string
+
+const (
+	Verified OrganizationDomainDataState = OrganizationDomainDataState(organization_domains.OrganizationDomainVerified)
+	Pending  OrganizationDomainDataState = OrganizationDomainDataState(organization_domains.OrganizationDomainPending)
+)
+
+// OrganizationDomainData contains data used to create an OrganizationDomain.
+type OrganizationDomainData struct {
+	// The domain's value.
+	Domain string `json:"domain"`
+
+	// The domain's state.
+	State OrganizationDomainDataState `json:"state"`
 }
 
 // CreateOrganizationOpts contains the options to create an Organization.
@@ -132,29 +174,69 @@ type CreateOrganizationOpts struct {
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
+	//
+	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
 	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
 
 	// Domains of the Organization.
+	//
+	// Deprecated:  Use DomainData instead.
 	Domains []string `json:"domains"`
 
+	// Domains of the Organization.
+	DomainData []OrganizationDomainData `json:"domain_data"`
+
 	// Optional unique identifier to ensure idempotency
-	IdempotencyKey string `json:"idempotency_iey,omitempty"`
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+
+	// The Organization's external id.
+	ExternalID string `json:"external_id,omitempty"`
+
+	// The Organization's metadata.
+	Metadata map[string]*string `json:"metadata"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
 type UpdateOrganizationOpts struct {
 	// Organization unique identifier.
-	Organization string
+	Organization string `json:"-"`
 
 	// Name of the Organization.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// Whether Connections within the Organization allow profiles that are
 	// outside of the Organization's configured User Email Domains.
-	AllowProfilesOutsideOrganization bool
+	//
+	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
+	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization,omitempty"`
 
 	// Domains of the Organization.
-	Domains []string
+	//
+	// Deprecated:  Use DomainData instead.
+	Domains []string `json:"domains,omitempty"`
+
+	// Domains of the Organization.
+	DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
+
+	// The Organization's external id.
+	ExternalID string `json:"external_id,omitempty"`
+
+	// The Organization's Stripe Customer ID.
+	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
+
+	// The Organization's metadata.
+	Metadata map[string]*string `json:"metadata,omitempty"`
+}
+
+// ListOrganizationsOpts contains the options to request Organizations.
+type ListOrganizationRolesOpts struct {
+	// The Organization's unique identifier.
+	OrganizationID string
+}
+
+type ListOrganizationRolesResponse struct {
+	// List of roles for the given organization.
+	Data []roles.Role `json:"data"`
 }
 
 // GetOrganization gets an Organization.
@@ -168,6 +250,48 @@ func (c *Client) GetOrganization(
 		"%s/organizations/%s",
 		c.Endpoint,
 		opts.Organization,
+	)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return Organization{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Organization{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Organization{}, err
+	}
+
+	var body Organization
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// GetOrganizationByExternalID gets an Organization by its External ID.
+func (c *Client) GetOrganizationByExternalID(
+	ctx context.Context,
+	opts GetOrganizationByExternalIDOpts,
+) (Organization, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf(
+		"%s/organizations/external_id/%s",
+		c.Endpoint,
+		opts.ExternalID,
 	)
 	req, err := http.NewRequest(
 		http.MethodGet,
@@ -223,6 +347,10 @@ func (c *Client) ListOrganizations(
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	q, err := query.Values(opts)
@@ -288,22 +416,7 @@ func (c *Client) CreateOrganization(ctx context.Context, opts CreateOrganization
 func (c *Client) UpdateOrganization(ctx context.Context, opts UpdateOrganizationOpts) (Organization, error) {
 	c.once.Do(c.init)
 
-	// UpdateOrganizationChangeOpts contains the options to update an Organization minus the org ID
-	type UpdateOrganizationChangeOpts struct {
-		// Name of the Organization.
-		Name string `json:"name"`
-
-		// Whether Connections within the Organization allow profiles that are
-		// outside of the Organization's configured User Email Domains.
-		AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization"`
-
-		// Domains of the Organization.
-		Domains []string `json:"domains"`
-	}
-
-	update_opts := UpdateOrganizationChangeOpts{opts.Name, opts.AllowProfilesOutsideOrganization, opts.Domains}
-
-	data, err := c.JSONEncode(update_opts)
+	data, err := c.JSONEncode(opts)
 	if err != nil {
 		return Organization{}, err
 	}
@@ -373,4 +486,42 @@ func (c *Client) DeleteOrganization(
 	defer res.Body.Close()
 
 	return workos_errors.TryGetHTTPError(res)
+}
+
+// ListOrganizationRoles gets a list of roles for the given organization.
+func (c *Client) ListOrganizationRoles(
+	ctx context.Context,
+	opts ListOrganizationRolesOpts,
+) (ListOrganizationRolesResponse, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/organizations/%s/roles", c.Endpoint, opts.OrganizationID)
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+
+	var body ListOrganizationRolesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }

@@ -8,17 +8,27 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v3/internal/workos"
-	"github.com/workos/workos-go/v3/pkg/common"
-	"github.com/workos/workos-go/v3/pkg/mfa"
-	"github.com/workos/workos-go/v3/pkg/workos_errors"
+	"github.com/workos/workos-go/v5/internal/workos"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/mfa"
+	"github.com/workos/workos-go/v5/pkg/workos_errors"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
+
+// ScreenHint represents the screen to redirect the user to in Authkit
+type ScreenHint string
+
+// Constants that enumerate the available screen hints.
+const (
+	SignUp ScreenHint = "sign-up"
+	SignIn ScreenHint = "sign-in"
+)
 
 // Order represents the order of records.
 type Order string
@@ -28,6 +38,16 @@ const (
 	Asc  Order = "asc"
 	Desc Order = "desc"
 )
+
+type EmailVerification struct {
+	ID        string `json:"id"`
+	UserId    string `json:"user_id"`
+	Email     string `json:"email"`
+	ExpiresAt string `json:"expires_at"`
+	Code      string `json:"code"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
 
 // InvitationState represents the state of an Invitation.
 type InvitationState string
@@ -41,16 +61,38 @@ const (
 )
 
 type Invitation struct {
-	ID             string          `json:"id"`
-	Email          string          `json:"email"`
-	State          InvitationState `json:"state"`
-	AcceptedAt     string          `json:"accepted_at,omitempty"`
-	RevokedAt      string          `json:"revoked_at,omitempty"`
-	Token          string          `json:"token"`
-	OrganizationID string          `json:"organization_id,omitempty"`
-	ExpiresAt      string          `json:"expires_at"`
-	CreatedAt      string          `json:"created_at"`
-	UpdatedAt      string          `json:"updated_at"`
+	ID                  string          `json:"id"`
+	Email               string          `json:"email"`
+	State               InvitationState `json:"state"`
+	AcceptedAt          string          `json:"accepted_at,omitempty"`
+	RevokedAt           string          `json:"revoked_at,omitempty"`
+	Token               string          `json:"token"`
+	AcceptInvitationUrl string          `json:"accept_invitation_url"`
+	OrganizationID      string          `json:"organization_id,omitempty"`
+	InviterUserID       string          `json:"inviter_user_id,omitempty"`
+	ExpiresAt           string          `json:"expires_at"`
+	CreatedAt           string          `json:"created_at"`
+	UpdatedAt           string          `json:"updated_at"`
+}
+
+type MagicAuth struct {
+	ID        string `json:"id"`
+	UserId    string `json:"user_id"`
+	Email     string `json:"email"`
+	ExpiresAt string `json:"expires_at"`
+	Code      string `json:"code"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type PasswordReset struct {
+	ID                 string `json:"id"`
+	UserId             string `json:"user_id"`
+	Email              string `json:"email"`
+	PasswordResetToken string `json:"password_reset_token"`
+	PasswordResetUrl   string `json:"password_reset_url"`
+	ExpiresAt          string `json:"expires_at"`
+	CreatedAt          string `json:"created_at"`
 }
 
 // Organization contains data about a particular Organization.
@@ -61,6 +103,16 @@ type Organization struct {
 	// The Organization's name.
 	Name string `json:"name"`
 }
+
+// OrganizationMembershipStatus represents the status of an Organization Membership.
+type OrganizationMembershipStatus string
+
+// Constants that enumerate the status of an Organization Membership.
+const (
+	Active                        OrganizationMembershipStatus = "active"
+	Inactive                      OrganizationMembershipStatus = "inactive"
+	PendingOrganizationMembership OrganizationMembershipStatus = "pending"
+)
 
 // OrganizationMembership contains data about a particular OrganizationMembership.
 type OrganizationMembership struct {
@@ -73,6 +125,18 @@ type OrganizationMembership struct {
 	// The ID of the Organization.
 	OrganizationID string `json:"organization_id"`
 
+	// The name of the Organization.
+	OrganizationName string `json:"organization_name"`
+
+	// The role given to this Organization Membership or priority role if multiple roles are assigned.
+	Role common.RoleResponse `json:"role"`
+
+	// All roles for the Organization Membership
+	Roles []common.RoleResponse `json:"roles"`
+
+	// The Status of the Organization.
+	Status OrganizationMembershipStatus `json:"status"`
+
 	// CreatedAt is the timestamp of when the OrganizationMembership was created.
 	CreatedAt string `json:"created_at"`
 
@@ -81,34 +145,27 @@ type OrganizationMembership struct {
 }
 
 // User contains data about a particular User.
-type User struct {
+// User is an alias for common.User to maintain backwards compatibility
+type User = common.User
 
-	// The User's unique identifier.
-	ID string `json:"id"`
-
-	// The User's first name.
-	FirstName string `json:"first_name"`
-
-	// The User's last name.
-	LastName string `json:"last_name"`
-
-	// The User's email.
-	Email string `json:"email"`
-
-	// The timestamp of when the User was created.
-	CreatedAt string `json:"created_at"`
-
-	// The timestamp of when the User was updated.
-	UpdatedAt string `json:"updated_at"`
-
-	// Whether the User email is verified.
-	EmailVerified bool `json:"email_verified"`
+// Represents User identities obtained from external identity providers.
+type Identity struct {
+	// The unique ID of the user in the external identity provider.
+	IdpID string `json:"idp_id"`
+	// The type of the identity.
+	Type string `json:"type"`
+	// The type of OAuth provider for the identity.
+	Provider string `json:"provider"`
 }
 
 // GetUserOpts contains the options to pass in order to get a user profile.
 type GetUserOpts struct {
 	// User unique identifier
 	User string `json:"id"`
+}
+
+type GetUserByExternalIDOpts struct {
+	ExternalID string
 }
 
 // ListUsersResponse contains the response from the ListUsers call.
@@ -141,11 +198,15 @@ type ListUsersOpts struct {
 }
 
 type CreateUserOpts struct {
-	Email         string `json:"email"`
-	Password      string `json:"password,omitempty"`
-	FirstName     string `json:"first_name,omitempty"`
-	LastName      string `json:"last_name,omitempty"`
-	EmailVerified bool   `json:"email_verified,omitempty"`
+	Email            string            `json:"email"`
+	Password         string            `json:"password,omitempty"`
+	PasswordHash     string            `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType  `json:"password_hash_type,omitempty"`
+	FirstName        string            `json:"first_name,omitempty"`
+	LastName         string            `json:"last_name,omitempty"`
+	EmailVerified    bool              `json:"email_verified,omitempty"`
+	ExternalID       string            `json:"external_id,omitempty"`
+	Metadata         map[string]string `json:"metadata,omitempty"`
 }
 
 // The algorithm originally used to hash the password.
@@ -158,12 +219,15 @@ const (
 
 type UpdateUserOpts struct {
 	User             string
-	FirstName        string           `json:"first_name,omitempty"`
-	LastName         string           `json:"last_name,omitempty"`
-	EmailVerified    bool             `json:"email_verified,omitempty"`
-	Password         string           `json:"password,omitempty"`
-	PasswordHash     string           `json:"password_hash,omitempty"`
-	PasswordHashType PasswordHashType `json:"password_hash_type,omitempty"`
+	Email            string             `json:"email,omitempty"`
+	FirstName        string             `json:"first_name,omitempty"`
+	LastName         string             `json:"last_name,omitempty"`
+	EmailVerified    bool               `json:"email_verified,omitempty"`
+	Password         string             `json:"password,omitempty"`
+	PasswordHash     string             `json:"password_hash,omitempty"`
+	PasswordHashType PasswordHashType   `json:"password_hash_type,omitempty"`
+	ExternalID       string             `json:"external_id,omitempty"`
+	Metadata         map[string]*string `json:"metadata,omitempty"`
 }
 
 type DeleteUserOpts struct {
@@ -179,10 +243,19 @@ type AuthenticateWithPasswordOpts struct {
 }
 
 type AuthenticateWithCodeOpts struct {
-	ClientID  string `json:"client_id"`
-	Code      string `json:"code"`
-	IPAddress string `json:"ip_address,omitempty"`
-	UserAgent string `json:"user_agent,omitempty"`
+	ClientID     string `json:"client_id"`
+	Code         string `json:"code"`
+	CodeVerifier string `json:"code_verifier,omitempty"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	UserAgent    string `json:"user_agent,omitempty"`
+}
+
+type AuthenticateWithRefreshTokenOpts struct {
+	ClientID       string `json:"client_id"`
+	RefreshToken   string `json:"refresh_token"`
+	OrganizationID string `json:"organization_id,omitempty"`
+	IPAddress      string `json:"ip_address,omitempty"`
+	UserAgent      string `json:"user_agent,omitempty"`
 }
 
 type AuthenticateWithMagicAuthOpts struct {
@@ -223,6 +296,43 @@ type AuthenticateWithOrganizationSelectionOpts struct {
 	UserAgent                  string `json:"user_agent,omitempty"`
 }
 
+// AuthenticationMethod represents the authentication method used to authenticate the user.
+type AuthenticationMethod string
+
+// Constants that enumerate the available authentication methods.
+const (
+	SSO                           AuthenticationMethod = "SSO"
+	Password                      AuthenticationMethod = "Password"
+	AppleOAuth                    AuthenticationMethod = "AppleOAuth"
+	GitHubOAuth                   AuthenticationMethod = "GitHubOAuth"
+	GoogleOAuth                   AuthenticationMethod = "GoogleOAuth"
+	MicrosoftOAuth                AuthenticationMethod = "MicrosoftOAuth"
+	MagicAuthAuthenticationMethod AuthenticationMethod = "MagicAuth"
+	Impersonation                 AuthenticationMethod = "Impersonation"
+)
+
+type Impersonator struct {
+	// The email address of the WorkOS Dashboard user using impersonation.
+	Email string `json:"email"`
+
+	// The reason provided by the impersonator for impersonating the user.
+	Reason string `json:"reason"`
+}
+
+type OAuthTokens struct {
+	// The access token from the OAuth provider
+	AccessToken string `json:"access_token"`
+
+	// The refresh token from the OAuth provider
+	RefreshToken string `json:"refresh_token"`
+
+	// The scopes granted by the OAuth provider
+	Scopes []string `json:"scopes"`
+
+	// The expiration time of the access token
+	ExpiresAt int `json:"expires_at"`
+}
+
 type AuthenticateResponse struct {
 	User User `json:"user"`
 
@@ -232,6 +342,36 @@ type AuthenticateResponse struct {
 	// If the user is a member of only one organization, this is that organization.
 	// If the user is not a member of any organizations, this is null.
 	OrganizationID string `json:"organization_id"`
+
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
+
+	// The authentication method used to authenticate the user.
+	AuthenticationMethod AuthenticationMethod `json:"authentication_method"`
+
+	// Present if the authenticated user is being impersonated.
+	Impersonator *Impersonator `json:"impersonator"`
+
+	// Third party OAuth provider tokens. Present if configured in the WorkOS Dashboard.
+	OAuthTokens *OAuthTokens `json:"oauth_tokens,omitempty"`
+}
+
+type RefreshAuthenticationResponse struct {
+	// The AccessToken can be validated to confirm that a user has an active session.
+	AccessToken string `json:"access_token"`
+
+	// This RefreshToken can be used to obtain a new AccessToken using
+	// `AuthenticateWithRefreshToken`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type GetEmailVerificationOpts struct {
+	// The Email Verification's unique identifier.
+	EmailVerification string
 }
 
 type SendVerificationEmailOpts struct {
@@ -244,6 +384,16 @@ type VerifyEmailOpts struct {
 	User string
 	// The verification code emailed to the user.
 	Code string `json:"code"`
+}
+
+type GetPasswordResetOpts struct {
+	// The Password Reset's unique identifier.
+	PasswordReset string
+}
+
+type CreatePasswordResetOpts struct {
+	// The email address the password reset is for.
+	Email string `json:"email"`
 }
 
 type SendPasswordResetEmailOpts struct {
@@ -266,6 +416,16 @@ type UserResponse struct {
 	User User `json:"user"`
 }
 
+type GetMagicAuthOpts struct {
+	MagicAuth string
+}
+
+type CreateMagicAuthOpts struct {
+	// The email address the one-time code is for.
+	Email           string `json:"email"`
+	InvitationToken string `json:"invitation_token,omitempty"`
+}
+
 type SendMagicAuthCodeOpts struct {
 	// The email address the one-time code will be sent to.
 	Email string `json:"email"`
@@ -276,6 +436,7 @@ type EnrollAuthFactorOpts struct {
 	Type       mfa.FactorType `json:"type"`
 	TOTPIssuer string         `json:"totp_issuer,omitempty"`
 	TOTPUser   string         `json:"totp_user,omitempty"`
+	TOTPSecret string         `json:"totp_secret,omitempty"`
 }
 
 type EnrollAuthFactorResponse struct {
@@ -305,6 +466,9 @@ type ListOrganizationMembershipsOpts struct {
 	// Filter memberships by User ID.
 	UserID string `url:"user_id,omitempty"`
 
+	// Filter memberships by status
+	Statuses []OrganizationMembershipStatus `url:"statuses,omitempty"`
+
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
 
@@ -332,6 +496,24 @@ type CreateOrganizationMembershipOpts struct {
 
 	// The ID of the Organization in which to add the User as a member.
 	OrganizationID string `json:"organization_id"`
+
+	// The slug of the Role in which to grant this membership. If no RoleSlug is given, the default role will be granted. Mutually exclusive with RoleSlugs.
+	// OPTIONAL
+	RoleSlug string `json:"role_slug,omitempty"`
+
+	// The slugs of the Roles in which to grant this membership. Mutually exclusive with `role_slug`. Limited to one role when Multiple Roles is disabled.
+	// OPTIONAL
+	RoleSlugs []string `json:"role_slugs,omitempty"`
+}
+
+type UpdateOrganizationMembershipOpts struct {
+	// The slug of the Role to update to for this membership.
+	// OPTIONAL
+	RoleSlug string `json:"role_slug,omitempty"`
+
+	// The slugs of the Roles to update this membership to. Mutually exclusive with `role_slug`. Limited to one role when Multiple Roles is disabled.
+	// OPTIONAL
+	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
 type DeleteOrganizationMembershipOpts struct {
@@ -339,8 +521,22 @@ type DeleteOrganizationMembershipOpts struct {
 	OrganizationMembership string
 }
 
+type DeactivateOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
+	OrganizationMembership string
+}
+
+type ReactivateOrganizationMembershipOpts struct {
+	// Organization Membership unique identifier
+	OrganizationMembership string
+}
+
 type GetInvitationOpts struct {
 	Invitation string
+}
+
+type FindInvitationByTokenOpts struct {
+	InvitationToken string
 }
 
 // ListInvitations contains the response from the ListInvitations call.
@@ -349,13 +545,13 @@ type ListInvitationsResponse struct {
 	Data []Invitation `json:"data"`
 
 	// Cursor to paginate through the list of Invitations
-	ListMetadata common.ListMetadata `json:"listMetadata"`
+	ListMetadata common.ListMetadata `json:"list_metadata"`
 }
 
 type ListInvitationsOpts struct {
-	OrganizationID string `json:"organization_id,omitempty"`
+	OrganizationID string `url:"organization_id,omitempty"`
 
-	Email string `json:"email,omitempty"`
+	Email string `url:"email,omitempty"`
 
 	// Maximum number of records to return.
 	Limit int `url:"limit"`
@@ -375,10 +571,21 @@ type SendInvitationOpts struct {
 	OrganizationID string `json:"organization_id,omitempty"`
 	ExpiresInDays  int    `json:"expires_in_days,omitempty"`
 	InviterUserID  string `json:"inviter_user_id,omitempty"`
+	RoleSlug       string `json:"role_slug,omitempty"`
 }
 
 type RevokeInvitationOpts struct {
 	Invitation string
+}
+
+type RevokeSessionOpts struct {
+	SessionID string `json:"session_id"`
+}
+
+type ListIdentitiesResult = []Identity
+
+type ListIdentitiesOpts struct {
+	ID string `json:"id"`
 }
 
 func NewClient(apiKey string) *Client {
@@ -396,6 +603,43 @@ func (c *Client) GetUser(ctx context.Context, opts GetUserOpts) (User, error) {
 		"%s/user_management/users/%s",
 		c.Endpoint,
 		opts.User,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return User{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return User{}, err
+	}
+
+	var body User
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+func (c *Client) GetUserByExternalID(ctx context.Context, opts GetUserByExternalIDOpts) (User, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/users/external_id/%s",
+		c.Endpoint,
+		opts.ExternalID,
 	)
 
 	req, err := http.NewRequest(
@@ -450,6 +694,10 @@ func (c *Client) ListUsers(ctx context.Context, opts ListUsersOpts) (ListUsersRe
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	queryValues, err := query.Values(opts)
@@ -592,6 +840,48 @@ func (c *Client) DeleteUser(ctx context.Context, opts DeleteUserOpts) error {
 	return workos_errors.TryGetHTTPError(res)
 }
 
+func (c *Client) ListIdentities(ctx context.Context, opts ListIdentitiesOpts) (ListIdentitiesResult, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/users/%s/identities",
+		c.Endpoint,
+		opts.ID,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return ListIdentitiesResult{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return ListIdentitiesResult{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListIdentitiesResult{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListIdentitiesResult{}, err
+	}
+
+	var body ListIdentitiesResult
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // GetAuthorizationURLOpts contains the options to pass in order to generate
 // an authorization url.
 type GetAuthorizationURLOpts struct {
@@ -599,7 +889,10 @@ type GetAuthorizationURLOpts struct {
 	//
 	// REQUIRED.
 	ClientID string
-
+	//Optional Used for PKCE
+	CodeChallenge string
+	//Optional Used for PKCE
+	CodeChallengeMethod string
 	// The callback URL where your app redirects the user after an
 	// authorization code is granted (eg. https://foo.com/callback).
 	//
@@ -627,6 +920,14 @@ type GetAuthorizationURLOpts struct {
 	// Domain hint that will be passed as a parameter to the IdP login page.
 	// OPTIONAL.
 	DomainHint string
+
+	// ScreenHint represents the screen to redirect the user to when the provider is Authkit.
+	// OPTIONAL.
+	ScreenHint ScreenHint
+
+	// Additional OAuth scopes to request during authentication
+	// OPTIONAL.
+	ProviderScopes []string `json:"provider_scopes,omitempty"`
 }
 
 // GetAuthorizationURL generates an OAuth 2.0 authorization URL.
@@ -653,10 +954,16 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 		query.Set("provider", string(opts.Provider))
 	}
 	if opts.ConnectionID != "" {
-		query.Set("connection", opts.ConnectionID)
+		query.Set("connection_id", opts.ConnectionID)
+	}
+	if opts.CodeChallenge != "" {
+		query.Set("code_challenge", opts.CodeChallenge)
+	}
+	if opts.CodeChallengeMethod != "" {
+		query.Set("code_challenge_method", opts.CodeChallengeMethod)
 	}
 	if opts.OrganizationID != "" {
-		query.Set("organization", opts.OrganizationID)
+		query.Set("organization_id", opts.OrganizationID)
 	}
 	if opts.LoginHint != "" {
 		query.Set("login_hint", opts.LoginHint)
@@ -666,6 +973,17 @@ func (c *Client) GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, er
 	}
 	if opts.State != "" {
 		query.Set("state", opts.State)
+	}
+
+	if opts.ScreenHint != "" {
+		if opts.Provider != "authkit" {
+			return nil, errors.New("provider must be 'authkit' to include a screen hint")
+		}
+		query.Set("screen_hint", string(opts.ScreenHint))
+	}
+
+	if len(opts.ProviderScopes) > 0 {
+		query.Set("provider_scopes", strings.Join(opts.ProviderScopes, ","))
 	}
 
 	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/authorize")
@@ -773,6 +1091,58 @@ func (c *Client) AuthenticateWithCode(ctx context.Context, opts AuthenticateWith
 
 	// Parse the JSON response
 	var body AuthenticateResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func (c *Client) AuthenticateWithRefreshToken(ctx context.Context, opts AuthenticateWithRefreshTokenOpts) (RefreshAuthenticationResponse, error) {
+	payload := struct {
+		AuthenticateWithRefreshTokenOpts
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+	}{
+		AuthenticateWithRefreshTokenOpts: opts,
+		ClientSecret:                     c.APIKey,
+		GrantType:                        "refresh_token",
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		c.Endpoint+"/user_management/authenticate",
+		bytes.NewBuffer(jsonData),
+	)
+
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Add headers and context to the request
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Execute the request
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return RefreshAuthenticationResponse{}, err
+	}
+
+	// Parse the JSON response
+	var body RefreshAuthenticationResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&body)
 
@@ -984,6 +1354,36 @@ func (c *Client) AuthenticateWithOrganizationSelection(ctx context.Context, opts
 	return body, err
 }
 
+// GetEmailVerification fetches an EmailVerification object by its ID.
+func (c *Client) GetEmailVerification(ctx context.Context, opts GetEmailVerificationOpts) (EmailVerification, error) {
+	endpoint := fmt.Sprintf("%s/user_management/email_verification/%s", c.Endpoint, opts.EmailVerification)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return EmailVerification{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EmailVerification{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EmailVerification{}, err
+	}
+
+	var body EmailVerification
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func (c *Client) SendVerificationEmail(ctx context.Context, opts SendVerificationEmailOpts) (UserResponse, error) {
 	endpoint := fmt.Sprintf(
@@ -1064,8 +1464,76 @@ func (c *Client) VerifyEmail(ctx context.Context, opts VerifyEmailOpts) (UserRes
 	return body, err
 }
 
-// SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an
-// unmanaged user.
+// GetPasswordReset fetches a PasswordReset object by its ID.
+func (c *Client) GetPasswordReset(ctx context.Context, opts GetPasswordResetOpts) (PasswordReset, error) {
+	endpoint := fmt.Sprintf("%s/user_management/password_reset/%s", c.Endpoint, opts.PasswordReset)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return PasswordReset{}, err
+	}
+
+	var body PasswordReset
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreatePasswordReset creates a PasswordReset token that can be emailed to the user.
+func (c *Client) CreatePasswordReset(ctx context.Context, opts CreatePasswordResetOpts) (PasswordReset, error) {
+	endpoint := fmt.Sprintf("%s/user_management/password_reset", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return PasswordReset{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return PasswordReset{}, err
+	}
+
+	var body PasswordReset
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Deprecated: Use CreatePasswordReset instead. This method will be removed in a future major version.
 func (c *Client) SendPasswordResetEmail(ctx context.Context, opts SendPasswordResetEmailOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/password_reset/send",
@@ -1141,7 +1609,76 @@ func (c *Client) ResetPassword(ctx context.Context, opts ResetPasswordOpts) (Use
 	return body, err
 }
 
-// SendMagicAuthCode creates a one-time Magic Auth code and emails it to the user.
+// GetMagicAuth fetches a Magic Auth object by its ID.
+func (c *Client) GetMagicAuth(ctx context.Context, opts GetMagicAuthOpts) (MagicAuth, error) {
+	endpoint := fmt.Sprintf("%s/user_management/magic_auth/%s", c.Endpoint, opts.MagicAuth)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return MagicAuth{}, err
+	}
+
+	var body MagicAuth
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// CreateMagicAuth creates a one-time Magic Auth code that can be emailed to the user.
+func (c *Client) CreateMagicAuth(ctx context.Context, opts CreateMagicAuthOpts) (MagicAuth, error) {
+	endpoint := fmt.Sprintf("%s/user_management/magic_auth", c.Endpoint)
+
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return MagicAuth{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return MagicAuth{}, err
+	}
+
+	var body MagicAuth
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// Deprecated: Use CreateMagicAuth instead. This method will be removed in a future major version.
 func (c *Client) SendMagicAuthCode(ctx context.Context, opts SendMagicAuthCodeOpts) error {
 	endpoint := fmt.Sprintf(
 		"%s/user_management/magic_auth/send",
@@ -1318,6 +1855,10 @@ func (c *Client) ListOrganizationMemberships(ctx context.Context, opts ListOrgan
 		opts.Limit = ResponseLimit
 	}
 
+	if opts.Order == "" {
+		opts.Order = Desc
+	}
+
 	queryValues, err := query.Values(opts)
 	if err != nil {
 		return ListOrganizationMembershipsResponse{}, err
@@ -1414,9 +1955,162 @@ func (c *Client) DeleteOrganizationMembership(ctx context.Context, opts DeleteOr
 	return workos_errors.TryGetHTTPError(res)
 }
 
+// Update an Organization Membership
+func (c *Client) UpdateOrganizationMembership(
+	ctx context.Context,
+	organizationMembershipId string,
+	opts UpdateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s",
+		c.Endpoint,
+		organizationMembershipId,
+	)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// DeactivateOrganizationMembership deactivates an Organization Membership
+func (c *Client) DeactivateOrganizationMembership(ctx context.Context, opts DeactivateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s/deactivate",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// ReactivateOrganizationMembership reactivates an Organization Membership
+func (c *Client) ReactivateOrganizationMembership(ctx context.Context, opts ReactivateOrganizationMembershipOpts) (OrganizationMembership, error) {
+	endpoint := fmt.Sprintf(
+		"%s/user_management/organization_memberships/%s/reactivate",
+		c.Endpoint,
+		opts.OrganizationMembership,
+	)
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		endpoint,
+		nil,
+	)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationMembership{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationMembership{}, err
+	}
+
+	var body OrganizationMembership
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
 // GetInvitation fetches an Invitation by its ID.
 func (c *Client) GetInvitation(ctx context.Context, opts GetInvitationOpts) (Invitation, error) {
 	endpoint := fmt.Sprintf("%s/user_management/invitations/%s", c.Endpoint, opts.Invitation)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return Invitation{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Invitation{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Invitation{}, err
+	}
+
+	var body Invitation
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+
+	return body, err
+}
+
+// FindInvitationByToken fetches an Invitation by its token.
+func (c *Client) FindInvitationByToken(ctx context.Context, opts FindInvitationByTokenOpts) (Invitation, error) {
+	endpoint := fmt.Sprintf("%s/user_management/invitations/by_token/%s", c.Endpoint, opts.InvitationToken)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
@@ -1466,6 +2160,10 @@ func (c *Client) ListInvitations(ctx context.Context, opts ListInvitationsOpts) 
 
 	if opts.Limit == 0 {
 		opts.Limit = ResponseLimit
+	}
+
+	if opts.Order == "" {
+		opts.Order = Desc
 	}
 
 	queryValues, err := query.Values(opts)
@@ -1557,4 +2255,82 @@ func (c *Client) RevokeInvitation(ctx context.Context, opts RevokeInvitationOpts
 	err = dec.Decode(&body)
 
 	return body, err
+}
+
+func (c *Client) GetJWKSURL(clientID string) (*url.URL, error) {
+	if clientID == "" {
+		return nil, errors.New("clientID must not be blank")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/sso/jwks/" + clientID)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+type GetLogoutURLOpts struct {
+	// The ID of the session that will end. This is in the `sid` claim of the
+	// AccessToken
+	//
+	// REQUIRED
+	SessionID string
+
+	// The URL to redirect the user to after they have logged out.
+	ReturnTo string
+}
+
+func (c *Client) GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	if opts.SessionID == "" {
+		return nil, errors.New("incomplete arguments: missing SessionID")
+	}
+
+	u, err := url.ParseRequestURI(c.Endpoint + "/user_management/sessions/logout")
+	if err != nil {
+		return nil, err
+	}
+
+	query := make(url.Values, 1)
+
+	query.Set("session_id", opts.SessionID)
+	if opts.ReturnTo != "" {
+		query.Set("return_to", opts.ReturnTo)
+	}
+
+	u.RawQuery = query.Encode()
+
+	return u, nil
+}
+
+func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	jsonData, err := json.Marshal(opts)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		fmt.Sprintf("%s/user_management/sessions/revoke", c.Endpoint),
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return err
+	}
+
+	return nil
 }

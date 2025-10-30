@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 func TestDirectorySyncListUsers(t *testing.T) {
@@ -21,6 +21,10 @@ func TestDirectorySyncListUsers(t *testing.T) {
 	}
 	SetAPIKey("test")
 
+	expectedRole := common.RoleResponse{
+		Slug: "member",
+	}
+
 	expectedResponse := ListUsersResponse{
 		Data: []User{
 			User{
@@ -28,6 +32,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				FirstName: "Rick",
 				LastName:  "Sanchez",
 				JobTitle:  "Software Engineer",
+				Email:     "rick@sanchez.com",
 				Emails: []UserEmail{
 					UserEmail{
 						Primary: true,
@@ -45,6 +50,7 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				State:            Active,
 				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+				Role:             expectedRole,
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -109,11 +115,16 @@ func TestDirectorySyncGetUser(t *testing.T) {
 	}
 	SetAPIKey("test")
 
+	expectedRole := common.RoleResponse{
+		Slug: "member",
+	}
+
 	expectedResponse := User{
 		ID:        "directory_user_id",
 		FirstName: "Rick",
 		LastName:  "Sanchez",
 		JobTitle:  "Software Engineer",
+		Email:     "rick@sanchez.com",
 		Emails: []UserEmail{
 			UserEmail{
 				Primary: true,
@@ -131,6 +142,7 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		State:            Active,
 		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
+		Role:             expectedRole,
 	}
 	directoryUserResponse, err := GetUser(context.Background(), GetUserOpts{
 		User: "directory_user_id",
@@ -312,6 +324,7 @@ func TestPrimaryEmail(t *testing.T) {
 				ID:        "directory_user_id",
 				FirstName: "WorkOS",
 				LastName:  "Testz",
+				Email:     "primaryemail@foo-corp.com",
 				Emails: []UserEmail{
 					UserEmail{
 						Primary: true,
@@ -338,6 +351,7 @@ func TestPrimaryEmail(t *testing.T) {
 				ID:        "directory_user_id",
 				FirstName: "WorkOS",
 				LastName:  "Testz",
+				Email:     "primaryemail@foo-corp.com",
 				Emails: []UserEmail{
 					UserEmail{
 						Primary: true,

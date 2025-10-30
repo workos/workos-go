@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v3/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/common"
 )
 
 func TestListEvents(t *testing.T) {
@@ -36,7 +36,10 @@ func TestListEvents(t *testing.T) {
 			},
 		}
 
-		events, err := client.ListEvents(context.Background(), ListEventsOpts{})
+		params := ListEventsOpts{
+			Events: []string{"dsync.user.created"},
+		}
+		events, err := client.ListEvents(context.Background(), params)
 
 		require.NoError(t, err)
 		require.Equal(t, expectedResponse, events)
@@ -56,8 +59,42 @@ func TestListEvents(t *testing.T) {
 		rangeEnd := currentTime.AddDate(0, 0, -1)
 
 		params := ListEventsOpts{
+			Events:     []string{"dsync.user.created"},
 			RangeStart: rangeStart.String(),
 			RangeEnd:   rangeEnd.String(),
+		}
+
+		expectedResponse := ListEventsResponse{
+			Data: []Event{
+				{
+					ID:    "event_abcd1234",
+					Event: "dsync.user.created",
+					Data:  json.RawMessage(`{"foo":"bar"}`),
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				After: "",
+			},
+		}
+
+		events, err := client.ListEvents(context.Background(), params)
+
+		require.NoError(t, err)
+		require.Equal(t, expectedResponse, events)
+	})
+
+	t.Run("ListEvents succeeds to fetch Events with an organization_id", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(ListEventsTestHandler))
+		defer server.Close()
+		client := &Client{
+			HTTPClient: server.Client(),
+			Endpoint:   server.URL,
+			APIKey:     "test",
+		}
+
+		params := ListEventsOpts{
+			Events:         []string{"dsync.user.created"},
+			OrganizationId: "org_1234",
 		}
 
 		expectedResponse := ListEventsResponse{

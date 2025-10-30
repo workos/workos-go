@@ -75,6 +75,7 @@ func DeleteDirectory(
 }
 
 // PrimaryEmail is a method for finding a user's primary email (when applicable)
+// Deprecated: Will be removed in a future major version. Use `email` attribute on User instead.
 func (r User) PrimaryEmail() (string, error) {
 	for _, v := range r.Emails {
 		if v.Primary {

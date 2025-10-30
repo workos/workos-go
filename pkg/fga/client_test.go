@@ -1,0 +1,1800 @@
+package fga
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/retryablehttp"
+)
+
+func TestGetResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetResourceOpts
+		expected Resource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns a Resource",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: GetResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+			},
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "ljc_1029",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.GetResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := json.Marshal(Resource{
+		ResourceType: "report",
+		ResourceId:   "ljc_1029",
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestListResources(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListResourcesOpts
+		expected ListResourcesResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Resources",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListResourcesOpts{
+				ResourceType: "report",
+			},
+
+			expected: ListResourcesResponse{
+				Data: []Resource{
+					{
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+					},
+					{
+						ResourceType: "report",
+						ResourceId:   "mso_0806",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listResourcesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resources, err := client.ListResources(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resources)
+		})
+	}
+}
+
+func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListResourcesResponse
+	}{
+		ListResourcesResponse: ListResourcesResponse{
+			Data: []Resource{
+				{
+					ResourceType: "report",
+					ResourceId:   "ljc_1029",
+				},
+				{
+					ResourceType: "report",
+					ResourceId:   "mso_0806",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestListResourceTypes(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListResourceTypesOpts
+		expected ListResourceTypesResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns ResourceTypes",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListResourceTypesOpts{
+				Order: "asc",
+			},
+
+			expected: ListResourceTypesResponse{
+				Data: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+						},
+					},
+					{
+						Type:      "user",
+						Relations: map[string]interface{}{},
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listResourceTypesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resourceTypes, err := client.ListResourceTypes(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resourceTypes)
+		})
+	}
+}
+
+func listResourceTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListResourceTypesResponse
+	}{
+		ListResourceTypesResponse: ListResourceTypesResponse{
+			Data: []ResourceType{
+				{
+					Type: "report",
+					Relations: map[string]interface{}{
+						"owner": map[string]interface{}{},
+						"editor": map[string]interface{}{
+							"inherit_if": "owner",
+						},
+						"viewer": map[string]interface{}{
+							"inherit_if": "editor",
+						},
+					},
+				},
+				{
+					Type:      "user",
+					Relations: map[string]interface{}{},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestBatchUpdateResourceTypes(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  []UpdateResourceTypeOpts
+		expected []ResourceType
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns ResourceTypes",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: []UpdateResourceTypeOpts{
+				{
+					Type: "report",
+					Relations: map[string]interface{}{
+						"owner": map[string]interface{}{},
+						"editor": map[string]interface{}{
+							"inherit_if": "owner",
+						},
+						"viewer": map[string]interface{}{
+							"inherit_if": "editor",
+						},
+					},
+				},
+				{
+					Type:      "user",
+					Relations: map[string]interface{}{},
+				},
+			},
+
+			expected: []ResourceType{
+				{
+					Type: "report",
+					Relations: map[string]interface{}{
+						"owner": map[string]interface{}{},
+						"editor": map[string]interface{}{
+							"inherit_if": "owner",
+						},
+						"viewer": map[string]interface{}{
+							"inherit_if": "editor",
+						},
+					},
+				},
+				{
+					Type:      "user",
+					Relations: map[string]interface{}{},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(batchUpdateResourceTypesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resourceTypes, err := client.BatchUpdateResourceTypes(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resourceTypes)
+		})
+	}
+}
+
+func batchUpdateResourceTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal([]ResourceType{
+		{
+			Type: "report",
+			Relations: map[string]interface{}{
+				"owner": map[string]interface{}{},
+				"editor": map[string]interface{}{
+					"inherit_if": "owner",
+				},
+				"viewer": map[string]interface{}{
+					"inherit_if": "editor",
+				},
+			},
+		},
+		{
+			Type:      "user",
+			Relations: map[string]interface{}{},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCreateResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreateResourceOpts
+		expected Resource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Resource",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CreateResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+			},
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+			},
+		},
+		{
+			scenario: "Request returns Resource with Metadata",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CreateResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Meta: map[string]interface{}{
+					"description": "Some report",
+				},
+			},
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Meta: map[string]interface{}{
+					"description": "Some report",
+				},
+			},
+		},
+		{
+			scenario: "Request with no ResourceId returns a Resource with generated report id",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CreateResourceOpts{
+				ResourceType: "report",
+			},
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "report_1029384756",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(createResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.CreateResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func createResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var opts CreateResourceOpts
+	json.NewDecoder(r.Body).Decode(&opts)
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	resourceId := "sso_1710"
+	if opts.ResourceId == "" {
+		resourceId = "report_1029384756"
+	}
+
+	body, err := json.Marshal(
+		Resource{
+			ResourceType: "report",
+			ResourceId:   resourceId,
+			Meta:         opts.Meta,
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestUpdateResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  UpdateResourceOpts
+		expected Resource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Resource with updated Meta",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdateResourceOpts{
+				ResourceType: "report",
+				ResourceId:   "lad_8812",
+				Meta: map[string]interface{}{
+					"description": "Updated report",
+				},
+			},
+			expected: Resource{
+				ResourceType: "report",
+				ResourceId:   "lad_8812",
+				Meta: map[string]interface{}{
+					"description": "Updated report",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.UpdateResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(
+		Resource{
+			ResourceType: "report",
+			ResourceId:   "lad_8812",
+			Meta: map[string]interface{}{
+				"description": "Updated report",
+			},
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestDeleteResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeleteResourceOpts
+		expected error
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Resource",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: DeleteResourceOpts{
+				ResourceType: "user",
+				ResourceId:   "user_01SXW182",
+			},
+			expected: nil,
+		},
+		{
+			scenario: "Request for non-existent Resource returns error",
+			client: &Client{
+				APIKey: "test",
+			},
+			err: true,
+			options: DeleteResourceOpts{
+				ResourceType: "user",
+				ResourceId:   "safgdfgs",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deleteResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			err := client.DeleteResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, err)
+		})
+	}
+}
+
+func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var opts CreateResourceOpts
+	json.NewDecoder(r.Body).Decode(&opts)
+
+	var body []byte
+	var err error
+
+	if r.URL.Path == "/fga/v1/resources/user/user_01SXW182" {
+		body, err = nil, nil
+	} else {
+		http.Error(w, fmt.Sprintf("%s %s not found", opts.ResourceType, opts.ResourceId), http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestListWarrants(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListWarrantsOpts
+		expected ListWarrantsResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Warrants",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListWarrantsOpts{
+				ResourceType: "report",
+			},
+
+			expected: ListWarrantsResponse{
+				Data: []Warrant{
+					{
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+					{
+						ResourceType: "report",
+						ResourceId:   "aut_7403",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listWarrantsTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resources, err := client.ListWarrants(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resources)
+		})
+	}
+}
+
+func listWarrantsTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		ListWarrantsResponse
+	}{
+		ListWarrantsResponse: ListWarrantsResponse{
+			Data: []Warrant{
+				{
+					ResourceType: "report",
+					ResourceId:   "ljc_1029",
+					Relation:     "member",
+					Subject: Subject{
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
+					},
+				},
+				{
+					ResourceType: "report",
+					ResourceId:   "aut_7403",
+					Relation:     "member",
+					Subject: Subject{
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
+					},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestWriteWarrant(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  WriteWarrantOpts
+		expected WriteWarrantResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request with no op returns WarrantToken",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: WriteWarrantOpts{
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+			expected: WriteWarrantResponse{
+				WarrantToken: "new_warrant_token",
+			},
+		},
+		{
+			scenario: "Request with create op returns WarrantToken",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: WriteWarrantOpts{
+				Op:           WarrantOpCreate,
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+			expected: WriteWarrantResponse{
+				WarrantToken: "new_warrant_token",
+			},
+		},
+		{
+			scenario: "Request with delete op returns WarrantToken",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: WriteWarrantOpts{
+				Op:           WarrantOpDelete,
+				ResourceType: "report",
+				ResourceId:   "sso_1710",
+				Relation:     "member",
+				Subject: Subject{
+					ResourceType: "user",
+					ResourceId:   "user_01SXW182",
+				},
+			},
+			expected: WriteWarrantResponse{
+				WarrantToken: "new_warrant_token",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(writeWarrantTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			warrantResponse, err := client.WriteWarrant(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, warrantResponse)
+		})
+	}
+}
+
+func TestBatchWriteWarrants(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  []WriteWarrantOpts
+		expected WriteWarrantResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request with multiple warrants returns WarrantToken",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: []WriteWarrantOpts{
+				{
+					Op:           WarrantOpDelete,
+					ResourceType: "report",
+					ResourceId:   "sso_1710",
+					Relation:     "viewer",
+					Subject: Subject{
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
+					},
+				},
+				{
+					Op:           WarrantOpCreate,
+					ResourceType: "report",
+					ResourceId:   "sso_1710",
+					Relation:     "editor",
+					Subject: Subject{
+						ResourceType: "user",
+						ResourceId:   "user_01SXW182",
+					},
+				},
+			},
+			expected: WriteWarrantResponse{
+				WarrantToken: "new_warrant_token",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(writeWarrantTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			warrantResponse, err := client.BatchWriteWarrants(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, warrantResponse)
+		})
+	}
+}
+
+func writeWarrantTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(
+		WriteWarrantResponse{
+			WarrantToken: "new_warrant_token",
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCheck(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CheckOpts
+		expected CheckResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns true check result",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CheckOpts{
+				Checks: []WarrantCheck{
+					{
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+				},
+			},
+			expected: CheckResponse{
+				Result:     CheckResultAuthorized,
+				IsImplicit: false,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(checkTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			checkResult, err := client.Check(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, checkResult)
+		})
+	}
+}
+
+func checkTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(
+		CheckResponse{
+			Result:     CheckResultAuthorized,
+			IsImplicit: false,
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func checkTestHandlerWarnings(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Create concrete warnings and wrap them
+	warnings := []Warning{
+		&MissingContextKeysWarning{
+			BaseWarning: BaseWarning{
+				Code:    "missing_context_keys",
+				Message: "Some context keys were not provided.",
+			},
+			Keys: []string{"user_id", "org_id"},
+		},
+
+		&BaseWarning{
+			Code:    "unknown",
+			Message: "Unknown warning occurred.",
+		},
+
+		&ConvertSchemaWarning{
+			BaseWarning: BaseWarning{
+				Code:    "validation_warning",
+				Message: "Schema validation produced a warning.",
+			},
+		},
+	}
+
+	body, err := json.Marshal(
+		CheckResponse{
+			Result:     CheckResultAuthorized,
+			IsImplicit: false,
+			Warnings:   warnings,
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCheckBatch(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CheckBatchOpts
+		expected []CheckResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns array of check results",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CheckBatchOpts{
+				Checks: []WarrantCheck{
+					{
+						ResourceType: "report",
+						ResourceId:   "ljc_1029",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+					{
+						ResourceType: "report",
+						ResourceId:   "spt_8521",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+				},
+			},
+			expected: []CheckResponse{
+				{
+					Result:     CheckResultAuthorized,
+					IsImplicit: false,
+				},
+				{
+					Result:     CheckResultNotAuthorized,
+					IsImplicit: false,
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(checkBatchTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			checkResults, err := client.CheckBatch(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, checkResults)
+		})
+	}
+}
+
+func checkBatchTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(
+		[]CheckResponse{
+			{
+				Result:     CheckResultAuthorized,
+				IsImplicit: false,
+			},
+			{
+				Result:     CheckResultNotAuthorized,
+				IsImplicit: false,
+			},
+		})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestQuery(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  QueryOpts
+		expected QueryResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns QueryResults",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: QueryOpts{
+				Query: "select role where user:user_01SXW182 is member",
+			},
+			expected: QueryResponse{
+				Data: []QueryResult{
+					{
+						ResourceType: "role",
+						ResourceId:   "role_01SXW182",
+						Relation:     "member",
+						Warrant: Warrant{
+							ResourceType: "role",
+							ResourceId:   "role_01SXW182",
+							Relation:     "member",
+							Subject: Subject{
+								ResourceType: "user",
+								ResourceId:   "user_01SXW182",
+							},
+						},
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(queryTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			queryResults, err := client.Query(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, queryResults)
+		})
+	}
+}
+
+func queryTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		QueryResponse
+	}{
+		QueryResponse: QueryResponse{
+			Data: []QueryResult{
+				{
+					ResourceType: "role",
+					ResourceId:   "role_01SXW182",
+					Relation:     "member",
+					Warrant: Warrant{
+						ResourceType: "role",
+						ResourceId:   "role_01SXW182",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func queryTestHandlerWarnings(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Create concrete warnings and wrap them
+	warnings := []Warning{
+		&MissingContextKeysWarning{
+			BaseWarning: BaseWarning{
+				Code:    "missing_context_keys",
+				Message: "Some context keys were not provided.",
+			},
+			Keys: []string{"user_id", "org_id"},
+		},
+		&BaseWarning{
+			Code:    "unknown",
+			Message: "Unknown warning occurred.",
+		},
+		&ConvertSchemaWarning{
+			BaseWarning: BaseWarning{
+				Code:    "validation_warning",
+				Message: "Schema validation produced a warning.",
+			},
+		},
+	}
+
+	body, err := json.Marshal(struct {
+		QueryResponse
+	}{
+		QueryResponse: QueryResponse{
+			Data: []QueryResult{
+				{
+					ResourceType: "role",
+					ResourceId:   "role_01SXW182",
+					Relation:     "member",
+					Warrant: Warrant{
+						ResourceType: "role",
+						ResourceId:   "role_01SXW182",
+						Relation:     "member",
+						Subject: Subject{
+							ResourceType: "user",
+							ResourceId:   "user_01SXW182",
+						},
+					},
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "",
+			},
+			Warnings: warnings,
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func convertSchemaToResourceTypesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := json.Marshal(ConvertSchemaResponse{
+		Version: "0.1",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestConvertSchemaToResourceTypes(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ConvertSchemaToResourceTypesOpts
+		expected ConvertSchemaResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns ResourceTypes",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ConvertSchemaToResourceTypesOpts{
+				Schema: "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor",
+			},
+			expected: ConvertSchemaResponse{
+				Version: "0.1",
+				ResourceTypes: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(convertSchemaToResourceTypesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resourceTypes, err := client.ConvertSchemaToResourceTypes(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resourceTypes)
+		})
+	}
+}
+
+func convertResourceTypesToSchemaTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	schema := "version 0.1\n\ntype report\n    relation owner []\n    relation editor []\n    relation viewer []\n    \n    inherit editor if\n        relation owner\n        \n    inherit viewer if\n        relation editor"
+	body, err := json.Marshal(ConvertSchemaResponse{
+		Version: "0.1",
+		Schema:  &schema,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestGetSchema(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		expected GetSchemaResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Schema",
+			client: &Client{
+				APIKey: "test",
+			},
+			expected: GetSchemaResponse{
+				Version: "0.3",
+				ResourceTypes: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+							"admin": map[string]interface{}{
+								"inherit_if": "viewer",
+							},
+							"policy": map[string]interface{}{
+								"policy": "policy_1",
+							},
+						},
+					},
+				},
+				Policies: map[string]Policy{
+					"policy_1": {
+						Name:       "policy_1",
+						Language:   "expr",
+						Expression: "true",
+						Parameters: []PolicyParameter{
+							{
+								Name: "param_1",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getSchemaHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			schema, err := client.GetSchema(context.Background())
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, schema)
+		})
+	}
+}
+
+func getSchemaHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	body, err := json.Marshal(GetSchemaResponse{
+		Version: "0.3",
+		ResourceTypes: []ResourceType{
+			{
+				Type: "report",
+				Relations: map[string]interface{}{
+					"owner": map[string]interface{}{},
+					"editor": map[string]interface{}{
+						"inherit_if": "owner",
+					},
+					"viewer": map[string]interface{}{
+						"inherit_if": "editor",
+					},
+					"admin": map[string]interface{}{
+						"inherit_if": "viewer",
+					},
+					"policy": map[string]interface{}{
+						"policy": "policy_1",
+					},
+				},
+			},
+		},
+		Policies: map[string]Policy{
+			"policy_1": {
+				Name:       "policy_1",
+				Language:   "expr",
+				Expression: "true",
+				Parameters: []PolicyParameter{
+					{
+						Name: "param_1",
+						Type: "string",
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestUpdateSchema(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  UpdateSchemaOpts
+		expected GetSchemaResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request applies Schema successfully",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdateSchemaOpts{
+				ResourceTypes: []UpdateResourceTypeOpts{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+							"admin": map[string]interface{}{
+								"inherit_if": "viewer",
+							},
+							"policy": map[string]interface{}{
+								"policy": "policy_1",
+							},
+						},
+					},
+				},
+				Policies: map[string]UpdatePolicyOpts{
+					"policy_1": {
+						Name:       "policy_1",
+						Language:   "expr",
+						Expression: "true",
+						Parameters: []PolicyParameter{
+							{
+								Name: "param_1",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			expected: GetSchemaResponse{
+				Version: "0.3",
+				ResourceTypes: []ResourceType{
+					{
+						Type: "report",
+						Relations: map[string]interface{}{
+							"owner": map[string]interface{}{},
+							"editor": map[string]interface{}{
+								"inherit_if": "owner",
+							},
+							"viewer": map[string]interface{}{
+								"inherit_if": "editor",
+							},
+							"admin": map[string]interface{}{
+								"inherit_if": "viewer",
+							},
+							"policy": map[string]interface{}{
+								"policy": "policy_1",
+							},
+						},
+					},
+				},
+				Policies: map[string]Policy{
+					"policy_1": {
+						Name:       "policy_1",
+						Language:   "expr",
+						Expression: "true",
+						Parameters: []PolicyParameter{
+							{
+								Name: "param_1",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getSchemaHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			schema, err := client.UpdateSchema(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, schema)
+		})
+	}
+}

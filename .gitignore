@@ -3,4 +3,4 @@
 *.swp
 *.log
 *.vscode
-
+.idea/

@@ -5,7 +5,7 @@ A Go package to retrieve events from WorkOS.
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v3/pkg/events
+go get -u github.com/workos/workos-go/v5/pkg/events
 ```
 
 ## How it works
@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/workos/workos-go/v3/pkg/events"
+	"github.com/workos/workos-go/v5/pkg/events"
 )
 
 func main() {

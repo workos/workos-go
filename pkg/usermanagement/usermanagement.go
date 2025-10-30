@@ -48,6 +48,14 @@ func GetUser(
 	return DefaultClient.GetUser(ctx, opts)
 }
 
+// GetUser gets a User.
+func GetUserByExternalID(
+	ctx context.Context,
+	opts GetUserByExternalIDOpts,
+) (User, error) {
+	return DefaultClient.GetUserByExternalID(ctx, opts)
+}
+
 // ListUsers gets a list of Users.
 func ListUsers(
 	ctx context.Context,
@@ -86,7 +94,7 @@ func GetAuthorizationURL(opts GetAuthorizationURLOpts) (*url.URL, error) {
 	return DefaultClient.GetAuthorizationURL(opts)
 }
 
-// AuthenticateWithPassword authenticates a user with email and password and optionally creates a session.
+// AuthenticateWithPassword authenticates a user with email and password
 func AuthenticateWithPassword(
 	ctx context.Context,
 	opts AuthenticateWithPasswordOpts,
@@ -94,13 +102,21 @@ func AuthenticateWithPassword(
 	return DefaultClient.AuthenticateWithPassword(ctx, opts)
 }
 
-// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO, and
-// optionally creates a session.
+// AuthenticateWithCode authenticates an OAuth user or a managed SSO user that is logging in through SSO
 func AuthenticateWithCode(
 	ctx context.Context,
 	opts AuthenticateWithCodeOpts,
 ) (AuthenticateResponse, error) {
 	return DefaultClient.AuthenticateWithCode(ctx, opts)
+}
+
+// AuthenticateWithRefreshToken obtains a new AccessToken and RefreshToken for
+// an existing session
+func AuthenticateWithRefreshToken(
+	ctx context.Context,
+	opts AuthenticateWithRefreshTokenOpts,
+) (RefreshAuthenticationResponse, error) {
+	return DefaultClient.AuthenticateWithRefreshToken(ctx, opts)
 }
 
 // AuthenticateWithMagicAuth authenticates a user by verifying a one-time code sent to the user's email address by
@@ -136,6 +152,14 @@ func AuthenticateWithOrganizationSelection(
 	return DefaultClient.AuthenticateWithOrganizationSelection(ctx, opts)
 }
 
+// GetEmailVerification fetches an EmailVerification object by its ID.
+func GetEmailVerification(
+	ctx context.Context,
+	opts GetEmailVerificationOpts,
+) (EmailVerification, error) {
+	return DefaultClient.GetEmailVerification(ctx, opts)
+}
+
 // SendVerificationEmail creates an email verification challenge and emails verification token to user.
 func SendVerificationEmail(
 	ctx context.Context,
@@ -152,7 +176,23 @@ func VerifyEmail(
 	return DefaultClient.VerifyEmail(ctx, opts)
 }
 
-// SendPasswordResetEmail creates a password reset challenge and emails a password reset link to an unmanaged user.
+// GetPasswordReset fetches a Password Reset object by its ID.
+func GetPasswordReset(
+	ctx context.Context,
+	opts GetPasswordResetOpts,
+) (PasswordReset, error) {
+	return DefaultClient.GetPasswordReset(ctx, opts)
+}
+
+// CreatePasswordReset creates a password reset token that can be sent to the user's email address and used to reset the password.
+func CreatePasswordReset(
+	ctx context.Context,
+	opts CreatePasswordResetOpts,
+) (PasswordReset, error) {
+	return DefaultClient.CreatePasswordReset(ctx, opts)
+}
+
+// Deprecated: Use CreatePasswordReset instead. This method will be removed in a future major version.
 func SendPasswordResetEmail(
 	ctx context.Context,
 	opts SendPasswordResetEmailOpts,
@@ -168,7 +208,23 @@ func ResetPassword(
 	return DefaultClient.ResetPassword(ctx, opts)
 }
 
-// SendMagicAuthCode sends a one-time code to the user's email address.
+// GetMagicAuth fetches a Magic Auth object by its ID.
+func GetMagicAuth(
+	ctx context.Context,
+	opts GetMagicAuthOpts,
+) (MagicAuth, error) {
+	return DefaultClient.GetMagicAuth(ctx, opts)
+}
+
+// CreateMagicAuth creates a one-time code that can be sent to the user's email address and used for authentication.
+func CreateMagicAuth(
+	ctx context.Context,
+	opts CreateMagicAuthOpts,
+) (MagicAuth, error) {
+	return DefaultClient.CreateMagicAuth(ctx, opts)
+}
+
+// Deprecated: Use CreateMagicAuth instead. This method will be removed in a future major version.
 func SendMagicAuthCode(
 	ctx context.Context,
 	opts SendMagicAuthCodeOpts,
@@ -208,7 +264,7 @@ func ListOrganizationMemberships(
 	return DefaultClient.ListOrganizationMemberships(ctx, opts)
 }
 
-// CreateOrganizationMembership creates a OrganizationMembership.
+// CreateOrganizationMembership creates an OrganizationMembership.
 func CreateOrganizationMembership(
 	ctx context.Context,
 	opts CreateOrganizationMembershipOpts,
@@ -216,7 +272,16 @@ func CreateOrganizationMembership(
 	return DefaultClient.CreateOrganizationMembership(ctx, opts)
 }
 
-// DeleteOrganizationMembership deletes a existing OrganizationMembership.
+// UpdateOrganizationMembership updates an OrganizationMembership.
+func UpdateOrganizationMembership(
+	ctx context.Context,
+	organizationMembershipId string,
+	opts UpdateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.UpdateOrganizationMembership(ctx, organizationMembershipId, opts)
+}
+
+// DeleteOrganizationMembership deletes an existing OrganizationMembership.
 func DeleteOrganizationMembership(
 	ctx context.Context,
 	opts DeleteOrganizationMembershipOpts,
@@ -224,11 +289,34 @@ func DeleteOrganizationMembership(
 	return DefaultClient.DeleteOrganizationMembership(ctx, opts)
 }
 
+// DeactivateOrganizationMembership deactivates an OrganizationMembership.
+func DeactivateOrganizationMembership(
+	ctx context.Context,
+	opts DeactivateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.DeactivateOrganizationMembership(ctx, opts)
+}
+
+// ReactivateOrganizationMembership reactivates an OrganizationMembership.
+func ReactivateOrganizationMembership(
+	ctx context.Context,
+	opts ReactivateOrganizationMembershipOpts,
+) (OrganizationMembership, error) {
+	return DefaultClient.ReactivateOrganizationMembership(ctx, opts)
+}
+
 func GetInvitation(
 	ctx context.Context,
 	opts GetInvitationOpts,
 ) (Invitation, error) {
 	return DefaultClient.GetInvitation(ctx, opts)
+}
+
+func FindInvitationByToken(
+	ctx context.Context,
+	opts FindInvitationByTokenOpts,
+) (Invitation, error) {
+	return DefaultClient.FindInvitationByToken(ctx, opts)
 }
 
 func ListInvitations(
@@ -250,4 +338,16 @@ func RevokeInvitation(
 	opts RevokeInvitationOpts,
 ) (Invitation, error) {
 	return DefaultClient.RevokeInvitation(ctx, opts)
+}
+
+func GetJWKSURL(clientID string) (*url.URL, error) {
+	return DefaultClient.GetJWKSURL(clientID)
+}
+
+func GetLogoutURL(opts GetLogoutURLOpts) (*url.URL, error) {
+	return DefaultClient.GetLogoutURL(opts)
+}
+
+func RevokeSession(ctx context.Context, opts RevokeSessionOpts) error {
+	return DefaultClient.RevokeSession(ctx, opts)
 }

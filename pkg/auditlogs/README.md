@@ -1,13 +1,13 @@
 # auditlogs
 
-[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/v3/pkg/auditlogs)
+[![Go Report Card](https://img.shields.io/badge/dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/workos/workos-go/v5/pkg/auditlogs)
 
 A Go package to send audit log events to WorkOS.
 
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v3/pkg/auditlogs
+go get -u github.com/workos/workos-go/v5/pkg/auditlogs
 ```
 
 ## How it works
@@ -15,7 +15,7 @@ go get -u github.com/workos/workos-go/v3/pkg/auditlogs
 ```go
 package main
 
-import "github.com/workos/workos-go/v3/pkg/auditlogs"
+import "github.com/workos/workos-go/v5/pkg/auditlogs"
 
 func main() {
 	auditlogs.SetAPIKey("my_api_key")
