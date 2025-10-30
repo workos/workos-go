@@ -199,7 +199,7 @@ type CreateOrganizationOpts struct {
 // UpdateOrganizationOpts contains the options to update an Organization.
 type UpdateOrganizationOpts struct {
 	// Organization unique identifier.
-	Organization string
+	Organization string `json:"-"`
 
 	// Name of the Organization.
 	Name string `json:"name,omitempty"`
@@ -208,12 +208,12 @@ type UpdateOrganizationOpts struct {
 	// outside of the Organization's configured User Email Domains.
 	//
 	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
-	AllowProfilesOutsideOrganization bool
+	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization,omitempty"`
 
 	// Domains of the Organization.
 	//
 	// Deprecated:  Use DomainData instead.
-	Domains []string
+	Domains []string `json:"domains,omitempty"`
 
 	// Domains of the Organization.
 	DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
