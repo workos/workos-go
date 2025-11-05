@@ -15,7 +15,7 @@ go get -u github.com/workos/workos-go/v6/pkg/auditlogs
 ```go
 package main
 
-import "github.com/workos/workos-go/v6/pkg/auditlogs"auditlogs
+import "github.com/workos/workos-go/v6/pkg/auditlogs"
 
 func main() {
 	auditlogs.SetAPIKey("my_api_key")
