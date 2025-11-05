@@ -7,7 +7,7 @@ A Go package to make requests to the WorkOS Directory Sync API.
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v6/pkg/directorysyncdirectorydirectory
+go get -u github.com/workos/workos-go/v6/pkg/directorysync
 ```
 
 ## How it works
