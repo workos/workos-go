@@ -7,7 +7,7 @@ A Go package to send audit log events to WorkOS.
 ## Install
 
 ```sh
-go get -u github.com/workos/workos-go/v6/pkg/auditlogsauditlogs
+go get -u github.com/workos/workos-go/v6/pkg/auditlogs
 ```
 
 ## How it works
