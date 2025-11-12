@@ -188,7 +188,7 @@ func (c *Client) init() {
 	if c.HTTPClient == nil {
 		// Use retryable HTTP client by default for better reliability
 		c.HTTPClient = &retryablehttp.HttpClient{
-			Client: http.Client{Timeout: 30 * time.Second},
+			Client: http.Client{Timeout: 10 * time.Second},
 		}
 	}
 
