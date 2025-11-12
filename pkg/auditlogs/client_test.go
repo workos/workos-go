@@ -458,7 +458,6 @@ func TestCreateEvent_RetriesOn429Errors(t *testing.T) {
 		if attempts < 2 {
 			// First attempt fails with 429
 			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Retry-After", "1") // Wait 1 second
 			w.WriteHeader(http.StatusTooManyRequests)
 			w.Write([]byte(`{"message": "Too many requests"}`))
 		} else {
