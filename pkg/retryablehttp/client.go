@@ -77,13 +77,7 @@ func (client *HttpClient) shouldRetry(req *http.Request, resp *http.Response, er
 		return true
 	}
 
-	// Retry on 5xx server errors
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return true
-	}
-
-	// Retry on 429 (Too Many Requests)
-	if resp.StatusCode == http.StatusTooManyRequests {
 		return true
 	}
 
