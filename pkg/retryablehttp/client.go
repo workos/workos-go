@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -48,7 +49,7 @@ func (client *HttpClient) Do(req *http.Request) (*http.Response, error) {
 			break
 		}
 
-		sleepTime := client.sleepTime(retry)
+		sleepTime := client.getSleepDuration(res, retry)
 		retry++
 
 		timer := time.NewTimer(sleepTime)
@@ -77,11 +78,38 @@ func (client *HttpClient) shouldRetry(req *http.Request, resp *http.Response, er
 		return true
 	}
 
+	// Retry on 5xx server errors
 	if resp.StatusCode >= http.StatusInternalServerError {
 		return true
 	}
 
+	// Retry on 429 (Too Many Requests)
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return true
+	}
+
 	return false
+}
+
+// getSleepDuration calculates the sleep duration, respecting Retry-After header if present
+func (client *HttpClient) getSleepDuration(resp *http.Response, retryAttempt int) time.Duration {
+	// Check for Retry-After header (for 429 responses)
+	if resp != nil && resp.StatusCode == http.StatusTooManyRequests {
+		if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
+			// Retry-After can be in seconds (integer) or HTTP date
+			if seconds, err := strconv.Atoi(retryAfter); err == nil {
+				duration := time.Duration(seconds) * time.Second
+				// Cap at MaximumDelayDuration
+				if duration > MaximumDelayDuration {
+					return MaximumDelayDuration
+				}
+				return duration
+			}
+		}
+	}
+
+	// Fall back to exponential backoff
+	return client.sleepTime(retryAttempt)
 }
 
 // Calculates backoff time using exponential backoff with 50% jitter.

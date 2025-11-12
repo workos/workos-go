@@ -3,13 +3,14 @@ package auditlogs
 import (
 	"context"
 	"encoding/json"
-	"github.com/workos/workos-go/v6/pkg/workos_errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 var event = CreateEventOpts{
@@ -282,4 +283,214 @@ func TestGetExports(t *testing.T) {
 
 type defaultTestHandler struct {
 	header *http.Header
+}
+
+func TestCreateEvent_AutoGeneratesIdempotencyKey(t *testing.T) {
+	// Test that when IdempotencyKey is empty, SDK auto-generates one
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idempotencyKey := r.Header.Get("Idempotency-Key")
+
+		// Assert idempotency key was sent
+		require.NotEmpty(t, idempotencyKey, "Expected Idempotency-Key header to be present")
+
+		// Assert it's a valid UUID format (basic check - UUID v4 is 36 chars with hyphens)
+		require.Equal(t, 36, len(idempotencyKey), "Expected UUID format (36 characters)")
+
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:         "test_key",
+		EventsEndpoint: server.URL,
+		HTTPClient:     server.Client(),
+	}
+
+	err := client.CreateEvent(context.Background(), CreateEventOpts{
+		OrganizationID: "org_123",
+		Event: Event{
+			Action: "test.action",
+			Actor:  Actor{ID: "user_123", Type: "user", Name: "Test User"},
+			Targets: []Target{
+				{ID: "target_123", Type: "test", Name: "Test Target"},
+			},
+			Context: Context{
+				Location:  "127.0.0.1",
+				UserAgent: "test",
+			},
+		},
+		// Note: NOT providing IdempotencyKey
+	})
+
+	require.NoError(t, err)
+}
+
+func TestCreateEvent_UsesProvidedIdempotencyKey(t *testing.T) {
+	// Test that when user provides IdempotencyKey, SDK uses it
+
+	expectedKey := "user-provided-key-12345"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idempotencyKey := r.Header.Get("Idempotency-Key")
+
+		require.Equal(t, expectedKey, idempotencyKey, "Expected provided idempotency key to be used")
+
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:         "test_key",
+		EventsEndpoint: server.URL,
+		HTTPClient:     server.Client(),
+	}
+
+	err := client.CreateEvent(context.Background(), CreateEventOpts{
+		OrganizationID: "org_123",
+		Event: Event{
+			Action: "test.action",
+			Actor:  Actor{ID: "user_123", Type: "user", Name: "Test User"},
+			Targets: []Target{
+				{ID: "target_123", Type: "test", Name: "Test Target"},
+			},
+			Context: Context{
+				Location:  "127.0.0.1",
+				UserAgent: "test",
+			},
+		},
+		IdempotencyKey: expectedKey, // User provides their own key
+	})
+
+	require.NoError(t, err)
+}
+
+func TestCreateEvent_RetriesOn5xxErrors(t *testing.T) {
+	// Test that SDK retries on 5xx errors
+
+	attempts := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attempts++
+		if attempts < 3 {
+			// First 2 attempts fail with 500
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message": "Internal server error"}`))
+		} else {
+			// Third attempt succeeds
+			w.WriteHeader(http.StatusOK)
+		}
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:         "test_key",
+		EventsEndpoint: server.URL,
+		HTTPClient: &retryablehttp.HttpClient{
+			Client: http.Client{Timeout: 10 * time.Second},
+		},
+	}
+
+	err := client.CreateEvent(context.Background(), CreateEventOpts{
+		OrganizationID: "org_123",
+		Event: Event{
+			Action: "test.action",
+			Actor:  Actor{ID: "user_123", Type: "user", Name: "Test User"},
+			Targets: []Target{
+				{ID: "target_123", Type: "test", Name: "Test Target"},
+			},
+			Context: Context{
+				Location:  "127.0.0.1",
+				UserAgent: "test",
+			},
+		},
+	})
+
+	require.NoError(t, err, "CreateEvent should succeed after retries")
+	require.Equal(t, 3, attempts, "Expected 3 attempts")
+}
+
+func TestCreateEvent_DoesNotRetryOn4xxErrors(t *testing.T) {
+	// Test that SDK does NOT retry on 4xx client errors
+
+	attempts := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attempts++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"message": "Bad request"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:         "test_key",
+		EventsEndpoint: server.URL,
+		HTTPClient: &retryablehttp.HttpClient{
+			Client: http.Client{Timeout: 10 * time.Second},
+		},
+	}
+
+	err := client.CreateEvent(context.Background(), CreateEventOpts{
+		OrganizationID: "org_123",
+		Event: Event{
+			Action: "test.action",
+			Actor:  Actor{ID: "user_123", Type: "user", Name: "Test User"},
+			Targets: []Target{
+				{ID: "target_123", Type: "test", Name: "Test Target"},
+			},
+			Context: Context{
+				Location:  "127.0.0.1",
+				UserAgent: "test",
+			},
+		},
+	})
+
+	require.Error(t, err, "Expected error for 400 response")
+	require.Equal(t, 1, attempts, "Expected only 1 attempt (no retries on 4xx)")
+}
+
+func TestCreateEvent_RetriesOn429Errors(t *testing.T) {
+	// Test that SDK retries on 429 rate limit errors
+
+	attempts := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attempts++
+		if attempts < 2 {
+			// First attempt fails with 429
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Retry-After", "1") // Wait 1 second
+			w.WriteHeader(http.StatusTooManyRequests)
+			w.Write([]byte(`{"message": "Too many requests"}`))
+		} else {
+			// Second attempt succeeds
+			w.WriteHeader(http.StatusOK)
+		}
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:         "test_key",
+		EventsEndpoint: server.URL,
+		HTTPClient: &retryablehttp.HttpClient{
+			Client: http.Client{Timeout: 10 * time.Second},
+		},
+	}
+
+	err := client.CreateEvent(context.Background(), CreateEventOpts{
+		OrganizationID: "org_123",
+		Event: Event{
+			Action: "test.action",
+			Actor:  Actor{ID: "user_123", Type: "user", Name: "Test User"},
+			Targets: []Target{
+				{ID: "target_123", Type: "test", Name: "Test Target"},
+			},
+			Context: Context{
+				Location:  "127.0.0.1",
+				UserAgent: "test",
+			},
+		},
+	})
+
+	require.NoError(t, err, "CreateEvent should succeed after retrying on 429")
+	require.Equal(t, 2, attempts, "Expected 2 attempts")
 }
