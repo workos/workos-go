@@ -25,7 +25,7 @@
 //					Target{ID: "team_123", Type: "team"},
 //				},
 //			},
-//			IdempotencyKey: uuid.New().String(),
+//			IdempotencyKey: uuid.New().String(), - auto-generated if not provided
 //	    })
 //	    if err != nil {
 //	        // Handle error.

@@ -8,9 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v6/pkg/workos_errors"
-
+	"github.com/google/uuid"
 	"github.com/workos/workos-go/v6/internal/workos"
+	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -31,9 +32,11 @@ type Client struct {
 	// https://dashboard.workos.com/api-keys.
 	APIKey string
 
-	// The http.Client that is used to post Audit Log events to WorkOS. Defaults
-	// to http.Client.
-	HTTPClient *http.Client
+	// The http.Client that is used to post Audit Log events to WorkOS.
+	// Defaults to retryablehttp.HttpClient with automatic retry logic.
+	HTTPClient interface {
+		Do(req *http.Request) (*http.Response, error)
+	}
 
 	// The endpoint used to request WorkOS AuditLog events creation endpoint.
 	// Defaults to https://api.workos.com/audit_logs/events.
@@ -57,8 +60,8 @@ type CreateEventOpts struct {
 	// Event payload
 	Event Event `json:"event" binding:"required"`
 
-	// If no key is provided or the key is empty, the key will not be attached
-	// to the request.
+	// Optional idempotency key for deduplication. If not provided or empty,
+	// the SDK will automatically generate a UUID v4.
 	IdempotencyKey string `json:"-"`
 }
 
@@ -183,7 +186,10 @@ type GetExportOpts struct {
 
 func (c *Client) init() {
 	if c.HTTPClient == nil {
-		c.HTTPClient = &http.Client{Timeout: 10 * time.Second}
+		// Use retryable HTTP client by default for better reliability
+		c.HTTPClient = &retryablehttp.HttpClient{
+			Client: http.Client{Timeout: 10 * time.Second},
+		}
 	}
 
 	if c.EventsEndpoint == "" {
@@ -219,9 +225,12 @@ func (c *Client) CreateEvent(ctx context.Context, e CreateEventOpts) error {
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
-	if e.IdempotencyKey != "" {
-		req.Header.Set("Idempotency-Key", e.IdempotencyKey)
+	// Auto-generate idempotency key if not provided
+	idempotencyKey := e.IdempotencyKey
+	if idempotencyKey == "" {
+		idempotencyKey = "workos-go-" + uuid.New().String()
 	}
+	req.Header.Set("Idempotency-Key", idempotencyKey)
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {

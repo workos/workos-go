@@ -48,6 +48,11 @@ func (client *HttpClient) Do(req *http.Request) (*http.Response, error) {
 			break
 		}
 
+		// Close the response body before retrying to prevent resource leak
+		if res.Body != nil {
+			res.Body.Close()
+		}
+
 		sleepTime := client.sleepTime(retry)
 		retry++
 
