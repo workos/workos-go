@@ -228,7 +228,7 @@ func (c *Client) CreateEvent(ctx context.Context, e CreateEventOpts) error {
 	// Auto-generate idempotency key if not provided
 	idempotencyKey := e.IdempotencyKey
 	if idempotencyKey == "" {
-		idempotencyKey = uuid.New().String()
+		idempotencyKey = "workos-go-" + uuid.New().String()
 	}
 	req.Header.Set("Idempotency-Key", idempotencyKey)
 

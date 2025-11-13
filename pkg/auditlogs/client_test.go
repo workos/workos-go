@@ -294,8 +294,9 @@ func TestCreateEvent_AutoGeneratesIdempotencyKey(t *testing.T) {
 		// Assert idempotency key was sent
 		require.NotEmpty(t, idempotencyKey, "Expected Idempotency-Key header to be present")
 
-		// Assert it's a valid UUID format (basic check - UUID v4 is 36 chars with hyphens)
-		require.Equal(t, 36, len(idempotencyKey), "Expected UUID format (36 characters)")
+		// Assert it has the workos-go prefix and UUID format (10 chars for "workos-go-" + 36 for UUID)
+		require.Equal(t, 46, len(idempotencyKey), "Expected 'workos-go-' prefix + UUID format (46 characters total)")
+		require.Contains(t, idempotencyKey, "workos-go-", "Expected idempotency key to start with 'workos-go-'")
 
 		w.WriteHeader(http.StatusOK)
 	}))
