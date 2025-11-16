@@ -2,8 +2,6 @@ package usermanagement
 
 import (
 	"context"
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/mfa"
 	"net/http"
 	"net/http/httptest"
 	"testing"
