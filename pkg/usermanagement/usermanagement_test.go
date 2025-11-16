@@ -1094,7 +1094,7 @@ func TestUserManagementListSessions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(listSessionsTestHandler))
 
 	defer server.Close()
-
+	userID := "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E"
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
@@ -1104,13 +1104,13 @@ func TestUserManagementListSessions(t *testing.T) {
 			{
 				Object:         "session",
 				ID:             "session_01E4ZCR3C56J083X43JQXF3JK5",
-				UserID:         "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E",
+				UserID:         userID,
 				OrganizationID: "org_01E4ZCR3C56J083X43JQXF3JK5",
 				Status:         "active",
 				AuthMethod:     "password",
 				IPAddress:      "192.168.1.1",
 				UserAgent:      "Mozilla/5.0",
-				ExpiresAt:      "2021-06-25T19:07:33.155Z",
+				ExpiresAt:      "2021-07-25T19:07:33.155Z",
 				CreatedAt:      "2021-06-25T19:07:33.155Z",
 				UpdatedAt:      "2021-06-25T19:07:33.155Z",
 			},
@@ -1120,10 +1120,8 @@ func TestUserManagementListSessions(t *testing.T) {
 		},
 	}
 
-	sessionsRes, err := ListSessions(context.Background(), ListSessionsOpts{})
+	sessionsRes, err := ListSessions(context.Background(), userID, ListSessionsOpts{})
 
 	require.NoError(t, err)
-	require.Equal(t, expectedResponse.Object, sessionsRes.Object)
-	require.Equal(t, len(expectedResponse.Data), len(sessionsRes.Data))
-	require.Equal(t, expectedResponse.Data[0], sessionsRes.Data[0])
+	require.Equal(t, expectedResponse, sessionsRes)
 }

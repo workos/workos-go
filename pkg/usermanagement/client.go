@@ -616,7 +616,6 @@ type Session struct {
 }
 
 type ListSessionsOpts struct {
-	UserID string `url:"user_id,omitempty"`
 	Limit  int    `url:"limit"`
 	Before string `url:"before,omitempty"`
 	After  string `url:"after,omitempty"`
@@ -2379,10 +2378,10 @@ func (c *Client) RevokeSession(ctx context.Context, opts RevokeSessionOpts) erro
 	return nil
 }
 
-func (c *Client) ListSessions(ctx context.Context, opts ListSessionsOpts) (ListSessionsResponse, error) {
+func (c *Client) ListSessions(ctx context.Context, userID string, opts ListSessionsOpts) (ListSessionsResponse, error) {
 	req, err := http.NewRequest(
 		http.MethodGet,
-		fmt.Sprintf("%s/user_management/sessions", c.Endpoint),
+		fmt.Sprintf("%s/user_management/users/%s/sessions", c.Endpoint, userID),
 		nil,
 	)
 	if err != nil {
