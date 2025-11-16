@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/roles"
+	"github.com/workos/workos-go/v6/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/roles"
 )
 
 func TestOrganizationsGetOrganization(t *testing.T) {
@@ -179,6 +179,7 @@ func TestOrganizationsListOrganizationRoles(t *testing.T) {
 				Name:        "Member",
 				Slug:        "member",
 				Description: "The default role for all users.",
+				Permissions: []string{"read:test", "write:test"},
 				Type:        roles.Environment,
 				CreatedAt:   "2024-12-01T00:00:00.000Z",
 				UpdatedAt:   "2024-12-01T00:00:00.000Z",
@@ -188,6 +189,7 @@ func TestOrganizationsListOrganizationRoles(t *testing.T) {
 				Name:        "Org. Member",
 				Slug:        "org-member",
 				Description: "The default role for org. members.",
+				Permissions: []string{"read:test", "write:test"},
 				Type:        roles.Organization,
 				CreatedAt:   "2024-12-02T00:00:00.000Z",
 				UpdatedAt:   "2024-12-02T00:00:00.000Z",

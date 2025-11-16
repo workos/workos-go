@@ -9,13 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/workos/workos-go/v5/pkg/roles"
-	"github.com/workos/workos-go/v5/pkg/workos_errors"
+	"github.com/workos/workos-go/v6/pkg/roles"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 
 	"github.com/google/go-querystring/query"
-	"github.com/workos/workos-go/v5/internal/workos"
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/organization_domains"
+	"github.com/workos/workos-go/v6/internal/workos"
+	"github.com/workos/workos-go/v6/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/organization_domains"
 )
 
 // ResponseLimit is the default number of records to limit a response to.
@@ -193,13 +193,13 @@ type CreateOrganizationOpts struct {
 	ExternalID string `json:"external_id,omitempty"`
 
 	// The Organization's metadata.
-	Metadata map[string]string `json:"metadata"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // UpdateOrganizationOpts contains the options to update an Organization.
 type UpdateOrganizationOpts struct {
 	// Organization unique identifier.
-	Organization string
+	Organization string `json:"-"`
 
 	// Name of the Organization.
 	Name string `json:"name,omitempty"`
@@ -208,12 +208,12 @@ type UpdateOrganizationOpts struct {
 	// outside of the Organization's configured User Email Domains.
 	//
 	// Deprecated: If you need to allow sign-ins from any email domain, contact support@workos.com.
-	AllowProfilesOutsideOrganization bool
+	AllowProfilesOutsideOrganization bool `json:"allow_profiles_outside_organization,omitempty"`
 
 	// Domains of the Organization.
 	//
 	// Deprecated:  Use DomainData instead.
-	Domains []string
+	Domains []string `json:"domains,omitempty"`
 
 	// Domains of the Organization.
 	DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
@@ -225,7 +225,7 @@ type UpdateOrganizationOpts struct {
 	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
 
 	// The Organization's metadata.
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]*string `json:"metadata,omitempty"`
 }
 
 // ListOrganizationsOpts contains the options to request Organizations.

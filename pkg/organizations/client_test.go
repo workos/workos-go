@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/roles"
+	"github.com/workos/workos-go/v6/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/roles"
 )
 
 func TestGetOrganization(t *testing.T) {
@@ -548,10 +548,14 @@ func TestUpdateOrganization(t *testing.T) {
 			options: UpdateOrganizationOpts{
 				Organization: "organization_id",
 				Name:         "Foo Corp",
-				Metadata: map[string]string{
-					"key1": "value1",
-					"key2": "value2",
-				},
+				Metadata: func() map[string]*string {
+					value1 := "value1"
+					value2 := "value2"
+					return map[string]*string{
+						"key1": &value1,
+						"key2": &value2,
+					}
+				}(),
 			},
 			expected: Organization{
 				ID:                               "organization_id",
@@ -643,7 +647,12 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Include metadata in response if it was present in the request
 	if opts.Metadata != nil {
-		responseOrg.Metadata = opts.Metadata
+		responseOrg.Metadata = make(map[string]string)
+		for k, v := range opts.Metadata {
+			if v != nil {
+				responseOrg.Metadata[k] = *v
+			}
+		}
 	}
 
 	body, err := json.Marshal(responseOrg)
@@ -685,6 +694,7 @@ func TestListOrganizationRoles(t *testing.T) {
 						Name:        "Member",
 						Slug:        "member",
 						Description: "The default role for all users.",
+						Permissions: []string{"read:test", "write:test"},
 						Type:        roles.Environment,
 						CreatedAt:   "2024-12-01T00:00:00.000Z",
 						UpdatedAt:   "2024-12-01T00:00:00.000Z",
@@ -694,6 +704,7 @@ func TestListOrganizationRoles(t *testing.T) {
 						Name:        "Org. Member",
 						Slug:        "org-member",
 						Description: "The default role for org. members.",
+						Permissions: []string{"read:test", "write:test"},
 						Type:        roles.Organization,
 						CreatedAt:   "2024-12-02T00:00:00.000Z",
 						UpdatedAt:   "2024-12-02T00:00:00.000Z",
@@ -739,6 +750,7 @@ func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
 				Name:        "Member",
 				Slug:        "member",
 				Description: "The default role for all users.",
+				Permissions: []string{"read:test", "write:test"},
 				Type:        roles.Environment,
 				CreatedAt:   "2024-12-01T00:00:00.000Z",
 				UpdatedAt:   "2024-12-01T00:00:00.000Z",
@@ -748,6 +760,7 @@ func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
 				Name:        "Org. Member",
 				Slug:        "org-member",
 				Description: "The default role for org. members.",
+				Permissions: []string{"read:test", "write:test"},
 				Type:        roles.Organization,
 				CreatedAt:   "2024-12-02T00:00:00.000Z",
 				UpdatedAt:   "2024-12-02T00:00:00.000Z",
