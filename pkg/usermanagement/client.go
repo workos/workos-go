@@ -606,13 +606,13 @@ type Session struct {
 	// The user agent from which the Session was created.
 	UserAgent string `json:"user_agent"`
 	// The time at which the Session expires.
-	ExpiresAt time.Time `json:"expires_at"`
+	ExpiresAt string `json:"expires_at"`
 	// The time at which the Session ended, if applicable.
-	EndedAt *time.Time `json:"ended_at"`
+	EndedAt *string `json:"ended_at"`
 	// The time at which the Session was created.
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 	// The time at which the Session was last updated.
-	UpdatedAt time.Time `json:"updated_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 type ListSessionsOpts struct {

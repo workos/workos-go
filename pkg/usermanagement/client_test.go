@@ -3611,9 +3611,9 @@ func listSessionsTestHandler(w http.ResponseWriter, r *http.Request) {
 					AuthMethod:     "password",
 					IPAddress:      "192.168.1.1",
 					UserAgent:      "Mozilla/5.0",
-					ExpiresAt:      time.Date(2021, 6, 25, 19, 7, 33, 155000000, time.UTC),
-					CreatedAt:      time.Date(2021, 6, 25, 19, 7, 33, 155000000, time.UTC),
-					UpdatedAt:      time.Date(2021, 6, 25, 19, 7, 33, 155000000, time.UTC),
+					ExpiresAt:      "2021-07-25T19:07:33.155Z",
+					CreatedAt:      "2021-06-25T19:07:33.155Z",
+					UpdatedAt:      "2021-06-25T19:07:33.155Z",
 				},
 			},
 			ListMetadata: common.ListMetadata{

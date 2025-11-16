@@ -2,12 +2,11 @@ package usermanagement
 
 import (
 	"context"
+	"github.com/workos/workos-go/v5/pkg/common"
+	"github.com/workos/workos-go/v5/pkg/mfa"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/workos/workos-go/v5/pkg/common"
-	"github.com/workos/workos-go/v5/pkg/mfa"
 
 	"github.com/stretchr/testify/require"
 )
@@ -1099,7 +1098,6 @@ func TestUserManagementListSessions(t *testing.T) {
 	DefaultClient = mockClient(server)
 
 	SetAPIKey("test")
-
 	expectedResponse := ListSessionsResponse{
 		Object: "list",
 		Data: []Session{
@@ -1112,6 +1110,9 @@ func TestUserManagementListSessions(t *testing.T) {
 				AuthMethod:     "password",
 				IPAddress:      "192.168.1.1",
 				UserAgent:      "Mozilla/5.0",
+				ExpiresAt:      "2021-06-25T19:07:33.155Z",
+				CreatedAt:      "2021-06-25T19:07:33.155Z",
+				UpdatedAt:      "2021-06-25T19:07:33.155Z",
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -1124,7 +1125,5 @@ func TestUserManagementListSessions(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse.Object, sessionsRes.Object)
 	require.Equal(t, len(expectedResponse.Data), len(sessionsRes.Data))
-	require.Equal(t, expectedResponse.Data[0].ID, sessionsRes.Data[0].ID)
-	require.Equal(t, expectedResponse.Data[0].UserID, sessionsRes.Data[0].UserID)
-	require.Equal(t, expectedResponse.Data[0].Status, sessionsRes.Data[0].Status)
+	require.Equal(t, expectedResponse.Data[0], sessionsRes.Data[0])
 }
