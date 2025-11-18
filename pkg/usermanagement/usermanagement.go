@@ -340,6 +340,13 @@ func RevokeInvitation(
 	return DefaultClient.RevokeInvitation(ctx, opts)
 }
 
+func ResendInvitation(
+	ctx context.Context,
+	opts ResendInvitationOpts,
+) (Invitation, error) {
+	return DefaultClient.ResendInvitation(ctx, opts)
+}
+
 func GetJWKSURL(clientID string) (*url.URL, error) {
 	return DefaultClient.GetJWKSURL(clientID)
 }
