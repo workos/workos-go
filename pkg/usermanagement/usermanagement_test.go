@@ -1051,6 +1051,34 @@ func TestUsersRevokeInvitation(t *testing.T) {
 	require.Equal(t, expectedResponse, revokeRes)
 }
 
+func TestUsersResendInvitation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(ResendInvitationTestHandler))
+
+	defer server.Close()
+
+	DefaultClient = mockClient(server)
+
+	SetAPIKey("test")
+
+	expectedResponse := Invitation{
+		ID:                  "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+		Email:               "marcelina@foo-corp.com",
+		State:               Pending,
+		Token:               "Z1uX3RbwcIl5fIGJJJCXXisdI",
+		AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
+		ExpiresAt:           "2021-06-25T19:07:33.155Z",
+		CreatedAt:           "2021-06-25T19:07:33.155Z",
+		UpdatedAt:           "2021-06-25T19:07:33.155Z",
+	}
+
+	resendRes, err := ResendInvitation(context.Background(), ResendInvitationOpts{
+		Invitation: "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, expectedResponse, resendRes)
+}
+
 func TestUserManagementGetJWKSURL(t *testing.T) {
 	client := NewClient("test")
 

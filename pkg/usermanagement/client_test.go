@@ -3494,6 +3494,90 @@ func TestRevokeInvitation(t *testing.T) {
 	}
 }
 
+func TestResendInvitation(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ResendInvitationOpts
+		expected Invitation
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   NewClient(""),
+			err:      true,
+		},
+		{
+			scenario: "Request returns Invitation",
+			client:   NewClient("test"),
+			options: ResendInvitationOpts{
+				Invitation: "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+			},
+			expected: Invitation{
+				ID:                  "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "Z1uX3RbwcIl5fIGJJJCXXisdI",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
+			},
+		},
+		{
+			scenario: "Request returns 404 error for non-existent invitation",
+			client:   NewClient("test"),
+			options: ResendInvitationOpts{
+				Invitation: "invitation_not_found",
+			},
+			err: true,
+		},
+		{
+			scenario: "Request returns 400 error for expired invitation",
+			client:   NewClient("test"),
+			options: ResendInvitationOpts{
+				Invitation: "invitation_expired",
+			},
+			err: true,
+		},
+		{
+			scenario: "Request returns 400 error for revoked invitation",
+			client:   NewClient("test"),
+			options: ResendInvitationOpts{
+				Invitation: "invitation_revoked",
+			},
+			err: true,
+		},
+		{
+			scenario: "Request returns 400 error for accepted invitation",
+			client:   NewClient("test"),
+			options: ResendInvitationOpts{
+				Invitation: "invitation_accepted",
+			},
+			err: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(ResendInvitationTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			invitation, err := client.ResendInvitation(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, invitation)
+		})
+	}
+}
+
 func TestGetLogoutURL(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -3536,6 +3620,60 @@ func TestGetLogoutURL(t *testing.T) {
 			require.Equal(t, test.expected, url.String())
 		})
 	}
+}
+
+func ResendInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	var body []byte
+	var err error
+
+	switch r.URL.Path {
+	case "/user_management/invitations/invitation_01E4ZCR3C56J083X43JQXF3JK5/resend":
+		body, err = json.Marshal(
+			Invitation{
+				ID:                  "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+				Email:               "marcelina@foo-corp.com",
+				State:               Pending,
+				Token:               "Z1uX3RbwcIl5fIGJJJCXXisdI",
+				AcceptInvitationUrl: "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
+				ExpiresAt:           "2021-06-25T19:07:33.155Z",
+				CreatedAt:           "2021-06-25T19:07:33.155Z",
+				UpdatedAt:           "2021-06-25T19:07:33.155Z",
+			})
+	case "/user_management/invitations/invitation_not_found/resend":
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message": "Invitation not found"}`))
+		return
+	case "/user_management/invitations/invitation_expired/resend":
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"code": "invite_expired", "message": "Invite has expired."}`))
+		return
+	case "/user_management/invitations/invitation_revoked/resend":
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"code": "invite_revoked", "message": "Invite has been revoked."}`))
+		return
+	case "/user_management/invitations/invitation_accepted/resend":
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"code": "invite_accepted", "message": "Invite has already been accepted."}`))
+		return
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
 
 func RevokeInvitationTestHandler(w http.ResponseWriter, r *http.Request) {
