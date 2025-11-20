@@ -461,7 +461,7 @@ func (c *Client) DeleteOrganization(
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
-		"%s/Organizations/%s",
+		"%s/organizations/%s",
 		c.Endpoint,
 		opts.Organization,
 	)

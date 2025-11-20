@@ -204,3 +204,20 @@ func TestOrganizationsListOrganizationRoles(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedResponse, rolesResponse)
 }
+
+func TestOrganizationsDeleteOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(deleteOrganizationTestHandler))
+	defer server.Close()
+
+	DefaultClient = &Client{
+		HTTPClient: server.Client(),
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
+
+	err := DeleteOrganization(context.Background(), DeleteOrganizationOpts{
+		Organization: "organization_id",
+	})
+
+	require.NoError(t, err)
+}
