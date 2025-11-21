@@ -74,6 +74,24 @@ type UserGroup struct {
 
 	// The Group's Name.
 	Name string
+
+	// The Group's unique identifier assigned by the Directory Provider.
+	IdpID string `json:"idp_id"`
+
+	// The identifier of the Directory the group belongs to.
+	DirectoryID string `json:"directory_id"`
+
+	// The identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+
+	// The Group's created at date.
+	CreatedAt string `json:"created_at"`
+
+	// The Group's updated at date.
+	UpdatedAt string `json:"updated_at"`
+
+	// The Group's raw attributes in raw encoded JSON.
+	RawAttributes json.RawMessage `json:"raw_attributes"`
 }
 
 // UserState represents the active state of a Directory User.
