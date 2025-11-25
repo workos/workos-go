@@ -158,6 +158,10 @@ func TestClientGetProfileAndToken(t *testing.T) {
 				Role: common.RoleResponse{
 					Slug: "admin",
 				},
+				Roles: []common.RoleResponse{
+					{Slug: "admin"},
+					{Slug: "developer"},
+				},
 				Groups: []string{"Admins", "Developers"},
 				CustomAttributes: map[string]interface{}{
 					"license": "professional",
@@ -227,6 +231,10 @@ func profileAndTokenTestHandler(w http.ResponseWriter, r *http.Request) {
 			Role: common.RoleResponse{
 				Slug: "admin",
 			},
+			Roles: []common.RoleResponse{
+				{Slug: "admin"},
+				{Slug: "developer"},
+			},
 			Groups: []string{"Admins", "Developers"},
 			CustomAttributes: map[string]interface{}{
 				"license": "professional",
@@ -277,6 +285,10 @@ func TestClientGetProfile(t *testing.T) {
 				LastName:       "bar",
 				Role: common.RoleResponse{
 					Slug: "admin",
+				},
+				Roles: []common.RoleResponse{
+					{Slug: "admin"},
+					{Slug: "developer"},
 				},
 				Groups: []string{"Admins", "Developers"},
 				CustomAttributes: map[string]interface{}{
@@ -336,6 +348,10 @@ func profileTestHandler(w http.ResponseWriter, r *http.Request) {
 		LastName:       "bar",
 		Role: common.RoleResponse{
 			Slug: "admin",
+		},
+		Roles: []common.RoleResponse{
+			{Slug: "admin"},
+			{Slug: "developer"},
 		},
 		Groups: []string{"Admins", "Developers"},
 		CustomAttributes: map[string]interface{}{

@@ -146,6 +146,9 @@ type User struct {
 
 	// The role given to this Directory User
 	Role common.RoleResponse `json:"role,omitempty"`
+
+	// The roles given to this Directory User
+	Roles []common.RoleResponse `json:"roles"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.

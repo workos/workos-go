@@ -253,6 +253,9 @@ type Profile struct {
 	// The role given to this user profile. Can be empty.
 	Role common.RoleResponse `json:"role"`
 
+	// The roles given to this user profile.
+	Roles []common.RoleResponse `json:"roles"`
+
 	// The user's group memberships. Can be empty.
 	Groups []string `json:"groups"`
 
