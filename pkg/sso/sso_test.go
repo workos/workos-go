@@ -37,6 +37,10 @@ func TestLogin(t *testing.T) {
 		Role: common.RoleResponse{
 			Slug: "admin",
 		},
+		Roles: []common.RoleResponse{
+			{Slug: "admin"},
+			{Slug: "developer"},
+		},
 		Groups: []string{"Admins", "Developers"},
 		CustomAttributes: map[string]interface{}{
 			"license": "professional",
@@ -175,6 +179,10 @@ func TestSsoGetProfile(t *testing.T) {
 		LastName:       "bar",
 		Role: common.RoleResponse{
 			Slug: "admin",
+		},
+		Roles: []common.RoleResponse{
+			{Slug: "admin"},
+			{Slug: "developer"},
 		},
 		Groups: []string{"Admins", "Developers"},
 		CustomAttributes: map[string]interface{}{

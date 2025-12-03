@@ -61,6 +61,10 @@ func TestListUsers(t *testing.T) {
 						Role: common.RoleResponse{
 							Slug: "member",
 						},
+						Roles: []common.RoleResponse{
+							{Slug: "member"},
+							{Slug: "developer"},
+						},
 					},
 				},
 				ListMetadata: common.ListMetadata{
@@ -132,6 +136,10 @@ func listUsersTestHandler(w http.ResponseWriter, r *http.Request) {
 					RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 					CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 					Role:             common.RoleResponse{Slug: "member"},
+					Roles: []common.RoleResponse{
+						{Slug: "member"},
+						{Slug: "developer"},
+					},
 				},
 			},
 			ListMetadata: common.ListMetadata{
@@ -299,6 +307,10 @@ func TestGetUser(t *testing.T) {
 				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 				Role:             common.RoleResponse{Slug: "member"},
+				Roles: []common.RoleResponse{
+					{Slug: "member"},
+					{Slug: "developer"},
+				},
 			},
 		},
 	}
@@ -359,6 +371,10 @@ func getUserTestHandler(w http.ResponseWriter, r *http.Request) {
 		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 		Role:             common.RoleResponse{Slug: "member"},
+		Roles: []common.RoleResponse{
+			{Slug: "member"},
+			{Slug: "developer"},
+		},
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

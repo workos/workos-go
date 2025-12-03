@@ -51,6 +51,10 @@ func TestDirectorySyncListUsers(t *testing.T) {
 				RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 				CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 				Role:             expectedRole,
+				Roles: []common.RoleResponse{
+					{Slug: "member"},
+					{Slug: "developer"},
+				},
 			},
 		},
 		ListMetadata: common.ListMetadata{
@@ -143,6 +147,10 @@ func TestDirectorySyncGetUser(t *testing.T) {
 		RawAttributes:    json.RawMessage(`{"foo":"bar"}`),
 		CustomAttributes: json.RawMessage(`{"foo":"bar"}`),
 		Role:             expectedRole,
+		Roles: []common.RoleResponse{
+			{Slug: "member"},
+			{Slug: "developer"},
+		},
 	}
 	directoryUserResponse, err := GetUser(context.Background(), GetUserOpts{
 		User: "directory_user_id",

@@ -144,8 +144,11 @@ type User struct {
 	// The User's updated at date
 	UpdatedAt string `json:"updated_at"`
 
-	// The role given to this Directory User
+	// The highest priority role given to this Directory User
 	Role common.RoleResponse `json:"role,omitempty"`
+
+	// All roles given to this Directory User
+	Roles []common.RoleResponse `json:"roles"`
 }
 
 // ListUsersOpts contains the options to request provisioned Directory Users.
