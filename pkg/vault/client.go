@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -152,6 +153,11 @@ type CreateObjectOpts struct {
 type ReadObjectOpts struct {
 	// Unique string ID of the object.
 	Id string `json:"id"`
+}
+
+type ReadObjectByNameOpts struct {
+	// Unique name of the object, used as the KV store key.
+	Name string `json:"name"`
 }
 
 type ObjectVersion struct {
@@ -353,6 +359,37 @@ func (c *Client) ReadObject(ctx context.Context, opts ReadObjectOpts) (Object, e
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf("%s/vault/v1/kv/%s", c.Endpoint, opts.Id)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return Object{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Object{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Object{}, err
+	}
+
+	var body Object
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
+}
+
+// ReadObjectByName gets an Object by its unique name with its decrypted value.
+func (c *Client) ReadObjectByName(ctx context.Context, opts ReadObjectByNameOpts) (Object, error) {
+	c.once.Do(c.init)
+
+	endpoint := fmt.Sprintf("%s/vault/v1/kv/name/%s", c.Endpoint, url.PathEscape(opts.Name))
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return Object{}, err
