@@ -46,6 +46,14 @@ func ReadObject(
 	return DefaultClient.ReadObject(ctx, opts)
 }
 
+// ReadObjectByName gets an Object by its unique name with its decrypted value.
+func ReadObjectByName(
+	ctx context.Context,
+	opts ReadObjectByNameOpts,
+) (Object, error) {
+	return DefaultClient.ReadObjectByName(ctx, opts)
+}
+
 // DescribeObject gets metadata about an object, withthout the value.
 func DescribeObject(
 	ctx context.Context,

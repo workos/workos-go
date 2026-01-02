@@ -403,6 +403,100 @@ func readObjectTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestReadObjectByName(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ReadObjectByNameOpts
+		expected Object
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns Object",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ReadObjectByNameOpts{
+				Name: "secret-access-key",
+			},
+
+			expected: Object{
+				Id:    "secret_9876",
+				Name:  "secret-access-key",
+				Value: "my secret value",
+				Metadata: ObjectMetadata{
+					Id:        "secret_9876",
+					UpdatedAt: time.Unix(0, 0).UTC(),
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(readObjectByNameTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			objects, err := client.ReadObjectByName(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, objects)
+		})
+	}
+}
+
+func readObjectByNameTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Verify the URL path contains /vault/v1/kv/name/
+	if !strings.Contains(r.URL.Path, "/vault/v1/kv/name/") {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	body, err := json.Marshal(struct {
+		Object
+	}{
+		Object: Object{
+			Id:    "secret_9876",
+			Name:  "secret-access-key",
+			Value: "my secret value",
+			Metadata: ObjectMetadata{
+				Id:        "secret_9876",
+				UpdatedAt: time.Unix(0, 0).UTC(),
+			},
+		},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
 func TestDescribeObject(t *testing.T) {
 	tests := []struct {
 		scenario string

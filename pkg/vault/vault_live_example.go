@@ -44,6 +44,14 @@ func TestCrudObjects(t *testing.T) {
 		require.Equal(t, value, object.Value)
 	})
 
+	t.Run("reads an object by name", func(t *testing.T) {
+		object, err := ReadObjectByName(context.Background(), ReadObjectByNameOpts{Name: objectName})
+		require.NoError(t, err)
+		require.Equal(t, metadata.Id, object.Id)
+		require.Equal(t, objectName, object.Name)
+		require.Equal(t, value, object.Value)
+	})
+
 	t.Run("fail to create object with existing name", func(t *testing.T) {
 		_, err := CreateObject(context.Background(), CreateObjectOpts{
 			Name:       objectName,
