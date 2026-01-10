@@ -1,9 +1,10 @@
 package vault
 
 import (
-	"github.com/stretchr/testify/require"
 	"math/rand/v2"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestEncodeU32(t *testing.T) {
@@ -28,7 +29,7 @@ func TestDecodeU32(t *testing.T) {
 
 func TestEncodingVarInts(t *testing.T) {
 	for i := 0; i <= 10; i++ {
-		int := rand.Uint32()
+		int := uint32(rand.Int32())
 		buf := EncodeU32(int)
 		res, _, err := DecodeU32(buf)
 		require.NoError(t, err)
