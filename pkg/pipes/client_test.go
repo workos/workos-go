@@ -14,16 +14,17 @@ import (
 
 func TestGetAccessToken(t *testing.T) {
 	tests := []struct {
-		scenario string
-		client   *Client
-		options  GetAccessTokenOpts
-		expected GetAccessTokenResponse
-		err      bool
+		scenario    string
+		client      *Client
+		options     GetAccessTokenOpts
+		expected    AccessToken
+		expectedErr error
+		wantErr     bool
 	}{
 		{
 			scenario: "Request without API Key returns an error",
 			client:   &Client{},
-			err:      true,
+			wantErr:  true,
 		},
 		{
 			scenario: "Request returns active access token",
@@ -34,17 +35,13 @@ func TestGetAccessToken(t *testing.T) {
 				Provider: "salesforce",
 				UserID:   "user_123",
 			},
-			expected: func() GetAccessTokenResponse {
+			expected: func() AccessToken {
 				expiresAt := time.Date(2025, 10, 18, 12, 0, 0, 0, time.UTC)
-				return GetAccessTokenResponse{
-					Active: true,
-					AccessToken: &AccessToken{
-						Object:        "access_token",
-						AccessToken:   "test_access_token_123",
-						ExpiresAt:     &expiresAt,
-						Scopes:        []string{"read:users", "write:users"},
-						MissingScopes: []string{},
-					},
+				return AccessToken{
+					AccessToken:   "test_access_token_123",
+					ExpiresAt:     &expiresAt,
+					Scopes:        []string{"read:users", "write:users"},
+					MissingScopes: []string{},
 				}
 			}(),
 		},
@@ -58,17 +55,13 @@ func TestGetAccessToken(t *testing.T) {
 				UserID:         "user_123",
 				OrganizationID: "org_456",
 			},
-			expected: func() GetAccessTokenResponse {
+			expected: func() AccessToken {
 				expiresAt := time.Date(2025, 10, 18, 12, 0, 0, 0, time.UTC)
-				return GetAccessTokenResponse{
-					Active: true,
-					AccessToken: &AccessToken{
-						Object:        "access_token",
-						AccessToken:   "test_access_token_123",
-						ExpiresAt:     &expiresAt,
-						Scopes:        []string{"read:users", "write:users"},
-						MissingScopes: []string{},
-					},
+				return AccessToken{
+					AccessToken:   "test_access_token_123",
+					ExpiresAt:     &expiresAt,
+					Scopes:        []string{"read:users", "write:users"},
+					MissingScopes: []string{},
 				}
 			}(),
 		},
@@ -81,15 +74,11 @@ func TestGetAccessToken(t *testing.T) {
 				Provider: "no-expiry-provider",
 				UserID:   "user_123",
 			},
-			expected: GetAccessTokenResponse{
-				Active: true,
-				AccessToken: &AccessToken{
-					Object:        "access_token",
-					AccessToken:   "test_access_token_456",
-					ExpiresAt:     nil,
-					Scopes:        []string{"read:data"},
-					MissingScopes: []string{"write:data"},
-				},
+			expected: AccessToken{
+				AccessToken:   "test_access_token_456",
+				ExpiresAt:     nil,
+				Scopes:        []string{"read:data"},
+				MissingScopes: []string{"write:data"},
 			},
 		},
 		{
@@ -101,10 +90,8 @@ func TestGetAccessToken(t *testing.T) {
 				Provider: "not-installed-provider",
 				UserID:   "user_123",
 			},
-			expected: GetAccessTokenResponse{
-				Active: false,
-				Error:  NotInstalled,
-			},
+			expectedErr: NotInstalled,
+			wantErr:     true,
 		},
 		{
 			scenario: "Request returns needs_reauthorization error",
@@ -115,10 +102,8 @@ func TestGetAccessToken(t *testing.T) {
 				Provider: "needs-reauth-provider",
 				UserID:   "user_123",
 			},
-			expected: GetAccessTokenResponse{
-				Active: false,
-				Error:  NeedsReauthorization,
-			},
+			expectedErr: NeedsReauthorization,
+			wantErr:     true,
 		},
 	}
 
@@ -132,8 +117,11 @@ func TestGetAccessToken(t *testing.T) {
 			client.HTTPClient = server.Client()
 
 			response, err := client.GetAccessToken(context.Background(), test.options)
-			if test.err {
+			if test.wantErr {
 				require.Error(t, err)
+				if test.expectedErr != nil {
+					require.Equal(t, test.expectedErr, err)
+				}
 				return
 			}
 			require.NoError(t, err)

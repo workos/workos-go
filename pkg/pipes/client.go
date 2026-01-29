@@ -22,6 +22,10 @@ const (
 	NeedsReauthorization GetAccessTokenError = "needs_reauthorization"
 )
 
+func (e GetAccessTokenError) Error() string {
+	return string(e)
+}
+
 // Client represents a client that performs Pipes requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -56,9 +60,6 @@ func (c *Client) init() {
 
 // AccessToken contains data about an OAuth access token for a data integration.
 type AccessToken struct {
-	// The object type identifier.
-	Object string `json:"object"`
-
 	// The OAuth access token value.
 	AccessToken string `json:"access_token"`
 
@@ -84,31 +85,28 @@ type GetAccessTokenOpts struct {
 	OrganizationID string `json:"organization_id,omitempty"`
 }
 
-// GetAccessTokenResponse represents the response from requesting an access token.
-// When Active is true, AccessToken will contain the token details.
-// When Active is false, Error will contain the reason why the token could not be retrieved.
-type GetAccessTokenResponse struct {
-	// Active indicates whether the token request was successful.
-	Active bool `json:"active"`
-
-	// AccessToken contains the token details when Active is true.
-	AccessToken *AccessToken `json:"access_token,omitempty"`
-
-	// Error contains the error type when Active is false.
-	Error GetAccessTokenError `json:"error,omitempty"`
+// getAccessTokenResponse is the raw API response for decoding.
+type getAccessTokenResponse struct {
+	Active      bool                `json:"active"`
+	AccessToken *AccessToken        `json:"access_token,omitempty"`
+	Error       GetAccessTokenError `json:"error,omitempty"`
 }
 
 // GetAccessToken retrieves an OAuth access token for a third-party data provider
 // on behalf of a user.
+//
+// On success, returns the AccessToken. On failure, returns an error which may be
+// a GetAccessTokenError (NotInstalled or NeedsReauthorization) that can be checked
+// with errors.Is or type assertion.
 func (c *Client) GetAccessToken(
 	ctx context.Context,
 	opts GetAccessTokenOpts,
-) (GetAccessTokenResponse, error) {
+) (AccessToken, error) {
 	c.once.Do(c.init)
 
 	data, err := c.JSONEncode(opts)
 	if err != nil {
-		return GetAccessTokenResponse{}, err
+		return AccessToken{}, err
 	}
 
 	endpoint := fmt.Sprintf(
@@ -122,7 +120,7 @@ func (c *Client) GetAccessToken(
 		bytes.NewBuffer(data),
 	)
 	if err != nil {
-		return GetAccessTokenResponse{}, err
+		return AccessToken{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -132,16 +130,29 @@ func (c *Client) GetAccessToken(
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return GetAccessTokenResponse{}, err
+		return AccessToken{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return GetAccessTokenResponse{}, err
+		return AccessToken{}, err
 	}
 
-	var body GetAccessTokenResponse
+	var body getAccessTokenResponse
 	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&body)
-	return body, err
+	if err = dec.Decode(&body); err != nil {
+		return AccessToken{}, err
+	}
+
+	if !body.Active {
+		if body.Error == "" {
+			return AccessToken{}, fmt.Errorf("inactive response missing error")
+		}
+		return AccessToken{}, body.Error
+	}
+
+	if body.AccessToken == nil {
+		return AccessToken{}, fmt.Errorf("active response missing access_token")
+	}
+	return *body.AccessToken, nil
 }

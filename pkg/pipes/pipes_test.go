@@ -35,15 +35,13 @@ func TestPipesGetAccessToken(t *testing.T) {
 		HTTPClient: server.Client(),
 	}
 
-	response, err := GetAccessToken(context.Background(), GetAccessTokenOpts{
+	token, err := GetAccessToken(context.Background(), GetAccessTokenOpts{
 		Provider: "test-provider",
 		UserID:   "user_123",
 	})
 
 	require.NoError(t, err)
-	require.True(t, response.Active)
-	require.NotNil(t, response.AccessToken)
-	require.Equal(t, "test_token", response.AccessToken.AccessToken)
+	require.Equal(t, "test_token", token.AccessToken)
 }
 
 func TestSetAPIKey(t *testing.T) {
