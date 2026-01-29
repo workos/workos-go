@@ -19,9 +19,13 @@ func SetAPIKey(apiKey string) {
 
 // GetAccessToken retrieves an OAuth access token for a third-party data provider
 // on behalf of a user.
+//
+// On success, returns the AccessToken. On failure, returns an error which may be
+// a GetAccessTokenError (NotInstalled or NeedsReauthorization) that can be checked
+// with errors.Is or type assertion.
 func GetAccessToken(
 	ctx context.Context,
 	opts GetAccessTokenOpts,
-) (GetAccessTokenResponse, error) {
+) (AccessToken, error) {
 	return DefaultClient.GetAccessToken(ctx, opts)
 }
