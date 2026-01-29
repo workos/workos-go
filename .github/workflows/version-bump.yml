@@ -1,0 +1,107 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.SDK_BOT_APP_ID }}
+          private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: |
+          VERSION_FILE="internal/workos/workos.go"
+
+          # Extract current version (e.g., "v6.2.0" -> "6.2.0")
+          OLD_VERSION=$(grep -oP 'Version = "v\K[0-9]+\.[0-9]+\.[0-9]+' "$VERSION_FILE")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
+          OLD_MAJOR=$MAJOR
+
+          case "${{ inputs.bump_type }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+
+          # Update version constant
+          sed -i "s/Version = \"v$OLD_VERSION\"/Version = \"v$NEW_VERSION\"/" "$VERSION_FILE"
+
+          echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "old_major=$OLD_MAJOR" >> $GITHUB_OUTPUT
+          echo "new_major=$MAJOR" >> $GITHUB_OUTPUT
+
+      - name: Update module path for major version change
+        if: inputs.bump_type == 'major'
+        run: |
+          OLD_MAJOR=${{ steps.bump.outputs.old_major }}
+          NEW_MAJOR=${{ steps.bump.outputs.new_major }}
+
+          echo "Updating module path from v$OLD_MAJOR to v$NEW_MAJOR"
+
+          # Update go.mod module path
+          sed -i "s|module github.com/workos/workos-go/v$OLD_MAJOR|module github.com/workos/workos-go/v$NEW_MAJOR|" go.mod
+
+          # Update all import paths in .go files
+          find . -name "*.go" -type f -exec sed -i "s|github.com/workos/workos-go/v$OLD_MAJOR|github.com/workos/workos-go/v$NEW_MAJOR|g" {} +
+
+          # Update README.md references
+          sed -i "s|workos-go/v$OLD_MAJOR|workos-go/v$NEW_MAJOR|g" README.md
+
+          # Update any package-level README.md files
+          find ./pkg -name "README.md" -type f -exec sed -i "s|workos-go/v$OLD_MAJOR|workos-go/v$NEW_MAJOR|g" {} +
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          branch: version-bump-${{ steps.bump.outputs.new_version }}
+          commit-message: "Bump version from ${{ steps.bump.outputs.old_version }} to ${{ steps.bump.outputs.new_version }}"
+          title: "Bump version to ${{ steps.bump.outputs.new_version }}"
+          body: |
+            This PR bumps the version from `${{ steps.bump.outputs.old_version }}` to `${{ steps.bump.outputs.new_version }}`.
+
+            **Bump type:** ${{ inputs.bump_type }}
+
+            ${{ inputs.bump_type == 'major' && '**Note:** This is a major version bump. The module path and all import paths have been updated.' || '' }}
+
+            ---
+            *This PR was automatically created by the version bump workflow.*
+          labels: version-bump
