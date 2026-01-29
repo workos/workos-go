@@ -145,8 +145,14 @@ func (c *Client) GetAccessToken(
 	}
 
 	if !body.Active {
+		if body.Error == "" {
+			return AccessToken{}, fmt.Errorf("inactive response missing error")
+		}
 		return AccessToken{}, body.Error
 	}
 
+	if body.AccessToken == nil {
+		return AccessToken{}, fmt.Errorf("active response missing access_token")
+	}
 	return *body.AccessToken, nil
 }
