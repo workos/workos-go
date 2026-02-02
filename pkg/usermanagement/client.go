@@ -137,8 +137,8 @@ type OrganizationMembership struct {
 	// The Status of the Organization.
 	Status OrganizationMembershipStatus `json:"status"`
 
-	// IdpAttributes contains custom attributes from the IdP
-	IdpAttributes map[string]interface{} `json:"idp_attributes"`
+	// CustomAttributes contains custom attributes from the IdP
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
 
 	// CreatedAt is the timestamp of when the OrganizationMembership was created.
 	CreatedAt string `json:"created_at"`
