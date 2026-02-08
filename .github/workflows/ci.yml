@@ -21,7 +21,7 @@ jobs:
           - 'oldstable'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go }}
 
