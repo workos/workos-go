@@ -142,6 +142,17 @@ func getOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate path is either /organizations/{id} or /organizations/external_id/{id}
+	if !strings.HasPrefix(r.URL.Path, "/organizations/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+	slashCount := strings.Count(r.URL.Path, "/")
+	if slashCount != 2 && slashCount != 3 {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
 	body, err := json.Marshal(Organization{
 		ID:                               "org_01EHT88Z8J8795GZNQ4ZP1J81T",
 		Name:                             "Foo Corp",
@@ -238,6 +249,11 @@ func listOrganizationsTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/organizations" {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 
@@ -393,6 +409,11 @@ func createOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/organizations" {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 
@@ -610,6 +631,11 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !strings.HasPrefix(r.URL.Path, "/organizations/") || strings.Count(r.URL.Path, "/") != 2 {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
 	var opts UpdateOrganizationOpts
 	json.NewDecoder(r.Body).Decode(&opts)
 	for _, domain := range opts.Domains {
@@ -664,6 +690,68 @@ func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
+}
+
+func TestDeleteOrganization(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeleteOrganizationOpts
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			err:      true,
+		},
+		{
+			scenario: "Request deletes Organization",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: DeleteOrganizationOpts{
+				Organization: "organization_id",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deleteOrganizationTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = server.Client()
+
+			err := client.DeleteOrganization(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func deleteOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/organizations/") || strings.Count(r.URL.Path, "/") != 2 {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func TestListOrganizationRoles(t *testing.T) {
@@ -738,6 +826,11 @@ func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "bad auth", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/organizations/") || !strings.HasSuffix(r.URL.Path, "/roles") {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 
