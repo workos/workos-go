@@ -1,0 +1,77 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
+        with:
+          app-id: ${{ vars.SDK_BOT_APP_ID }}
+          private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
+
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      # Go modules require the module path and all import statements to
+      # include the major version (e.g. /v7). release-please doesn't handle
+      # this, so when a release PR bumps the major version we automatically
+      # rewrite go.mod, imports, and READMEs on the release PR branch.
+      - name: Find open release PR
+        id: find-pr
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          PR_BRANCH=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+            --head "release-please--branches--main" \
+            --json headRefName --jq '.[0].headRefName // empty')
+          echo "pr_branch=$PR_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release PR branch
+        if: steps.find-pr.outputs.pr_branch != ''
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ steps.find-pr.outputs.pr_branch }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Migrate Go module path for major version bump
+        if: steps.find-pr.outputs.pr_branch != ''
+        run: |
+          CURRENT_MAJOR=$(grep -oP 'module github\.com/workos/workos-go/v\K[0-9]+' go.mod)
+          NEW_VERSION=$(jq -r '."."' .release-please-manifest.json)
+          NEW_MAJOR="${NEW_VERSION%%.*}"
+
+          if [ "$CURRENT_MAJOR" = "$NEW_MAJOR" ]; then
+            echo "No major version change ($CURRENT_MAJOR → $NEW_MAJOR), skipping"
+            exit 0
+          fi
+
+          echo "Major version bump detected: v$CURRENT_MAJOR → v$NEW_MAJOR"
+
+          sed -i "s|module github.com/workos/workos-go/v${CURRENT_MAJOR}|module github.com/workos/workos-go/v${NEW_MAJOR}|" go.mod
+          find . -name '*.go' -not -path './.git/*' -type f \
+            -exec sed -i "s|github.com/workos/workos-go/v${CURRENT_MAJOR}|github.com/workos/workos-go/v${NEW_MAJOR}|g" {} +
+          find . -name 'README.md' -not -path './.git/*' -type f \
+            -exec sed -i "s|workos-go/v${CURRENT_MAJOR}|workos-go/v${NEW_MAJOR}|g" {} +
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update go.mod and import paths for v${NEW_MAJOR}"
+            git push
+          fi
