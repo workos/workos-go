@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "include-component-in-tag": false,
+  "bootstrap-sha": "1935b54dd4f0bf0652125846efaaac1d99e5b829",
+  "packages": {
+    ".": {
+      "release-type": "go",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        "internal/workos/workos.go"
+      ]
+    }
+  }
+}
