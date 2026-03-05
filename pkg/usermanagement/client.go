@@ -137,6 +137,9 @@ type OrganizationMembership struct {
 	// The Status of the Organization.
 	Status OrganizationMembershipStatus `json:"status"`
 
+	// Whether the membership is managed by a directory sync connection.
+	DirectoryManaged bool `json:"directory_managed"`
+
 	// CustomAttributes contains custom attributes from the IdP
 	CustomAttributes map[string]interface{} `json:"custom_attributes"`
 
