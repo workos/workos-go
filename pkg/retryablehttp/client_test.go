@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -81,6 +82,34 @@ func TestDo_Retry(t *testing.T) {
 
 	require.Equal(t, "Success", resBody.Message)
 	require.Equal(t, 2, requests)
+}
+
+func TestDo_ContextCanceledDuringRetry(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer testServer.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, testServer.URL, nil)
+	require.NoError(t, err)
+
+	client := HttpClient{}
+	var resp *http.Response
+	var doErr error
+	done := make(chan struct{})
+	go func() {
+		resp, doErr = client.Do(req)
+		close(done)
+	}()
+
+	time.Sleep(50 * time.Millisecond)
+	cancel()
+
+	<-done
+
+	require.Nil(t, resp)
+	require.ErrorIs(t, doErr, context.Canceled)
 }
 
 func TestShouldRetry(t *testing.T) {
