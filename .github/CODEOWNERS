@@ -1,8 +1,5 @@
 # See GitHub's docs for more details:
 # https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
 
-# Gophers Team
-* @workos/go
-
-# DX Team
-* @workos/dx
+# Gophers and DX Team
+* @workos/go @workos/dx
