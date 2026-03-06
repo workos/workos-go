@@ -15,15 +15,6 @@ import (
 // ResponseLimit is the default number of records to limit a response to.
 const ResponseLimit = 10
 
-// Order represents the order of records.
-type Order string
-
-// Constants that enumerate the available orders.
-const (
-	Asc  Order = "asc"
-	Desc Order = "desc"
-)
-
 // Client represents a client that performs Authorization requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -284,10 +275,10 @@ type CreatePermissionOpts struct {
 
 // ListPermissionsOpts contains the options for listing permissions.
 type ListPermissionsOpts struct {
-	Limit  int    `url:"limit,omitempty"`
-	Before string `url:"before,omitempty"`
-	After  string `url:"after,omitempty"`
-	Order  Order  `url:"order,omitempty"`
+	Limit  int          `url:"limit,omitempty"`
+	Before string       `url:"before,omitempty"`
+	After  string       `url:"after,omitempty"`
+	Order  common.Order `url:"order,omitempty"`
 }
 
 // GetPermissionOpts contains the options for getting a permission.
@@ -339,16 +330,16 @@ type DeleteAuthorizationResourceOpts struct {
 
 // ListAuthorizationResourcesOpts contains the options for listing resources.
 type ListAuthorizationResourcesOpts struct {
-	OrganizationID         string `url:"organization_id,omitempty"`
-	ResourceTypeSlug       string `url:"resource_type_slug,omitempty"`
-	ParentResourceID       string `url:"parent_resource_id,omitempty"`
-	ParentResourceTypeSlug string `url:"parent_resource_type_slug,omitempty"`
-	ParentExternalID       string `url:"parent_external_id,omitempty"`
-	Search                 string `url:"search,omitempty"`
-	Limit                  int    `url:"limit,omitempty"`
-	Before                 string `url:"before,omitempty"`
-	After                  string `url:"after,omitempty"`
-	Order                  Order  `url:"order,omitempty"`
+	OrganizationID         string       `url:"organization_id,omitempty"`
+	ResourceTypeSlug       string       `url:"resource_type_slug,omitempty"`
+	ParentResourceID       string       `url:"parent_resource_id,omitempty"`
+	ParentResourceTypeSlug string       `url:"parent_resource_type_slug,omitempty"`
+	ParentExternalID       string       `url:"parent_external_id,omitempty"`
+	Search                 string       `url:"search,omitempty"`
+	Limit                  int          `url:"limit,omitempty"`
+	Before                 string       `url:"before,omitempty"`
+	After                  string       `url:"after,omitempty"`
+	Order                  common.Order `url:"order,omitempty"`
 }
 
 // GetResourceByExternalIDOpts contains the options for getting a resource by external ID.
@@ -386,11 +377,11 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipID string `json:"-"`
-	Limit                    int    `url:"limit,omitempty"`
-	Before                   string `url:"before,omitempty"`
-	After                    string `url:"after,omitempty"`
-	Order                    Order  `url:"order,omitempty"`
+	OrganizationMembershipID string       `json:"-"`
+	Limit                    int          `url:"limit,omitempty"`
+	Before                   string       `url:"before,omitempty"`
+	After                    string       `url:"after,omitempty"`
+	Order                    common.Order `url:"order,omitempty"`
 }
 
 // AssignRoleOpts contains the options for assigning a role.
@@ -419,39 +410,39 @@ type RemoveRoleAssignmentOpts struct {
 
 // ListResourcesForMembershipOpts contains the options for listing resources accessible by a membership.
 type ListResourcesForMembershipOpts struct {
-	OrganizationMembershipID string `json:"-"`
-	PermissionSlug           string `url:"permission_slug"`
-	ParentResourceID         string `url:"parent_resource_id,omitempty"`
-	ParentResourceTypeSlug   string `url:"parent_resource_type_slug,omitempty"`
-	ParentResourceExternalID string `url:"parent_resource_external_id,omitempty"`
-	Limit                    int    `url:"limit,omitempty"`
-	Before                   string `url:"before,omitempty"`
-	After                    string `url:"after,omitempty"`
-	Order                    Order  `url:"order,omitempty"`
+	OrganizationMembershipID string       `json:"-"`
+	PermissionSlug           string       `url:"permission_slug"`
+	ParentResourceID         string       `url:"parent_resource_id,omitempty"`
+	ParentResourceTypeSlug   string       `url:"parent_resource_type_slug,omitempty"`
+	ParentResourceExternalID string       `url:"parent_resource_external_id,omitempty"`
+	Limit                    int          `url:"limit,omitempty"`
+	Before                   string       `url:"before,omitempty"`
+	After                    string       `url:"after,omitempty"`
+	Order                    common.Order `url:"order,omitempty"`
 }
 
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
-	ResourceID     string `json:"-"`
-	PermissionSlug string `url:"permission_slug"`
-	Assignment     string `url:"assignment,omitempty"`
-	Limit          int    `url:"limit,omitempty"`
-	Before         string `url:"before,omitempty"`
-	After          string `url:"after,omitempty"`
-	Order          Order  `url:"order,omitempty"`
+	ResourceID     string       `json:"-"`
+	PermissionSlug string       `url:"permission_slug"`
+	Assignment     string       `url:"assignment,omitempty"`
+	Limit          int          `url:"limit,omitempty"`
+	Before         string       `url:"before,omitempty"`
+	After          string       `url:"after,omitempty"`
+	Order          common.Order `url:"order,omitempty"`
 }
 
 // ListMembershipsForResourceByExternalIDOpts contains the options for listing memberships by resource external ID.
 type ListMembershipsForResourceByExternalIDOpts struct {
-	OrganizationID   string `json:"-"`
-	ResourceTypeSlug string `json:"-"`
-	ExternalID       string `json:"-"`
-	PermissionSlug   string `url:"permission_slug"`
-	Assignment       string `url:"assignment,omitempty"`
-	Limit            int    `url:"limit,omitempty"`
-	Before           string `url:"before,omitempty"`
-	After            string `url:"after,omitempty"`
-	Order            Order  `url:"order,omitempty"`
+	OrganizationID   string       `json:"-"`
+	ResourceTypeSlug string       `json:"-"`
+	ExternalID       string       `json:"-"`
+	PermissionSlug   string       `url:"permission_slug"`
+	Assignment       string       `url:"assignment,omitempty"`
+	Limit            int          `url:"limit,omitempty"`
+	Before           string       `url:"before,omitempty"`
+	After            string       `url:"after,omitempty"`
+	Order            common.Order `url:"order,omitempty"`
 }
 
 // Stub method implementations
