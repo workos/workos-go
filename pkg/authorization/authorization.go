@@ -165,7 +165,7 @@ func DeletePermission(
 	return DefaultClient.DeletePermission(ctx, opts)
 }
 
-// GetResource gets a resource by ID.
+// GetResource gets a resource by Id.
 func GetResource(
 	ctx context.Context,
 	opts GetAuthorizationResourceOpts,
@@ -205,28 +205,28 @@ func ListResources(
 	return DefaultClient.ListResources(ctx, opts)
 }
 
-// GetResourceByExternalId gets a resource by its external ID.
+// GetResourceByExternalId gets a resource by its external Id.
 func GetResourceByExternalId(
 	ctx context.Context,
-	opts GetResourceByExternalIDOpts,
+	opts GetResourceByExternalIdOpts,
 ) (AuthorizationResource, error) {
-	return DefaultClient.GetResourceByExternalID(ctx, opts)
+	return DefaultClient.GetResourceByExternalId(ctx, opts)
 }
 
-// UpdateResourceByExternalId updates a resource by its external ID.
+// UpdateResourceByExternalId updates a resource by its external Id.
 func UpdateResourceByExternalId(
 	ctx context.Context,
-	opts UpdateResourceByExternalIDOpts,
+	opts UpdateResourceByExternalIdOpts,
 ) (AuthorizationResource, error) {
-	return DefaultClient.UpdateResourceByExternalID(ctx, opts)
+	return DefaultClient.UpdateResourceByExternalId(ctx, opts)
 }
 
-// DeleteResourceByExternalId deletes a resource by its external ID.
+// DeleteResourceByExternalId deletes a resource by its external Id.
 func DeleteResourceByExternalId(
 	ctx context.Context,
-	opts DeleteResourceByExternalIDOpts,
+	opts DeleteResourceByExternalIdOpts,
 ) error {
-	return DefaultClient.DeleteResourceByExternalID(ctx, opts)
+	return DefaultClient.DeleteResourceByExternalId(ctx, opts)
 }
 
 // Check performs an authorization check.
@@ -261,7 +261,7 @@ func RemoveRole(
 	return DefaultClient.RemoveRole(ctx, opts)
 }
 
-// RemoveRoleAssignment removes a role assignment by ID.
+// RemoveRoleAssignment removes a role assignment by Id.
 func RemoveRoleAssignment(
 	ctx context.Context,
 	opts RemoveRoleAssignmentOpts,
@@ -285,10 +285,10 @@ func ListMembershipsForResource(
 	return DefaultClient.ListMembershipsForResource(ctx, opts)
 }
 
-// ListMembershipsForResourceByExternalId lists memberships with access to a resource identified by external ID.
+// ListMembershipsForResourceByExternalId lists memberships with access to a resource identified by external Id.
 func ListMembershipsForResourceByExternalId(
 	ctx context.Context,
-	opts ListMembershipsForResourceByExternalIDOpts,
+	opts ListMembershipsForResourceByExternalIdOpts,
 ) (ListAuthorizationOrganizationMembershipsResponse, error) {
-	return DefaultClient.ListMembershipsForResourceByExternalID(ctx, opts)
+	return DefaultClient.ListMembershipsForResourceByExternalId(ctx, opts)
 }
