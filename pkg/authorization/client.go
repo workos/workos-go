@@ -1,15 +1,19 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -653,10 +657,59 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 	return errors.New("not implemented")
 }
 
-// Check performs an authorization check.
+// Check performs an authorization check for a given organization membership.
 func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AuthorizationCheckResult, error) {
 	c.once.Do(c.init)
-	return AuthorizationCheckResult{}, errors.New("not implemented")
+
+	// Build the request body as a map so we can merge resource identifier fields
+	body := map[string]interface{}{
+		"permission_slug": opts.PermissionSlug,
+	}
+
+	if opts.Resource != nil {
+		for k, v := range opts.Resource.resourceIdentifierParams() {
+			body[k] = v
+		}
+	}
+
+	data, err := c.JSONEncode(body)
+	if err != nil {
+		return AuthorizationCheckResult{}, err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/check",
+		c.Endpoint,
+		opts.OrganizationMembershipId,
+	)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return AuthorizationCheckResult{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthorizationCheckResult{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthorizationCheckResult{}, err
+	}
+
+	var result AuthorizationCheckResult
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&result)
+	if err != nil {
+		return AuthorizationCheckResult{}, err
+	}
+
+	return result, nil
 }
 
 // ListRoleAssignments lists role assignments for a membership.
