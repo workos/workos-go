@@ -4,12 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -427,7 +431,7 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipId string       `json:"-"`
+	OrganizationMembershipId string       `json:"-" url:"-"`
 	Limit                    int          `url:"limit,omitempty"`
 	Before                   string       `url:"before,omitempty"`
 	After                    string       `url:"after,omitempty"`
@@ -456,9 +460,9 @@ type RemoveRoleAssignmentOpts struct {
 
 // ListResourcesForMembershipOpts contains the options for listing resources accessible by a membership.
 type ListResourcesForMembershipOpts struct {
-	OrganizationMembershipId string                   `json:"-"`
+	OrganizationMembershipId string                   `json:"-" url:"-"`
 	PermissionSlug           string                   `url:"permission_slug"`
-	ParentResource           ParentResourceIdentifier `json:"-"`
+	ParentResource           ParentResourceIdentifier `json:"-" url:"-"`
 	Limit                    int                      `url:"limit,omitempty"`
 	Before                   string                   `url:"before,omitempty"`
 	After                    string                   `url:"after,omitempty"`
@@ -467,7 +471,7 @@ type ListResourcesForMembershipOpts struct {
 
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
-	ResourceId     string       `json:"-"`
+	ResourceId     string       `json:"-" url:"-"`
 	PermissionSlug string       `url:"permission_slug"`
 	Assignment     string       `url:"assignment,omitempty"`
 	Limit          int          `url:"limit,omitempty"`
@@ -478,9 +482,9 @@ type ListMembershipsForResourceOpts struct {
 
 // ListMembershipsForResourceByExternalIdOpts contains the options for listing memberships by resource external Id.
 type ListMembershipsForResourceByExternalIdOpts struct {
-	OrganizationId   string       `json:"-"`
-	ResourceTypeSlug string       `json:"-"`
-	ExternalId       string       `json:"-"`
+	OrganizationId   string       `json:"-" url:"-"`
+	ResourceTypeSlug string       `json:"-" url:"-"`
+	ExternalId       string       `json:"-" url:"-"`
 	PermissionSlug   string       `url:"permission_slug"`
 	Assignment       string       `url:"assignment,omitempty"`
 	Limit            int          `url:"limit,omitempty"`
@@ -686,17 +690,161 @@ func (c *Client) RemoveRoleAssignment(ctx context.Context, opts RemoveRoleAssign
 // ListResourcesForMembership lists resources accessible by a membership.
 func (c *Client) ListResourcesForMembership(ctx context.Context, opts ListResourcesForMembershipOpts) (ListAuthorizationResourcesResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationResourcesResponse{}, errors.New("not implemented")
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/resources",
+		c.Endpoint,
+		opts.OrganizationMembershipId,
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	// Append parent resource identifier query params if provided
+	if opts.ParentResource != nil {
+		for k, v := range opts.ParentResource.parentResourceIdentifierParams() {
+			q.Set(k, fmt.Sprintf("%v", v))
+		}
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	var body ListAuthorizationResourcesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListMembershipsForResource lists memberships with access to a resource.
 func (c *Client) ListMembershipsForResource(ctx context.Context, opts ListMembershipsForResourceOpts) (ListAuthorizationOrganizationMembershipsResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationOrganizationMembershipsResponse{}, errors.New("not implemented")
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/resources/%s/organization_memberships",
+		c.Endpoint,
+		opts.ResourceId,
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	var body ListAuthorizationOrganizationMembershipsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListMembershipsForResourceByExternalId lists memberships with access to a resource identified by external Id.
 func (c *Client) ListMembershipsForResourceByExternalId(ctx context.Context, opts ListMembershipsForResourceByExternalIdOpts) (ListAuthorizationOrganizationMembershipsResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationOrganizationMembershipsResponse{}, errors.New("not implemented")
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/resources/%s/%s/organization_memberships",
+		c.Endpoint,
+		opts.OrganizationId,
+		opts.ResourceTypeSlug,
+		opts.ExternalId,
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	var body ListAuthorizationOrganizationMembershipsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
