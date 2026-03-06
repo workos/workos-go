@@ -1,15 +1,20 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
+	workos "github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	workos_errors "github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -608,31 +613,190 @@ func (c *Client) DeletePermission(ctx context.Context, opts DeletePermissionOpts
 // GetResource gets a resource by Id.
 func (c *Client) GetResource(ctx context.Context, opts GetAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/resources/%s", c.Endpoint, opts.ResourceId)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	var body AuthorizationResource
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // CreateResource creates a new resource.
 func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/resources", c.Endpoint)
+
+	body := map[string]interface{}{
+		"external_id":        opts.ExternalId,
+		"name":               opts.Name,
+		"resource_type_slug": opts.ResourceTypeSlug,
+		"organization_id":    opts.OrganizationId,
+	}
+	if opts.Description != "" {
+		body["description"] = opts.Description
+	}
+	if opts.Parent != nil {
+		for k, v := range opts.Parent.parentResourceIdentifierParams() {
+			body[k] = v
+		}
+	}
+
+	data, err := c.JSONEncode(body)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	var resource AuthorizationResource
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&resource)
+	return resource, err
 }
 
 // UpdateResource updates a resource.
 func (c *Client) UpdateResource(ctx context.Context, opts UpdateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/resources/%s", c.Endpoint, opts.ResourceId)
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	var resource AuthorizationResource
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&resource)
+	return resource, err
 }
 
 // DeleteResource deletes a resource.
 func (c *Client) DeleteResource(ctx context.Context, opts DeleteAuthorizationResourceOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/resources/%s", c.Endpoint, opts.ResourceId)
+
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if opts.CascadeDelete {
+		q := req.URL.Query()
+		q.Set("cascade_delete", "true")
+		req.URL.RawQuery = q.Encode()
+	}
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // ListResources lists resources with optional filters.
 func (c *Client) ListResources(ctx context.Context, opts ListAuthorizationResourcesOpts) (ListAuthorizationResourcesResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationResourcesResponse{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/resources", c.Endpoint)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	queryValues, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+	req.URL.RawQuery = queryValues.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	var body ListAuthorizationResourcesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // GetResourceByExternalId gets a resource by its external Id.

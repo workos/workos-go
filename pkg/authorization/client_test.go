@@ -1,1 +1,686 @@
 package authorization
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6/pkg/common"
+	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+)
+
+func TestGetResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetAuthorizationResourceOpts
+		expected AuthorizationResource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			err:      true,
+		},
+		{
+			scenario: "Request returns an AuthorizationResource",
+			client:   &Client{APIKey: "test"},
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      "A test resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.GetResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, _ := json.Marshal(AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "resource_123",
+		ExternalId:       "ext_123",
+		Name:             "Test Resource",
+		Description:      "A test resource",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_123",
+		CreatedAt:        "2024-01-01T00:00:00Z",
+		UpdatedAt:        "2024-01-01T00:00:00Z",
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestCreateResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  CreateAuthorizationResourceOpts
+		handler  http.HandlerFunc
+		expected AuthorizationResource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			handler:  createResourceWithParentTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+			},
+			err: true,
+		},
+		{
+			scenario: "Request creates resource with parent by ID",
+			client:   &Client{APIKey: "test"},
+			handler:  createResourceWithParentTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				Parent:           ParentResourceIdentifierById{ParentResourceId: "parent_123"},
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_new",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				ParentResourceId: "parent_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request creates resource with parent by external ID",
+			client:   &Client{APIKey: "test"},
+			handler:  createResourceWithParentTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				Parent: ParentResourceIdentifierByExternalId{
+					ParentResourceExternalId: "parent_ext_123",
+					ParentResourceTypeSlug:   "folder",
+				},
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_new",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				ParentResourceId: "parent_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request creates resource without parent",
+			client:   &Client{APIKey: "test"},
+			handler:  createResourceWithoutParentTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_new",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(test.handler)
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.CreateResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func createResourceWithParentTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	_, hasParentId := reqBody["parent_resource_id"]
+	_, hasParentExtId := reqBody["parent_resource_external_id"]
+
+	if !hasParentId && !hasParentExtId {
+		http.Error(w, "expected parent fields in request body", http.StatusBadRequest)
+		return
+	}
+
+	if hasParentExtId {
+		if _, hasTypeSlug := reqBody["parent_resource_type_slug"]; !hasTypeSlug {
+			http.Error(w, "parent_resource_type_slug required with parent_resource_external_id", http.StatusBadRequest)
+			return
+		}
+	}
+
+	body, _ := json.Marshal(AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "resource_new",
+		ExternalId:       "ext_123",
+		Name:             "Test Resource",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_123",
+		ParentResourceId: "parent_123",
+		CreatedAt:        "2024-01-01T00:00:00Z",
+		UpdatedAt:        "2024-01-01T00:00:00Z",
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if _, hasParentId := reqBody["parent_resource_id"]; hasParentId {
+		http.Error(w, "unexpected parent_resource_id in request body", http.StatusBadRequest)
+		return
+	}
+	if _, hasParentExtId := reqBody["parent_resource_external_id"]; hasParentExtId {
+		http.Error(w, "unexpected parent_resource_external_id in request body", http.StatusBadRequest)
+		return
+	}
+	if _, hasTypeSlug := reqBody["parent_resource_type_slug"]; hasTypeSlug {
+		http.Error(w, "unexpected parent_resource_type_slug in request body", http.StatusBadRequest)
+		return
+	}
+
+	body, _ := json.Marshal(AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "resource_new",
+		ExternalId:       "ext_123",
+		Name:             "Test Resource",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_123",
+		CreatedAt:        "2024-01-01T00:00:00Z",
+		UpdatedAt:        "2024-01-01T00:00:00Z",
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestUpdateResource(t *testing.T) {
+	newName := "Updated Resource"
+	newDesc := "Updated description"
+
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  UpdateAuthorizationResourceOpts
+		expected AuthorizationResource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			options: UpdateAuthorizationResourceOpts{
+				ResourceId: "resource_123",
+				Name:       &newName,
+			},
+			err: true,
+		},
+		{
+			scenario: "Request uses PATCH method and updates name and description",
+			client:   &Client{APIKey: "test"},
+			options: UpdateAuthorizationResourceOpts{
+				ResourceId:  "resource_123",
+				Name:        &newName,
+				Description: &newDesc,
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Updated Resource",
+				Description:      "Updated description",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-02T00:00:00Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.UpdateResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, _ := json.Marshal(AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "resource_123",
+		ExternalId:       "ext_123",
+		Name:             "Updated Resource",
+		Description:      "Updated description",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_123",
+		CreatedAt:        "2024-01-01T00:00:00Z",
+		UpdatedAt:        "2024-01-02T00:00:00Z",
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestDeleteResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  DeleteAuthorizationResourceOpts
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			options:  DeleteAuthorizationResourceOpts{ResourceId: "resource_123"},
+			err:      true,
+		},
+		{
+			scenario: "Delete without cascade succeeds",
+			client:   &Client{APIKey: "test"},
+			options: DeleteAuthorizationResourceOpts{
+				ResourceId: "resource_123",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(deleteResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			err := client.DeleteResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func TestListResources(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  ListAuthorizationResourcesOpts
+		expected ListAuthorizationResourcesResponse
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			options:  ListAuthorizationResourcesOpts{},
+			err:      true,
+		},
+		{
+			scenario: "Request returns paginated resources",
+			client:   &Client{APIKey: "test"},
+			options:  ListAuthorizationResourcesOpts{},
+			expected: ListAuthorizationResourcesResponse{
+				Data: []AuthorizationResource{
+					{
+						Object:           "authorization_resource",
+						Id:               "resource_001",
+						ExternalId:       "ext_001",
+						Name:             "Resource One",
+						ResourceTypeSlug: "document",
+						OrganizationId:   "org_123",
+						CreatedAt:        "2024-01-01T00:00:00Z",
+						UpdatedAt:        "2024-01-01T00:00:00Z",
+					},
+					{
+						Object:           "authorization_resource",
+						Id:               "resource_002",
+						ExternalId:       "ext_002",
+						Name:             "Resource Two",
+						ResourceTypeSlug: "document",
+						OrganizationId:   "org_123",
+						CreatedAt:        "2024-01-02T00:00:00Z",
+						UpdatedAt:        "2024-01-02T00:00:00Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "resource_002",
+				},
+			},
+		},
+		{
+			scenario: "Request with filters returns filtered resources",
+			client:   &Client{APIKey: "test"},
+			options: ListAuthorizationResourcesOpts{
+				OrganizationId:   "org_123",
+				ResourceTypeSlug: "document",
+			},
+			expected: ListAuthorizationResourcesResponse{
+				Data: []AuthorizationResource{
+					{
+						Object:           "authorization_resource",
+						Id:               "resource_001",
+						ExternalId:       "ext_001",
+						Name:             "Resource One",
+						ResourceTypeSlug: "document",
+						OrganizationId:   "org_123",
+						CreatedAt:        "2024-01-01T00:00:00Z",
+						UpdatedAt:        "2024-01-01T00:00:00Z",
+					},
+					{
+						Object:           "authorization_resource",
+						Id:               "resource_002",
+						ExternalId:       "ext_002",
+						Name:             "Resource Two",
+						ResourceTypeSlug: "document",
+						OrganizationId:   "org_123",
+						CreatedAt:        "2024-01-02T00:00:00Z",
+						UpdatedAt:        "2024-01-02T00:00:00Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "resource_002",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(listResourcesTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resources, err := client.ListResources(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resources)
+		})
+	}
+}
+
+func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+		Data: []AuthorizationResource{
+			{
+				Object:           "authorization_resource",
+				Id:               "resource_001",
+				ExternalId:       "ext_001",
+				Name:             "Resource One",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+			{
+				Object:           "authorization_resource",
+				Id:               "resource_002",
+				ExternalId:       "ext_002",
+				Name:             "Resource Two",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-02T00:00:00Z",
+				UpdatedAt:        "2024-01-02T00:00:00Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{
+			Before: "",
+			After:  "resource_002",
+		},
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func TestListResourcesDefaultLimit(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		limitParam := r.URL.Query().Get("limit")
+		require.Equal(t, "10", limitParam)
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{})
+	require.NoError(t, err)
+}
+
+func TestDeleteResourceCascadeQueryParam(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		cascadeParam := r.URL.Query().Get("cascade_delete")
+		require.Equal(t, "true", cascadeParam)
+
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
+		ResourceId:    "resource_123",
+		CascadeDelete: true,
+	})
+	require.NoError(t, err)
+}
