@@ -205,24 +205,24 @@ func ListResources(
 	return DefaultClient.ListResources(ctx, opts)
 }
 
-// GetResourceByExternalID gets a resource by its external ID.
-func GetResourceByExternalID(
+// GetResourceByExternalId gets a resource by its external ID.
+func GetResourceByExternalId(
 	ctx context.Context,
 	opts GetResourceByExternalIDOpts,
 ) (AuthorizationResource, error) {
 	return DefaultClient.GetResourceByExternalID(ctx, opts)
 }
 
-// UpdateResourceByExternalID updates a resource by its external ID.
-func UpdateResourceByExternalID(
+// UpdateResourceByExternalId updates a resource by its external ID.
+func UpdateResourceByExternalId(
 	ctx context.Context,
 	opts UpdateResourceByExternalIDOpts,
 ) (AuthorizationResource, error) {
 	return DefaultClient.UpdateResourceByExternalID(ctx, opts)
 }
 
-// DeleteResourceByExternalID deletes a resource by its external ID.
-func DeleteResourceByExternalID(
+// DeleteResourceByExternalId deletes a resource by its external ID.
+func DeleteResourceByExternalId(
 	ctx context.Context,
 	opts DeleteResourceByExternalIDOpts,
 ) error {
@@ -285,8 +285,8 @@ func ListMembershipsForResource(
 	return DefaultClient.ListMembershipsForResource(ctx, opts)
 }
 
-// ListMembershipsForResourceByExternalID lists memberships with access to a resource identified by external ID.
-func ListMembershipsForResourceByExternalID(
+// ListMembershipsForResourceByExternalId lists memberships with access to a resource identified by external ID.
+func ListMembershipsForResourceByExternalId(
 	ctx context.Context,
 	opts ListMembershipsForResourceByExternalIDOpts,
 ) (ListAuthorizationOrganizationMembershipsResponse, error) {
