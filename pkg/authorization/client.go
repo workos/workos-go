@@ -1,15 +1,20 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -427,7 +432,7 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipId string       `json:"-"`
+	OrganizationMembershipId string       `json:"-" url:"-"`
 	Limit                    int          `url:"limit,omitempty"`
 	Before                   string       `url:"before,omitempty"`
 	After                    string       `url:"after,omitempty"`
@@ -436,16 +441,16 @@ type ListRoleAssignmentsOpts struct {
 
 // AssignRoleOpts contains the options for assigning a role.
 type AssignRoleOpts struct {
-	OrganizationMembershipId string             `json:"-"`
-	RoleSlug                 string             `json:"role_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	OrganizationMembershipId string
+	RoleSlug                 string
+	Resource                 ResourceIdentifier
 }
 
 // RemoveRoleOpts contains the options for removing a role.
 type RemoveRoleOpts struct {
-	OrganizationMembershipId string             `json:"-"`
-	RoleSlug                 string             `json:"role_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	OrganizationMembershipId string
+	RoleSlug                 string
+	Resource                 ResourceIdentifier
 }
 
 // RemoveRoleAssignmentOpts contains the options for removing a role assignment by Id.
@@ -662,25 +667,167 @@ func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (Author
 // ListRoleAssignments lists role assignments for a membership.
 func (c *Client) ListRoleAssignments(ctx context.Context, opts ListRoleAssignmentsOpts) (ListRoleAssignmentsResponse, error) {
 	c.once.Do(c.init)
-	return ListRoleAssignmentsResponse{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/role_assignments",
+		c.Endpoint,
+		opts.OrganizationMembershipId,
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListRoleAssignmentsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListRoleAssignmentsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListRoleAssignmentsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListRoleAssignmentsResponse{}, err
+	}
+
+	var body ListRoleAssignmentsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // AssignRole assigns a role to a membership.
 func (c *Client) AssignRole(ctx context.Context, opts AssignRoleOpts) (RoleAssignment, error) {
 	c.once.Do(c.init)
-	return RoleAssignment{}, errors.New("not implemented")
+
+	bodyMap := map[string]interface{}{
+		"role_slug": opts.RoleSlug,
+	}
+	if opts.Resource != nil {
+		for k, v := range opts.Resource.resourceIdentifierParams() {
+			bodyMap[k] = v
+		}
+	}
+
+	data, err := c.JSONEncode(bodyMap)
+	if err != nil {
+		return RoleAssignment{}, err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/role_assignments",
+		c.Endpoint,
+		opts.OrganizationMembershipId,
+	)
+
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return RoleAssignment{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return RoleAssignment{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return RoleAssignment{}, err
+	}
+
+	var body RoleAssignment
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // RemoveRole removes a role from a membership.
 func (c *Client) RemoveRole(ctx context.Context, opts RemoveRoleOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	bodyMap := map[string]interface{}{
+		"role_slug": opts.RoleSlug,
+	}
+	if opts.Resource != nil {
+		for k, v := range opts.Resource.resourceIdentifierParams() {
+			bodyMap[k] = v
+		}
+	}
+
+	data, err := c.JSONEncode(bodyMap)
+	if err != nil {
+		return err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/role_assignments",
+		c.Endpoint,
+		opts.OrganizationMembershipId,
+	)
+
+	req, err := http.NewRequest(http.MethodDelete, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // RemoveRoleAssignment removes a role assignment by Id.
 func (c *Client) RemoveRoleAssignment(ctx context.Context, opts RemoveRoleAssignmentOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/role_assignments/%s",
+		c.Endpoint,
+		opts.OrganizationMembershipId,
+		opts.RoleAssignmentId,
+	)
+
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // ListResourcesForMembership lists resources accessible by a membership.
