@@ -1,15 +1,19 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -503,25 +507,135 @@ type ListMembershipsForResourceByExternalIdOpts struct {
 // CreateEnvironmentRole creates a new environment role.
 func (c *Client) CreateEnvironmentRole(ctx context.Context, opts CreateEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/roles", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	var body EnvironmentRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListEnvironmentRoles lists all environment roles.
 func (c *Client) ListEnvironmentRoles(ctx context.Context) (ListEnvironmentRolesResponse, error) {
 	c.once.Do(c.init)
-	return ListEnvironmentRolesResponse{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/roles", c.Endpoint)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListEnvironmentRolesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListEnvironmentRolesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListEnvironmentRolesResponse{}, err
+	}
+
+	var body ListEnvironmentRolesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // GetEnvironmentRole gets an environment role by slug.
 func (c *Client) GetEnvironmentRole(ctx context.Context, opts GetEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/roles/%s", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	var body EnvironmentRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // UpdateEnvironmentRole updates an environment role.
 func (c *Client) UpdateEnvironmentRole(ctx context.Context, opts UpdateEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/roles/%s", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	var body EnvironmentRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // CreateOrganizationRole creates a new organization role.
