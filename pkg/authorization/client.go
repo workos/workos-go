@@ -191,7 +191,6 @@ type RoleAssignmentResource struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 }
 
-
 // AccessCheckResponse contains whether the resource is authorized given the requested permissions.
 type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
@@ -671,15 +670,25 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
 
+	if opts.OrganizationMembershipId == "" {
+		return AccessCheckResponse{}, errors.New("OrganizationMembershipId is required")
+	}
+
+	if opts.PermissionSlug == "" {
+		return AccessCheckResponse{}, errors.New("PermissionSlug is required")
+	}
+
+	if opts.ResourceIdentifier == nil {
+		return AccessCheckResponse{}, errors.New("ResourceIdentifier is required")
+	}
+
 	// Build the request body as a map so we can merge resource identifier fields
 	body := map[string]interface{}{
 		"permission_slug": opts.PermissionSlug,
 	}
 
-	if opts.ResourceIdentifier != nil {
-		for k, v := range opts.ResourceIdentifier.resourceIdentifierParams() {
-			body[k] = v
-		}
+	for k, v := range opts.ResourceIdentifier.resourceIdentifierParams() {
+		body[k] = v
 	}
 
 	data, err := c.JSONEncode(body)
@@ -693,7 +702,7 @@ func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (Access
 		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 	)
-	
+
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return AccessCheckResponse{}, err
