@@ -669,14 +669,6 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 // Check performs an authorization check.
 func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
-	if opts.OrganizationMembershipId == "" {
-		return AccessCheckResponse{}, errors.New("OrganizationMembershipId is required")
-	}
-
-	if opts.PermissionSlug == "" {
-		return AccessCheckResponse{}, errors.New("PermissionSlug is required")
-	}
-
 	if opts.ResourceIdentifier == nil {
 		return AccessCheckResponse{}, errors.New("ResourceIdentifier is required")
 	}

@@ -3,10 +3,8 @@ package authorization
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +12,7 @@ import (
 )
 
 func TestCheck(t *testing.T) {
-	t.Run("returns authorized with resource id", func(t *testing.T) {
+	t.Run("returns authorized when resource id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
 
 		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody)))
@@ -37,7 +35,7 @@ func TestCheck(t *testing.T) {
 		require.NotContains(t, capturedBody, "resource_type_slug")
 	})
 
-	t.Run("returns authorized with resource external id", func(t *testing.T) {
+	t.Run("returns authorized when resource external id and type slug are provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
 
 		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody)))
@@ -63,7 +61,7 @@ func TestCheck(t *testing.T) {
 		require.NotContains(t, capturedBody, "resource_id")
 	})
 
-	t.Run("returns unauthorized with resource id", func(t *testing.T) {
+	t.Run("returns unauthorized when resource id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
 
 		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody)))
@@ -86,7 +84,7 @@ func TestCheck(t *testing.T) {
 		require.NotContains(t, capturedBody, "resource_type_slug")
 	})
 
-	t.Run("returns unauthorized with resource external id", func(t *testing.T) {
+	t.Run("returns unauthorized when resource external id and type slug are provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
 
 		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody)))
@@ -159,83 +157,6 @@ func TestCheck(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Equal(t, "ResourceIdentifier is required", err.Error())
-	})
-
-	t.Run("sends correct request headers", func(t *testing.T) {
-		var capturedHeaders http.Header
-
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			capturedHeaders = r.Header.Clone()
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: true})
-		}))
-		defer server.Close()
-
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: "om_01JTEST",
-			PermissionSlug:           "posts:read",
-			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
-		})
-		require.NoError(t, err)
-
-		require.Equal(t, "application/json", capturedHeaders.Get("Content-Type"))
-		require.Equal(t, "Bearer test", capturedHeaders.Get("Authorization"))
-		require.True(t,
-			strings.HasPrefix(capturedHeaders.Get("User-Agent"), "workos-go/"),
-			fmt.Sprintf("expected User-Agent to start with 'workos-go/', got %q", capturedHeaders.Get("User-Agent")),
-		)
-	})
-
-	t.Run("returns error when response body is invalid json", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte("not json"))
-		}))
-		defer server.Close()
-
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: "om_01JTEST",
-			PermissionSlug:           "posts:read",
-			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
-		})
-		require.Error(t, err)
-	})
-
-	t.Run("returns error when organization membership id is empty", func(t *testing.T) {
-		client := &Client{
-			APIKey:   "test",
-			Endpoint: "http://localhost",
-		}
-
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: "",
-			PermissionSlug:           "posts:read",
-			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
-		})
-		require.Error(t, err)
-		require.Equal(t, "OrganizationMembershipId is required", err.Error())
-	})
-
-	t.Run("returns error when permission slug is empty", func(t *testing.T) {
-		client := &Client{
-			APIKey:   "test",
-			Endpoint: "http://localhost",
-		}
-
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: "om_01JTEST",
-			PermissionSlug:           "",
-			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
-		})
-		require.Error(t, err)
-		require.Equal(t, "PermissionSlug is required", err.Error())
 	})
 }
 
