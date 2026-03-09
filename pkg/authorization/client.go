@@ -187,8 +187,8 @@ type RoleAssignmentResource struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 }
 
-// AuthorizationCheckResult contains the result of an authorization check.
-type AuthorizationCheckResult struct {
+// AccessCheckResponse contains the result of an authorization check.
+type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
@@ -663,9 +663,9 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 }
 
 // Check performs an authorization check.
-func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AuthorizationCheckResult, error) {
+func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
-	return AuthorizationCheckResult{}, errors.New("not implemented")
+	return AccessCheckResponse{}, errors.New("not implemented")
 }
 
 // ListRoleAssignments lists role assignments for a membership.
