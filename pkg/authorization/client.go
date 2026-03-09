@@ -20,6 +20,15 @@ import (
 // DefaultListSize is the default number of records to return in list responses.
 const DefaultListSize = 10
 
+// Authorization API path segments.
+const (
+	authorizationRolesPath                   = "authorization/roles"
+	authorizationPermissionsPath             = "authorization/permissions"
+	authorizationResourcesPath               = "authorization/resources"
+	authorizationOrganizationsPath           = "authorization/organizations"
+	authorizationOrganizationMembershipsPath = "authorization/organization_memberships"
+)
+
 // Client represents a client that performs Authorization requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -62,14 +71,14 @@ type ResourceIdentifierById struct {
 	ResourceId string
 }
 
-func (r ResourceIdentifierById) resourceIdentifierParams() map[string]interface{} {
-	return map[string]interface{}{"resource_id": r.ResourceId}
-}
-
 // ResourceIdentifierByExternalId identifies a resource by external Id and type slug.
 type ResourceIdentifierByExternalId struct {
 	ResourceExternalId string
 	ResourceTypeSlug   string
+}
+
+func (r ResourceIdentifierById) resourceIdentifierParams() map[string]interface{} {
+	return map[string]interface{}{"resource_id": r.ResourceId}
 }
 
 func (r ResourceIdentifierByExternalId) resourceIdentifierParams() map[string]interface{} {
@@ -183,8 +192,8 @@ type RoleAssignmentResource struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 }
 
-// AuthorizationCheckResult contains the result of an authorization check.
-type AuthorizationCheckResult struct {
+// AccessCheckResponse contains the result of an authorization check.
+type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
@@ -818,9 +827,9 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 }
 
 // Check performs an authorization check.
-func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AuthorizationCheckResult, error) {
+func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
-	return AuthorizationCheckResult{}, errors.New("not implemented")
+	return AccessCheckResponse{}, errors.New("not implemented")
 }
 
 // ListRoleAssignments lists role assignments for a membership.
