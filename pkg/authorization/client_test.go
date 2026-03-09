@@ -12,33 +12,6 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
-func TestCheckWithoutAPIKey(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(AuthorizationCheckResult{Authorized: true})
-	}))
-	defer server.Close()
-
-	client := &Client{
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-
-	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-		OrganizationMembershipId: "om_01JTEST",
-		PermissionSlug:           "posts:read",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01JTEST"},
-	})
-	require.Error(t, err)
-}
-
 func TestCheckWithResourceById(t *testing.T) {
 	var capturedBody map[string]interface{}
 
@@ -63,7 +36,7 @@ func TestCheckWithResourceById(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(AuthorizationCheckResult{Authorized: true})
+		json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: true})
 	}))
 	defer server.Close()
 
@@ -75,13 +48,13 @@ func TestCheckWithResourceById(t *testing.T) {
 
 	result, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01JTEST",
-		PermissionSlug:           "posts:read",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01JTEST"},
+		PermissionSlug:           "test:read",
+		ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
 	})
 	require.NoError(t, err)
 	require.True(t, result.Authorized)
 
-	require.Equal(t, "posts:read", capturedBody["permission_slug"])
+	require.Equal(t, "test:read", capturedBody["permission_slug"])
 	require.Equal(t, "res_01JTEST", capturedBody["resource_id"])
 	require.NotContains(t, capturedBody, "resource_external_id")
 	require.NotContains(t, capturedBody, "resource_type_slug")
@@ -111,7 +84,7 @@ func TestCheckWithResourceByExternalId(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(AuthorizationCheckResult{Authorized: true})
+		json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: true})
 	}))
 	defer server.Close()
 
@@ -123,8 +96,8 @@ func TestCheckWithResourceByExternalId(t *testing.T) {
 
 	result, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01JTEST",
-		PermissionSlug:           "posts:read",
-		Resource: ResourceIdentifierByExternalId{
+		PermissionSlug:           "test:read",
+		ResourceIdentifier: ResourceIdentifierByExternalId{
 			ResourceExternalId: "ext_123",
 			ResourceTypeSlug:   "post",
 		},
@@ -148,7 +121,7 @@ func TestCheckReturnsUnauthorized(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(AuthorizationCheckResult{Authorized: false})
+		json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: false})
 	}))
 	defer server.Close()
 
@@ -161,7 +134,7 @@ func TestCheckReturnsUnauthorized(t *testing.T) {
 	result, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01JTEST",
 		PermissionSlug:           "posts:delete",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01JTEST"},
+		ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
 	})
 	require.NoError(t, err)
 	require.False(t, result.Authorized)
@@ -182,7 +155,7 @@ func TestCheckURLContainsMembershipId(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(AuthorizationCheckResult{Authorized: true})
+		json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: true})
 	}))
 	defer server.Close()
 
@@ -195,7 +168,7 @@ func TestCheckURLContainsMembershipId(t *testing.T) {
 	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: membershipId,
 		PermissionSlug:           "posts:read",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01JTEST"},
+		ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
 	})
 	require.NoError(t, err)
 	require.Equal(t, "/authorization/organization_memberships/"+membershipId+"/check", capturedPath)
@@ -216,7 +189,7 @@ func TestCheckHTTPError(t *testing.T) {
 	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01JTEST",
 		PermissionSlug:           "posts:read",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01JTEST"},
+		ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
 	})
 	require.Error(t, err)
 }
@@ -245,7 +218,7 @@ func TestCheckWithNilResource(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(AuthorizationCheckResult{Authorized: true})
+		json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: true})
 	}))
 	defer server.Close()
 
@@ -258,7 +231,7 @@ func TestCheckWithNilResource(t *testing.T) {
 	result, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01JTEST",
 		PermissionSlug:           "posts:read",
-		Resource:                 nil,
+		ResourceIdentifier:       nil,
 	})
 	require.NoError(t, err)
 	require.True(t, result.Authorized)

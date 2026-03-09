@@ -191,8 +191,9 @@ type RoleAssignmentResource struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 }
 
-// AuthorizationCheckResult contains the result of an authorization check.
-type AuthorizationCheckResult struct {
+
+// AccessCheckResponse contains whether the resource is authorized given the requested permissions.
+type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
@@ -435,7 +436,7 @@ type DeleteResourceByExternalIdOpts struct {
 type AuthorizationCheckOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	PermissionSlug           string             `json:"permission_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
@@ -666,8 +667,8 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 	return errors.New("not implemented")
 }
 
-// Check performs an authorization check for a given organization membership.
-func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AuthorizationCheckResult, error) {
+// Check performs an authorization check.
+func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
 
 	// Build the request body as a map so we can merge resource identifier fields
@@ -675,15 +676,15 @@ func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (Author
 		"permission_slug": opts.PermissionSlug,
 	}
 
-	if opts.Resource != nil {
-		for k, v := range opts.Resource.resourceIdentifierParams() {
+	if opts.ResourceIdentifier != nil {
+		for k, v := range opts.ResourceIdentifier.resourceIdentifierParams() {
 			body[k] = v
 		}
 	}
 
 	data, err := c.JSONEncode(body)
 	if err != nil {
-		return AuthorizationCheckResult{}, err
+		return AccessCheckResponse{}, err
 	}
 
 	endpoint := fmt.Sprintf(
@@ -692,9 +693,10 @@ func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (Author
 		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 	)
+	
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
-		return AuthorizationCheckResult{}, err
+		return AccessCheckResponse{}, err
 	}
 
 	req = req.WithContext(ctx)
@@ -704,19 +706,19 @@ func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (Author
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return AuthorizationCheckResult{}, err
+		return AccessCheckResponse{}, err
 	}
 	defer res.Body.Close()
 
 	if err = workos_errors.TryGetHTTPError(res); err != nil {
-		return AuthorizationCheckResult{}, err
+		return AccessCheckResponse{}, err
 	}
 
-	var result AuthorizationCheckResult
+	var result AccessCheckResponse
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&result)
 	if err != nil {
-		return AuthorizationCheckResult{}, err
+		return AccessCheckResponse{}, err
 	}
 
 	return result, nil
