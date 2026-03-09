@@ -513,7 +513,7 @@ func (c *Client) CreateEnvironmentRole(ctx context.Context, opts CreateEnvironme
 		return EnvironmentRole{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/authorization/roles", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/%s", c.Endpoint, authorizationRolesPath)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return EnvironmentRole{}, err
@@ -544,7 +544,7 @@ func (c *Client) CreateEnvironmentRole(ctx context.Context, opts CreateEnvironme
 func (c *Client) ListEnvironmentRoles(ctx context.Context) (ListEnvironmentRolesResponse, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/authorization/roles", c.Endpoint)
+	endpoint := fmt.Sprintf("%s/%s", c.Endpoint, authorizationRolesPath)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return ListEnvironmentRolesResponse{}, err
@@ -575,7 +575,7 @@ func (c *Client) ListEnvironmentRoles(ctx context.Context) (ListEnvironmentRoles
 func (c *Client) GetEnvironmentRole(ctx context.Context, opts GetEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/authorization/roles/%s", c.Endpoint, opts.Slug)
+	endpoint := fmt.Sprintf("%s/%s/%s", c.Endpoint, authorizationRolesPath, opts.Slug)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return EnvironmentRole{}, err
@@ -611,7 +611,7 @@ func (c *Client) UpdateEnvironmentRole(ctx context.Context, opts UpdateEnvironme
 		return EnvironmentRole{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/authorization/roles/%s", c.Endpoint, opts.Slug)
+	endpoint := fmt.Sprintf("%s/%s/%s", c.Endpoint, authorizationRolesPath, opts.Slug)
 	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return EnvironmentRole{}, err

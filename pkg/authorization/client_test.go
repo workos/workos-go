@@ -340,7 +340,7 @@ func getEnvironmentRoleTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !strings.Contains(r.URL.Path, "/authorization/roles/admin") {
+	if !strings.Contains(r.URL.Path, "/" + authorizationRolesPath + "/admin") {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
