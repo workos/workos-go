@@ -15,6 +15,15 @@ import (
 // DefaultListSize is the default number of records to return in list responses.
 const DefaultListSize = 10
 
+// Authorization API path segments.
+const (
+	authorizationRolesPath                   = "authorization/roles"
+	authorizationPermissionsPath             = "authorization/permissions"
+	authorizationResourcesPath               = "authorization/resources"
+	authorizationOrganizationsPath           = "authorization/organizations"
+	authorizationOrganizationMembershipsPath = "authorization/organization_memberships"
+)
+
 // Client represents a client that performs Authorization requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
