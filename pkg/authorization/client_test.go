@@ -13,90 +13,7 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
-func TestGetResource(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  GetAuthorizationResourceOpts
-		expected AuthorizationResource
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   &Client{},
-			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
-			err:      true,
-		},
-		{
-			scenario: "Request returns an AuthorizationResource",
-			client:   &Client{APIKey: "test"},
-			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
-			expected: AuthorizationResource{
-				Object:           "authorization_resource",
-				Id:               "resource_123",
-				ExternalId:       "ext_123",
-				Name:             "Test Resource",
-				Description:      "A test resource",
-				ResourceTypeSlug: "document",
-				OrganizationId:   "org_123",
-				CreatedAt:        "2024-01-01T00:00:00Z",
-				UpdatedAt:        "2024-01-01T00:00:00Z",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
-
-			resource, err := client.GetResource(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, resource)
-		})
-	}
-}
-
-func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	body, _ := json.Marshal(AuthorizationResource{
-		Object:           "authorization_resource",
-		Id:               "resource_123",
-		ExternalId:       "ext_123",
-		Name:             "Test Resource",
-		Description:      "A test resource",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_123",
-		CreatedAt:        "2024-01-01T00:00:00Z",
-		UpdatedAt:        "2024-01-01T00:00:00Z",
-	})
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
+// Create
 
 func TestCreateResource(t *testing.T) {
 	tests := []struct {
@@ -316,6 +233,95 @@ func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Reque
 	w.Write(body)
 }
 
+// Get
+
+func TestGetResource(t *testing.T) {
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  GetAuthorizationResourceOpts
+		expected AuthorizationResource
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns an error",
+			client:   &Client{},
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			err:      true,
+		},
+		{
+			scenario: "Request returns an AuthorizationResource",
+			client:   &Client{APIKey: "test"},
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      "A test resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			resource, err := client.GetResource(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, resource)
+		})
+	}
+}
+
+func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, _ := json.Marshal(AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "resource_123",
+		ExternalId:       "ext_123",
+		Name:             "Test Resource",
+		Description:      "A test resource",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_123",
+		CreatedAt:        "2024-01-01T00:00:00Z",
+		UpdatedAt:        "2024-01-01T00:00:00Z",
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+// Update
+
 func TestUpdateResource(t *testing.T) {
 	newName := "Updated Resource"
 	newDesc := "Updated description"
@@ -411,6 +417,8 @@ func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+// Delete
+
 func TestDeleteResource(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -471,6 +479,36 @@ func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func TestDeleteResourceCascadeQueryParam(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		cascadeParam := r.URL.Query().Get("cascade_delete")
+		require.Equal(t, "true", cascadeParam)
+
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
+		ResourceId:    "resource_123",
+		CascadeDelete: true,
+	})
+	require.NoError(t, err)
+}
+
+// List
 
 func TestListResources(t *testing.T) {
 	tests := []struct {
@@ -627,6 +665,33 @@ func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TestListResourcesFilters(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "org_123", r.URL.Query().Get("organization_id"))
+		require.Equal(t, "document", r.URL.Query().Get("resource_type_slug"))
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
+		OrganizationId:   "org_123",
+		ResourceTypeSlug: "document",
+	})
+	require.NoError(t, err)
+}
+
 func TestListResourcesDefaultLimit(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
@@ -654,33 +719,5 @@ func TestListResourcesDefaultLimit(t *testing.T) {
 	}
 
 	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{})
-	require.NoError(t, err)
-}
-
-func TestDeleteResourceCascadeQueryParam(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		cascadeParam := r.URL.Query().Get("cascade_delete")
-		require.Equal(t, "true", cascadeParam)
-
-		w.WriteHeader(http.StatusNoContent)
-	}))
-	defer server.Close()
-
-	client := &Client{
-		APIKey:     "test",
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-
-	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
-		ResourceId:    "resource_123",
-		CascadeDelete: true,
-	})
 	require.NoError(t, err)
 }
