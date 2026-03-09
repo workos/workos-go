@@ -687,8 +687,9 @@ func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (Author
 	}
 
 	endpoint := fmt.Sprintf(
-		"%s/authorization/organization_memberships/%s/check",
+		"%s/%s/%s/check",
 		c.Endpoint,
+		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 	)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
