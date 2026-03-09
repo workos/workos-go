@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go test:*)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go diff main -- pkg/authorization/authorization_test.go)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go show main:pkg/authorization/authorization_test.go)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go show main:pkg/authorization/client.go)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go ls-tree:*)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go status pkg/authorization/authorization_test.go)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go log --oneline --all -- pkg/authorization/authorization_test.go)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go show 66333e3:pkg/authorization/authorization_test.go)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go log --oneline -10 -- pkg/authorization/)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go show 66333e3 --stat)",
+      "Bash(git -C /Users/swaroopakkineni/Documents/repos/public-repos/workos-go diff main -- pkg/authorization/client.go)"
+    ]
+  }
+}
