@@ -13,13 +13,11 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 // Create
 
 func TestCreateResource(t *testing.T) {
+	parentId := "parent_123"
+
 	tests := []struct {
 		scenario string
 		client   *Client
@@ -86,7 +84,7 @@ func TestCreateResource(t *testing.T) {
 				Name:             "Test Resource",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: stringPtr("parent_123"),
+				ParentResourceId: &parentId,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -110,7 +108,7 @@ func TestCreateResource(t *testing.T) {
 				Name:             "Test Resource",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: stringPtr("parent_123"),
+				ParentResourceId: &parentId,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -181,6 +179,9 @@ func TestCreateResource(t *testing.T) {
 }
 
 func TestGetResource(t *testing.T) {
+	testDesc := "A test resource"
+	parentId := "parent_123"
+
 	tests := []struct {
 		scenario string
 		client   *Client
@@ -206,10 +207,10 @@ func TestGetResource(t *testing.T) {
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Test Resource",
-				Description:      stringPtr("A test resource"),
+				Description:      &testDesc,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: stringPtr("parent_123"),
+				ParentResourceId: &parentId,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -224,7 +225,7 @@ func TestGetResource(t *testing.T) {
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Test Resource",
-				Description:      stringPtr("A test resource"),
+				Description:      &testDesc,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
 				ParentResourceId: nil,
@@ -245,7 +246,7 @@ func TestGetResource(t *testing.T) {
 				Description:      nil,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: stringPtr("parent_123"),
+				ParentResourceId: &parentId,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -293,6 +294,7 @@ func TestGetResource(t *testing.T) {
 func TestUpdateResource(t *testing.T) {
 	newName := "Updated Resource"
 	newDesc := "Updated description"
+	testDesc := "A test resource"
 
 	tests := []struct {
 		scenario string
@@ -326,7 +328,7 @@ func TestUpdateResource(t *testing.T) {
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Updated Resource",
-				Description:      stringPtr("Updated description"),
+				Description:      &newDesc,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
 				CreatedAt:        "2024-01-01T00:00:00Z",
@@ -346,7 +348,7 @@ func TestUpdateResource(t *testing.T) {
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Updated Resource",
-				Description:      stringPtr("A test resource"),
+				Description:      &testDesc,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
 				CreatedAt:        "2024-01-01T00:00:00Z",
@@ -366,7 +368,7 @@ func TestUpdateResource(t *testing.T) {
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Test Resource",
-				Description:      stringPtr("Updated description"),
+				Description:      &newDesc,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
 				CreatedAt:        "2024-01-01T00:00:00Z",
@@ -492,6 +494,9 @@ func TestDeleteResourceCascadeQueryParam(t *testing.T) {
 // List
 
 func TestListResources(t *testing.T) {
+	firstDesc := "First resource"
+	parentId := "parent_001"
+
 	tests := []struct {
 		scenario string
 		client   *Client
@@ -516,10 +521,10 @@ func TestListResources(t *testing.T) {
 						Id:               "resource_001",
 						ExternalId:       "ext_001",
 						Name:             "Resource One",
-						Description:      stringPtr("First resource"),
+						Description:      &firstDesc,
 						ResourceTypeSlug: "document",
 						OrganizationId:   "org_123",
-						ParentResourceId: stringPtr("parent_001"),
+						ParentResourceId: &parentId,
 						CreatedAt:        "2024-01-01T00:00:00Z",
 						UpdatedAt:        "2024-01-01T00:00:00Z",
 					},
@@ -556,10 +561,10 @@ func TestListResources(t *testing.T) {
 						Id:               "resource_001",
 						ExternalId:       "ext_001",
 						Name:             "Resource One",
-						Description:      stringPtr("First resource"),
+						Description:      &firstDesc,
 						ResourceTypeSlug: "document",
 						OrganizationId:   "org_123",
-						ParentResourceId: stringPtr("parent_001"),
+						ParentResourceId: &parentId,
 						CreatedAt:        "2024-01-01T00:00:00Z",
 						UpdatedAt:        "2024-01-01T00:00:00Z",
 					},

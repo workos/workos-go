@@ -43,6 +43,7 @@ func TestAuthorizationCreateResource(t *testing.T) {
 }
 
 func TestAuthorizationCreateResourceWithParent(t *testing.T) {
+	parentId := "parent_123"
 	server := httptest.NewServer(http.HandlerFunc(createResourceWithParentTestHandler))
 	defer server.Close()
 
@@ -59,7 +60,7 @@ func TestAuthorizationCreateResourceWithParent(t *testing.T) {
 		Name:             "Test Resource",
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
-		ParentResourceId: stringPtr("parent_123"),
+		ParentResourceId: &parentId,
 		CreatedAt:        "2024-01-01T00:00:00Z",
 		UpdatedAt:        "2024-01-01T00:00:00Z",
 	}
@@ -76,6 +77,7 @@ func TestAuthorizationCreateResourceWithParent(t *testing.T) {
 }
 
 func TestAuthorizationGetResource(t *testing.T) {
+	testDesc := "A test resource"
 	server := httptest.NewServer(http.HandlerFunc(getResourceWithoutParentHandler))
 	defer server.Close()
 
@@ -90,7 +92,7 @@ func TestAuthorizationGetResource(t *testing.T) {
 		Id:               "resource_123",
 		ExternalId:       "ext_123",
 		Name:             "Test Resource",
-		Description:      stringPtr("A test resource"),
+		Description:      &testDesc,
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
 		CreatedAt:        "2024-01-01T00:00:00Z",
@@ -105,6 +107,7 @@ func TestAuthorizationGetResource(t *testing.T) {
 }
 
 func TestAuthorizationUpdateResource(t *testing.T) {
+	updatedDesc := "Updated description"
 	server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
 	defer server.Close()
 
@@ -121,7 +124,7 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 		Id:               "resource_123",
 		ExternalId:       "ext_123",
 		Name:             "Updated Resource",
-		Description:      stringPtr("Updated description"),
+		Description:      &updatedDesc,
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
 		CreatedAt:        "2024-01-01T00:00:00Z",
@@ -155,6 +158,8 @@ func TestAuthorizationDeleteResource(t *testing.T) {
 }
 
 func TestAuthorizationListResources(t *testing.T) {
+	firstDesc := "First resource"
+	parentId := "parent_001"
 	server := httptest.NewServer(http.HandlerFunc(listResourcesTestHandler))
 	defer server.Close()
 
@@ -171,10 +176,10 @@ func TestAuthorizationListResources(t *testing.T) {
 				Id:               "resource_001",
 				ExternalId:       "ext_001",
 				Name:             "Resource One",
-				Description:      stringPtr("First resource"),
+				Description:      &firstDesc,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: stringPtr("parent_001"),
+				ParentResourceId: &parentId,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
