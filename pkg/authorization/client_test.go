@@ -132,114 +132,6 @@ func TestCreateResource(t *testing.T) {
 	}
 }
 
-func createResourceWithParentTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if r.URL.Path != "/authorization/resources" {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var reqBody map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	_, hasParentId := reqBody["parent_resource_id"]
-	_, hasParentExtId := reqBody["parent_resource_external_id"]
-
-	if !hasParentId && !hasParentExtId {
-		http.Error(w, "expected parent fields in request body", http.StatusBadRequest)
-		return
-	}
-
-	if hasParentExtId {
-		if _, hasTypeSlug := reqBody["parent_resource_type_slug"]; !hasTypeSlug {
-			http.Error(w, "parent_resource_type_slug required with parent_resource_external_id", http.StatusBadRequest)
-			return
-		}
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{
-		"object": "authorization_resource",
-		"id": "resource_new",
-		"external_id": "ext_123",
-		"name": "Test Resource",
-		"description": null,
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": "parent_123",
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-01T00:00:00Z"
-	}`))
-}
-
-func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if r.URL.Path != "/authorization/resources" {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var reqBody map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if _, hasParentId := reqBody["parent_resource_id"]; hasParentId {
-		http.Error(w, "unexpected parent_resource_id in request body", http.StatusBadRequest)
-		return
-	}
-	if _, hasParentExtId := reqBody["parent_resource_external_id"]; hasParentExtId {
-		http.Error(w, "unexpected parent_resource_external_id in request body", http.StatusBadRequest)
-		return
-	}
-	if _, hasTypeSlug := reqBody["parent_resource_type_slug"]; hasTypeSlug {
-		http.Error(w, "unexpected parent_resource_type_slug in request body", http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{
-		"object": "authorization_resource",
-		"id": "resource_new",
-		"external_id": "ext_123",
-		"name": "Test Resource",
-		"description": null,
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": null,
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-01T00:00:00Z"
-	}`))
-}
-
-// Get
-
 func TestGetResource(t *testing.T) {
 	tests := []struct {
 		scenario string
@@ -350,90 +242,6 @@ func TestGetResource(t *testing.T) {
 	}
 }
 
-func getResourceHandler(w http.ResponseWriter, r *http.Request, responseJSON string) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(responseJSON))
-}
-
-func getResourceAllFieldsHandler(w http.ResponseWriter, r *http.Request) {
-	getResourceHandler(w, r, `{
-		"object": "authorization_resource",
-		"id": "resource_123",
-		"external_id": "ext_123",
-		"name": "Test Resource",
-		"description": "A test resource",
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": "parent_123",
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-01T00:00:00Z"
-	}`)
-}
-
-func getResourceWithoutParentHandler(w http.ResponseWriter, r *http.Request) {
-	getResourceHandler(w, r, `{
-		"object": "authorization_resource",
-		"id": "resource_123",
-		"external_id": "ext_123",
-		"name": "Test Resource",
-		"description": "A test resource",
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": null,
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-01T00:00:00Z"
-	}`)
-}
-
-func getResourceWithoutDescriptionHandler(w http.ResponseWriter, r *http.Request) {
-	getResourceHandler(w, r, `{
-		"object": "authorization_resource",
-		"id": "resource_123",
-		"external_id": "ext_123",
-		"name": "Test Resource",
-		"description": null,
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": "parent_123",
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-01T00:00:00Z"
-	}`)
-}
-
-func getResourceWithoutParentAndDescriptionHandler(w http.ResponseWriter, r *http.Request) {
-	getResourceHandler(w, r, `{
-		"object": "authorization_resource",
-		"id": "resource_123",
-		"external_id": "ext_123",
-		"name": "Test Resource",
-		"description": null,
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": null,
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-01T00:00:00Z"
-	}`)
-}
-
-// Update
-
 func TestUpdateResource(t *testing.T) {
 	newName := "Updated Resource"
 	newDesc := "Updated description"
@@ -496,39 +304,6 @@ func TestUpdateResource(t *testing.T) {
 	}
 }
 
-func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodPatch {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{
-		"object": "authorization_resource",
-		"id": "resource_123",
-		"external_id": "ext_123",
-		"name": "Updated Resource",
-		"description": "Updated description",
-		"resource_type_slug": "document",
-		"organization_id": "org_123",
-		"parent_resource_id": null,
-		"created_at": "2024-01-01T00:00:00Z",
-		"updated_at": "2024-01-02T00:00:00Z"
-	}`))
-}
-
 // Delete
 
 func TestDeleteResource(t *testing.T) {
@@ -570,26 +345,6 @@ func TestDeleteResource(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-
-func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodDelete {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }
 
 func TestDeleteResourceCascadeQueryParam(t *testing.T) {
@@ -735,59 +490,6 @@ func TestListResources(t *testing.T) {
 	}
 }
 
-func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if r.URL.Path != "/authorization/resources" {
-		http.Error(w, "invalid path", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{
-		"data": [
-			{
-				"object": "authorization_resource",
-				"id": "resource_001",
-				"external_id": "ext_001",
-				"name": "Resource One",
-				"description": "First resource",
-				"resource_type_slug": "document",
-				"organization_id": "org_123",
-				"parent_resource_id": "parent_001",
-				"created_at": "2024-01-01T00:00:00Z",
-				"updated_at": "2024-01-01T00:00:00Z"
-			},
-			{
-				"object": "authorization_resource",
-				"id": "resource_002",
-				"external_id": "ext_002",
-				"name": "Resource Two",
-				"description": null,
-				"resource_type_slug": "document",
-				"organization_id": "org_123",
-				"parent_resource_id": null,
-				"created_at": "2024-01-02T00:00:00Z",
-				"updated_at": "2024-01-02T00:00:00Z"
-			}
-		],
-		"list_metadata": {
-			"before": "",
-			"after": "resource_002"
-		}
-	}`))
-}
-
 func TestListResourcesFilters(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "org_123", r.URL.Query().Get("organization_id"))
@@ -843,4 +545,300 @@ func TestListResourcesDefaultLimit(t *testing.T) {
 
 	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{})
 	require.NoError(t, err)
+}
+
+// Handlers
+
+func createResourceWithParentTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	_, hasParentId := reqBody["parent_resource_id"]
+	_, hasParentExtId := reqBody["parent_resource_external_id"]
+
+	if !hasParentId && !hasParentExtId {
+		http.Error(w, "expected parent fields in request body", http.StatusBadRequest)
+		return
+	}
+
+	if hasParentExtId {
+		if _, hasTypeSlug := reqBody["parent_resource_type_slug"]; !hasTypeSlug {
+			http.Error(w, "parent_resource_type_slug required with parent_resource_external_id", http.StatusBadRequest)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_new",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": "parent_123",
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`))
+}
+
+func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if _, hasParentId := reqBody["parent_resource_id"]; hasParentId {
+		http.Error(w, "unexpected parent_resource_id in request body", http.StatusBadRequest)
+		return
+	}
+	if _, hasParentExtId := reqBody["parent_resource_external_id"]; hasParentExtId {
+		http.Error(w, "unexpected parent_resource_external_id in request body", http.StatusBadRequest)
+		return
+	}
+	if _, hasTypeSlug := reqBody["parent_resource_type_slug"]; hasTypeSlug {
+		http.Error(w, "unexpected parent_resource_type_slug in request body", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_new",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`))
+}
+
+func getResourceHandler(w http.ResponseWriter, r *http.Request, responseJSON string) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(responseJSON))
+}
+
+func getResourceAllFieldsHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": "A test resource",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": "parent_123",
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func getResourceWithoutParentHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": "A test resource",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func getResourceWithoutDescriptionHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": "parent_123",
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func getResourceWithoutParentAndDescriptionHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Updated Resource",
+		"description": "Updated description",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-02T00:00:00Z"
+	}`))
+}
+
+func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"data": [
+			{
+				"object": "authorization_resource",
+				"id": "resource_001",
+				"external_id": "ext_001",
+				"name": "Resource One",
+				"description": "First resource",
+				"resource_type_slug": "document",
+				"organization_id": "org_123",
+				"parent_resource_id": "parent_001",
+				"created_at": "2024-01-01T00:00:00Z",
+				"updated_at": "2024-01-01T00:00:00Z"
+			},
+			{
+				"object": "authorization_resource",
+				"id": "resource_002",
+				"external_id": "ext_002",
+				"name": "Resource Two",
+				"description": null,
+				"resource_type_slug": "document",
+				"organization_id": "org_123",
+				"parent_resource_id": null,
+				"created_at": "2024-01-02T00:00:00Z",
+				"updated_at": "2024-01-02T00:00:00Z"
+			}
+		],
+		"list_metadata": {
+			"before": "",
+			"after": "resource_002"
+		}
+	}`))
 }
