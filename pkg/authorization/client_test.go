@@ -39,34 +39,6 @@ func TestCreateResource(t *testing.T) {
 			err: true,
 		},
 		{
-			scenario: "Request with both ParentResourceIdentifier and ParentResourceExternalId returns error",
-			client:   &Client{APIKey: "test"},
-			handler:  createResourceWithParentTestHandler,
-			options: CreateAuthorizationResourceOpts{
-				ExternalId:               "ext_123",
-				Name:                     "Test Resource",
-				ResourceTypeSlug:         "document",
-				OrganizationId:           "org_123",
-				ParentResourceIdentifier: ParentResourceIdentifierById{ParentResourceId: "parent_123"},
-				ParentResourceExternalId: "parent_ext_123",
-				ParentResourceTypeSlug:   "folder",
-			},
-			err: true,
-		},
-		{
-			scenario: "Request with ParentResourceExternalId but no ParentResourceTypeSlug returns error",
-			client:   &Client{APIKey: "test"},
-			handler:  createResourceWithParentTestHandler,
-			options: CreateAuthorizationResourceOpts{
-				ExternalId:               "ext_123",
-				Name:                     "Test Resource",
-				ResourceTypeSlug:         "document",
-				OrganizationId:           "org_123",
-				ParentResourceExternalId: "parent_ext_123",
-			},
-			err: true,
-		},
-		{
 			scenario: "Request creates resource with parent by ID",
 			client:   &Client{APIKey: "test"},
 			handler:  createResourceWithParentTestHandler,
@@ -94,12 +66,14 @@ func TestCreateResource(t *testing.T) {
 			client:   &Client{APIKey: "test"},
 			handler:  createResourceWithParentTestHandler,
 			options: CreateAuthorizationResourceOpts{
-				ExternalId:               "ext_123",
-				Name:                     "Test Resource",
-				ResourceTypeSlug:         "document",
-				OrganizationId:           "org_123",
-				ParentResourceExternalId: "parent_ext_123",
-				ParentResourceTypeSlug:   "folder",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				ParentResourceIdentifier: ParentResourceIdentifierByExternalId{
+					ParentResourceExternalId: "parent_ext_123",
+					ParentResourceTypeSlug:   "folder",
+				},
 			},
 			expected: AuthorizationResource{
 				Object:           "authorization_resource",
@@ -463,7 +437,7 @@ func TestDeleteResource(t *testing.T) {
 	}
 }
 
-func TestDeleteResourceCascadeQueryParam(t *testing.T) {
+func TestDeleteResourceCascadeTrue(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
 		if auth != "Bearer test" {
@@ -471,9 +445,7 @@ func TestDeleteResourceCascadeQueryParam(t *testing.T) {
 			return
 		}
 
-		cascadeParam := r.URL.Query().Get("cascade_delete")
-		require.Equal(t, "true", cascadeParam)
-
+		require.Equal(t, "true", r.URL.Query().Get("cascade_delete"))
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -487,6 +459,32 @@ func TestDeleteResourceCascadeQueryParam(t *testing.T) {
 	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
 		ResourceId:    "resource_123",
 		CascadeDelete: true,
+	})
+	require.NoError(t, err)
+}
+
+func TestDeleteResourceCascadeFalse(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		require.Equal(t, "", r.URL.Query().Get("cascade_delete"))
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
+		ResourceId:    "resource_123",
+		CascadeDelete: false,
 	})
 	require.NoError(t, err)
 }
@@ -632,6 +630,171 @@ func TestListResourcesFilters(t *testing.T) {
 	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
 		OrganizationId:   "org_123",
 		ResourceTypeSlug: "document",
+	})
+	require.NoError(t, err)
+}
+
+func TestListResourcesPaginationAfter(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		require.Equal(t, "5", r.URL.Query().Get("limit"))
+		require.Equal(t, "resource_001", r.URL.Query().Get("after"))
+		require.Equal(t, "desc", r.URL.Query().Get("order"))
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
+		Limit: 5,
+		After: "resource_001",
+		Order: common.Desc,
+	})
+	require.NoError(t, err)
+}
+
+func TestListResourcesPaginationBefore(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		require.Equal(t, "5", r.URL.Query().Get("limit"))
+		require.Equal(t, "resource_002", r.URL.Query().Get("before"))
+		require.Equal(t, "asc", r.URL.Query().Get("order"))
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
+		Limit:  5,
+		Before: "resource_002",
+		Order:  common.Asc,
+	})
+	require.NoError(t, err)
+}
+
+func TestListResourcesParentResourceIdFilter(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		require.Equal(t, "parent_001", r.URL.Query().Get("parent_resource_id"))
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
+		ParentResourceId: "parent_001",
+	})
+	require.NoError(t, err)
+}
+
+func TestListResourcesParentExternalIdFilter(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		require.Equal(t, "folder", r.URL.Query().Get("parent_resource_type_slug"))
+		require.Equal(t, "folder-123", r.URL.Query().Get("parent_external_id"))
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
+		ParentResourceTypeSlug: "folder",
+		ParentExternalId:       "folder-123",
+	})
+	require.NoError(t, err)
+}
+
+func TestListResourcesSearchFilter(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		require.Equal(t, "Budget", r.URL.Query().Get("search"))
+
+		body, _ := json.Marshal(ListAuthorizationResourcesResponse{
+			Data:         []AuthorizationResource{},
+			ListMetadata: common.ListMetadata{},
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
+		Search: "Budget",
 	})
 	require.NoError(t, err)
 }

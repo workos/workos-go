@@ -375,12 +375,10 @@ type GetAuthorizationResourceOpts struct {
 type CreateAuthorizationResourceOpts struct {
 	ExternalId               string                   `json:"external_id"`
 	Name                     string                   `json:"name"`
-	Description              string                   `json:"description,omitempty"`
+	Description              *string                  `json:"description,omitempty"`
 	ResourceTypeSlug         string                   `json:"resource_type_slug"`
 	OrganizationId           string                   `json:"organization_id"`
 	ParentResourceIdentifier ParentResourceIdentifier `json:"-"`
-	ParentResourceExternalId string                   `json:"-"`
-	ParentResourceTypeSlug   string                   `json:"-"`
 }
 
 // UpdateAuthorizationResourceOpts contains the options for updating a resource.
@@ -625,13 +623,6 @@ func (c *Client) DeletePermission(ctx context.Context, opts DeletePermissionOpts
 func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
 
-	if opts.ParentResourceIdentifier != nil && opts.ParentResourceExternalId != "" {
-		return AuthorizationResource{}, errors.New("cannot specify both ParentResourceIdentifier and ParentResourceExternalId; use one approach")
-	}
-	if opts.ParentResourceExternalId != "" && opts.ParentResourceTypeSlug == "" {
-		return AuthorizationResource{}, errors.New("ParentResourceTypeSlug is required when ParentResourceExternalId is set")
-	}
-
 	endpoint := fmt.Sprintf("%s/%s", c.Endpoint, authorizationResourcesPath)
 
 	body := map[string]interface{}{
@@ -640,17 +631,13 @@ func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationRes
 		"resource_type_slug": opts.ResourceTypeSlug,
 		"organization_id":    opts.OrganizationId,
 	}
-	if opts.Description != "" {
-		body["description"] = opts.Description
+	if opts.Description != nil {
+		body["description"] = *opts.Description
 	}
 	if opts.ParentResourceIdentifier != nil {
 		for k, v := range opts.ParentResourceIdentifier.parentResourceIdentifierParams() {
 			body[k] = v
 		}
-	}
-	if opts.ParentResourceExternalId != "" {
-		body["parent_resource_external_id"] = opts.ParentResourceExternalId
-		body["parent_resource_type_slug"] = opts.ParentResourceTypeSlug
 	}
 
 	data, err := c.JSONEncode(body)
