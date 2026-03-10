@@ -450,16 +450,16 @@ type ListRoleAssignmentsOpts struct {
 
 // AssignRoleOpts contains the options for assigning a role.
 type AssignRoleOpts struct {
-	OrganizationMembershipId string
-	RoleSlug                 string
-	Resource                 ResourceIdentifier
+	OrganizationMembershipId string             `json:"-"`
+	RoleSlug                 string             `json:"role_slug"`
+	Resource                 ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleOpts contains the options for removing a role.
 type RemoveRoleOpts struct {
-	OrganizationMembershipId string
-	RoleSlug                 string
-	Resource                 ResourceIdentifier
+	OrganizationMembershipId string             `json:"-"`
+	RoleSlug                 string             `json:"role_slug"`
+	Resource                 ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleAssignmentOpts contains the options for removing a role assignment by Id.
@@ -678,8 +678,9 @@ func (c *Client) ListRoleAssignments(ctx context.Context, opts ListRoleAssignmen
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
-		"%s/authorization/organization_memberships/%s/role_assignments",
+		"%s/%s/%s/role_assignments",
 		c.Endpoint,
+		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 	)
 
@@ -735,8 +736,9 @@ func (c *Client) AssignRole(ctx context.Context, opts AssignRoleOpts) (RoleAssig
 	}
 
 	endpoint := fmt.Sprintf(
-		"%s/authorization/organization_memberships/%s/role_assignments",
+		"%s/%s/%s/role_assignments",
 		c.Endpoint,
+		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 	)
 
@@ -785,8 +787,9 @@ func (c *Client) RemoveRole(ctx context.Context, opts RemoveRoleOpts) error {
 	}
 
 	endpoint := fmt.Sprintf(
-		"%s/authorization/organization_memberships/%s/role_assignments",
+		"%s/%s/%s/role_assignments",
 		c.Endpoint,
+		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 	)
 
@@ -814,8 +817,9 @@ func (c *Client) RemoveRoleAssignment(ctx context.Context, opts RemoveRoleAssign
 	c.once.Do(c.init)
 
 	endpoint := fmt.Sprintf(
-		"%s/authorization/organization_memberships/%s/role_assignments/%s",
+		"%s/%s/%s/role_assignments/%s",
 		c.Endpoint,
+		authorizationOrganizationMembershipsPath,
 		opts.OrganizationMembershipId,
 		opts.RoleAssignmentId,
 	)

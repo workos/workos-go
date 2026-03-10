@@ -28,7 +28,7 @@ func TestListRoleAssignments(t *testing.T) {
 			err:      true,
 		},
 		{
-			scenario: "Request returns paginated role assignments",
+			scenario: "Request returns paginated role assignments with limit",
 			client: &Client{
 				APIKey: "test",
 			},
@@ -66,6 +66,68 @@ func TestListRoleAssignments(t *testing.T) {
 				ListMetadata: common.ListMetadata{
 					Before: "",
 					After:  "ra_02DEF",
+				},
+			},
+		},
+		{
+			scenario: "Request with After pagination cursor",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListRoleAssignmentsOpts{
+				OrganizationMembershipId: "om_01JKR3PB",
+				After:                    "ra_01ABC",
+				Limit:                    10,
+			},
+			expected: ListRoleAssignmentsResponse{
+				Data: []RoleAssignment{
+					{
+						Object: "role_assignment",
+						Id:     "ra_02DEF",
+						Role:   RoleAssignmentRole{Slug: "viewer"},
+						Resource: RoleAssignmentResource{
+							Id:               "resource_02",
+							ExternalId:       "ext-2",
+							ResourceTypeSlug: "document",
+						},
+						CreatedAt: "2024-01-02T00:00:00Z",
+						UpdatedAt: "2024-01-02T00:00:00Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "ra_02DEF",
+					After:  "",
+				},
+			},
+		},
+		{
+			scenario: "Request with Before pagination cursor",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: ListRoleAssignmentsOpts{
+				OrganizationMembershipId: "om_01JKR3PB",
+				Before:                   "ra_02DEF",
+				Limit:                    10,
+			},
+			expected: ListRoleAssignmentsResponse{
+				Data: []RoleAssignment{
+					{
+						Object: "role_assignment",
+						Id:     "ra_01ABC",
+						Role:   RoleAssignmentRole{Slug: "admin"},
+						Resource: RoleAssignmentResource{
+							Id:               "resource_01",
+							ExternalId:       "ext-1",
+							ResourceTypeSlug: "project",
+						},
+						CreatedAt: "2024-01-01T00:00:00Z",
+						UpdatedAt: "2024-01-01T00:00:00Z",
+					},
+				},
+				ListMetadata: common.ListMetadata{
+					Before: "",
+					After:  "ra_01ABC",
 				},
 			},
 		},
@@ -108,43 +170,104 @@ func listRoleAssignmentsTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !strings.Contains(r.URL.Path, "/authorization/organization_memberships/om_01JKR3PB/role_assignments") {
+	expectedPath := "/authorization/organization_memberships/om_01JKR3PB/role_assignments"
+	if r.URL.Path != expectedPath {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	body, err := json.Marshal(ListRoleAssignmentsResponse{
-		Data: []RoleAssignment{
-			{
-				Object: "role_assignment",
-				Id:     "ra_01ABC",
-				Role:   RoleAssignmentRole{Slug: "admin"},
-				Resource: RoleAssignmentResource{
-					Id:               "resource_01",
-					ExternalId:       "ext-1",
-					ResourceTypeSlug: "project",
+	params := r.URL.Query()
+
+	if params.Get("limit") != "10" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Return different responses based on pagination cursors
+	afterCursor := params.Get("after")
+	beforeCursor := params.Get("before")
+
+	var response ListRoleAssignmentsResponse
+
+	switch {
+	case afterCursor == "ra_01ABC":
+		response = ListRoleAssignmentsResponse{
+			Data: []RoleAssignment{
+				{
+					Object: "role_assignment",
+					Id:     "ra_02DEF",
+					Role:   RoleAssignmentRole{Slug: "viewer"},
+					Resource: RoleAssignmentResource{
+						Id:               "resource_02",
+						ExternalId:       "ext-2",
+						ResourceTypeSlug: "document",
+					},
+					CreatedAt: "2024-01-02T00:00:00Z",
+					UpdatedAt: "2024-01-02T00:00:00Z",
 				},
-				CreatedAt: "2024-01-01T00:00:00Z",
-				UpdatedAt: "2024-01-01T00:00:00Z",
 			},
-			{
-				Object: "role_assignment",
-				Id:     "ra_02DEF",
-				Role:   RoleAssignmentRole{Slug: "viewer"},
-				Resource: RoleAssignmentResource{
-					Id:               "resource_02",
-					ExternalId:       "ext-2",
-					ResourceTypeSlug: "document",
+			ListMetadata: common.ListMetadata{
+				Before: "ra_02DEF",
+				After:  "",
+			},
+		}
+	case beforeCursor == "ra_02DEF":
+		response = ListRoleAssignmentsResponse{
+			Data: []RoleAssignment{
+				{
+					Object: "role_assignment",
+					Id:     "ra_01ABC",
+					Role:   RoleAssignmentRole{Slug: "admin"},
+					Resource: RoleAssignmentResource{
+						Id:               "resource_01",
+						ExternalId:       "ext-1",
+						ResourceTypeSlug: "project",
+					},
+					CreatedAt: "2024-01-01T00:00:00Z",
+					UpdatedAt: "2024-01-01T00:00:00Z",
 				},
-				CreatedAt: "2024-01-02T00:00:00Z",
-				UpdatedAt: "2024-01-02T00:00:00Z",
 			},
-		},
-		ListMetadata: common.ListMetadata{
-			Before: "",
-			After:  "ra_02DEF",
-		},
-	})
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "ra_01ABC",
+			},
+		}
+	default:
+		response = ListRoleAssignmentsResponse{
+			Data: []RoleAssignment{
+				{
+					Object: "role_assignment",
+					Id:     "ra_01ABC",
+					Role:   RoleAssignmentRole{Slug: "admin"},
+					Resource: RoleAssignmentResource{
+						Id:               "resource_01",
+						ExternalId:       "ext-1",
+						ResourceTypeSlug: "project",
+					},
+					CreatedAt: "2024-01-01T00:00:00Z",
+					UpdatedAt: "2024-01-01T00:00:00Z",
+				},
+				{
+					Object: "role_assignment",
+					Id:     "ra_02DEF",
+					Role:   RoleAssignmentRole{Slug: "viewer"},
+					Resource: RoleAssignmentResource{
+						Id:               "resource_02",
+						ExternalId:       "ext-2",
+						ResourceTypeSlug: "document",
+					},
+					CreatedAt: "2024-01-02T00:00:00Z",
+					UpdatedAt: "2024-01-02T00:00:00Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "ra_02DEF",
+			},
+		}
+	}
+
+	body, err := json.Marshal(response)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
