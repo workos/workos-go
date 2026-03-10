@@ -13,6 +13,10 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
+func stringPtr(s string) *string {
+	return &s
+}
+
 // Create
 
 func TestCreateResource(t *testing.T) {
@@ -54,7 +58,7 @@ func TestCreateResource(t *testing.T) {
 				Name:             "Test Resource",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: "parent_123",
+				ParentResourceId: stringPtr("parent_123"),
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -80,7 +84,7 @@ func TestCreateResource(t *testing.T) {
 				Name:             "Test Resource",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				ParentResourceId: "parent_123",
+				ParentResourceId: stringPtr("parent_123"),
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -166,20 +170,20 @@ func createResourceWithParentTestHandler(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	body, _ := json.Marshal(AuthorizationResource{
-		Object:           "authorization_resource",
-		Id:               "resource_new",
-		ExternalId:       "ext_123",
-		Name:             "Test Resource",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_123",
-		ParentResourceId: "parent_123",
-		CreatedAt:        "2024-01-01T00:00:00Z",
-		UpdatedAt:        "2024-01-01T00:00:00Z",
-	})
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_new",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": "parent_123",
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`))
 }
 
 func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Request) {
@@ -218,19 +222,20 @@ func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	body, _ := json.Marshal(AuthorizationResource{
-		Object:           "authorization_resource",
-		Id:               "resource_new",
-		ExternalId:       "ext_123",
-		Name:             "Test Resource",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_123",
-		CreatedAt:        "2024-01-01T00:00:00Z",
-		UpdatedAt:        "2024-01-01T00:00:00Z",
-	})
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_new",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`))
 }
 
 // Get
@@ -240,27 +245,85 @@ func TestGetResource(t *testing.T) {
 		scenario string
 		client   *Client
 		options  GetAuthorizationResourceOpts
+		handler  http.HandlerFunc
 		expected AuthorizationResource
 		err      bool
 	}{
 		{
 			scenario: "Request without API Key returns an error",
 			client:   &Client{},
+			handler:  getResourceAllFieldsHandler,
 			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
 			err:      true,
 		},
 		{
-			scenario: "Request returns an AuthorizationResource",
+			scenario: "Request returns resource with all fields",
 			client:   &Client{APIKey: "test"},
+			handler:  getResourceAllFieldsHandler,
 			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
 			expected: AuthorizationResource{
 				Object:           "authorization_resource",
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Test Resource",
-				Description:      "A test resource",
+				Description:      stringPtr("A test resource"),
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
+				ParentResourceId: stringPtr("parent_123"),
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request returns resource without parent",
+			client:   &Client{APIKey: "test"},
+			handler:  getResourceWithoutParentHandler,
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      stringPtr("A test resource"),
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				ParentResourceId: nil,
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request returns resource without description",
+			client:   &Client{APIKey: "test"},
+			handler:  getResourceWithoutDescriptionHandler,
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      nil,
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				ParentResourceId: stringPtr("parent_123"),
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request returns resource without parent and description",
+			client:   &Client{APIKey: "test"},
+			handler:  getResourceWithoutParentAndDescriptionHandler,
+			options:  GetAuthorizationResourceOpts{ResourceId: "resource_123"},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      nil,
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				ParentResourceId: nil,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -269,7 +332,7 @@ func TestGetResource(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
+			server := httptest.NewServer(test.handler)
 			defer server.Close()
 
 			client := test.client
@@ -287,7 +350,7 @@ func TestGetResource(t *testing.T) {
 	}
 }
 
-func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
+func getResourceHandler(w http.ResponseWriter, r *http.Request, responseJSON string) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
@@ -304,20 +367,69 @@ func getResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, _ := json.Marshal(AuthorizationResource{
-		Object:           "authorization_resource",
-		Id:               "resource_123",
-		ExternalId:       "ext_123",
-		Name:             "Test Resource",
-		Description:      "A test resource",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_123",
-		CreatedAt:        "2024-01-01T00:00:00Z",
-		UpdatedAt:        "2024-01-01T00:00:00Z",
-	})
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	w.Write([]byte(responseJSON))
+}
+
+func getResourceAllFieldsHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": "A test resource",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": "parent_123",
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func getResourceWithoutParentHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": "A test resource",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func getResourceWithoutDescriptionHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": "parent_123",
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
+}
+
+func getResourceWithoutParentAndDescriptionHandler(w http.ResponseWriter, r *http.Request) {
+	getResourceHandler(w, r, `{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`)
 }
 
 // Update
@@ -355,7 +467,7 @@ func TestUpdateResource(t *testing.T) {
 				Id:               "resource_123",
 				ExternalId:       "ext_123",
 				Name:             "Updated Resource",
-				Description:      "Updated description",
+				Description:      stringPtr("Updated description"),
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
 				CreatedAt:        "2024-01-01T00:00:00Z",
@@ -401,20 +513,20 @@ func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, _ := json.Marshal(AuthorizationResource{
-		Object:           "authorization_resource",
-		Id:               "resource_123",
-		ExternalId:       "ext_123",
-		Name:             "Updated Resource",
-		Description:      "Updated description",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_123",
-		CreatedAt:        "2024-01-01T00:00:00Z",
-		UpdatedAt:        "2024-01-02T00:00:00Z",
-	})
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Updated Resource",
+		"description": "Updated description",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-02T00:00:00Z"
+	}`))
 }
 
 // Delete
@@ -535,8 +647,10 @@ func TestListResources(t *testing.T) {
 						Id:               "resource_001",
 						ExternalId:       "ext_001",
 						Name:             "Resource One",
+						Description:      stringPtr("First resource"),
 						ResourceTypeSlug: "document",
 						OrganizationId:   "org_123",
+						ParentResourceId: stringPtr("parent_001"),
 						CreatedAt:        "2024-01-01T00:00:00Z",
 						UpdatedAt:        "2024-01-01T00:00:00Z",
 					},
@@ -545,8 +659,10 @@ func TestListResources(t *testing.T) {
 						Id:               "resource_002",
 						ExternalId:       "ext_002",
 						Name:             "Resource Two",
+						Description:      nil,
 						ResourceTypeSlug: "document",
 						OrganizationId:   "org_123",
+						ParentResourceId: nil,
 						CreatedAt:        "2024-01-02T00:00:00Z",
 						UpdatedAt:        "2024-01-02T00:00:00Z",
 					},
@@ -571,8 +687,10 @@ func TestListResources(t *testing.T) {
 						Id:               "resource_001",
 						ExternalId:       "ext_001",
 						Name:             "Resource One",
+						Description:      stringPtr("First resource"),
 						ResourceTypeSlug: "document",
 						OrganizationId:   "org_123",
+						ParentResourceId: stringPtr("parent_001"),
 						CreatedAt:        "2024-01-01T00:00:00Z",
 						UpdatedAt:        "2024-01-01T00:00:00Z",
 					},
@@ -581,8 +699,10 @@ func TestListResources(t *testing.T) {
 						Id:               "resource_002",
 						ExternalId:       "ext_002",
 						Name:             "Resource Two",
+						Description:      nil,
 						ResourceTypeSlug: "document",
 						OrganizationId:   "org_123",
+						ParentResourceId: nil,
 						CreatedAt:        "2024-01-02T00:00:00Z",
 						UpdatedAt:        "2024-01-02T00:00:00Z",
 					},
@@ -632,37 +752,40 @@ func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, _ := json.Marshal(ListAuthorizationResourcesResponse{
-		Data: []AuthorizationResource{
-			{
-				Object:           "authorization_resource",
-				Id:               "resource_001",
-				ExternalId:       "ext_001",
-				Name:             "Resource One",
-				ResourceTypeSlug: "document",
-				OrganizationId:   "org_123",
-				CreatedAt:        "2024-01-01T00:00:00Z",
-				UpdatedAt:        "2024-01-01T00:00:00Z",
-			},
-			{
-				Object:           "authorization_resource",
-				Id:               "resource_002",
-				ExternalId:       "ext_002",
-				Name:             "Resource Two",
-				ResourceTypeSlug: "document",
-				OrganizationId:   "org_123",
-				CreatedAt:        "2024-01-02T00:00:00Z",
-				UpdatedAt:        "2024-01-02T00:00:00Z",
-			},
-		},
-		ListMetadata: common.ListMetadata{
-			Before: "",
-			After:  "resource_002",
-		},
-	})
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	w.Write([]byte(`{
+		"data": [
+			{
+				"object": "authorization_resource",
+				"id": "resource_001",
+				"external_id": "ext_001",
+				"name": "Resource One",
+				"description": "First resource",
+				"resource_type_slug": "document",
+				"organization_id": "org_123",
+				"parent_resource_id": "parent_001",
+				"created_at": "2024-01-01T00:00:00Z",
+				"updated_at": "2024-01-01T00:00:00Z"
+			},
+			{
+				"object": "authorization_resource",
+				"id": "resource_002",
+				"external_id": "ext_002",
+				"name": "Resource Two",
+				"description": null,
+				"resource_type_slug": "document",
+				"organization_id": "org_123",
+				"parent_resource_id": null,
+				"created_at": "2024-01-02T00:00:00Z",
+				"updated_at": "2024-01-02T00:00:00Z"
+			}
+		],
+		"list_metadata": {
+			"before": "",
+			"after": "resource_002"
+		}
+	}`))
 }
 
 func TestListResourcesFilters(t *testing.T) {

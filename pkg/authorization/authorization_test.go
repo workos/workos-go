@@ -59,7 +59,7 @@ func TestAuthorizationCreateResourceWithParent(t *testing.T) {
 		Name:             "Test Resource",
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
-		ParentResourceId: "parent_123",
+		ParentResourceId: stringPtr("parent_123"),
 		CreatedAt:        "2024-01-01T00:00:00Z",
 		UpdatedAt:        "2024-01-01T00:00:00Z",
 	}
@@ -76,7 +76,7 @@ func TestAuthorizationCreateResourceWithParent(t *testing.T) {
 }
 
 func TestAuthorizationGetResource(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getResourceTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(getResourceWithoutParentHandler))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -90,7 +90,7 @@ func TestAuthorizationGetResource(t *testing.T) {
 		Id:               "resource_123",
 		ExternalId:       "ext_123",
 		Name:             "Test Resource",
-		Description:      "A test resource",
+		Description:      stringPtr("A test resource"),
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
 		CreatedAt:        "2024-01-01T00:00:00Z",
@@ -121,7 +121,7 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 		Id:               "resource_123",
 		ExternalId:       "ext_123",
 		Name:             "Updated Resource",
-		Description:      "Updated description",
+		Description:      stringPtr("Updated description"),
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
 		CreatedAt:        "2024-01-01T00:00:00Z",
@@ -171,8 +171,10 @@ func TestAuthorizationListResources(t *testing.T) {
 				Id:               "resource_001",
 				ExternalId:       "ext_001",
 				Name:             "Resource One",
+				Description:      stringPtr("First resource"),
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
+				ParentResourceId: stringPtr("parent_001"),
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
@@ -181,8 +183,10 @@ func TestAuthorizationListResources(t *testing.T) {
 				Id:               "resource_002",
 				ExternalId:       "ext_002",
 				Name:             "Resource Two",
+				Description:      nil,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
+				ParentResourceId: nil,
 				CreatedAt:        "2024-01-02T00:00:00Z",
 				UpdatedAt:        "2024-01-02T00:00:00Z",
 			},

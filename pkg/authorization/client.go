@@ -158,16 +158,16 @@ type Permission struct {
 
 // AuthorizationResource represents a resource in the authorization system.
 type AuthorizationResource struct {
-	Object           string `json:"object"`
-	Id               string `json:"id"`
-	ExternalId       string `json:"external_id"`
-	Name             string `json:"name"`
-	Description      string `json:"description"`
-	ResourceTypeSlug string `json:"resource_type_slug"`
-	OrganizationId   string `json:"organization_id"`
-	ParentResourceId string `json:"parent_resource_id"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
+	Object           string  `json:"object"`
+	Id               string  `json:"id"`
+	ExternalId       string  `json:"external_id"`
+	Name             string  `json:"name"`
+	Description      *string `json:"description"`
+	ResourceTypeSlug string  `json:"resource_type_slug"`
+	OrganizationId   string  `json:"organization_id"`
+	ParentResourceId *string `json:"parent_resource_id"`
+	CreatedAt        string  `json:"created_at"`
+	UpdatedAt        string  `json:"updated_at"`
 }
 
 // RoleAssignment represents a role assigned to a membership.
@@ -681,9 +681,9 @@ func (c *Client) GetResource(ctx context.Context, opts GetAuthorizationResourceO
 		return AuthorizationResource{}, err
 	}
 	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -717,9 +717,9 @@ func (c *Client) UpdateResource(ctx context.Context, opts UpdateAuthorizationRes
 		return AuthorizationResource{}, err
 	}
 	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -748,9 +748,9 @@ func (c *Client) DeleteResource(ctx context.Context, opts DeleteAuthorizationRes
 		return err
 	}
 	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
 
 	if opts.CascadeDelete {
 		q := req.URL.Query()
@@ -778,9 +778,9 @@ func (c *Client) ListResources(ctx context.Context, opts ListAuthorizationResour
 		return ListAuthorizationResourcesResponse{}, err
 	}
 	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
 
 	if opts.Limit == 0 {
 		opts.Limit = DefaultListSize
