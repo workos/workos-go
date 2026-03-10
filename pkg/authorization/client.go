@@ -373,11 +373,11 @@ type GetAuthorizationResourceOpts struct {
 
 // CreateAuthorizationResourceOpts contains the options for creating a resource.
 type CreateAuthorizationResourceOpts struct {
-	ExternalId       string                   `json:"external_id"`
-	Name             string                   `json:"name"`
-	Description      string                   `json:"description,omitempty"`
-	ResourceTypeSlug string                   `json:"resource_type_slug"`
-	OrganizationId   string                   `json:"organization_id"`
+	ExternalId               string                   `json:"external_id"`
+	Name                     string                   `json:"name"`
+	Description              string                   `json:"description,omitempty"`
+	ResourceTypeSlug         string                   `json:"resource_type_slug"`
+	OrganizationId           string                   `json:"organization_id"`
 	ParentResourceIdentifier ParentResourceIdentifier `json:"-"`
 	ParentResourceExternalId string                   `json:"-"`
 	ParentResourceTypeSlug   string                   `json:"-"`

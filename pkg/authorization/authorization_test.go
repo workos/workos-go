@@ -64,10 +64,10 @@ func TestAuthorizationCreateResourceWithParent(t *testing.T) {
 		UpdatedAt:        "2024-01-01T00:00:00Z",
 	}
 	resource, err := CreateResource(context.Background(), CreateAuthorizationResourceOpts{
-		ExternalId:       "ext_123",
-		Name:             "Test Resource",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_123",
+		ExternalId:               "ext_123",
+		Name:                     "Test Resource",
+		ResourceTypeSlug:         "document",
+		OrganizationId:           "org_123",
 		ParentResourceIdentifier: ParentResourceIdentifierById{ParentResourceId: "parent_123"},
 	})
 
