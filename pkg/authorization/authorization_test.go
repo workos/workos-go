@@ -68,7 +68,7 @@ func TestAuthorizationCreateResourceWithParent(t *testing.T) {
 		Name:             "Test Resource",
 		ResourceTypeSlug: "document",
 		OrganizationId:   "org_123",
-		Parent:           ParentResourceIdentifierById{ParentResourceId: "parent_123"},
+		ParentResourceIdentifier: ParentResourceIdentifierById{ParentResourceId: "parent_123"},
 	})
 
 	require.NoError(t, err)

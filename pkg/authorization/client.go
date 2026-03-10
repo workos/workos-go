@@ -378,7 +378,9 @@ type CreateAuthorizationResourceOpts struct {
 	Description      string                   `json:"description,omitempty"`
 	ResourceTypeSlug string                   `json:"resource_type_slug"`
 	OrganizationId   string                   `json:"organization_id"`
-	Parent           ParentResourceIdentifier `json:"-"`
+	ParentResourceIdentifier ParentResourceIdentifier `json:"-"`
+	ParentResourceExternalId string                   `json:"-"`
+	ParentResourceTypeSlug   string                   `json:"-"`
 }
 
 // UpdateAuthorizationResourceOpts contains the options for updating a resource.
@@ -623,6 +625,13 @@ func (c *Client) DeletePermission(ctx context.Context, opts DeletePermissionOpts
 func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
 
+	if opts.ParentResourceIdentifier != nil && opts.ParentResourceExternalId != "" {
+		return AuthorizationResource{}, errors.New("cannot specify both ParentResourceIdentifier and ParentResourceExternalId; use one approach")
+	}
+	if opts.ParentResourceExternalId != "" && opts.ParentResourceTypeSlug == "" {
+		return AuthorizationResource{}, errors.New("ParentResourceTypeSlug is required when ParentResourceExternalId is set")
+	}
+
 	endpoint := fmt.Sprintf("%s/%s", c.Endpoint, authorizationResourcesPath)
 
 	body := map[string]interface{}{
@@ -634,10 +643,14 @@ func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationRes
 	if opts.Description != "" {
 		body["description"] = opts.Description
 	}
-	if opts.Parent != nil {
-		for k, v := range opts.Parent.parentResourceIdentifierParams() {
+	if opts.ParentResourceIdentifier != nil {
+		for k, v := range opts.ParentResourceIdentifier.parentResourceIdentifierParams() {
 			body[k] = v
 		}
+	}
+	if opts.ParentResourceExternalId != "" {
+		body["parent_resource_external_id"] = opts.ParentResourceExternalId
+		body["parent_resource_type_slug"] = opts.ParentResourceTypeSlug
 	}
 
 	data, err := c.JSONEncode(body)

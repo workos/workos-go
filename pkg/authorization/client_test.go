@@ -41,6 +41,34 @@ func TestCreateResource(t *testing.T) {
 			err: true,
 		},
 		{
+			scenario: "Request with both ParentResourceIdentifier and ParentResourceExternalId returns error",
+			client:   &Client{APIKey: "test"},
+			handler:  createResourceWithParentTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:               "ext_123",
+				Name:                     "Test Resource",
+				ResourceTypeSlug:         "document",
+				OrganizationId:           "org_123",
+				ParentResourceIdentifier: ParentResourceIdentifierById{ParentResourceId: "parent_123"},
+				ParentResourceExternalId: "parent_ext_123",
+				ParentResourceTypeSlug:   "folder",
+			},
+			err: true,
+		},
+		{
+			scenario: "Request with ParentResourceExternalId but no ParentResourceTypeSlug returns error",
+			client:   &Client{APIKey: "test"},
+			handler:  createResourceWithParentTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:               "ext_123",
+				Name:                     "Test Resource",
+				ResourceTypeSlug:         "document",
+				OrganizationId:           "org_123",
+				ParentResourceExternalId: "parent_ext_123",
+			},
+			err: true,
+		},
+		{
 			scenario: "Request creates resource with parent by ID",
 			client:   &Client{APIKey: "test"},
 			handler:  createResourceWithParentTestHandler,
@@ -49,7 +77,7 @@ func TestCreateResource(t *testing.T) {
 				Name:             "Test Resource",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				Parent:           ParentResourceIdentifierById{ParentResourceId: "parent_123"},
+				ParentResourceIdentifier: ParentResourceIdentifierById{ParentResourceId: "parent_123"},
 			},
 			expected: AuthorizationResource{
 				Object:           "authorization_resource",
@@ -72,10 +100,8 @@ func TestCreateResource(t *testing.T) {
 				Name:             "Test Resource",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
-				Parent: ParentResourceIdentifierByExternalId{
-					ParentResourceExternalId: "parent_ext_123",
-					ParentResourceTypeSlug:   "folder",
-				},
+				ParentResourceExternalId: "parent_ext_123",
+				ParentResourceTypeSlug:   "folder",
 			},
 			expected: AuthorizationResource{
 				Object:           "authorization_resource",
@@ -104,6 +130,28 @@ func TestCreateResource(t *testing.T) {
 				Id:               "resource_new",
 				ExternalId:       "ext_123",
 				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request creates resource without description",
+			client:   &Client{APIKey: "test"},
+			handler:  createResourceWithoutDescriptionTestHandler,
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_new",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      nil,
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_123",
 				CreatedAt:        "2024-01-01T00:00:00Z",
@@ -250,12 +298,14 @@ func TestUpdateResource(t *testing.T) {
 		scenario string
 		client   *Client
 		options  UpdateAuthorizationResourceOpts
+		handler  http.HandlerFunc
 		expected AuthorizationResource
 		err      bool
 	}{
 		{
 			scenario: "Request without API Key returns an error",
 			client:   &Client{},
+			handler:  updateResourceTestHandler,
 			options: UpdateAuthorizationResourceOpts{
 				ResourceId: "resource_123",
 				Name:       &newName,
@@ -263,8 +313,9 @@ func TestUpdateResource(t *testing.T) {
 			err: true,
 		},
 		{
-			scenario: "Request uses PATCH method and updates name and description",
+			scenario: "Updates name and description",
 			client:   &Client{APIKey: "test"},
+			handler:  updateResourceTestHandler,
 			options: UpdateAuthorizationResourceOpts{
 				ResourceId:  "resource_123",
 				Name:        &newName,
@@ -282,11 +333,74 @@ func TestUpdateResource(t *testing.T) {
 				UpdatedAt:        "2024-01-02T00:00:00Z",
 			},
 		},
+		{
+			scenario: "Updates name only",
+			client:   &Client{APIKey: "test"},
+			handler:  updateResourceNameOnlyTestHandler,
+			options: UpdateAuthorizationResourceOpts{
+				ResourceId: "resource_123",
+				Name:       &newName,
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Updated Resource",
+				Description:      stringPtr("A test resource"),
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-02T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Updates description only",
+			client:   &Client{APIKey: "test"},
+			handler:  updateResourceDescriptionOnlyTestHandler,
+			options: UpdateAuthorizationResourceOpts{
+				ResourceId:  "resource_123",
+				Description: &newDesc,
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      stringPtr("Updated description"),
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-02T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Sets description to null",
+			client:   &Client{APIKey: "test"},
+			handler:  updateResourceNullDescriptionTestHandler,
+			options: UpdateAuthorizationResourceOpts{
+				ResourceId: "resource_123",
+				Name:       &newName,
+				// Description is intentionally left nil (*string zero value).
+				// Because the json tag has no omitempty, nil serializes as "description": null,
+				// which tells the API to clear the description.
+			},
+			expected: AuthorizationResource{
+				Object:           "authorization_resource",
+				Id:               "resource_123",
+				ExternalId:       "ext_123",
+				Name:             "Updated Resource",
+				Description:      nil,
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+				CreatedAt:        "2024-01-01T00:00:00Z",
+				UpdatedAt:        "2024-01-02T00:00:00Z",
+			},
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(updateResourceTestHandler))
+			server := httptest.NewServer(test.handler)
 			defer server.Close()
 
 			client := test.client
@@ -655,6 +769,50 @@ func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Reque
 	}`))
 }
 
+func createResourceWithoutDescriptionTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if _, hasDescription := reqBody["description"]; hasDescription {
+		http.Error(w, "unexpected description in request body", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_new",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": null,
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-01T00:00:00Z"
+	}`))
+}
+
 func getResourceHandler(w http.ResponseWriter, r *http.Request, responseJSON string) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
@@ -762,6 +920,143 @@ func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 		"external_id": "ext_123",
 		"name": "Updated Resource",
 		"description": "Updated description",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-02T00:00:00Z"
+	}`))
+}
+
+func updateResourceNameOnlyTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if _, hasName := reqBody["name"]; !hasName {
+		http.Error(w, "expected name in request body", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Updated Resource",
+		"description": "A test resource",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-02T00:00:00Z"
+	}`))
+}
+
+func updateResourceDescriptionOnlyTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if _, hasDesc := reqBody["description"]; !hasDesc {
+		http.Error(w, "expected description in request body", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Test Resource",
+		"description": "Updated description",
+		"resource_type_slug": "document",
+		"organization_id": "org_123",
+		"parent_resource_id": null,
+		"created_at": "2024-01-01T00:00:00Z",
+		"updated_at": "2024-01-02T00:00:00Z"
+	}`))
+}
+
+func updateResourceNullDescriptionTestHandler(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var reqBody map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	descVal, hasDesc := reqBody["description"]
+	if !hasDesc {
+		http.Error(w, "expected description in request body", http.StatusBadRequest)
+		return
+	}
+	if descVal != nil {
+		http.Error(w, "expected description to be null", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{
+		"object": "authorization_resource",
+		"id": "resource_123",
+		"external_id": "ext_123",
+		"name": "Updated Resource",
+		"description": null,
 		"resource_type_slug": "document",
 		"organization_id": "org_123",
 		"parent_resource_id": null,
