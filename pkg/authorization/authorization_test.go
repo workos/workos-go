@@ -11,123 +11,271 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
-func TestAuthorizationListRoleAssignments(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listRoleAssignmentsTestHandler))
-	defer server.Close()
+func TestListRoleAssignmentsWithDefaultClient(t *testing.T) {
+	t.Run("returns role assignments", func(t *testing.T) {
+		var capturedPath string
 
-	DefaultClient = &Client{
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-	SetAPIKey("test")
-
-	expectedResponse := ListRoleAssignmentsResponse{
-		Data: []RoleAssignment{
-			{
-				Object: "role_assignment",
-				Id:     "ra_01ABC",
-				Role:   RoleAssignmentRole{Slug: "admin"},
-				Resource: RoleAssignmentResource{
-					Id:               "resource_01",
-					ExternalId:       "ext-1",
-					ResourceTypeSlug: "project",
+		response := ListRoleAssignmentsResponse{
+			Data: []RoleAssignment{
+				{
+					Object: "role_assignment",
+					Id:     "ra_01ABC",
+					Role:   RoleAssignmentRole{Slug: "admin"},
+					Resource: RoleAssignmentResource{
+						Id:               "resource_01",
+						ExternalId:       "ext-1",
+						ResourceTypeSlug: "project",
+					},
+					CreatedAt: "2024-01-01T00:00:00Z",
+					UpdatedAt: "2024-01-01T00:00:00Z",
 				},
-				CreatedAt: "2024-01-01T00:00:00Z",
-				UpdatedAt: "2024-01-01T00:00:00Z",
-			},
-			{
-				Object: "role_assignment",
-				Id:     "ra_02DEF",
-				Role:   RoleAssignmentRole{Slug: "viewer"},
-				Resource: RoleAssignmentResource{
-					Id:               "resource_02",
-					ExternalId:       "ext-2",
-					ResourceTypeSlug: "document",
+				{
+					Object: "role_assignment",
+					Id:     "ra_02DEF",
+					Role:   RoleAssignmentRole{Slug: "viewer"},
+					Resource: RoleAssignmentResource{
+						Id:               "resource_02",
+						ExternalId:       "ext-2",
+						ResourceTypeSlug: "document",
+					},
+					CreatedAt: "2024-01-02T00:00:00Z",
+					UpdatedAt: "2024-01-02T00:00:00Z",
 				},
-				CreatedAt: "2024-01-02T00:00:00Z",
-				UpdatedAt: "2024-01-02T00:00:00Z",
 			},
-		},
-		ListMetadata: common.ListMetadata{
-			Before: "",
-			After:  "ra_02DEF",
-		},
-	}
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "ra_02DEF",
+			},
+		}
 
-	result, err := ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
-		OrganizationMembershipId: "om_01JKR3PB",
-		Limit:                    10,
+		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(nil, &capturedPath, response)))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		result, err := ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			Limit:                    10,
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, response, result)
+		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments", capturedPath)
 	})
 
-	require.NoError(t, err)
-	require.Equal(t, expectedResponse, result)
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		_, err := ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+		})
+		require.Error(t, err)
+	})
 }
 
-func TestAuthorizationAssignRole(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(assignRoleTestHandler))
-	defer server.Close()
+func TestAssignRoleWithDefaultClient(t *testing.T) {
+	t.Run("assigns role with resource id", func(t *testing.T) {
+		var capturedBody map[string]interface{}
+		var capturedPath string
 
-	DefaultClient = &Client{
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-	SetAPIKey("test")
+		response := RoleAssignment{
+			Object: "role_assignment",
+			Id:     "ra_01ABC",
+			Role:   RoleAssignmentRole{Slug: "admin"},
+			Resource: RoleAssignmentResource{
+				Id:               "resource_01",
+				ResourceTypeSlug: "project",
+			},
+			CreatedAt: "2024-01-01T00:00:00Z",
+			UpdatedAt: "2024-01-01T00:00:00Z",
+		}
 
-	expectedResponse := RoleAssignment{
-		Object: "role_assignment",
-		Id:     "ra_01ABC",
-		Role:   RoleAssignmentRole{Slug: "admin"},
-		Resource: RoleAssignmentResource{
-			Id:               "resource_01",
-			ResourceTypeSlug: "project",
-		},
-		CreatedAt: "2024-01-01T00:00:00Z",
-		UpdatedAt: "2024-01-01T00:00:00Z",
-	}
+		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(&capturedBody, &capturedPath, response)))
+		defer server.Close()
 
-	result, err := AssignRole(context.Background(), AssignRoleOpts{
-		OrganizationMembershipId: "om_01JKR3PB",
-		RoleSlug:                 "admin",
-		Resource:                 ResourceIdentifierById{ResourceId: "resource_01"},
+		setupDefaultClient(server)
+
+		result, err := AssignRole(context.Background(), AssignRoleOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleSlug:                 "admin",
+			Resource:                 ResourceIdentifierById{ResourceId: "resource_01"},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, response, result)
+		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments", capturedPath)
+		require.Equal(t, "admin", capturedBody["role_slug"])
+		require.Equal(t, "resource_01", capturedBody["resource_id"])
+		require.NotContains(t, capturedBody, "resource_external_id")
+		require.NotContains(t, capturedBody, "resource_type_slug")
 	})
 
-	require.NoError(t, err)
-	require.Equal(t, expectedResponse, result)
+	t.Run("assigns role with resource external id", func(t *testing.T) {
+		var capturedBody map[string]interface{}
+		var capturedPath string
+
+		response := RoleAssignment{
+			Object: "role_assignment",
+			Id:     "ra_03GHI",
+			Role:   RoleAssignmentRole{Slug: "editor"},
+			Resource: RoleAssignmentResource{
+				ExternalId:       "ext-resource-42",
+				ResourceTypeSlug: "document",
+			},
+			CreatedAt: "2024-01-03T00:00:00Z",
+			UpdatedAt: "2024-01-03T00:00:00Z",
+		}
+
+		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(&capturedBody, &capturedPath, response)))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		result, err := AssignRole(context.Background(), AssignRoleOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleSlug:                 "editor",
+			Resource: ResourceIdentifierByExternalId{
+				ResourceExternalId: "ext-resource-42",
+				ResourceTypeSlug:   "document",
+			},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, response, result)
+		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments", capturedPath)
+		require.Equal(t, "editor", capturedBody["role_slug"])
+		require.Equal(t, "ext-resource-42", capturedBody["resource_external_id"])
+		require.Equal(t, "document", capturedBody["resource_type_slug"])
+		require.NotContains(t, capturedBody, "resource_id")
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		_, err := AssignRole(context.Background(), AssignRoleOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleSlug:                 "admin",
+			Resource:                 ResourceIdentifierById{ResourceId: "resource_01"},
+		})
+		require.Error(t, err)
+	})
 }
 
-func TestAuthorizationRemoveRole(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(removeRoleTestHandler))
-	defer server.Close()
+func TestRemoveRoleWithDefaultClient(t *testing.T) {
+	t.Run("removes role with resource id", func(t *testing.T) {
+		var capturedBody map[string]interface{}
+		var capturedPath string
 
-	DefaultClient = &Client{
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-	SetAPIKey("test")
+		server := httptest.NewServer(http.HandlerFunc(noContentHandler(&capturedBody, &capturedPath)))
+		defer server.Close()
 
-	err := RemoveRole(context.Background(), RemoveRoleOpts{
-		OrganizationMembershipId: "om_01JKR3PB",
-		RoleSlug:                 "admin",
-		Resource:                 ResourceIdentifierById{ResourceId: "resource_01"},
+		setupDefaultClient(server)
+
+		err := RemoveRole(context.Background(), RemoveRoleOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleSlug:                 "admin",
+			Resource:                 ResourceIdentifierById{ResourceId: "resource_01"},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments", capturedPath)
+		require.Equal(t, "admin", capturedBody["role_slug"])
+		require.Equal(t, "resource_01", capturedBody["resource_id"])
+		require.NotContains(t, capturedBody, "resource_external_id")
+		require.NotContains(t, capturedBody, "resource_type_slug")
 	})
 
-	require.NoError(t, err)
+	t.Run("removes role with resource external id", func(t *testing.T) {
+		var capturedBody map[string]interface{}
+		var capturedPath string
+
+		server := httptest.NewServer(http.HandlerFunc(noContentHandler(&capturedBody, &capturedPath)))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		err := RemoveRole(context.Background(), RemoveRoleOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleSlug:                 "editor",
+			Resource: ResourceIdentifierByExternalId{
+				ResourceExternalId: "ext-resource-42",
+				ResourceTypeSlug:   "document",
+			},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments", capturedPath)
+		require.Equal(t, "editor", capturedBody["role_slug"])
+		require.Equal(t, "ext-resource-42", capturedBody["resource_external_id"])
+		require.Equal(t, "document", capturedBody["resource_type_slug"])
+		require.NotContains(t, capturedBody, "resource_id")
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		err := RemoveRole(context.Background(), RemoveRoleOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleSlug:                 "admin",
+			Resource:                 ResourceIdentifierById{ResourceId: "resource_01"},
+		})
+		require.Error(t, err)
+	})
 }
 
-func TestAuthorizationRemoveRoleAssignment(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(removeRoleAssignmentTestHandler))
-	defer server.Close()
+func TestRemoveRoleAssignmentWithDefaultClient(t *testing.T) {
+	t.Run("removes role assignment by id", func(t *testing.T) {
+		var capturedPath string
 
-	DefaultClient = &Client{
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-	SetAPIKey("test")
+		server := httptest.NewServer(http.HandlerFunc(noContentHandler(nil, &capturedPath)))
+		defer server.Close()
 
-	err := RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
-		OrganizationMembershipId: "om_01JKR3PB",
-		RoleAssignmentId:         "ra_01ABC",
+		setupDefaultClient(server)
+
+		err := RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleAssignmentId:         "ra_01ABC",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments/ra_01ABC", capturedPath)
 	})
 
-	require.NoError(t, err)
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		err := RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
+			OrganizationMembershipId: "om_01JKR3PB",
+			RoleAssignmentId:         "ra_01ABC",
+		})
+		require.Error(t, err)
+	})
+}
+
+func setupDefaultClient(server *httptest.Server) {
+	DefaultClient = &Client{
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		Endpoint:   server.URL,
+	}
+	SetAPIKey("test")
 }
