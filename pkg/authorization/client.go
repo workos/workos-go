@@ -1,15 +1,19 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -557,31 +561,180 @@ func (c *Client) DeleteOrganizationRole(ctx context.Context, opts DeleteOrganiza
 // SetEnvironmentRolePermissions sets permissions for an environment role.
 func (c *Client) SetEnvironmentRolePermissions(ctx context.Context, opts SetEnvironmentRolePermissionsOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/roles/%s/permissions", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	var body EnvironmentRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // AddEnvironmentRolePermission adds a permission to an environment role.
 func (c *Client) AddEnvironmentRolePermission(ctx context.Context, opts AddEnvironmentRolePermissionOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/roles/%s/permissions", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return EnvironmentRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return EnvironmentRole{}, err
+	}
+
+	var body EnvironmentRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // SetOrganizationRolePermissions sets permissions for an organization role.
 func (c *Client) SetOrganizationRolePermissions(ctx context.Context, opts SetOrganizationRolePermissionsOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/roles/%s/permissions",
+		c.Endpoint,
+		opts.OrganizationId,
+		opts.Slug,
+	)
+	req, err := http.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationRole{}, err
+	}
+
+	var body OrganizationRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // AddOrganizationRolePermission adds a permission to an organization role.
 func (c *Client) AddOrganizationRolePermission(ctx context.Context, opts AddOrganizationRolePermissionOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/roles/%s/permissions",
+		c.Endpoint,
+		opts.OrganizationId,
+		opts.Slug,
+	)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationRole{}, err
+	}
+
+	var body OrganizationRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // RemoveOrganizationRolePermission removes a permission from an organization role.
 func (c *Client) RemoveOrganizationRolePermission(ctx context.Context, opts RemoveOrganizationRolePermissionOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/roles/%s/permissions/%s",
+		c.Endpoint,
+		opts.OrganizationId,
+		opts.Slug,
+		opts.PermissionSlug,
+	)
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // CreatePermission creates a new permission.
