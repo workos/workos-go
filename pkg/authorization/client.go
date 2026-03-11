@@ -441,7 +441,7 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipId string       `json:"-" url:"-"`
+	OrganizationMembershipId string       `json:"-"`
 	Limit                    int          `url:"limit,omitempty"`
 	Before                   string       `url:"before,omitempty"`
 	After                    string       `url:"after,omitempty"`
@@ -452,6 +452,7 @@ type ListRoleAssignmentsOpts struct {
 type AssignRoleOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
+	// todo rename to ResourceIdentifier, adjust accordingly across tests and file as well
 	Resource                 ResourceIdentifier `json:"-"`
 }
 
@@ -459,6 +460,7 @@ type AssignRoleOpts struct {
 type RemoveRoleOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
+	// todo rename to ResourceIdentifier, adjust accordingly across tests and file as well
 	Resource                 ResourceIdentifier `json:"-"`
 }
 
