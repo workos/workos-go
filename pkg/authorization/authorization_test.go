@@ -13,8 +13,9 @@ import (
 func TestCheckWithDefaultClient(t *testing.T) {
 	t.Run("returns authorized when resource id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		setupDefaultClient(server)
@@ -27,6 +28,7 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 		require.NoError(t, err)
 		require.True(t, result.Authorized)
+		require.Equal(t, "/authorization/organization_memberships/om_01JTEST/check", capturedPath)
 		require.Equal(t, "posts:read", capturedBody["permission_slug"])
 		require.Equal(t, "res_01JTEST", capturedBody["resource_id"])
 		require.NotContains(t, capturedBody, "resource_external_id")
@@ -35,8 +37,9 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 	t.Run("returns authorized when resource external id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		setupDefaultClient(server)
@@ -52,6 +55,7 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 		require.NoError(t, err)
 		require.True(t, result.Authorized)
+		require.Equal(t, "/authorization/organization_memberships/om_01JTEST/check", capturedPath)
 		require.Equal(t, "posts:read", capturedBody["permission_slug"])
 		require.Equal(t, "ext_123", capturedBody["resource_external_id"])
 		require.Equal(t, "post", capturedBody["resource_type_slug"])
@@ -60,8 +64,9 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 	t.Run("returns unauthorized when resource id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		setupDefaultClient(server)
@@ -74,6 +79,7 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 		require.NoError(t, err)
 		require.False(t, result.Authorized)
+		require.Equal(t, "/authorization/organization_memberships/om_01JTEST/check", capturedPath)
 		require.Equal(t, "posts:read", capturedBody["permission_slug"])
 		require.Equal(t, "res_01JTEST", capturedBody["resource_id"])
 		require.NotContains(t, capturedBody, "resource_external_id")
@@ -82,8 +88,9 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 	t.Run("returns unauthorized when resource external id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		setupDefaultClient(server)
@@ -99,14 +106,31 @@ func TestCheckWithDefaultClient(t *testing.T) {
 
 		require.NoError(t, err)
 		require.False(t, result.Authorized)
+		require.Equal(t, "/authorization/organization_memberships/om_01JTEST/check", capturedPath)
 		require.Equal(t, "posts:read", capturedBody["permission_slug"])
 		require.Equal(t, "ext_123", capturedBody["resource_external_id"])
 		require.Equal(t, "post", capturedBody["resource_type_slug"])
 		require.NotContains(t, capturedBody, "resource_id")
 	})
 
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		setupDefaultClient(server)
+
+		_, err := Check(context.Background(), AuthorizationCheckOpts{
+			OrganizationMembershipId: "om_01JTEST",
+			PermissionSlug:           "posts:read",
+			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
+		})
+		require.Error(t, err)
+	})
+
 	t.Run("returns error when resource identifier is nil", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(nil)))
+		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(nil, nil)))
 		defer server.Close()
 
 		setupDefaultClient(server)

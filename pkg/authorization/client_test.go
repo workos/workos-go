@@ -14,8 +14,9 @@ import (
 func TestCheck(t *testing.T) {
 	t.Run("returns authorized when resource id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		client := newAuthorizationTestClient(server)
@@ -29,6 +30,7 @@ func TestCheck(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, result.Authorized)
 
+		require.Equal(t, "/authorization/organization_memberships/test_org_membership_id/check", capturedPath)
 		require.Equal(t, "test:read", capturedBody["permission_slug"])
 		require.Equal(t, "res_01JTEST", capturedBody["resource_id"])
 		require.NotContains(t, capturedBody, "resource_external_id")
@@ -37,8 +39,9 @@ func TestCheck(t *testing.T) {
 
 	t.Run("returns authorized when resource external id and type slug are provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		client := newAuthorizationTestClient(server)
@@ -55,6 +58,7 @@ func TestCheck(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, result.Authorized)
 
+		require.Equal(t, "/authorization/organization_memberships/test_org_membership_id/check", capturedPath)
 		require.Equal(t, "test:read", capturedBody["permission_slug"])
 		require.Equal(t, "ext_123", capturedBody["resource_external_id"])
 		require.Equal(t, "post", capturedBody["resource_type_slug"])
@@ -63,8 +67,9 @@ func TestCheck(t *testing.T) {
 
 	t.Run("returns unauthorized when resource id is provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		client := newAuthorizationTestClient(server)
@@ -78,6 +83,7 @@ func TestCheck(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, result.Authorized)
 
+		require.Equal(t, "/authorization/organization_memberships/test_org_membership_id/check", capturedPath)
 		require.Equal(t, "test:read", capturedBody["permission_slug"])
 		require.Equal(t, "res_01JTEST", capturedBody["resource_id"])
 		require.NotContains(t, capturedBody, "resource_external_id")
@@ -86,8 +92,9 @@ func TestCheck(t *testing.T) {
 
 	t.Run("returns unauthorized when resource external id and type slug are provided", func(t *testing.T) {
 		var capturedBody map[string]interface{}
+		var capturedPath string
 
-		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody)))
+		server := httptest.NewServer(http.HandlerFunc(checkUnauthorizedHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
 		client := newAuthorizationTestClient(server)
@@ -104,28 +111,11 @@ func TestCheck(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, result.Authorized)
 
+		require.Equal(t, "/authorization/organization_memberships/test_org_membership_id/check", capturedPath)
 		require.Equal(t, "test:read", capturedBody["permission_slug"])
 		require.Equal(t, "ext_123", capturedBody["resource_external_id"])
 		require.Equal(t, "post", capturedBody["resource_type_slug"])
 		require.NotContains(t, capturedBody, "resource_id")
-	})
-
-	t.Run("uses organization membership id in url path", func(t *testing.T) {
-		orgMembershipId := "test_org_membership_id"
-		var capturedPath string
-
-		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedPathHandler(&capturedPath)))
-		defer server.Close()
-
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: orgMembershipId,
-			PermissionSlug:           "posts:read",
-			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
-		})
-		require.NoError(t, err)
-		require.Equal(t, "/authorization/organization_memberships/test_org_membership_id/check", capturedPath)
 	})
 
 	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
@@ -168,16 +158,30 @@ func newAuthorizationTestClient(server *httptest.Server) *Client {
 	}
 }
 
-func checkAuthorizedHandler(capturedBody *map[string]interface{}) func(http.ResponseWriter, *http.Request) {
-	return checkHandler(capturedBody, true)
+func checkAuthorizedHandler(
+	capturedBody *map[string]interface{},
+	capturedPath *string,
+) func(http.ResponseWriter, *http.Request) {
+	return checkHandler(capturedBody, capturedPath, true)
 }
 
-func checkUnauthorizedHandler(capturedBody *map[string]interface{}) func(http.ResponseWriter, *http.Request) {
-	return checkHandler(capturedBody, false)
+func checkUnauthorizedHandler(
+	capturedBody *map[string]interface{},
+	capturedPath *string,
+) func(http.ResponseWriter, *http.Request) {
+	return checkHandler(capturedBody, capturedPath, false)
 }
 
-func checkHandler(capturedBody *map[string]interface{}, authorized bool) func(http.ResponseWriter, *http.Request) {
+func checkHandler(
+	capturedBody *map[string]interface{},
+	capturedPath *string,
+	authorized bool,
+) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if capturedPath != nil {
+			*capturedPath = r.URL.Path
+		}
+
 		auth := r.Header.Get("Authorization")
 		if auth != "Bearer test" {
 			http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -194,21 +198,5 @@ func checkHandler(capturedBody *map[string]interface{}, authorized bool) func(ht
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: authorized})
-	}
-}
-
-func checkAuthorizedPathHandler(capturedPath *string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		*capturedPath = r.URL.Path
-
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_ = json.NewEncoder(w).Encode(AccessCheckResponse{Authorized: true})
 	}
 }
