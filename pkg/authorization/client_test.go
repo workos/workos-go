@@ -13,7 +13,399 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
-// Create
+// ---- Test helpers ----
+
+func authHandler(w http.ResponseWriter, r *http.Request) bool {
+	if r.Header.Get("Authorization") != "Bearer test" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return false
+	}
+	return true
+}
+
+func jsonResponse(w http.ResponseWriter, status int, body interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, _ := json.Marshal(body)
+	w.Write(data)
+}
+
+func ptr(s string) *string { return &s }
+
+func resourceResponse(id, extId, name string, desc, parentId *string, createdAt, updatedAt string) AuthorizationResource {
+	return AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               id,
+		ExternalId:       extId,
+		Name:             name,
+		Description:      desc,
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_123",
+		ParentResourceId: parentId,
+		CreatedAt:        createdAt,
+		UpdatedAt:        updatedAt,
+	}
+}
+
+// ---- Pre-built resource fixtures ----
+
+var (
+	createdResourceWithParent    = resourceResponse("resource_new", "ext_123", "Test Resource", nil, ptr("parent_123"), "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
+	createdResourceWithoutParent = resourceResponse("resource_new", "ext_123", "Test Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
+	existingResourceAllFields    = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("A test resource"), ptr("parent_123"), "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
+	existingResourceNoParent     = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("A test resource"), nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
+	existingResourceNoDesc       = resourceResponse("resource_123", "ext_123", "Test Resource", nil, ptr("parent_123"), "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
+	existingResourceMinimal      = resourceResponse("resource_123", "ext_123", "Test Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
+	updatedResourceFull          = resourceResponse("resource_123", "ext_123", "Updated Resource", ptr("Updated description"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
+	updatedResourceNameOnly      = resourceResponse("resource_123", "ext_123", "Updated Resource", ptr("A test resource"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
+	updatedResourceDescOnly      = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("Updated description"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
+	updatedResourceNullDesc      = resourceResponse("resource_123", "ext_123", "Updated Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
+)
+
+// ---- Environment Role fixtures ----
+
+var environmentRoleFixture = EnvironmentRole{
+	Object:           "role",
+	Id:               "role_env_001",
+	Name:             "Admin",
+	Slug:             "admin",
+	Description:      "Full administrative access",
+	Permissions:      []string{"users:read", "users:write", "settings:manage"},
+	ResourceTypeSlug: "organization",
+	Type:             "EnvironmentRole",
+	CreatedAt:        "2024-01-01T00:00:00Z",
+	UpdatedAt:        "2024-01-01T00:00:00Z",
+}
+
+var listEnvironmentRolesFixture = ListEnvironmentRolesResponse{
+	Data: []EnvironmentRole{
+		{
+			Object:           "role",
+			Id:               "role_env_001",
+			Name:             "Admin",
+			Slug:             "admin",
+			Description:      "Full administrative access",
+			Permissions:      []string{"users:read", "users:write", "settings:manage"},
+			ResourceTypeSlug: "organization",
+			Type:             "EnvironmentRole",
+			CreatedAt:        "2024-01-01T00:00:00Z",
+			UpdatedAt:        "2024-01-01T00:00:00Z",
+		},
+		{
+			Object:           "role",
+			Id:               "role_env_002",
+			Name:             "Member",
+			Slug:             "member",
+			Description:      "Basic member access",
+			Permissions:      []string{"users:read"},
+			ResourceTypeSlug: "organization",
+			Type:             "EnvironmentRole",
+			CreatedAt:        "2024-01-02T00:00:00Z",
+			UpdatedAt:        "2024-01-02T00:00:00Z",
+		},
+	},
+}
+
+// ---- Organization Role fixtures ----
+
+var organizationRoleFixture = OrganizationRole{
+	Object:           "role",
+	Id:               "role_org_001",
+	Name:             "Org Admin",
+	Slug:             "org-admin",
+	Description:      "Organization administrator",
+	Permissions:      []string{"org:manage", "members:invite"},
+	ResourceTypeSlug: "organization",
+	Type:             "OrganizationRole",
+	CreatedAt:        "2024-01-01T00:00:00Z",
+	UpdatedAt:        "2024-01-01T00:00:00Z",
+}
+
+var listOrganizationRolesFixture = ListOrganizationRolesResponse{
+	Data: []OrganizationRole{
+		organizationRoleFixture,
+		{
+			Object:           "role",
+			Id:               "role_org_002",
+			Name:             "Org Member",
+			Slug:             "org-member",
+			Description:      "Basic org member",
+			Permissions:      []string{"org:read"},
+			ResourceTypeSlug: "organization",
+			Type:             "OrganizationRole",
+			CreatedAt:        "2024-01-02T00:00:00Z",
+			UpdatedAt:        "2024-01-02T00:00:00Z",
+		},
+	},
+}
+
+// ---- Permission fixtures ----
+
+var permissionFixture = Permission{
+	Object:           "permission",
+	Id:               "perm_001",
+	Slug:             "users:read",
+	Name:             "Read Users",
+	Description:      "Allows reading user data",
+	ResourceTypeSlug: "organization",
+	System:           false,
+	CreatedAt:        "2024-01-01T00:00:00Z",
+	UpdatedAt:        "2024-01-01T00:00:00Z",
+}
+
+var listPermissionsFixture = ListPermissionsResponse{
+	Data: []Permission{
+		permissionFixture,
+		{
+			Object:           "permission",
+			Id:               "perm_002",
+			Slug:             "users:write",
+			Name:             "Write Users",
+			Description:      "Allows modifying user data",
+			ResourceTypeSlug: "organization",
+			System:           false,
+			CreatedAt:        "2024-01-02T00:00:00Z",
+			UpdatedAt:        "2024-01-02T00:00:00Z",
+		},
+	},
+	ListMetadata: common.ListMetadata{
+		Before: "",
+		After:  "perm_002",
+	},
+}
+
+// ---- Role Assignment fixtures ----
+
+var roleAssignmentFixture = RoleAssignment{
+	Object: "role_assignment",
+	Id:     "ra_001",
+	Role:   RoleAssignmentRole{Slug: "admin"},
+	Resource: RoleAssignmentResource{
+		Id:               "resource_123",
+		ExternalId:       "ext_123",
+		ResourceTypeSlug: "document",
+	},
+	CreatedAt: "2024-01-01T00:00:00Z",
+	UpdatedAt: "2024-01-01T00:00:00Z",
+}
+
+var listRoleAssignmentsFixture = ListRoleAssignmentsResponse{
+	Data: []RoleAssignment{roleAssignmentFixture},
+	ListMetadata: common.ListMetadata{
+		Before: "",
+		After:  "ra_001",
+	},
+}
+
+// ---- Membership fixtures ----
+
+var membershipFixture = AuthorizationOrganizationMembership{
+	Object:         "organization_membership",
+	Id:             "om_001",
+	UserId:         "user_123",
+	OrganizationId: "org_123",
+	Status:         "active",
+	CreatedAt:      "2024-01-01T00:00:00Z",
+	UpdatedAt:      "2024-01-01T00:00:00Z",
+}
+
+var listMembershipsFixture = ListAuthorizationOrganizationMembershipsResponse{
+	Data: []AuthorizationOrganizationMembership{membershipFixture},
+	ListMetadata: common.ListMetadata{
+		Before: "",
+		After:  "om_001",
+	},
+}
+
+// ===========================================================================
+// Environment Roles
+// ===========================================================================
+
+func TestCreateEnvironmentRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.CreateEnvironmentRole(context.Background(), CreateEnvironmentRoleOpts{
+		Slug:        "admin",
+		Name:        "Admin",
+		Description: "Full administrative access",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestListEnvironmentRoles(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListEnvironmentRoles(context.Background())
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestGetEnvironmentRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.GetEnvironmentRole(context.Background(), GetEnvironmentRoleOpts{Slug: "admin"})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestUpdateEnvironmentRole(t *testing.T) {
+	name := "Super Admin"
+	desc := "Updated description"
+	client := &Client{APIKey: "test"}
+	_, err := client.UpdateEnvironmentRole(context.Background(), UpdateEnvironmentRoleOpts{
+		Slug: "admin", Name: &name, Description: &desc,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestSetEnvironmentRolePermissions(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.SetEnvironmentRolePermissions(context.Background(), SetEnvironmentRolePermissionsOpts{
+		Slug: "admin", Permissions: []string{"users:read", "users:write"},
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestAddEnvironmentRolePermission(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.AddEnvironmentRolePermission(context.Background(), AddEnvironmentRolePermissionOpts{
+		Slug: "admin", PermissionSlug: "billing:read",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Organization Roles
+// ===========================================================================
+
+func TestCreateOrganizationRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+		OrganizationId: "org_123",
+		Slug:           "org-admin",
+		Name:           "Org Admin",
+		Description:    "Organization administrator",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestListOrganizationRoles(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+		OrganizationId: "org_123",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestGetOrganizationRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+		OrganizationId: "org_123", Slug: "org-admin",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestUpdateOrganizationRole(t *testing.T) {
+	name := "Super Org Admin"
+	desc := "Updated description"
+	client := &Client{APIKey: "test"}
+	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+		OrganizationId: "org_123", Slug: "org-admin", Name: &name, Description: &desc,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestDeleteOrganizationRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+		OrganizationId: "org_123", Slug: "org-admin",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestSetOrganizationRolePermissions(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.SetOrganizationRolePermissions(context.Background(), SetOrganizationRolePermissionsOpts{
+		OrganizationId: "org_123", Slug: "org-admin", Permissions: []string{"org:read", "org:write"},
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestAddOrganizationRolePermission(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.AddOrganizationRolePermission(context.Background(), AddOrganizationRolePermissionOpts{
+		OrganizationId: "org_123", Slug: "org-admin", PermissionSlug: "billing:read",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestRemoveOrganizationRolePermission(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	err := client.RemoveOrganizationRolePermission(context.Background(), RemoveOrganizationRolePermissionOpts{
+		OrganizationId: "org_123", Slug: "org-admin", PermissionSlug: "billing:read",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Permissions
+// ===========================================================================
+
+func TestCreatePermission(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
+		Slug:        "users:read",
+		Name:        "Read Users",
+		Description: "Allows reading user data",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestListPermissions(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestGetPermission(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.GetPermission(context.Background(), GetPermissionOpts{Slug: "users:read"})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestUpdatePermission(t *testing.T) {
+	name := "Read All Users"
+	desc := "Updated description"
+	client := &Client{APIKey: "test"}
+	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
+		Slug: "users:read", Name: &name, Description: &desc,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestDeletePermission(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	err := client.DeletePermission(context.Background(), DeletePermissionOpts{Slug: "users:read"})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Resources (implemented)
+// ===========================================================================
 
 func TestCreateResource(t *testing.T) {
 	parentId := "parent_123"
@@ -129,6 +521,41 @@ func TestCreateResource(t *testing.T) {
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
 			},
+		},
+		{
+			scenario: "Request creates resource with description",
+			client:   &Client{APIKey: "test"},
+			handler: func(w http.ResponseWriter, r *http.Request) {
+				if !authHandler(w, r) {
+					return
+				}
+				if r.Method != http.MethodPost {
+					http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+					return
+				}
+				if r.URL.Path != "/authorization/resources" {
+					http.Error(w, "invalid path", http.StatusNotFound)
+					return
+				}
+				var reqBody map[string]interface{}
+				if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+					http.Error(w, "invalid request body", http.StatusBadRequest)
+					return
+				}
+				if _, has := reqBody["description"]; !has {
+					http.Error(w, "expected description in request body", http.StatusBadRequest)
+					return
+				}
+				jsonResponse(w, http.StatusOK, resourceResponse("resource_new", "ext_123", "Test Resource", ptr("A resource"), nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z"))
+			},
+			options: CreateAuthorizationResourceOpts{
+				ExternalId:       "ext_123",
+				Name:             "Test Resource",
+				Description:      ptr("A resource"),
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_123",
+			},
+			expected: resourceResponse("resource_new", "ext_123", "Test Resource", ptr("A resource"), nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z"),
 		},
 	}
 
@@ -392,15 +819,13 @@ func TestUpdateResource(t *testing.T) {
 	}
 }
 
-// Delete
-
 func TestDeleteResource(t *testing.T) {
 	tests := []struct {
-		scenario               string
-		client                 *Client
-		options                DeleteAuthorizationResourceOpts
-		expectedCascadeDelete  string
-		err                    bool
+		scenario              string
+		client                *Client
+		options               DeleteAuthorizationResourceOpts
+		expectedCascadeDelete string
+		err                   bool
 	}{
 		{
 			scenario: "Request without API Key returns an error",
@@ -475,8 +900,6 @@ func TestDeleteResource(t *testing.T) {
 	}
 }
 
-// List
-
 func TestListResources(t *testing.T) {
 	firstDesc := "First resource"
 	parentId := "parent_001"
@@ -543,7 +966,7 @@ func TestListResources(t *testing.T) {
 				ResourceTypeSlug: "document",
 			},
 			expectedParams: map[string]string{
-				"organization_id":   "org_123",
+				"organization_id":    "org_123",
 				"resource_type_slug": "document",
 			},
 		},
@@ -661,55 +1084,157 @@ func TestListResources(t *testing.T) {
 	}
 }
 
-// Handlers
+// ===========================================================================
+// Resources by External Id (stubs)
+// ===========================================================================
 
-func authHandler(w http.ResponseWriter, r *http.Request) bool {
-	if r.Header.Get("Authorization") != "Bearer test" {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return false
-	}
-	return true
-}
-
-func jsonResponse(w http.ResponseWriter, status int, body interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	data, _ := json.Marshal(body)
-	w.Write(data)
-}
-
-func resourceResponse(id, extId, name string, desc, parentId *string, createdAt, updatedAt string) AuthorizationResource {
-	return AuthorizationResource{
-		Object:           "authorization_resource",
-		Id:               id,
-		ExternalId:       extId,
-		Name:             name,
-		Description:      desc,
-		ResourceTypeSlug: "document",
+func TestGetResourceByExternalId(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.GetResourceByExternalId(context.Background(), GetResourceByExternalIdOpts{
 		OrganizationId:   "org_123",
-		ParentResourceId: parentId,
-		CreatedAt:        createdAt,
-		UpdatedAt:        updatedAt,
-	}
+		ResourceTypeSlug: "document",
+		ExternalId:       "ext_123",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
 }
 
-func ptr(s string) *string { return &s }
+func TestUpdateResourceByExternalId(t *testing.T) {
+	name := "Updated"
+	desc := "Updated description"
+	client := &Client{APIKey: "test"}
+	_, err := client.UpdateResourceByExternalId(context.Background(), UpdateResourceByExternalIdOpts{
+		OrganizationId:   "org_123",
+		ResourceTypeSlug: "document",
+		ExternalId:       "ext_123",
+		Name:             &name,
+		Description:      &desc,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
 
-var (
-	createdResourceWithParent    = resourceResponse("resource_new", "ext_123", "Test Resource", nil, ptr("parent_123"), "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
-	createdResourceWithoutParent = resourceResponse("resource_new", "ext_123", "Test Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
-	existingResourceAllFields    = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("A test resource"), ptr("parent_123"), "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
-	existingResourceNoParent     = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("A test resource"), nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
-	existingResourceNoDesc       = resourceResponse("resource_123", "ext_123", "Test Resource", nil, ptr("parent_123"), "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
-	existingResourceMinimal      = resourceResponse("resource_123", "ext_123", "Test Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-01T00:00:00Z")
-	updatedResourceFull          = resourceResponse("resource_123", "ext_123", "Updated Resource", ptr("Updated description"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
-	updatedResourceNameOnly      = resourceResponse("resource_123", "ext_123", "Updated Resource", ptr("A test resource"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
-	updatedResourceDescOnly      = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("Updated description"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
-	updatedResourceNullDesc      = resourceResponse("resource_123", "ext_123", "Updated Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
-)
+func TestDeleteResourceByExternalId(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	err := client.DeleteResourceByExternalId(context.Background(), DeleteResourceByExternalIdOpts{
+		OrganizationId:   "org_123",
+		ResourceTypeSlug: "document",
+		ExternalId:       "ext_123",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Access Check (stub)
+// ===========================================================================
+
+func TestCheck(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
+		OrganizationMembershipId: "om_123",
+		PermissionSlug:           "users:read",
+		Resource:                 ResourceIdentifierById{ResourceId: "resource_123"},
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Role Assignments (stubs)
+// ===========================================================================
+
+func TestListRoleAssignments(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
+		OrganizationMembershipId: "om_123",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestAssignRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.AssignRole(context.Background(), AssignRoleOpts{
+		OrganizationMembershipId: "om_123",
+		RoleSlug:                 "admin",
+		Resource:                 ResourceIdentifierById{ResourceId: "resource_123"},
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestRemoveRole(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	err := client.RemoveRole(context.Background(), RemoveRoleOpts{
+		OrganizationMembershipId: "om_123",
+		RoleSlug:                 "admin",
+		Resource:                 ResourceIdentifierById{ResourceId: "resource_123"},
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestRemoveRoleAssignment(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	err := client.RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
+		OrganizationMembershipId: "om_123",
+		RoleAssignmentId:         "ra_001",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Membership/Resource Queries (stubs)
+// ===========================================================================
+
+func TestListResourcesForMembership(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+		OrganizationMembershipId: "om_123",
+		PermissionSlug:           "users:read",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestListMembershipsForResource(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+		ResourceId:     "resource_123",
+		PermissionSlug: "users:read",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+func TestListMembershipsForResourceByExternalId(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	_, err := client.ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+		OrganizationId:   "org_123",
+		ResourceTypeSlug: "document",
+		ExternalId:       "ext_123",
+		PermissionSlug:   "users:read",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "not implemented")
+}
+
+// ===========================================================================
+// Test Handlers (shared by resource tests)
+// ===========================================================================
 
 func createResourceWithParentTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	var reqBody map[string]interface{}
@@ -728,6 +1253,14 @@ func createResourceWithParentTestHandler(w http.ResponseWriter, r *http.Request)
 
 func createResourceWithoutParentTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	var reqBody map[string]interface{}
@@ -750,6 +1283,14 @@ func createResourceWithoutDescriptionTestHandler(w http.ResponseWriter, r *http.
 	if !authHandler(w, r) {
 		return
 	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
 	var reqBody map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
@@ -766,11 +1307,27 @@ func getResourceAllFieldsHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
 		return
 	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
 	jsonResponse(w, http.StatusOK, existingResourceAllFields)
 }
 
 func getResourceWithoutParentHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	jsonResponse(w, http.StatusOK, existingResourceNoParent)
@@ -780,11 +1337,27 @@ func getResourceWithoutDescriptionHandler(w http.ResponseWriter, r *http.Request
 	if !authHandler(w, r) {
 		return
 	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
 	jsonResponse(w, http.StatusOK, existingResourceNoDesc)
 }
 
 func getResourceWithoutParentAndDescriptionHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	jsonResponse(w, http.StatusOK, existingResourceMinimal)
@@ -794,11 +1367,27 @@ func updateResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
 		return
 	}
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
 	jsonResponse(w, http.StatusOK, updatedResourceFull)
 }
 
 func updateResourceNameOnlyTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	jsonResponse(w, http.StatusOK, updatedResourceNameOnly)
@@ -808,11 +1397,27 @@ func updateResourceDescriptionOnlyTestHandler(w http.ResponseWriter, r *http.Req
 	if !authHandler(w, r) {
 		return
 	}
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
 	jsonResponse(w, http.StatusOK, updatedResourceDescOnly)
 }
 
 func updateResourceNullDescriptionTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodPatch {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	jsonResponse(w, http.StatusOK, updatedResourceNullDesc)
@@ -822,11 +1427,27 @@ func deleteResourceTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
 		return
 	}
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !strings.HasPrefix(r.URL.Path, "/authorization/resources/") {
+		http.Error(w, "invalid path", http.StatusNotFound)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func listResourcesTestHandler(w http.ResponseWriter, r *http.Request) {
 	if !authHandler(w, r) {
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if r.URL.Path != "/authorization/resources" {
+		http.Error(w, "invalid path", http.StatusNotFound)
 		return
 	}
 	jsonResponse(w, http.StatusOK, ListAuthorizationResourcesResponse{
