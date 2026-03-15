@@ -390,7 +390,7 @@ type UpdateAuthorizationResourceOpts struct {
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
 type DeleteAuthorizationResourceOpts struct {
-	ResourceId    string `json:"-"`
+	ResourceId    string `json:"-" url:"-"`
 	CascadeDelete bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -426,9 +426,9 @@ type UpdateResourceByExternalIdOpts struct {
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
 type DeleteResourceByExternalIdOpts struct {
-	OrganizationId   string `json:"-"`
-	ResourceTypeSlug string `json:"-"`
-	ExternalId       string `json:"-"`
+	OrganizationId   string `json:"-" url:"-"`
+	ResourceTypeSlug string `json:"-" url:"-"`
+	ExternalId       string `json:"-" url:"-"`
 	CascadeDelete    bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -470,9 +470,9 @@ type RemoveRoleAssignmentOpts struct {
 
 // ListResourcesForMembershipOpts contains the options for listing resources accessible by a membership.
 type ListResourcesForMembershipOpts struct {
-	OrganizationMembershipId string                   `json:"-"`
+	OrganizationMembershipId string                   `json:"-" url:"-"`
 	PermissionSlug           string                   `url:"permission_slug"`
-	ParentResource           ParentResourceIdentifier `json:"-"`
+	ParentResource           ParentResourceIdentifier `json:"-" url:"-"`
 	Limit                    int                      `url:"limit,omitempty"`
 	Before                   string                   `url:"before,omitempty"`
 	After                    string                   `url:"after,omitempty"`
@@ -481,7 +481,7 @@ type ListResourcesForMembershipOpts struct {
 
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
-	ResourceId     string       `json:"-"`
+	ResourceId     string       `json:"-" url:"-"`
 	PermissionSlug string       `url:"permission_slug"`
 	Assignment     string       `url:"assignment,omitempty"`
 	Limit          int          `url:"limit,omitempty"`
@@ -492,9 +492,9 @@ type ListMembershipsForResourceOpts struct {
 
 // ListMembershipsForResourceByExternalIdOpts contains the options for listing memberships by resource external Id.
 type ListMembershipsForResourceByExternalIdOpts struct {
-	OrganizationId   string       `json:"-"`
-	ResourceTypeSlug string       `json:"-"`
-	ExternalId       string       `json:"-"`
+	OrganizationId   string       `json:"-" url:"-"`
+	ResourceTypeSlug string       `json:"-" url:"-"`
+	ExternalId       string       `json:"-" url:"-"`
 	PermissionSlug   string       `url:"permission_slug"`
 	Assignment       string       `url:"assignment,omitempty"`
 	Limit            int          `url:"limit,omitempty"`
