@@ -678,7 +678,6 @@ func TestCreateEnvironmentRole(t *testing.T) {
 func TestListEnvironmentRoles(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListEnvironmentRoles(context.Background())
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "not implemented")
@@ -686,7 +685,6 @@ func TestListEnvironmentRoles(t *testing.T) {
 
 func TestGetEnvironmentRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.GetEnvironmentRole(context.Background(), GetEnvironmentRoleOpts{
 		Slug: "admin",
@@ -697,7 +695,6 @@ func TestGetEnvironmentRole(t *testing.T) {
 
 func TestUpdateEnvironmentRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	newName := "Super Admin"
 	_, err := client.UpdateEnvironmentRole(context.Background(), UpdateEnvironmentRoleOpts{
@@ -715,7 +712,6 @@ func TestUpdateEnvironmentRole(t *testing.T) {
 func TestCreateOrganizationRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
 		OrganizationId: "org_01ABC",
 		Slug:           "editor",
@@ -729,7 +725,6 @@ func TestCreateOrganizationRole(t *testing.T) {
 func TestListOrganizationRoles(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
 		OrganizationId: "org_01ABC",
 	})
@@ -739,7 +734,6 @@ func TestListOrganizationRoles(t *testing.T) {
 
 func TestGetOrganizationRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
 		OrganizationId: "org_01ABC",
@@ -751,7 +745,6 @@ func TestGetOrganizationRole(t *testing.T) {
 
 func TestUpdateOrganizationRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	newName := "Senior Editor"
 	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
@@ -765,7 +758,6 @@ func TestUpdateOrganizationRole(t *testing.T) {
 
 func TestDeleteOrganizationRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
 		OrganizationId: "org_01ABC",
@@ -782,7 +774,6 @@ func TestDeleteOrganizationRole(t *testing.T) {
 func TestSetEnvironmentRolePermissions(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.SetEnvironmentRolePermissions(context.Background(), SetEnvironmentRolePermissionsOpts{
 		Slug:        "admin",
 		Permissions: []string{"documents.read", "documents.write"},
@@ -794,7 +785,6 @@ func TestSetEnvironmentRolePermissions(t *testing.T) {
 func TestAddEnvironmentRolePermission(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.AddEnvironmentRolePermission(context.Background(), AddEnvironmentRolePermissionOpts{
 		Slug:           "admin",
 		PermissionSlug: "documents.read",
@@ -805,7 +795,6 @@ func TestAddEnvironmentRolePermission(t *testing.T) {
 
 func TestSetOrganizationRolePermissions(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.SetOrganizationRolePermissions(context.Background(), SetOrganizationRolePermissionsOpts{
 		OrganizationId: "org_01ABC",
@@ -819,7 +808,6 @@ func TestSetOrganizationRolePermissions(t *testing.T) {
 func TestAddOrganizationRolePermission(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.AddOrganizationRolePermission(context.Background(), AddOrganizationRolePermissionOpts{
 		OrganizationId: "org_01ABC",
 		Slug:           "editor",
@@ -831,7 +819,6 @@ func TestAddOrganizationRolePermission(t *testing.T) {
 
 func TestRemoveOrganizationRolePermission(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	err := client.RemoveOrganizationRolePermission(context.Background(), RemoveOrganizationRolePermissionOpts{
 		OrganizationId: "org_01ABC",
@@ -849,7 +836,6 @@ func TestRemoveOrganizationRolePermission(t *testing.T) {
 func TestGetResource(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.GetResource(context.Background(), GetAuthorizationResourceOpts{
 		ResourceId: "res_01ABC",
 	})
@@ -859,7 +845,6 @@ func TestGetResource(t *testing.T) {
 
 func TestCreateResource(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
 		ExternalId:       "ext_doc_123",
@@ -875,7 +860,6 @@ func TestCreateResource(t *testing.T) {
 func TestCreateResourceWithParentById(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
 		ExternalId:       "ext_doc_456",
 		Name:             "Child Document",
@@ -889,7 +873,6 @@ func TestCreateResourceWithParentById(t *testing.T) {
 
 func TestCreateResourceWithParentByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
 		ExternalId:       "ext_doc_789",
@@ -908,7 +891,6 @@ func TestCreateResourceWithParentByExternalId(t *testing.T) {
 func TestUpdateResource(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	newName := "Updated Document"
 	_, err := client.UpdateResource(context.Background(), UpdateAuthorizationResourceOpts{
 		ResourceId: "res_01ABC",
@@ -921,7 +903,6 @@ func TestUpdateResource(t *testing.T) {
 func TestDeleteResource(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
 		ResourceId: "res_01ABC",
 	})
@@ -931,7 +912,6 @@ func TestDeleteResource(t *testing.T) {
 
 func TestDeleteResourceWithCascade(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
 		ResourceId:    "res_01ABC",
@@ -944,7 +924,6 @@ func TestDeleteResourceWithCascade(t *testing.T) {
 func TestListResources(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
 		OrganizationId:   "org_01ABC",
 		ResourceTypeSlug: "document",
@@ -956,7 +935,6 @@ func TestListResources(t *testing.T) {
 
 func TestListResourcesWithFilters(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
 		OrganizationId:         "org_01ABC",
@@ -975,7 +953,6 @@ func TestListResourcesWithFilters(t *testing.T) {
 func TestGetResourceByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.GetResourceByExternalId(context.Background(), GetResourceByExternalIdOpts{
 		OrganizationId:   "org_01ABC",
 		ResourceTypeSlug: "document",
@@ -987,7 +964,6 @@ func TestGetResourceByExternalId(t *testing.T) {
 
 func TestUpdateResourceByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	newName := "Updated Via External"
 	_, err := client.UpdateResourceByExternalId(context.Background(), UpdateResourceByExternalIdOpts{
@@ -1003,7 +979,6 @@ func TestUpdateResourceByExternalId(t *testing.T) {
 func TestDeleteResourceByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	err := client.DeleteResourceByExternalId(context.Background(), DeleteResourceByExternalIdOpts{
 		OrganizationId:   "org_01ABC",
 		ResourceTypeSlug: "document",
@@ -1015,7 +990,6 @@ func TestDeleteResourceByExternalId(t *testing.T) {
 
 func TestDeleteResourceByExternalIdWithCascade(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	err := client.DeleteResourceByExternalId(context.Background(), DeleteResourceByExternalIdOpts{
 		OrganizationId:   "org_01ABC",
@@ -1034,7 +1008,6 @@ func TestDeleteResourceByExternalIdWithCascade(t *testing.T) {
 func TestCheckWithResourceById(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01ABC",
 		PermissionSlug:           "documents.read",
@@ -1046,7 +1019,6 @@ func TestCheckWithResourceById(t *testing.T) {
 
 func TestCheckWithResourceByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
 		OrganizationMembershipId: "om_01ABC",
@@ -1067,7 +1039,6 @@ func TestCheckWithResourceByExternalId(t *testing.T) {
 func TestListRoleAssignments(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
 		OrganizationMembershipId: "om_01ABC",
 		Limit:                    10,
@@ -1078,7 +1049,6 @@ func TestListRoleAssignments(t *testing.T) {
 
 func TestListRoleAssignmentsWithPagination(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
 		OrganizationMembershipId: "om_01ABC",
@@ -1093,7 +1063,6 @@ func TestListRoleAssignmentsWithPagination(t *testing.T) {
 func TestAssignRoleWithResourceById(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.AssignRole(context.Background(), AssignRoleOpts{
 		OrganizationMembershipId: "om_01ABC",
 		RoleSlug:                 "editor",
@@ -1105,7 +1074,6 @@ func TestAssignRoleWithResourceById(t *testing.T) {
 
 func TestAssignRoleWithResourceByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.AssignRole(context.Background(), AssignRoleOpts{
 		OrganizationMembershipId: "om_01ABC",
@@ -1122,7 +1090,6 @@ func TestAssignRoleWithResourceByExternalId(t *testing.T) {
 func TestRemoveRole(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	err := client.RemoveRole(context.Background(), RemoveRoleOpts{
 		OrganizationMembershipId: "om_01ABC",
 		RoleSlug:                 "editor",
@@ -1134,7 +1101,6 @@ func TestRemoveRole(t *testing.T) {
 
 func TestRemoveRoleAssignment(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	err := client.RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
 		OrganizationMembershipId: "om_01ABC",
@@ -1151,7 +1117,6 @@ func TestRemoveRoleAssignment(t *testing.T) {
 func TestListResourcesForMembership(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 		OrganizationMembershipId: "om_01ABC",
 		PermissionSlug:           "documents.read",
@@ -1163,7 +1128,6 @@ func TestListResourcesForMembership(t *testing.T) {
 
 func TestListResourcesForMembershipWithParentById(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 		OrganizationMembershipId: "om_01ABC",
@@ -1180,7 +1144,6 @@ func TestListResourcesForMembershipWithParentById(t *testing.T) {
 func TestListResourcesForMembershipWithParentByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 		OrganizationMembershipId: "om_01ABC",
 		PermissionSlug:           "documents.read",
@@ -1196,7 +1159,6 @@ func TestListResourcesForMembershipWithParentByExternalId(t *testing.T) {
 func TestListMembershipsForResource(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 		ResourceId:     "res_01XYZ",
 		PermissionSlug: "documents.read",
@@ -1208,7 +1170,6 @@ func TestListMembershipsForResource(t *testing.T) {
 
 func TestListMembershipsForResourceWithAssignment(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 		ResourceId:     "res_01XYZ",
@@ -1225,7 +1186,6 @@ func TestListMembershipsForResourceWithAssignment(t *testing.T) {
 func TestListMembershipsForResourceByExternalId(t *testing.T) {
 	client := &Client{APIKey: "test"}
 
-
 	_, err := client.ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
 		OrganizationId:   "org_01ABC",
 		ResourceTypeSlug: "document",
@@ -1239,7 +1199,6 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 
 func TestListMembershipsForResourceByExternalIdWithFilters(t *testing.T) {
 	client := &Client{APIKey: "test"}
-
 
 	_, err := client.ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
 		OrganizationId:   "org_01ABC",
