@@ -165,20 +165,20 @@ func DeletePermission(
 	return DefaultClient.DeletePermission(ctx, opts)
 }
 
-// GetResource gets a resource by Id.
-func GetResource(
-	ctx context.Context,
-	opts GetAuthorizationResourceOpts,
-) (AuthorizationResource, error) {
-	return DefaultClient.GetResource(ctx, opts)
-}
-
 // CreateResource creates a new resource.
 func CreateResource(
 	ctx context.Context,
 	opts CreateAuthorizationResourceOpts,
 ) (AuthorizationResource, error) {
 	return DefaultClient.CreateResource(ctx, opts)
+}
+
+// GetResource gets a resource by Id.
+func GetResource(
+	ctx context.Context,
+	opts GetAuthorizationResourceOpts,
+) (AuthorizationResource, error) {
+	return DefaultClient.GetResource(ctx, opts)
 }
 
 // UpdateResource updates a resource.
