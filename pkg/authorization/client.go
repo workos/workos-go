@@ -198,13 +198,15 @@ type AccessCheckResponse struct {
 
 // AuthorizationOrganizationMembership represents a membership returned by authorization queries.
 type AuthorizationOrganizationMembership struct {
-	Object           string                 `json:"object"`
-	Id               string                 `json:"id"`
-	UserId           string                 `json:"user_id"`
-	OrganizationId   string                 `json:"organization_id"`
-	Status           string                 `json:"status"`
-	CreatedAt        string                 `json:"created_at"`
-	UpdatedAt        string                 `json:"updated_at"`
+	Object         string `json:"object"`
+	Id             string `json:"id"`
+	OrganizationId string `json:"organization_id"`
+	// todo can this be an enum here the values are active, inactive, pending
+	Status    string `json:"status"`
+	UserId    string `json:"user_id"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+	// todo remove custom attributes from the response
 	CustomAttributes map[string]interface{} `json:"custom_attributes"`
 }
 
@@ -469,37 +471,40 @@ type RemoveRoleAssignmentOpts struct {
 
 // ListResourcesForMembershipOpts contains the options for listing resources accessible by a membership.
 type ListResourcesForMembershipOpts struct {
-	OrganizationMembershipId string                   `json:"-" url:"-"`
-	PermissionSlug           string                   `url:"permission_slug"`
-	ParentResource           ParentResourceIdentifier `json:"-" url:"-"`
-	Limit                    int                      `url:"limit,omitempty"`
-	Before                   string                   `url:"before,omitempty"`
-	After                    string                   `url:"after,omitempty"`
-	Order                    common.Order             `url:"order,omitempty"`
+	OrganizationMembershipId string `json:"-" url:"-"`
+	PermissionSlug           string `url:"permission_slug"`
+	// todo let's rename this to ParentResourceIdentifier
+	ParentResource ParentResourceIdentifier `json:"-" url:"-"`
+	Limit          int                      `url:"limit,omitempty"`
+	Before         string                   `url:"before,omitempty"`
+	After          string                   `url:"after,omitempty"`
+	Order          common.Order             `url:"order,omitempty"`
 }
 
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
-	ResourceId     string       `json:"-" url:"-"`
-	PermissionSlug string       `url:"permission_slug"`
-	Assignment     string       `url:"assignment,omitempty"`
-	Limit          int          `url:"limit,omitempty"`
-	Before         string       `url:"before,omitempty"`
-	After          string       `url:"after,omitempty"`
-	Order          common.Order `url:"order,omitempty"`
+	ResourceId     string `json:"-" url:"-"`
+	PermissionSlug string `url:"permission_slug"`
+	// TODO can we turn assignment into an enum, where the values are direct and indirect, akin to /Users/swaroopakkineni/Documents/repos/public_repos/workos-node/src/authorization/interfaces/list-memberships-for-resource-by-external-id-options.interface.ts line 8
+	Assignment string       `url:"assignment,omitempty"`
+	Limit      int          `url:"limit,omitempty"`
+	Before     string       `url:"before,omitempty"`
+	After      string       `url:"after,omitempty"`
+	Order      common.Order `url:"order,omitempty"`
 }
 
 // ListMembershipsForResourceByExternalIdOpts contains the options for listing memberships by resource external Id.
 type ListMembershipsForResourceByExternalIdOpts struct {
-	OrganizationId   string       `json:"-" url:"-"`
-	ResourceTypeSlug string       `json:"-" url:"-"`
-	ExternalId       string       `json:"-" url:"-"`
-	PermissionSlug   string       `url:"permission_slug"`
-	Assignment       string       `url:"assignment,omitempty"`
-	Limit            int          `url:"limit,omitempty"`
-	Before           string       `url:"before,omitempty"`
-	After            string       `url:"after,omitempty"`
-	Order            common.Order `url:"order,omitempty"`
+	OrganizationId   string `json:"-" url:"-"`
+	ResourceTypeSlug string `json:"-" url:"-"`
+	ExternalId       string `json:"-" url:"-"`
+	PermissionSlug   string `url:"permission_slug"`
+	// TODO can we turn assignment into an enum, where the values are direct and indirect, akin to /Users/swaroopakkineni/Documents/repos/public_repos/workos-node/src/authorization/interfaces/list-memberships-for-resource-by-external-id-options.interface.ts line 8
+	Assignment string       `url:"assignment,omitempty"`
+	Limit      int          `url:"limit,omitempty"`
+	Before     string       `url:"before,omitempty"`
+	After      string       `url:"after,omitempty"`
+	Order      common.Order `url:"order,omitempty"`
 }
 
 // Stub method implementations
