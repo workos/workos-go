@@ -19,6 +19,15 @@ import (
 // DefaultListSize is the default number of records to return in list responses.
 const DefaultListSize = 10
 
+// Authorization API path segments.
+const (
+	authorizationRolesPath                   = "authorization/roles"
+	authorizationPermissionsPath             = "authorization/permissions"
+	authorizationResourcesPath               = "authorization/resources"
+	authorizationOrganizationsPath           = "authorization/organizations"
+	authorizationOrganizationMembershipsPath = "authorization/organization_memberships"
+)
+
 // Client represents a client that performs Authorization requests to the WorkOS API.
 type Client struct {
 	// The WorkOS API Key. It can be found in https://dashboard.workos.com/api-keys.
@@ -182,8 +191,8 @@ type RoleAssignmentResource struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 }
 
-// AuthorizationCheckResult contains the result of an authorization check.
-type AuthorizationCheckResult struct {
+// AccessCheckResponse contains the result of an authorization check.
+type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
@@ -380,7 +389,7 @@ type UpdateAuthorizationResourceOpts struct {
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
 type DeleteAuthorizationResourceOpts struct {
-	ResourceId    string `json:"-"`
+	ResourceId    string `json:"-" url:"-"`
 	CascadeDelete bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -416,9 +425,9 @@ type UpdateResourceByExternalIdOpts struct {
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
 type DeleteResourceByExternalIdOpts struct {
-	OrganizationId   string `json:"-"`
-	ResourceTypeSlug string `json:"-"`
-	ExternalId       string `json:"-"`
+	OrganizationId   string `json:"-" url:"-"`
+	ResourceTypeSlug string `json:"-" url:"-"`
+	ExternalId       string `json:"-" url:"-"`
 	CascadeDelete    bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -442,14 +451,14 @@ type ListRoleAssignmentsOpts struct {
 type AssignRoleOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleOpts contains the options for removing a role.
 type RemoveRoleOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleAssignmentOpts contains the options for removing a role assignment by Id.
@@ -658,9 +667,9 @@ func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteReso
 }
 
 // Check performs an authorization check.
-func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AuthorizationCheckResult, error) {
+func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
-	return AuthorizationCheckResult{}, errors.New("not implemented")
+	return AccessCheckResponse{}, errors.New("not implemented")
 }
 
 // ListRoleAssignments lists role assignments for a membership.
@@ -711,8 +720,8 @@ func (c *Client) ListResourcesForMembership(ctx context.Context, opts ListResour
 	}
 
 	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	q, err := query.Values(opts)
@@ -769,8 +778,8 @@ func (c *Client) ListMembershipsForResource(ctx context.Context, opts ListMember
 	}
 
 	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	q, err := query.Values(opts)
@@ -822,8 +831,8 @@ func (c *Client) ListMembershipsForResourceByExternalId(ctx context.Context, opt
 	}
 
 	req = req.WithContext(ctx)
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 
 	q, err := query.Values(opts)

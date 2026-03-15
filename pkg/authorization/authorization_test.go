@@ -2,6 +2,7 @@ package authorization
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,147 +31,852 @@ func setupDefaultClient(server *httptest.Server) func() {
 // Package-level ListResourcesForMembership
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationListResourcesForMembership(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listResourcesForMembershipTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) {
+	listResourcesServer := func(capturedPath *string, capturedRawQuery *string, response ListAuthorizationResourcesResponse) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedRawQuery = r.URL.RawQuery
 
-	response, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-		OrganizationMembershipId: "om_01JF",
-		PermissionSlug:           "read:document",
-	})
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "resource_01JF", response.Data[0].Id)
-	require.Equal(t, "authorization_resource", response.Data[0].Object)
-	require.Equal(t, "document", response.Data[0].ResourceTypeSlug)
-}
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-func TestAuthorizationListResourcesForMembershipWithParentById(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listResourcesForMembershipTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(response)
+		}))
+	}
 
-	response, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-		OrganizationMembershipId: "om_01JF",
-		PermissionSlug:           "read:document",
-		ParentResource: ParentResourceIdentifierById{
-			ParentResourceId: "resource_parent_01",
+	singleItemResponse := ListAuthorizationResourcesResponse{
+		Data: []AuthorizationResource{
+			{
+				Object:           "authorization_resource",
+				Id:               "resource_01JF",
+				ExternalId:       "my-doc-1",
+				Name:             "My Document",
+				Description:      "A test document",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_01JF",
+				CreatedAt:        "2024-01-01T00:00:00.000Z",
+				UpdatedAt:        "2024-01-01T00:00:00.000Z",
+			},
 		},
-	})
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "resource_parent_01", response.Data[0].ParentResourceId)
-}
+		ListMetadata: common.ListMetadata{After: "resource_01JF"},
+	}
 
-func TestAuthorizationListResourcesForMembershipWithParentByExternalId(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listResourcesForMembershipTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
-
-	response, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-		OrganizationMembershipId: "om_01JF",
-		PermissionSlug:           "read:document",
-		ParentResource: ParentResourceIdentifierByExternalId{
-			ParentResourceExternalId: "parent-ext-1",
-			ParentResourceTypeSlug:   "folder",
+	twoItemResponse := ListAuthorizationResourcesResponse{
+		Data: []AuthorizationResource{
+			{
+				Object:           "authorization_resource",
+				Id:               "resource_01JF",
+				ExternalId:       "my-doc-1",
+				Name:             "My Document",
+				Description:      "A test document",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_01JF",
+				CreatedAt:        "2024-01-01T00:00:00.000Z",
+				UpdatedAt:        "2024-01-01T00:00:00.000Z",
+			},
+			{
+				Object:           "authorization_resource",
+				Id:               "resource_02JF",
+				ExternalId:       "my-doc-2",
+				Name:             "Second Document",
+				ResourceTypeSlug: "document",
+				OrganizationId:   "org_01JF",
+				CreatedAt:        "2024-01-02T00:00:00.000Z",
+				UpdatedAt:        "2024-01-02T00:00:00.000Z",
+			},
 		},
+		ListMetadata: common.ListMetadata{After: "resource_02JF"},
+	}
+
+	emptyResponse := ListAuthorizationResourcesResponse{
+		Data:         []AuthorizationResource{},
+		ListMetadata: common.ListMetadata{},
+	}
+
+	expectedPath := "/authorization/organization_memberships/om_01JF/resources"
+
+	t.Run("returns one resource", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Len(t, result.Data, 1)
+		require.Equal(t, singleItemResponse, result)
+		require.Equal(t, expectedPath, capturedPath)
 	})
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "resource_01JF", response.Data[0].Id)
+
+	t.Run("returns multiple resources and deserializes response", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, twoItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Len(t, result.Data, 2)
+		require.Equal(t, twoItemResponse, result)
+		require.Equal(t, "resource_01JF", result.Data[0].Id)
+		require.Equal(t, "document", result.Data[0].ResourceTypeSlug)
+		require.Equal(t, "resource_02JF", result.Data[1].Id)
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("returns zero resources", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, emptyResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Empty(t, result.Data)
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("applies default order when none specified", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("applies default limit when none specified", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes custom limit", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			Limit:                    25,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "limit=25")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes before cursor", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			Before:                   "cursor_before",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "before=cursor_before")
+		require.NotContains(t, capturedRawQuery, "after=")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes after cursor", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			After:                    "cursor_after",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "after=cursor_after")
+		require.NotContains(t, capturedRawQuery, "before=")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes parent resource by ID", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			ParentResource: ParentResourceIdentifierById{
+				ParentResourceId: "resource_parent_01",
+			},
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "parent_resource_id=resource_parent_01")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes all parameters", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			Limit:                    5,
+			Before:                   "cursor_before",
+			After:                    "cursor_after",
+			Order:                    common.Asc,
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, singleItemResponse, result)
+		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "limit=5")
+		require.Contains(t, capturedRawQuery, "before=cursor_before")
+		require.Contains(t, capturedRawQuery, "after=cursor_after")
+		require.Contains(t, capturedRawQuery, "order=asc")
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
 // Package-level ListMembershipsForResource
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationListMembershipsForResource(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listMembershipsForResourceTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) {
+	listMembershipsServer := func(capturedPath *string, capturedRawQuery *string, response ListAuthorizationOrganizationMembershipsResponse) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedRawQuery = r.URL.RawQuery
 
-	response, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-		ResourceId:     "resource_01JF",
-		PermissionSlug: "read:document",
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(response)
+		}))
+	}
+
+	singleItemResponse := ListAuthorizationOrganizationMembershipsResponse{
+		Data: []AuthorizationOrganizationMembership{
+			{
+				Object:         "organization_membership",
+				Id:             "om_01JF",
+				UserId:         "user_01JF",
+				OrganizationId: "org_01JF",
+				Status:         "active",
+				CreatedAt:      "2024-01-01T00:00:00.000Z",
+				UpdatedAt:      "2024-01-01T00:00:00.000Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{After: "om_01JF"},
+	}
+
+	twoItemResponse := ListAuthorizationOrganizationMembershipsResponse{
+		Data: []AuthorizationOrganizationMembership{
+			{
+				Object:         "organization_membership",
+				Id:             "om_01JF",
+				UserId:         "user_01JF",
+				OrganizationId: "org_01JF",
+				Status:         "active",
+				CreatedAt:      "2024-01-01T00:00:00.000Z",
+				UpdatedAt:      "2024-01-01T00:00:00.000Z",
+			},
+			{
+				Object:         "organization_membership",
+				Id:             "om_02JF",
+				UserId:         "user_02JF",
+				OrganizationId: "org_01JF",
+				Status:         "active",
+				CreatedAt:      "2024-01-02T00:00:00.000Z",
+				UpdatedAt:      "2024-01-02T00:00:00.000Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{After: "om_02JF"},
+	}
+
+	emptyResponse := ListAuthorizationOrganizationMembershipsResponse{
+		Data:         []AuthorizationOrganizationMembership{},
+		ListMetadata: common.ListMetadata{},
+	}
+
+	expectedPath := "/authorization/resources/resource_01JF/organization_memberships"
+
+	t.Run("returns one membership", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Len(t, result.Data, 1)
+		require.Equal(t, singleItemResponse, result)
+		require.Equal(t, expectedPath, capturedPath)
 	})
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "om_01JF", response.Data[0].Id)
-	require.Equal(t, "organization_membership", response.Data[0].Object)
-	require.Equal(t, "active", response.Data[0].Status)
-}
 
-func TestAuthorizationListMembershipsForResourceWithAssignment(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listMembershipsForResourceTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, twoItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
 
-	response, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-		ResourceId:     "resource_01JF",
-		PermissionSlug: "read:document",
-		Assignment:     "direct",
+		result, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Len(t, result.Data, 2)
+		require.Equal(t, twoItemResponse, result)
+		require.Equal(t, "om_01JF", result.Data[0].Id)
+		require.Equal(t, "active", result.Data[0].Status)
+		require.Equal(t, "om_02JF", result.Data[1].Id)
+		require.Equal(t, expectedPath, capturedPath)
 	})
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "om_02JF", response.Data[0].Id)
+
+	t.Run("returns zero memberships", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, emptyResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Empty(t, result.Data)
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("applies default order when none specified", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("applies default limit when none specified", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes custom limit", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Limit:          25,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "limit=25")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes before cursor", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Before:         "cursor_before",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "before=cursor_before")
+		require.NotContains(t, capturedRawQuery, "after=")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes after cursor", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			After:          "cursor_after",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "after=cursor_after")
+		require.NotContains(t, capturedRawQuery, "before=")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes assignment filter", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Assignment:     "direct",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "assignment=direct")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes all parameters", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Assignment:     "direct",
+			Limit:          5,
+			Before:         "cursor_before",
+			After:          "cursor_after",
+			Order:          common.Asc,
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, singleItemResponse, result)
+		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "limit=5")
+		require.Contains(t, capturedRawQuery, "before=cursor_before")
+		require.Contains(t, capturedRawQuery, "after=cursor_after")
+		require.Contains(t, capturedRawQuery, "order=asc")
+		require.Contains(t, capturedRawQuery, "assignment=direct")
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
 // Package-level ListMembershipsForResourceByExternalId
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationListMembershipsForResourceByExternalId(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listMembershipsForResourceByExternalIdTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t *testing.T) {
+	listMembershipsExtServer := func(capturedPath *string, capturedRawQuery *string, response ListAuthorizationOrganizationMembershipsResponse) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedRawQuery = r.URL.RawQuery
 
-	response, err := ListMembershipsForResourceByExternalId(
-		context.Background(),
-		ListMembershipsForResourceByExternalIdOpts{
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(response)
+		}))
+	}
+
+	singleItemResponse := ListAuthorizationOrganizationMembershipsResponse{
+		Data: []AuthorizationOrganizationMembership{
+			{
+				Object:         "organization_membership",
+				Id:             "om_01JF",
+				UserId:         "user_01JF",
+				OrganizationId: "org_01JF",
+				Status:         "active",
+				CreatedAt:      "2024-01-01T00:00:00.000Z",
+				UpdatedAt:      "2024-01-01T00:00:00.000Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{After: "om_01JF"},
+	}
+
+	twoItemResponse := ListAuthorizationOrganizationMembershipsResponse{
+		Data: []AuthorizationOrganizationMembership{
+			{
+				Object:         "organization_membership",
+				Id:             "om_01JF",
+				UserId:         "user_01JF",
+				OrganizationId: "org_01JF",
+				Status:         "active",
+				CreatedAt:      "2024-01-01T00:00:00.000Z",
+				UpdatedAt:      "2024-01-01T00:00:00.000Z",
+			},
+			{
+				Object:         "organization_membership",
+				Id:             "om_02JF",
+				UserId:         "user_02JF",
+				OrganizationId: "org_01JF",
+				Status:         "active",
+				CreatedAt:      "2024-01-02T00:00:00.000Z",
+				UpdatedAt:      "2024-01-02T00:00:00.000Z",
+			},
+		},
+		ListMetadata: common.ListMetadata{After: "om_02JF"},
+	}
+
+	emptyResponse := ListAuthorizationOrganizationMembershipsResponse{
+		Data:         []AuthorizationOrganizationMembership{},
+		ListMetadata: common.ListMetadata{},
+	}
+
+	expectedPath := "/authorization/organizations/org_01JF/resources/document/my-doc-1/organization_memberships"
+
+	t.Run("returns one membership", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
 			OrganizationId:   "org_01JF",
 			ResourceTypeSlug: "document",
 			ExternalId:       "my-doc-1",
 			PermissionSlug:   "read:document",
-		},
-	)
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "om_01JF", response.Data[0].Id)
-	require.Equal(t, "user_01JF", response.Data[0].UserId)
-	require.Equal(t, "org_01JF", response.Data[0].OrganizationId)
-}
+		})
 
-func TestAuthorizationListMembershipsForResourceByExternalIdWithPagination(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listMembershipsForResourceByExternalIdTestHandler))
-	defer server.Close()
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+		require.NoError(t, err)
+		require.Len(t, result.Data, 1)
+		require.Equal(t, singleItemResponse, result)
+		require.Equal(t, expectedPath, capturedPath)
+	})
 
-	response, err := ListMembershipsForResourceByExternalId(
-		context.Background(),
-		ListMembershipsForResourceByExternalIdOpts{
+	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, twoItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Len(t, result.Data, 2)
+		require.Equal(t, twoItemResponse, result)
+		require.Equal(t, "om_01JF", result.Data[0].Id)
+		require.Equal(t, "user_01JF", result.Data[0].UserId)
+		require.Equal(t, "om_02JF", result.Data[1].Id)
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("returns zero memberships", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, emptyResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Empty(t, result.Data)
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("applies default order when none specified", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("applies default limit when none specified", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes custom limit", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+			Limit:            25,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "limit=25")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes before cursor", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+			Before:           "cursor_before",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "before=cursor_before")
+		require.NotContains(t, capturedRawQuery, "after=")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes after cursor", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+			After:            "cursor_after",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "after=cursor_after")
+		require.NotContains(t, capturedRawQuery, "before=")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes assignment filter", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+			Assignment:       "direct",
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "assignment=direct")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes all parameters", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		result, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
 			OrganizationId:   "org_01JF",
 			ResourceTypeSlug: "document",
 			ExternalId:       "my-doc-1",
 			PermissionSlug:   "read:document",
 			Assignment:       "direct",
 			Limit:            5,
-			After:            "cursor_abc",
+			Before:           "cursor_before",
+			After:            "cursor_after",
 			Order:            common.Asc,
-		},
-	)
-	require.NoError(t, err)
-	require.Len(t, response.Data, 1)
-	require.Equal(t, "om_04JF", response.Data[0].Id)
-	require.Equal(t, "cursor_abc", response.ListMetadata.Before)
-	require.Equal(t, "cursor_def", response.ListMetadata.After)
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, singleItemResponse, result)
+		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "limit=5")
+		require.Contains(t, capturedRawQuery, "before=cursor_before")
+		require.Contains(t, capturedRawQuery, "after=cursor_after")
+		require.Contains(t, capturedRawQuery, "order=asc")
+		require.Contains(t, capturedRawQuery, "assignment=direct")
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -597,7 +1303,7 @@ func TestAuthorizationAssignRole(t *testing.T) {
 	_, err := AssignRole(context.Background(), AssignRoleOpts{
 		OrganizationMembershipId: "om_01",
 		RoleSlug:                 "admin",
-		Resource: ResourceIdentifierById{
+		ResourceIdentifier: ResourceIdentifierById{
 			ResourceId: "resource_01",
 		},
 	})
@@ -614,7 +1320,7 @@ func TestAuthorizationRemoveRole(t *testing.T) {
 	err := RemoveRole(context.Background(), RemoveRoleOpts{
 		OrganizationMembershipId: "om_01",
 		RoleSlug:                 "admin",
-		Resource: ResourceIdentifierById{
+		ResourceIdentifier: ResourceIdentifierById{
 			ResourceId: "resource_01",
 		},
 	})
