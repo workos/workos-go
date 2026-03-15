@@ -70,14 +70,14 @@ type ResourceIdentifierById struct {
 	ResourceId string
 }
 
-func (r ResourceIdentifierById) resourceIdentifierParams() map[string]interface{} {
-	return map[string]interface{}{"resource_id": r.ResourceId}
-}
-
 // ResourceIdentifierByExternalId identifies a resource by external Id and type slug.
 type ResourceIdentifierByExternalId struct {
 	ResourceExternalId string
 	ResourceTypeSlug   string
+}
+
+func (r ResourceIdentifierById) resourceIdentifierParams() map[string]interface{} {
+	return map[string]interface{}{"resource_id": r.ResourceId}
 }
 
 func (r ResourceIdentifierByExternalId) resourceIdentifierParams() map[string]interface{} {
