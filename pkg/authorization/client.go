@@ -1,15 +1,20 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -587,31 +592,170 @@ func (c *Client) RemoveOrganizationRolePermission(ctx context.Context, opts Remo
 // CreatePermission creates a new permission.
 func (c *Client) CreatePermission(ctx context.Context, opts CreatePermissionOpts) (Permission, error) {
 	c.once.Do(c.init)
-	return Permission{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return Permission{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/permissions", c.Endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return Permission{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Permission{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Permission{}, err
+	}
+
+	var body Permission
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListPermissions lists all permissions.
 func (c *Client) ListPermissions(ctx context.Context, opts ListPermissionsOpts) (ListPermissionsResponse, error) {
 	c.once.Do(c.init)
-	return ListPermissionsResponse{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/permissions", c.Endpoint)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListPermissionsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListPermissionsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListPermissionsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListPermissionsResponse{}, err
+	}
+
+	var body ListPermissionsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // GetPermission gets a permission by slug.
 func (c *Client) GetPermission(ctx context.Context, opts GetPermissionOpts) (Permission, error) {
 	c.once.Do(c.init)
-	return Permission{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/permissions/%s", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return Permission{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Permission{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Permission{}, err
+	}
+
+	var body Permission
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // UpdatePermission updates a permission.
 func (c *Client) UpdatePermission(ctx context.Context, opts UpdatePermissionOpts) (Permission, error) {
 	c.once.Do(c.init)
-	return Permission{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return Permission{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/permissions/%s", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return Permission{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return Permission{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return Permission{}, err
+	}
+
+	var body Permission
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // DeletePermission deletes a permission.
 func (c *Client) DeletePermission(ctx context.Context, opts DeletePermissionOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/permissions/%s", c.Endpoint, opts.Slug)
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // GetResource gets a resource by Id.
