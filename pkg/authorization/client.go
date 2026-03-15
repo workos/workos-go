@@ -4,25 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
+	"github.com/google/go-querystring/query"
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
 const DefaultListSize = 10
 
-// Authorization API path segments.
-const (
-	authorizationRolesPath                   = "authorization/roles"
-	authorizationPermissionsPath             = "authorization/permissions"
-	authorizationResourcesPath               = "authorization/resources"
-	authorizationOrganizationsPath           = "authorization/organizations"
-	authorizationOrganizationMembershipsPath = "authorization/organization_memberships"
-)
+// ErrNotImplemented is returned by methods that are not yet implemented.
+var ErrNotImplemented = errors.New("authorization: not yet implemented")
 
 // Client represents a client that performs Authorization requests to the WorkOS API.
 type Client struct {
@@ -192,16 +191,24 @@ type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
+// MembershipStatus represents the status of an organization membership.
+type MembershipStatus string
+
+const (
+	MembershipStatusActive   MembershipStatus = "active"
+	MembershipStatusInactive MembershipStatus = "inactive"
+	MembershipStatusPending  MembershipStatus = "pending"
+)
+
 // AuthorizationOrganizationMembership represents a membership returned by authorization queries.
 type AuthorizationOrganizationMembership struct {
-	Object           string                 `json:"object"`
-	Id               string                 `json:"id"`
-	UserId           string                 `json:"user_id"`
-	OrganizationId   string                 `json:"organization_id"`
-	Status           string                 `json:"status"`
-	CreatedAt        string                 `json:"created_at"`
-	UpdatedAt        string                 `json:"updated_at"`
-	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	Object         string           `json:"object"`
+	Id             string           `json:"id"`
+	OrganizationId string           `json:"organization_id"`
+	Status         MembershipStatus `json:"status"`
+	UserId         string           `json:"user_id"`
+	CreatedAt      string           `json:"created_at"`
+	UpdatedAt      string           `json:"updated_at"`
 }
 
 // List response types
@@ -385,7 +392,7 @@ type UpdateAuthorizationResourceOpts struct {
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
 type DeleteAuthorizationResourceOpts struct {
-	ResourceId    string `json:"-"`
+	ResourceId    string `json:"-" url:"-"`
 	CascadeDelete bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -421,9 +428,9 @@ type UpdateResourceByExternalIdOpts struct {
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
 type DeleteResourceByExternalIdOpts struct {
-	OrganizationId   string `json:"-"`
-	ResourceTypeSlug string `json:"-"`
-	ExternalId       string `json:"-"`
+	OrganizationId   string `json:"-" url:"-"`
+	ResourceTypeSlug string `json:"-" url:"-"`
+	ExternalId       string `json:"-" url:"-"`
 	CascadeDelete    bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -436,7 +443,7 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipId string       `json:"-"`
+	OrganizationMembershipId string       `json:"-" url:"-"`
 	Limit                    int          `url:"limit,omitempty"`
 	Before                   string       `url:"before,omitempty"`
 	After                    string       `url:"after,omitempty"`
@@ -447,14 +454,14 @@ type ListRoleAssignmentsOpts struct {
 type AssignRoleOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleOpts contains the options for removing a role.
 type RemoveRoleOpts struct {
 	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
-	Resource                 ResourceIdentifier `json:"-"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleAssignmentOpts contains the options for removing a role assignment by Id.
@@ -465,20 +472,28 @@ type RemoveRoleAssignmentOpts struct {
 
 // ListResourcesForMembershipOpts contains the options for listing resources accessible by a membership.
 type ListResourcesForMembershipOpts struct {
-	OrganizationMembershipId string                   `json:"-"`
+	OrganizationMembershipId string                   `json:"-" url:"-"`
 	PermissionSlug           string                   `url:"permission_slug"`
-	ParentResource           ParentResourceIdentifier `json:"-"`
+	ParentResourceIdentifier ParentResourceIdentifier `json:"-" url:"-"`
 	Limit                    int                      `url:"limit,omitempty"`
 	Before                   string                   `url:"before,omitempty"`
 	After                    string                   `url:"after,omitempty"`
 	Order                    common.Order             `url:"order,omitempty"`
 }
 
+// Assignment represents the type of role assignment filter.
+type Assignment string
+
+const (
+	AssignmentDirect   Assignment = "direct"
+	AssignmentIndirect Assignment = "indirect"
+)
+
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
-	ResourceId     string       `json:"-"`
+	ResourceId     string       `json:"-" url:"-"`
 	PermissionSlug string       `url:"permission_slug"`
-	Assignment     string       `url:"assignment,omitempty"`
+	Assignment     Assignment   `url:"assignment,omitempty"`
 	Limit          int          `url:"limit,omitempty"`
 	Before         string       `url:"before,omitempty"`
 	After          string       `url:"after,omitempty"`
@@ -487,11 +502,11 @@ type ListMembershipsForResourceOpts struct {
 
 // ListMembershipsForResourceByExternalIdOpts contains the options for listing memberships by resource external Id.
 type ListMembershipsForResourceByExternalIdOpts struct {
-	OrganizationId   string       `json:"-"`
-	ResourceTypeSlug string       `json:"-"`
-	ExternalId       string       `json:"-"`
+	OrganizationId   string       `json:"-" url:"-"`
+	ResourceTypeSlug string       `json:"-" url:"-"`
+	ExternalId       string       `json:"-" url:"-"`
 	PermissionSlug   string       `url:"permission_slug"`
-	Assignment       string       `url:"assignment,omitempty"`
+	Assignment       Assignment   `url:"assignment,omitempty"`
 	Limit            int          `url:"limit,omitempty"`
 	Before           string       `url:"before,omitempty"`
 	After            string       `url:"after,omitempty"`
@@ -503,209 +518,365 @@ type ListMembershipsForResourceByExternalIdOpts struct {
 // CreateEnvironmentRole creates a new environment role.
 func (c *Client) CreateEnvironmentRole(ctx context.Context, opts CreateEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+	return EnvironmentRole{}, ErrNotImplemented
 }
 
 // ListEnvironmentRoles lists all environment roles.
 func (c *Client) ListEnvironmentRoles(ctx context.Context) (ListEnvironmentRolesResponse, error) {
 	c.once.Do(c.init)
-	return ListEnvironmentRolesResponse{}, errors.New("not implemented")
+	return ListEnvironmentRolesResponse{}, ErrNotImplemented
 }
 
 // GetEnvironmentRole gets an environment role by slug.
 func (c *Client) GetEnvironmentRole(ctx context.Context, opts GetEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+	return EnvironmentRole{}, ErrNotImplemented
 }
 
 // UpdateEnvironmentRole updates an environment role.
 func (c *Client) UpdateEnvironmentRole(ctx context.Context, opts UpdateEnvironmentRoleOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+	return EnvironmentRole{}, ErrNotImplemented
 }
 
 // CreateOrganizationRole creates a new organization role.
 func (c *Client) CreateOrganizationRole(ctx context.Context, opts CreateOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+	return OrganizationRole{}, ErrNotImplemented
 }
 
 // ListOrganizationRoles lists all roles for an organization.
 func (c *Client) ListOrganizationRoles(ctx context.Context, opts ListOrganizationRolesOpts) (ListOrganizationRolesResponse, error) {
 	c.once.Do(c.init)
-	return ListOrganizationRolesResponse{}, errors.New("not implemented")
+	return ListOrganizationRolesResponse{}, ErrNotImplemented
 }
 
 // GetOrganizationRole gets an organization role by slug.
 func (c *Client) GetOrganizationRole(ctx context.Context, opts GetOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+	return OrganizationRole{}, ErrNotImplemented
 }
 
 // UpdateOrganizationRole updates an organization role.
 func (c *Client) UpdateOrganizationRole(ctx context.Context, opts UpdateOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+	return OrganizationRole{}, ErrNotImplemented
 }
 
 // DeleteOrganizationRole deletes an organization role.
 func (c *Client) DeleteOrganizationRole(ctx context.Context, opts DeleteOrganizationRoleOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // SetEnvironmentRolePermissions sets permissions for an environment role.
 func (c *Client) SetEnvironmentRolePermissions(ctx context.Context, opts SetEnvironmentRolePermissionsOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+	return EnvironmentRole{}, ErrNotImplemented
 }
 
 // AddEnvironmentRolePermission adds a permission to an environment role.
 func (c *Client) AddEnvironmentRolePermission(ctx context.Context, opts AddEnvironmentRolePermissionOpts) (EnvironmentRole, error) {
 	c.once.Do(c.init)
-	return EnvironmentRole{}, errors.New("not implemented")
+	return EnvironmentRole{}, ErrNotImplemented
 }
 
 // SetOrganizationRolePermissions sets permissions for an organization role.
 func (c *Client) SetOrganizationRolePermissions(ctx context.Context, opts SetOrganizationRolePermissionsOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+	return OrganizationRole{}, ErrNotImplemented
 }
 
 // AddOrganizationRolePermission adds a permission to an organization role.
 func (c *Client) AddOrganizationRolePermission(ctx context.Context, opts AddOrganizationRolePermissionOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+	return OrganizationRole{}, ErrNotImplemented
 }
 
 // RemoveOrganizationRolePermission removes a permission from an organization role.
 func (c *Client) RemoveOrganizationRolePermission(ctx context.Context, opts RemoveOrganizationRolePermissionOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // CreatePermission creates a new permission.
 func (c *Client) CreatePermission(ctx context.Context, opts CreatePermissionOpts) (Permission, error) {
 	c.once.Do(c.init)
-	return Permission{}, errors.New("not implemented")
+	return Permission{}, ErrNotImplemented
 }
 
 // ListPermissions lists all permissions.
 func (c *Client) ListPermissions(ctx context.Context, opts ListPermissionsOpts) (ListPermissionsResponse, error) {
 	c.once.Do(c.init)
-	return ListPermissionsResponse{}, errors.New("not implemented")
+	return ListPermissionsResponse{}, ErrNotImplemented
 }
 
 // GetPermission gets a permission by slug.
 func (c *Client) GetPermission(ctx context.Context, opts GetPermissionOpts) (Permission, error) {
 	c.once.Do(c.init)
-	return Permission{}, errors.New("not implemented")
+	return Permission{}, ErrNotImplemented
 }
 
 // UpdatePermission updates a permission.
 func (c *Client) UpdatePermission(ctx context.Context, opts UpdatePermissionOpts) (Permission, error) {
 	c.once.Do(c.init)
-	return Permission{}, errors.New("not implemented")
+	return Permission{}, ErrNotImplemented
 }
 
 // DeletePermission deletes a permission.
 func (c *Client) DeletePermission(ctx context.Context, opts DeletePermissionOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // GetResource gets a resource by Id.
 func (c *Client) GetResource(ctx context.Context, opts GetAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+	return AuthorizationResource{}, ErrNotImplemented
 }
 
 // CreateResource creates a new resource.
 func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+	return AuthorizationResource{}, ErrNotImplemented
 }
 
 // UpdateResource updates a resource.
 func (c *Client) UpdateResource(ctx context.Context, opts UpdateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+	return AuthorizationResource{}, ErrNotImplemented
 }
 
 // DeleteResource deletes a resource.
 func (c *Client) DeleteResource(ctx context.Context, opts DeleteAuthorizationResourceOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // ListResources lists resources with optional filters.
 func (c *Client) ListResources(ctx context.Context, opts ListAuthorizationResourcesOpts) (ListAuthorizationResourcesResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationResourcesResponse{}, errors.New("not implemented")
+	return ListAuthorizationResourcesResponse{}, ErrNotImplemented
 }
 
 // GetResourceByExternalId gets a resource by its external Id.
 func (c *Client) GetResourceByExternalId(ctx context.Context, opts GetResourceByExternalIdOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+	return AuthorizationResource{}, ErrNotImplemented
 }
 
 // UpdateResourceByExternalId updates a resource by its external Id.
 func (c *Client) UpdateResourceByExternalId(ctx context.Context, opts UpdateResourceByExternalIdOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+	return AuthorizationResource{}, ErrNotImplemented
 }
 
 // DeleteResourceByExternalId deletes a resource by its external Id.
 func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteResourceByExternalIdOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // Check performs an authorization check.
 func (c *Client) Check(ctx context.Context, opts AuthorizationCheckOpts) (AccessCheckResponse, error) {
 	c.once.Do(c.init)
-	return AccessCheckResponse{}, errors.New("not implemented")
+	return AccessCheckResponse{}, ErrNotImplemented
 }
 
 // ListRoleAssignments lists role assignments for a membership.
 func (c *Client) ListRoleAssignments(ctx context.Context, opts ListRoleAssignmentsOpts) (ListRoleAssignmentsResponse, error) {
 	c.once.Do(c.init)
-	return ListRoleAssignmentsResponse{}, errors.New("not implemented")
+	return ListRoleAssignmentsResponse{}, ErrNotImplemented
 }
 
 // AssignRole assigns a role to a membership.
 func (c *Client) AssignRole(ctx context.Context, opts AssignRoleOpts) (RoleAssignment, error) {
 	c.once.Do(c.init)
-	return RoleAssignment{}, errors.New("not implemented")
+	return RoleAssignment{}, ErrNotImplemented
 }
 
 // RemoveRole removes a role from a membership.
 func (c *Client) RemoveRole(ctx context.Context, opts RemoveRoleOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // RemoveRoleAssignment removes a role assignment by Id.
 func (c *Client) RemoveRoleAssignment(ctx context.Context, opts RemoveRoleAssignmentOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 // ListResourcesForMembership lists resources accessible by a membership.
 func (c *Client) ListResourcesForMembership(ctx context.Context, opts ListResourcesForMembershipOpts) (ListAuthorizationResourcesResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationResourcesResponse{}, errors.New("not implemented")
+
+	if c.APIKey == "" {
+		return ListAuthorizationResourcesResponse{}, errors.New("authorization: API key is required")
+	}
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organization_memberships/%s/resources",
+		c.Endpoint,
+		url.PathEscape(opts.OrganizationMembershipId),
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	// Append parent resource identifier query params if provided
+	if opts.ParentResourceIdentifier != nil {
+		for k, v := range opts.ParentResourceIdentifier.parentResourceIdentifierParams() {
+			q.Set(k, fmt.Sprintf("%v", v))
+		}
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationResourcesResponse{}, err
+	}
+
+	var body ListAuthorizationResourcesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListMembershipsForResource lists memberships with access to a resource.
 func (c *Client) ListMembershipsForResource(ctx context.Context, opts ListMembershipsForResourceOpts) (ListAuthorizationOrganizationMembershipsResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationOrganizationMembershipsResponse{}, errors.New("not implemented")
+
+	if c.APIKey == "" {
+		return ListAuthorizationOrganizationMembershipsResponse{}, errors.New("authorization: API key is required")
+	}
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/resources/%s/organization_memberships",
+		c.Endpoint,
+		url.PathEscape(opts.ResourceId),
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	var body ListAuthorizationOrganizationMembershipsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListMembershipsForResourceByExternalId lists memberships with access to a resource identified by external Id.
 func (c *Client) ListMembershipsForResourceByExternalId(ctx context.Context, opts ListMembershipsForResourceByExternalIdOpts) (ListAuthorizationOrganizationMembershipsResponse, error) {
 	c.once.Do(c.init)
-	return ListAuthorizationOrganizationMembershipsResponse{}, errors.New("not implemented")
+
+	if c.APIKey == "" {
+		return ListAuthorizationOrganizationMembershipsResponse{}, errors.New("authorization: API key is required")
+	}
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/resources/%s/%s/organization_memberships",
+		c.Endpoint,
+		url.PathEscape(opts.OrganizationId),
+		url.PathEscape(opts.ResourceTypeSlug),
+		url.PathEscape(opts.ExternalId),
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	q, err := query.Values(opts)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListAuthorizationOrganizationMembershipsResponse{}, err
+	}
+
+	var body ListAuthorizationOrganizationMembershipsResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
