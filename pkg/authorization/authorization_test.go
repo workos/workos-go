@@ -51,7 +51,7 @@ func TestListRoleAssignmentsWithDefaultClient(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(nil, &capturedPath, response)))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		result, err := ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -69,7 +69,7 @@ func TestListRoleAssignmentsWithDefaultClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		_, err := ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -98,7 +98,7 @@ func TestAssignRoleWithDefaultClient(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(&capturedBody, &capturedPath, response)))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		result, err := AssignRole(context.Background(), AssignRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -134,7 +134,7 @@ func TestAssignRoleWithDefaultClient(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(&capturedBody, &capturedPath, response)))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		result, err := AssignRole(context.Background(), AssignRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -160,7 +160,7 @@ func TestAssignRoleWithDefaultClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		_, err := AssignRole(context.Background(), AssignRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -179,7 +179,7 @@ func TestRemoveRoleWithDefaultClient(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(noContentHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		err := RemoveRole(context.Background(), RemoveRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -202,7 +202,7 @@ func TestRemoveRoleWithDefaultClient(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(noContentHandler(&capturedBody, &capturedPath)))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		err := RemoveRole(context.Background(), RemoveRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -227,7 +227,7 @@ func TestRemoveRoleWithDefaultClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		err := RemoveRole(context.Background(), RemoveRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -245,7 +245,7 @@ func TestRemoveRoleAssignmentWithDefaultClient(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(noContentHandler(nil, &capturedPath)))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		err := RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -262,7 +262,7 @@ func TestRemoveRoleAssignmentWithDefaultClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		setupDefaultClient(server)
+		setupDefaultClient(t, server)
 
 		err := RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
@@ -272,7 +272,10 @@ func TestRemoveRoleAssignmentWithDefaultClient(t *testing.T) {
 	})
 }
 
-func setupDefaultClient(server *httptest.Server) {
+func setupDefaultClient(t *testing.T, server *httptest.Server) {
+	orig := DefaultClient
+	t.Cleanup(func() { DefaultClient = orig })
+
 	DefaultClient = &Client{
 		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 		Endpoint:   server.URL,
