@@ -639,6 +639,26 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.Equal(t, expectedPath, cPath)
 	})
 
+	t.Run("passes assignment filter", func(t *testing.T) {
+		var cPath, cQuery string
+		server := listMembershipsServer(&cPath, &cQuery, singleItemResponse)
+		defer server.Close()
+		client := newAuthorizationTestClient(server)
+
+		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Assignment:     AssignmentDirect,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
+		require.Contains(t, cQuery, "assignment=direct")
+		require.Equal(t, expectedPath, cPath)
+	})
+
 	t.Run("passes all parameters", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listMembershipsServer(&cPath, &cQuery, singleItemResponse)
@@ -942,6 +962,24 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "after=cursor_after")
 		require.NotContains(t, cQuery, "before=")
+		require.Equal(t, expectedPath, cPath)
+	})
+
+	t.Run("passes assignment filter", func(t *testing.T) {
+		var cPath, cQuery string
+		server := listMembershipsExtServer(&cPath, &cQuery, singleItemResponse)
+		defer server.Close()
+		client := newAuthorizationTestClient(server)
+
+		opts := baseOpts()
+		opts.Assignment = AssignmentDirect
+		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), opts)
+
+		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
+		require.Contains(t, cQuery, "assignment=direct")
 		require.Equal(t, expectedPath, cPath)
 	})
 

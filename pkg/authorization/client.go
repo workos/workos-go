@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -727,7 +728,7 @@ func (c *Client) ListResourcesForMembership(ctx context.Context, opts ListResour
 	endpoint := fmt.Sprintf(
 		"%s/authorization/organization_memberships/%s/resources",
 		c.Endpoint,
-		opts.OrganizationMembershipId,
+		url.PathEscape(opts.OrganizationMembershipId),
 	)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -785,7 +786,7 @@ func (c *Client) ListMembershipsForResource(ctx context.Context, opts ListMember
 	endpoint := fmt.Sprintf(
 		"%s/authorization/resources/%s/organization_memberships",
 		c.Endpoint,
-		opts.ResourceId,
+		url.PathEscape(opts.ResourceId),
 	)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -836,9 +837,9 @@ func (c *Client) ListMembershipsForResourceByExternalId(ctx context.Context, opt
 	endpoint := fmt.Sprintf(
 		"%s/authorization/organizations/%s/resources/%s/%s/organization_memberships",
 		c.Endpoint,
-		opts.OrganizationId,
-		opts.ResourceTypeSlug,
-		opts.ExternalId,
+		url.PathEscape(opts.OrganizationId),
+		url.PathEscape(opts.ResourceTypeSlug),
+		url.PathEscape(opts.ExternalId),
 	)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)

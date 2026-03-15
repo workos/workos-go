@@ -180,6 +180,46 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
+	t.Run("passes order desc", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			Order:                    common.Desc,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes order asc", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			Order:                    common.Asc,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=asc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
 	t.Run("applies default limit when none specified", func(t *testing.T) {
 		var capturedPath, capturedRawQuery string
 		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
@@ -351,6 +391,28 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 		require.Error(t, err)
 	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer server.Close()
+		original := DefaultClient
+		DefaultClient = &Client{
+			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+			Endpoint:   server.URL,
+		}
+		SetAPIKey("")
+		defer func() {
+			DefaultClient = original
+		}()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		})
+		require.Error(t, err)
+	})
 }
 
 func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) {
@@ -501,6 +563,46 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
+	t.Run("passes order desc", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Order:          common.Desc,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes order asc", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+			Order:          common.Asc,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=asc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
 	t.Run("applies default limit when none specified", func(t *testing.T) {
 		var capturedPath, capturedRawQuery string
 		server := listMembershipsServer(&capturedPath, &capturedRawQuery, singleItemResponse)
@@ -640,6 +742,28 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		defer server.Close()
 		cleanup := setupDefaultClient(server)
 		defer cleanup()
+
+		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer server.Close()
+		original := DefaultClient
+		DefaultClient = &Client{
+			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+			Endpoint:   server.URL,
+		}
+		SetAPIKey("")
+		defer func() {
+			DefaultClient = original
+		}()
 
 		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 			ResourceId:     "resource_01JF",
@@ -809,6 +933,50 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
+	t.Run("passes order desc", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+			Order:            common.Desc,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes order asc", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+			Order:            common.Asc,
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=asc")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
 	t.Run("applies default limit when none specified", func(t *testing.T) {
 		var capturedPath, capturedRawQuery string
 		server := listMembershipsExtServer(&capturedPath, &capturedRawQuery, singleItemResponse)
@@ -960,6 +1128,30 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		defer server.Close()
 		cleanup := setupDefaultClient(server)
 		defer cleanup()
+
+		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
+			OrganizationId:   "org_01JF",
+			ResourceTypeSlug: "document",
+			ExternalId:       "my-doc-1",
+			PermissionSlug:   "read:document",
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer server.Close()
+		original := DefaultClient
+		DefaultClient = &Client{
+			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+			Endpoint:   server.URL,
+		}
+		SetAPIKey("")
+		defer func() {
+			DefaultClient = original
+		}()
 
 		_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
 			OrganizationId:   "org_01JF",
