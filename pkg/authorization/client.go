@@ -477,13 +477,13 @@ type RemoveRoleAssignmentOpts struct {
 
 // ListResourcesForMembershipOpts contains the options for listing resources accessible by a membership.
 type ListResourcesForMembershipOpts struct {
-	OrganizationMembershipId string `json:"-" url:"-"`
-	PermissionSlug           string `url:"permission_slug"`
+	OrganizationMembershipId string                   `json:"-" url:"-"`
+	PermissionSlug           string                   `url:"permission_slug"`
 	ParentResourceIdentifier ParentResourceIdentifier `json:"-" url:"-"`
-	Limit          int                      `url:"limit,omitempty"`
-	Before         string                   `url:"before,omitempty"`
-	After          string                   `url:"after,omitempty"`
-	Order          common.Order             `url:"order,omitempty"`
+	Limit                    int                      `url:"limit,omitempty"`
+	Before                   string                   `url:"before,omitempty"`
+	After                    string                   `url:"after,omitempty"`
+	Order                    common.Order             `url:"order,omitempty"`
 }
 
 // Assignment represents the type of role assignment filter.
@@ -496,8 +496,8 @@ const (
 
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
-	ResourceId     string `json:"-" url:"-"`
-	PermissionSlug string `url:"permission_slug"`
+	ResourceId     string       `json:"-" url:"-"`
+	PermissionSlug string       `url:"permission_slug"`
 	Assignment     Assignment   `url:"assignment,omitempty"`
 	Limit          int          `url:"limit,omitempty"`
 	Before         string       `url:"before,omitempty"`
@@ -507,11 +507,11 @@ type ListMembershipsForResourceOpts struct {
 
 // ListMembershipsForResourceByExternalIdOpts contains the options for listing memberships by resource external Id.
 type ListMembershipsForResourceByExternalIdOpts struct {
-	OrganizationId   string `json:"-" url:"-"`
-	ResourceTypeSlug string `json:"-" url:"-"`
-	ExternalId       string `json:"-" url:"-"`
-	PermissionSlug   string     `url:"permission_slug"`
-	Assignment       Assignment `url:"assignment,omitempty"`
+	OrganizationId   string       `json:"-" url:"-"`
+	ResourceTypeSlug string       `json:"-" url:"-"`
+	ExternalId       string       `json:"-" url:"-"`
+	PermissionSlug   string       `url:"permission_slug"`
+	Assignment       Assignment   `url:"assignment,omitempty"`
 	Limit            int          `url:"limit,omitempty"`
 	Before           string       `url:"before,omitempty"`
 	After            string       `url:"after,omitempty"`

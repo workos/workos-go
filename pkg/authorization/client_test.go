@@ -93,6 +93,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		require.Len(t, result.Data, 1)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("returns multiple resources and deserializes response", func(t *testing.T) {
@@ -111,6 +114,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		require.Equal(t, "resource_01JF", result.Data[0].Id)
 		require.Equal(t, "resource_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("returns zero resources", func(t *testing.T) {
@@ -127,6 +133,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("applies default order when none specified", func(t *testing.T) {
@@ -141,6 +150,8 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -158,6 +169,8 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -175,6 +188,8 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=asc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -191,7 +206,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -208,7 +225,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=25")
+		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -225,6 +244,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.NotContains(t, cQuery, "after=")
 		require.Equal(t, expectedPath, cPath)
@@ -243,6 +265,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "after=cursor_after")
 		require.NotContains(t, cQuery, "before=")
 		require.Equal(t, expectedPath, cPath)
@@ -263,6 +288,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "parent_resource_id=resource_parent_01")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -283,6 +311,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "parent_resource_external_id=parent-ext-1")
 		require.Contains(t, cQuery, "parent_resource_type_slug=folder")
 		require.Equal(t, expectedPath, cPath)
@@ -306,6 +337,7 @@ func TestListResourcesForMembership(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=5")
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.Contains(t, cQuery, "after=cursor_after")
@@ -427,6 +459,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.Len(t, result.Data, 1)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
@@ -445,6 +480,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.Equal(t, "om_01JF", result.Data[0].Id)
 		require.Equal(t, "om_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("returns zero memberships", func(t *testing.T) {
@@ -461,6 +499,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("applies default order when none specified", func(t *testing.T) {
@@ -475,6 +516,8 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -492,6 +535,8 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -509,6 +554,8 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=asc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -525,7 +572,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -542,7 +591,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=25")
+		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -559,6 +610,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.NotContains(t, cQuery, "after=")
 		require.Equal(t, expectedPath, cPath)
@@ -577,6 +631,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "after=cursor_after")
 		require.NotContains(t, cQuery, "before=")
 		require.Equal(t, expectedPath, cPath)
@@ -601,6 +658,7 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=5")
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.Contains(t, cQuery, "after=cursor_after")
@@ -729,6 +787,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.Len(t, result.Data, 1)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
@@ -744,6 +805,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.Equal(t, "om_01JF", result.Data[0].Id)
 		require.Equal(t, "om_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("returns zero memberships", func(t *testing.T) {
@@ -757,6 +821,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 	})
 
 	t.Run("applies default order when none specified", func(t *testing.T) {
@@ -768,6 +835,8 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), baseOpts())
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -783,6 +852,8 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), opts)
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -798,6 +869,8 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), opts)
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=asc")
 		require.Equal(t, expectedPath, cPath)
 	})
@@ -811,7 +884,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), baseOpts())
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -826,7 +901,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), opts)
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=25")
+		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -841,6 +918,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), opts)
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.NotContains(t, cQuery, "after=")
 		require.Equal(t, expectedPath, cPath)
@@ -857,6 +937,9 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), opts)
 
 		require.NoError(t, err)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, cQuery, "limit=10")
+		require.Contains(t, cQuery, "order=desc")
 		require.Contains(t, cQuery, "after=cursor_after")
 		require.NotContains(t, cQuery, "before=")
 		require.Equal(t, expectedPath, cPath)
@@ -879,6 +962,7 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, cPath)
+		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=5")
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.Contains(t, cQuery, "after=cursor_after")

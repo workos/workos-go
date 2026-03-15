@@ -27,10 +27,6 @@ func setupDefaultClient(server *httptest.Server) func() {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Package-level ListResourcesForMembership
-// ---------------------------------------------------------------------------
-
 func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) {
 	listResourcesServer := func(capturedPath *string, capturedRawQuery *string, response ListAuthorizationResourcesResponse) *httptest.Server {
 		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +112,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		require.Len(t, result.Data, 1)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("returns multiple resources and deserializes response", func(t *testing.T) {
@@ -137,6 +136,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		require.Equal(t, "document", result.Data[0].ResourceTypeSlug)
 		require.Equal(t, "resource_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("returns zero resources", func(t *testing.T) {
@@ -154,6 +156,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("applies default order when none specified", func(t *testing.T) {
@@ -169,6 +174,8 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
 		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
@@ -186,7 +193,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -204,7 +213,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=25")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -222,6 +233,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "before=cursor_before")
 		require.NotContains(t, capturedRawQuery, "after=")
 		require.Equal(t, expectedPath, capturedPath)
@@ -241,6 +255,9 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "after=cursor_after")
 		require.NotContains(t, capturedRawQuery, "before=")
 		require.Equal(t, expectedPath, capturedPath)
@@ -262,7 +279,35 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "parent_resource_id=resource_parent_01")
+		require.Equal(t, expectedPath, capturedPath)
+	})
+
+	t.Run("passes parent resource by external id and type slug", func(t *testing.T) {
+		var capturedPath, capturedRawQuery string
+		server := listResourcesServer(&capturedPath, &capturedRawQuery, singleItemResponse)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+			ParentResourceIdentifier: ParentResourceIdentifierByExternalId{
+				ParentResourceExternalId: "parent-ext-1",
+				ParentResourceTypeSlug:   "folder",
+			},
+		})
+
+		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
+		require.Contains(t, capturedRawQuery, "parent_resource_external_id=parent-ext-1")
+		require.Contains(t, capturedRawQuery, "parent_resource_type_slug=folder")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -285,6 +330,7 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=5")
 		require.Contains(t, capturedRawQuery, "before=cursor_before")
 		require.Contains(t, capturedRawQuery, "after=cursor_after")
@@ -306,10 +352,6 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		require.Error(t, err)
 	})
 }
-
-// ---------------------------------------------------------------------------
-// Package-level ListMembershipsForResource
-// ---------------------------------------------------------------------------
 
 func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) {
 	listMembershipsServer := func(capturedPath *string, capturedRawQuery *string, response ListAuthorizationOrganizationMembershipsResponse) *httptest.Server {
@@ -391,6 +433,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		require.Len(t, result.Data, 1)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
@@ -412,6 +457,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		require.Equal(t, MembershipStatusActive, result.Data[0].Status)
 		require.Equal(t, "om_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("returns zero memberships", func(t *testing.T) {
@@ -429,6 +477,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("applies default order when none specified", func(t *testing.T) {
@@ -444,6 +495,8 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
 		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
@@ -461,7 +514,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -479,7 +534,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=25")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -497,6 +554,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "before=cursor_before")
 		require.NotContains(t, capturedRawQuery, "after=")
 		require.Equal(t, expectedPath, capturedPath)
@@ -516,6 +576,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "after=cursor_after")
 		require.NotContains(t, capturedRawQuery, "before=")
 		require.Equal(t, expectedPath, capturedPath)
@@ -535,6 +598,9 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "assignment=direct")
 		require.Equal(t, expectedPath, capturedPath)
 	})
@@ -559,6 +625,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=5")
 		require.Contains(t, capturedRawQuery, "before=cursor_before")
 		require.Contains(t, capturedRawQuery, "after=cursor_after")
@@ -668,6 +735,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		require.Len(t, result.Data, 1)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
@@ -691,6 +761,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		require.Equal(t, "user_01JF", result.Data[0].UserId)
 		require.Equal(t, "om_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("returns zero memberships", func(t *testing.T) {
@@ -710,6 +783,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 	})
 
 	t.Run("applies default order when none specified", func(t *testing.T) {
@@ -727,6 +803,8 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
 		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
@@ -746,7 +824,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -766,7 +846,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=25")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Equal(t, expectedPath, capturedPath)
 	})
 
@@ -786,6 +868,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "before=cursor_before")
 		require.NotContains(t, capturedRawQuery, "after=")
 		require.Equal(t, expectedPath, capturedPath)
@@ -807,6 +892,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "after=cursor_after")
 		require.NotContains(t, capturedRawQuery, "before=")
 		require.Equal(t, expectedPath, capturedPath)
@@ -828,6 +916,9 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		})
 
 		require.NoError(t, err)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.Contains(t, capturedRawQuery, "order=desc")
 		require.Contains(t, capturedRawQuery, "assignment=direct")
 		require.Equal(t, expectedPath, capturedPath)
 	})
@@ -854,6 +945,7 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
 		require.Equal(t, expectedPath, capturedPath)
+		require.Contains(t, capturedRawQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, capturedRawQuery, "limit=5")
 		require.Contains(t, capturedRawQuery, "before=cursor_before")
 		require.Contains(t, capturedRawQuery, "after=cursor_after")
