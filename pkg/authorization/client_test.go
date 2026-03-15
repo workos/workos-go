@@ -257,7 +257,7 @@ func TestListResourcesForMembership(t *testing.T) {
 		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 			OrganizationMembershipId: "om_01JF",
 			PermissionSlug:           "read:document",
-			ParentResource: ParentResourceIdentifierById{
+			ParentResourceIdentifier: ParentResourceIdentifierById{
 				ParentResourceId: "resource_parent_01",
 			},
 		})
@@ -276,7 +276,7 @@ func TestListResourcesForMembership(t *testing.T) {
 		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 			OrganizationMembershipId: "om_01JF",
 			PermissionSlug:           "read:document",
-			ParentResource: ParentResourceIdentifierByExternalId{
+			ParentResourceIdentifier: ParentResourceIdentifierByExternalId{
 				ParentResourceExternalId: "parent-ext-1",
 				ParentResourceTypeSlug:   "folder",
 			},
@@ -373,7 +373,7 @@ func TestListMembershipsForResource(t *testing.T) {
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -388,7 +388,7 @@ func TestListMembershipsForResource(t *testing.T) {
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -397,7 +397,7 @@ func TestListMembershipsForResource(t *testing.T) {
 				Id:             "om_02JF",
 				UserId:         "user_02JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-02T00:00:00.000Z",
 				UpdatedAt:      "2024-01-02T00:00:00.000Z",
 			},
@@ -591,7 +591,7 @@ func TestListMembershipsForResource(t *testing.T) {
 		result, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 			ResourceId:     "resource_01JF",
 			PermissionSlug: "read:document",
-			Assignment:     "direct",
+			Assignment:     AssignmentDirect,
 			Limit:          5,
 			Before:         "cursor_before",
 			After:          "cursor_after",
@@ -669,7 +669,7 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -684,7 +684,7 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -693,7 +693,7 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 				Id:             "om_02JF",
 				UserId:         "user_02JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-02T00:00:00.000Z",
 				UpdatedAt:      "2024-01-02T00:00:00.000Z",
 			},
@@ -869,7 +869,7 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		client := newAuthorizationTestClient(server)
 
 		opts := baseOpts()
-		opts.Assignment = "direct"
+		opts.Assignment = AssignmentDirect
 		opts.Limit = 5
 		opts.Before = "cursor_before"
 		opts.After = "cursor_after"

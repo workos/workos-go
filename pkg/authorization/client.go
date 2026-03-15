@@ -196,18 +196,24 @@ type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
+// MembershipStatus represents the status of an organization membership.
+type MembershipStatus string
+
+const (
+	MembershipStatusActive   MembershipStatus = "active"
+	MembershipStatusInactive MembershipStatus = "inactive"
+	MembershipStatusPending  MembershipStatus = "pending"
+)
+
 // AuthorizationOrganizationMembership represents a membership returned by authorization queries.
 type AuthorizationOrganizationMembership struct {
-	Object         string `json:"object"`
-	Id             string `json:"id"`
-	OrganizationId string `json:"organization_id"`
-	// todo can this be an enum here the values are active, inactive, pending
-	Status    string `json:"status"`
-	UserId    string `json:"user_id"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	// todo remove custom attributes from the response
-	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	Object         string           `json:"object"`
+	Id             string           `json:"id"`
+	OrganizationId string           `json:"organization_id"`
+	Status         MembershipStatus `json:"status"`
+	UserId         string           `json:"user_id"`
+	CreatedAt      string           `json:"created_at"`
+	UpdatedAt      string           `json:"updated_at"`
 }
 
 // List response types
@@ -473,24 +479,30 @@ type RemoveRoleAssignmentOpts struct {
 type ListResourcesForMembershipOpts struct {
 	OrganizationMembershipId string `json:"-" url:"-"`
 	PermissionSlug           string `url:"permission_slug"`
-	// todo let's rename this to ParentResourceIdentifier
-	ParentResource ParentResourceIdentifier `json:"-" url:"-"`
+	ParentResourceIdentifier ParentResourceIdentifier `json:"-" url:"-"`
 	Limit          int                      `url:"limit,omitempty"`
 	Before         string                   `url:"before,omitempty"`
 	After          string                   `url:"after,omitempty"`
 	Order          common.Order             `url:"order,omitempty"`
 }
 
+// Assignment represents the type of role assignment filter.
+type Assignment string
+
+const (
+	AssignmentDirect   Assignment = "direct"
+	AssignmentIndirect Assignment = "indirect"
+)
+
 // ListMembershipsForResourceOpts contains the options for listing memberships with access to a resource.
 type ListMembershipsForResourceOpts struct {
 	ResourceId     string `json:"-" url:"-"`
 	PermissionSlug string `url:"permission_slug"`
-	// TODO can we turn assignment into an enum, where the values are direct and indirect, akin to /Users/swaroopakkineni/Documents/repos/public_repos/workos-node/src/authorization/interfaces/list-memberships-for-resource-by-external-id-options.interface.ts line 8
-	Assignment string       `url:"assignment,omitempty"`
-	Limit      int          `url:"limit,omitempty"`
-	Before     string       `url:"before,omitempty"`
-	After      string       `url:"after,omitempty"`
-	Order      common.Order `url:"order,omitempty"`
+	Assignment     Assignment   `url:"assignment,omitempty"`
+	Limit          int          `url:"limit,omitempty"`
+	Before         string       `url:"before,omitempty"`
+	After          string       `url:"after,omitempty"`
+	Order          common.Order `url:"order,omitempty"`
 }
 
 // ListMembershipsForResourceByExternalIdOpts contains the options for listing memberships by resource external Id.
@@ -498,13 +510,12 @@ type ListMembershipsForResourceByExternalIdOpts struct {
 	OrganizationId   string `json:"-" url:"-"`
 	ResourceTypeSlug string `json:"-" url:"-"`
 	ExternalId       string `json:"-" url:"-"`
-	PermissionSlug   string `url:"permission_slug"`
-	// TODO can we turn assignment into an enum, where the values are direct and indirect, akin to /Users/swaroopakkineni/Documents/repos/public_repos/workos-node/src/authorization/interfaces/list-memberships-for-resource-by-external-id-options.interface.ts line 8
-	Assignment string       `url:"assignment,omitempty"`
-	Limit      int          `url:"limit,omitempty"`
-	Before     string       `url:"before,omitempty"`
-	After      string       `url:"after,omitempty"`
-	Order      common.Order `url:"order,omitempty"`
+	PermissionSlug   string     `url:"permission_slug"`
+	Assignment       Assignment `url:"assignment,omitempty"`
+	Limit            int          `url:"limit,omitempty"`
+	Before           string       `url:"before,omitempty"`
+	After            string       `url:"after,omitempty"`
+	Order            common.Order `url:"order,omitempty"`
 }
 
 // Stub method implementations
@@ -735,8 +746,8 @@ func (c *Client) ListResourcesForMembership(ctx context.Context, opts ListResour
 	}
 
 	// Append parent resource identifier query params if provided
-	if opts.ParentResource != nil {
-		for k, v := range opts.ParentResource.parentResourceIdentifierParams() {
+	if opts.ParentResourceIdentifier != nil {
+		for k, v := range opts.ParentResourceIdentifier.parentResourceIdentifierParams() {
 			q.Set(k, fmt.Sprintf("%v", v))
 		}
 	}

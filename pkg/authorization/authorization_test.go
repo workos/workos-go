@@ -256,7 +256,7 @@ func TestAuthorizationListResourcesForMembershipWithDefaultClient(t *testing.T) 
 		_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 			OrganizationMembershipId: "om_01JF",
 			PermissionSlug:           "read:document",
-			ParentResource: ParentResourceIdentifierById{
+			ParentResourceIdentifier: ParentResourceIdentifierById{
 				ParentResourceId: "resource_parent_01",
 			},
 		})
@@ -336,7 +336,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -351,7 +351,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -360,7 +360,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 				Id:             "om_02JF",
 				UserId:         "user_02JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-02T00:00:00.000Z",
 				UpdatedAt:      "2024-01-02T00:00:00.000Z",
 			},
@@ -409,7 +409,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		require.Len(t, result.Data, 2)
 		require.Equal(t, twoItemResponse, result)
 		require.Equal(t, "om_01JF", result.Data[0].Id)
-		require.Equal(t, "active", result.Data[0].Status)
+		require.Equal(t, MembershipStatusActive, result.Data[0].Status)
 		require.Equal(t, "om_02JF", result.Data[1].Id)
 		require.Equal(t, expectedPath, capturedPath)
 	})
@@ -531,7 +531,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 			ResourceId:     "resource_01JF",
 			PermissionSlug: "read:document",
-			Assignment:     "direct",
+			Assignment:     AssignmentDirect,
 		})
 
 		require.NoError(t, err)
@@ -549,7 +549,7 @@ func TestAuthorizationListMembershipsForResourceWithDefaultClient(t *testing.T) 
 		result, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 			ResourceId:     "resource_01JF",
 			PermissionSlug: "read:document",
-			Assignment:     "direct",
+			Assignment:     AssignmentDirect,
 			Limit:          5,
 			Before:         "cursor_before",
 			After:          "cursor_after",
@@ -611,7 +611,7 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -626,7 +626,7 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -635,7 +635,7 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 				Id:             "om_02JF",
 				UserId:         "user_02JF",
 				OrganizationId: "org_01JF",
-				Status:         "active",
+				Status:         MembershipStatusActive,
 				CreatedAt:      "2024-01-02T00:00:00.000Z",
 				UpdatedAt:      "2024-01-02T00:00:00.000Z",
 			},
@@ -824,7 +824,7 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 			ResourceTypeSlug: "document",
 			ExternalId:       "my-doc-1",
 			PermissionSlug:   "read:document",
-			Assignment:       "direct",
+			Assignment:       AssignmentDirect,
 		})
 
 		require.NoError(t, err)
@@ -844,7 +844,7 @@ func TestAuthorizationListMembershipsForResourceByExternalIdWithDefaultClient(t 
 			ResourceTypeSlug: "document",
 			ExternalId:       "my-doc-1",
 			PermissionSlug:   "read:document",
-			Assignment:       "direct",
+			Assignment:       AssignmentDirect,
 			Limit:            5,
 			Before:           "cursor_before",
 			After:            "cursor_after",
