@@ -359,20 +359,14 @@ func TestListResourcesForMembership(t *testing.T) {
 	})
 
 	t.Run("Request without API Key returns an error", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-		}))
-		defer server.Close()
-		client := &Client{
-			Endpoint:   server.URL,
-			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-		}
+		client := &Client{}
 
 		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
 			OrganizationMembershipId: "om_01JF",
 			PermissionSlug:           "read:document",
 		})
 		require.Error(t, err)
+		require.Contains(t, err.Error(), "API key is required")
 	})
 }
 
@@ -701,20 +695,14 @@ func TestListMembershipsForResource(t *testing.T) {
 	})
 
 	t.Run("Request without API Key returns an error", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-		}))
-		defer server.Close()
-		client := &Client{
-			Endpoint:   server.URL,
-			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-		}
+		client := &Client{}
 
 		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
 			ResourceId:     "resource_01JF",
 			PermissionSlug: "read:document",
 		})
 		require.Error(t, err)
+		require.Contains(t, err.Error(), "API key is required")
 	})
 }
 
@@ -1020,407 +1008,66 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 	})
 
 	t.Run("Request without API Key returns an error", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-		}))
-		defer server.Close()
-		client := &Client{
-			Endpoint:   server.URL,
-			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-		}
+		client := &Client{}
 
 		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), baseOpts())
 		require.Error(t, err)
+		require.Contains(t, err.Error(), "API key is required")
 	})
 }
 
 // ---------------------------------------------------------------------------
-// Stub method tests -- verify all stubs return "not implemented"
-// These ensure the method signatures compile and the stubs behave correctly.
-// When a stub is implemented, its test should be expanded to full coverage.
+// Stub methods -- verify all stubs return ErrNotImplemented
 // ---------------------------------------------------------------------------
 
-func TestCreateEnvironmentRole(t *testing.T) {
+func TestStubMethodsReturnNotImplemented(t *testing.T) {
+	client := &Client{APIKey: "test"}
+	ctx := context.Background()
+
 	tests := []struct {
-		scenario string
-		client   *Client
-		options  CreateEnvironmentRoleOpts
-		err      bool
+		name string
+		fn   func() error
 	}{
-		{
-			scenario: "Stub returns not implemented",
-			client:   &Client{APIKey: "test"},
-			options: CreateEnvironmentRoleOpts{
-				Slug: "admin",
-				Name: "Admin",
-			},
-			err: true,
-		},
+		{"CreateEnvironmentRole", func() error { _, err := client.CreateEnvironmentRole(ctx, CreateEnvironmentRoleOpts{}); return err }},
+		{"ListEnvironmentRoles", func() error { _, err := client.ListEnvironmentRoles(ctx); return err }},
+		{"GetEnvironmentRole", func() error { _, err := client.GetEnvironmentRole(ctx, GetEnvironmentRoleOpts{}); return err }},
+		{"UpdateEnvironmentRole", func() error { _, err := client.UpdateEnvironmentRole(ctx, UpdateEnvironmentRoleOpts{}); return err }},
+		{"CreateOrganizationRole", func() error { _, err := client.CreateOrganizationRole(ctx, CreateOrganizationRoleOpts{}); return err }},
+		{"ListOrganizationRoles", func() error { _, err := client.ListOrganizationRoles(ctx, ListOrganizationRolesOpts{}); return err }},
+		{"GetOrganizationRole", func() error { _, err := client.GetOrganizationRole(ctx, GetOrganizationRoleOpts{}); return err }},
+		{"UpdateOrganizationRole", func() error { _, err := client.UpdateOrganizationRole(ctx, UpdateOrganizationRoleOpts{}); return err }},
+		{"DeleteOrganizationRole", func() error { return client.DeleteOrganizationRole(ctx, DeleteOrganizationRoleOpts{}) }},
+		{"SetEnvironmentRolePermissions", func() error { _, err := client.SetEnvironmentRolePermissions(ctx, SetEnvironmentRolePermissionsOpts{}); return err }},
+		{"AddEnvironmentRolePermission", func() error { _, err := client.AddEnvironmentRolePermission(ctx, AddEnvironmentRolePermissionOpts{}); return err }},
+		{"SetOrganizationRolePermissions", func() error { _, err := client.SetOrganizationRolePermissions(ctx, SetOrganizationRolePermissionsOpts{}); return err }},
+		{"AddOrganizationRolePermission", func() error { _, err := client.AddOrganizationRolePermission(ctx, AddOrganizationRolePermissionOpts{}); return err }},
+		{"RemoveOrganizationRolePermission", func() error { return client.RemoveOrganizationRolePermission(ctx, RemoveOrganizationRolePermissionOpts{}) }},
+		{"CreatePermission", func() error { _, err := client.CreatePermission(ctx, CreatePermissionOpts{}); return err }},
+		{"ListPermissions", func() error { _, err := client.ListPermissions(ctx, ListPermissionsOpts{}); return err }},
+		{"GetPermission", func() error { _, err := client.GetPermission(ctx, GetPermissionOpts{}); return err }},
+		{"UpdatePermission", func() error { _, err := client.UpdatePermission(ctx, UpdatePermissionOpts{}); return err }},
+		{"DeletePermission", func() error { return client.DeletePermission(ctx, DeletePermissionOpts{}) }},
+		{"GetResource", func() error { _, err := client.GetResource(ctx, GetAuthorizationResourceOpts{}); return err }},
+		{"CreateResource", func() error { _, err := client.CreateResource(ctx, CreateAuthorizationResourceOpts{}); return err }},
+		{"UpdateResource", func() error { _, err := client.UpdateResource(ctx, UpdateAuthorizationResourceOpts{}); return err }},
+		{"DeleteResource", func() error { return client.DeleteResource(ctx, DeleteAuthorizationResourceOpts{}) }},
+		{"ListResources", func() error { _, err := client.ListResources(ctx, ListAuthorizationResourcesOpts{}); return err }},
+		{"GetResourceByExternalId", func() error { _, err := client.GetResourceByExternalId(ctx, GetResourceByExternalIdOpts{}); return err }},
+		{"UpdateResourceByExternalId", func() error { _, err := client.UpdateResourceByExternalId(ctx, UpdateResourceByExternalIdOpts{}); return err }},
+		{"DeleteResourceByExternalId", func() error { return client.DeleteResourceByExternalId(ctx, DeleteResourceByExternalIdOpts{}) }},
+		{"Check", func() error { _, err := client.Check(ctx, AuthorizationCheckOpts{}); return err }},
+		{"ListRoleAssignments", func() error { _, err := client.ListRoleAssignments(ctx, ListRoleAssignmentsOpts{}); return err }},
+		{"AssignRole", func() error { _, err := client.AssignRole(ctx, AssignRoleOpts{}); return err }},
+		{"RemoveRole", func() error { return client.RemoveRole(ctx, RemoveRoleOpts{}) }},
+		{"RemoveRoleAssignment", func() error { return client.RemoveRoleAssignment(ctx, RemoveRoleAssignmentOpts{}) }},
 	}
 
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			_, err := test.client.CreateEnvironmentRole(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), "not implemented")
-			}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.fn()
+			require.ErrorIs(t, err, ErrNotImplemented)
 		})
 	}
-}
-
-func TestListEnvironmentRoles(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListEnvironmentRoles(context.Background())
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetEnvironmentRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetEnvironmentRole(context.Background(), GetEnvironmentRoleOpts{Slug: "admin"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateEnvironmentRole(t *testing.T) {
-	name := "Updated Admin"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdateEnvironmentRole(context.Background(), UpdateEnvironmentRoleOpts{
-		Slug: "admin",
-		Name: &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCreateOrganizationRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-		Name:           "Editor",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListOrganizationRoles(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetOrganizationRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateOrganizationRole(t *testing.T) {
-	name := "Updated Editor"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-		Name:           &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeleteOrganizationRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestSetEnvironmentRolePermissions(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.SetEnvironmentRolePermissions(context.Background(), SetEnvironmentRolePermissionsOpts{
-		Slug:        "admin",
-		Permissions: []string{"read:doc", "write:doc"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAddEnvironmentRolePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.AddEnvironmentRolePermission(context.Background(), AddEnvironmentRolePermissionOpts{
-		Slug:           "admin",
-		PermissionSlug: "delete:doc",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestSetOrganizationRolePermissions(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.SetOrganizationRolePermissions(context.Background(), SetOrganizationRolePermissionsOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-		Permissions:    []string{"read:doc"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAddOrganizationRolePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.AddOrganizationRolePermission(context.Background(), AddOrganizationRolePermissionOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-		PermissionSlug: "write:doc",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestRemoveOrganizationRolePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.RemoveOrganizationRolePermission(context.Background(), RemoveOrganizationRolePermissionOpts{
-		OrganizationId: "org_01",
-		Slug:           "editor",
-		PermissionSlug: "write:doc",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCreatePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
-		Slug: "read:doc",
-		Name: "Read Document",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListPermissions(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{
-		Limit: 10,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetPermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetPermission(context.Background(), GetPermissionOpts{Slug: "read:doc"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdatePermission(t *testing.T) {
-	name := "Updated Read"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
-		Slug: "read:doc",
-		Name: &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeletePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.DeletePermission(context.Background(), DeletePermissionOpts{Slug: "read:doc"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetResource(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetResource(context.Background(), GetAuthorizationResourceOpts{
-		ResourceId: "resource_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCreateResource(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
-		ExternalId:       "ext-1",
-		Name:             "Test Resource",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateResource(t *testing.T) {
-	name := "Updated Resource"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdateResource(context.Background(), UpdateAuthorizationResourceOpts{
-		ResourceId: "resource_01",
-		Name:       &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeleteResource(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
-		ResourceId: "resource_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListResources(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{
-		OrganizationId:   "org_01",
-		ResourceTypeSlug: "document",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetResourceByExternalId(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetResourceByExternalId(context.Background(), GetResourceByExternalIdOpts{
-		OrganizationId:   "org_01",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext-1",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateResourceByExternalId(t *testing.T) {
-	name := "Updated"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdateResourceByExternalId(context.Background(), UpdateResourceByExternalIdOpts{
-		OrganizationId:   "org_01",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext-1",
-		Name:             &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeleteResourceByExternalId(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.DeleteResourceByExternalId(context.Background(), DeleteResourceByExternalIdOpts{
-		OrganizationId:   "org_01",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext-1",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCheck(t *testing.T) {
-	client := &Client{APIKey: "test"}
-
-	t.Run("Stub returns not implemented with ResourceIdentifierById", func(t *testing.T) {
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: "om_01",
-			PermissionSlug:           "read:document",
-			Resource: ResourceIdentifierById{
-				ResourceId: "resource_01",
-			},
-		})
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "not implemented")
-	})
-
-	t.Run("Stub returns not implemented with ResourceIdentifierByExternalId", func(t *testing.T) {
-		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-			OrganizationMembershipId: "om_01",
-			PermissionSlug:           "read:document",
-			Resource: ResourceIdentifierByExternalId{
-				ResourceExternalId: "ext-1",
-				ResourceTypeSlug:   "document",
-			},
-		})
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "not implemented")
-	})
-}
-
-func TestListRoleAssignments(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
-		OrganizationMembershipId: "om_01",
-		Limit:                    10,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAssignRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-
-	t.Run("Stub returns not implemented with ResourceIdentifierById", func(t *testing.T) {
-		_, err := client.AssignRole(context.Background(), AssignRoleOpts{
-			OrganizationMembershipId: "om_01",
-			RoleSlug:                 "admin",
-			ResourceIdentifier: ResourceIdentifierById{
-				ResourceId: "resource_01",
-			},
-		})
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "not implemented")
-	})
-
-	t.Run("Stub returns not implemented with ResourceIdentifierByExternalId", func(t *testing.T) {
-		_, err := client.AssignRole(context.Background(), AssignRoleOpts{
-			OrganizationMembershipId: "om_01",
-			RoleSlug:                 "admin",
-			ResourceIdentifier: ResourceIdentifierByExternalId{
-				ResourceExternalId: "ext-1",
-				ResourceTypeSlug:   "document",
-			},
-		})
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "not implemented")
-	})
-}
-
-func TestRemoveRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-
-	t.Run("Stub returns not implemented with ResourceIdentifierById", func(t *testing.T) {
-		err := client.RemoveRole(context.Background(), RemoveRoleOpts{
-			OrganizationMembershipId: "om_01",
-			RoleSlug:                 "admin",
-			ResourceIdentifier: ResourceIdentifierById{
-				ResourceId: "resource_01",
-			},
-		})
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "not implemented")
-	})
-}
-
-func TestRemoveRoleAssignment(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
-		OrganizationMembershipId: "om_01",
-		RoleAssignmentId:         "ra_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
 }
 
 // ---------------------------------------------------------------------------
