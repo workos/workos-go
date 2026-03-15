@@ -115,7 +115,7 @@ func TestAssignRoleWithDefaultClient(t *testing.T) {
 		result, err := AssignRole(context.Background(), AssignRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
 			RoleSlug:                 "admin",
-			ResourceIdentifier:      ResourceIdentifierById{ResourceId: "resource_01"},
+			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "resource_01"},
 		})
 
 		require.NoError(t, err)
@@ -185,7 +185,7 @@ func TestAssignRoleWithDefaultClient(t *testing.T) {
 		_, err := AssignRole(context.Background(), AssignRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
 			RoleSlug:                 "admin",
-			ResourceIdentifier:      ResourceIdentifierById{ResourceId: "resource_01"},
+			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "resource_01"},
 		})
 		require.Error(t, err)
 	})
@@ -208,7 +208,7 @@ func TestRemoveRoleWithDefaultClient(t *testing.T) {
 		err := RemoveRole(context.Background(), RemoveRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
 			RoleSlug:                 "admin",
-			ResourceIdentifier:      ResourceIdentifierById{ResourceId: "resource_01"},
+			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "resource_01"},
 		})
 
 		require.NoError(t, err)
@@ -264,7 +264,7 @@ func TestRemoveRoleWithDefaultClient(t *testing.T) {
 		err := RemoveRole(context.Background(), RemoveRoleOpts{
 			OrganizationMembershipId: "om_01JKR3PB",
 			RoleSlug:                 "admin",
-			ResourceIdentifier:      ResourceIdentifierById{ResourceId: "resource_01"},
+			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "resource_01"},
 		})
 		require.Error(t, err)
 	})

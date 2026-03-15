@@ -450,7 +450,7 @@ type ListRoleAssignmentsOpts struct {
 
 // AssignRoleOpts contains the options for assigning a role.
 type AssignRoleOpts struct {
-	OrganizationMembershipId string `json:"-"`
+	OrganizationMembershipId string             `json:"-"`
 	RoleSlug                 string             `json:"role_slug"`
 	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
