@@ -1,15 +1,20 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
+	workos "github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -647,19 +652,119 @@ func (c *Client) ListResources(ctx context.Context, opts ListAuthorizationResour
 // GetResourceByExternalId gets a resource by its external Id.
 func (c *Client) GetResourceByExternalId(ctx context.Context, opts GetResourceByExternalIdOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/resources/%s/%s",
+		c.Endpoint,
+		url.PathEscape(opts.OrganizationId),
+		url.PathEscape(opts.ResourceTypeSlug),
+		url.PathEscape(opts.ExternalId),
+	)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	var body AuthorizationResource
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // UpdateResourceByExternalId updates a resource by its external Id.
 func (c *Client) UpdateResourceByExternalId(ctx context.Context, opts UpdateResourceByExternalIdOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
-	return AuthorizationResource{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/resources/%s/%s",
+		c.Endpoint,
+		url.PathEscape(opts.OrganizationId),
+		url.PathEscape(opts.ResourceTypeSlug),
+		url.PathEscape(opts.ExternalId),
+	)
+
+	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return AuthorizationResource{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return AuthorizationResource{}, err
+	}
+
+	var body AuthorizationResource
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // DeleteResourceByExternalId deletes a resource by its external Id.
 func (c *Client) DeleteResourceByExternalId(ctx context.Context, opts DeleteResourceByExternalIdOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	endpoint := fmt.Sprintf(
+		"%s/authorization/organizations/%s/resources/%s/%s",
+		c.Endpoint,
+		url.PathEscape(opts.OrganizationId),
+		url.PathEscape(opts.ResourceTypeSlug),
+		url.PathEscape(opts.ExternalId),
+	)
+
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	if opts.CascadeDelete {
+		q := req.URL.Query()
+		q.Set("cascade_delete", "true")
+		req.URL.RawQuery = q.Encode()
+	}
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // Check performs an authorization check.
