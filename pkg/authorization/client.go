@@ -450,18 +450,18 @@ type ListRoleAssignmentsOpts struct {
 
 // AssignRoleOpts contains the options for assigning a role.
 type AssignRoleOpts struct {
-	OrganizationMembershipId string             `json:"-"`
-	RoleSlug                 string             `json:"role_slug"`
+	OrganizationMembershipId string `json:"-"`
+	RoleSlug                 string `json:"role_slug"`
 	// todo rename to ResourceIdentifier, adjust accordingly across tests and file as well
-	Resource                 ResourceIdentifier `json:"-"`
+	Resource ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleOpts contains the options for removing a role.
 type RemoveRoleOpts struct {
-	OrganizationMembershipId string             `json:"-"`
-	RoleSlug                 string             `json:"role_slug"`
+	OrganizationMembershipId string `json:"-"`
+	RoleSlug                 string `json:"role_slug"`
 	// todo rename to ResourceIdentifier, adjust accordingly across tests and file as well
-	Resource                 ResourceIdentifier `json:"-"`
+	Resource ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleAssignmentOpts contains the options for removing a role assignment by Id.
