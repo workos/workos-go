@@ -441,7 +441,7 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipId string       `json:"-"`
+	OrganizationMembershipId string       `json:"-" url:"-"`
 	Limit                    int          `url:"limit,omitempty"`
 	Before                   string       `url:"before,omitempty"`
 	After                    string       `url:"after,omitempty"`
@@ -693,6 +693,14 @@ func (c *Client) ListRoleAssignments(ctx context.Context, opts ListRoleAssignmen
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	if opts.Limit == 0 {
+		opts.Limit = DefaultListSize
+	}
+
+	if opts.Order == "" {
+		opts.Order = common.Desc
+	}
 
 	q, err := query.Values(opts)
 	if err != nil {

@@ -15,6 +15,7 @@ import (
 func TestListRoleAssignments(t *testing.T) {
 	t.Run("returns role assignments", func(t *testing.T) {
 		var capturedPath string
+		var capturedRawQuery string
 
 		response := ListRoleAssignmentsResponse{
 			Data: []RoleAssignment{
@@ -49,7 +50,14 @@ func TestListRoleAssignments(t *testing.T) {
 			},
 		}
 
-		server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(nil, &capturedPath, response)))
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			capturedPath = r.URL.Path
+			capturedRawQuery = r.URL.RawQuery
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(response)
+		}))
 		defer server.Close()
 
 		client := newAuthorizationTestClient(server)
@@ -62,6 +70,8 @@ func TestListRoleAssignments(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, response, result)
 		require.Equal(t, "/authorization/organization_memberships/om_01JKR3PB/role_assignments", capturedPath)
+		require.Contains(t, capturedRawQuery, "limit=10")
+		require.NotContains(t, capturedRawQuery, "organizationmembershipid")
 	})
 
 	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
