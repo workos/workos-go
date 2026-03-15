@@ -451,17 +451,15 @@ type ListRoleAssignmentsOpts struct {
 // AssignRoleOpts contains the options for assigning a role.
 type AssignRoleOpts struct {
 	OrganizationMembershipId string `json:"-"`
-	RoleSlug                 string `json:"role_slug"`
-	// todo rename to ResourceIdentifier, adjust accordingly across tests and file as well
-	Resource ResourceIdentifier `json:"-"`
+	RoleSlug                 string             `json:"role_slug"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleOpts contains the options for removing a role.
 type RemoveRoleOpts struct {
-	OrganizationMembershipId string `json:"-"`
-	RoleSlug                 string `json:"role_slug"`
-	// todo rename to ResourceIdentifier, adjust accordingly across tests and file as well
-	Resource ResourceIdentifier `json:"-"`
+	OrganizationMembershipId string             `json:"-"`
+	RoleSlug                 string             `json:"role_slug"`
+	ResourceIdentifier       ResourceIdentifier `json:"-"`
 }
 
 // RemoveRoleAssignmentOpts contains the options for removing a role assignment by Id.
@@ -726,8 +724,8 @@ func (c *Client) AssignRole(ctx context.Context, opts AssignRoleOpts) (RoleAssig
 	bodyMap := map[string]interface{}{
 		"role_slug": opts.RoleSlug,
 	}
-	if opts.Resource != nil {
-		for k, v := range opts.Resource.resourceIdentifierParams() {
+	if opts.ResourceIdentifier != nil {
+		for k, v := range opts.ResourceIdentifier.resourceIdentifierParams() {
 			bodyMap[k] = v
 		}
 	}
@@ -777,8 +775,8 @@ func (c *Client) RemoveRole(ctx context.Context, opts RemoveRoleOpts) error {
 	bodyMap := map[string]interface{}{
 		"role_slug": opts.RoleSlug,
 	}
-	if opts.Resource != nil {
-		for k, v := range opts.Resource.resourceIdentifierParams() {
+	if opts.ResourceIdentifier != nil {
+		for k, v := range opts.ResourceIdentifier.resourceIdentifierParams() {
 			bodyMap[k] = v
 		}
 	}
