@@ -1,15 +1,19 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/workos/workos-go/v6/internal/workos"
 	"github.com/workos/workos-go/v6/pkg/common"
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
+	"github.com/workos/workos-go/v6/pkg/workos_errors"
 )
 
 // DefaultListSize is the default number of records to return in list responses.
@@ -527,31 +531,159 @@ func (c *Client) UpdateEnvironmentRole(ctx context.Context, opts UpdateEnvironme
 // CreateOrganizationRole creates a new organization role.
 func (c *Client) CreateOrganizationRole(ctx context.Context, opts CreateOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles", c.Endpoint, opts.OrganizationId)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationRole{}, err
+	}
+
+	var body OrganizationRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // ListOrganizationRoles lists all roles for an organization.
 func (c *Client) ListOrganizationRoles(ctx context.Context, opts ListOrganizationRolesOpts) (ListOrganizationRolesResponse, error) {
 	c.once.Do(c.init)
-	return ListOrganizationRolesResponse{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles", c.Endpoint, opts.OrganizationId)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return ListOrganizationRolesResponse{}, err
+	}
+
+	var body ListOrganizationRolesResponse
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // GetOrganizationRole gets an organization role by slug.
 func (c *Client) GetOrganizationRole(ctx context.Context, opts GetOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles/%s", c.Endpoint, opts.OrganizationId, opts.Slug)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationRole{}, err
+	}
+
+	var body OrganizationRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // UpdateOrganizationRole updates an organization role.
 func (c *Client) UpdateOrganizationRole(ctx context.Context, opts UpdateOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
-	return OrganizationRole{}, errors.New("not implemented")
+
+	data, err := c.JSONEncode(opts)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles/%s", c.Endpoint, opts.OrganizationId, opts.Slug)
+	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return OrganizationRole{}, err
+	}
+	defer res.Body.Close()
+
+	if err = workos_errors.TryGetHTTPError(res); err != nil {
+		return OrganizationRole{}, err
+	}
+
+	var body OrganizationRole
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&body)
+	return body, err
 }
 
 // DeleteOrganizationRole deletes an organization role.
 func (c *Client) DeleteOrganizationRole(ctx context.Context, opts DeleteOrganizationRoleOpts) error {
 	c.once.Do(c.init)
-	return errors.New("not implemented")
+
+	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles/%s", c.Endpoint, opts.OrganizationId, opts.Slug)
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return workos_errors.TryGetHTTPError(res)
 }
 
 // SetEnvironmentRolePermissions sets permissions for an environment role.
