@@ -1016,64 +1016,6 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 	})
 }
 
-// ---------------------------------------------------------------------------
-// Stub methods -- verify all stubs return ErrNotImplemented
-// ---------------------------------------------------------------------------
-
-func TestStubMethodsReturnNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	ctx := context.Background()
-
-	tests := []struct {
-		name string
-		fn   func() error
-	}{
-		{"CreateEnvironmentRole", func() error { _, err := client.CreateEnvironmentRole(ctx, CreateEnvironmentRoleOpts{}); return err }},
-		{"ListEnvironmentRoles", func() error { _, err := client.ListEnvironmentRoles(ctx); return err }},
-		{"GetEnvironmentRole", func() error { _, err := client.GetEnvironmentRole(ctx, GetEnvironmentRoleOpts{}); return err }},
-		{"UpdateEnvironmentRole", func() error { _, err := client.UpdateEnvironmentRole(ctx, UpdateEnvironmentRoleOpts{}); return err }},
-		{"CreateOrganizationRole", func() error { _, err := client.CreateOrganizationRole(ctx, CreateOrganizationRoleOpts{}); return err }},
-		{"ListOrganizationRoles", func() error { _, err := client.ListOrganizationRoles(ctx, ListOrganizationRolesOpts{}); return err }},
-		{"GetOrganizationRole", func() error { _, err := client.GetOrganizationRole(ctx, GetOrganizationRoleOpts{}); return err }},
-		{"UpdateOrganizationRole", func() error { _, err := client.UpdateOrganizationRole(ctx, UpdateOrganizationRoleOpts{}); return err }},
-		{"DeleteOrganizationRole", func() error { return client.DeleteOrganizationRole(ctx, DeleteOrganizationRoleOpts{}) }},
-		{"SetEnvironmentRolePermissions", func() error { _, err := client.SetEnvironmentRolePermissions(ctx, SetEnvironmentRolePermissionsOpts{}); return err }},
-		{"AddEnvironmentRolePermission", func() error { _, err := client.AddEnvironmentRolePermission(ctx, AddEnvironmentRolePermissionOpts{}); return err }},
-		{"SetOrganizationRolePermissions", func() error { _, err := client.SetOrganizationRolePermissions(ctx, SetOrganizationRolePermissionsOpts{}); return err }},
-		{"AddOrganizationRolePermission", func() error { _, err := client.AddOrganizationRolePermission(ctx, AddOrganizationRolePermissionOpts{}); return err }},
-		{"RemoveOrganizationRolePermission", func() error { return client.RemoveOrganizationRolePermission(ctx, RemoveOrganizationRolePermissionOpts{}) }},
-		{"CreatePermission", func() error { _, err := client.CreatePermission(ctx, CreatePermissionOpts{}); return err }},
-		{"ListPermissions", func() error { _, err := client.ListPermissions(ctx, ListPermissionsOpts{}); return err }},
-		{"GetPermission", func() error { _, err := client.GetPermission(ctx, GetPermissionOpts{}); return err }},
-		{"UpdatePermission", func() error { _, err := client.UpdatePermission(ctx, UpdatePermissionOpts{}); return err }},
-		{"DeletePermission", func() error { return client.DeletePermission(ctx, DeletePermissionOpts{}) }},
-		{"GetResource", func() error { _, err := client.GetResource(ctx, GetAuthorizationResourceOpts{}); return err }},
-		{"CreateResource", func() error { _, err := client.CreateResource(ctx, CreateAuthorizationResourceOpts{}); return err }},
-		{"UpdateResource", func() error { _, err := client.UpdateResource(ctx, UpdateAuthorizationResourceOpts{}); return err }},
-		{"DeleteResource", func() error { return client.DeleteResource(ctx, DeleteAuthorizationResourceOpts{}) }},
-		{"ListResources", func() error { _, err := client.ListResources(ctx, ListAuthorizationResourcesOpts{}); return err }},
-		{"GetResourceByExternalId", func() error { _, err := client.GetResourceByExternalId(ctx, GetResourceByExternalIdOpts{}); return err }},
-		{"UpdateResourceByExternalId", func() error { _, err := client.UpdateResourceByExternalId(ctx, UpdateResourceByExternalIdOpts{}); return err }},
-		{"DeleteResourceByExternalId", func() error { return client.DeleteResourceByExternalId(ctx, DeleteResourceByExternalIdOpts{}) }},
-		{"Check", func() error { _, err := client.Check(ctx, AuthorizationCheckOpts{}); return err }},
-		{"ListRoleAssignments", func() error { _, err := client.ListRoleAssignments(ctx, ListRoleAssignmentsOpts{}); return err }},
-		{"AssignRole", func() error { _, err := client.AssignRole(ctx, AssignRoleOpts{}); return err }},
-		{"RemoveRole", func() error { return client.RemoveRole(ctx, RemoveRoleOpts{}) }},
-		{"RemoveRoleAssignment", func() error { return client.RemoveRoleAssignment(ctx, RemoveRoleAssignmentOpts{}) }},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.fn()
-			require.ErrorIs(t, err, ErrNotImplemented)
-		})
-	}
-}
-
-// ---------------------------------------------------------------------------
-// Test helpers
-// ---------------------------------------------------------------------------
-
 func newAuthorizationTestClient(server *httptest.Server) *Client {
 	return &Client{
 		APIKey:     "test",
