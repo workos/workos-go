@@ -447,6 +447,7 @@ func TestUpdatePermission(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "/authorization/permissions/documents.read", capturedPath)
 		require.Equal(t, "Read All Documents", capturedBody["name"])
+		require.NotContains(t, capturedBody, "description")
 		require.Equal(t, expectedResponse, permission)
 	})
 
