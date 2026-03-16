@@ -85,7 +85,6 @@ func DeleteOrganizationRole(
 	return DefaultClient.DeleteOrganizationRole(ctx, opts)
 }
 
-
 // SetEnvironmentRolePermissions sets permissions for an environment role.
 func SetEnvironmentRolePermissions(
 	ctx context.Context,
