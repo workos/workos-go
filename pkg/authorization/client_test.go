@@ -134,6 +134,23 @@ func TestCheck(t *testing.T) {
 		require.Error(t, err)
 	})
 
+	t.Run("returns error when API key is not provided", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(checkAuthorizedHandler(nil, nil)))
+		defer server.Close()
+
+		client := &Client{
+			Endpoint:   server.URL,
+			HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+		}
+
+		_, err := client.Check(context.Background(), AuthorizationCheckOpts{
+			OrganizationMembershipId: "om_01JTEST",
+			PermissionSlug:           "posts:read",
+			ResourceIdentifier:       ResourceIdentifierById{ResourceId: "res_01JTEST"},
+		})
+		require.Error(t, err)
+	})
+
 	t.Run("returns error when resource identifier is nil", func(t *testing.T) {
 		client := &Client{
 			APIKey:   "test",
