@@ -510,7 +510,6 @@ type ListMembershipsForResourceByExternalIdOpts struct {
 	Order            common.Order `url:"order,omitempty"`
 }
 
-
 // Stub method implementations
 
 // CreateEnvironmentRole creates a new environment role.
@@ -536,7 +535,6 @@ func (c *Client) UpdateEnvironmentRole(ctx context.Context, opts UpdateEnvironme
 	c.once.Do(c.init)
 	return EnvironmentRole{}, errors.New("not implemented")
 }
-
 
 // CreateOrganizationRole creates a new organization role.
 func (c *Client) CreateOrganizationRole(ctx context.Context, opts CreateOrganizationRoleOpts) (OrganizationRole, error) {
@@ -695,7 +693,6 @@ func (c *Client) DeleteOrganizationRole(ctx context.Context, opts DeleteOrganiza
 
 	return workos_errors.TryGetHTTPError(res)
 }
-
 
 // SetEnvironmentRolePermissions sets permissions for an environment role.
 func (c *Client) SetEnvironmentRolePermissions(ctx context.Context, opts SetEnvironmentRolePermissionsOpts) (EnvironmentRole, error) {
