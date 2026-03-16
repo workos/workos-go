@@ -191,7 +191,6 @@ type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
-// MembershipStatus represents the status of an organization membership.
 type MembershipStatus string
 
 const (
@@ -392,7 +391,7 @@ type UpdateAuthorizationResourceOpts struct {
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
 type DeleteAuthorizationResourceOpts struct {
-	ResourceId    string `json:"-" url:"-"`
+	ResourceId    string `json:"-"`
 	CascadeDelete bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -428,9 +427,9 @@ type UpdateResourceByExternalIdOpts struct {
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
 type DeleteResourceByExternalIdOpts struct {
-	OrganizationId   string `json:"-" url:"-"`
-	ResourceTypeSlug string `json:"-" url:"-"`
-	ExternalId       string `json:"-" url:"-"`
+	OrganizationId   string `json:"-"`
+	ResourceTypeSlug string `json:"-"`
+	ExternalId       string `json:"-"`
 	CascadeDelete    bool   `url:"cascade_delete,omitempty"`
 }
 
@@ -443,7 +442,7 @@ type AuthorizationCheckOpts struct {
 
 // ListRoleAssignmentsOpts contains the options for listing role assignments.
 type ListRoleAssignmentsOpts struct {
-	OrganizationMembershipId string       `json:"-" url:"-"`
+	OrganizationMembershipId string       `json:"-"`
 	Limit                    int          `url:"limit,omitempty"`
 	Before                   string       `url:"before,omitempty"`
 	After                    string       `url:"after,omitempty"`
