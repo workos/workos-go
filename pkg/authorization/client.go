@@ -27,6 +27,7 @@ const (
 	AssignmentDirect   AssignmentType = "direct"
 	AssignmentIndirect AssignmentType = "indirect"
 )
+
 // Authorization API path segments.
 const (
 	authorizationRolesPath                   = "authorization/roles"
