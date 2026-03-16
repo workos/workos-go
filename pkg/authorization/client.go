@@ -120,7 +120,7 @@ type EnvironmentRole struct {
 	Id               string   `json:"id"`
 	Name             string   `json:"name"`
 	Slug             string   `json:"slug"`
-	Description      string   `json:"description"`
+	Description      *string  `json:"description"`
 	Permissions      []string `json:"permissions"`
 	ResourceTypeSlug string   `json:"resource_type_slug"`
 	Type             string   `json:"type"`
@@ -134,7 +134,7 @@ type OrganizationRole struct {
 	Id               string   `json:"id"`
 	Name             string   `json:"name"`
 	Slug             string   `json:"slug"`
-	Description      string   `json:"description"`
+	Description      *string  `json:"description"`
 	Permissions      []string `json:"permissions"`
 	ResourceTypeSlug string   `json:"resource_type_slug"`
 	Type             string   `json:"type"`
@@ -544,7 +544,7 @@ func (c *Client) CreateOrganizationRole(ctx context.Context, opts CreateOrganiza
 		return OrganizationRole{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles", c.Endpoint, opts.OrganizationId)
+	endpoint := fmt.Sprintf("%s/%s/%s/roles", c.Endpoint, authorizationOrganizationsPath, opts.OrganizationId)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return OrganizationRole{}, err
@@ -575,7 +575,7 @@ func (c *Client) CreateOrganizationRole(ctx context.Context, opts CreateOrganiza
 func (c *Client) ListOrganizationRoles(ctx context.Context, opts ListOrganizationRolesOpts) (ListOrganizationRolesResponse, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles", c.Endpoint, opts.OrganizationId)
+	endpoint := fmt.Sprintf("%s/%s/%s/roles", c.Endpoint, authorizationOrganizationsPath, opts.OrganizationId)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return ListOrganizationRolesResponse{}, err
@@ -606,7 +606,7 @@ func (c *Client) ListOrganizationRoles(ctx context.Context, opts ListOrganizatio
 func (c *Client) GetOrganizationRole(ctx context.Context, opts GetOrganizationRoleOpts) (OrganizationRole, error) {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles/%s", c.Endpoint, opts.OrganizationId, opts.Slug)
+	endpoint := fmt.Sprintf("%s/%s/%s/roles/%s", c.Endpoint, authorizationOrganizationsPath, opts.OrganizationId, opts.Slug)
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return OrganizationRole{}, err
@@ -642,7 +642,7 @@ func (c *Client) UpdateOrganizationRole(ctx context.Context, opts UpdateOrganiza
 		return OrganizationRole{}, err
 	}
 
-	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles/%s", c.Endpoint, opts.OrganizationId, opts.Slug)
+	endpoint := fmt.Sprintf("%s/%s/%s/roles/%s", c.Endpoint, authorizationOrganizationsPath, opts.OrganizationId, opts.Slug)
 	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return OrganizationRole{}, err
@@ -673,7 +673,7 @@ func (c *Client) UpdateOrganizationRole(ctx context.Context, opts UpdateOrganiza
 func (c *Client) DeleteOrganizationRole(ctx context.Context, opts DeleteOrganizationRoleOpts) error {
 	c.once.Do(c.init)
 
-	endpoint := fmt.Sprintf("%s/authorization/organizations/%s/roles/%s", c.Endpoint, opts.OrganizationId, opts.Slug)
+	endpoint := fmt.Sprintf("%s/%s/%s/roles/%s", c.Endpoint, authorizationOrganizationsPath, opts.OrganizationId, opts.Slug)
 	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
 	if err != nil {
 		return err

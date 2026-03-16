@@ -13,15 +13,15 @@ import (
 	"github.com/workos/workos-go/v6/pkg/retryablehttp"
 )
 
-// Helper to create a *string pointer for update opts.
+// stringPtr returns a pointer to the given string, used for optional update fields.
 func stringPtr(s string) *string {
 	return &s
 }
 
-// newTestClient creates a Client wired to the given test server.
-func newTestClient(server *httptest.Server, apiKey string) *Client {
+// newAuthorizationTestClient creates a Client wired to the given test server.
+func newAuthorizationTestClient(server *httptest.Server) *Client {
 	return &Client{
-		APIKey:     apiKey,
+		APIKey:     "test",
 		Endpoint:   server.URL,
 		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 	}
@@ -32,199 +32,193 @@ func newTestClient(server *httptest.Server, apiKey string) *Client {
 // ---------------------------------------------------------------------------
 
 func TestCreateOrganizationRole(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  CreateOrganizationRoleOpts
-		expected OrganizationRole
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   &Client{},
-			err:      true,
-		},
-		{
-			scenario: "Request creates org role and returns OrganizationRole",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: CreateOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-admin",
-				Name:           "Org Admin",
-			},
-			expected: OrganizationRole{
-				Object:      "role",
-				Id:          "role_01ABC",
-				Name:        "Org Admin",
-				Slug:        "org-admin",
-				Description: "",
-				Permissions: []string{"read", "write"},
-				Type:        "OrganizationRole",
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   "2024-01-01T00:00:00Z",
-			},
-		},
-		{
-			scenario: "Request with description includes it in the response",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: CreateOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-editor",
-				Name:           "Org Editor",
-				Description:    "Can edit things",
-			},
-			expected: OrganizationRole{
-				Object:      "role",
-				Id:          "role_01ABC",
-				Name:        "Org Editor",
-				Slug:        "org-editor",
-				Description: "Can edit things",
-				Permissions: []string{"read", "write"},
-				Type:        "OrganizationRole",
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   "2024-01-01T00:00:00Z",
-			},
-		},
-	}
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(createOrganizationRoleTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
-
-			role, err := client.CreateOrganizationRole(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
 				return
 			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, role)
+
+			if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			var opts CreateOrganizationRoleOpts
+			json.NewDecoder(r.Body).Decode(&opts)
+
+			if opts.Slug == "" || opts.Name == "" {
+				http.Error(w, "slug and name are required", http.StatusBadRequest)
+				return
+			}
+
+			var desc *string
+			if opts.Description != "" {
+				desc = &opts.Description
+			}
+			role := OrganizationRole{
+				Object:      "role",
+				Id:          "role_01ABC",
+				Name:        opts.Name,
+				Slug:        opts.Slug,
+				Description: desc,
+				Permissions: []string{"read", "write"},
+				Type:        "OrganizationRole",
+				CreatedAt:   "2024-01-01T00:00:00Z",
+				UpdatedAt:   "2024-01-01T00:00:00Z",
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(role)
+		}))
+	}
+
+	t.Run("creates org role and returns OrganizationRole", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		role, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           "Org Admin",
 		})
-	}
-}
-
-func createOrganizationRoleTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if !strings.Contains(r.URL.Path, "/authorization/organizations/org_01ABC/roles") {
-		http.Error(w, "bad path", http.StatusNotFound)
-		return
-	}
-
-	var opts CreateOrganizationRoleOpts
-	json.NewDecoder(r.Body).Decode(&opts)
-
-	if opts.Slug == "" || opts.Name == "" {
-		http.Error(w, "slug and name are required", http.StatusBadRequest)
-		return
-	}
-
-	role := OrganizationRole{
-		Object:      "role",
-		Id:          "role_01ABC",
-		Name:        opts.Name,
-		Slug:        opts.Slug,
-		Description: opts.Description,
-		Permissions: []string{"read", "write"},
-		Type:        "OrganizationRole",
-		CreatedAt:   "2024-01-01T00:00:00Z",
-		UpdatedAt:   "2024-01-01T00:00:00Z",
-	}
-
-	body, err := json.Marshal(role)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
-func TestCreateOrganizationRoleOmitsOptionalFields(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		bodyBytes, err := io.ReadAll(r.Body)
-		if err != nil {
-			t.Fatalf("failed to read request body: %v", err)
-		}
-
-		bodyStr := string(bodyBytes)
-		require.NotContains(t, bodyStr, `"description"`,
-			"serialized body must omit description when empty (omitempty)")
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"Viewer","slug":"org-viewer","description":"","permissions":["read"],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-viewer",
-		Name:           "Viewer",
+		require.NoError(t, err)
+		require.Equal(t, "role_01ABC", role.Id)
+		require.Equal(t, "Org Admin", role.Name)
+		require.Equal(t, "org-admin", role.Slug)
+		require.Nil(t, role.Description)
+		require.Equal(t, []string{"read", "write"}, role.Permissions)
+		require.Equal(t, "OrganizationRole", role.Type)
 	})
-	require.NoError(t, err)
-}
 
-func TestCreateOrganizationRoleUsesPostMethod(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, http.MethodPost, r.Method)
+	t.Run("with description includes it in the response", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"Admin","slug":"admin","description":"","permissions":[],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "admin",
-		Name:           "Admin",
+		client := newAuthorizationTestClient(server)
+		role, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-editor",
+			Name:           "Org Editor",
+			Description:    "Can edit things",
+		})
+		require.NoError(t, err)
+		require.Equal(t, "Org Editor", role.Name)
+		require.Equal(t, "org-editor", role.Slug)
+		require.NotNil(t, role.Description)
+		require.Equal(t, "Can edit things", *role.Description)
 	})
-	require.NoError(t, err)
-}
 
-func TestCreateOrganizationRoleSendsCorrectPath(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "/authorization/organizations/org_01XYZ/roles", r.URL.Path)
+	t.Run("sends correct path", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"Admin","slug":"admin","description":"","permissions":[],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01XYZ",
-		Slug:           "admin",
-		Name:           "Admin",
+		client := newAuthorizationTestClient(server)
+		_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01XYZ",
+			Slug:           "admin",
+			Name:           "Admin",
+		})
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01XYZ/roles", path)
+		require.Equal(t, http.MethodPost, method)
 	})
-	require.NoError(t, err)
+
+	t.Run("omits optional fields from request body", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			bodyBytes, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Fatalf("failed to read request body: %v", err)
+			}
+
+			bodyStr := string(bodyBytes)
+			require.NotContains(t, bodyStr, `"description"`,
+				"serialized body must omit description when empty (omitempty)")
+
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"Viewer","slug":"org-viewer","description":"","permissions":["read"],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-viewer",
+			Name:           "Viewer",
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("returns error on 404", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`{"message":"Organization not found"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_nonexistent",
+			Slug:           "admin",
+			Name:           "Admin",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "404")
+	})
+
+	t.Run("returns error on 500", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"Internal server error"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "admin",
+			Name:           "Admin",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "500")
+	})
+
+	t.Run("returns error on invalid JSON", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{not valid json`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "admin",
+			Name:           "Admin",
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		client := &Client{}
+		_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "admin",
+			Name:           "Admin",
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -232,96 +226,7 @@ func TestCreateOrganizationRoleSendsCorrectPath(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestListOrganizationRoles(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  ListOrganizationRolesOpts
-		expected ListOrganizationRolesResponse
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   &Client{},
-			err:      true,
-		},
-		{
-			scenario: "Request returns list of roles for the organization",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: ListOrganizationRolesOpts{
-				OrganizationId: "org_01ABC",
-			},
-			expected: ListOrganizationRolesResponse{
-				Data: []OrganizationRole{
-					{
-						Object:      "role",
-						Id:          "role_01ABC",
-						Name:        "Admin",
-						Slug:        "org-admin",
-						Permissions: []string{"read", "write"},
-						Type:        "OrganizationRole",
-						CreatedAt:   "2024-01-01T00:00:00Z",
-						UpdatedAt:   "2024-01-01T00:00:00Z",
-					},
-					{
-						Object:      "role",
-						Id:          "role_02DEF",
-						Name:        "Viewer",
-						Slug:        "org-viewer",
-						Permissions: []string{"read"},
-						Type:        "OrganizationRole",
-						CreatedAt:   "2024-01-02T00:00:00Z",
-						UpdatedAt:   "2024-01-02T00:00:00Z",
-					},
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(listOrganizationRolesTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
-
-			roles, err := client.ListOrganizationRoles(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, roles)
-		})
-	}
-}
-
-func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if !strings.Contains(r.URL.Path, "/authorization/organizations/org_01ABC/roles") {
-		http.Error(w, "bad path", http.StatusNotFound)
-		return
-	}
-
-	body, err := json.Marshal(ListOrganizationRolesResponse{
+	listResponse := ListOrganizationRolesResponse{
 		Data: []OrganizationRole{
 			{
 				Object:      "role",
@@ -344,47 +249,113 @@ func listOrganizationRolesTestHandler(w http.ResponseWriter, r *http.Request) {
 				UpdatedAt:   "2024-01-02T00:00:00Z",
 			},
 		},
-	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-func TestListOrganizationRolesUsesGetMethod(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, http.MethodGet, r.Method)
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data":[]}`))
-	}))
-	defer server.Close()
+			if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-	client := newTestClient(server, "test")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(listResponse)
+		}))
+	}
 
-	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_01ABC",
+	t.Run("returns list of roles for the organization", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		roles, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+		require.NoError(t, err)
+		require.Len(t, roles.Data, 2)
+		require.Equal(t, "role_01ABC", roles.Data[0].Id)
+		require.Equal(t, "role_02DEF", roles.Data[1].Id)
 	})
-	require.NoError(t, err)
-}
 
-func TestListOrganizationRolesReturnsEmptyList(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data":[]}`))
-	}))
-	defer server.Close()
+	t.Run("uses GET method and sends correct path", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
 
-	client := newTestClient(server, "test")
-
-	resp, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_01ABC",
+		client := newAuthorizationTestClient(server)
+		_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01ABC/roles", path)
+		require.Equal(t, http.MethodGet, method)
 	})
-	require.NoError(t, err)
-	require.Empty(t, resp.Data)
+
+	t.Run("returns empty list", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"data":[]}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		resp, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+		require.NoError(t, err)
+		require.Empty(t, resp.Data)
+	})
+
+	t.Run("returns error on 404", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`{"message":"Organization not found"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_nonexistent",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "404")
+	})
+
+	t.Run("returns error on 500", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"Internal server error"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "500")
+	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		client := &Client{}
+		_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -392,83 +363,7 @@ func TestListOrganizationRolesReturnsEmptyList(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestGetOrganizationRole(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  GetOrganizationRoleOpts
-		expected OrganizationRole
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   &Client{},
-			err:      true,
-		},
-		{
-			scenario: "Request returns OrganizationRole by org ID and slug",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: GetOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-admin",
-			},
-			expected: OrganizationRole{
-				Object:      "role",
-				Id:          "role_01ABC",
-				Name:        "Admin",
-				Slug:        "org-admin",
-				Permissions: []string{"read", "write"},
-				Type:        "OrganizationRole",
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   "2024-01-01T00:00:00Z",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(getOrganizationRoleTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
-
-			role, err := client.GetOrganizationRole(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, role)
-		})
-	}
-}
-
-func getOrganizationRoleTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if !strings.Contains(r.URL.Path, "/authorization/organizations/org_01ABC/roles/org-admin") {
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	}
-
-	body, err := json.Marshal(OrganizationRole{
+	roleResponse := OrganizationRole{
 		Object:      "role",
 		Id:          "role_01ABC",
 		Name:        "Admin",
@@ -477,33 +372,119 @@ func getOrganizationRoleTestHandler(w http.ResponseWriter, r *http.Request) {
 		Type:        "OrganizationRole",
 		CreatedAt:   "2024-01-01T00:00:00Z",
 		UpdatedAt:   "2024-01-01T00:00:00Z",
-	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-func TestGetOrganizationRoleSendsCorrectPath(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "/authorization/organizations/org_01XYZ/roles/my-role", r.URL.Path)
-		require.Equal(t, http.MethodGet, r.Method)
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"My Role","slug":"my-role","description":"","permissions":[],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"}`))
-	}))
-	defer server.Close()
+			if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-	client := newTestClient(server, "test")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(roleResponse)
+		}))
+	}
 
-	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_01XYZ",
-		Slug:           "my-role",
+	t.Run("returns OrganizationRole by org ID and slug", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		role, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+		require.NoError(t, err)
+		require.Equal(t, "role_01ABC", role.Id)
+		require.Equal(t, "Admin", role.Name)
+		require.Equal(t, "org-admin", role.Slug)
+		require.Equal(t, []string{"read", "write"}, role.Permissions)
 	})
-	require.NoError(t, err)
+
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01XYZ",
+			Slug:           "my-role",
+		})
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01XYZ/roles/my-role", path)
+		require.Equal(t, http.MethodGet, method)
+	})
+
+	t.Run("returns error on 404", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`{"message":"Role not found"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "nonexistent-role",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "404")
+	})
+
+	t.Run("returns error on 500", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"Internal server error"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "500")
+	})
+
+	t.Run("returns error on invalid JSON", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{not valid json`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		client := &Client{}
+		_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -511,222 +492,207 @@ func TestGetOrganizationRoleSendsCorrectPath(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestUpdateOrganizationRole(t *testing.T) {
-	updatedName := "Super Admin"
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  UpdateOrganizationRoleOpts
-		expected OrganizationRole
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   &Client{},
-			err:      true,
-		},
-		{
-			scenario: "Request uses PATCH method and updates name",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: UpdateOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-admin",
-				Name:           &updatedName,
-			},
-			expected: OrganizationRole{
-				Object:      "role",
-				Id:          "role_01ABC",
-				Name:        "Super Admin",
-				Slug:        "org-admin",
-				Permissions: []string{"read", "write"},
-				Type:        "OrganizationRole",
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   "2024-01-02T00:00:00Z",
-			},
-		},
-		{
-			scenario: "Request sets description to null",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: UpdateOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-admin",
-				Description:    nil,
-			},
-			expected: OrganizationRole{
-				Object:      "role",
-				Id:          "role_01ABC",
-				Slug:        "org-admin",
-				Permissions: []string{"read", "write"},
-				Type:        "OrganizationRole",
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   "2024-01-02T00:00:00Z",
-			},
-		},
-		{
-			scenario: "Request updates description only",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: UpdateOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-admin",
-				Description:    stringPtr("New description"),
-			},
-			expected: OrganizationRole{
-				Object:      "role",
-				Id:          "role_01ABC",
-				Slug:        "org-admin",
-				Description: "New description",
-				Permissions: []string{"read", "write"},
-				Type:        "OrganizationRole",
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   "2024-01-02T00:00:00Z",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(updateOrganizationRoleTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
-
-			role, err := client.UpdateOrganizationRole(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
 				return
 			}
-			require.NoError(t, err)
-			require.Equal(t, test.expected, role)
+
+			if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			bodyBytes, err := io.ReadAll(r.Body)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			var rawBody map[string]json.RawMessage
+			if err := json.Unmarshal(bodyBytes, &rawBody); err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			role := OrganizationRole{
+				Object:      "role",
+				Id:          "role_01ABC",
+				Slug:        "org-admin",
+				Permissions: []string{"read", "write"},
+				Type:        "OrganizationRole",
+				CreatedAt:   "2024-01-01T00:00:00Z",
+				UpdatedAt:   "2024-01-02T00:00:00Z",
+			}
+
+			if nameRaw, ok := rawBody["name"]; ok {
+				var name string
+				json.Unmarshal(nameRaw, &name)
+				role.Name = name
+			}
+
+			if descRaw, ok := rawBody["description"]; ok {
+				if string(descRaw) == "null" {
+					role.Description = nil
+				} else {
+					var desc string
+					json.Unmarshal(descRaw, &desc)
+					role.Description = &desc
+				}
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(role)
+		}))
+	}
+
+	t.Run("updates name", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		role, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           stringPtr("Super Admin"),
 		})
-	}
-}
-
-func updateOrganizationRoleTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if r.Method != http.MethodPatch {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	bodyBytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var rawBody map[string]json.RawMessage
-	if err := json.Unmarshal(bodyBytes, &rawBody); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	role := OrganizationRole{
-		Object:      "role",
-		Id:          "role_01ABC",
-		Slug:        "org-admin",
-		Permissions: []string{"read", "write"},
-		Type:        "OrganizationRole",
-		CreatedAt:   "2024-01-01T00:00:00Z",
-		UpdatedAt:   "2024-01-02T00:00:00Z",
-	}
-
-	if nameRaw, ok := rawBody["name"]; ok {
-		var name string
-		json.Unmarshal(nameRaw, &name)
-		role.Name = name
-	}
-
-	if descRaw, ok := rawBody["description"]; ok {
-		if string(descRaw) == "null" {
-			role.Description = ""
-		} else {
-			var desc string
-			json.Unmarshal(descRaw, &desc)
-			role.Description = desc
-		}
-	}
-
-	body, err := json.Marshal(role)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
-// TestUpdateOrganizationRoleNullDescriptionBody verifies that a nil *string
-// Description always serializes as "description":null in the JSON body.
-// Go's encoding/json cannot distinguish between "field was not provided" and
-// "field was explicitly set to null" when using a pointer type without
-// omitempty. This is an accepted trade-off of the current struct design:
-// every PATCH request will include "description":null when the caller does
-// not set Description, which the API treats as a no-op clear.
-func TestUpdateOrganizationRoleNullDescriptionBody(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		bodyBytes, err := io.ReadAll(r.Body)
-		if err != nil {
-			t.Fatalf("failed to read request body: %v", err)
-		}
-
-		bodyStr := string(bodyBytes)
-		require.Contains(t, bodyStr, `"description":null`,
-			"serialized body must contain description:null when Description pointer is nil")
-		require.NotContains(t, bodyStr, `"name"`,
-			"serialized body must omit name when Name pointer is nil")
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"","slug":"org-admin","description":"","permissions":[],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-02T00:00:00Z"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-		Description:    nil,
+		require.NoError(t, err)
+		require.Equal(t, "Super Admin", role.Name)
+		require.Equal(t, http.MethodPatch, method)
 	})
-	require.NoError(t, err)
-}
 
-func TestUpdateOrganizationRoleSendsCorrectPath(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "/authorization/organizations/org_01XYZ/roles/editor", r.URL.Path)
-		require.Equal(t, http.MethodPatch, r.Method)
+	t.Run("sets description to null", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"Editor","slug":"editor","description":"","permissions":[],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-02T00:00:00Z"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_01XYZ",
-		Slug:           "editor",
-		Name:           stringPtr("Editor"),
+		client := newAuthorizationTestClient(server)
+		role, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Description:    nil,
+		})
+		require.NoError(t, err)
+		require.Nil(t, role.Description)
 	})
-	require.NoError(t, err)
+
+	t.Run("updates description only", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		role, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Description:    stringPtr("New description"),
+		})
+		require.NoError(t, err)
+		require.NotNil(t, role.Description)
+		require.Equal(t, "New description", *role.Description)
+	})
+
+	t.Run("sends correct path", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01XYZ",
+			Slug:           "editor",
+			Name:           stringPtr("Editor"),
+		})
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01XYZ/roles/editor", path)
+		require.Equal(t, http.MethodPatch, method)
+	})
+
+	t.Run("null description body serialization", func(t *testing.T) {
+		// Verifies that a nil *string Description always serializes as
+		// "description":null in the JSON body. Go's encoding/json cannot
+		// distinguish between "field was not provided" and "field was
+		// explicitly set to null" when using a pointer type without omitempty.
+		// This is an accepted trade-off: every PATCH request will include
+		// "description":null when the caller does not set Description.
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			bodyBytes, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Fatalf("failed to read request body: %v", err)
+			}
+
+			bodyStr := string(bodyBytes)
+			require.Contains(t, bodyStr, `"description":null`,
+				"serialized body must contain description:null when Description pointer is nil")
+			require.NotContains(t, bodyStr, `"name"`,
+				"serialized body must omit name when Name pointer is nil")
+
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"object":"role","id":"role_01ABC","name":"","slug":"org-admin","description":"","permissions":[],"resource_type_slug":"","type":"OrganizationRole","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-02T00:00:00Z"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Description:    nil,
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("returns error on 404", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`{"message":"Role not found"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "nonexistent-role",
+			Name:           stringPtr("Updated"),
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "404")
+	})
+
+	t.Run("returns error on 500", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"Internal server error"}`))
+		}))
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           stringPtr("Updated"),
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "500")
+	})
+
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		client := &Client{}
+		_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           stringPtr("Updated"),
+		})
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -734,592 +700,96 @@ func TestUpdateOrganizationRoleSendsCorrectPath(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestDeleteOrganizationRole(t *testing.T) {
-	tests := []struct {
-		scenario string
-		client   *Client
-		options  DeleteOrganizationRoleOpts
-		err      bool
-	}{
-		{
-			scenario: "Request without API Key returns an error",
-			client:   &Client{},
-			err:      true,
-		},
-		{
-			scenario: "Successful delete returns nil error",
-			client: &Client{
-				APIKey: "test",
-			},
-			options: DeleteOrganizationRoleOpts{
-				OrganizationId: "org_01ABC",
-				Slug:           "org-admin",
-			},
-			err: false,
-		},
-	}
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-	for _, test := range tests {
-		t.Run(test.scenario, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(deleteOrganizationRoleTestHandler))
-			defer server.Close()
-
-			client := test.client
-			client.Endpoint = server.URL
-			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
-
-			err := client.DeleteOrganizationRole(context.Background(), test.options)
-			if test.err {
-				require.Error(t, err)
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
 				return
 			}
-			require.NoError(t, err)
+
+			if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			w.WriteHeader(http.StatusNoContent)
+		}))
+	}
+
+	t.Run("successful delete returns nil error", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
+
+		client := newAuthorizationTestClient(server)
+		err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
 		})
-	}
-}
-
-func deleteOrganizationRoleTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if r.Method != http.MethodDelete {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if !strings.Contains(r.URL.Path, "/authorization/organizations/org_01ABC/roles/org-admin") {
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func TestDeleteOrganizationRoleSendsCorrectPath(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "/authorization/organizations/org_01XYZ/roles/viewer", r.URL.Path)
-		require.Equal(t, http.MethodDelete, r.Method)
-
-		w.WriteHeader(http.StatusNoContent)
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_01XYZ",
-		Slug:           "viewer",
+		require.NoError(t, err)
 	})
-	require.NoError(t, err)
-}
 
-// ---------------------------------------------------------------------------
-// Error response tests (4xx / 5xx)
-// ---------------------------------------------------------------------------
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var path, method string
+		server := createServer(&path, &method)
+		defer server.Close()
 
-func TestCreateOrganizationRoleReturnsErrorOn404(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"message":"Organization not found"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_nonexistent",
-		Slug:           "admin",
-		Name:           "Admin",
+		client := newAuthorizationTestClient(server)
+		err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01XYZ",
+			Slug:           "viewer",
+		})
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01XYZ/roles/viewer", path)
+		require.Equal(t, http.MethodDelete, method)
 	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "404")
-}
 
-func TestCreateOrganizationRoleReturnsErrorOn500(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":"Internal server error"}`))
-	}))
-	defer server.Close()
+	t.Run("returns error on 404", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`{"message":"Role not found"}`))
+		}))
+		defer server.Close()
 
-	client := newTestClient(server, "test")
-
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "admin",
-		Name:           "Admin",
+		client := newAuthorizationTestClient(server)
+		err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "nonexistent-role",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "404")
 	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "500")
-}
 
-func TestListOrganizationRolesReturnsErrorOn404(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"message":"Organization not found"}`))
-	}))
-	defer server.Close()
+	t.Run("returns error on 500", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"Internal server error"}`))
+		}))
+		defer server.Close()
 
-	client := newTestClient(server, "test")
-
-	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_nonexistent",
+		client := newAuthorizationTestClient(server)
+		err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "500")
 	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "404")
-}
 
-func TestListOrganizationRolesReturnsErrorOn500(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":"Internal server error"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_01ABC",
+	t.Run("Request without API Key returns an error", func(t *testing.T) {
+		client := &Client{}
+		err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+		require.Error(t, err)
 	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "500")
-}
-
-func TestGetOrganizationRoleReturnsErrorOn404(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"message":"Role not found"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "nonexistent-role",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "404")
-}
-
-func TestGetOrganizationRoleReturnsErrorOn500(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":"Internal server error"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "500")
-}
-
-func TestUpdateOrganizationRoleReturnsErrorOn404(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"message":"Role not found"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "nonexistent-role",
-		Name:           stringPtr("Updated"),
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "404")
-}
-
-func TestUpdateOrganizationRoleReturnsErrorOn500(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":"Internal server error"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-		Name:           stringPtr("Updated"),
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "500")
-}
-
-func TestDeleteOrganizationRoleReturnsErrorOn404(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"message":"Role not found"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "nonexistent-role",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "404")
-}
-
-func TestDeleteOrganizationRoleReturnsErrorOn500(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":"Internal server error"}`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "500")
-}
-
-func TestCreateOrganizationRoleReturnsErrorOnInvalidJSON(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{not valid json`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "admin",
-		Name:           "Admin",
-	})
-	require.Error(t, err)
-}
-
-func TestGetOrganizationRoleReturnsErrorOnInvalidJSON(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{not valid json`))
-	}))
-	defer server.Close()
-
-	client := newTestClient(server, "test")
-
-	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-	})
-	require.Error(t, err)
-}
-
-// ---------------------------------------------------------------------------
-// Stub method tests -- verify that unimplemented methods return expected error
-// ---------------------------------------------------------------------------
-
-func TestCreateEnvironmentRoleNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.CreateEnvironmentRole(context.Background(), CreateEnvironmentRoleOpts{
-		Slug: "admin",
-		Name: "Admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListEnvironmentRolesNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListEnvironmentRoles(context.Background())
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetEnvironmentRoleNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.GetEnvironmentRole(context.Background(), GetEnvironmentRoleOpts{Slug: "admin"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateEnvironmentRoleNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.UpdateEnvironmentRole(context.Background(), UpdateEnvironmentRoleOpts{Slug: "admin"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestSetEnvironmentRolePermissionsNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.SetEnvironmentRolePermissions(context.Background(), SetEnvironmentRolePermissionsOpts{
-		Slug:        "admin",
-		Permissions: []string{"read"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAddEnvironmentRolePermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.AddEnvironmentRolePermission(context.Background(), AddEnvironmentRolePermissionOpts{
-		Slug:           "admin",
-		PermissionSlug: "read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestSetOrganizationRolePermissionsNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.SetOrganizationRolePermissions(context.Background(), SetOrganizationRolePermissionsOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "admin",
-		Permissions:    []string{"read"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAddOrganizationRolePermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.AddOrganizationRolePermission(context.Background(), AddOrganizationRolePermissionOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "admin",
-		PermissionSlug: "read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestRemoveOrganizationRolePermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	err := client.RemoveOrganizationRolePermission(context.Background(), RemoveOrganizationRolePermissionOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "admin",
-		PermissionSlug: "read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCreatePermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
-		Slug: "read",
-		Name: "Read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListPermissionsNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetPermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.GetPermission(context.Background(), GetPermissionOpts{Slug: "read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdatePermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{Slug: "read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeletePermissionNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	err := client.DeletePermission(context.Background(), DeletePermissionOpts{Slug: "read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetResourceNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.GetResource(context.Background(), GetAuthorizationResourceOpts{ResourceId: "res_01ABC"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCreateResourceNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
-		ExternalId:       "ext_01",
-		Name:             "Test",
-		ResourceTypeSlug: "document",
-		OrganizationId:   "org_01ABC",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateResourceNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.UpdateResource(context.Background(), UpdateAuthorizationResourceOpts{ResourceId: "res_01ABC"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeleteResourceNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{ResourceId: "res_01ABC"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListResourcesNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListResources(context.Background(), ListAuthorizationResourcesOpts{})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetResourceByExternalIdNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.GetResourceByExternalId(context.Background(), GetResourceByExternalIdOpts{
-		OrganizationId:   "org_01ABC",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateResourceByExternalIdNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.UpdateResourceByExternalId(context.Background(), UpdateResourceByExternalIdOpts{
-		OrganizationId:   "org_01ABC",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeleteResourceByExternalIdNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	err := client.DeleteResourceByExternalId(context.Background(), DeleteResourceByExternalIdOpts{
-		OrganizationId:   "org_01ABC",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_01",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestCheckNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.Check(context.Background(), AuthorizationCheckOpts{
-		OrganizationMembershipId: "om_01ABC",
-		PermissionSlug:           "read",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01ABC"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListRoleAssignmentsNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
-		OrganizationMembershipId: "om_01ABC",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAssignRoleNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.AssignRole(context.Background(), AssignRoleOpts{
-		OrganizationMembershipId: "om_01ABC",
-		RoleSlug:                 "admin",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01ABC"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestRemoveRoleNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	err := client.RemoveRole(context.Background(), RemoveRoleOpts{
-		OrganizationMembershipId: "om_01ABC",
-		RoleSlug:                 "admin",
-		Resource:                 ResourceIdentifierById{ResourceId: "res_01ABC"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestRemoveRoleAssignmentNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	err := client.RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
-		OrganizationMembershipId: "om_01ABC",
-		RoleAssignmentId:         "ra_01ABC",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListResourcesForMembershipNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-		OrganizationMembershipId: "om_01ABC",
-		PermissionSlug:           "read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListMembershipsForResourceNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-		ResourceId:     "res_01ABC",
-		PermissionSlug: "read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListMembershipsForResourceByExternalIdNotImplemented(t *testing.T) {
-	client := &Client{APIKey: "test", Endpoint: "https://api.workos.com"}
-	_, err := client.ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
-		OrganizationId:   "org_01ABC",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_01",
-		PermissionSlug:   "read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
 }
 
 // ---------------------------------------------------------------------------
