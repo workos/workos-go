@@ -398,7 +398,7 @@ type UpdateAuthorizationResourceOpts struct {
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
 type DeleteAuthorizationResourceOpts struct {
 	ResourceId    string `json:"-"`
-	CascadeDelete bool   `url:"cascade_delete,omitempty"`
+	CascadeDelete *bool  `json:"-"`
 }
 
 // ListAuthorizationResourcesOpts contains the options for listing resources.
@@ -436,7 +436,7 @@ type DeleteResourceByExternalIdOpts struct {
 	OrganizationId   string `json:"-"`
 	ResourceTypeSlug string `json:"-"`
 	ExternalId       string `json:"-"`
-	CascadeDelete    bool   `url:"cascade_delete,omitempty"`
+	CascadeDelete    *bool  `json:"-"`
 }
 
 // AuthorizationCheckOpts contains the options for performing an authorization check.
@@ -759,9 +759,13 @@ func (c *Client) DeleteResource(ctx context.Context, opts DeleteAuthorizationRes
 	req.Header.Set("User-Agent", "workos-go/"+workos.Version)
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 
-	if opts.CascadeDelete {
+	if opts.CascadeDelete != nil {
 		q := req.URL.Query()
-		q.Set("cascade_delete", "true")
+		if *opts.CascadeDelete {
+			q.Set("cascade_delete", "true")
+		} else {
+			q.Set("cascade_delete", "false")
+		}
 		req.URL.RawQuery = q.Encode()
 	}
 

@@ -26,225 +26,6 @@ func setupDefaultClient(server *httptest.Server) func() {
 	}
 }
 
-// ===========================================================================
-// Environment Roles (stubs)
-// ===========================================================================
-
-func TestAuthorizationCreateEnvironmentRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := CreateEnvironmentRole(context.Background(), CreateEnvironmentRoleOpts{
-		Slug: "admin",
-		Name: "Admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationListEnvironmentRoles(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListEnvironmentRoles(context.Background())
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationGetEnvironmentRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := GetEnvironmentRole(context.Background(), GetEnvironmentRoleOpts{Slug: "admin"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationUpdateEnvironmentRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	name := "Super Admin"
-	desc := "Updated description"
-	_, err := UpdateEnvironmentRole(context.Background(), UpdateEnvironmentRoleOpts{
-		Slug: "admin",
-		Name: &name,
-		Description: &desc,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationSetEnvironmentRolePermissions(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := SetEnvironmentRolePermissions(context.Background(), SetEnvironmentRolePermissionsOpts{
-		Slug:        "admin",
-		Permissions: []string{"users:read"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationAddEnvironmentRolePermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := AddEnvironmentRolePermission(context.Background(), AddEnvironmentRolePermissionOpts{
-		Slug:           "admin",
-		PermissionSlug: "billing:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Organization Roles (stubs)
-// ===========================================================================
-
-func TestAuthorizationCreateOrganizationRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-		Name:           "Org Admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationListOrganizationRoles(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_123",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationGetOrganizationRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationUpdateOrganizationRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	name := "Updated Org Admin"
-	_, err := UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-		Name:           &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationDeleteOrganizationRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	err := DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationSetOrganizationRolePermissions(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := SetOrganizationRolePermissions(context.Background(), SetOrganizationRolePermissionsOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-		Permissions:    []string{"org:read"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationAddOrganizationRolePermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := AddOrganizationRolePermission(context.Background(), AddOrganizationRolePermissionOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-		PermissionSlug: "billing:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationRemoveOrganizationRolePermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	err := RemoveOrganizationRolePermission(context.Background(), RemoveOrganizationRolePermissionOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-		PermissionSlug: "billing:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Permissions (stubs)
-// ===========================================================================
-
-func TestAuthorizationCreatePermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := CreatePermission(context.Background(), CreatePermissionOpts{
-		Slug: "users:read",
-		Name: "Read Users",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationListPermissions(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListPermissions(context.Background(), ListPermissionsOpts{})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationGetPermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := GetPermission(context.Background(), GetPermissionOpts{Slug: "users:read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationUpdatePermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	name := "Updated"
-	_, err := UpdatePermission(context.Background(), UpdatePermissionOpts{
-		Slug: "users:read",
-		Name: &name,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationDeletePermission(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	err := DeletePermission(context.Background(), DeletePermissionOpts{Slug: "users:read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Resources (implemented) -- DefaultClient wrappers
-// ===========================================================================
-
 func TestAuthorizationCreateResource(t *testing.T) {
 	parentId := "parent_123"
 
@@ -545,7 +326,8 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 
 	t.Run("Updates name and description", func(t *testing.T) {
 		var capturedPath, capturedMethod string
-		server := httptest.NewServer(captureHandler(&capturedPath, nil, &capturedMethod, nil, http.StatusOK, updatedResourceFull))
+		var capturedBody map[string]interface{}
+		server := httptest.NewServer(captureHandler(&capturedPath, nil, &capturedMethod, &capturedBody, http.StatusOK, updatedResourceFull))
 		defer server.Close()
 		cleanup := setupDefaultClient(server)
 		defer cleanup()
@@ -559,11 +341,14 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "/authorization/resources/resource_123", capturedPath)
 		require.Equal(t, http.MethodPatch, capturedMethod)
+		require.Equal(t, "Updated Resource", capturedBody["name"])
+		require.Equal(t, "Updated description", capturedBody["description"])
 		require.Equal(t, updatedResourceFull, resource)
 	})
 
 	t.Run("Updates name only", func(t *testing.T) {
-		server := httptest.NewServer(captureHandler(nil, nil, nil, nil, http.StatusOK, updatedResourceNameOnly))
+		var capturedBody map[string]interface{}
+		server := httptest.NewServer(captureHandler(nil, nil, nil, &capturedBody, http.StatusOK, updatedResourceNameOnly))
 		defer server.Close()
 		cleanup := setupDefaultClient(server)
 		defer cleanup()
@@ -574,11 +359,14 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Equal(t, "Updated Resource", capturedBody["name"])
+		require.NotContains(t, capturedBody, "description")
 		require.Equal(t, updatedResourceNameOnly, resource)
 	})
 
 	t.Run("Updates description only", func(t *testing.T) {
-		server := httptest.NewServer(captureHandler(nil, nil, nil, nil, http.StatusOK, updatedResourceDescOnly))
+		var capturedBody map[string]interface{}
+		server := httptest.NewServer(captureHandler(nil, nil, nil, &capturedBody, http.StatusOK, updatedResourceDescOnly))
 		defer server.Close()
 		cleanup := setupDefaultClient(server)
 		defer cleanup()
@@ -589,11 +377,14 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.NotContains(t, capturedBody, "name")
+		require.Equal(t, "Updated description", capturedBody["description"])
 		require.Equal(t, updatedResourceDescOnly, resource)
 	})
 
 	t.Run("Sets description to null", func(t *testing.T) {
-		server := httptest.NewServer(captureHandler(nil, nil, nil, nil, http.StatusOK, updatedResourceNullDesc))
+		var capturedBody map[string]interface{}
+		server := httptest.NewServer(captureHandler(nil, nil, nil, &capturedBody, http.StatusOK, updatedResourceNullDesc))
 		defer server.Close()
 		cleanup := setupDefaultClient(server)
 		defer cleanup()
@@ -604,6 +395,8 @@ func TestAuthorizationUpdateResource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		require.Equal(t, "Updated Resource", capturedBody["name"])
+		require.NotContains(t, capturedBody, "description")
 		require.Equal(t, updatedResourceNullDesc, resource)
 	})
 
@@ -656,7 +449,7 @@ func TestAuthorizationDeleteResource(t *testing.T) {
 		require.NotContains(t, capturedQuery, "cascade_delete")
 	})
 
-	t.Run("Deletes resource with cascade true sets query param", func(t *testing.T) {
+	t.Run("Deletes resource with cascade true", func(t *testing.T) {
 		var capturedQuery string
 		server := httptest.NewServer(captureHandler(nil, &capturedQuery, nil, nil, http.StatusNoContent, nil))
 		defer server.Close()
@@ -665,14 +458,14 @@ func TestAuthorizationDeleteResource(t *testing.T) {
 
 		err := DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
 			ResourceId:    "resource_123",
-			CascadeDelete: true,
+			CascadeDelete: boolPtr(true),
 		})
 
 		require.NoError(t, err)
 		require.Contains(t, capturedQuery, "cascade_delete=true")
 	})
 
-	t.Run("Deletes resource with cascade false omits query param", func(t *testing.T) {
+	t.Run("Deletes resource with cascade false", func(t *testing.T) {
 		var capturedQuery string
 		server := httptest.NewServer(captureHandler(nil, &capturedQuery, nil, nil, http.StatusNoContent, nil))
 		defer server.Close()
@@ -681,11 +474,11 @@ func TestAuthorizationDeleteResource(t *testing.T) {
 
 		err := DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{
 			ResourceId:    "resource_123",
-			CascadeDelete: false,
+			CascadeDelete: boolPtr(false),
 		})
 
 		require.NoError(t, err)
-		require.NotContains(t, capturedQuery, "cascade_delete")
+		require.Contains(t, capturedQuery, "cascade_delete=false")
 	})
 
 	t.Run("Returns error when endpoint returns HTTP error", func(t *testing.T) {
@@ -907,152 +700,4 @@ func TestAuthorizationListResources(t *testing.T) {
 		_, err := ListResources(context.Background(), ListAuthorizationResourcesOpts{})
 		require.Error(t, err)
 	})
-}
-
-// ===========================================================================
-// Resources by External Id (stubs)
-// ===========================================================================
-
-func TestAuthorizationGetResourceByExternalId(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := GetResourceByExternalId(context.Background(), GetResourceByExternalIdOpts{
-		OrganizationId:   "org_123",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_123",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationUpdateResourceByExternalId(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	name := "Updated"
-	desc := "Updated description"
-	_, err := UpdateResourceByExternalId(context.Background(), UpdateResourceByExternalIdOpts{
-		OrganizationId:   "org_123",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_123",
-		Name:             &name,
-		Description:      &desc,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationDeleteResourceByExternalId(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	err := DeleteResourceByExternalId(context.Background(), DeleteResourceByExternalIdOpts{
-		OrganizationId:   "org_123",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_123",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Access Check (stub)
-// ===========================================================================
-
-func TestAuthorizationCheck(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := Check(context.Background(), AuthorizationCheckOpts{
-		OrganizationMembershipId: "om_123",
-		PermissionSlug:           "users:read",
-		Resource:                 ResourceIdentifierById{ResourceId: "resource_123"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Role Assignments (stubs)
-// ===========================================================================
-
-func TestAuthorizationListRoleAssignments(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListRoleAssignments(context.Background(), ListRoleAssignmentsOpts{
-		OrganizationMembershipId: "om_123",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationAssignRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := AssignRole(context.Background(), AssignRoleOpts{
-		OrganizationMembershipId: "om_123",
-		RoleSlug:                 "admin",
-		Resource:                 ResourceIdentifierById{ResourceId: "resource_123"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationRemoveRole(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	err := RemoveRole(context.Background(), RemoveRoleOpts{
-		OrganizationMembershipId: "om_123",
-		RoleSlug:                 "admin",
-		Resource:                 ResourceIdentifierById{ResourceId: "resource_123"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationRemoveRoleAssignment(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	err := RemoveRoleAssignment(context.Background(), RemoveRoleAssignmentOpts{
-		OrganizationMembershipId: "om_123",
-		RoleAssignmentId:         "ra_001",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Membership/Resource Queries (stubs)
-// ===========================================================================
-
-func TestAuthorizationListResourcesForMembership(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-		OrganizationMembershipId: "om_123",
-		PermissionSlug:           "users:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationListMembershipsForResource(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-		ResourceId:     "resource_123",
-		PermissionSlug: "users:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAuthorizationListMembershipsForResourceByExternalId(t *testing.T) {
-	DefaultClient = &Client{APIKey: "test"}
-
-	_, err := ListMembershipsForResourceByExternalId(context.Background(), ListMembershipsForResourceByExternalIdOpts{
-		OrganizationId:   "org_123",
-		ResourceTypeSlug: "document",
-		ExternalId:       "ext_123",
-		PermissionSlug:   "users:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
 }
