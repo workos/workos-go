@@ -253,7 +253,7 @@ type GetEnvironmentRoleOpts struct {
 // UpdateEnvironmentRoleOpts contains the options for updating an environment role.
 type UpdateEnvironmentRoleOpts struct {
 	Slug        string  `json:"-"`
-	Name        *string `json:"name,omitempty"`
+	Name        *string `json:"name"`
 	Description *string `json:"description"`
 }
 
