@@ -192,16 +192,23 @@ type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
+type MembershipStatus string
+
+const (
+	MembershipStatusActive   MembershipStatus = "active"
+	MembershipStatusInactive MembershipStatus = "inactive"
+	MembershipStatusPending  MembershipStatus = "pending"
+)
+
 // AuthorizationOrganizationMembership represents a membership returned by authorization queries.
 type AuthorizationOrganizationMembership struct {
-	Object           string                 `json:"object"`
-	Id               string                 `json:"id"`
-	UserId           string                 `json:"user_id"`
-	OrganizationId   string                 `json:"organization_id"`
-	Status           string                 `json:"status"`
-	CreatedAt        string                 `json:"created_at"`
-	UpdatedAt        string                 `json:"updated_at"`
-	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	Object         string           `json:"object"`
+	Id             string           `json:"id"`
+	OrganizationId string           `json:"organization_id"`
+	Status         MembershipStatus `json:"status"`
+	UserId         string           `json:"user_id"`
+	CreatedAt      string           `json:"created_at"`
+	UpdatedAt      string           `json:"updated_at"`
 }
 
 // List response types
