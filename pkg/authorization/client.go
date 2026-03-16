@@ -252,8 +252,6 @@ type GetEnvironmentRoleOpts struct {
 }
 
 // UpdateEnvironmentRoleOpts contains the options for updating an environment role.
-// Name uses omitempty so nil omits the field; Description omits omitempty so nil serializes
-// as JSON null, allowing the caller to explicitly clear the description.
 type UpdateEnvironmentRoleOpts struct {
 	Slug        string  `json:"-"`
 	Name        *string `json:"name,omitempty"`
@@ -378,7 +376,7 @@ type CreateAuthorizationResourceOpts struct {
 type UpdateAuthorizationResourceOpts struct {
 	ResourceId  string  `json:"-"`
 	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description"`
 }
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
@@ -414,7 +412,7 @@ type UpdateResourceByExternalIdOpts struct {
 	ResourceTypeSlug string  `json:"-"`
 	ExternalId       string  `json:"-"`
 	Name             *string `json:"name,omitempty"`
-	Description      *string `json:"description,omitempty"`
+	Description      *string `json:"description"`
 }
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.

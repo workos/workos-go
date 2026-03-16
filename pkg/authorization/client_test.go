@@ -187,7 +187,8 @@ func TestAuthorizationClientUpdateResourceByExternalId(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Equal(t, "Only Name", capturedBody["name"])
-		require.NotContains(t, capturedBody, "description")
+		require.Contains(t, capturedBody, "description")
+		require.Nil(t, capturedBody["description"])
 	})
 
 	t.Run("updates only description", func(t *testing.T) {
