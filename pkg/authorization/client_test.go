@@ -15,7 +15,7 @@ import (
 )
 
 // -----------------------------------------------------------------------
-// Permissions CRUD
+// Permissions CRUD (fully implemented)
 // -----------------------------------------------------------------------
 
 func TestCreatePermission(t *testing.T) {
@@ -27,7 +27,7 @@ func TestCreatePermission(t *testing.T) {
 		err      bool
 	}{
 		{
-			scenario: "Request without API Key returns an error",
+			scenario: "Request without API Key returns unauthorized error",
 			client:   &Client{},
 			err:      true,
 		},
@@ -52,6 +52,25 @@ func TestCreatePermission(t *testing.T) {
 				System:           false,
 				CreatedAt:        "2024-01-01T00:00:00Z",
 				UpdatedAt:        "2024-01-01T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request returns a Permission with required fields only",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: CreatePermissionOpts{
+				Slug: "documents.read",
+				Name: "Read Documents",
+			},
+			expected: Permission{
+				Object:    "permission",
+				Id:        "perm_01HXYZ",
+				Slug:      "documents.read",
+				Name:      "Read Documents",
+				System:    false,
+				CreatedAt: "2024-01-01T00:00:00Z",
+				UpdatedAt: "2024-01-01T00:00:00Z",
 			},
 		},
 	}
@@ -93,6 +112,11 @@ func createPermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.URL.Path != "/authorization/permissions" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	var opts CreatePermissionOpts
 	json.NewDecoder(r.Body).Decode(&opts)
 
@@ -116,8 +140,65 @@ func createPermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCreatePermissionWithoutOptionalFields(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(createPermissionMinimalTestHandler))
+func TestCreatePermissionOmitsEmptyOptionalFields(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		rawBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var rawBody map[string]interface{}
+		if err := json.Unmarshal(rawBytes, &rawBody); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// description and resource_type_slug should be omitted when empty
+		if _, exists := rawBody["description"]; exists {
+			http.Error(w, "unexpected field: description", http.StatusBadRequest)
+			return
+		}
+		if _, exists := rawBody["resource_type_slug"]; exists {
+			http.Error(w, "unexpected field: resource_type_slug", http.StatusBadRequest)
+			return
+		}
+
+		// slug and name must be present
+		if _, exists := rawBody["slug"]; !exists {
+			http.Error(w, "missing field: slug", http.StatusBadRequest)
+			return
+		}
+		if _, exists := rawBody["name"]; !exists {
+			http.Error(w, "missing field: name", http.StatusBadRequest)
+			return
+		}
+
+		var opts CreatePermissionOpts
+		if err := json.Unmarshal(rawBytes, &opts); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		body, _ := json.Marshal(Permission{
+			Object:    "permission",
+			Id:        "perm_01HXYZ",
+			Slug:      opts.Slug,
+			Name:      opts.Name,
+			System:    false,
+			CreatedAt: "2024-01-01T00:00:00Z",
+			UpdatedAt: "2024-01-01T00:00:00Z",
+		})
+
+		w.WriteHeader(http.StatusCreated)
+		w.Write(body)
+	}))
 	defer server.Close()
 
 	client := &Client{
@@ -137,57 +218,29 @@ func TestCreatePermissionWithoutOptionalFields(t *testing.T) {
 	require.Equal(t, "", permission.ResourceTypeSlug)
 }
 
-func createPermissionMinimalTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
-
-	rawBytes, err := io.ReadAll(r.Body)
-	if err != nil {
+func TestCreatePermissionHTTPError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		return
+		w.Write([]byte(`{"message":"internal server error"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 	}
 
-	// Verify optional fields were omitted from JSON
-	var rawBody map[string]interface{}
-	if err := json.Unmarshal(rawBytes, &rawBody); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if _, exists := rawBody["description"]; exists {
-		http.Error(w, "unexpected field: description", http.StatusBadRequest)
-		return
-	}
-	if _, exists := rawBody["resource_type_slug"]; exists {
-		http.Error(w, "unexpected field: resource_type_slug", http.StatusBadRequest)
-		return
-	}
-
-	var opts CreatePermissionOpts
-	if err := json.Unmarshal(rawBytes, &opts); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	body, err := json.Marshal(Permission{
-		Object:    "permission",
-		Id:        "perm_01HXYZ",
-		Slug:      opts.Slug,
-		Name:      opts.Name,
-		System:    false,
-		CreatedAt: "2024-01-01T00:00:00Z",
-		UpdatedAt: "2024-01-01T00:00:00Z",
+	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
+		Slug: "documents.read",
+		Name: "Read Documents",
 	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	w.Write(body)
+	require.Error(t, err)
 }
+
+// -----------------------------------------------------------------------
+// ListPermissions
+// -----------------------------------------------------------------------
 
 func TestListPermissions(t *testing.T) {
 	tests := []struct {
@@ -198,7 +251,7 @@ func TestListPermissions(t *testing.T) {
 		err      bool
 	}{
 		{
-			scenario: "Request without API Key returns an error",
+			scenario: "Request without API Key returns unauthorized error",
 			client:   &Client{},
 			err:      true,
 		},
@@ -278,6 +331,11 @@ func listPermissionsTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.URL.Path != "/authorization/permissions" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	body, err := json.Marshal(listPermissionsExpectedResponse())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -288,8 +346,46 @@ func listPermissionsTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestListPermissionsWithPagination(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(listPermissionsPaginationTestHandler))
+func TestListPermissionsWithPaginationAfter(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		q := r.URL.Query()
+		if q.Get("limit") != "5" || q.Get("after") != "perm_01HXYZ" || q.Get("order") != "asc" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		body, _ := json.Marshal(ListPermissionsResponse{
+			Data: []Permission{
+				{
+					Object:    "permission",
+					Id:        "perm_02HXYZ",
+					Slug:      "documents.write",
+					Name:      "Write Documents",
+					System:    false,
+					CreatedAt: "2024-01-02T00:00:00Z",
+					UpdatedAt: "2024-01-02T00:00:00Z",
+				},
+			},
+			ListMetadata: common.ListMetadata{
+				Before: "perm_01HXYZ",
+				After:  "",
+			},
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
 	defer server.Close()
 
 	client := &Client{
@@ -309,50 +405,115 @@ func TestListPermissionsWithPagination(t *testing.T) {
 	require.Equal(t, "perm_01HXYZ", permissions.ListMetadata.Before)
 }
 
-func listPermissionsPaginationTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
-	}
+func TestListPermissionsWithPaginationBefore(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
 
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
+		q := r.URL.Query()
+		if q.Get("limit") != "3" || q.Get("before") != "perm_02HXYZ" || q.Get("order") != "desc" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
-	// Verify query params are set
-	q := r.URL.Query()
-	if q.Get("limit") != "5" || q.Get("after") != "perm_01HXYZ" || q.Get("order") != "asc" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	body, err := json.Marshal(ListPermissionsResponse{
-		Data: []Permission{
-			{
-				Object:    "permission",
-				Id:        "perm_02HXYZ",
-				Slug:      "documents.write",
-				Name:      "Write Documents",
-				System:    false,
-				CreatedAt: "2024-01-02T00:00:00Z",
-				UpdatedAt: "2024-01-02T00:00:00Z",
+		body, _ := json.Marshal(ListPermissionsResponse{
+			Data: []Permission{
+				{
+					Object:    "permission",
+					Id:        "perm_01HXYZ",
+					Slug:      "documents.read",
+					Name:      "Read Documents",
+					System:    false,
+					CreatedAt: "2024-01-01T00:00:00Z",
+					UpdatedAt: "2024-01-01T00:00:00Z",
+				},
 			},
-		},
-		ListMetadata: common.ListMetadata{
-			Before: "perm_01HXYZ",
-			After:  "",
-		},
-	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+			ListMetadata: common.ListMetadata{
+				Before: "",
+				After:  "perm_02HXYZ",
+			},
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	permissions, err := client.ListPermissions(context.Background(), ListPermissionsOpts{
+		Limit:  3,
+		Before: "perm_02HXYZ",
+		Order:  common.Desc,
+	})
+	require.NoError(t, err)
+	require.Equal(t, 1, len(permissions.Data))
+	require.Equal(t, "perm_01HXYZ", permissions.Data[0].Id)
+	require.Equal(t, "perm_02HXYZ", permissions.ListMetadata.After)
 }
+
+func TestListPermissionsDefaultLimit(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		q := r.URL.Query()
+		// When no limit is set, DefaultListSize (10) should be applied
+		if q.Get("limit") != "10" {
+			http.Error(w, "expected default limit of 10, got "+q.Get("limit"), http.StatusBadRequest)
+			return
+		}
+
+		body, _ := json.Marshal(ListPermissionsResponse{
+			Data:         []Permission{},
+			ListMetadata: common.ListMetadata{},
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
+	require.NoError(t, err)
+}
+
+func TestListPermissionsHTTPError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message":"internal server error"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
+	require.Error(t, err)
+}
+
+// -----------------------------------------------------------------------
+// GetPermission
+// -----------------------------------------------------------------------
 
 func TestGetPermission(t *testing.T) {
 	tests := []struct {
@@ -363,7 +524,7 @@ func TestGetPermission(t *testing.T) {
 		err      bool
 	}{
 		{
-			scenario: "Request without API Key returns an error",
+			scenario: "Request without API Key returns unauthorized error",
 			client:   &Client{},
 			err:      true,
 		},
@@ -424,8 +585,13 @@ func getPermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify slug is in the URL path
-	if !strings.HasSuffix(r.URL.Path, "/documents.read") {
+	if !strings.HasPrefix(r.URL.Path, "/authorization/permissions/") {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	slug := strings.TrimPrefix(r.URL.Path, "/authorization/permissions/")
+	if slug != "documents.read" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -448,8 +614,22 @@ func getPermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestUpdatePermissionName(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updatePermissionTestHandler))
+func TestGetPermissionURLPath(t *testing.T) {
+	var capturedPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedPath = r.URL.Path
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{
+			Object: "permission",
+			Id:     "perm_01HXYZ",
+			Slug:   "my-custom.slug",
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
 	defer server.Close()
 
 	client := &Client{
@@ -458,52 +638,115 @@ func TestUpdatePermissionName(t *testing.T) {
 		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 	}
 
+	_, err := client.GetPermission(context.Background(), GetPermissionOpts{
+		Slug: "my-custom.slug",
+	})
+	require.NoError(t, err)
+	require.Equal(t, "/authorization/permissions/my-custom.slug", capturedPath)
+}
+
+func TestGetPermissionHTTPNotFound(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message":"not found"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.GetPermission(context.Background(), GetPermissionOpts{
+		Slug: "nonexistent",
+	})
+	require.Error(t, err)
+}
+
+// -----------------------------------------------------------------------
+// UpdatePermission
+// -----------------------------------------------------------------------
+
+func TestUpdatePermission(t *testing.T) {
 	newName := "Read All Documents"
-	permission, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
-		Slug: "documents.read",
-		Name: &newName,
-	})
-	require.NoError(t, err)
-	require.Equal(t, "Read All Documents", permission.Name)
-	require.Equal(t, "documents.read", permission.Slug)
-}
-
-func TestUpdatePermissionDescription(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updatePermissionTestHandler))
-	defer server.Close()
-
-	client := &Client{
-		APIKey:     "test",
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
-	}
-
 	newDesc := "Updated description"
-	permission, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
-		Slug:        "documents.read",
-		Description: &newDesc,
-	})
-	require.NoError(t, err)
-	require.Equal(t, "documents.read", permission.Slug)
-}
 
-func TestUpdatePermissionDescriptionToNull(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updatePermissionNullDescTestHandler))
-	defer server.Close()
-
-	client := &Client{
-		APIKey:     "test",
-		Endpoint:   server.URL,
-		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	tests := []struct {
+		scenario string
+		client   *Client
+		options  UpdatePermissionOpts
+		expected Permission
+		err      bool
+	}{
+		{
+			scenario: "Request without API Key returns unauthorized error",
+			client:   &Client{},
+			options: UpdatePermissionOpts{
+				Slug: "documents.read",
+				Name: &newName,
+			},
+			err: true,
+		},
+		{
+			scenario: "Request updates name",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdatePermissionOpts{
+				Slug: "documents.read",
+				Name: &newName,
+			},
+			expected: Permission{
+				Object:    "permission",
+				Id:        "perm_01HXYZ",
+				Slug:      "documents.read",
+				Name:      "Read All Documents",
+				System:    false,
+				CreatedAt: "2024-01-01T00:00:00Z",
+				UpdatedAt: "2024-01-02T00:00:00Z",
+			},
+		},
+		{
+			scenario: "Request updates description",
+			client: &Client{
+				APIKey: "test",
+			},
+			options: UpdatePermissionOpts{
+				Slug:        "documents.read",
+				Description: &newDesc,
+			},
+			expected: Permission{
+				Object:      "permission",
+				Id:          "perm_01HXYZ",
+				Slug:        "documents.read",
+				Name:        "Read Documents",
+				Description: "Updated description",
+				System:      false,
+				CreatedAt:   "2024-01-01T00:00:00Z",
+				UpdatedAt:   "2024-01-02T00:00:00Z",
+			},
+		},
 	}
 
-	// Sending nil pointer for Description should serialize to JSON null
-	permission, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
-		Slug:        "documents.read",
-		Description: nil,
-	})
-	require.NoError(t, err)
-	require.Equal(t, "", permission.Description)
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(updatePermissionTestHandler))
+			defer server.Close()
+
+			client := test.client
+			client.Endpoint = server.URL
+			client.HTTPClient = &retryablehttp.HttpClient{Client: *server.Client()}
+
+			permission, err := client.UpdatePermission(context.Background(), test.options)
+			if test.err {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.expected, permission)
+		})
+	}
 }
 
 func updatePermissionTestHandler(w http.ResponseWriter, r *http.Request) {
@@ -523,6 +766,11 @@ func updatePermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !strings.HasPrefix(r.URL.Path, "/authorization/permissions/") {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	var opts map[string]interface{}
 	json.NewDecoder(r.Body).Decode(&opts)
 
@@ -531,14 +779,20 @@ func updatePermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 		name = n.(string)
 	}
 
+	desc := ""
+	if d, ok := opts["description"]; ok && d != nil {
+		desc = d.(string)
+	}
+
 	body, err := json.Marshal(Permission{
-		Object:    "permission",
-		Id:        "perm_01HXYZ",
-		Slug:      "documents.read",
-		Name:      name,
-		System:    false,
-		CreatedAt: "2024-01-01T00:00:00Z",
-		UpdatedAt: "2024-01-02T00:00:00Z",
+		Object:      "permission",
+		Id:          "perm_01HXYZ",
+		Slug:        "documents.read",
+		Name:        name,
+		Description: desc,
+		System:      false,
+		CreatedAt:   "2024-01-01T00:00:00Z",
+		UpdatedAt:   "2024-01-02T00:00:00Z",
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -549,46 +803,171 @@ func updatePermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func updatePermissionNullDescTestHandler(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	if auth != "Bearer test" {
-		http.Error(w, "bad auth", http.StatusUnauthorized)
-		return
+func TestUpdatePermissionURLPath(t *testing.T) {
+	var capturedPath string
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedPath = r.URL.Path
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{
+			Object: "permission",
+			Id:     "perm_01HXYZ",
+			Slug:   "documents.read",
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 	}
 
-	if r.Method != http.MethodPatch {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Verify the body contains "description":null
-	var raw map[string]interface{}
-	json.NewDecoder(r.Body).Decode(&raw)
-
-	// When Description is nil pointer with json tag `json:"description"` (no omitempty),
-	// it should serialize as null
-	if _, exists := raw["description"]; !exists {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	body, err := json.Marshal(Permission{
-		Object:    "permission",
-		Id:        "perm_01HXYZ",
-		Slug:      "documents.read",
-		Name:      "Read Documents",
-		System:    false,
-		CreatedAt: "2024-01-01T00:00:00Z",
-		UpdatedAt: "2024-01-02T00:00:00Z",
+	newName := "Updated"
+	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
+		Slug: "documents.read",
+		Name: &newName,
 	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	require.NoError(t, err)
+	require.Equal(t, "/authorization/permissions/documents.read", capturedPath)
+	require.Equal(t, http.MethodPatch, capturedMethod)
+}
+
+func TestUpdatePermissionDescriptionToNull(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		if r.Method != http.MethodPatch {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Verify the body contains "description":null
+		var raw map[string]interface{}
+		json.NewDecoder(r.Body).Decode(&raw)
+
+		// When Description is nil pointer with json tag `json:"description"` (no omitempty),
+		// it should serialize as null
+		descVal, exists := raw["description"]
+		if !exists {
+			http.Error(w, "description field must be present", http.StatusBadRequest)
+			return
+		}
+		if descVal != nil {
+			http.Error(w, "description field must be null", http.StatusBadRequest)
+			return
+		}
+
+		body, _ := json.Marshal(Permission{
+			Object:    "permission",
+			Id:        "perm_01HXYZ",
+			Slug:      "documents.read",
+			Name:      "Read Documents",
+			System:    false,
+			CreatedAt: "2024-01-01T00:00:00Z",
+			UpdatedAt: "2024-01-02T00:00:00Z",
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	// Sending nil pointer for Description should serialize to JSON null
+	permission, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
+		Slug:        "documents.read",
+		Description: nil,
+	})
+	require.NoError(t, err)
+	require.Equal(t, "", permission.Description)
 }
+
+func TestUpdatePermissionNameOmittedWhenNil(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		var raw map[string]interface{}
+		json.NewDecoder(r.Body).Decode(&raw)
+
+		// Name has omitempty, so nil pointer should not be present
+		if _, exists := raw["name"]; exists {
+			http.Error(w, "name field should be omitted when nil", http.StatusBadRequest)
+			return
+		}
+
+		body, _ := json.Marshal(Permission{
+			Object:    "permission",
+			Id:        "perm_01HXYZ",
+			Slug:      "documents.read",
+			Name:      "Read Documents",
+			System:    false,
+			CreatedAt: "2024-01-01T00:00:00Z",
+			UpdatedAt: "2024-01-02T00:00:00Z",
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	// Name is nil, should be omitted from JSON body
+	permission, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
+		Slug: "documents.read",
+		Name: nil,
+	})
+	require.NoError(t, err)
+	require.Equal(t, "Read Documents", permission.Name)
+}
+
+func TestUpdatePermissionHTTPError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message":"internal server error"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	newName := "Updated"
+	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
+		Slug: "documents.read",
+		Name: &newName,
+	})
+	require.Error(t, err)
+}
+
+// -----------------------------------------------------------------------
+// DeletePermission
+// -----------------------------------------------------------------------
 
 func TestDeletePermission(t *testing.T) {
 	tests := []struct {
@@ -598,7 +977,7 @@ func TestDeletePermission(t *testing.T) {
 		err      bool
 	}{
 		{
-			scenario: "Request without API Key returns an error",
+			scenario: "Request without API Key returns unauthorized error",
 			client:   &Client{},
 			err:      true,
 		},
@@ -649,8 +1028,13 @@ func deletePermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify slug is in URL path
-	if !strings.HasSuffix(r.URL.Path, "/documents.read") {
+	if !strings.HasPrefix(r.URL.Path, "/authorization/permissions/") {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	slug := strings.TrimPrefix(r.URL.Path, "/authorization/permissions/")
+	if slug != "documents.read" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -658,8 +1042,125 @@ func deletePermissionTestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func TestDeletePermissionURLPath(t *testing.T) {
+	var capturedPath string
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedPath = r.URL.Path
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeletePermission(context.Background(), DeletePermissionOpts{
+		Slug: "my-permission",
+	})
+	require.NoError(t, err)
+	require.Equal(t, "/authorization/permissions/my-permission", capturedPath)
+	require.Equal(t, http.MethodDelete, capturedMethod)
+}
+
+func TestDeletePermissionHTTPNotFound(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message":"not found"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeletePermission(context.Background(), DeletePermissionOpts{
+		Slug: "nonexistent",
+	})
+	require.Error(t, err)
+}
+
+func TestDeletePermissionHTTPServerError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message":"internal server error"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeletePermission(context.Background(), DeletePermissionOpts{
+		Slug: "documents.read",
+	})
+	require.Error(t, err)
+}
+
 // -----------------------------------------------------------------------
-// Environment Roles (stubs -- tests verify consistent "not implemented")
+// CreatePermission request body verification
+// -----------------------------------------------------------------------
+
+func TestCreatePermissionRequestBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		rawBytes, _ := io.ReadAll(r.Body)
+		var rawBody map[string]interface{}
+		json.Unmarshal(rawBytes, &rawBody)
+
+		// Verify JSON field names match the expected wire format
+		require.Equal(t, "documents.read", rawBody["slug"])
+		require.Equal(t, "Read Documents", rawBody["name"])
+		require.Equal(t, "Allows reading documents", rawBody["description"])
+		require.Equal(t, "document", rawBody["resource_type_slug"])
+
+		body, _ := json.Marshal(Permission{
+			Object:           "permission",
+			Id:               "perm_01HXYZ",
+			Slug:             "documents.read",
+			Name:             "Read Documents",
+			Description:      "Allows reading documents",
+			ResourceTypeSlug: "document",
+			CreatedAt:        "2024-01-01T00:00:00Z",
+			UpdatedAt:        "2024-01-01T00:00:00Z",
+		})
+		w.WriteHeader(http.StatusCreated)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
+		Slug:             "documents.read",
+		Name:             "Read Documents",
+		Description:      "Allows reading documents",
+		ResourceTypeSlug: "document",
+	})
+	require.NoError(t, err)
+}
+
+// -----------------------------------------------------------------------
+// Environment Roles (stubs -- verify "not implemented")
 // -----------------------------------------------------------------------
 
 func TestCreateEnvironmentRole(t *testing.T) {
@@ -1281,6 +1782,264 @@ func TestClientInitPreservesCustomValues(t *testing.T) {
 
 	require.Equal(t, customHTTP, client.HTTPClient)
 	require.Equal(t, customEndpoint, client.Endpoint)
-	// JSONEncode is a function, so we check it is not nil (not replaced)
 	require.NotNil(t, client.JSONEncode)
+}
+
+// -----------------------------------------------------------------------
+// User-Agent header verification
+// -----------------------------------------------------------------------
+
+func TestCreatePermissionUserAgentHeader(t *testing.T) {
+	var capturedUserAgent string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUserAgent = r.Header.Get("User-Agent")
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{Object: "permission", Id: "perm_01HXYZ", Slug: "test"})
+		w.WriteHeader(http.StatusCreated)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
+		Slug: "test",
+		Name: "Test",
+	})
+	require.NoError(t, err)
+	require.Contains(t, capturedUserAgent, "workos-go/")
+}
+
+func TestListPermissionsUserAgentHeader(t *testing.T) {
+	var capturedUserAgent string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUserAgent = r.Header.Get("User-Agent")
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(ListPermissionsResponse{Data: []Permission{}, ListMetadata: common.ListMetadata{}})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
+	require.NoError(t, err)
+	require.Contains(t, capturedUserAgent, "workos-go/")
+}
+
+func TestGetPermissionUserAgentHeader(t *testing.T) {
+	var capturedUserAgent string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUserAgent = r.Header.Get("User-Agent")
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{Object: "permission", Id: "perm_01HXYZ", Slug: "test"})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.GetPermission(context.Background(), GetPermissionOpts{Slug: "test"})
+	require.NoError(t, err)
+	require.Contains(t, capturedUserAgent, "workos-go/")
+}
+
+func TestUpdatePermissionUserAgentHeader(t *testing.T) {
+	var capturedUserAgent string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUserAgent = r.Header.Get("User-Agent")
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{Object: "permission", Id: "perm_01HXYZ", Slug: "test"})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	newName := "Updated"
+	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{Slug: "test", Name: &newName})
+	require.NoError(t, err)
+	require.Contains(t, capturedUserAgent, "workos-go/")
+}
+
+func TestDeletePermissionUserAgentHeader(t *testing.T) {
+	var capturedUserAgent string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUserAgent = r.Header.Get("User-Agent")
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeletePermission(context.Background(), DeletePermissionOpts{Slug: "test"})
+	require.NoError(t, err)
+	require.Contains(t, capturedUserAgent, "workos-go/")
+}
+
+// -----------------------------------------------------------------------
+// HTTP method verification
+// -----------------------------------------------------------------------
+
+func TestCreatePermissionUsesPostMethod(t *testing.T) {
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{Object: "permission", Id: "perm_01HXYZ", Slug: "test"})
+		w.WriteHeader(http.StatusCreated)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{Slug: "test", Name: "Test"})
+	require.NoError(t, err)
+	require.Equal(t, http.MethodPost, capturedMethod)
+}
+
+func TestListPermissionsUsesGetMethod(t *testing.T) {
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(ListPermissionsResponse{Data: []Permission{}, ListMetadata: common.ListMetadata{}})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
+	require.NoError(t, err)
+	require.Equal(t, http.MethodGet, capturedMethod)
+}
+
+func TestGetPermissionUsesGetMethod(t *testing.T) {
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{Object: "permission", Id: "perm_01HXYZ", Slug: "test"})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	_, err := client.GetPermission(context.Background(), GetPermissionOpts{Slug: "test"})
+	require.NoError(t, err)
+	require.Equal(t, http.MethodGet, capturedMethod)
+}
+
+func TestUpdatePermissionUsesPatchMethod(t *testing.T) {
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		body, _ := json.Marshal(Permission{Object: "permission", Id: "perm_01HXYZ", Slug: "test"})
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	newName := "Updated"
+	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{Slug: "test", Name: &newName})
+	require.NoError(t, err)
+	require.Equal(t, http.MethodPatch, capturedMethod)
+}
+
+func TestDeletePermissionUsesDeleteMethod(t *testing.T) {
+	var capturedMethod string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedMethod = r.Method
+		if r.Header.Get("Authorization") != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		APIKey:     "test",
+		Endpoint:   server.URL,
+		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+
+	err := client.DeletePermission(context.Background(), DeletePermissionOpts{Slug: "test"})
+	require.NoError(t, err)
+	require.Equal(t, http.MethodDelete, capturedMethod)
 }
