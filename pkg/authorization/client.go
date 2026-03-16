@@ -297,7 +297,7 @@ type UpdateOrganizationRoleOpts struct {
 	OrganizationId string  `json:"-"`
 	Slug           string  `json:"-"`
 	Name           *string `json:"name,omitempty"`
-	Description    *string `json:"description"`
+	Description    *string `json:"description,omitempty"`
 }
 
 // DeleteOrganizationRoleOpts contains the options for deleting an organization role.

@@ -3,7 +3,6 @@ package authorization
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -320,34 +319,6 @@ func TestUpdateOrganizationRole(t *testing.T) {
 		require.Equal(t, "Updated description", capturedBody["description"])
 		require.NotContains(t, capturedBody, "name")
 		require.Equal(t, responseWithDesc, result)
-	})
-
-	t.Run("null description body serialization", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			bodyBytes, err := io.ReadAll(r.Body)
-			if err != nil {
-				t.Fatalf("failed to read request body: %v", err)
-			}
-
-			bodyStr := string(bodyBytes)
-			require.Contains(t, bodyStr, `"description":null`,
-				"serialized body must contain description:null when Description pointer is nil")
-			require.NotContains(t, bodyStr, `"name"`,
-				"serialized body must omit name when Name pointer is nil")
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(expectedResponse)
-		}))
-		defer server.Close()
-
-		client := newAuthorizationTestClient(server)
-		_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-			OrganizationId: "org_01ABC",
-			Slug:           "org-admin",
-			Description:    nil,
-		})
-		require.NoError(t, err)
 	})
 
 	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
