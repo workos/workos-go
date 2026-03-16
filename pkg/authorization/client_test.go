@@ -37,6 +37,12 @@ func TestCreateOrganizationRole(t *testing.T) {
 			*capturedPath = r.URL.Path
 			*capturedMethod = r.Method
 
+			parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+			if len(parts) != 4 || parts[0] != "authorization" || parts[1] != "organizations" || parts[3] != "roles" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
 			auth := r.Header.Get("Authorization")
 			if auth != "Bearer test" {
 				http.Error(w, "bad auth", http.StatusUnauthorized)
@@ -255,6 +261,12 @@ func TestListOrganizationRoles(t *testing.T) {
 		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			*capturedPath = r.URL.Path
 			*capturedMethod = r.Method
+
+			parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+			if len(parts) != 4 || parts[0] != "authorization" || parts[1] != "organizations" || parts[3] != "roles" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
 
 			auth := r.Header.Get("Authorization")
 			if auth != "Bearer test" {
