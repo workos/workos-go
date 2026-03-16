@@ -479,8 +479,6 @@ func TestRemoveRoleAssignment(t *testing.T) {
 	})
 }
 
-// Test helpers
-
 func newAuthorizationTestClient(server *httptest.Server) *Client {
 	return &Client{
 		APIKey:     "test",
@@ -489,8 +487,6 @@ func newAuthorizationTestClient(server *httptest.Server) *Client {
 	}
 }
 
-// jsonResponseHandler creates a handler that captures request body and path,
-// then returns the given response as JSON with 200 OK.
 func jsonResponseHandler(
 	capturedBody *map[string]interface{},
 	capturedPath *string,
@@ -520,8 +516,6 @@ func jsonResponseHandler(
 	}
 }
 
-// noContentHandler creates a handler that captures request body and path,
-// then returns 204 No Content.
 func noContentHandler(
 	capturedBody *map[string]interface{},
 	capturedPath *string,
