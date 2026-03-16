@@ -27,6 +27,14 @@ const (
 	AssignmentDirect   AssignmentType = "direct"
 	AssignmentIndirect AssignmentType = "indirect"
 )
+// Authorization API path segments.
+const (
+	authorizationRolesPath                   = "authorization/roles"
+	authorizationPermissionsPath             = "authorization/permissions"
+	authorizationResourcesPath               = "authorization/resources"
+	authorizationOrganizationsPath           = "authorization/organizations"
+	authorizationOrganizationMembershipsPath = "authorization/organization_memberships"
+)
 
 // Client represents a client that performs Authorization requests to the WorkOS API.
 type Client struct {
@@ -70,14 +78,14 @@ type ResourceIdentifierById struct {
 	ResourceId string
 }
 
-func (r ResourceIdentifierById) resourceIdentifierParams() map[string]interface{} {
-	return map[string]interface{}{"resource_id": r.ResourceId}
-}
-
 // ResourceIdentifierByExternalId identifies a resource by external Id and type slug.
 type ResourceIdentifierByExternalId struct {
 	ResourceExternalId string
 	ResourceTypeSlug   string
+}
+
+func (r ResourceIdentifierById) resourceIdentifierParams() map[string]interface{} {
+	return map[string]interface{}{"resource_id": r.ResourceId}
 }
 
 func (r ResourceIdentifierByExternalId) resourceIdentifierParams() map[string]interface{} {
@@ -196,16 +204,23 @@ type AccessCheckResponse struct {
 	Authorized bool `json:"authorized"`
 }
 
+type MembershipStatus string
+
+const (
+	MembershipStatusActive   MembershipStatus = "active"
+	MembershipStatusInactive MembershipStatus = "inactive"
+	MembershipStatusPending  MembershipStatus = "pending"
+)
+
 // AuthorizationOrganizationMembership represents a membership returned by authorization queries.
 type AuthorizationOrganizationMembership struct {
-	Object           string                 `json:"object"`
-	Id               string                 `json:"id"`
-	UserId           string                 `json:"user_id"`
-	OrganizationId   string                 `json:"organization_id"`
-	Status           string                 `json:"status"`
-	CreatedAt        string                 `json:"created_at"`
-	UpdatedAt        string                 `json:"updated_at"`
-	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	Object         string           `json:"object"`
+	Id             string           `json:"id"`
+	OrganizationId string           `json:"organization_id"`
+	Status         MembershipStatus `json:"status"`
+	UserId         string           `json:"user_id"`
+	CreatedAt      string           `json:"created_at"`
+	UpdatedAt      string           `json:"updated_at"`
 }
 
 // List response types
