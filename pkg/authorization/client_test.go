@@ -703,4 +703,3 @@ func deleteResourceByExternalIdTestHandler(w http.ResponseWriter, r *http.Reques
 
 	w.WriteHeader(http.StatusNoContent)
 }
-
