@@ -233,7 +233,7 @@ func DeleteResourceByExternalId(
 func Check(
 	ctx context.Context,
 	opts AuthorizationCheckOpts,
-) (AuthorizationCheckResult, error) {
+) (AccessCheckResponse, error) {
 	return DefaultClient.Check(ctx, opts)
 }
 
