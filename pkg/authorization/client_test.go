@@ -44,6 +44,7 @@ func TestListResourcesForMembership(t *testing.T) {
 				Description:      "A test document",
 				ResourceTypeSlug: "document",
 				OrganizationId:   "org_01JF",
+				ParentResourceId: "resource_parent_01",
 				CreatedAt:        "2024-01-01T00:00:00.000Z",
 				UpdatedAt:        "2024-01-01T00:00:00.000Z",
 			},
@@ -78,16 +79,20 @@ func TestListResourcesForMembership(t *testing.T) {
 
 	expectedPath := "/authorization/organization_memberships/om_01JF/resources"
 
+	baseOpts := func() ListResourcesForMembershipOpts {
+		return ListResourcesForMembershipOpts{
+			OrganizationMembershipId: "om_01JF",
+			PermissionSlug:           "read:document",
+		}
+	}
+
 	t.Run("returns one resource", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listResourcesServer(&cPath, &cQuery, singleItemResponse)
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
+		result, err := client.ListResourcesForMembership(context.Background(), baseOpts())
 
 		require.NoError(t, err)
 		require.Len(t, result.Data, 1)
@@ -104,10 +109,7 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
+		result, err := client.ListResourcesForMembership(context.Background(), baseOpts())
 
 		require.NoError(t, err)
 		require.Len(t, result.Data, 2)
@@ -125,10 +127,7 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
+		result, err := client.ListResourcesForMembership(context.Background(), baseOpts())
 
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
@@ -138,35 +137,15 @@ func TestListResourcesForMembership(t *testing.T) {
 		require.Contains(t, cQuery, "order=desc")
 	})
 
-	t.Run("applies default order when none specified", func(t *testing.T) {
-		var cPath, cQuery string
-		server := listResourcesServer(&cPath, &cQuery, singleItemResponse)
-		defer server.Close()
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
-
-		require.NoError(t, err)
-		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
-		require.Contains(t, cQuery, "limit=10")
-		require.Contains(t, cQuery, "order=desc")
-		require.Equal(t, expectedPath, cPath)
-	})
-
 	t.Run("passes order desc", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listResourcesServer(&cPath, &cQuery, singleItemResponse)
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			Order:                    common.Desc,
-		})
+		opts := baseOpts()
+		opts.Order = common.Desc
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -181,34 +160,14 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			Order:                    common.Asc,
-		})
+		opts := baseOpts()
+		opts.Order = common.Asc
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=asc")
-		require.Equal(t, expectedPath, cPath)
-	})
-
-	t.Run("applies default limit when none specified", func(t *testing.T) {
-		var cPath, cQuery string
-		server := listResourcesServer(&cPath, &cQuery, singleItemResponse)
-		defer server.Close()
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
-
-		require.NoError(t, err)
-		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
-		require.Contains(t, cQuery, "limit=10")
-		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -218,11 +177,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			Limit:                    25,
-		})
+		opts := baseOpts()
+		opts.Limit = 25
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -237,11 +194,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			Before:                   "cursor_before",
-		})
+		opts := baseOpts()
+		opts.Before = "cursor_before"
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -258,11 +213,9 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			After:                    "cursor_after",
-		})
+		opts := baseOpts()
+		opts.After = "cursor_after"
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -279,13 +232,11 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			ParentResourceIdentifier: ParentResourceIdentifierById{
-				ParentResourceId: "resource_parent_01",
-			},
-		})
+		opts := baseOpts()
+		opts.ParentResourceIdentifier = ParentResourceIdentifierById{
+			ParentResourceId: "resource_parent_01",
+		}
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -301,14 +252,12 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			ParentResourceIdentifier: ParentResourceIdentifierByExternalId{
-				ParentResourceExternalId: "parent-ext-1",
-				ParentResourceTypeSlug:   "folder",
-			},
-		})
+		opts := baseOpts()
+		opts.ParentResourceIdentifier = ParentResourceIdentifierByExternalId{
+			ParentResourceExternalId: "parent-ext-1",
+			ParentResourceTypeSlug:   "folder",
+		}
+		_, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -325,14 +274,12 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-			Limit:                    5,
-			Before:                   "cursor_before",
-			After:                    "cursor_after",
-			Order:                    common.Asc,
-		})
+		opts := baseOpts()
+		opts.Limit = 5
+		opts.Before = "cursor_before"
+		opts.After = "cursor_after"
+		opts.Order = common.Asc
+		result, err := client.ListResourcesForMembership(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
@@ -351,20 +298,14 @@ func TestListResourcesForMembership(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
+		_, err := client.ListResourcesForMembership(context.Background(), baseOpts())
 		require.Error(t, err)
 	})
 
 	t.Run("Request without API Key returns an error", func(t *testing.T) {
 		client := &Client{}
 
-		_, err := client.ListResourcesForMembership(context.Background(), ListResourcesForMembershipOpts{
-			OrganizationMembershipId: "om_01JF",
-			PermissionSlug:           "read:document",
-		})
+		_, err := client.ListResourcesForMembership(context.Background(), baseOpts())
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "API key is required")
 	})
@@ -414,7 +355,7 @@ func TestListMembershipsForResource(t *testing.T) {
 				Id:             "om_01JF",
 				UserId:         "user_01JF",
 				OrganizationId: "org_01JF",
-				Status:         MembershipStatusActive,
+				Status:         MembershipStatusInactive,
 				CreatedAt:      "2024-01-01T00:00:00.000Z",
 				UpdatedAt:      "2024-01-01T00:00:00.000Z",
 			},
@@ -423,7 +364,7 @@ func TestListMembershipsForResource(t *testing.T) {
 				Id:             "om_02JF",
 				UserId:         "user_02JF",
 				OrganizationId: "org_01JF",
-				Status:         MembershipStatusActive,
+				Status:         MembershipStatusPending,
 				CreatedAt:      "2024-01-02T00:00:00.000Z",
 				UpdatedAt:      "2024-01-02T00:00:00.000Z",
 			},
@@ -438,16 +379,20 @@ func TestListMembershipsForResource(t *testing.T) {
 
 	expectedPath := "/authorization/resources/resource_01JF/organization_memberships"
 
+	baseOpts := func() ListMembershipsForResourceOpts {
+		return ListMembershipsForResourceOpts{
+			ResourceId:     "resource_01JF",
+			PermissionSlug: "read:document",
+		}
+	}
+
 	t.Run("returns one membership", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listMembershipsServer(&cPath, &cQuery, singleItemResponse)
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
+		result, err := client.ListMembershipsForResource(context.Background(), baseOpts())
 
 		require.NoError(t, err)
 		require.Len(t, result.Data, 1)
@@ -464,10 +409,7 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
+		result, err := client.ListMembershipsForResource(context.Background(), baseOpts())
 
 		require.NoError(t, err)
 		require.Len(t, result.Data, 2)
@@ -485,10 +427,7 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
+		result, err := client.ListMembershipsForResource(context.Background(), baseOpts())
 
 		require.NoError(t, err)
 		require.Empty(t, result.Data)
@@ -498,35 +437,15 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.Contains(t, cQuery, "order=desc")
 	})
 
-	t.Run("applies default order when none specified", func(t *testing.T) {
-		var cPath, cQuery string
-		server := listMembershipsServer(&cPath, &cQuery, singleItemResponse)
-		defer server.Close()
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
-
-		require.NoError(t, err)
-		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
-		require.Contains(t, cQuery, "limit=10")
-		require.Contains(t, cQuery, "order=desc")
-		require.Equal(t, expectedPath, cPath)
-	})
-
 	t.Run("passes order desc", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listMembershipsServer(&cPath, &cQuery, singleItemResponse)
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			Order:          common.Desc,
-		})
+		opts := baseOpts()
+		opts.Order = common.Desc
+		_, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -541,34 +460,14 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			Order:          common.Asc,
-		})
+		opts := baseOpts()
+		opts.Order = common.Asc
+		_, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=asc")
-		require.Equal(t, expectedPath, cPath)
-	})
-
-	t.Run("applies default limit when none specified", func(t *testing.T) {
-		var cPath, cQuery string
-		server := listMembershipsServer(&cPath, &cQuery, singleItemResponse)
-		defer server.Close()
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
-
-		require.NoError(t, err)
-		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
-		require.Contains(t, cQuery, "limit=10")
-		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -578,11 +477,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			Limit:          25,
-		})
+		opts := baseOpts()
+		opts.Limit = 25
+		_, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -597,11 +494,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			Before:         "cursor_before",
-		})
+		opts := baseOpts()
+		opts.Before = "cursor_before"
+		_, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -618,11 +513,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			After:          "cursor_after",
-		})
+		opts := baseOpts()
+		opts.After = "cursor_after"
+		_, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -639,11 +532,9 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			Assignment:     AssignmentDirect,
-		})
+		opts := baseOpts()
+		opts.Assignment = AssignmentDirect
+		_, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
@@ -659,15 +550,13 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		result, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-			Assignment:     AssignmentDirect,
-			Limit:          5,
-			Before:         "cursor_before",
-			After:          "cursor_after",
-			Order:          common.Asc,
-		})
+		opts := baseOpts()
+		opts.Assignment = AssignmentIndirect
+		opts.Limit = 5
+		opts.Before = "cursor_before"
+		opts.After = "cursor_after"
+		opts.Order = common.Asc
+		result, err := client.ListMembershipsForResource(context.Background(), opts)
 
 		require.NoError(t, err)
 		require.Equal(t, singleItemResponse, result)
@@ -677,7 +566,7 @@ func TestListMembershipsForResource(t *testing.T) {
 		require.Contains(t, cQuery, "before=cursor_before")
 		require.Contains(t, cQuery, "after=cursor_after")
 		require.Contains(t, cQuery, "order=asc")
-		require.Contains(t, cQuery, "assignment=direct")
+		require.Contains(t, cQuery, "assignment=indirect")
 	})
 
 	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
@@ -687,20 +576,14 @@ func TestListMembershipsForResource(t *testing.T) {
 		defer server.Close()
 		client := newAuthorizationTestClient(server)
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
+		_, err := client.ListMembershipsForResource(context.Background(), baseOpts())
 		require.Error(t, err)
 	})
 
 	t.Run("Request without API Key returns an error", func(t *testing.T) {
 		client := &Client{}
 
-		_, err := client.ListMembershipsForResource(context.Background(), ListMembershipsForResourceOpts{
-			ResourceId:     "resource_01JF",
-			PermissionSlug: "read:document",
-		})
+		_, err := client.ListMembershipsForResource(context.Background(), baseOpts())
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "API key is required")
 	})
@@ -800,7 +683,7 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.Contains(t, cQuery, "order=desc")
 	})
 
-	t.Run("returns multiple memberships and deserializes response", func(t *testing.T) {
+	t.Run("returns multiple memberships", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listMembershipsExtServer(&cPath, &cQuery, twoItemResponse)
 		defer server.Close()
@@ -834,21 +717,6 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.Contains(t, cQuery, "order=desc")
 	})
 
-	t.Run("applies default order when none specified", func(t *testing.T) {
-		var cPath, cQuery string
-		server := listMembershipsExtServer(&cPath, &cQuery, singleItemResponse)
-		defer server.Close()
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), baseOpts())
-
-		require.NoError(t, err)
-		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
-		require.Contains(t, cQuery, "limit=10")
-		require.Contains(t, cQuery, "order=desc")
-		require.Equal(t, expectedPath, cPath)
-	})
-
 	t.Run("passes order desc", func(t *testing.T) {
 		var cPath, cQuery string
 		server := listMembershipsExtServer(&cPath, &cQuery, singleItemResponse)
@@ -880,21 +748,6 @@ func TestListMembershipsForResourceByExternalId(t *testing.T) {
 		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
 		require.Contains(t, cQuery, "limit=10")
 		require.Contains(t, cQuery, "order=asc")
-		require.Equal(t, expectedPath, cPath)
-	})
-
-	t.Run("applies default limit when none specified", func(t *testing.T) {
-		var cPath, cQuery string
-		server := listMembershipsExtServer(&cPath, &cQuery, singleItemResponse)
-		defer server.Close()
-		client := newAuthorizationTestClient(server)
-
-		_, err := client.ListMembershipsForResourceByExternalId(context.Background(), baseOpts())
-
-		require.NoError(t, err)
-		require.Contains(t, cQuery, "permission_slug=read%3Adocument")
-		require.Contains(t, cQuery, "limit=10")
-		require.Contains(t, cQuery, "order=desc")
 		require.Equal(t, expectedPath, cPath)
 	})
 
@@ -1021,5 +874,60 @@ func newAuthorizationTestClient(server *httptest.Server) *Client {
 		APIKey:     "test",
 		Endpoint:   server.URL,
 		HTTPClient: &retryablehttp.HttpClient{Client: *server.Client()},
+	}
+}
+
+func jsonResponseHandler(
+	capturedBody *map[string]interface{},
+	capturedPath *string,
+	response interface{},
+) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if capturedPath != nil {
+			*capturedPath = r.URL.Path
+		}
+
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		if capturedBody != nil {
+			if err := json.NewDecoder(r.Body).Decode(capturedBody); err != nil {
+				http.Error(w, "failed to decode body", http.StatusBadRequest)
+				return
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(response)
+	}
+}
+
+func noContentHandler(
+	capturedBody *map[string]interface{},
+	capturedPath *string,
+) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if capturedPath != nil {
+			*capturedPath = r.URL.Path
+		}
+
+		auth := r.Header.Get("Authorization")
+		if auth != "Bearer test" {
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+
+		if capturedBody != nil {
+			if err := json.NewDecoder(r.Body).Decode(capturedBody); err != nil {
+				http.Error(w, "failed to decode body", http.StatusBadRequest)
+				return
+			}
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
