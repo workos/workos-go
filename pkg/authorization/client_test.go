@@ -37,7 +37,6 @@ func TestCreateOrganizationRole(t *testing.T) {
 			*capturedPath = r.URL.Path
 			*capturedMethod = r.Method
 
-	
 			auth := r.Header.Get("Authorization")
 			if auth != "Bearer test" {
 				http.Error(w, "bad auth", http.StatusUnauthorized)
