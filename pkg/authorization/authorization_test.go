@@ -177,7 +177,7 @@ func TestAuthorizationStubMethodsDelegateNotImplementedError(t *testing.T) {
 	newName := "Updated"
 
 	tests := []struct {
-		name    string
+		name   string
 		callFn func(ctx context.Context) error
 	}{
 		// Environment Roles
