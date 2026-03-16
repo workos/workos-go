@@ -17,7 +17,19 @@ func TestSetAPIKey(t *testing.T) {
 }
 
 func TestAuthorizationGetResourceByExternalId(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getResourceByExternalIdTestHandler))
+	response := AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "rsrc_01H945H0YD4F97JN3MNHBFPG37",
+		ExternalId:       "my-document-1",
+		Name:             "My Document",
+		Description:      "A test document",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_01H945H0YD4F97JN3MNHBFPG37",
+		CreatedAt:        "2024-01-01T00:00:00.000Z",
+		UpdatedAt:        "2024-01-01T00:00:00.000Z",
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(nil, nil, response)))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -37,7 +49,21 @@ func TestAuthorizationGetResourceByExternalId(t *testing.T) {
 }
 
 func TestAuthorizationUpdateResourceByExternalId(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(updateResourceByExternalIdTestHandler))
+	var capturedBody map[string]interface{}
+
+	response := AuthorizationResource{
+		Object:           "authorization_resource",
+		Id:               "rsrc_01H945H0YD4F97JN3MNHBFPG37",
+		ExternalId:       "my-document-1",
+		Name:             "Updated Document",
+		Description:      "Updated description",
+		ResourceTypeSlug: "document",
+		OrganizationId:   "org_01H945H0YD4F97JN3MNHBFPG37",
+		CreatedAt:        "2024-01-01T00:00:00.000Z",
+		UpdatedAt:        "2024-01-02T00:00:00.000Z",
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(jsonResponseHandler(&capturedBody, nil, response)))
 	defer server.Close()
 
 	DefaultClient = &Client{
@@ -60,7 +86,7 @@ func TestAuthorizationUpdateResourceByExternalId(t *testing.T) {
 }
 
 func TestAuthorizationDeleteResourceByExternalId(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(deleteResourceByExternalIdTestHandler))
+	server := httptest.NewServer(http.HandlerFunc(noContentHandler(nil, nil)))
 	defer server.Close()
 
 	DefaultClient = &Client{

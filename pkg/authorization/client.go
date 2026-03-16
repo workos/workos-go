@@ -378,7 +378,7 @@ type CreateAuthorizationResourceOpts struct {
 type UpdateAuthorizationResourceOpts struct {
 	ResourceId  string  `json:"-"`
 	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
@@ -409,14 +409,12 @@ type GetResourceByExternalIdOpts struct {
 }
 
 // UpdateResourceByExternalIdOpts contains the options for updating a resource by external Id.
-// Name uses omitempty so nil omits the field; Description omits omitempty so nil serializes
-// as JSON null, allowing the caller to explicitly clear the description.
 type UpdateResourceByExternalIdOpts struct {
 	OrganizationId   string  `json:"-"`
 	ResourceTypeSlug string  `json:"-"`
 	ExternalId       string  `json:"-"`
 	Name             *string `json:"name,omitempty"`
-	Description      *string `json:"description"`
+	Description      *string `json:"description,omitempty"`
 }
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
