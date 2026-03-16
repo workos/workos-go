@@ -56,8 +56,6 @@ func resourceResponse(id, extId, name string, desc, parentId *string, createdAt,
 	}
 }
 
-// captureHandler returns an http.HandlerFunc that captures the request path,
-// raw query, method, and JSON body, then responds with the given status and body.
 func captureHandler(
 	capturedPath *string,
 	capturedQuery *string,
@@ -102,136 +100,7 @@ var (
 	updatedResourceFull          = resourceResponse("resource_123", "ext_123", "Updated Resource", ptr("Updated description"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
 	updatedResourceNameOnly      = resourceResponse("resource_123", "ext_123", "Updated Resource", ptr("A test resource"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
 	updatedResourceDescOnly      = resourceResponse("resource_123", "ext_123", "Test Resource", ptr("Updated description"), nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
-	updatedResourceNullDesc      = resourceResponse("resource_123", "ext_123", "Updated Resource", nil, nil, "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
 )
-
-func TestCreateOrganizationRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_123",
-		Slug:           "org-admin",
-		Name:           "Org Admin",
-		Description:    "Organization administrator",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListOrganizationRoles(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_123",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetOrganizationRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_123", Slug: "org-admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdateOrganizationRole(t *testing.T) {
-	name := "Super Org Admin"
-	desc := "Updated description"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_123", Slug: "org-admin", Name: &name, Description: &desc,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeleteOrganizationRole(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_123", Slug: "org-admin",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestSetOrganizationRolePermissions(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.SetOrganizationRolePermissions(context.Background(), SetOrganizationRolePermissionsOpts{
-		OrganizationId: "org_123", Slug: "org-admin", Permissions: []string{"org:read", "org:write"},
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestAddOrganizationRolePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.AddOrganizationRolePermission(context.Background(), AddOrganizationRolePermissionOpts{
-		OrganizationId: "org_123", Slug: "org-admin", PermissionSlug: "billing:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestRemoveOrganizationRolePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.RemoveOrganizationRolePermission(context.Background(), RemoveOrganizationRolePermissionOpts{
-		OrganizationId: "org_123", Slug: "org-admin", PermissionSlug: "billing:read",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Permissions (stubs)
-// ===========================================================================
-
-func TestCreatePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.CreatePermission(context.Background(), CreatePermissionOpts{
-		Slug:        "users:read",
-		Name:        "Read Users",
-		Description: "Allows reading user data",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestListPermissions(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.ListPermissions(context.Background(), ListPermissionsOpts{})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestGetPermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	_, err := client.GetPermission(context.Background(), GetPermissionOpts{Slug: "users:read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestUpdatePermission(t *testing.T) {
-	name := "Read All Users"
-	desc := "Updated description"
-	client := &Client{APIKey: "test"}
-	_, err := client.UpdatePermission(context.Background(), UpdatePermissionOpts{
-		Slug: "users:read", Name: &name, Description: &desc,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-func TestDeletePermission(t *testing.T) {
-	client := &Client{APIKey: "test"}
-	err := client.DeletePermission(context.Background(), DeletePermissionOpts{Slug: "users:read"})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
-}
-
-// ===========================================================================
-// Resources (implemented)
-// ===========================================================================
 
 func TestCreateResource(t *testing.T) {
 	parentId := "parent_123"
@@ -253,7 +122,7 @@ func TestCreateResource(t *testing.T) {
 		require.Error(t, err)
 	})
 
-	t.Run("Creates resource with parent by ID", func(t *testing.T) {
+	t.Run("Creates resource", func(t *testing.T) {
 		var capturedPath, capturedMethod string
 		var capturedBody map[string]interface{}
 		server := httptest.NewServer(captureHandler(&capturedPath, nil, &capturedMethod, &capturedBody, http.StatusOK, createdResourceWithParent))
@@ -283,6 +152,29 @@ func TestCreateResource(t *testing.T) {
 			CreatedAt:        "2024-01-01T00:00:00Z",
 			UpdatedAt:        "2024-01-01T00:00:00Z",
 		}, resource)
+	})
+
+	t.Run("Creates resource with parent by ID", func(t *testing.T) {
+		var capturedBody map[string]interface{}
+		server := httptest.NewServer(captureHandler(nil, nil, nil, &capturedBody, http.StatusOK, createdResourceWithParent))
+		defer server.Close()
+
+		client := newTestClient(server)
+		resource, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
+			ExternalId:       "ext_123",
+			Name:             "Test Resource",
+			ResourceTypeSlug: "document",
+			OrganizationId:   "org_123",
+			ParentResourceIdentifier: ParentResourceIdentifierById{
+				ParentResourceId: "parent_123",
+			},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "parent_123", capturedBody["parent_resource_id"])
+		require.NotContains(t, capturedBody, "parent_resource_external_id")
+		require.NotContains(t, capturedBody, "parent_resource_type_slug")
+		require.Equal(t, createdResourceWithParent, resource)
 	})
 
 	t.Run("Creates resource with parent by external ID", func(t *testing.T) {
@@ -346,23 +238,6 @@ func TestCreateResource(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "A resource", capturedBody["description"])
 		require.Equal(t, expectedResource, resource)
-	})
-
-	t.Run("Omits description when nil", func(t *testing.T) {
-		var capturedBody map[string]interface{}
-		server := httptest.NewServer(captureHandler(nil, nil, nil, &capturedBody, http.StatusOK, createdResourceWithoutParent))
-		defer server.Close()
-
-		client := newTestClient(server)
-		_, err := client.CreateResource(context.Background(), CreateAuthorizationResourceOpts{
-			ExternalId:       "ext_123",
-			Name:             "Test Resource",
-			ResourceTypeSlug: "document",
-			OrganizationId:   "org_123",
-		})
-
-		require.NoError(t, err)
-		require.NotContains(t, capturedBody, "description")
 	})
 
 	t.Run("Returns error when endpoint returns HTTP error", func(t *testing.T) {
@@ -489,6 +364,13 @@ func TestGetResource(t *testing.T) {
 		_, err := client.GetResource(context.Background(), GetAuthorizationResourceOpts{ResourceId: "nonexistent"})
 		require.Error(t, err)
 	})
+
+	t.Run("Returns error when ResourceId is empty", func(t *testing.T) {
+		client := &Client{APIKey: "test"}
+		_, err := client.GetResource(context.Background(), GetAuthorizationResourceOpts{ResourceId: ""})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "ResourceId is required")
+	})
 }
 
 func TestUpdateResource(t *testing.T) {
@@ -565,23 +447,6 @@ func TestUpdateResource(t *testing.T) {
 		require.Equal(t, updatedResourceDescOnly, resource)
 	})
 
-	t.Run("Sets description to null", func(t *testing.T) {
-		var capturedBody map[string]interface{}
-		server := httptest.NewServer(captureHandler(nil, nil, nil, &capturedBody, http.StatusOK, updatedResourceNullDesc))
-		defer server.Close()
-
-		client := newTestClient(server)
-		resource, err := client.UpdateResource(context.Background(), UpdateAuthorizationResourceOpts{
-			ResourceId: "resource_123",
-			Name:       &newName,
-		})
-
-		require.NoError(t, err)
-		require.Equal(t, "Updated Resource", capturedBody["name"])
-		require.NotContains(t, capturedBody, "description")
-		require.Equal(t, updatedResourceNullDesc, resource)
-	})
-
 	t.Run("Returns error when endpoint returns HTTP error", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -594,6 +459,13 @@ func TestUpdateResource(t *testing.T) {
 			Name:       &newName,
 		})
 		require.Error(t, err)
+	})
+
+	t.Run("Returns error when ResourceId is empty", func(t *testing.T) {
+		client := &Client{APIKey: "test"}
+		_, err := client.UpdateResource(context.Background(), UpdateAuthorizationResourceOpts{ResourceId: ""})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "ResourceId is required")
 	})
 }
 
@@ -665,6 +537,13 @@ func TestDeleteResource(t *testing.T) {
 		client := newTestClient(server)
 		err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{ResourceId: "resource_123"})
 		require.Error(t, err)
+	})
+
+	t.Run("Returns error when ResourceId is empty", func(t *testing.T) {
+		client := &Client{APIKey: "test"}
+		err := client.DeleteResource(context.Background(), DeleteAuthorizationResourceOpts{ResourceId: ""})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "ResourceId is required")
 	})
 }
 

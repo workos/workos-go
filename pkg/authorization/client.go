@@ -391,8 +391,8 @@ type CreateAuthorizationResourceOpts struct {
 // UpdateAuthorizationResourceOpts contains the options for updating a resource.
 type UpdateAuthorizationResourceOpts struct {
 	ResourceId  string  `json:"-"`
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Name        *string `json:"-"`
+	Description *string `json:"-"`
 }
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
@@ -427,8 +427,8 @@ type UpdateResourceByExternalIdOpts struct {
 	OrganizationId   string  `json:"-"`
 	ResourceTypeSlug string  `json:"-"`
 	ExternalId       string  `json:"-"`
-	Name             *string `json:"name,omitempty"`
-	Description      *string `json:"description,omitempty"`
+	Name             *string `json:"-"`
+	Description      *string `json:"-"`
 }
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
@@ -681,6 +681,10 @@ func (c *Client) CreateResource(ctx context.Context, opts CreateAuthorizationRes
 func (c *Client) GetResource(ctx context.Context, opts GetAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
 
+	if opts.ResourceId == "" {
+		return AuthorizationResource{}, errors.New("ResourceId is required")
+	}
+
 	endpoint := fmt.Sprintf("%s/%s/%s", c.Endpoint, authorizationResourcesPath, opts.ResourceId)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -712,9 +716,21 @@ func (c *Client) GetResource(ctx context.Context, opts GetAuthorizationResourceO
 func (c *Client) UpdateResource(ctx context.Context, opts UpdateAuthorizationResourceOpts) (AuthorizationResource, error) {
 	c.once.Do(c.init)
 
+	if opts.ResourceId == "" {
+		return AuthorizationResource{}, errors.New("ResourceId is required")
+	}
+
 	endpoint := fmt.Sprintf("%s/%s/%s", c.Endpoint, authorizationResourcesPath, opts.ResourceId)
 
-	data, err := c.JSONEncode(opts)
+	body := map[string]interface{}{}
+	if opts.Name != nil {
+		body["name"] = *opts.Name
+	}
+	if opts.Description != nil {
+		body["description"] = *opts.Description
+	}
+
+	data, err := c.JSONEncode(body)
 	if err != nil {
 		return AuthorizationResource{}, err
 	}
@@ -747,6 +763,10 @@ func (c *Client) UpdateResource(ctx context.Context, opts UpdateAuthorizationRes
 // DeleteResource deletes a resource.
 func (c *Client) DeleteResource(ctx context.Context, opts DeleteAuthorizationResourceOpts) error {
 	c.once.Do(c.init)
+
+	if opts.ResourceId == "" {
+		return errors.New("ResourceId is required")
+	}
 
 	endpoint := fmt.Sprintf("%s/%s/%s", c.Endpoint, authorizationResourcesPath, opts.ResourceId)
 
