@@ -271,7 +271,7 @@ type GetEnvironmentRoleOpts struct {
 type UpdateEnvironmentRoleOpts struct {
 	Slug        string  `json:"-"`
 	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 // CreateOrganizationRoleOpts contains the options for creating an organization role.
@@ -298,7 +298,7 @@ type UpdateOrganizationRoleOpts struct {
 	OrganizationId string  `json:"-"`
 	Slug           string  `json:"-"`
 	Name           *string `json:"name,omitempty"`
-	Description    *string `json:"description"`
+	Description    *string `json:"description,omitempty"`
 }
 
 // DeleteOrganizationRoleOpts contains the options for deleting an organization role.
@@ -365,7 +365,7 @@ type GetPermissionOpts struct {
 type UpdatePermissionOpts struct {
 	Slug        string  `json:"-"`
 	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 // DeletePermissionOpts contains the options for deleting a permission.
@@ -392,7 +392,7 @@ type CreateAuthorizationResourceOpts struct {
 type UpdateAuthorizationResourceOpts struct {
 	ResourceId  string  `json:"-"`
 	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 // DeleteAuthorizationResourceOpts contains the options for deleting a resource.
@@ -428,7 +428,7 @@ type UpdateResourceByExternalIdOpts struct {
 	ResourceTypeSlug string  `json:"-"`
 	ExternalId       string  `json:"-"`
 	Name             *string `json:"name,omitempty"`
-	Description      *string `json:"description"`
+	Description      *string `json:"description,omitempty"`
 }
 
 // DeleteResourceByExternalIdOpts contains the options for deleting a resource by external Id.
