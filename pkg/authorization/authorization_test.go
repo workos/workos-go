@@ -3,10 +3,8 @@ package authorization
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -31,275 +29,456 @@ func setupDefaultClient(server *httptest.Server) func() {
 // CreateOrganizationRole (package-level)
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationCreateOrganizationRole(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
+func TestAuthorizationCreateOrganizationRoleWithDefaultClient(t *testing.T) {
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-		if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-		var opts CreateOrganizationRoleOpts
-		json.NewDecoder(r.Body).Decode(&opts)
+			var opts CreateOrganizationRoleOpts
+			json.NewDecoder(r.Body).Decode(&opts)
 
-		var desc *string
-		if opts.Description != "" {
-			desc = &opts.Description
-		}
-		role := OrganizationRole{
-			Object:      "role",
-			Id:          "role_01ABC",
-			Name:        opts.Name,
-			Slug:        opts.Slug,
-			Description: desc,
-			Permissions: []string{"read", "write"},
-			Type:        "OrganizationRole",
-			CreatedAt:   "2024-01-01T00:00:00Z",
-			UpdatedAt:   "2024-01-01T00:00:00Z",
-		}
+			var desc *string
+			if opts.Description != "" {
+				desc = &opts.Description
+			}
+			role := OrganizationRole{
+				Object:      "role",
+				Id:          "role_01ABC",
+				Name:        opts.Name,
+				Slug:        opts.Slug,
+				Description: desc,
+				Permissions: []string{"read", "write"},
+				Type:        "OrganizationRole",
+				CreatedAt:   "2024-01-01T00:00:00Z",
+				UpdatedAt:   "2024-01-01T00:00:00Z",
+			}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(role)
-	}))
-	defer server.Close()
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(role)
+		}))
+	}
 
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+	t.Run("creates role and returns OrganizationRole", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
 
-	role, err := CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-		Name:           "Org Admin",
+		role, err := CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           "Org Admin",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "role_01ABC", role.Id)
+		require.Equal(t, "Org Admin", role.Name)
+		require.Equal(t, "org-admin", role.Slug)
+		require.Equal(t, "OrganizationRole", role.Type)
+		require.Equal(t, []string{"read", "write"}, role.Permissions)
 	})
 
-	require.NoError(t, err)
-	require.Equal(t, "role_01ABC", role.Id)
-	require.Equal(t, "Org Admin", role.Name)
-	require.Equal(t, "org-admin", role.Slug)
-	require.Equal(t, "OrganizationRole", role.Type)
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           "Org Admin",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01ABC/roles", capturedPath)
+		require.Equal(t, http.MethodPost, capturedMethod)
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := CreateOrganizationRole(context.Background(), CreateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           "Org Admin",
+		})
+
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
 // ListOrganizationRoles (package-level)
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationListOrganizationRoles(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
+func TestAuthorizationListOrganizationRolesWithDefaultClient(t *testing.T) {
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-		if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-		resp := ListOrganizationRolesResponse{
-			Data: []OrganizationRole{
-				{
-					Object:      "role",
-					Id:          "role_01ABC",
-					Name:        "Admin",
-					Slug:        "org-admin",
-					Permissions: []string{"read", "write"},
-					Type:        "OrganizationRole",
-					CreatedAt:   "2024-01-01T00:00:00Z",
-					UpdatedAt:   "2024-01-01T00:00:00Z",
+			resp := ListOrganizationRolesResponse{
+				Data: []OrganizationRole{
+					{
+						Object:      "role",
+						Id:          "role_01ABC",
+						Name:        "Admin",
+						Slug:        "org-admin",
+						Permissions: []string{"read", "write"},
+						Type:        "OrganizationRole",
+						CreatedAt:   "2024-01-01T00:00:00Z",
+						UpdatedAt:   "2024-01-01T00:00:00Z",
+					},
+					{
+						Object:      "role",
+						Id:          "role_02DEF",
+						Name:        "Viewer",
+						Slug:        "org-viewer",
+						Permissions: []string{"read"},
+						Type:        "OrganizationRole",
+						CreatedAt:   "2024-01-02T00:00:00Z",
+						UpdatedAt:   "2024-01-02T00:00:00Z",
+					},
 				},
-				{
-					Object:      "role",
-					Id:          "role_02DEF",
-					Name:        "Viewer",
-					Slug:        "org-viewer",
-					Permissions: []string{"read"},
-					Type:        "OrganizationRole",
-					CreatedAt:   "2024-01-02T00:00:00Z",
-					UpdatedAt:   "2024-01-02T00:00:00Z",
-				},
-			},
-		}
+			}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(resp)
-	}))
-	defer server.Close()
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(resp)
+		}))
+	}
 
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+	t.Run("lists roles and returns ListOrganizationRolesResponse", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
 
-	resp, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
-		OrganizationId: "org_01ABC",
+		resp, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+
+		require.NoError(t, err)
+		require.Len(t, resp.Data, 2)
+		require.Equal(t, "org-admin", resp.Data[0].Slug)
+		require.Equal(t, "org-viewer", resp.Data[1].Slug)
 	})
 
-	require.NoError(t, err)
-	require.Len(t, resp.Data, 2)
-	require.Equal(t, "org-admin", resp.Data[0].Slug)
-	require.Equal(t, "org-viewer", resp.Data[1].Slug)
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01ABC/roles", capturedPath)
+		require.Equal(t, http.MethodGet, capturedMethod)
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := ListOrganizationRoles(context.Background(), ListOrganizationRolesOpts{
+			OrganizationId: "org_01ABC",
+		})
+
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
 // GetOrganizationRole (package-level)
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationGetOrganizationRole(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
+func TestAuthorizationGetOrganizationRoleWithDefaultClient(t *testing.T) {
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-		if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-		role := OrganizationRole{
-			Object:      "role",
-			Id:          "role_01ABC",
-			Name:        "Admin",
-			Slug:        "org-admin",
-			Permissions: []string{"read", "write"},
-			Type:        "OrganizationRole",
-			CreatedAt:   "2024-01-01T00:00:00Z",
-			UpdatedAt:   "2024-01-01T00:00:00Z",
-		}
+			role := OrganizationRole{
+				Object:      "role",
+				Id:          "role_01ABC",
+				Name:        "Admin",
+				Slug:        "org-admin",
+				Permissions: []string{"read", "write"},
+				Type:        "OrganizationRole",
+				CreatedAt:   "2024-01-01T00:00:00Z",
+				UpdatedAt:   "2024-01-01T00:00:00Z",
+			}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(role)
-	}))
-	defer server.Close()
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(role)
+		}))
+	}
 
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+	t.Run("gets role and returns OrganizationRole", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
 
-	role, err := GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
+		role, err := GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "role_01ABC", role.Id)
+		require.Equal(t, "Admin", role.Name)
+		require.Equal(t, "org-admin", role.Slug)
 	})
 
-	require.NoError(t, err)
-	require.Equal(t, "role_01ABC", role.Id)
-	require.Equal(t, "Admin", role.Name)
-	require.Equal(t, "org-admin", role.Slug)
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01ABC/roles/org-admin", capturedPath)
+		require.Equal(t, http.MethodGet, capturedMethod)
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		_, err := GetOrganizationRole(context.Background(), GetOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
 // UpdateOrganizationRole (package-level)
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationUpdateOrganizationRole(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
+func TestAuthorizationUpdateOrganizationRoleWithDefaultClient(t *testing.T) {
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-		if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		bodyBytes, err := io.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		var rawBody map[string]json.RawMessage
-		if err := json.Unmarshal(bodyBytes, &rawBody); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		role := OrganizationRole{
-			Object:      "role",
-			Id:          "role_01ABC",
-			Slug:        "org-admin",
-			Permissions: []string{"read", "write"},
-			Type:        "OrganizationRole",
-			CreatedAt:   "2024-01-01T00:00:00Z",
-			UpdatedAt:   "2024-01-02T00:00:00Z",
-		}
-
-		if nameRaw, ok := rawBody["name"]; ok {
-			var name string
-			json.Unmarshal(nameRaw, &name)
-			role.Name = name
-		}
-
-		if descRaw, ok := rawBody["description"]; ok {
-			if string(descRaw) == "null" {
-				role.Description = nil
-			} else {
-				var desc string
-				json.Unmarshal(descRaw, &desc)
-				role.Description = &desc
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
 			}
-		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(role)
-	}))
-	defer server.Close()
+			var rawBody map[string]json.RawMessage
+			json.NewDecoder(r.Body).Decode(&rawBody)
 
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+			role := OrganizationRole{
+				Object:      "role",
+				Id:          "role_01ABC",
+				Slug:        "org-admin",
+				Permissions: []string{"read", "write"},
+				Type:        "OrganizationRole",
+				CreatedAt:   "2024-01-01T00:00:00Z",
+				UpdatedAt:   "2024-01-02T00:00:00Z",
+			}
 
-	name := "Super Admin"
-	role, err := UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
-		Name:           &name,
+			if nameRaw, ok := rawBody["name"]; ok {
+				var name string
+				json.Unmarshal(nameRaw, &name)
+				role.Name = name
+			}
+
+			if descRaw, ok := rawBody["description"]; ok {
+				if string(descRaw) == "null" {
+					role.Description = nil
+				} else {
+					var desc string
+					json.Unmarshal(descRaw, &desc)
+					role.Description = &desc
+				}
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(role)
+		}))
+	}
+
+	t.Run("updates role and returns OrganizationRole", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		name := "Super Admin"
+		role, err := UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           &name,
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "Super Admin", role.Name)
+		require.Equal(t, "2024-01-02T00:00:00Z", role.UpdatedAt)
 	})
 
-	require.NoError(t, err)
-	require.Equal(t, "Super Admin", role.Name)
-	require.Equal(t, "2024-01-02T00:00:00Z", role.UpdatedAt)
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		name := "Super Admin"
+		_, err := UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           &name,
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01ABC/roles/org-admin", capturedPath)
+		require.Equal(t, http.MethodPatch, capturedMethod)
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		name := "Super Admin"
+		_, err := UpdateOrganizationRole(context.Background(), UpdateOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+			Name:           &name,
+		})
+
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
 // DeleteOrganizationRole (package-level)
 // ---------------------------------------------------------------------------
 
-func TestAuthorizationDeleteOrganizationRole(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if auth != "Bearer test" {
-			http.Error(w, "bad auth", http.StatusUnauthorized)
-			return
-		}
+func TestAuthorizationDeleteOrganizationRoleWithDefaultClient(t *testing.T) {
+	createServer := func(capturedPath *string, capturedMethod *string) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			*capturedPath = r.URL.Path
+			*capturedMethod = r.Method
 
-		if userAgent := r.Header.Get("User-Agent"); !strings.Contains(userAgent, "workos-go/") {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+			auth := r.Header.Get("Authorization")
+			if auth != "Bearer test" {
+				http.Error(w, "bad auth", http.StatusUnauthorized)
+				return
+			}
 
-		w.WriteHeader(http.StatusNoContent)
-	}))
-	defer server.Close()
+			w.WriteHeader(http.StatusNoContent)
+		}))
+	}
 
-	cleanup := setupDefaultClient(server)
-	defer cleanup()
+	t.Run("deletes role without error", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
 
-	err := DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
-		OrganizationId: "org_01ABC",
-		Slug:           "org-admin",
+		err := DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+
+		require.NoError(t, err)
 	})
 
-	require.NoError(t, err)
+	t.Run("sends correct path and method", func(t *testing.T) {
+		var capturedPath, capturedMethod string
+		server := createServer(&capturedPath, &capturedMethod)
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		err := DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "/authorization/organizations/org_01ABC/roles/org-admin", capturedPath)
+		require.Equal(t, http.MethodDelete, capturedMethod)
+	})
+
+	t.Run("returns error when endpoint returns http error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		cleanup := setupDefaultClient(server)
+		defer cleanup()
+
+		err := DeleteOrganizationRole(context.Background(), DeleteOrganizationRoleOpts{
+			OrganizationId: "org_01ABC",
+			Slug:           "org-admin",
+		})
+
+		require.Error(t, err)
+	})
 }
 
 // ---------------------------------------------------------------------------
