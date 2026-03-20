@@ -213,10 +213,10 @@ type UpdateOrganizationOpts struct {
 	// Domains of the Organization.
 	//
 	// Deprecated:  Use DomainData instead.
-	Domains []string `json:"domains,omitempty"`
+	Domains []string `json:"domains"`
 
 	// Domains of the Organization.
-	DomainData []OrganizationDomainData `json:"domain_data,omitempty"`
+	DomainData []OrganizationDomainData `json:"domain_data"`
 
 	// The Organization's external id.
 	ExternalID string `json:"external_id,omitempty"`
