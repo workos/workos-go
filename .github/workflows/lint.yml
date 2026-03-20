@@ -1,4 +1,4 @@
-name: CI
+name: Lint
 
 on:
   push:
@@ -11,22 +11,16 @@ defaults:
     shell: bash
 
 jobs:
-  test:
-    name: Test Go ${{ matrix.go }}
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go:
-          - 'stable'
-          - 'oldstable'
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: actions/setup-go@7b8cf10d4e4a01d4992d18a89f4d7dc5a3e6d6f4 # v4.3.0
         with:
-          go-version: ${{ matrix.go }}
+          go-version: 'stable'
 
-      - name: Run Tests
+      - name: Check formatting
         run: |
-          go mod download
-          go test -v ./...
-
+          gofmt -d ./
+          git diff --exit-code
