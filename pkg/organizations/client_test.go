@@ -624,6 +624,87 @@ func TestUpdateOrganization(t *testing.T) {
 	}
 }
 
+func TestUpdateOrganizationOptsMarshalJSON(t *testing.T) {
+	tests := []struct {
+		scenario    string
+		opts        UpdateOrganizationOpts
+		shouldExist map[string]bool
+		wantValue   map[string]string
+	}{
+		{
+			scenario: "nil Domains and DomainData are omitted",
+			opts: UpdateOrganizationOpts{
+				Name: "Foo Corp",
+			},
+			shouldExist: map[string]bool{
+				"domains":     false,
+				"domain_data": false,
+				"name":        true,
+			},
+		},
+		{
+			scenario: "empty Domains slice serializes as empty array",
+			opts: UpdateOrganizationOpts{
+				Name:    "Foo Corp",
+				Domains: []string{},
+			},
+			shouldExist: map[string]bool{
+				"domains": true,
+				"name":    true,
+			},
+			wantValue: map[string]string{
+				"domains": "[]",
+			},
+		},
+		{
+			scenario: "empty DomainData slice serializes as empty array",
+			opts: UpdateOrganizationOpts{
+				Name:       "Foo Corp",
+				DomainData: []OrganizationDomainData{},
+			},
+			shouldExist: map[string]bool{
+				"domain_data": true,
+				"name":        true,
+			},
+			wantValue: map[string]string{
+				"domain_data": "[]",
+			},
+		},
+		{
+			scenario: "populated Domains serializes normally",
+			opts: UpdateOrganizationOpts{
+				Name:    "Foo Corp",
+				Domains: []string{"foo.com"},
+			},
+			shouldExist: map[string]bool{
+				"domains": true,
+			},
+			wantValue: map[string]string{
+				"domains": `["foo.com"]`,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.scenario, func(t *testing.T) {
+			data, err := json.Marshal(test.opts)
+			require.NoError(t, err)
+
+			var raw map[string]json.RawMessage
+			require.NoError(t, json.Unmarshal(data, &raw))
+
+			for key, shouldExist := range test.shouldExist {
+				_, exists := raw[key]
+				require.Equal(t, shouldExist, exists, "key %q existence mismatch", key)
+			}
+
+			for key, want := range test.wantValue {
+				require.JSONEq(t, want, string(raw[key]), "key %q value mismatch", key)
+			}
+		})
+	}
+}
+
 func updateOrganizationTestHandler(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	if auth != "Bearer test" {
