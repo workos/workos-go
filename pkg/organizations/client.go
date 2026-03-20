@@ -228,6 +228,38 @@ type UpdateOrganizationOpts struct {
 	Metadata map[string]*string `json:"metadata,omitempty"`
 }
 
+// MarshalJSON implements custom JSON marshaling for UpdateOrganizationOpts.
+// The standard omitempty tag omits both nil and empty slices, making it
+// impossible to send an empty array to clear domains. This marshaler omits
+// Domains and DomainData only when nil, while preserving empty slices as [].
+func (o UpdateOrganizationOpts) MarshalJSON() ([]byte, error) {
+	m := make(map[string]interface{})
+
+	if o.Name != "" {
+		m["name"] = o.Name
+	}
+	if o.AllowProfilesOutsideOrganization {
+		m["allow_profiles_outside_organization"] = o.AllowProfilesOutsideOrganization
+	}
+	if o.Domains != nil {
+		m["domains"] = o.Domains
+	}
+	if o.DomainData != nil {
+		m["domain_data"] = o.DomainData
+	}
+	if o.ExternalID != "" {
+		m["external_id"] = o.ExternalID
+	}
+	if o.StripeCustomerID != "" {
+		m["stripe_customer_id"] = o.StripeCustomerID
+	}
+	if o.Metadata != nil {
+		m["metadata"] = o.Metadata
+	}
+
+	return json.Marshal(m)
+}
+
 // ListOrganizationsOpts contains the options to request Organizations.
 type ListOrganizationRolesOpts struct {
 	// The Organization's unique identifier.
