@@ -12,11 +12,11 @@ type userManagementService struct {
 	client *Client
 }
 
-// GetJwks get JWKS
+// GetJwks getJwks
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
 func (s *userManagementService) GetJwks(ctx context.Context, clientID string, opts ...RequestOption) (*JwksResponse, error) {
 	var result JwksResponse
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", clientID), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", clientID), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -32,18 +32,17 @@ type UserManagementCreateAuthenticateParams struct {
 // Authenticate a user with a specified [authentication method](https://workos.com/docs/reference/authkit/authentication).
 func (s *userManagementService) CreateAuthenticate(ctx context.Context, params *UserManagementCreateAuthenticateParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, params.Body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-
 // AuthenticateWithPasswordParams contains the parameters for AuthenticateWithPassword.
 type AuthenticateWithPasswordParams struct {
-	Email string `json:"email"`
-	Password string `json:"password"`
+	Email           string  `json:"email"`
+	Password        string  `json:"password"`
 	InvitationToken *string `json:"invitation_token,omitempty"`
 }
 
@@ -51,8 +50,8 @@ type AuthenticateWithPasswordParams struct {
 func (s *userManagementService) AuthenticateWithPassword(ctx context.Context, params *AuthenticateWithPasswordParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := map[string]interface{}{
 		"grant_type": "password",
-		"email": params.Email,
-		"password": params.Password,
+		"email":      params.Email,
+		"password":   params.Password,
 	}
 	if s.client.clientID != "" {
 		body["client_id"] = s.client.clientID
@@ -64,7 +63,7 @@ func (s *userManagementService) AuthenticateWithPassword(ctx context.Context, pa
 		body["invitation_token"] = *params.InvitationToken
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +90,7 @@ func (s *userManagementService) AuthenticateWithCode(ctx context.Context, params
 		body["code"] = *params.Code
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -100,14 +99,14 @@ func (s *userManagementService) AuthenticateWithCode(ctx context.Context, params
 
 // AuthenticateWithRefreshTokenParams contains the parameters for AuthenticateWithRefreshToken.
 type AuthenticateWithRefreshTokenParams struct {
-	RefreshToken string `json:"refresh_token"`
+	RefreshToken   string  `json:"refresh_token"`
 	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
 // AuthenticateWithRefreshToken Authenticate with refresh token.
 func (s *userManagementService) AuthenticateWithRefreshToken(ctx context.Context, params *AuthenticateWithRefreshTokenParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := map[string]interface{}{
-		"grant_type": "refresh_token",
+		"grant_type":    "refresh_token",
 		"refresh_token": params.RefreshToken,
 	}
 	if s.client.clientID != "" {
@@ -120,7 +119,7 @@ func (s *userManagementService) AuthenticateWithRefreshToken(ctx context.Context
 		body["organization_id"] = *params.OrganizationID
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -129,8 +128,8 @@ func (s *userManagementService) AuthenticateWithRefreshToken(ctx context.Context
 
 // AuthenticateWithMagicAuthParams contains the parameters for AuthenticateWithMagicAuth.
 type AuthenticateWithMagicAuthParams struct {
-	Code *string `json:"code,omitempty"`
-	Email *string `json:"email,omitempty"`
+	Code            *string `json:"code,omitempty"`
+	Email           *string `json:"email,omitempty"`
 	InvitationToken *string `json:"invitation_token,omitempty"`
 }
 
@@ -155,7 +154,7 @@ func (s *userManagementService) AuthenticateWithMagicAuth(ctx context.Context, p
 		body["invitation_token"] = *params.InvitationToken
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +163,7 @@ func (s *userManagementService) AuthenticateWithMagicAuth(ctx context.Context, p
 
 // AuthenticateWithEmailVerificationParams contains the parameters for AuthenticateWithEmailVerification.
 type AuthenticateWithEmailVerificationParams struct {
-	Code *string `json:"code,omitempty"`
+	Code                       *string `json:"code,omitempty"`
 	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
 }
 
@@ -186,7 +185,7 @@ func (s *userManagementService) AuthenticateWithEmailVerification(ctx context.Co
 		body["pending_authentication_token"] = *params.PendingAuthenticationToken
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -195,9 +194,9 @@ func (s *userManagementService) AuthenticateWithEmailVerification(ctx context.Co
 
 // AuthenticateWithTotpParams contains the parameters for AuthenticateWithTotp.
 type AuthenticateWithTotpParams struct {
-	Code *string `json:"code,omitempty"`
+	Code                       *string `json:"code,omitempty"`
 	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
-	AuthenticationChallengeID *string `json:"authentication_challenge_id,omitempty"`
+	AuthenticationChallengeID  *string `json:"authentication_challenge_id,omitempty"`
 }
 
 // AuthenticateWithTotp Authenticate with totp.
@@ -221,7 +220,7 @@ func (s *userManagementService) AuthenticateWithTotp(ctx context.Context, params
 		body["authentication_challenge_id"] = *params.AuthenticationChallengeID
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +230,7 @@ func (s *userManagementService) AuthenticateWithTotp(ctx context.Context, params
 // AuthenticateWithOrganizationSelectionParams contains the parameters for AuthenticateWithOrganizationSelection.
 type AuthenticateWithOrganizationSelectionParams struct {
 	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
-	OrganizationID *string `json:"organization_id,omitempty"`
+	OrganizationID             *string `json:"organization_id,omitempty"`
 }
 
 // AuthenticateWithOrganizationSelection Authenticate with organization selection.
@@ -252,7 +251,7 @@ func (s *userManagementService) AuthenticateWithOrganizationSelection(ctx contex
 		body["organization_id"] = *params.OrganizationID
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -276,36 +275,37 @@ func (s *userManagementService) AuthenticateWithDeviceCode(ctx context.Context, 
 		body["device_code"] = *params.DeviceCode
 	}
 	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
+
 // UserManagementGetAuthorizationURLParams contains the parameters for GetAuthorizationURL.
 type UserManagementGetAuthorizationURLParams struct {
-	CodeChallengeMethod *string `url:"code_challenge_method,omitempty"`
-	CodeChallenge *string `url:"code_challenge,omitempty"`
-	DomainHint *string `url:"domain_hint,omitempty"`
-	ConnectionID *string `url:"connection_id,omitempty"`
-	ProviderQueryParams map[string]string `url:"provider_query_params,omitempty"`
-	ProviderScopes []string `url:"provider_scopes,omitempty"`
-	InvitationToken *string `url:"invitation_token,omitempty"`
-	ScreenHint *UserManagementAuthenticationScreenHint `url:"screen_hint,omitempty"`
-	LoginHint *string `url:"login_hint,omitempty"`
-	Provider *UserManagementAuthenticationProvider `url:"provider,omitempty"`
-	Prompt *string `url:"prompt,omitempty"`
-	State *string `url:"state,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
-	ResponseType string `url:"response_type"`
-	RedirectUri string `url:"redirect_uri"`
-	ClientID string `url:"client_id"`
+	CodeChallengeMethod *string                                 `url:"code_challenge_method,omitempty" json:"-"`
+	CodeChallenge       *string                                 `url:"code_challenge,omitempty" json:"-"`
+	DomainHint          *string                                 `url:"domain_hint,omitempty" json:"-"`
+	ConnectionID        *string                                 `url:"connection_id,omitempty" json:"-"`
+	ProviderQueryParams map[string]string                       `url:"provider_query_params,omitempty" json:"-"`
+	ProviderScopes      []string                                `url:"provider_scopes,omitempty" json:"-"`
+	InvitationToken     *string                                 `url:"invitation_token,omitempty" json:"-"`
+	ScreenHint          *UserManagementAuthenticationScreenHint `url:"screen_hint,omitempty" json:"-"`
+	LoginHint           *string                                 `url:"login_hint,omitempty" json:"-"`
+	Provider            *UserManagementAuthenticationProvider   `url:"provider,omitempty" json:"-"`
+	Prompt              *string                                 `url:"prompt,omitempty" json:"-"`
+	State               *string                                 `url:"state,omitempty" json:"-"`
+	OrganizationID      *string                                 `url:"organization_id,omitempty" json:"-"`
+	ResponseType        string                                  `url:"response_type" json:"-"`
+	RedirectURI         string                                  `url:"redirect_uri" json:"-"`
+	ClientID            string                                  `url:"client_id" json:"-"`
 }
 
-// GetAuthorizationURL get an authorization URL
+// GetAuthorizationURL getAnAuthorizationURL
 // Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
 func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params *UserManagementGetAuthorizationURLParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "GET", "/user_management/authorize", params, nil, opts)
+	_, err := s.client.request(ctx, "GET", "/user_management/authorize", params, nil, nil, opts)
 	return err
 }
 
@@ -314,11 +314,11 @@ type UserManagementCreateDeviceParams struct {
 	ClientID string `json:"client_id"`
 }
 
-// CreateDevice get device authorization URL
+// CreateDevice getDeviceAuthorizationURL
 // Initiates the CLI Auth flow by requesting a device code and verification URLs. This endpoint implements the OAuth 2.0 Device Authorization Flow ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)) and is designed for command-line applications or other devices with limited input capabilities.
 func (s *userManagementService) CreateDevice(ctx context.Context, params *UserManagementCreateDeviceParams, opts ...RequestOption) (*DeviceAuthorizationResponse, error) {
 	var result DeviceAuthorizationResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authorize/device", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/authorize/device", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -327,27 +327,27 @@ func (s *userManagementService) CreateDevice(ctx context.Context, params *UserMa
 
 // UserManagementGetLogoutURLParams contains the parameters for GetLogoutURL.
 type UserManagementGetLogoutURLParams struct {
-	SessionID string `url:"session_id"`
-	ReturnTo *string `url:"return_to,omitempty"`
+	SessionID string  `url:"session_id" json:"-"`
+	ReturnTo  *string `url:"return_to,omitempty" json:"-"`
 }
 
 // GetLogoutURL logout
 // Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
 func (s *userManagementService) GetLogoutURL(ctx context.Context, params *UserManagementGetLogoutURLParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "GET", "/user_management/sessions/logout", params, nil, opts)
+	_, err := s.client.request(ctx, "GET", "/user_management/sessions/logout", params, nil, nil, opts)
 	return err
 }
 
 // UserManagementRevokeSessionParams contains the parameters for RevokeSession.
 type UserManagementRevokeSessionParams struct {
-	SessionID string `json:"session_id"`
-	ReturnTo *string `json:"return_to,omitempty"`
+	SessionID string  `json:"session_id"`
+	ReturnTo  *string `json:"return_to,omitempty"`
 }
 
-// RevokeSession revoke Session
+// RevokeSession revokeSession
 // Revoke a [user session](https://workos.com/docs/reference/authkit/session).
 func (s *userManagementService) RevokeSession(ctx context.Context, params *UserManagementRevokeSessionParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "POST", "/user_management/sessions/revoke", params, nil, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/sessions/revoke", nil, params, nil, opts)
 	return err
 }
 
@@ -356,22 +356,22 @@ type UserManagementCreateCORSOriginsParams struct {
 	Origin string `json:"origin"`
 }
 
-// CreateCORSOrigins create a CORS origin
+// CreateCORSOrigins createACORSOrigin
 // Creates a new CORS origin for the current environment. CORS origins allow browser-based applications to make requests to the WorkOS API.
 func (s *userManagementService) CreateCORSOrigins(ctx context.Context, params *UserManagementCreateCORSOriginsParams, opts ...RequestOption) (*CORSOriginResponse, error) {
 	var result CORSOriginResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/cors_origins", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/cors_origins", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetEmailVerification get an email verification code
+// GetEmailVerification getAnEmailVerificationCode
 // Get the details of an existing email verification code that can be used to send an email to a user for verification.
-func (s *userManagementService) GetEmailVerification(ctx context.Context, iD string, opts ...RequestOption) (*EmailVerification, error) {
+func (s *userManagementService) GetEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*EmailVerification, error) {
 	var result EmailVerification
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/email_verification/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/email_verification/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -383,11 +383,11 @@ type UserManagementCreatePasswordResetParams struct {
 	Email string `json:"email"`
 }
 
-// CreatePasswordReset create a password reset token
+// CreatePasswordReset createAPasswordResetToken
 // Creates a one-time token that can be used to reset a user's password.
 func (s *userManagementService) CreatePasswordReset(ctx context.Context, params *UserManagementCreatePasswordResetParams, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
-	_, err := s.client.request(ctx, "POST", "/user_management/password_reset", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/password_reset", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -396,124 +396,124 @@ func (s *userManagementService) CreatePasswordReset(ctx context.Context, params 
 
 // UserManagementConfirmPasswordResetParams contains the parameters for ConfirmPasswordReset.
 type UserManagementConfirmPasswordResetParams struct {
-	Token string `json:"token"`
+	Token       string `json:"token"`
 	NewPassword string `json:"new_password"`
 }
 
-// ConfirmPasswordReset reset the password
+// ConfirmPasswordReset resetThePassword
 // Sets a new password using the `token` query parameter from the link that the user received. Successfully resetting the password will verify a user's email, if it hasn't been verified yet.
 func (s *userManagementService) ConfirmPasswordReset(ctx context.Context, params *UserManagementConfirmPasswordResetParams, opts ...RequestOption) (*ResetPasswordResponse, error) {
 	var result ResetPasswordResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/password_reset/confirm", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/password_reset/confirm", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetPasswordReset get a password reset token
+// GetPasswordReset getAPasswordResetToken
 // Get the details of an existing password reset token that can be used to reset a user's password.
-func (s *userManagementService) GetPasswordReset(ctx context.Context, iD string, opts ...RequestOption) (*PasswordReset, error) {
+func (s *userManagementService) GetPasswordReset(ctx context.Context, id string, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/password_reset/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/password_reset/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// UserManagementListUsersParams contains the parameters for ListUsers.
-type UserManagementListUsersParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *UserManagementUsersOrder `url:"order,omitempty"`
-	Organization *string `url:"organization,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
-	Email *string `url:"email,omitempty"`
+// UserManagementListParams contains the parameters for List.
+type UserManagementListParams struct {
+	Before         *string                   `url:"before,omitempty" json:"-"`
+	After          *string                   `url:"after,omitempty" json:"-"`
+	Limit          *int                      `url:"limit,omitempty" json:"-"`
+	Order          *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
+	Organization   *string                   `url:"organization,omitempty" json:"-"`
+	OrganizationID *string                   `url:"organization_id,omitempty" json:"-"`
+	Email          *string                   `url:"email,omitempty" json:"-"`
 }
 
-// ListUsers list users
+// List listUsers
 // Get a list of all of your existing users matching the criteria specified.
-func (s *userManagementService) ListUsers(ctx context.Context, params *UserManagementListUsersParams, opts ...RequestOption) *Iterator[User] {
-	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "data", opts)
+func (s *userManagementService) List(ctx context.Context, params *UserManagementListParams, opts ...RequestOption) *Iterator[User] {
+	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "after", "data", opts)
 }
 
-// UserManagementCreateUsersParams contains the parameters for CreateUsers.
-type UserManagementCreateUsersParams struct {
-	Email string `json:"email"`
-	Password *string `json:"password,omitempty"`
-	PasswordHash *string `json:"password_hash,omitempty"`
+// UserManagementCreateParams contains the parameters for Create.
+type UserManagementCreateParams struct {
+	Email            string                      `json:"email"`
+	Password         *string                     `json:"password,omitempty"`
+	PasswordHash     *string                     `json:"password_hash,omitempty"`
 	PasswordHashType *CreateUserPasswordHashType `json:"password_hash_type,omitempty"`
-	FirstName *string `json:"first_name,omitempty"`
-	LastName *string `json:"last_name,omitempty"`
-	EmailVerified *bool `json:"email_verified,omitempty"`
-	Metadata *map[string]string `json:"metadata,omitempty"`
-	ExternalID *string `json:"external_id,omitempty"`
+	FirstName        *string                     `json:"first_name,omitempty"`
+	LastName         *string                     `json:"last_name,omitempty"`
+	EmailVerified    *bool                       `json:"email_verified,omitempty"`
+	Metadata         *map[string]string          `json:"metadata,omitempty"`
+	ExternalID       *string                     `json:"external_id,omitempty"`
 }
 
-// CreateUsers create a user
+// Create createAUser
 // Create a new user in the current environment.
-func (s *userManagementService) CreateUsers(ctx context.Context, params *UserManagementCreateUsersParams, opts ...RequestOption) (*User, error) {
+func (s *userManagementService) Create(ctx context.Context, params *UserManagementCreateParams, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "POST", "/user_management/users", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/users", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetUserByExternalID get a user by external ID
+// GetByExternalID getAUserByExternalID
 // Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
-func (s *userManagementService) GetUserByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*User, error) {
+func (s *userManagementService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/external_id/%s", externalID), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/external_id/%s", externalID), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetUser get a user
+// Get getAUser
 // Get the details of an existing user.
-func (s *userManagementService) GetUser(ctx context.Context, iD string, opts ...RequestOption) (*User, error) {
+func (s *userManagementService) Get(ctx context.Context, id string, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// UserManagementUpdateUserParams contains the parameters for UpdateUser.
-type UserManagementUpdateUserParams struct {
-	Email *string `json:"email,omitempty"`
-	FirstName *string `json:"first_name,omitempty"`
-	LastName *string `json:"last_name,omitempty"`
-	EmailVerified *bool `json:"email_verified,omitempty"`
-	Password *string `json:"password,omitempty"`
-	PasswordHash *string `json:"password_hash,omitempty"`
+// UserManagementUpdateParams contains the parameters for Update.
+type UserManagementUpdateParams struct {
+	Email            *string                     `json:"email,omitempty"`
+	FirstName        *string                     `json:"first_name,omitempty"`
+	LastName         *string                     `json:"last_name,omitempty"`
+	EmailVerified    *bool                       `json:"email_verified,omitempty"`
+	Password         *string                     `json:"password,omitempty"`
+	PasswordHash     *string                     `json:"password_hash,omitempty"`
 	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
-	Metadata *map[string]string `json:"metadata,omitempty"`
-	ExternalID *string `json:"external_id,omitempty"`
-	Locale *string `json:"locale,omitempty"`
+	Metadata         *map[string]string          `json:"metadata,omitempty"`
+	ExternalID       *string                     `json:"external_id,omitempty"`
+	Locale           *string                     `json:"locale,omitempty"`
 }
 
-// UpdateUser update a user
+// Update updateAUser
 // Updates properties of a user. The omitted properties will be left unchanged.
-func (s *userManagementService) UpdateUser(ctx context.Context, iD string, params *UserManagementUpdateUserParams, opts ...RequestOption) (*User, error) {
+func (s *userManagementService) Update(ctx context.Context, id string, params *UserManagementUpdateParams, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteUser delete a user
+// Delete deleteAUser
 // Permanently deletes a user in the current environment. It cannot be undone.
-func (s *userManagementService) DeleteUser(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", iD), nil, nil, opts)
+func (s *userManagementService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", id), nil, nil, nil, opts)
 	return err
 }
 
@@ -522,11 +522,11 @@ type UserManagementConfirmEmailChangeParams struct {
 	Code string `json:"code"`
 }
 
-// ConfirmEmailChange confirm email change
+// ConfirmEmailChange confirmEmailChange
 // Confirms an email change using the one-time code received by the user.
-func (s *userManagementService) ConfirmEmailChange(ctx context.Context, iD string, params *UserManagementConfirmEmailChangeParams, opts ...RequestOption) (*EmailChangeConfirmation, error) {
+func (s *userManagementService) ConfirmEmailChange(ctx context.Context, id string, params *UserManagementConfirmEmailChangeParams, opts ...RequestOption) (*EmailChangeConfirmation, error) {
 	var result EmailChangeConfirmation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/confirm", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/confirm", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -538,11 +538,11 @@ type UserManagementSendEmailChangeParams struct {
 	NewEmail string `json:"new_email"`
 }
 
-// SendEmailChange send email change code
+// SendEmailChange sendEmailChangeCode
 // Sends an email that contains a one-time code used to change a user's email address.
-func (s *userManagementService) SendEmailChange(ctx context.Context, iD string, params *UserManagementSendEmailChangeParams, opts ...RequestOption) (*EmailChange, error) {
+func (s *userManagementService) SendEmailChange(ctx context.Context, id string, params *UserManagementSendEmailChangeParams, opts ...RequestOption) (*EmailChange, error) {
 	var result EmailChange
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/send", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/send", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -554,117 +554,117 @@ type UserManagementConfirmEmailVerificationParams struct {
 	Code string `json:"code"`
 }
 
-// ConfirmEmailVerification verify email
+// ConfirmEmailVerification verifyEmail
 // Verifies an email address using the one-time code received by the user.
-func (s *userManagementService) ConfirmEmailVerification(ctx context.Context, iD string, params *UserManagementConfirmEmailVerificationParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
+func (s *userManagementService) ConfirmEmailVerification(ctx context.Context, id string, params *UserManagementConfirmEmailVerificationParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
 	var result VerifyEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// SendEmailVerification send verification email
+// SendEmailVerification sendVerificationEmail
 // Sends an email that contains a one-time code used to verify a user’s email address.
-func (s *userManagementService) SendEmailVerification(ctx context.Context, iD string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
+func (s *userManagementService) SendEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// ListUserIdentities get user identities
+// ListIdentities getUserIdentities
 // Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
-func (s *userManagementService) ListUserIdentities(ctx context.Context, iD string, opts ...RequestOption) (*UserIdentitiesGetItem, error) {
+func (s *userManagementService) ListIdentities(ctx context.Context, id string, opts ...RequestOption) (*UserIdentitiesGetItem, error) {
 	var result UserIdentitiesGetItem
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// UserManagementListUserSessionsParams contains the parameters for ListUserSessions.
-type UserManagementListUserSessionsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *UserManagementUsersOrder `url:"order,omitempty"`
+// UserManagementListSessionsParams contains the parameters for ListSessions.
+type UserManagementListSessionsParams struct {
+	Before *string                   `url:"before,omitempty" json:"-"`
+	After  *string                   `url:"after,omitempty" json:"-"`
+	Limit  *int                      `url:"limit,omitempty" json:"-"`
+	Order  *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListUserSessions list sessions
+// ListSessions listSessions
 // Get a list of all active sessions for a specific user.
-func (s *userManagementService) ListUserSessions(ctx context.Context, iD string, params *UserManagementListUserSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
-	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", iD), params, "data", opts)
+func (s *userManagementService) ListSessions(ctx context.Context, id string, params *UserManagementListSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
+	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", id), params, "after", "data", opts)
 }
 
 // UserManagementListInvitationsParams contains the parameters for ListInvitations.
 type UserManagementListInvitationsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *UserManagementInvitationsOrder `url:"order,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
-	Email *string `url:"email,omitempty"`
+	Before         *string                         `url:"before,omitempty" json:"-"`
+	After          *string                         `url:"after,omitempty" json:"-"`
+	Limit          *int                            `url:"limit,omitempty" json:"-"`
+	Order          *UserManagementInvitationsOrder `url:"order,omitempty" json:"-"`
+	OrganizationID *string                         `url:"organization_id,omitempty" json:"-"`
+	Email          *string                         `url:"email,omitempty" json:"-"`
 }
 
-// ListInvitations list invitations
+// ListInvitations listInvitations
 // Get a list of all of invitations matching the criteria specified.
 func (s *userManagementService) ListInvitations(ctx context.Context, params *UserManagementListInvitationsParams, opts ...RequestOption) *Iterator[UserInvite] {
-	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "data", opts)
+	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts)
 }
 
 // UserManagementCreateInvitationsParams contains the parameters for CreateInvitations.
 type UserManagementCreateInvitationsParams struct {
-	Email string `json:"email"`
-	OrganizationID *string `json:"organization_id,omitempty"`
-	RoleSlug *string `json:"role_slug,omitempty"`
-	ExpiresInDays *int `json:"expires_in_days,omitempty"`
-	InviterUserID *string `json:"inviter_user_id,omitempty"`
-	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
+	Email          string                         `json:"email"`
+	OrganizationID *string                        `json:"organization_id,omitempty"`
+	RoleSlug       *string                        `json:"role_slug,omitempty"`
+	ExpiresInDays  *int                           `json:"expires_in_days,omitempty"`
+	InviterUserID  *string                        `json:"inviter_user_id,omitempty"`
+	Locale         *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
-// CreateInvitations send an invitation
+// CreateInvitations sendAnInvitation
 // Sends an invitation email to the recipient.
 func (s *userManagementService) CreateInvitations(ctx context.Context, params *UserManagementCreateInvitationsParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "POST", "/user_management/invitations", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/invitations", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetByToken find an invitation by token
+// GetByToken findAnInvitationByToken
 // Retrieve an existing invitation using the token.
 func (s *userManagementService) GetByToken(ctx context.Context, token string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", token), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", token), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetInvitation get an invitation
+// GetInvitation getAnInvitation
 // Get the details of an existing invitation.
-func (s *userManagementService) GetInvitation(ctx context.Context, iD string, opts ...RequestOption) (*UserInvite, error) {
+func (s *userManagementService) GetInvitation(ctx context.Context, id string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// AcceptInvitation accept an invitation
+// AcceptInvitation acceptAnInvitation
 // Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
-func (s *userManagementService) AcceptInvitation(ctx context.Context, iD string, opts ...RequestOption) (*Invitation, error) {
+func (s *userManagementService) AcceptInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/accept", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/accept", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -676,22 +676,22 @@ type UserManagementResendInvitationParams struct {
 	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
-// ResendInvitation resend an invitation
+// ResendInvitation resendAnInvitation
 // Resends an invitation email to the recipient. The invitation must be in a pending state.
-func (s *userManagementService) ResendInvitation(ctx context.Context, iD string, params *UserManagementResendInvitationParams, opts ...RequestOption) (*UserInvite, error) {
+func (s *userManagementService) ResendInvitation(ctx context.Context, id string, params *UserManagementResendInvitationParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/resend", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/resend", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// RevokeInvitation revoke an invitation
+// RevokeInvitation revokeAnInvitation
 // Revokes an existing invitation.
-func (s *userManagementService) RevokeInvitation(ctx context.Context, iD string, opts ...RequestOption) (*Invitation, error) {
+func (s *userManagementService) RevokeInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/revoke", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/revoke", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -703,11 +703,11 @@ type UserManagementUpdateJWTTemplateParams struct {
 	Content string `json:"content"`
 }
 
-// UpdateJWTTemplate update JWT template
+// UpdateJWTTemplate updateJWTTemplate
 // Update the JWT template for the current environment.
 func (s *userManagementService) UpdateJWTTemplate(ctx context.Context, params *UserManagementUpdateJWTTemplateParams, opts ...RequestOption) (*JWTTemplateResponse, error) {
 	var result JWTTemplateResponse
-	_, err := s.client.request(ctx, "PUT", "/user_management/jwt_template", params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", "/user_management/jwt_template", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -716,26 +716,26 @@ func (s *userManagementService) UpdateJWTTemplate(ctx context.Context, params *U
 
 // UserManagementCreateMagicAuthParams contains the parameters for CreateMagicAuth.
 type UserManagementCreateMagicAuthParams struct {
-	Email string `json:"email"`
+	Email           string  `json:"email"`
 	InvitationToken *string `json:"invitation_token,omitempty"`
 }
 
-// CreateMagicAuth create a Magic Auth code
+// CreateMagicAuth createAMagicAuthCode
 // Creates a one-time authentication code that can be sent to the user's email address. The code expires in 10 minutes. To verify the code, [authenticate the user with Magic Auth](https://workos.com/docs/reference/authkit/authentication/magic-auth).
 func (s *userManagementService) CreateMagicAuth(ctx context.Context, params *UserManagementCreateMagicAuthParams, opts ...RequestOption) (*MagicAuth, error) {
 	var result MagicAuth
-	_, err := s.client.request(ctx, "POST", "/user_management/magic_auth", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/magic_auth", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetMagicAuth get Magic Auth code details
+// GetMagicAuth getMagicAuthCodeDetails
 // Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
-func (s *userManagementService) GetMagicAuth(ctx context.Context, iD string, opts ...RequestOption) (*MagicAuth, error) {
+func (s *userManagementService) GetMagicAuth(ctx context.Context, id string, opts ...RequestOption) (*MagicAuth, error) {
 	var result MagicAuth
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/magic_auth/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/magic_auth/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -744,46 +744,46 @@ func (s *userManagementService) GetMagicAuth(ctx context.Context, iD string, opt
 
 // UserManagementListOrganizationMembershipsParams contains the parameters for ListOrganizationMemberships.
 type UserManagementListOrganizationMembershipsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *UserManagementOrganizationMembershipOrder `url:"order,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
-	Statuses []UserManagementOrganizationMembershipStatuses `url:"statuses,omitempty"`
-	UserID *string `url:"user_id,omitempty"`
+	Before         *string                                        `url:"before,omitempty" json:"-"`
+	After          *string                                        `url:"after,omitempty" json:"-"`
+	Limit          *int                                           `url:"limit,omitempty" json:"-"`
+	Order          *UserManagementOrganizationMembershipOrder     `url:"order,omitempty" json:"-"`
+	OrganizationID *string                                        `url:"organization_id,omitempty" json:"-"`
+	Statuses       []UserManagementOrganizationMembershipStatuses `url:"statuses,omitempty" json:"-"`
+	UserID         *string                                        `url:"user_id,omitempty" json:"-"`
 }
 
-// ListOrganizationMemberships list organization memberships
+// ListOrganizationMemberships listOrganizationMemberships
 // Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
 func (s *userManagementService) ListOrganizationMemberships(ctx context.Context, params *UserManagementListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembership] {
-	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "data", opts)
+	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts)
 }
 
 // UserManagementCreateOrganizationMembershipsParams contains the parameters for CreateOrganizationMemberships.
 type UserManagementCreateOrganizationMembershipsParams struct {
-	UserID string `json:"user_id"`
-	OrganizationID string `json:"organization_id"`
-	RoleSlug *string `json:"role_slug,omitempty"`
-	RoleSlugs []string `json:"role_slugs,omitempty"`
+	UserID         string   `json:"user_id"`
+	OrganizationID string   `json:"organization_id"`
+	RoleSlug       *string  `json:"role_slug,omitempty"`
+	RoleSlugs      []string `json:"role_slugs,omitempty"`
 }
 
-// CreateOrganizationMemberships create an organization membership
+// CreateOrganizationMemberships createAnOrganizationMembership
 // Creates a new `active` organization membership for the given organization and user.
 // Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
 func (s *userManagementService) CreateOrganizationMemberships(ctx context.Context, params *UserManagementCreateOrganizationMembershipsParams, opts ...RequestOption) (*OrganizationMembership, error) {
 	var result OrganizationMembership
-	_, err := s.client.request(ctx, "POST", "/user_management/organization_memberships", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/user_management/organization_memberships", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetOrganizationMembership get an organization membership
+// GetOrganizationMembership getAnOrganizationMembership
 // Get the details of an existing organization membership.
-func (s *userManagementService) GetOrganizationMembership(ctx context.Context, iD string, opts ...RequestOption) (*UserOrganizationMembership, error) {
+func (s *userManagementService) GetOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -792,50 +792,50 @@ func (s *userManagementService) GetOrganizationMembership(ctx context.Context, i
 
 // UserManagementUpdateOrganizationMembershipParams contains the parameters for UpdateOrganizationMembership.
 type UserManagementUpdateOrganizationMembershipParams struct {
-	RoleSlug *string `json:"role_slug,omitempty"`
+	RoleSlug  *string  `json:"role_slug,omitempty"`
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
-// UpdateOrganizationMembership update an organization membership
+// UpdateOrganizationMembership updateAnOrganizationMembership
 // Update the details of an existing organization membership.
-func (s *userManagementService) UpdateOrganizationMembership(ctx context.Context, iD string, params *UserManagementUpdateOrganizationMembershipParams, opts ...RequestOption) (*UserOrganizationMembership, error) {
+func (s *userManagementService) UpdateOrganizationMembership(ctx context.Context, id string, params *UserManagementUpdateOrganizationMembershipParams, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteOrganizationMembership delete an organization membership
+// DeleteOrganizationMembership deleteAnOrganizationMembership
 // Permanently deletes an existing organization membership. It cannot be undone.
-func (s *userManagementService) DeleteOrganizationMembership(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", iD), nil, nil, opts)
+func (s *userManagementService) DeleteOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// DeactivateOrganizationMembership deactivate an organization membership
+// DeactivateOrganizationMembership deactivateAnOrganizationMembership
 // Deactivates an `active` organization membership. Emits an [organization_membership.updated](https://workos.com/docs/events/organization-membership) event upon successful deactivation.
 // - Deactivating an `inactive` membership is a no-op and does not emit an event.
 // - Deactivating a `pending` membership returns an error. This membership should be [deleted](https://workos.com/docs/reference/authkit/organization-membership/delete) instead.
 // See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-func (s *userManagementService) DeactivateOrganizationMembership(ctx context.Context, iD string, opts ...RequestOption) (*OrganizationMembership, error) {
+func (s *userManagementService) DeactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*OrganizationMembership, error) {
 	var result OrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// ReactivateOrganizationMembership reactivate an organization membership
+// ReactivateOrganizationMembership reactivateAnOrganizationMembership
 // Reactivates an `inactive` organization membership, retaining the pre-existing role(s). Emits an [organization_membership.updated](https://workos.com/docs/events/organization-membership) event upon successful reactivation.
 // - Reactivating an `active` membership is a no-op and does not emit an event.
 // - Reactivating a `pending` membership returns an error. The user needs to [accept the invitation](https://workos.com/docs/authkit/invitations) instead.
 // See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-func (s *userManagementService) ReactivateOrganizationMembership(ctx context.Context, iD string, opts ...RequestOption) (*UserOrganizationMembership, error) {
+func (s *userManagementService) ReactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -844,37 +844,37 @@ func (s *userManagementService) ReactivateOrganizationMembership(ctx context.Con
 
 // UserManagementCreateRedirectUrisParams contains the parameters for CreateRedirectUris.
 type UserManagementCreateRedirectUrisParams struct {
-	Uri string `json:"uri"`
+	URI string `json:"uri"`
 }
 
-// CreateRedirectUris create a redirect URI
+// CreateRedirectUris createARedirectURI
 // Creates a new redirect URI for an environment.
-func (s *userManagementService) CreateRedirectUris(ctx context.Context, params *UserManagementCreateRedirectUrisParams, opts ...RequestOption) (*RedirectUri, error) {
-	var result RedirectUri
-	_, err := s.client.request(ctx, "POST", "/user_management/redirect_uris", params, &result, opts)
+func (s *userManagementService) CreateRedirectUris(ctx context.Context, params *UserManagementCreateRedirectUrisParams, opts ...RequestOption) (*RedirectURI, error) {
+	var result RedirectURI
+	_, err := s.client.request(ctx, "POST", "/user_management/redirect_uris", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// UserManagementListUserAuthorizedApplicationsParams contains the parameters for ListUserAuthorizedApplications.
-type UserManagementListUserAuthorizedApplicationsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *UserManagementUsersAuthorizedApplicationsOrder `url:"order,omitempty"`
+// UserManagementListAuthorizedApplicationsParams contains the parameters for ListAuthorizedApplications.
+type UserManagementListAuthorizedApplicationsParams struct {
+	Before *string                                         `url:"before,omitempty" json:"-"`
+	After  *string                                         `url:"after,omitempty" json:"-"`
+	Limit  *int                                            `url:"limit,omitempty" json:"-"`
+	Order  *UserManagementUsersAuthorizedApplicationsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListUserAuthorizedApplications list authorized applications
+// ListAuthorizedApplications listAuthorizedApplications
 // Get a list of all Connect applications that the user has authorized.
-func (s *userManagementService) ListUserAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListUserAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
-	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", userID), params, "data", opts)
+func (s *userManagementService) ListAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
+	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", userID), params, "after", "data", opts)
 }
 
-// DeleteUserAuthorizedApplication delete an authorized application
+// DeleteAuthorizedApplication deleteAnAuthorizedApplication
 // Delete an existing Authorized Connect Application.
-func (s *userManagementService) DeleteUserAuthorizedApplication(ctx context.Context, applicationID string, userID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", applicationID, userID), nil, nil, opts)
+func (s *userManagementService) DeleteAuthorizedApplication(ctx context.Context, applicationID string, userID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", applicationID, userID), nil, nil, nil, opts)
 	return err
 }

@@ -6,7 +6,7 @@ package workos
 type OrganizationDomainDataState string
 
 const (
-	OrganizationDomainDataStatePending OrganizationDomainDataState = "pending"
+	OrganizationDomainDataStatePending  OrganizationDomainDataState = "pending"
 	OrganizationDomainDataStateVerified OrganizationDomainDataState = "verified"
 )
 
@@ -14,109 +14,109 @@ const (
 type GenerateLinkIntent string
 
 const (
-	GenerateLinkIntentSSO GenerateLinkIntent = "sso"
-	GenerateLinkIntentDsync GenerateLinkIntent = "dsync"
-	GenerateLinkIntentAuditLogs GenerateLinkIntent = "audit_logs"
-	GenerateLinkIntentLogStreams GenerateLinkIntent = "log_streams"
+	GenerateLinkIntentSSO                GenerateLinkIntent = "sso"
+	GenerateLinkIntentDsync              GenerateLinkIntent = "dsync"
+	GenerateLinkIntentAuditLogs          GenerateLinkIntent = "audit_logs"
+	GenerateLinkIntentLogStreams         GenerateLinkIntent = "log_streams"
 	GenerateLinkIntentDomainVerification GenerateLinkIntent = "domain_verification"
 	GenerateLinkIntentCertificateRenewal GenerateLinkIntent = "certificate_renewal"
-	GenerateLinkIntentBringYourOwnKey GenerateLinkIntent = "bring_your_own_key"
+	GenerateLinkIntentBringYourOwnKey    GenerateLinkIntent = "bring_your_own_key"
 )
 
 // CreateUserInviteOptionsLocale represents create user invite options locale values.
 type CreateUserInviteOptionsLocale string
 
 const (
-	CreateUserInviteOptionsLocaleAf CreateUserInviteOptionsLocale = "af"
-	CreateUserInviteOptionsLocaleAm CreateUserInviteOptionsLocale = "am"
-	CreateUserInviteOptionsLocaleAr CreateUserInviteOptionsLocale = "ar"
-	CreateUserInviteOptionsLocaleBg CreateUserInviteOptionsLocale = "bg"
-	CreateUserInviteOptionsLocaleBn CreateUserInviteOptionsLocale = "bn"
-	CreateUserInviteOptionsLocaleBs CreateUserInviteOptionsLocale = "bs"
-	CreateUserInviteOptionsLocaleCa CreateUserInviteOptionsLocale = "ca"
-	CreateUserInviteOptionsLocaleCs CreateUserInviteOptionsLocale = "cs"
-	CreateUserInviteOptionsLocaleDa CreateUserInviteOptionsLocale = "da"
-	CreateUserInviteOptionsLocaleDe CreateUserInviteOptionsLocale = "de"
-	CreateUserInviteOptionsLocaleDeDe CreateUserInviteOptionsLocale = "de-DE"
-	CreateUserInviteOptionsLocaleEl CreateUserInviteOptionsLocale = "el"
-	CreateUserInviteOptionsLocaleEn CreateUserInviteOptionsLocale = "en"
-	CreateUserInviteOptionsLocaleEnAu CreateUserInviteOptionsLocale = "en-AU"
-	CreateUserInviteOptionsLocaleEnCa CreateUserInviteOptionsLocale = "en-CA"
-	CreateUserInviteOptionsLocaleEnGb CreateUserInviteOptionsLocale = "en-GB"
-	CreateUserInviteOptionsLocaleEnUs CreateUserInviteOptionsLocale = "en-US"
-	CreateUserInviteOptionsLocaleEs CreateUserInviteOptionsLocale = "es"
+	CreateUserInviteOptionsLocaleAf    CreateUserInviteOptionsLocale = "af"
+	CreateUserInviteOptionsLocaleAm    CreateUserInviteOptionsLocale = "am"
+	CreateUserInviteOptionsLocaleAr    CreateUserInviteOptionsLocale = "ar"
+	CreateUserInviteOptionsLocaleBg    CreateUserInviteOptionsLocale = "bg"
+	CreateUserInviteOptionsLocaleBn    CreateUserInviteOptionsLocale = "bn"
+	CreateUserInviteOptionsLocaleBs    CreateUserInviteOptionsLocale = "bs"
+	CreateUserInviteOptionsLocaleCa    CreateUserInviteOptionsLocale = "ca"
+	CreateUserInviteOptionsLocaleCs    CreateUserInviteOptionsLocale = "cs"
+	CreateUserInviteOptionsLocaleDa    CreateUserInviteOptionsLocale = "da"
+	CreateUserInviteOptionsLocaleDe    CreateUserInviteOptionsLocale = "de"
+	CreateUserInviteOptionsLocaleDeDe  CreateUserInviteOptionsLocale = "de-DE"
+	CreateUserInviteOptionsLocaleEl    CreateUserInviteOptionsLocale = "el"
+	CreateUserInviteOptionsLocaleEn    CreateUserInviteOptionsLocale = "en"
+	CreateUserInviteOptionsLocaleEnAu  CreateUserInviteOptionsLocale = "en-AU"
+	CreateUserInviteOptionsLocaleEnCa  CreateUserInviteOptionsLocale = "en-CA"
+	CreateUserInviteOptionsLocaleEnGb  CreateUserInviteOptionsLocale = "en-GB"
+	CreateUserInviteOptionsLocaleEnUs  CreateUserInviteOptionsLocale = "en-US"
+	CreateUserInviteOptionsLocaleEs    CreateUserInviteOptionsLocale = "es"
 	CreateUserInviteOptionsLocaleEs419 CreateUserInviteOptionsLocale = "es-419"
-	CreateUserInviteOptionsLocaleEsEs CreateUserInviteOptionsLocale = "es-ES"
-	CreateUserInviteOptionsLocaleEsUs CreateUserInviteOptionsLocale = "es-US"
-	CreateUserInviteOptionsLocaleEt CreateUserInviteOptionsLocale = "et"
-	CreateUserInviteOptionsLocaleFa CreateUserInviteOptionsLocale = "fa"
-	CreateUserInviteOptionsLocaleFi CreateUserInviteOptionsLocale = "fi"
-	CreateUserInviteOptionsLocaleFil CreateUserInviteOptionsLocale = "fil"
-	CreateUserInviteOptionsLocaleFr CreateUserInviteOptionsLocale = "fr"
-	CreateUserInviteOptionsLocaleFrBe CreateUserInviteOptionsLocale = "fr-BE"
-	CreateUserInviteOptionsLocaleFrCa CreateUserInviteOptionsLocale = "fr-CA"
-	CreateUserInviteOptionsLocaleFrFr CreateUserInviteOptionsLocale = "fr-FR"
-	CreateUserInviteOptionsLocaleFy CreateUserInviteOptionsLocale = "fy"
-	CreateUserInviteOptionsLocaleGl CreateUserInviteOptionsLocale = "gl"
-	CreateUserInviteOptionsLocaleGu CreateUserInviteOptionsLocale = "gu"
-	CreateUserInviteOptionsLocaleHa CreateUserInviteOptionsLocale = "ha"
-	CreateUserInviteOptionsLocaleHe CreateUserInviteOptionsLocale = "he"
-	CreateUserInviteOptionsLocaleHi CreateUserInviteOptionsLocale = "hi"
-	CreateUserInviteOptionsLocaleHr CreateUserInviteOptionsLocale = "hr"
-	CreateUserInviteOptionsLocaleHu CreateUserInviteOptionsLocale = "hu"
-	CreateUserInviteOptionsLocaleHy CreateUserInviteOptionsLocale = "hy"
-	CreateUserInviteOptionsLocaleID CreateUserInviteOptionsLocale = "id"
-	CreateUserInviteOptionsLocaleIs CreateUserInviteOptionsLocale = "is"
-	CreateUserInviteOptionsLocaleIt CreateUserInviteOptionsLocale = "it"
-	CreateUserInviteOptionsLocaleItIt CreateUserInviteOptionsLocale = "it-IT"
-	CreateUserInviteOptionsLocaleJa CreateUserInviteOptionsLocale = "ja"
-	CreateUserInviteOptionsLocaleJv CreateUserInviteOptionsLocale = "jv"
-	CreateUserInviteOptionsLocaleKa CreateUserInviteOptionsLocale = "ka"
-	CreateUserInviteOptionsLocaleKk CreateUserInviteOptionsLocale = "kk"
-	CreateUserInviteOptionsLocaleKm CreateUserInviteOptionsLocale = "km"
-	CreateUserInviteOptionsLocaleKn CreateUserInviteOptionsLocale = "kn"
-	CreateUserInviteOptionsLocaleKo CreateUserInviteOptionsLocale = "ko"
-	CreateUserInviteOptionsLocaleLt CreateUserInviteOptionsLocale = "lt"
-	CreateUserInviteOptionsLocaleLv CreateUserInviteOptionsLocale = "lv"
-	CreateUserInviteOptionsLocaleMk CreateUserInviteOptionsLocale = "mk"
-	CreateUserInviteOptionsLocaleMl CreateUserInviteOptionsLocale = "ml"
-	CreateUserInviteOptionsLocaleMn CreateUserInviteOptionsLocale = "mn"
-	CreateUserInviteOptionsLocaleMr CreateUserInviteOptionsLocale = "mr"
-	CreateUserInviteOptionsLocaleMs CreateUserInviteOptionsLocale = "ms"
-	CreateUserInviteOptionsLocaleMy CreateUserInviteOptionsLocale = "my"
-	CreateUserInviteOptionsLocaleNb CreateUserInviteOptionsLocale = "nb"
-	CreateUserInviteOptionsLocaleNe CreateUserInviteOptionsLocale = "ne"
-	CreateUserInviteOptionsLocaleNl CreateUserInviteOptionsLocale = "nl"
-	CreateUserInviteOptionsLocaleNlBe CreateUserInviteOptionsLocale = "nl-BE"
-	CreateUserInviteOptionsLocaleNlNl CreateUserInviteOptionsLocale = "nl-NL"
-	CreateUserInviteOptionsLocaleNn CreateUserInviteOptionsLocale = "nn"
-	CreateUserInviteOptionsLocaleNo CreateUserInviteOptionsLocale = "no"
-	CreateUserInviteOptionsLocalePa CreateUserInviteOptionsLocale = "pa"
-	CreateUserInviteOptionsLocalePl CreateUserInviteOptionsLocale = "pl"
-	CreateUserInviteOptionsLocalePt CreateUserInviteOptionsLocale = "pt"
-	CreateUserInviteOptionsLocalePtBr CreateUserInviteOptionsLocale = "pt-BR"
-	CreateUserInviteOptionsLocalePtPt CreateUserInviteOptionsLocale = "pt-PT"
-	CreateUserInviteOptionsLocaleRo CreateUserInviteOptionsLocale = "ro"
-	CreateUserInviteOptionsLocaleRu CreateUserInviteOptionsLocale = "ru"
-	CreateUserInviteOptionsLocaleSk CreateUserInviteOptionsLocale = "sk"
-	CreateUserInviteOptionsLocaleSl CreateUserInviteOptionsLocale = "sl"
-	CreateUserInviteOptionsLocaleSq CreateUserInviteOptionsLocale = "sq"
-	CreateUserInviteOptionsLocaleSr CreateUserInviteOptionsLocale = "sr"
-	CreateUserInviteOptionsLocaleSv CreateUserInviteOptionsLocale = "sv"
-	CreateUserInviteOptionsLocaleSw CreateUserInviteOptionsLocale = "sw"
-	CreateUserInviteOptionsLocaleTa CreateUserInviteOptionsLocale = "ta"
-	CreateUserInviteOptionsLocaleTe CreateUserInviteOptionsLocale = "te"
-	CreateUserInviteOptionsLocaleTh CreateUserInviteOptionsLocale = "th"
-	CreateUserInviteOptionsLocaleTr CreateUserInviteOptionsLocale = "tr"
-	CreateUserInviteOptionsLocaleUk CreateUserInviteOptionsLocale = "uk"
-	CreateUserInviteOptionsLocaleUr CreateUserInviteOptionsLocale = "ur"
-	CreateUserInviteOptionsLocaleUz CreateUserInviteOptionsLocale = "uz"
-	CreateUserInviteOptionsLocaleVi CreateUserInviteOptionsLocale = "vi"
-	CreateUserInviteOptionsLocaleZh CreateUserInviteOptionsLocale = "zh"
-	CreateUserInviteOptionsLocaleZhCn CreateUserInviteOptionsLocale = "zh-CN"
-	CreateUserInviteOptionsLocaleZhHk CreateUserInviteOptionsLocale = "zh-HK"
-	CreateUserInviteOptionsLocaleZhTw CreateUserInviteOptionsLocale = "zh-TW"
-	CreateUserInviteOptionsLocaleZu CreateUserInviteOptionsLocale = "zu"
+	CreateUserInviteOptionsLocaleEsEs  CreateUserInviteOptionsLocale = "es-ES"
+	CreateUserInviteOptionsLocaleEsUs  CreateUserInviteOptionsLocale = "es-US"
+	CreateUserInviteOptionsLocaleEt    CreateUserInviteOptionsLocale = "et"
+	CreateUserInviteOptionsLocaleFa    CreateUserInviteOptionsLocale = "fa"
+	CreateUserInviteOptionsLocaleFi    CreateUserInviteOptionsLocale = "fi"
+	CreateUserInviteOptionsLocaleFil   CreateUserInviteOptionsLocale = "fil"
+	CreateUserInviteOptionsLocaleFr    CreateUserInviteOptionsLocale = "fr"
+	CreateUserInviteOptionsLocaleFrBe  CreateUserInviteOptionsLocale = "fr-BE"
+	CreateUserInviteOptionsLocaleFrCa  CreateUserInviteOptionsLocale = "fr-CA"
+	CreateUserInviteOptionsLocaleFrFr  CreateUserInviteOptionsLocale = "fr-FR"
+	CreateUserInviteOptionsLocaleFy    CreateUserInviteOptionsLocale = "fy"
+	CreateUserInviteOptionsLocaleGl    CreateUserInviteOptionsLocale = "gl"
+	CreateUserInviteOptionsLocaleGu    CreateUserInviteOptionsLocale = "gu"
+	CreateUserInviteOptionsLocaleHa    CreateUserInviteOptionsLocale = "ha"
+	CreateUserInviteOptionsLocaleHe    CreateUserInviteOptionsLocale = "he"
+	CreateUserInviteOptionsLocaleHi    CreateUserInviteOptionsLocale = "hi"
+	CreateUserInviteOptionsLocaleHr    CreateUserInviteOptionsLocale = "hr"
+	CreateUserInviteOptionsLocaleHu    CreateUserInviteOptionsLocale = "hu"
+	CreateUserInviteOptionsLocaleHy    CreateUserInviteOptionsLocale = "hy"
+	CreateUserInviteOptionsLocaleID    CreateUserInviteOptionsLocale = "id"
+	CreateUserInviteOptionsLocaleIs    CreateUserInviteOptionsLocale = "is"
+	CreateUserInviteOptionsLocaleIt    CreateUserInviteOptionsLocale = "it"
+	CreateUserInviteOptionsLocaleItIt  CreateUserInviteOptionsLocale = "it-IT"
+	CreateUserInviteOptionsLocaleJa    CreateUserInviteOptionsLocale = "ja"
+	CreateUserInviteOptionsLocaleJv    CreateUserInviteOptionsLocale = "jv"
+	CreateUserInviteOptionsLocaleKa    CreateUserInviteOptionsLocale = "ka"
+	CreateUserInviteOptionsLocaleKk    CreateUserInviteOptionsLocale = "kk"
+	CreateUserInviteOptionsLocaleKm    CreateUserInviteOptionsLocale = "km"
+	CreateUserInviteOptionsLocaleKn    CreateUserInviteOptionsLocale = "kn"
+	CreateUserInviteOptionsLocaleKo    CreateUserInviteOptionsLocale = "ko"
+	CreateUserInviteOptionsLocaleLt    CreateUserInviteOptionsLocale = "lt"
+	CreateUserInviteOptionsLocaleLv    CreateUserInviteOptionsLocale = "lv"
+	CreateUserInviteOptionsLocaleMk    CreateUserInviteOptionsLocale = "mk"
+	CreateUserInviteOptionsLocaleMl    CreateUserInviteOptionsLocale = "ml"
+	CreateUserInviteOptionsLocaleMn    CreateUserInviteOptionsLocale = "mn"
+	CreateUserInviteOptionsLocaleMr    CreateUserInviteOptionsLocale = "mr"
+	CreateUserInviteOptionsLocaleMs    CreateUserInviteOptionsLocale = "ms"
+	CreateUserInviteOptionsLocaleMy    CreateUserInviteOptionsLocale = "my"
+	CreateUserInviteOptionsLocaleNb    CreateUserInviteOptionsLocale = "nb"
+	CreateUserInviteOptionsLocaleNe    CreateUserInviteOptionsLocale = "ne"
+	CreateUserInviteOptionsLocaleNl    CreateUserInviteOptionsLocale = "nl"
+	CreateUserInviteOptionsLocaleNlBe  CreateUserInviteOptionsLocale = "nl-BE"
+	CreateUserInviteOptionsLocaleNlNl  CreateUserInviteOptionsLocale = "nl-NL"
+	CreateUserInviteOptionsLocaleNn    CreateUserInviteOptionsLocale = "nn"
+	CreateUserInviteOptionsLocaleNo    CreateUserInviteOptionsLocale = "no"
+	CreateUserInviteOptionsLocalePa    CreateUserInviteOptionsLocale = "pa"
+	CreateUserInviteOptionsLocalePl    CreateUserInviteOptionsLocale = "pl"
+	CreateUserInviteOptionsLocalePt    CreateUserInviteOptionsLocale = "pt"
+	CreateUserInviteOptionsLocalePtBr  CreateUserInviteOptionsLocale = "pt-BR"
+	CreateUserInviteOptionsLocalePtPt  CreateUserInviteOptionsLocale = "pt-PT"
+	CreateUserInviteOptionsLocaleRo    CreateUserInviteOptionsLocale = "ro"
+	CreateUserInviteOptionsLocaleRu    CreateUserInviteOptionsLocale = "ru"
+	CreateUserInviteOptionsLocaleSk    CreateUserInviteOptionsLocale = "sk"
+	CreateUserInviteOptionsLocaleSl    CreateUserInviteOptionsLocale = "sl"
+	CreateUserInviteOptionsLocaleSq    CreateUserInviteOptionsLocale = "sq"
+	CreateUserInviteOptionsLocaleSr    CreateUserInviteOptionsLocale = "sr"
+	CreateUserInviteOptionsLocaleSv    CreateUserInviteOptionsLocale = "sv"
+	CreateUserInviteOptionsLocaleSw    CreateUserInviteOptionsLocale = "sw"
+	CreateUserInviteOptionsLocaleTa    CreateUserInviteOptionsLocale = "ta"
+	CreateUserInviteOptionsLocaleTe    CreateUserInviteOptionsLocale = "te"
+	CreateUserInviteOptionsLocaleTh    CreateUserInviteOptionsLocale = "th"
+	CreateUserInviteOptionsLocaleTr    CreateUserInviteOptionsLocale = "tr"
+	CreateUserInviteOptionsLocaleUk    CreateUserInviteOptionsLocale = "uk"
+	CreateUserInviteOptionsLocaleUr    CreateUserInviteOptionsLocale = "ur"
+	CreateUserInviteOptionsLocaleUz    CreateUserInviteOptionsLocale = "uz"
+	CreateUserInviteOptionsLocaleVi    CreateUserInviteOptionsLocale = "vi"
+	CreateUserInviteOptionsLocaleZh    CreateUserInviteOptionsLocale = "zh"
+	CreateUserInviteOptionsLocaleZhCn  CreateUserInviteOptionsLocale = "zh-CN"
+	CreateUserInviteOptionsLocaleZhHk  CreateUserInviteOptionsLocale = "zh-HK"
+	CreateUserInviteOptionsLocaleZhTw  CreateUserInviteOptionsLocale = "zh-TW"
+	CreateUserInviteOptionsLocaleZu    CreateUserInviteOptionsLocale = "zu"
 )
 
 // ResendUserInviteOptionsLocale is an alias for CreateUserInviteOptionsLocale.
@@ -126,12 +126,12 @@ type ResendUserInviteOptionsLocale = CreateUserInviteOptionsLocale
 type CreateUserPasswordHashType string
 
 const (
-	CreateUserPasswordHashTypeBcrypt CreateUserPasswordHashType = "bcrypt"
+	CreateUserPasswordHashTypeBcrypt         CreateUserPasswordHashType = "bcrypt"
 	CreateUserPasswordHashTypeFirebaseScrypt CreateUserPasswordHashType = "firebase-scrypt"
-	CreateUserPasswordHashTypeSsha CreateUserPasswordHashType = "ssha"
-	CreateUserPasswordHashTypeScrypt CreateUserPasswordHashType = "scrypt"
-	CreateUserPasswordHashTypePbkdf2 CreateUserPasswordHashType = "pbkdf2"
-	CreateUserPasswordHashTypeArgon2 CreateUserPasswordHashType = "argon2"
+	CreateUserPasswordHashTypeSsha           CreateUserPasswordHashType = "ssha"
+	CreateUserPasswordHashTypeScrypt         CreateUserPasswordHashType = "scrypt"
+	CreateUserPasswordHashTypePbkdf2         CreateUserPasswordHashType = "pbkdf2"
+	CreateUserPasswordHashTypeArgon2         CreateUserPasswordHashType = "argon2"
 )
 
 // UpdateUserPasswordHashType is an alias for CreateUserPasswordHashType.
@@ -142,81 +142,81 @@ type CreateWebhookEndpointEvents string
 
 const (
 	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
-	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
-	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
-	CreateWebhookEndpointEventsAuthenticationMFASucceeded CreateWebhookEndpointEvents = "authentication.mfa_succeeded"
-	CreateWebhookEndpointEventsAuthenticationOAuthFailed CreateWebhookEndpointEvents = "authentication.oauth_failed"
-	CreateWebhookEndpointEventsAuthenticationOAuthSucceeded CreateWebhookEndpointEvents = "authentication.oauth_succeeded"
-	CreateWebhookEndpointEventsAuthenticationPasswordFailed CreateWebhookEndpointEvents = "authentication.password_failed"
-	CreateWebhookEndpointEventsAuthenticationPasswordSucceeded CreateWebhookEndpointEvents = "authentication.password_succeeded"
-	CreateWebhookEndpointEventsAuthenticationPasskeyFailed CreateWebhookEndpointEvents = "authentication.passkey_failed"
-	CreateWebhookEndpointEventsAuthenticationPasskeySucceeded CreateWebhookEndpointEvents = "authentication.passkey_succeeded"
-	CreateWebhookEndpointEventsAuthenticationSSOFailed CreateWebhookEndpointEvents = "authentication.sso_failed"
-	CreateWebhookEndpointEventsAuthenticationSSOStarted CreateWebhookEndpointEvents = "authentication.sso_started"
-	CreateWebhookEndpointEventsAuthenticationSSOSucceeded CreateWebhookEndpointEvents = "authentication.sso_succeeded"
-	CreateWebhookEndpointEventsAuthenticationSSOTimedOut CreateWebhookEndpointEvents = "authentication.sso_timed_out"
-	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
-	CreateWebhookEndpointEventsAPIKeyCreated CreateWebhookEndpointEvents = "api_key.created"
-	CreateWebhookEndpointEventsAPIKeyRevoked CreateWebhookEndpointEvents = "api_key.revoked"
-	CreateWebhookEndpointEventsConnectionActivated CreateWebhookEndpointEvents = "connection.activated"
-	CreateWebhookEndpointEventsConnectionDeactivated CreateWebhookEndpointEvents = "connection.deactivated"
+	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed            CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
+	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded         CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
+	CreateWebhookEndpointEventsAuthenticationMFASucceeded               CreateWebhookEndpointEvents = "authentication.mfa_succeeded"
+	CreateWebhookEndpointEventsAuthenticationOAuthFailed                CreateWebhookEndpointEvents = "authentication.oauth_failed"
+	CreateWebhookEndpointEventsAuthenticationOAuthSucceeded             CreateWebhookEndpointEvents = "authentication.oauth_succeeded"
+	CreateWebhookEndpointEventsAuthenticationPasswordFailed             CreateWebhookEndpointEvents = "authentication.password_failed"
+	CreateWebhookEndpointEventsAuthenticationPasswordSucceeded          CreateWebhookEndpointEvents = "authentication.password_succeeded"
+	CreateWebhookEndpointEventsAuthenticationPasskeyFailed              CreateWebhookEndpointEvents = "authentication.passkey_failed"
+	CreateWebhookEndpointEventsAuthenticationPasskeySucceeded           CreateWebhookEndpointEvents = "authentication.passkey_succeeded"
+	CreateWebhookEndpointEventsAuthenticationSSOFailed                  CreateWebhookEndpointEvents = "authentication.sso_failed"
+	CreateWebhookEndpointEventsAuthenticationSSOStarted                 CreateWebhookEndpointEvents = "authentication.sso_started"
+	CreateWebhookEndpointEventsAuthenticationSSOSucceeded               CreateWebhookEndpointEvents = "authentication.sso_succeeded"
+	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                CreateWebhookEndpointEvents = "authentication.sso_timed_out"
+	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected          CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
+	CreateWebhookEndpointEventsAPIKeyCreated                            CreateWebhookEndpointEvents = "api_key.created"
+	CreateWebhookEndpointEventsAPIKeyRevoked                            CreateWebhookEndpointEvents = "api_key.revoked"
+	CreateWebhookEndpointEventsConnectionActivated                      CreateWebhookEndpointEvents = "connection.activated"
+	CreateWebhookEndpointEventsConnectionDeactivated                    CreateWebhookEndpointEvents = "connection.deactivated"
 	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
-	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
-	CreateWebhookEndpointEventsConnectionDeleted CreateWebhookEndpointEvents = "connection.deleted"
-	CreateWebhookEndpointEventsDsyncActivated CreateWebhookEndpointEvents = "dsync.activated"
-	CreateWebhookEndpointEventsDsyncDeleted CreateWebhookEndpointEvents = "dsync.deleted"
-	CreateWebhookEndpointEventsDsyncGroupCreated CreateWebhookEndpointEvents = "dsync.group.created"
-	CreateWebhookEndpointEventsDsyncGroupDeleted CreateWebhookEndpointEvents = "dsync.group.deleted"
-	CreateWebhookEndpointEventsDsyncGroupUpdated CreateWebhookEndpointEvents = "dsync.group.updated"
-	CreateWebhookEndpointEventsDsyncGroupUserAdded CreateWebhookEndpointEvents = "dsync.group.user_added"
-	CreateWebhookEndpointEventsDsyncGroupUserRemoved CreateWebhookEndpointEvents = "dsync.group.user_removed"
-	CreateWebhookEndpointEventsDsyncUserCreated CreateWebhookEndpointEvents = "dsync.user.created"
-	CreateWebhookEndpointEventsDsyncUserDeleted CreateWebhookEndpointEvents = "dsync.user.deleted"
-	CreateWebhookEndpointEventsDsyncUserUpdated CreateWebhookEndpointEvents = "dsync.user.updated"
-	CreateWebhookEndpointEventsEmailVerificationCreated CreateWebhookEndpointEvents = "email_verification.created"
-	CreateWebhookEndpointEventsFlagCreated CreateWebhookEndpointEvents = "flag.created"
-	CreateWebhookEndpointEventsFlagDeleted CreateWebhookEndpointEvents = "flag.deleted"
-	CreateWebhookEndpointEventsFlagUpdated CreateWebhookEndpointEvents = "flag.updated"
-	CreateWebhookEndpointEventsFlagRuleUpdated CreateWebhookEndpointEvents = "flag.rule_updated"
-	CreateWebhookEndpointEventsInvitationAccepted CreateWebhookEndpointEvents = "invitation.accepted"
-	CreateWebhookEndpointEventsInvitationCreated CreateWebhookEndpointEvents = "invitation.created"
-	CreateWebhookEndpointEventsInvitationResent CreateWebhookEndpointEvents = "invitation.resent"
-	CreateWebhookEndpointEventsInvitationRevoked CreateWebhookEndpointEvents = "invitation.revoked"
-	CreateWebhookEndpointEventsMagicAuthCreated CreateWebhookEndpointEvents = "magic_auth.created"
-	CreateWebhookEndpointEventsOrganizationCreated CreateWebhookEndpointEvents = "organization.created"
-	CreateWebhookEndpointEventsOrganizationDeleted CreateWebhookEndpointEvents = "organization.deleted"
-	CreateWebhookEndpointEventsOrganizationUpdated CreateWebhookEndpointEvents = "organization.updated"
-	CreateWebhookEndpointEventsOrganizationDomainCreated CreateWebhookEndpointEvents = "organization_domain.created"
-	CreateWebhookEndpointEventsOrganizationDomainDeleted CreateWebhookEndpointEvents = "organization_domain.deleted"
-	CreateWebhookEndpointEventsOrganizationDomainUpdated CreateWebhookEndpointEvents = "organization_domain.updated"
-	CreateWebhookEndpointEventsOrganizationDomainVerified CreateWebhookEndpointEvents = "organization_domain.verified"
-	CreateWebhookEndpointEventsOrganizationDomainVerificationFailed CreateWebhookEndpointEvents = "organization_domain.verification_failed"
-	CreateWebhookEndpointEventsPasswordResetCreated CreateWebhookEndpointEvents = "password_reset.created"
-	CreateWebhookEndpointEventsPasswordResetSucceeded CreateWebhookEndpointEvents = "password_reset.succeeded"
-	CreateWebhookEndpointEventsUserCreated CreateWebhookEndpointEvents = "user.created"
-	CreateWebhookEndpointEventsUserUpdated CreateWebhookEndpointEvents = "user.updated"
-	CreateWebhookEndpointEventsUserDeleted CreateWebhookEndpointEvents = "user.deleted"
-	CreateWebhookEndpointEventsOrganizationMembershipCreated CreateWebhookEndpointEvents = "organization_membership.created"
-	CreateWebhookEndpointEventsOrganizationMembershipDeleted CreateWebhookEndpointEvents = "organization_membership.deleted"
-	CreateWebhookEndpointEventsOrganizationMembershipUpdated CreateWebhookEndpointEvents = "organization_membership.updated"
-	CreateWebhookEndpointEventsRoleCreated CreateWebhookEndpointEvents = "role.created"
-	CreateWebhookEndpointEventsRoleDeleted CreateWebhookEndpointEvents = "role.deleted"
-	CreateWebhookEndpointEventsRoleUpdated CreateWebhookEndpointEvents = "role.updated"
-	CreateWebhookEndpointEventsOrganizationRoleCreated CreateWebhookEndpointEvents = "organization_role.created"
-	CreateWebhookEndpointEventsOrganizationRoleDeleted CreateWebhookEndpointEvents = "organization_role.deleted"
-	CreateWebhookEndpointEventsOrganizationRoleUpdated CreateWebhookEndpointEvents = "organization_role.updated"
-	CreateWebhookEndpointEventsPermissionCreated CreateWebhookEndpointEvents = "permission.created"
-	CreateWebhookEndpointEventsPermissionDeleted CreateWebhookEndpointEvents = "permission.deleted"
-	CreateWebhookEndpointEventsPermissionUpdated CreateWebhookEndpointEvents = "permission.updated"
-	CreateWebhookEndpointEventsSessionCreated CreateWebhookEndpointEvents = "session.created"
-	CreateWebhookEndpointEventsSessionRevoked CreateWebhookEndpointEvents = "session.revoked"
+	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed         CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
+	CreateWebhookEndpointEventsConnectionDeleted                        CreateWebhookEndpointEvents = "connection.deleted"
+	CreateWebhookEndpointEventsDsyncActivated                           CreateWebhookEndpointEvents = "dsync.activated"
+	CreateWebhookEndpointEventsDsyncDeleted                             CreateWebhookEndpointEvents = "dsync.deleted"
+	CreateWebhookEndpointEventsDsyncGroupCreated                        CreateWebhookEndpointEvents = "dsync.group.created"
+	CreateWebhookEndpointEventsDsyncGroupDeleted                        CreateWebhookEndpointEvents = "dsync.group.deleted"
+	CreateWebhookEndpointEventsDsyncGroupUpdated                        CreateWebhookEndpointEvents = "dsync.group.updated"
+	CreateWebhookEndpointEventsDsyncGroupUserAdded                      CreateWebhookEndpointEvents = "dsync.group.user_added"
+	CreateWebhookEndpointEventsDsyncGroupUserRemoved                    CreateWebhookEndpointEvents = "dsync.group.user_removed"
+	CreateWebhookEndpointEventsDsyncUserCreated                         CreateWebhookEndpointEvents = "dsync.user.created"
+	CreateWebhookEndpointEventsDsyncUserDeleted                         CreateWebhookEndpointEvents = "dsync.user.deleted"
+	CreateWebhookEndpointEventsDsyncUserUpdated                         CreateWebhookEndpointEvents = "dsync.user.updated"
+	CreateWebhookEndpointEventsEmailVerificationCreated                 CreateWebhookEndpointEvents = "email_verification.created"
+	CreateWebhookEndpointEventsFlagCreated                              CreateWebhookEndpointEvents = "flag.created"
+	CreateWebhookEndpointEventsFlagDeleted                              CreateWebhookEndpointEvents = "flag.deleted"
+	CreateWebhookEndpointEventsFlagUpdated                              CreateWebhookEndpointEvents = "flag.updated"
+	CreateWebhookEndpointEventsFlagRuleUpdated                          CreateWebhookEndpointEvents = "flag.rule_updated"
+	CreateWebhookEndpointEventsInvitationAccepted                       CreateWebhookEndpointEvents = "invitation.accepted"
+	CreateWebhookEndpointEventsInvitationCreated                        CreateWebhookEndpointEvents = "invitation.created"
+	CreateWebhookEndpointEventsInvitationResent                         CreateWebhookEndpointEvents = "invitation.resent"
+	CreateWebhookEndpointEventsInvitationRevoked                        CreateWebhookEndpointEvents = "invitation.revoked"
+	CreateWebhookEndpointEventsMagicAuthCreated                         CreateWebhookEndpointEvents = "magic_auth.created"
+	CreateWebhookEndpointEventsOrganizationCreated                      CreateWebhookEndpointEvents = "organization.created"
+	CreateWebhookEndpointEventsOrganizationDeleted                      CreateWebhookEndpointEvents = "organization.deleted"
+	CreateWebhookEndpointEventsOrganizationUpdated                      CreateWebhookEndpointEvents = "organization.updated"
+	CreateWebhookEndpointEventsOrganizationDomainCreated                CreateWebhookEndpointEvents = "organization_domain.created"
+	CreateWebhookEndpointEventsOrganizationDomainDeleted                CreateWebhookEndpointEvents = "organization_domain.deleted"
+	CreateWebhookEndpointEventsOrganizationDomainUpdated                CreateWebhookEndpointEvents = "organization_domain.updated"
+	CreateWebhookEndpointEventsOrganizationDomainVerified               CreateWebhookEndpointEvents = "organization_domain.verified"
+	CreateWebhookEndpointEventsOrganizationDomainVerificationFailed     CreateWebhookEndpointEvents = "organization_domain.verification_failed"
+	CreateWebhookEndpointEventsPasswordResetCreated                     CreateWebhookEndpointEvents = "password_reset.created"
+	CreateWebhookEndpointEventsPasswordResetSucceeded                   CreateWebhookEndpointEvents = "password_reset.succeeded"
+	CreateWebhookEndpointEventsUserCreated                              CreateWebhookEndpointEvents = "user.created"
+	CreateWebhookEndpointEventsUserUpdated                              CreateWebhookEndpointEvents = "user.updated"
+	CreateWebhookEndpointEventsUserDeleted                              CreateWebhookEndpointEvents = "user.deleted"
+	CreateWebhookEndpointEventsOrganizationMembershipCreated            CreateWebhookEndpointEvents = "organization_membership.created"
+	CreateWebhookEndpointEventsOrganizationMembershipDeleted            CreateWebhookEndpointEvents = "organization_membership.deleted"
+	CreateWebhookEndpointEventsOrganizationMembershipUpdated            CreateWebhookEndpointEvents = "organization_membership.updated"
+	CreateWebhookEndpointEventsRoleCreated                              CreateWebhookEndpointEvents = "role.created"
+	CreateWebhookEndpointEventsRoleDeleted                              CreateWebhookEndpointEvents = "role.deleted"
+	CreateWebhookEndpointEventsRoleUpdated                              CreateWebhookEndpointEvents = "role.updated"
+	CreateWebhookEndpointEventsOrganizationRoleCreated                  CreateWebhookEndpointEvents = "organization_role.created"
+	CreateWebhookEndpointEventsOrganizationRoleDeleted                  CreateWebhookEndpointEvents = "organization_role.deleted"
+	CreateWebhookEndpointEventsOrganizationRoleUpdated                  CreateWebhookEndpointEvents = "organization_role.updated"
+	CreateWebhookEndpointEventsPermissionCreated                        CreateWebhookEndpointEvents = "permission.created"
+	CreateWebhookEndpointEventsPermissionDeleted                        CreateWebhookEndpointEvents = "permission.deleted"
+	CreateWebhookEndpointEventsPermissionUpdated                        CreateWebhookEndpointEvents = "permission.updated"
+	CreateWebhookEndpointEventsSessionCreated                           CreateWebhookEndpointEvents = "session.created"
+	CreateWebhookEndpointEventsSessionRevoked                           CreateWebhookEndpointEvents = "session.revoked"
 )
 
 // UpdateWebhookEndpointStatus represents update webhook endpoint status values.
 type UpdateWebhookEndpointStatus string
 
 const (
-	UpdateWebhookEndpointStatusEnabled UpdateWebhookEndpointStatus = "enabled"
+	UpdateWebhookEndpointStatusEnabled  UpdateWebhookEndpointStatus = "enabled"
 	UpdateWebhookEndpointStatusDisabled UpdateWebhookEndpointStatus = "disabled"
 )
 
@@ -227,12 +227,12 @@ type UpdateWebhookEndpointEvents = CreateWebhookEndpointEvents
 type WidgetSessionTokenScopes string
 
 const (
-	WidgetSessionTokenScopesWidgetsUsersTableManage WidgetSessionTokenScopes = "widgets:users-table:manage"
+	WidgetSessionTokenScopesWidgetsUsersTableManage         WidgetSessionTokenScopes = "widgets:users-table:manage"
 	WidgetSessionTokenScopesWidgetsDomainVerificationManage WidgetSessionTokenScopes = "widgets:domain-verification:manage"
-	WidgetSessionTokenScopesWidgetsSSOManage WidgetSessionTokenScopes = "widgets:sso:manage"
-	WidgetSessionTokenScopesWidgetsAPIKeysManage WidgetSessionTokenScopes = "widgets:api-keys:manage"
-	WidgetSessionTokenScopesWidgetsDsyncManage WidgetSessionTokenScopes = "widgets:dsync:manage"
-	WidgetSessionTokenScopesWidgetsAuditLogStreamingManage WidgetSessionTokenScopes = "widgets:audit-log-streaming:manage"
+	WidgetSessionTokenScopesWidgetsSSOManage                WidgetSessionTokenScopes = "widgets:sso:manage"
+	WidgetSessionTokenScopesWidgetsAPIKeysManage            WidgetSessionTokenScopes = "widgets:api-keys:manage"
+	WidgetSessionTokenScopesWidgetsDsyncManage              WidgetSessionTokenScopes = "widgets:dsync:manage"
+	WidgetSessionTokenScopesWidgetsAuditLogStreamingManage  WidgetSessionTokenScopes = "widgets:audit-log-streaming:manage"
 )
 
 // AuditLogExportJSONState represents audit log export json state values.
@@ -240,8 +240,8 @@ type AuditLogExportJSONState string
 
 const (
 	AuditLogExportJSONStatePending AuditLogExportJSONState = "pending"
-	AuditLogExportJSONStateReady AuditLogExportJSONState = "ready"
-	AuditLogExportJSONStateError AuditLogExportJSONState = "error"
+	AuditLogExportJSONStateReady   AuditLogExportJSONState = "ready"
+	AuditLogExportJSONStateError   AuditLogExportJSONState = "error"
 )
 
 // AuthenticationFactorEnrolledType represents authentication factor enrolled type values.
@@ -249,9 +249,9 @@ type AuthenticationFactorEnrolledType string
 
 const (
 	AuthenticationFactorEnrolledTypeGenericOtp AuthenticationFactorEnrolledType = "generic_otp"
-	AuthenticationFactorEnrolledTypeSms AuthenticationFactorEnrolledType = "sms"
-	AuthenticationFactorEnrolledTypeTotp AuthenticationFactorEnrolledType = "totp"
-	AuthenticationFactorEnrolledTypeWebauthn AuthenticationFactorEnrolledType = "webauthn"
+	AuthenticationFactorEnrolledTypeSms        AuthenticationFactorEnrolledType = "sms"
+	AuthenticationFactorEnrolledTypeTotp       AuthenticationFactorEnrolledType = "totp"
+	AuthenticationFactorEnrolledTypeWebauthn   AuthenticationFactorEnrolledType = "webauthn"
 )
 
 // AuthenticationFactorType is an alias for AuthenticationFactorEnrolledType.
@@ -264,57 +264,57 @@ type RoleType = ListDataType
 type ConnectionType string
 
 const (
-	ConnectionTypePending ConnectionType = "Pending"
-	ConnectionTypeAdfssaml ConnectionType = "ADFSSAML"
-	ConnectionTypeAdpOIDC ConnectionType = "AdpOidc"
-	ConnectionTypeAppleOAuth ConnectionType = "AppleOAuth"
-	ConnectionTypeAuth0Migration ConnectionType = "Auth0Migration"
-	ConnectionTypeAuth0SAML ConnectionType = "Auth0SAML"
-	ConnectionTypeAzureSAML ConnectionType = "AzureSAML"
-	ConnectionTypeBitbucketOAuth ConnectionType = "BitbucketOAuth"
-	ConnectionTypeCasSAML ConnectionType = "CasSAML"
-	ConnectionTypeClassLinkSAML ConnectionType = "ClassLinkSAML"
-	ConnectionTypeCleverOIDC ConnectionType = "CleverOIDC"
-	ConnectionTypeCloudflareSAML ConnectionType = "CloudflareSAML"
-	ConnectionTypeCyberArkSAML ConnectionType = "CyberArkSAML"
-	ConnectionTypeDiscordOAuth ConnectionType = "DiscordOAuth"
-	ConnectionTypeDuoSAML ConnectionType = "DuoSAML"
-	ConnectionTypeEntraIDOIDC ConnectionType = "EntraIdOIDC"
-	ConnectionTypeGenericOIDC ConnectionType = "GenericOIDC"
-	ConnectionTypeGenericSAML ConnectionType = "GenericSAML"
-	ConnectionTypeGitHubOAuth ConnectionType = "GitHubOAuth"
-	ConnectionTypeGitLabOAuth ConnectionType = "GitLabOAuth"
-	ConnectionTypeGoogleOAuth ConnectionType = "GoogleOAuth"
-	ConnectionTypeGoogleOIDC ConnectionType = "GoogleOIDC"
-	ConnectionTypeGoogleSAML ConnectionType = "GoogleSAML"
-	ConnectionTypeIntuitOAuth ConnectionType = "IntuitOAuth"
-	ConnectionTypeJumpCloudSAML ConnectionType = "JumpCloudSAML"
-	ConnectionTypeKeycloakSAML ConnectionType = "KeycloakSAML"
-	ConnectionTypeLastPassSAML ConnectionType = "LastPassSAML"
-	ConnectionTypeLinkedInOAuth ConnectionType = "LinkedInOAuth"
-	ConnectionTypeLoginGovOIDC ConnectionType = "LoginGovOidc"
-	ConnectionTypeMagicLink ConnectionType = "MagicLink"
-	ConnectionTypeMicrosoftOAuth ConnectionType = "MicrosoftOAuth"
-	ConnectionTypeMiniOrangeSAML ConnectionType = "MiniOrangeSAML"
-	ConnectionTypeNetIqSAML ConnectionType = "NetIqSAML"
-	ConnectionTypeOktaOIDC ConnectionType = "OktaOIDC"
-	ConnectionTypeOktaSAML ConnectionType = "OktaSAML"
-	ConnectionTypeOneLoginSAML ConnectionType = "OneLoginSAML"
-	ConnectionTypeOracleSAML ConnectionType = "OracleSAML"
-	ConnectionTypePingFederateSAML ConnectionType = "PingFederateSAML"
-	ConnectionTypePingOneSAML ConnectionType = "PingOneSAML"
-	ConnectionTypeRipplingSAML ConnectionType = "RipplingSAML"
-	ConnectionTypeSalesforceSAML ConnectionType = "SalesforceSAML"
-	ConnectionTypeShibbolethGenericSAML ConnectionType = "ShibbolethGenericSAML"
-	ConnectionTypeShibbolethSAML ConnectionType = "ShibbolethSAML"
-	ConnectionTypeSimpleSAMLPhpSAML ConnectionType = "SimpleSamlPhpSAML"
-	ConnectionTypeSalesforceOAuth ConnectionType = "SalesforceOAuth"
-	ConnectionTypeSlackOAuth ConnectionType = "SlackOAuth"
-	ConnectionTypeTestIdp ConnectionType = "TestIdp"
+	ConnectionTypePending                ConnectionType = "Pending"
+	ConnectionTypeAdfssaml               ConnectionType = "ADFSSAML"
+	ConnectionTypeAdpOIDC                ConnectionType = "AdpOidc"
+	ConnectionTypeAppleOAuth             ConnectionType = "AppleOAuth"
+	ConnectionTypeAuth0Migration         ConnectionType = "Auth0Migration"
+	ConnectionTypeAuth0SAML              ConnectionType = "Auth0SAML"
+	ConnectionTypeAzureSAML              ConnectionType = "AzureSAML"
+	ConnectionTypeBitbucketOAuth         ConnectionType = "BitbucketOAuth"
+	ConnectionTypeCasSAML                ConnectionType = "CasSAML"
+	ConnectionTypeClassLinkSAML          ConnectionType = "ClassLinkSAML"
+	ConnectionTypeCleverOIDC             ConnectionType = "CleverOIDC"
+	ConnectionTypeCloudflareSAML         ConnectionType = "CloudflareSAML"
+	ConnectionTypeCyberArkSAML           ConnectionType = "CyberArkSAML"
+	ConnectionTypeDiscordOAuth           ConnectionType = "DiscordOAuth"
+	ConnectionTypeDuoSAML                ConnectionType = "DuoSAML"
+	ConnectionTypeEntraIDOIDC            ConnectionType = "EntraIdOIDC"
+	ConnectionTypeGenericOIDC            ConnectionType = "GenericOIDC"
+	ConnectionTypeGenericSAML            ConnectionType = "GenericSAML"
+	ConnectionTypeGitHubOAuth            ConnectionType = "GitHubOAuth"
+	ConnectionTypeGitLabOAuth            ConnectionType = "GitLabOAuth"
+	ConnectionTypeGoogleOAuth            ConnectionType = "GoogleOAuth"
+	ConnectionTypeGoogleOIDC             ConnectionType = "GoogleOIDC"
+	ConnectionTypeGoogleSAML             ConnectionType = "GoogleSAML"
+	ConnectionTypeIntuitOAuth            ConnectionType = "IntuitOAuth"
+	ConnectionTypeJumpCloudSAML          ConnectionType = "JumpCloudSAML"
+	ConnectionTypeKeycloakSAML           ConnectionType = "KeycloakSAML"
+	ConnectionTypeLastPassSAML           ConnectionType = "LastPassSAML"
+	ConnectionTypeLinkedInOAuth          ConnectionType = "LinkedInOAuth"
+	ConnectionTypeLoginGovOIDC           ConnectionType = "LoginGovOidc"
+	ConnectionTypeMagicLink              ConnectionType = "MagicLink"
+	ConnectionTypeMicrosoftOAuth         ConnectionType = "MicrosoftOAuth"
+	ConnectionTypeMiniOrangeSAML         ConnectionType = "MiniOrangeSAML"
+	ConnectionTypeNetIqSAML              ConnectionType = "NetIqSAML"
+	ConnectionTypeOktaOIDC               ConnectionType = "OktaOIDC"
+	ConnectionTypeOktaSAML               ConnectionType = "OktaSAML"
+	ConnectionTypeOneLoginSAML           ConnectionType = "OneLoginSAML"
+	ConnectionTypeOracleSAML             ConnectionType = "OracleSAML"
+	ConnectionTypePingFederateSAML       ConnectionType = "PingFederateSAML"
+	ConnectionTypePingOneSAML            ConnectionType = "PingOneSAML"
+	ConnectionTypeRipplingSAML           ConnectionType = "RipplingSAML"
+	ConnectionTypeSalesforceSAML         ConnectionType = "SalesforceSAML"
+	ConnectionTypeShibbolethGenericSAML  ConnectionType = "ShibbolethGenericSAML"
+	ConnectionTypeShibbolethSAML         ConnectionType = "ShibbolethSAML"
+	ConnectionTypeSimpleSAMLPhpSAML      ConnectionType = "SimpleSamlPhpSAML"
+	ConnectionTypeSalesforceOAuth        ConnectionType = "SalesforceOAuth"
+	ConnectionTypeSlackOAuth             ConnectionType = "SlackOAuth"
+	ConnectionTypeTestIdp                ConnectionType = "TestIdp"
 	ConnectionTypeVercelMarketplaceOAuth ConnectionType = "VercelMarketplaceOAuth"
-	ConnectionTypeVercelOAuth ConnectionType = "VercelOAuth"
-	ConnectionTypeVMwareSAML ConnectionType = "VMwareSAML"
-	ConnectionTypeXeroOAuth ConnectionType = "XeroOAuth"
+	ConnectionTypeVercelOAuth            ConnectionType = "VercelOAuth"
+	ConnectionTypeVMwareSAML             ConnectionType = "VMwareSAML"
+	ConnectionTypeXeroOAuth              ConnectionType = "XeroOAuth"
 )
 
 // ConnectionState represents connection state values.
@@ -322,18 +322,18 @@ type ConnectionState string
 
 const (
 	ConnectionStateRequiresType ConnectionState = "requires_type"
-	ConnectionStateDraft ConnectionState = "draft"
-	ConnectionStateActive ConnectionState = "active"
-	ConnectionStateValidating ConnectionState = "validating"
-	ConnectionStateInactive ConnectionState = "inactive"
-	ConnectionStateDeleting ConnectionState = "deleting"
+	ConnectionStateDraft        ConnectionState = "draft"
+	ConnectionStateActive       ConnectionState = "active"
+	ConnectionStateValidating   ConnectionState = "validating"
+	ConnectionStateInactive     ConnectionState = "inactive"
+	ConnectionStateDeleting     ConnectionState = "deleting"
 )
 
 // ConnectionStatus represents connection status values.
 type ConnectionStatus string
 
 const (
-	ConnectionStatusLinked ConnectionStatus = "linked"
+	ConnectionStatusLinked   ConnectionStatus = "linked"
 	ConnectionStatusUnlinked ConnectionStatus = "unlinked"
 )
 
@@ -341,69 +341,69 @@ const (
 type DirectoryType string
 
 const (
-	DirectoryTypePending DirectoryType = "pending"
-	DirectoryTypeAzureSCIMV20 DirectoryType = "azure scim v2.0"
-	DirectoryTypeBamboohr DirectoryType = "bamboohr"
-	DirectoryTypeBreatheHr DirectoryType = "breathe hr"
-	DirectoryTypeCezanneHr DirectoryType = "cezanne hr"
-	DirectoryTypeCyberarkSCIMV20 DirectoryType = "cyberark scim v2.0"
-	DirectoryTypeFourthHr DirectoryType = "fourth hr"
-	DirectoryTypeGenericSCIMV20 DirectoryType = "generic scim v2.0"
-	DirectoryTypeGsuiteDirectory DirectoryType = "gsuite directory"
-	DirectoryTypeHibob DirectoryType = "hibob"
-	DirectoryTypeSailpointSCIMV20 DirectoryType = "sailpoint scim v2.0"
-	DirectoryTypeJumpCloudSCIMV20 DirectoryType = "jump cloud scim v2.0"
-	DirectoryTypeOktaSCIMV20 DirectoryType = "okta scim v2.0"
-	DirectoryTypeOneloginSCIMV20 DirectoryType = "onelogin scim v2.0"
-	DirectoryTypePeopleHr DirectoryType = "people hr"
-	DirectoryTypePersonio DirectoryType = "personio"
+	DirectoryTypePending             DirectoryType = "pending"
+	DirectoryTypeAzureSCIMV20        DirectoryType = "azure scim v2.0"
+	DirectoryTypeBamboohr            DirectoryType = "bamboohr"
+	DirectoryTypeBreatheHr           DirectoryType = "breathe hr"
+	DirectoryTypeCezanneHr           DirectoryType = "cezanne hr"
+	DirectoryTypeCyberarkSCIMV20     DirectoryType = "cyberark scim v2.0"
+	DirectoryTypeFourthHr            DirectoryType = "fourth hr"
+	DirectoryTypeGenericSCIMV20      DirectoryType = "generic scim v2.0"
+	DirectoryTypeGsuiteDirectory     DirectoryType = "gsuite directory"
+	DirectoryTypeHibob               DirectoryType = "hibob"
+	DirectoryTypeSailpointSCIMV20    DirectoryType = "sailpoint scim v2.0"
+	DirectoryTypeJumpCloudSCIMV20    DirectoryType = "jump cloud scim v2.0"
+	DirectoryTypeOktaSCIMV20         DirectoryType = "okta scim v2.0"
+	DirectoryTypeOneloginSCIMV20     DirectoryType = "onelogin scim v2.0"
+	DirectoryTypePeopleHr            DirectoryType = "people hr"
+	DirectoryTypePersonio            DirectoryType = "personio"
 	DirectoryTypePingfederateSCIMV20 DirectoryType = "pingfederate scim v2.0"
-	DirectoryTypeRipplingSCIMV20 DirectoryType = "rippling scim v2.0"
-	DirectoryTypeS3 DirectoryType = "s3"
-	DirectoryTypeSftp DirectoryType = "sftp"
-	DirectoryTypeSftpWorkday DirectoryType = "sftp workday"
-	DirectoryTypeWorkday DirectoryType = "workday"
-	DirectoryTypeGusto DirectoryType = "gusto"
-	DirectoryTypeRippling DirectoryType = "rippling"
+	DirectoryTypeRipplingSCIMV20     DirectoryType = "rippling scim v2.0"
+	DirectoryTypeS3                  DirectoryType = "s3"
+	DirectoryTypeSftp                DirectoryType = "sftp"
+	DirectoryTypeSftpWorkday         DirectoryType = "sftp workday"
+	DirectoryTypeWorkday             DirectoryType = "workday"
+	DirectoryTypeGusto               DirectoryType = "gusto"
+	DirectoryTypeRippling            DirectoryType = "rippling"
 )
 
 // DirectoryState represents directory state values.
 type DirectoryState string
 
 const (
-	DirectoryStateRequiresType DirectoryState = "requires_type"
-	DirectoryStateLinked DirectoryState = "linked"
-	DirectoryStateValidating DirectoryState = "validating"
+	DirectoryStateRequiresType       DirectoryState = "requires_type"
+	DirectoryStateLinked             DirectoryState = "linked"
+	DirectoryStateValidating         DirectoryState = "validating"
 	DirectoryStateInvalidCredentials DirectoryState = "invalid_credentials"
-	DirectoryStateUnlinked DirectoryState = "unlinked"
-	DirectoryStateDeleting DirectoryState = "deleting"
+	DirectoryStateUnlinked           DirectoryState = "unlinked"
+	DirectoryStateDeleting           DirectoryState = "deleting"
 )
 
 // DirectoryUserWithGroupsState represents directory user with groups state values.
 type DirectoryUserWithGroupsState string
 
 const (
-	DirectoryUserWithGroupsStateActive DirectoryUserWithGroupsState = "active"
+	DirectoryUserWithGroupsStateActive    DirectoryUserWithGroupsState = "active"
 	DirectoryUserWithGroupsStateSuspended DirectoryUserWithGroupsState = "suspended"
-	DirectoryUserWithGroupsStateInactive DirectoryUserWithGroupsState = "inactive"
+	DirectoryUserWithGroupsStateInactive  DirectoryUserWithGroupsState = "inactive"
 )
 
 // OrganizationDomainStandAloneState represents organization domain stand alone state values.
 type OrganizationDomainStandAloneState string
 
 const (
-	OrganizationDomainStandAloneStateFailed OrganizationDomainStandAloneState = "failed"
+	OrganizationDomainStandAloneStateFailed         OrganizationDomainStandAloneState = "failed"
 	OrganizationDomainStandAloneStateLegacyVerified OrganizationDomainStandAloneState = "legacy_verified"
-	OrganizationDomainStandAloneStatePending OrganizationDomainStandAloneState = "pending"
-	OrganizationDomainStandAloneStateUnverified OrganizationDomainStandAloneState = "unverified"
-	OrganizationDomainStandAloneStateVerified OrganizationDomainStandAloneState = "verified"
+	OrganizationDomainStandAloneStatePending        OrganizationDomainStandAloneState = "pending"
+	OrganizationDomainStandAloneStateUnverified     OrganizationDomainStandAloneState = "unverified"
+	OrganizationDomainStandAloneStateVerified       OrganizationDomainStandAloneState = "verified"
 )
 
 // OrganizationDomainStandAloneVerificationStrategy represents organization domain stand alone verification strategy values.
 type OrganizationDomainStandAloneVerificationStrategy string
 
 const (
-	OrganizationDomainStandAloneVerificationStrategyDns OrganizationDomainStandAloneVerificationStrategy = "dns"
+	OrganizationDomainStandAloneVerificationStrategyDns    OrganizationDomainStandAloneVerificationStrategy = "dns"
 	OrganizationDomainStandAloneVerificationStrategyManual OrganizationDomainStandAloneVerificationStrategy = "manual"
 )
 
@@ -411,7 +411,7 @@ const (
 type AuditLogConfigurationState string
 
 const (
-	AuditLogConfigurationStateActive AuditLogConfigurationState = "active"
+	AuditLogConfigurationStateActive   AuditLogConfigurationState = "active"
 	AuditLogConfigurationStateInactive AuditLogConfigurationState = "inactive"
 	AuditLogConfigurationStateDisabled AuditLogConfigurationState = "disabled"
 )
@@ -420,17 +420,17 @@ const (
 type ConnectedAccountState string
 
 const (
-	ConnectedAccountStateConnected ConnectedAccountState = "connected"
+	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
 	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
-	ConnectedAccountStateDisconnected ConnectedAccountState = "disconnected"
+	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
 )
 
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
 type RadarStandaloneResponseVerdict string
 
 const (
-	RadarStandaloneResponseVerdictAllow RadarStandaloneResponseVerdict = "allow"
-	RadarStandaloneResponseVerdictBlock RadarStandaloneResponseVerdict = "block"
+	RadarStandaloneResponseVerdictAllow     RadarStandaloneResponseVerdict = "allow"
+	RadarStandaloneResponseVerdictBlock     RadarStandaloneResponseVerdict = "block"
 	RadarStandaloneResponseVerdictChallenge RadarStandaloneResponseVerdict = "challenge"
 )
 
@@ -438,29 +438,29 @@ const (
 type RadarStandaloneResponseControl string
 
 const (
-	RadarStandaloneResponseControlBotDetection RadarStandaloneResponseControl = "bot_detection"
-	RadarStandaloneResponseControlBruteForceAttack RadarStandaloneResponseControl = "brute_force_attack"
-	RadarStandaloneResponseControlCredentialStuffing RadarStandaloneResponseControl = "credential_stuffing"
+	RadarStandaloneResponseControlBotDetection          RadarStandaloneResponseControl = "bot_detection"
+	RadarStandaloneResponseControlBruteForceAttack      RadarStandaloneResponseControl = "brute_force_attack"
+	RadarStandaloneResponseControlCredentialStuffing    RadarStandaloneResponseControl = "credential_stuffing"
 	RadarStandaloneResponseControlDomainSignUpRateLimit RadarStandaloneResponseControl = "domain_sign_up_rate_limit"
-	RadarStandaloneResponseControlIPSignUpRateLimit RadarStandaloneResponseControl = "ip_sign_up_rate_limit"
-	RadarStandaloneResponseControlImpossibleTravel RadarStandaloneResponseControl = "impossible_travel"
-	RadarStandaloneResponseControlRepeatSignUp RadarStandaloneResponseControl = "repeat_sign_up"
-	RadarStandaloneResponseControlStaleAccount RadarStandaloneResponseControl = "stale_account"
-	RadarStandaloneResponseControlUnrecognizedDevice RadarStandaloneResponseControl = "unrecognized_device"
-	RadarStandaloneResponseControlRestriction RadarStandaloneResponseControl = "restriction"
+	RadarStandaloneResponseControlIPSignUpRateLimit     RadarStandaloneResponseControl = "ip_sign_up_rate_limit"
+	RadarStandaloneResponseControlImpossibleTravel      RadarStandaloneResponseControl = "impossible_travel"
+	RadarStandaloneResponseControlRepeatSignUp          RadarStandaloneResponseControl = "repeat_sign_up"
+	RadarStandaloneResponseControlStaleAccount          RadarStandaloneResponseControl = "stale_account"
+	RadarStandaloneResponseControlUnrecognizedDevice    RadarStandaloneResponseControl = "unrecognized_device"
+	RadarStandaloneResponseControlRestriction           RadarStandaloneResponseControl = "restriction"
 )
 
 // RadarStandaloneResponseBlocklistType represents radar standalone response blocklist type values.
 type RadarStandaloneResponseBlocklistType string
 
 const (
-	RadarStandaloneResponseBlocklistTypeIPAddress RadarStandaloneResponseBlocklistType = "ip_address"
-	RadarStandaloneResponseBlocklistTypeDomain RadarStandaloneResponseBlocklistType = "domain"
-	RadarStandaloneResponseBlocklistTypeEmail RadarStandaloneResponseBlocklistType = "email"
-	RadarStandaloneResponseBlocklistTypeDevice RadarStandaloneResponseBlocklistType = "device"
-	RadarStandaloneResponseBlocklistTypeUserAgent RadarStandaloneResponseBlocklistType = "user_agent"
+	RadarStandaloneResponseBlocklistTypeIPAddress         RadarStandaloneResponseBlocklistType = "ip_address"
+	RadarStandaloneResponseBlocklistTypeDomain            RadarStandaloneResponseBlocklistType = "domain"
+	RadarStandaloneResponseBlocklistTypeEmail             RadarStandaloneResponseBlocklistType = "email"
+	RadarStandaloneResponseBlocklistTypeDevice            RadarStandaloneResponseBlocklistType = "device"
+	RadarStandaloneResponseBlocklistTypeUserAgent         RadarStandaloneResponseBlocklistType = "user_agent"
 	RadarStandaloneResponseBlocklistTypeDeviceFingerprint RadarStandaloneResponseBlocklistType = "device_fingerprint"
-	RadarStandaloneResponseBlocklistTypeCountry RadarStandaloneResponseBlocklistType = "country"
+	RadarStandaloneResponseBlocklistTypeCountry           RadarStandaloneResponseBlocklistType = "country"
 )
 
 // UserInviteState is an alias for InvitationState.
@@ -473,28 +473,28 @@ type UserOrganizationMembershipStatus = OrganizationMembershipStatus
 type AuthenticateResponseAuthenticationMethod string
 
 const (
-	AuthenticateResponseAuthenticationMethodSSO AuthenticateResponseAuthenticationMethod = "SSO"
-	AuthenticateResponseAuthenticationMethodPassword AuthenticateResponseAuthenticationMethod = "Password"
-	AuthenticateResponseAuthenticationMethodPasskey AuthenticateResponseAuthenticationMethod = "Passkey"
-	AuthenticateResponseAuthenticationMethodAppleOAuth AuthenticateResponseAuthenticationMethod = "AppleOAuth"
-	AuthenticateResponseAuthenticationMethodBitbucketOAuth AuthenticateResponseAuthenticationMethod = "BitbucketOAuth"
-	AuthenticateResponseAuthenticationMethodCrossAppAuth AuthenticateResponseAuthenticationMethod = "CrossAppAuth"
-	AuthenticateResponseAuthenticationMethodDiscordOAuth AuthenticateResponseAuthenticationMethod = "DiscordOAuth"
-	AuthenticateResponseAuthenticationMethodExternalAuth AuthenticateResponseAuthenticationMethod = "ExternalAuth"
-	AuthenticateResponseAuthenticationMethodGitHubOAuth AuthenticateResponseAuthenticationMethod = "GitHubOAuth"
-	AuthenticateResponseAuthenticationMethodGitLabOAuth AuthenticateResponseAuthenticationMethod = "GitLabOAuth"
-	AuthenticateResponseAuthenticationMethodGoogleOAuth AuthenticateResponseAuthenticationMethod = "GoogleOAuth"
-	AuthenticateResponseAuthenticationMethodIntuitOAuth AuthenticateResponseAuthenticationMethod = "IntuitOAuth"
-	AuthenticateResponseAuthenticationMethodLinkedInOAuth AuthenticateResponseAuthenticationMethod = "LinkedInOAuth"
-	AuthenticateResponseAuthenticationMethodMicrosoftOAuth AuthenticateResponseAuthenticationMethod = "MicrosoftOAuth"
-	AuthenticateResponseAuthenticationMethodSalesforceOAuth AuthenticateResponseAuthenticationMethod = "SalesforceOAuth"
-	AuthenticateResponseAuthenticationMethodSlackOAuth AuthenticateResponseAuthenticationMethod = "SlackOAuth"
+	AuthenticateResponseAuthenticationMethodSSO                    AuthenticateResponseAuthenticationMethod = "SSO"
+	AuthenticateResponseAuthenticationMethodPassword               AuthenticateResponseAuthenticationMethod = "Password"
+	AuthenticateResponseAuthenticationMethodPasskey                AuthenticateResponseAuthenticationMethod = "Passkey"
+	AuthenticateResponseAuthenticationMethodAppleOAuth             AuthenticateResponseAuthenticationMethod = "AppleOAuth"
+	AuthenticateResponseAuthenticationMethodBitbucketOAuth         AuthenticateResponseAuthenticationMethod = "BitbucketOAuth"
+	AuthenticateResponseAuthenticationMethodCrossAppAuth           AuthenticateResponseAuthenticationMethod = "CrossAppAuth"
+	AuthenticateResponseAuthenticationMethodDiscordOAuth           AuthenticateResponseAuthenticationMethod = "DiscordOAuth"
+	AuthenticateResponseAuthenticationMethodExternalAuth           AuthenticateResponseAuthenticationMethod = "ExternalAuth"
+	AuthenticateResponseAuthenticationMethodGitHubOAuth            AuthenticateResponseAuthenticationMethod = "GitHubOAuth"
+	AuthenticateResponseAuthenticationMethodGitLabOAuth            AuthenticateResponseAuthenticationMethod = "GitLabOAuth"
+	AuthenticateResponseAuthenticationMethodGoogleOAuth            AuthenticateResponseAuthenticationMethod = "GoogleOAuth"
+	AuthenticateResponseAuthenticationMethodIntuitOAuth            AuthenticateResponseAuthenticationMethod = "IntuitOAuth"
+	AuthenticateResponseAuthenticationMethodLinkedInOAuth          AuthenticateResponseAuthenticationMethod = "LinkedInOAuth"
+	AuthenticateResponseAuthenticationMethodMicrosoftOAuth         AuthenticateResponseAuthenticationMethod = "MicrosoftOAuth"
+	AuthenticateResponseAuthenticationMethodSalesforceOAuth        AuthenticateResponseAuthenticationMethod = "SalesforceOAuth"
+	AuthenticateResponseAuthenticationMethodSlackOAuth             AuthenticateResponseAuthenticationMethod = "SlackOAuth"
 	AuthenticateResponseAuthenticationMethodVercelMarketplaceOAuth AuthenticateResponseAuthenticationMethod = "VercelMarketplaceOAuth"
-	AuthenticateResponseAuthenticationMethodVercelOAuth AuthenticateResponseAuthenticationMethod = "VercelOAuth"
-	AuthenticateResponseAuthenticationMethodXeroOAuth AuthenticateResponseAuthenticationMethod = "XeroOAuth"
-	AuthenticateResponseAuthenticationMethodMagicAuth AuthenticateResponseAuthenticationMethod = "MagicAuth"
-	AuthenticateResponseAuthenticationMethodImpersonation AuthenticateResponseAuthenticationMethod = "Impersonation"
-	AuthenticateResponseAuthenticationMethodMigratedSession AuthenticateResponseAuthenticationMethod = "MigratedSession"
+	AuthenticateResponseAuthenticationMethodVercelOAuth            AuthenticateResponseAuthenticationMethod = "VercelOAuth"
+	AuthenticateResponseAuthenticationMethodXeroOAuth              AuthenticateResponseAuthenticationMethod = "XeroOAuth"
+	AuthenticateResponseAuthenticationMethodMagicAuth              AuthenticateResponseAuthenticationMethod = "MagicAuth"
+	AuthenticateResponseAuthenticationMethodImpersonation          AuthenticateResponseAuthenticationMethod = "Impersonation"
+	AuthenticateResponseAuthenticationMethodMigratedSession        AuthenticateResponseAuthenticationMethod = "MigratedSession"
 )
 
 // WebhookEndpointJSONStatus is an alias for UpdateWebhookEndpointStatus.
@@ -515,22 +515,22 @@ const (
 type AuditLogConfigurationLogStreamType string
 
 const (
-	AuditLogConfigurationLogStreamTypeAzureSentinel AuditLogConfigurationLogStreamType = "AzureSentinel"
-	AuditLogConfigurationLogStreamTypeDatadog AuditLogConfigurationLogStreamType = "Datadog"
-	AuditLogConfigurationLogStreamTypeGenericHttps AuditLogConfigurationLogStreamType = "GenericHttps"
+	AuditLogConfigurationLogStreamTypeAzureSentinel      AuditLogConfigurationLogStreamType = "AzureSentinel"
+	AuditLogConfigurationLogStreamTypeDatadog            AuditLogConfigurationLogStreamType = "Datadog"
+	AuditLogConfigurationLogStreamTypeGenericHttps       AuditLogConfigurationLogStreamType = "GenericHttps"
 	AuditLogConfigurationLogStreamTypeGoogleCloudStorage AuditLogConfigurationLogStreamType = "GoogleCloudStorage"
-	AuditLogConfigurationLogStreamTypeS3 AuditLogConfigurationLogStreamType = "S3"
-	AuditLogConfigurationLogStreamTypeSplunk AuditLogConfigurationLogStreamType = "Splunk"
+	AuditLogConfigurationLogStreamTypeS3                 AuditLogConfigurationLogStreamType = "S3"
+	AuditLogConfigurationLogStreamTypeSplunk             AuditLogConfigurationLogStreamType = "Splunk"
 )
 
 // AuditLogConfigurationLogStreamState represents audit log configuration log stream state values.
 type AuditLogConfigurationLogStreamState string
 
 const (
-	AuditLogConfigurationLogStreamStateActive AuditLogConfigurationLogStreamState = "active"
+	AuditLogConfigurationLogStreamStateActive   AuditLogConfigurationLogStreamState = "active"
 	AuditLogConfigurationLogStreamStateInactive AuditLogConfigurationLogStreamState = "inactive"
-	AuditLogConfigurationLogStreamStateError AuditLogConfigurationLogStreamState = "error"
-	AuditLogConfigurationLogStreamStateInvalid AuditLogConfigurationLogStreamState = "invalid"
+	AuditLogConfigurationLogStreamStateError    AuditLogConfigurationLogStreamState = "error"
+	AuditLogConfigurationLogStreamStateInvalid  AuditLogConfigurationLogStreamState = "invalid"
 )
 
 // OrganizationDomainState is an alias for OrganizationDomainStandAloneState.
@@ -547,15 +547,15 @@ type AuthenticationFactorsCreateRequestType string
 
 const (
 	AuthenticationFactorsCreateRequestTypeGenericOtp AuthenticationFactorsCreateRequestType = "generic_otp"
-	AuthenticationFactorsCreateRequestTypeSms AuthenticationFactorsCreateRequestType = "sms"
-	AuthenticationFactorsCreateRequestTypeTotp AuthenticationFactorsCreateRequestType = "totp"
+	AuthenticationFactorsCreateRequestTypeSms        AuthenticationFactorsCreateRequestType = "sms"
+	AuthenticationFactorsCreateRequestTypeTotp       AuthenticationFactorsCreateRequestType = "totp"
 )
 
 // ListDataType represents list data type values.
 type ListDataType string
 
 const (
-	ListDataTypeEnvironmentRole ListDataType = "EnvironmentRole"
+	ListDataTypeEnvironmentRole  ListDataType = "EnvironmentRole"
 	ListDataTypeOrganizationRole ListDataType = "OrganizationRole"
 )
 
@@ -563,24 +563,24 @@ const (
 type RadarStandaloneAssessRequestAuthMethod string
 
 const (
-	RadarStandaloneAssessRequestAuthMethodPassword RadarStandaloneAssessRequestAuthMethod = "Password"
-	RadarStandaloneAssessRequestAuthMethodPasskey RadarStandaloneAssessRequestAuthMethod = "Passkey"
+	RadarStandaloneAssessRequestAuthMethodPassword      RadarStandaloneAssessRequestAuthMethod = "Password"
+	RadarStandaloneAssessRequestAuthMethodPasskey       RadarStandaloneAssessRequestAuthMethod = "Passkey"
 	RadarStandaloneAssessRequestAuthMethodAuthenticator RadarStandaloneAssessRequestAuthMethod = "Authenticator"
-	RadarStandaloneAssessRequestAuthMethodSmsOtp RadarStandaloneAssessRequestAuthMethod = "SMS_OTP"
-	RadarStandaloneAssessRequestAuthMethodEmailOtp RadarStandaloneAssessRequestAuthMethod = "Email_OTP"
-	RadarStandaloneAssessRequestAuthMethodSocial RadarStandaloneAssessRequestAuthMethod = "Social"
-	RadarStandaloneAssessRequestAuthMethodSSO RadarStandaloneAssessRequestAuthMethod = "SSO"
-	RadarStandaloneAssessRequestAuthMethodOther RadarStandaloneAssessRequestAuthMethod = "Other"
+	RadarStandaloneAssessRequestAuthMethodSmsOtp        RadarStandaloneAssessRequestAuthMethod = "SMS_OTP"
+	RadarStandaloneAssessRequestAuthMethodEmailOtp      RadarStandaloneAssessRequestAuthMethod = "Email_OTP"
+	RadarStandaloneAssessRequestAuthMethodSocial        RadarStandaloneAssessRequestAuthMethod = "Social"
+	RadarStandaloneAssessRequestAuthMethodSSO           RadarStandaloneAssessRequestAuthMethod = "SSO"
+	RadarStandaloneAssessRequestAuthMethodOther         RadarStandaloneAssessRequestAuthMethod = "Other"
 )
 
 // RadarStandaloneAssessRequestAction represents radar standalone assess request action values.
 type RadarStandaloneAssessRequestAction string
 
 const (
-	RadarStandaloneAssessRequestActionLogin RadarStandaloneAssessRequestAction = "login"
-	RadarStandaloneAssessRequestActionSignup RadarStandaloneAssessRequestAction = "signup"
-	RadarStandaloneAssessRequestActionSignUp RadarStandaloneAssessRequestAction = "sign-up"
-	RadarStandaloneAssessRequestActionSignIn RadarStandaloneAssessRequestAction = "sign-in"
+	RadarStandaloneAssessRequestActionLogin   RadarStandaloneAssessRequestAction = "login"
+	RadarStandaloneAssessRequestActionSignup  RadarStandaloneAssessRequestAction = "signup"
+	RadarStandaloneAssessRequestActionSignUp  RadarStandaloneAssessRequestAction = "sign-up"
+	RadarStandaloneAssessRequestActionSignIn  RadarStandaloneAssessRequestAction = "sign-in"
 	RadarStandaloneAssessRequestActionSignUp2 RadarStandaloneAssessRequestAction = "sign_up"
 	RadarStandaloneAssessRequestActionSignIn2 RadarStandaloneAssessRequestAction = "sign_in"
 	RadarStandaloneAssessRequestActionSignIn3 RadarStandaloneAssessRequestAction = "sign in"
@@ -591,62 +591,62 @@ const (
 type InvitationState string
 
 const (
-	InvitationStatePending InvitationState = "pending"
+	InvitationStatePending  InvitationState = "pending"
 	InvitationStateAccepted InvitationState = "accepted"
-	InvitationStateExpired InvitationState = "expired"
-	InvitationStateRevoked InvitationState = "revoked"
+	InvitationStateExpired  InvitationState = "expired"
+	InvitationStateRevoked  InvitationState = "revoked"
 )
 
 // OrganizationMembershipStatus represents organization membership status values.
 type OrganizationMembershipStatus string
 
 const (
-	OrganizationMembershipStatusActive OrganizationMembershipStatus = "active"
+	OrganizationMembershipStatusActive   OrganizationMembershipStatus = "active"
 	OrganizationMembershipStatusInactive OrganizationMembershipStatus = "inactive"
-	OrganizationMembershipStatusPending OrganizationMembershipStatus = "pending"
+	OrganizationMembershipStatusPending  OrganizationMembershipStatus = "pending"
 )
 
 // UserIdentitiesGetItemProvider represents user identities get item provider values.
 type UserIdentitiesGetItemProvider string
 
 const (
-	UserIdentitiesGetItemProviderAppleOAuth UserIdentitiesGetItemProvider = "AppleOAuth"
-	UserIdentitiesGetItemProviderBitbucketOAuth UserIdentitiesGetItemProvider = "BitbucketOAuth"
-	UserIdentitiesGetItemProviderDiscordOAuth UserIdentitiesGetItemProvider = "DiscordOAuth"
-	UserIdentitiesGetItemProviderGithubOAuth UserIdentitiesGetItemProvider = "GithubOAuth"
-	UserIdentitiesGetItemProviderGitLabOAuth UserIdentitiesGetItemProvider = "GitLabOAuth"
-	UserIdentitiesGetItemProviderGoogleOAuth UserIdentitiesGetItemProvider = "GoogleOAuth"
-	UserIdentitiesGetItemProviderIntuitOAuth UserIdentitiesGetItemProvider = "IntuitOAuth"
-	UserIdentitiesGetItemProviderLinkedInOAuth UserIdentitiesGetItemProvider = "LinkedInOAuth"
-	UserIdentitiesGetItemProviderMicrosoftOAuth UserIdentitiesGetItemProvider = "MicrosoftOAuth"
-	UserIdentitiesGetItemProviderSalesforceOAuth UserIdentitiesGetItemProvider = "SalesforceOAuth"
-	UserIdentitiesGetItemProviderSlackOAuth UserIdentitiesGetItemProvider = "SlackOAuth"
+	UserIdentitiesGetItemProviderAppleOAuth             UserIdentitiesGetItemProvider = "AppleOAuth"
+	UserIdentitiesGetItemProviderBitbucketOAuth         UserIdentitiesGetItemProvider = "BitbucketOAuth"
+	UserIdentitiesGetItemProviderDiscordOAuth           UserIdentitiesGetItemProvider = "DiscordOAuth"
+	UserIdentitiesGetItemProviderGithubOAuth            UserIdentitiesGetItemProvider = "GithubOAuth"
+	UserIdentitiesGetItemProviderGitLabOAuth            UserIdentitiesGetItemProvider = "GitLabOAuth"
+	UserIdentitiesGetItemProviderGoogleOAuth            UserIdentitiesGetItemProvider = "GoogleOAuth"
+	UserIdentitiesGetItemProviderIntuitOAuth            UserIdentitiesGetItemProvider = "IntuitOAuth"
+	UserIdentitiesGetItemProviderLinkedInOAuth          UserIdentitiesGetItemProvider = "LinkedInOAuth"
+	UserIdentitiesGetItemProviderMicrosoftOAuth         UserIdentitiesGetItemProvider = "MicrosoftOAuth"
+	UserIdentitiesGetItemProviderSalesforceOAuth        UserIdentitiesGetItemProvider = "SalesforceOAuth"
+	UserIdentitiesGetItemProviderSlackOAuth             UserIdentitiesGetItemProvider = "SlackOAuth"
 	UserIdentitiesGetItemProviderVercelMarketplaceOAuth UserIdentitiesGetItemProvider = "VercelMarketplaceOAuth"
-	UserIdentitiesGetItemProviderVercelOAuth UserIdentitiesGetItemProvider = "VercelOAuth"
-	UserIdentitiesGetItemProviderXeroOAuth UserIdentitiesGetItemProvider = "XeroOAuth"
+	UserIdentitiesGetItemProviderVercelOAuth            UserIdentitiesGetItemProvider = "VercelOAuth"
+	UserIdentitiesGetItemProviderXeroOAuth              UserIdentitiesGetItemProvider = "XeroOAuth"
 )
 
 // UserSessionsAuthMethod represents user sessions auth method values.
 type UserSessionsAuthMethod string
 
 const (
-	UserSessionsAuthMethodCrossAppAuth UserSessionsAuthMethod = "cross_app_auth"
-	UserSessionsAuthMethodExternalAuth UserSessionsAuthMethod = "external_auth"
-	UserSessionsAuthMethodImpersonation UserSessionsAuthMethod = "impersonation"
-	UserSessionsAuthMethodMagicCode UserSessionsAuthMethod = "magic_code"
+	UserSessionsAuthMethodCrossAppAuth    UserSessionsAuthMethod = "cross_app_auth"
+	UserSessionsAuthMethodExternalAuth    UserSessionsAuthMethod = "external_auth"
+	UserSessionsAuthMethodImpersonation   UserSessionsAuthMethod = "impersonation"
+	UserSessionsAuthMethodMagicCode       UserSessionsAuthMethod = "magic_code"
 	UserSessionsAuthMethodMigratedSession UserSessionsAuthMethod = "migrated_session"
-	UserSessionsAuthMethodOAuth UserSessionsAuthMethod = "oauth"
-	UserSessionsAuthMethodPasskey UserSessionsAuthMethod = "passkey"
-	UserSessionsAuthMethodPassword UserSessionsAuthMethod = "password"
-	UserSessionsAuthMethodSSO UserSessionsAuthMethod = "sso"
-	UserSessionsAuthMethodUnknown UserSessionsAuthMethod = "unknown"
+	UserSessionsAuthMethodOAuth           UserSessionsAuthMethod = "oauth"
+	UserSessionsAuthMethodPasskey         UserSessionsAuthMethod = "passkey"
+	UserSessionsAuthMethodPassword        UserSessionsAuthMethod = "password"
+	UserSessionsAuthMethodSSO             UserSessionsAuthMethod = "sso"
+	UserSessionsAuthMethodUnknown         UserSessionsAuthMethod = "unknown"
 )
 
 // UserSessionsStatus represents user sessions status values.
 type UserSessionsStatus string
 
 const (
-	UserSessionsStatusActive UserSessionsStatus = "active"
+	UserSessionsStatusActive  UserSessionsStatus = "active"
 	UserSessionsStatusExpired UserSessionsStatus = "expired"
 	UserSessionsStatusRevoked UserSessionsStatus = "revoked"
 )
@@ -661,7 +661,7 @@ type AuthorizationOrder = ApplicationsOrder
 type AuthorizationAssignment string
 
 const (
-	AuthorizationAssignmentDirect AuthorizationAssignment = "direct"
+	AuthorizationAssignmentDirect   AuthorizationAssignment = "direct"
 	AuthorizationAssignmentIndirect AuthorizationAssignment = "indirect"
 )
 
@@ -673,8 +673,8 @@ type ApplicationsOrder string
 
 const (
 	ApplicationsOrderNormal ApplicationsOrder = "normal"
-	ApplicationsOrderDesc ApplicationsOrder = "desc"
-	ApplicationsOrderAsc ApplicationsOrder = "asc"
+	ApplicationsOrderDesc   ApplicationsOrder = "desc"
+	ApplicationsOrderAsc    ApplicationsOrder = "asc"
 )
 
 // ConnectionsOrder is an alias for ApplicationsOrder.
@@ -684,54 +684,54 @@ type ConnectionsOrder = ApplicationsOrder
 type ConnectionsConnectionType string
 
 const (
-	ConnectionsConnectionTypeAdfssaml ConnectionsConnectionType = "ADFSSAML"
-	ConnectionsConnectionTypeAdpOIDC ConnectionsConnectionType = "AdpOidc"
-	ConnectionsConnectionTypeAppleOAuth ConnectionsConnectionType = "AppleOAuth"
-	ConnectionsConnectionTypeAuth0SAML ConnectionsConnectionType = "Auth0SAML"
-	ConnectionsConnectionTypeAzureSAML ConnectionsConnectionType = "AzureSAML"
-	ConnectionsConnectionTypeBitbucketOAuth ConnectionsConnectionType = "BitbucketOAuth"
-	ConnectionsConnectionTypeCasSAML ConnectionsConnectionType = "CasSAML"
-	ConnectionsConnectionTypeCloudflareSAML ConnectionsConnectionType = "CloudflareSAML"
-	ConnectionsConnectionTypeClassLinkSAML ConnectionsConnectionType = "ClassLinkSAML"
-	ConnectionsConnectionTypeCleverOIDC ConnectionsConnectionType = "CleverOIDC"
-	ConnectionsConnectionTypeCyberArkSAML ConnectionsConnectionType = "CyberArkSAML"
-	ConnectionsConnectionTypeDiscordOAuth ConnectionsConnectionType = "DiscordOAuth"
-	ConnectionsConnectionTypeDuoSAML ConnectionsConnectionType = "DuoSAML"
-	ConnectionsConnectionTypeEntraIDOIDC ConnectionsConnectionType = "EntraIdOIDC"
-	ConnectionsConnectionTypeGenericOIDC ConnectionsConnectionType = "GenericOIDC"
-	ConnectionsConnectionTypeGenericSAML ConnectionsConnectionType = "GenericSAML"
-	ConnectionsConnectionTypeGithubOAuth ConnectionsConnectionType = "GithubOAuth"
-	ConnectionsConnectionTypeGitLabOAuth ConnectionsConnectionType = "GitLabOAuth"
-	ConnectionsConnectionTypeGoogleOAuth ConnectionsConnectionType = "GoogleOAuth"
-	ConnectionsConnectionTypeGoogleOIDC ConnectionsConnectionType = "GoogleOIDC"
-	ConnectionsConnectionTypeGoogleSAML ConnectionsConnectionType = "GoogleSAML"
-	ConnectionsConnectionTypeIntuitOAuth ConnectionsConnectionType = "IntuitOAuth"
-	ConnectionsConnectionTypeJumpCloudSAML ConnectionsConnectionType = "JumpCloudSAML"
-	ConnectionsConnectionTypeKeycloakSAML ConnectionsConnectionType = "KeycloakSAML"
-	ConnectionsConnectionTypeLastPassSAML ConnectionsConnectionType = "LastPassSAML"
-	ConnectionsConnectionTypeLinkedInOAuth ConnectionsConnectionType = "LinkedInOAuth"
-	ConnectionsConnectionTypeLoginGovOIDC ConnectionsConnectionType = "LoginGovOidc"
-	ConnectionsConnectionTypeMagicLink ConnectionsConnectionType = "MagicLink"
-	ConnectionsConnectionTypeMicrosoftOAuth ConnectionsConnectionType = "MicrosoftOAuth"
-	ConnectionsConnectionTypeMiniOrangeSAML ConnectionsConnectionType = "MiniOrangeSAML"
-	ConnectionsConnectionTypeNetIqSAML ConnectionsConnectionType = "NetIqSAML"
-	ConnectionsConnectionTypeOktaOIDC ConnectionsConnectionType = "OktaOIDC"
-	ConnectionsConnectionTypeOktaSAML ConnectionsConnectionType = "OktaSAML"
-	ConnectionsConnectionTypeOneLoginSAML ConnectionsConnectionType = "OneLoginSAML"
-	ConnectionsConnectionTypeOracleSAML ConnectionsConnectionType = "OracleSAML"
-	ConnectionsConnectionTypePingFederateSAML ConnectionsConnectionType = "PingFederateSAML"
-	ConnectionsConnectionTypePingOneSAML ConnectionsConnectionType = "PingOneSAML"
-	ConnectionsConnectionTypeRipplingSAML ConnectionsConnectionType = "RipplingSAML"
-	ConnectionsConnectionTypeSalesforceSAML ConnectionsConnectionType = "SalesforceSAML"
-	ConnectionsConnectionTypeShibbolethGenericSAML ConnectionsConnectionType = "ShibbolethGenericSAML"
-	ConnectionsConnectionTypeShibbolethSAML ConnectionsConnectionType = "ShibbolethSAML"
-	ConnectionsConnectionTypeSimpleSAMLPhpSAML ConnectionsConnectionType = "SimpleSamlPhpSAML"
-	ConnectionsConnectionTypeSalesforceOAuth ConnectionsConnectionType = "SalesforceOAuth"
-	ConnectionsConnectionTypeSlackOAuth ConnectionsConnectionType = "SlackOAuth"
+	ConnectionsConnectionTypeAdfssaml               ConnectionsConnectionType = "ADFSSAML"
+	ConnectionsConnectionTypeAdpOIDC                ConnectionsConnectionType = "AdpOidc"
+	ConnectionsConnectionTypeAppleOAuth             ConnectionsConnectionType = "AppleOAuth"
+	ConnectionsConnectionTypeAuth0SAML              ConnectionsConnectionType = "Auth0SAML"
+	ConnectionsConnectionTypeAzureSAML              ConnectionsConnectionType = "AzureSAML"
+	ConnectionsConnectionTypeBitbucketOAuth         ConnectionsConnectionType = "BitbucketOAuth"
+	ConnectionsConnectionTypeCasSAML                ConnectionsConnectionType = "CasSAML"
+	ConnectionsConnectionTypeCloudflareSAML         ConnectionsConnectionType = "CloudflareSAML"
+	ConnectionsConnectionTypeClassLinkSAML          ConnectionsConnectionType = "ClassLinkSAML"
+	ConnectionsConnectionTypeCleverOIDC             ConnectionsConnectionType = "CleverOIDC"
+	ConnectionsConnectionTypeCyberArkSAML           ConnectionsConnectionType = "CyberArkSAML"
+	ConnectionsConnectionTypeDiscordOAuth           ConnectionsConnectionType = "DiscordOAuth"
+	ConnectionsConnectionTypeDuoSAML                ConnectionsConnectionType = "DuoSAML"
+	ConnectionsConnectionTypeEntraIDOIDC            ConnectionsConnectionType = "EntraIdOIDC"
+	ConnectionsConnectionTypeGenericOIDC            ConnectionsConnectionType = "GenericOIDC"
+	ConnectionsConnectionTypeGenericSAML            ConnectionsConnectionType = "GenericSAML"
+	ConnectionsConnectionTypeGithubOAuth            ConnectionsConnectionType = "GithubOAuth"
+	ConnectionsConnectionTypeGitLabOAuth            ConnectionsConnectionType = "GitLabOAuth"
+	ConnectionsConnectionTypeGoogleOAuth            ConnectionsConnectionType = "GoogleOAuth"
+	ConnectionsConnectionTypeGoogleOIDC             ConnectionsConnectionType = "GoogleOIDC"
+	ConnectionsConnectionTypeGoogleSAML             ConnectionsConnectionType = "GoogleSAML"
+	ConnectionsConnectionTypeIntuitOAuth            ConnectionsConnectionType = "IntuitOAuth"
+	ConnectionsConnectionTypeJumpCloudSAML          ConnectionsConnectionType = "JumpCloudSAML"
+	ConnectionsConnectionTypeKeycloakSAML           ConnectionsConnectionType = "KeycloakSAML"
+	ConnectionsConnectionTypeLastPassSAML           ConnectionsConnectionType = "LastPassSAML"
+	ConnectionsConnectionTypeLinkedInOAuth          ConnectionsConnectionType = "LinkedInOAuth"
+	ConnectionsConnectionTypeLoginGovOIDC           ConnectionsConnectionType = "LoginGovOidc"
+	ConnectionsConnectionTypeMagicLink              ConnectionsConnectionType = "MagicLink"
+	ConnectionsConnectionTypeMicrosoftOAuth         ConnectionsConnectionType = "MicrosoftOAuth"
+	ConnectionsConnectionTypeMiniOrangeSAML         ConnectionsConnectionType = "MiniOrangeSAML"
+	ConnectionsConnectionTypeNetIqSAML              ConnectionsConnectionType = "NetIqSAML"
+	ConnectionsConnectionTypeOktaOIDC               ConnectionsConnectionType = "OktaOIDC"
+	ConnectionsConnectionTypeOktaSAML               ConnectionsConnectionType = "OktaSAML"
+	ConnectionsConnectionTypeOneLoginSAML           ConnectionsConnectionType = "OneLoginSAML"
+	ConnectionsConnectionTypeOracleSAML             ConnectionsConnectionType = "OracleSAML"
+	ConnectionsConnectionTypePingFederateSAML       ConnectionsConnectionType = "PingFederateSAML"
+	ConnectionsConnectionTypePingOneSAML            ConnectionsConnectionType = "PingOneSAML"
+	ConnectionsConnectionTypeRipplingSAML           ConnectionsConnectionType = "RipplingSAML"
+	ConnectionsConnectionTypeSalesforceSAML         ConnectionsConnectionType = "SalesforceSAML"
+	ConnectionsConnectionTypeShibbolethGenericSAML  ConnectionsConnectionType = "ShibbolethGenericSAML"
+	ConnectionsConnectionTypeShibbolethSAML         ConnectionsConnectionType = "ShibbolethSAML"
+	ConnectionsConnectionTypeSimpleSAMLPhpSAML      ConnectionsConnectionType = "SimpleSamlPhpSAML"
+	ConnectionsConnectionTypeSalesforceOAuth        ConnectionsConnectionType = "SalesforceOAuth"
+	ConnectionsConnectionTypeSlackOAuth             ConnectionsConnectionType = "SlackOAuth"
 	ConnectionsConnectionTypeVercelMarketplaceOAuth ConnectionsConnectionType = "VercelMarketplaceOAuth"
-	ConnectionsConnectionTypeVercelOAuth ConnectionsConnectionType = "VercelOAuth"
-	ConnectionsConnectionTypeVMwareSAML ConnectionsConnectionType = "VMwareSAML"
-	ConnectionsConnectionTypeXeroOAuth ConnectionsConnectionType = "XeroOAuth"
+	ConnectionsConnectionTypeVercelOAuth            ConnectionsConnectionType = "VercelOAuth"
+	ConnectionsConnectionTypeVMwareSAML             ConnectionsConnectionType = "VMwareSAML"
+	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
 // DirectoriesOrder is an alias for ApplicationsOrder.
@@ -773,9 +773,9 @@ const (
 type SSOProvider string
 
 const (
-	SSOProviderAppleOAuth SSOProvider = "AppleOAuth"
-	SSOProviderGitHubOAuth SSOProvider = "GitHubOAuth"
-	SSOProviderGoogleOAuth SSOProvider = "GoogleOAuth"
+	SSOProviderAppleOAuth     SSOProvider = "AppleOAuth"
+	SSOProviderGitHubOAuth    SSOProvider = "GitHubOAuth"
+	SSOProviderGoogleOAuth    SSOProvider = "GoogleOAuth"
 	SSOProviderMicrosoftOAuth SSOProvider = "MicrosoftOAuth"
 )
 
@@ -791,10 +791,10 @@ const (
 type UserManagementAuthenticationProvider string
 
 const (
-	UserManagementAuthenticationProviderAuthkit UserManagementAuthenticationProvider = "authkit"
-	UserManagementAuthenticationProviderAppleOAuth UserManagementAuthenticationProvider = "AppleOAuth"
-	UserManagementAuthenticationProviderGitHubOAuth UserManagementAuthenticationProvider = "GitHubOAuth"
-	UserManagementAuthenticationProviderGoogleOAuth UserManagementAuthenticationProvider = "GoogleOAuth"
+	UserManagementAuthenticationProviderAuthkit        UserManagementAuthenticationProvider = "authkit"
+	UserManagementAuthenticationProviderAppleOAuth     UserManagementAuthenticationProvider = "AppleOAuth"
+	UserManagementAuthenticationProviderGitHubOAuth    UserManagementAuthenticationProvider = "GitHubOAuth"
+	UserManagementAuthenticationProviderGoogleOAuth    UserManagementAuthenticationProvider = "GoogleOAuth"
 	UserManagementAuthenticationProviderMicrosoftOAuth UserManagementAuthenticationProvider = "MicrosoftOAuth"
 )
 

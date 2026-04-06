@@ -44,10 +44,10 @@ type ValidateAPIKey struct {
 	Value string `json:"value"`
 }
 
-// RedirectUriDto represents a redirect uri dto.
-type RedirectUriDto struct {
-	// Uri is the redirect URI.
-	Uri string `json:"uri"`
+// RedirectURIDto represents a redirect uri dto.
+type RedirectURIDto struct {
+	// URI is the redirect URI.
+	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default *bool `json:"default,omitempty"`
 }
@@ -63,7 +63,7 @@ type CreateOAuthApplication struct {
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
 	// RedirectUris is redirect URIs for the application.
-	RedirectUris *[]*RedirectUriDto `json:"redirect_uris,omitempty"`
+	RedirectUris *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -95,7 +95,7 @@ type UpdateOAuthApplication struct {
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
 	// RedirectUris is updated redirect URIs for the application. OAuth applications only.
-	RedirectUris *[]*RedirectUriDto `json:"redirect_uris,omitempty"`
+	RedirectUris *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 }
 
 // CreateApplicationSecret represents a create application secret.
@@ -419,10 +419,10 @@ type GenerateLink struct {
 	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
 }
 
-// CreateRedirectUri represents a create redirect uri.
-type CreateRedirectUri struct {
-	// Uri is the redirect URI to create.
-	Uri string `json:"uri"`
+// CreateRedirectURI represents a create redirect uri.
+type CreateRedirectURI struct {
+	// URI is the redirect URI to create.
+	URI string `json:"uri"`
 }
 
 // EnrollUserAuthenticationFactor represents a enroll user authentication factor.
@@ -609,8 +609,8 @@ type TokenQuery struct {
 
 // ExternalAuthCompleteResponse represents a external auth complete response.
 type ExternalAuthCompleteResponse struct {
-	// RedirectUri is uRI to redirect the user back to AuthKit to complete the OAuth flow.
-	RedirectUri string `json:"redirect_uri"`
+	// RedirectURI is uRI to redirect the user back to AuthKit to complete the OAuth flow.
+	RedirectURI string `json:"redirect_uri"`
 }
 
 // APIKey the API Key object if the value is valid, or `null` if invalid.
@@ -1022,7 +1022,7 @@ type DirectoryUserWithGroups struct {
 	RawAttributes map[string]interface{} `json:"raw_attributes"`
 	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
 	CustomAttributes map[string]interface{} `json:"custom_attributes"`
-	Role *SlimRole `json:"role,omitempty"`
+	Role             *SlimRole              `json:"role,omitempty"`
 	// Roles is all roles assigned to the user.
 	Roles []*SlimRole `json:"roles,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -1237,14 +1237,14 @@ type RadarListEntryAlreadyPresentResponse struct {
 	Message string `json:"message"`
 }
 
-// RedirectUri represents a redirect uri.
-type RedirectUri struct {
+// RedirectURI represents a redirect uri.
+type RedirectURI struct {
 	// Object is the object type.
 	Object string `json:"object"`
 	// ID is the ID of the redirect URI.
 	ID string `json:"id"`
-	// Uri is the redirect URI.
-	Uri string `json:"uri"`
+	// URI is the redirect URI.
+	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
 	// CreatedAt is the timestamp when the redirect URI was created.
@@ -1398,7 +1398,7 @@ type ResetPasswordResponse struct {
 type EmailChange struct {
 	// Object is distinguishes the email change object.
 	Object string `json:"object"`
-	User *User `json:"user"`
+	User   *User  `json:"user"`
 	// NewEmail is the new email address the user is changing to.
 	NewEmail string `json:"new_email"`
 	// ExpiresAt is the timestamp when the email change code expires.
@@ -1433,10 +1433,10 @@ type DeviceAuthorizationResponse struct {
 	DeviceCode string `json:"device_code"`
 	// UserCode is the end-user verification code.
 	UserCode string `json:"user_code"`
-	// VerificationUri is the end-user verification URI.
-	VerificationUri string `json:"verification_uri"`
-	// VerificationUriComplete is verification URI that includes the user code.
-	VerificationUriComplete *string `json:"verification_uri_complete,omitempty"`
+	// VerificationURI is the end-user verification URI.
+	VerificationURI string `json:"verification_uri"`
+	// VerificationURIComplete is verification URI that includes the user code.
+	VerificationURIComplete *string `json:"verification_uri_complete,omitempty"`
 	// ExpiresIn is lifetime in seconds of the codes.
 	ExpiresIn float64 `json:"expires_in"`
 	// Interval is minimum polling interval in seconds.
@@ -1747,8 +1747,8 @@ type AuthenticationFactorEnrolledTotp struct {
 	Secret string `json:"secret"`
 	// QrCode is base64 encoded image containing scannable QR code.
 	QrCode string `json:"qr_code"`
-	// Uri is the `otpauth` URI that is encoded by the provided `qr_code`.
-	Uri string `json:"uri"`
+	// URI is the `otpauth` URI that is encoded by the provided `qr_code`.
+	URI string `json:"uri"`
 }
 
 // AuditLogSchemaJSONActor is an alias for AuditLogSchemaActor.
@@ -1769,8 +1769,8 @@ type AuthorizedConnectApplicationListData struct {
 	// ID is the unique ID of the authorized connect application.
 	ID string `json:"id"`
 	// GrantedScopes is the scopes granted by the user to the application.
-	GrantedScopes []string `json:"granted_scopes"`
-	Application *ConnectApplication `json:"application"`
+	GrantedScopes []string            `json:"granted_scopes"`
+	Application   *ConnectApplication `json:"application"`
 }
 
 // APIKeyOwner the entity that owns the API Key.
@@ -1960,7 +1960,7 @@ type AuthorizationCodeSessionAuthenticateRequest struct {
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// Code is the authorization code received from the redirect.
 	Code string `json:"code"`
 	// IPAddress is the IP address of the user's request.
@@ -1977,7 +1977,7 @@ type PasswordSessionAuthenticateRequest struct {
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// Email is the user's email address.
 	Email string `json:"email"`
 	// Password is the user's password.
@@ -1998,7 +1998,7 @@ type RefreshTokenSessionAuthenticateRequest struct {
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// RefreshToken is the refresh token to exchange for new tokens.
 	RefreshToken string `json:"refresh_token"`
 	// OrganizationID is the ID of the organization to scope the session to.
@@ -2017,7 +2017,7 @@ type UrnWorkOSOAuthGrantTypeMagicAuthCodeSessionAuthenticateRequest struct {
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// Code is the one-time code for Magic Auth authentication.
 	Code string `json:"code"`
 	// Email is the user's email address.
@@ -2038,7 +2038,7 @@ type UrnWorkOSOAuthGrantTypeEmailVerificationCodeSessionAuthenticateRequest stru
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// Code is the email verification code.
 	Code string `json:"code"`
 	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
@@ -2057,7 +2057,7 @@ type UrnWorkOSOAuthGrantTypeMFATotpSessionAuthenticateRequest struct {
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// Code is the TOTP code from the authenticator app.
 	Code string `json:"code"`
 	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
@@ -2078,7 +2078,7 @@ type UrnWorkOSOAuthGrantTypeOrganizationSelectionSessionAuthenticateRequest stru
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
 	ClientSecret string `json:"client_secret"`
-	GrantType string `json:"grant_type"`
+	GrantType    string `json:"grant_type"`
 	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
 	PendingAuthenticationToken string `json:"pending_authentication_token"`
 	// OrganizationID is the ID of the organization the user selected.
@@ -2094,7 +2094,7 @@ type UrnWorkOSOAuthGrantTypeOrganizationSelectionSessionAuthenticateRequest stru
 // UrnIetfParamsOAuthGrantTypeDeviceCodeSessionAuthenticateRequest represents a urn ietf params o auth grant type device code session authenticate request.
 type UrnIetfParamsOAuthGrantTypeDeviceCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
-	ClientID string `json:"client_id"`
+	ClientID  string `json:"client_id"`
 	GrantType string `json:"grant_type"`
 	// DeviceCode is the device verification code.
 	DeviceCode string `json:"device_code"`

@@ -7,96 +7,96 @@ import (
 	"fmt"
 )
 
-// featureFlagsService handles FeatureFlags operations.
-type featureFlagsService struct {
+// featureFlagService handles FeatureFlags operations.
+type featureFlagService struct {
 	client *Client
 }
 
-// FeatureFlagsListFeatureFlagsParams contains the parameters for ListFeatureFlags.
-type FeatureFlagsListFeatureFlagsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *FeatureFlagsOrder `url:"order,omitempty"`
+// FeatureFlagsListParams contains the parameters for List.
+type FeatureFlagsListParams struct {
+	Before *string            `url:"before,omitempty" json:"-"`
+	After  *string            `url:"after,omitempty" json:"-"`
+	Limit  *int               `url:"limit,omitempty" json:"-"`
+	Order  *FeatureFlagsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListFeatureFlags list feature flags
+// List listFeatureFlags
 // Get a list of all of your existing feature flags matching the criteria specified.
-func (s *featureFlagsService) ListFeatureFlags(ctx context.Context, params *FeatureFlagsListFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", "/feature-flags", params, "data", opts)
+func (s *featureFlagService) List(ctx context.Context, params *FeatureFlagsListParams, opts ...RequestOption) *Iterator[Flag] {
+	return newIterator[Flag](ctx, s.client, "GET", "/feature-flags", params, "after", "data", opts)
 }
 
-// GetFeatureFlag get a feature flag
+// Get getAFeatureFlag
 // Get the details of an existing feature flag by its slug.
-func (s *featureFlagsService) GetFeatureFlag(ctx context.Context, slug string, opts ...RequestOption) (*Flag, error) {
+func (s *featureFlagService) Get(ctx context.Context, slug string, opts ...RequestOption) (*Flag, error) {
 	var result Flag
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/feature-flags/%s", slug), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/feature-flags/%s", slug), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DisableFeatureFlag disable a feature flag
+// Disable disableAFeatureFlag
 // Disables a feature flag in the current environment.
-func (s *featureFlagsService) DisableFeatureFlag(ctx context.Context, slug string, opts ...RequestOption) (*FeatureFlag, error) {
+func (s *featureFlagService) Disable(ctx context.Context, slug string, opts ...RequestOption) (*FeatureFlag, error) {
 	var result FeatureFlag
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/disable", slug), nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/disable", slug), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// EnableFeatureFlag enable a feature flag
+// Enable enableAFeatureFlag
 // Enables a feature flag in the current environment.
-func (s *featureFlagsService) EnableFeatureFlag(ctx context.Context, slug string, opts ...RequestOption) (*FeatureFlag, error) {
+func (s *featureFlagService) Enable(ctx context.Context, slug string, opts ...RequestOption) (*FeatureFlag, error) {
 	var result FeatureFlag
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/enable", slug), nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/enable", slug), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// CreateFeatureFlagTarget add a feature flag target
+// CreateTarget addAFeatureFlagTarget
 // Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
-func (s *featureFlagsService) CreateFeatureFlagTarget(ctx context.Context, resourceID string, slug string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/feature-flags/%s/targets/%s", resourceID, slug), nil, nil, opts)
+func (s *featureFlagService) CreateTarget(ctx context.Context, resourceID string, slug string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/feature-flags/%s/targets/%s", resourceID, slug), nil, nil, nil, opts)
 	return err
 }
 
-// DeleteFeatureFlagTarget remove a feature flag target
+// DeleteTarget removeAFeatureFlagTarget
 // Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
-func (s *featureFlagsService) DeleteFeatureFlagTarget(ctx context.Context, resourceID string, slug string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/feature-flags/%s/targets/%s", resourceID, slug), nil, nil, opts)
+func (s *featureFlagService) DeleteTarget(ctx context.Context, resourceID string, slug string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/feature-flags/%s/targets/%s", resourceID, slug), nil, nil, nil, opts)
 	return err
 }
 
 // FeatureFlagsListOrganizationFeatureFlagsParams contains the parameters for ListOrganizationFeatureFlags.
 type FeatureFlagsListOrganizationFeatureFlagsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *OrganizationsFeatureFlagsOrder `url:"order,omitempty"`
+	Before *string                         `url:"before,omitempty" json:"-"`
+	After  *string                         `url:"after,omitempty" json:"-"`
+	Limit  *int                            `url:"limit,omitempty" json:"-"`
+	Order  *OrganizationsFeatureFlagsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListOrganizationFeatureFlags list enabled feature flags for an organization
+// ListOrganizationFeatureFlags listEnabledFeatureFlagsForAnOrganization
 // Get a list of all enabled feature flags for an organization.
-func (s *featureFlagsService) ListOrganizationFeatureFlags(ctx context.Context, organizationID string, params *FeatureFlagsListOrganizationFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/feature-flags", organizationID), params, "data", opts)
+func (s *featureFlagService) ListOrganizationFeatureFlags(ctx context.Context, organizationID string, params *FeatureFlagsListOrganizationFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
+	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/feature-flags", organizationID), params, "after", "data", opts)
 }
 
 // FeatureFlagsListUserFeatureFlagsParams contains the parameters for ListUserFeatureFlags.
 type FeatureFlagsListUserFeatureFlagsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *UserManagementUsersFeatureFlagsOrder `url:"order,omitempty"`
+	Before *string                               `url:"before,omitempty" json:"-"`
+	After  *string                               `url:"after,omitempty" json:"-"`
+	Limit  *int                                  `url:"limit,omitempty" json:"-"`
+	Order  *UserManagementUsersFeatureFlagsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListUserFeatureFlags list enabled feature flags for a user
+// ListUserFeatureFlags listEnabledFeatureFlagsForAUser
 // Get a list of all enabled feature flags for the provided user. This includes feature flags enabled specifically for the user as well as any organizations that the user is a member of.
-func (s *featureFlagsService) ListUserFeatureFlags(ctx context.Context, userID string, params *FeatureFlagsListUserFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/feature-flags", userID), params, "data", opts)
+func (s *featureFlagService) ListUserFeatureFlags(ctx context.Context, userID string, params *FeatureFlagsListUserFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
+	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/feature-flags", userID), params, "after", "data", opts)
 }

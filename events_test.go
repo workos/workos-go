@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
-func TestEvents_ListEvents(t *testing.T) {
+func TestEvents_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,11 +24,11 @@ func TestEvents_ListEvents(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().ListEvents(context.Background(), &workos.EventsListEventsParams{})
+	iter := client.Events().List(context.Background(), &workos.EventsListParams{})
 	require.NotNil(t, iter)
 }
 
-func TestEvents_ListEvents_Empty(t *testing.T) {
+func TestEvents_List_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -37,7 +37,7 @@ func TestEvents_ListEvents_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().ListEvents(context.Background(), &workos.EventsListEventsParams{})
+	iter := client.Events().List(context.Background(), &workos.EventsListParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -51,7 +51,7 @@ func TestEvents_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().ListEvents(context.Background(), &workos.EventsListEventsParams{})
+	iter := client.Events().List(context.Background(), &workos.EventsListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

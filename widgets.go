@@ -6,23 +6,23 @@ import (
 	"context"
 )
 
-// widgetsService handles Widgets operations.
-type widgetsService struct {
+// widgetService handles Widgets operations.
+type widgetService struct {
 	client *Client
 }
 
 // WidgetsCreateTokenParams contains the parameters for CreateToken.
 type WidgetsCreateTokenParams struct {
-	OrganizationID string `json:"organization_id"`
-	UserID *string `json:"user_id,omitempty"`
-	Scopes []WidgetSessionTokenScopes `json:"scopes,omitempty"`
+	OrganizationID string                     `json:"organization_id"`
+	UserID         *string                    `json:"user_id,omitempty"`
+	Scopes         []WidgetSessionTokenScopes `json:"scopes,omitempty"`
 }
 
-// CreateToken generate a widget token
+// CreateToken generateAWidgetToken
 // Generate a widget token scoped to an organization and user with the specified scopes.
-func (s *widgetsService) CreateToken(ctx context.Context, params *WidgetsCreateTokenParams, opts ...RequestOption) (*WidgetSessionTokenResponse, error) {
+func (s *widgetService) CreateToken(ctx context.Context, params *WidgetsCreateTokenParams, opts ...RequestOption) (*WidgetSessionTokenResponse, error) {
 	var result WidgetSessionTokenResponse
-	_, err := s.client.request(ctx, "POST", "/widgets/token", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/widgets/token", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}

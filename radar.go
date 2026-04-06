@@ -14,20 +14,20 @@ type radarService struct {
 
 // RadarCreateAttemptsParams contains the parameters for CreateAttempts.
 type RadarCreateAttemptsParams struct {
-	IPAddress string `json:"ip_address"`
-	UserAgent string `json:"user_agent"`
-	Email string `json:"email"`
-	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method"`
-	Action RadarStandaloneAssessRequestAction `json:"action"`
-	DeviceFingerprint *string `json:"device_fingerprint,omitempty"`
-	BotScore *string `json:"bot_score,omitempty"`
+	IPAddress         string                                 `json:"ip_address"`
+	UserAgent         string                                 `json:"user_agent"`
+	Email             string                                 `json:"email"`
+	AuthMethod        RadarStandaloneAssessRequestAuthMethod `json:"auth_method"`
+	Action            RadarStandaloneAssessRequestAction     `json:"action"`
+	DeviceFingerprint *string                                `json:"device_fingerprint,omitempty"`
+	BotScore          *string                                `json:"bot_score,omitempty"`
 }
 
-// CreateAttempts create an attempt
+// CreateAttempts createAnAttempt
 // Assess a request for risk using the Radar engine and receive a verdict.
 func (s *radarService) CreateAttempts(ctx context.Context, params *RadarCreateAttemptsParams, opts ...RequestOption) (*RadarStandaloneResponse, error) {
 	var result RadarStandaloneResponse
-	_, err := s.client.request(ctx, "POST", "/radar/attempts", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/radar/attempts", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -37,13 +37,13 @@ func (s *radarService) CreateAttempts(ctx context.Context, params *RadarCreateAt
 // RadarUpdateAttemptParams contains the parameters for UpdateAttempt.
 type RadarUpdateAttemptParams struct {
 	ChallengeStatus *string `json:"challenge_status,omitempty"`
-	AttemptStatus *string `json:"attempt_status,omitempty"`
+	AttemptStatus   *string `json:"attempt_status,omitempty"`
 }
 
-// UpdateAttempt update a Radar attempt
+// UpdateAttempt updateARadarAttempt
 // You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
-func (s *radarService) UpdateAttempt(ctx context.Context, iD string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", iD), params, nil, opts)
+func (s *radarService) UpdateAttempt(ctx context.Context, id string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", id), nil, params, nil, opts)
 	return err
 }
 
@@ -52,11 +52,11 @@ type RadarAddListEntryParams struct {
 	Entry string `json:"entry"`
 }
 
-// AddListEntry add an entry to a Radar list
+// AddListEntry addAnEntryToARadarList
 // Add an entry to a Radar list.
 func (s *radarService) AddListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
 	var result RadarListEntryAlreadyPresentResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +68,9 @@ type RadarRemoveListEntryParams struct {
 	Entry string `json:"entry"`
 }
 
-// RemoveListEntry remove an entry from a Radar list
+// RemoveListEntry removeAnEntryFromARadarList
 // Remove an entry from a Radar list.
 func (s *radarService) RemoveListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), params, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, nil, opts)
 	return err
 }

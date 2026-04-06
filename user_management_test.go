@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
 func TestUserManagement_GetJwks(t *testing.T) {
@@ -153,7 +153,7 @@ func TestUserManagement_GetPasswordReset(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_ListUsers(t *testing.T) {
+func TestUserManagement_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -164,11 +164,11 @@ func TestUserManagement_ListUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUsers(context.Background(), &workos.UserManagementListUsersParams{})
+	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{})
 	require.NotNil(t, iter)
 }
 
-func TestUserManagement_ListUsers_Empty(t *testing.T) {
+func TestUserManagement_List_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -177,12 +177,12 @@ func TestUserManagement_ListUsers_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUsers(context.Background(), &workos.UserManagementListUsersParams{})
+	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestUserManagement_CreateUsers(t *testing.T) {
+func TestUserManagement_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -193,12 +193,12 @@ func TestUserManagement_CreateUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateUsers(context.Background(), &workos.UserManagementCreateUsersParams{})
+	result, err := client.UserManagement().Create(context.Background(), &workos.UserManagementCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_GetUserByExternalID(t *testing.T) {
+func TestUserManagement_GetByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -209,12 +209,12 @@ func TestUserManagement_GetUserByExternalID(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().GetUserByExternalID(context.Background(), "test_external_id")
+	result, err := client.UserManagement().GetByExternalID(context.Background(), "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_GetUser(t *testing.T) {
+func TestUserManagement_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -225,12 +225,12 @@ func TestUserManagement_GetUser(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().GetUser(context.Background(), "test_id")
+	result, err := client.UserManagement().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_UpdateUser(t *testing.T) {
+func TestUserManagement_Update(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -241,12 +241,12 @@ func TestUserManagement_UpdateUser(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().UpdateUser(context.Background(), "test_id", &workos.UserManagementUpdateUserParams{})
+	result, err := client.UserManagement().Update(context.Background(), "test_id", &workos.UserManagementUpdateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_DeleteUser(t *testing.T) {
+func TestUserManagement_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -254,7 +254,7 @@ func TestUserManagement_DeleteUser(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.UserManagement().DeleteUser(context.Background(), "test_id")
+	err := client.UserManagement().Delete(context.Background(), "test_id")
 	require.NoError(t, err)
 }
 
@@ -322,7 +322,7 @@ func TestUserManagement_SendEmailVerification(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_ListUserIdentities(t *testing.T) {
+func TestUserManagement_ListIdentities(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -333,12 +333,12 @@ func TestUserManagement_ListUserIdentities(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ListUserIdentities(context.Background(), "test_id")
+	result, err := client.UserManagement().ListIdentities(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_ListUserSessions(t *testing.T) {
+func TestUserManagement_ListSessions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -349,11 +349,11 @@ func TestUserManagement_ListUserSessions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserSessions(context.Background(), "test_id", &workos.UserManagementListUserSessionsParams{})
+	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{})
 	require.NotNil(t, iter)
 }
 
-func TestUserManagement_ListUserSessions_Empty(t *testing.T) {
+func TestUserManagement_ListSessions_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -362,7 +362,7 @@ func TestUserManagement_ListUserSessions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserSessions(context.Background(), "test_id", &workos.UserManagementListUserSessionsParams{})
+	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -677,7 +677,7 @@ func TestUserManagement_CreateRedirectUris(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_ListUserAuthorizedApplications(t *testing.T) {
+func TestUserManagement_ListAuthorizedApplications(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -688,11 +688,11 @@ func TestUserManagement_ListUserAuthorizedApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListUserAuthorizedApplicationsParams{})
+	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{})
 	require.NotNil(t, iter)
 }
 
-func TestUserManagement_ListUserAuthorizedApplications_Empty(t *testing.T) {
+func TestUserManagement_ListAuthorizedApplications_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -701,12 +701,12 @@ func TestUserManagement_ListUserAuthorizedApplications_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListUserAuthorizedApplicationsParams{})
+	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestUserManagement_DeleteUserAuthorizedApplication(t *testing.T) {
+func TestUserManagement_DeleteAuthorizedApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -714,7 +714,7 @@ func TestUserManagement_DeleteUserAuthorizedApplication(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.UserManagement().DeleteUserAuthorizedApplication(context.Background(), "test_application_id", "test_user_id")
+	err := client.UserManagement().DeleteAuthorizedApplication(context.Background(), "test_application_id", "test_user_id")
 	require.NoError(t, err)
 }
 

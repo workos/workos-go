@@ -13,18 +13,18 @@ type adminPortalService struct {
 
 // AdminPortalGenerateLinkParams contains the parameters for GenerateLink.
 type AdminPortalGenerateLinkParams struct {
-	ReturnURL *string `json:"return_url,omitempty"`
-	SuccessURL *string `json:"success_url,omitempty"`
-	Organization string `json:"organization"`
-	Intent *GenerateLinkIntent `json:"intent,omitempty"`
-	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
+	ReturnURL     *string             `json:"return_url,omitempty"`
+	SuccessURL    *string             `json:"success_url,omitempty"`
+	Organization  string              `json:"organization"`
+	Intent        *GenerateLinkIntent `json:"intent,omitempty"`
+	IntentOptions *IntentOptions      `json:"intent_options,omitempty"`
 }
 
-// GenerateLink generate a Portal Link
+// GenerateLink generateAPortalLink
 // Generate a Portal Link scoped to an Organization.
 func (s *adminPortalService) GenerateLink(ctx context.Context, params *AdminPortalGenerateLinkParams, opts ...RequestOption) (*PortalLinkResponse, error) {
 	var result PortalLinkResponse
-	_, err := s.client.request(ctx, "POST", "/portal/generate_link", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/portal/generate_link", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}

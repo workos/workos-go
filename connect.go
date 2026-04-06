@@ -14,12 +14,12 @@ type connectService struct {
 
 // ConnectCompleteOAuth2Params contains the parameters for CompleteOAuth2.
 type ConnectCompleteOAuth2Params struct {
-	ExternalAuthID string `json:"external_auth_id"`
-	User *UserObject `json:"user"`
+	ExternalAuthID     string               `json:"external_auth_id"`
+	User               *UserObject          `json:"user"`
 	UserConsentOptions []*UserConsentOption `json:"user_consent_options,omitempty"`
 }
 
-// CompleteOAuth2 complete external authentication
+// CompleteOAuth2 completeExternalAuthentication
 // Completes an external authentication flow and returns control to AuthKit. This endpoint is used with [Standalone Connect](https://workos.com/docs/authkit/connect/standalone) to bridge your existing authentication system with the Connect OAuth API infrastructure.
 // After successfully authenticating a user in your application, calling this endpoint will:
 // - Create or update the user in AuthKit, using the given `id` as its `external_id`.
@@ -28,7 +28,7 @@ type ConnectCompleteOAuth2Params struct {
 // If you provide a new `id` with an `email` that already belongs to an existing user, the request will fail with an error as email addresses are unique to a user.
 func (s *connectService) CompleteOAuth2(ctx context.Context, params *ConnectCompleteOAuth2Params, opts ...RequestOption) (*ExternalAuthCompleteResponse, error) {
 	var result ExternalAuthCompleteResponse
-	_, err := s.client.request(ctx, "POST", "/authkit/oauth2/complete", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/authkit/oauth2/complete", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -37,17 +37,17 @@ func (s *connectService) CompleteOAuth2(ctx context.Context, params *ConnectComp
 
 // ConnectListApplicationsParams contains the parameters for ListApplications.
 type ConnectListApplicationsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *ApplicationsOrder `url:"order,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
+	Before         *string            `url:"before,omitempty" json:"-"`
+	After          *string            `url:"after,omitempty" json:"-"`
+	Limit          *int               `url:"limit,omitempty" json:"-"`
+	Order          *ApplicationsOrder `url:"order,omitempty" json:"-"`
+	OrganizationID *string            `url:"organization_id,omitempty" json:"-"`
 }
 
-// ListApplications list Connect Applications
+// ListApplications listConnectApplications
 // List all Connect Applications in the current environment with optional filtering.
 func (s *connectService) ListApplications(ctx context.Context, params *ConnectListApplicationsParams, opts ...RequestOption) *Iterator[ConnectApplication] {
-	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "data", opts)
+	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts)
 }
 
 // ConnectCreateApplicationsParams contains the parameters for CreateApplications.
@@ -55,26 +55,25 @@ type ConnectCreateApplicationsParams struct {
 	Body interface{} `json:"-"`
 }
 
-// CreateApplications create a Connect Application
+// CreateApplications createAConnectApplication
 // Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
 func (s *connectService) CreateApplications(ctx context.Context, params *ConnectCreateApplicationsParams, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "POST", "/connect/applications", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, params.Body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-
 // CreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
 type CreateOAuthApplicationParams struct {
-	Name *string `json:"name,omitempty"`
-	IsFirstParty *string `json:"is_first_party,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Scopes *string `json:"scopes,omitempty"`
-	RedirectUris *string `json:"redirect_uris,omitempty"`
-	UsesPKCE *string `json:"uses_pkce,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	IsFirstParty   *string `json:"is_first_party,omitempty"`
+	Description    *string `json:"description,omitempty"`
+	Scopes         *string `json:"scopes,omitempty"`
+	RedirectUris   *string `json:"redirect_uris,omitempty"`
+	UsesPKCE       *string `json:"uses_pkce,omitempty"`
 	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
@@ -105,7 +104,7 @@ func (s *connectService) CreateOAuthApplication(ctx context.Context, params *Cre
 		body["organization_id"] = *params.OrganizationID
 	}
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "POST", "/connect/applications", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -114,10 +113,10 @@ func (s *connectService) CreateOAuthApplication(ctx context.Context, params *Cre
 
 // CreateM2MApplicationParams contains the parameters for CreateM2MApplication.
 type CreateM2MApplicationParams struct {
-	Name *string `json:"name,omitempty"`
+	Name           *string `json:"name,omitempty"`
 	OrganizationID *string `json:"organization_id,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Scopes *string `json:"scopes,omitempty"`
+	Description    *string `json:"description,omitempty"`
+	Scopes         *string `json:"scopes,omitempty"`
 }
 
 // CreateM2MApplication Create m2m application.
@@ -138,17 +137,18 @@ func (s *connectService) CreateM2MApplication(ctx context.Context, params *Creat
 		body["scopes"] = *params.Scopes
 	}
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "POST", "/connect/applications", body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
-// GetApplication get a Connect Application
+
+// GetApplication getAConnectApplication
 // Retrieve details for a specific Connect Application by ID or client ID.
-func (s *connectService) GetApplication(ctx context.Context, iD string, opts ...RequestOption) (*ConnectApplication, error) {
+func (s *connectService) GetApplication(ctx context.Context, id string, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -157,35 +157,35 @@ func (s *connectService) GetApplication(ctx context.Context, iD string, opts ...
 
 // ConnectUpdateApplicationParams contains the parameters for UpdateApplication.
 type ConnectUpdateApplicationParams struct {
-	Name *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Scopes *[]string `json:"scopes,omitempty"`
-	RedirectUris *[]*RedirectUriDto `json:"redirect_uris,omitempty"`
+	Name         *string            `json:"name,omitempty"`
+	Description  *string            `json:"description,omitempty"`
+	Scopes       *[]string          `json:"scopes,omitempty"`
+	RedirectUris *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 }
 
-// UpdateApplication update a Connect Application
+// UpdateApplication updateAConnectApplication
 // Update an existing Connect Application. For OAuth applications, you can update redirect URIs. For all applications, you can update the name, description, and scopes.
-func (s *connectService) UpdateApplication(ctx context.Context, iD string, params *ConnectUpdateApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
+func (s *connectService) UpdateApplication(ctx context.Context, id string, params *ConnectUpdateApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/connect/applications/%s", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/connect/applications/%s", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteApplication delete a Connect Application
+// DeleteApplication deleteAConnectApplication
 // Delete an existing Connect Application.
-func (s *connectService) DeleteApplication(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/applications/%s", iD), nil, nil, opts)
+func (s *connectService) DeleteApplication(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/applications/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// ListApplicationClientSecrets list Client Secrets for a Connect Application
+// ListApplicationClientSecrets listClientSecretsForAConnectApplication
 // List all client secrets associated with a Connect Application.
-func (s *connectService) ListApplicationClientSecrets(ctx context.Context, iD string, opts ...RequestOption) (*ApplicationCredentialsListItem, error) {
+func (s *connectService) ListApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) (*ApplicationCredentialsListItem, error) {
 	var result ApplicationCredentialsListItem
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s/client_secrets", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s/client_secrets", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -196,20 +196,20 @@ func (s *connectService) ListApplicationClientSecrets(ctx context.Context, iD st
 type ConnectCreateApplicationClientSecretsParams struct {
 }
 
-// CreateApplicationClientSecrets create a new client secret for a Connect Application
+// CreateApplicationClientSecrets createANewClientSecretForAConnectApplication
 // Create new secrets for a Connect Application.
-func (s *connectService) CreateApplicationClientSecrets(ctx context.Context, iD string, params *ConnectCreateApplicationClientSecretsParams, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
+func (s *connectService) CreateApplicationClientSecrets(ctx context.Context, id string, params *ConnectCreateApplicationClientSecretsParams, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
 	var result NewConnectApplicationSecret
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteClientSecret delete a Client Secret
+// DeleteClientSecret deleteAClientSecret
 // Delete (revoke) an existing client secret.
-func (s *connectService) DeleteClientSecret(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/client_secrets/%s", iD), nil, nil, opts)
+func (s *connectService) DeleteClientSecret(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/client_secrets/%s", id), nil, nil, nil, opts)
 	return err
 }

@@ -12,89 +12,89 @@ type directorySyncService struct {
 	client *Client
 }
 
-// DirectorySyncListDirectoriesParams contains the parameters for ListDirectories.
-type DirectorySyncListDirectoriesParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *DirectoriesOrder `url:"order,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
-	Search *string `url:"search,omitempty"`
-	Domain *string `url:"domain,omitempty"`
+// DirectorySyncListParams contains the parameters for List.
+type DirectorySyncListParams struct {
+	Before         *string           `url:"before,omitempty" json:"-"`
+	After          *string           `url:"after,omitempty" json:"-"`
+	Limit          *int              `url:"limit,omitempty" json:"-"`
+	Order          *DirectoriesOrder `url:"order,omitempty" json:"-"`
+	OrganizationID *string           `url:"organization_id,omitempty" json:"-"`
+	Search         *string           `url:"search,omitempty" json:"-"`
+	Domain         *string           `url:"domain,omitempty" json:"-"`
 }
 
-// ListDirectories list Directories
+// List listDirectories
 // Get a list of all of your existing directories matching the criteria specified.
-func (s *directorySyncService) ListDirectories(ctx context.Context, params *DirectorySyncListDirectoriesParams, opts ...RequestOption) *Iterator[Directory] {
-	return newIterator[Directory](ctx, s.client, "GET", "/directories", params, "data", opts)
+func (s *directorySyncService) List(ctx context.Context, params *DirectorySyncListParams, opts ...RequestOption) *Iterator[Directory] {
+	return newIterator[Directory](ctx, s.client, "GET", "/directories", params, "after", "data", opts)
 }
 
-// GetDirectory get a Directory
+// Get getADirectory
 // Get the details of an existing directory.
-func (s *directorySyncService) GetDirectory(ctx context.Context, iD string, opts ...RequestOption) (*Directory, error) {
+func (s *directorySyncService) Get(ctx context.Context, id string, opts ...RequestOption) (*Directory, error) {
 	var result Directory
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteDirectory delete a Directory
+// Delete deleteADirectory
 // Permanently deletes an existing directory. It cannot be undone.
-func (s *directorySyncService) DeleteDirectory(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/directories/%s", iD), nil, nil, opts)
+func (s *directorySyncService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/directories/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// DirectorySyncListDirectoryGroupsParams contains the parameters for ListDirectoryGroups.
-type DirectorySyncListDirectoryGroupsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *DirectoryGroupsOrder `url:"order,omitempty"`
-	Directory *string `url:"directory,omitempty"`
-	User *string `url:"user,omitempty"`
+// DirectorySyncListGroupsParams contains the parameters for ListGroups.
+type DirectorySyncListGroupsParams struct {
+	Before    *string               `url:"before,omitempty" json:"-"`
+	After     *string               `url:"after,omitempty" json:"-"`
+	Limit     *int                  `url:"limit,omitempty" json:"-"`
+	Order     *DirectoryGroupsOrder `url:"order,omitempty" json:"-"`
+	Directory *string               `url:"directory,omitempty" json:"-"`
+	User      *string               `url:"user,omitempty" json:"-"`
 }
 
-// ListDirectoryGroups list Directory Groups
+// ListGroups listDirectoryGroups
 // Get a list of all of existing directory groups matching the criteria specified.
-func (s *directorySyncService) ListDirectoryGroups(ctx context.Context, params *DirectorySyncListDirectoryGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
-	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "data", opts)
+func (s *directorySyncService) ListGroups(ctx context.Context, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
+	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "after", "data", opts)
 }
 
-// GetDirectoryGroup get a Directory Group
+// GetGroup getADirectoryGroup
 // Get the details of an existing Directory Group.
-func (s *directorySyncService) GetDirectoryGroup(ctx context.Context, iD string, opts ...RequestOption) (*DirectoryGroup, error) {
+func (s *directorySyncService) GetGroup(ctx context.Context, id string, opts ...RequestOption) (*DirectoryGroup, error) {
 	var result DirectoryGroup
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_groups/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_groups/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DirectorySyncListDirectoryUsersParams contains the parameters for ListDirectoryUsers.
-type DirectorySyncListDirectoryUsersParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *DirectoryUsersOrder `url:"order,omitempty"`
-	Directory *string `url:"directory,omitempty"`
-	Group *string `url:"group,omitempty"`
+// DirectorySyncListUsersParams contains the parameters for ListUsers.
+type DirectorySyncListUsersParams struct {
+	Before    *string              `url:"before,omitempty" json:"-"`
+	After     *string              `url:"after,omitempty" json:"-"`
+	Limit     *int                 `url:"limit,omitempty" json:"-"`
+	Order     *DirectoryUsersOrder `url:"order,omitempty" json:"-"`
+	Directory *string              `url:"directory,omitempty" json:"-"`
+	Group     *string              `url:"group,omitempty" json:"-"`
 }
 
-// ListDirectoryUsers list Directory Users
+// ListUsers listDirectoryUsers
 // Get a list of all of existing Directory Users matching the criteria specified.
-func (s *directorySyncService) ListDirectoryUsers(ctx context.Context, params *DirectorySyncListDirectoryUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
-	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "data", opts)
+func (s *directorySyncService) ListUsers(ctx context.Context, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
+	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "after", "data", opts)
 }
 
-// GetDirectoryUser get a Directory User
+// GetUser getADirectoryUser
 // Get the details of an existing Directory User.
-func (s *directorySyncService) GetDirectoryUser(ctx context.Context, iD string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
+func (s *directorySyncService) GetUser(ctx context.Context, id string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
 	var result DirectoryUserWithGroups
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_users/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_users/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type listParams interface{}
@@ -28,6 +29,7 @@ type Iterator[T any] struct {
 	method   string
 	path     string
 	params   listParams
+	cursor   string
 	dataPath string
 	opts     []RequestOption
 	after    *string
@@ -41,6 +43,7 @@ func newIterator[T any](
 	method string,
 	path string,
 	params listParams,
+	cursor string,
 	dataPath string,
 	opts []RequestOption,
 ) *Iterator[T] {
@@ -50,6 +53,7 @@ func newIterator[T any](
 		method:   method,
 		path:     path,
 		params:   params,
+		cursor:   cursor,
 		dataPath: dataPath,
 		opts:     opts,
 	}
@@ -74,8 +78,10 @@ func (it *Iterator[T]) Next() bool {
 		return false
 	}
 
+	params := withCursor(it.params, it.cursor, it.after)
+
 	var rawResp json.RawMessage
-	_, err := it.client.request(it.ctx, it.method, it.path, it.params, &rawResp, it.opts)
+	_, err := it.client.request(it.ctx, it.method, it.path, params, nil, &rawResp, it.opts)
 	if err != nil {
 		it.err = err
 		return false
@@ -109,4 +115,19 @@ func (it *Iterator[T]) Current() *T {
 // Err returns any error from the last page fetch.
 func (it *Iterator[T]) Err() error {
 	return it.err
+}
+
+func withCursor(params listParams, cursor string, after *string) listParams {
+	if after == nil || cursor == "" {
+		return params
+	}
+	values, err := encodeQuery(params)
+	if err != nil {
+		return params
+	}
+	if values == nil {
+		values = url.Values{}
+	}
+	values.Set(cursor, *after)
+	return values
 }

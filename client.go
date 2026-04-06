@@ -4,15 +4,18 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/google/go-querystring/query"
 	"github.com/google/uuid"
 )
 
@@ -29,6 +32,7 @@ func (c *Client) request(
 	ctx context.Context,
 	method string,
 	path string,
+	queryParams interface{},
 	body interface{},
 	result interface{},
 	opts []RequestOption,
@@ -73,15 +77,34 @@ func (c *Client) request(
 			bodyReader = bytes.NewReader(data)
 		}
 
-		url := strings.TrimRight(baseURL, "/") + path
-		req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
+		requestURL := strings.TrimRight(baseURL, "/") + path
+		if queryParams != nil {
+			parsedURL, err := url.Parse(requestURL)
+			if err != nil {
+				return nil, fmt.Errorf("workos: failed to parse request URL: %w", err)
+			}
+			encodedQuery, err := encodeQuery(queryParams)
+			if err != nil {
+				return nil, err
+			}
+			queryValues := parsedURL.Query()
+			for key, values := range encodedQuery {
+				queryValues.Del(key)
+				for _, value := range values {
+					queryValues.Add(key, value)
+				}
+			}
+			parsedURL.RawQuery = queryValues.Encode()
+			requestURL = parsedURL.String()
+		}
+		req, err := http.NewRequestWithContext(ctx, method, requestURL, bodyReader)
 		if err != nil {
 			return nil, fmt.Errorf("workos: failed to create request: %w", err)
 		}
 
 		req.Header.Set("Authorization", "Bearer "+c.apiKey)
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("User-Agent", "workos-go/0.1.0")
+		req.Header.Set("User-Agent", "workos-go")
 		if idempotencyKey != "" {
 			req.Header.Set("Idempotency-Key", idempotencyKey)
 		}
@@ -95,7 +118,9 @@ func (c *Client) request(
 
 		httpClient := c.httpClient
 		if cfg.timeout > 0 {
-			httpClient = &http.Client{Timeout: cfg.timeout}
+			clonedClient := *httpClient
+			clonedClient.Timeout = cfg.timeout
+			httpClient = &clonedClient
 		}
 
 		resp, err := httpClient.Do(req)
@@ -105,8 +130,8 @@ func (c *Client) request(
 		}
 
 		if retryableStatuses[resp.StatusCode] && attempt < maxRetries {
-			resp.Body.Close()
 			lastErr = parseAPIError(resp)
+			resp.Body.Close()
 			continue
 		}
 
@@ -130,12 +155,31 @@ func (c *Client) request(
 	return nil, lastErr
 }
 
+func encodeQuery(params interface{}) (url.Values, error) {
+	if params == nil {
+		return nil, nil
+	}
+	if values, ok := params.(url.Values); ok {
+		clone := url.Values{}
+		for key, currentValues := range values {
+			clone[key] = append([]string(nil), currentValues...)
+		}
+		return clone, nil
+	}
+	values, err := query.Values(params)
+	if err != nil {
+		return nil, fmt.Errorf("workos: failed to encode query params: %w", err)
+	}
+	return values, nil
+}
+
 func backoff(attempt int, lastErr error) time.Duration {
 	base := 500 * time.Millisecond
 	max := 30 * time.Second
 
 	// Check for Retry-After header
-	if apiErr, ok := lastErr.(*APIError); ok && apiErr.RetryAfter > 0 {
+	var apiErr *APIError
+	if errors.As(lastErr, &apiErr) && apiErr.RetryAfter > 0 {
 		return time.Duration(apiErr.RetryAfter) * time.Second
 	}
 

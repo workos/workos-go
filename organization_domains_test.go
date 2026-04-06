@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
-func TestOrganizationDomains_CreateOrganizationDomains(t *testing.T) {
+func TestOrganizationDomains_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,12 +24,12 @@ func TestOrganizationDomains_CreateOrganizationDomains(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.OrganizationDomains().CreateOrganizationDomains(context.Background(), &workos.OrganizationDomainsCreateOrganizationDomainsParams{})
+	result, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestOrganizationDomains_GetOrganizationDomain(t *testing.T) {
+func TestOrganizationDomains_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -40,12 +40,12 @@ func TestOrganizationDomains_GetOrganizationDomain(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.OrganizationDomains().GetOrganizationDomain(context.Background(), "test_id")
+	result, err := client.OrganizationDomains().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestOrganizationDomains_DeleteOrganizationDomain(t *testing.T) {
+func TestOrganizationDomains_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -53,11 +53,11 @@ func TestOrganizationDomains_DeleteOrganizationDomain(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.OrganizationDomains().DeleteOrganizationDomain(context.Background(), "test_id")
+	err := client.OrganizationDomains().Delete(context.Background(), "test_id")
 	require.NoError(t, err)
 }
 
-func TestOrganizationDomains_VerifyOrganizationDomain(t *testing.T) {
+func TestOrganizationDomains_Verify(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -68,7 +68,7 @@ func TestOrganizationDomains_VerifyOrganizationDomain(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.OrganizationDomains().VerifyOrganizationDomain(context.Background(), "test_id")
+	result, err := client.OrganizationDomains().Verify(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -82,6 +82,6 @@ func TestOrganizationDomains_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.OrganizationDomains().CreateOrganizationDomains(context.Background(), &workos.OrganizationDomainsCreateOrganizationDomainsParams{})
+	_, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

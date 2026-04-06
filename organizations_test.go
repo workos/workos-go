@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
-func TestOrganizations_ListOrganizations(t *testing.T) {
+func TestOrganizations_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,11 +24,11 @@ func TestOrganizations_ListOrganizations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().ListOrganizations(context.Background(), &workos.OrganizationsListOrganizationsParams{})
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
 	require.NotNil(t, iter)
 }
 
-func TestOrganizations_ListOrganizations_Empty(t *testing.T) {
+func TestOrganizations_List_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -37,12 +37,12 @@ func TestOrganizations_ListOrganizations_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().ListOrganizations(context.Background(), &workos.OrganizationsListOrganizationsParams{})
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestOrganizations_CreateOrganizations(t *testing.T) {
+func TestOrganizations_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -53,12 +53,12 @@ func TestOrganizations_CreateOrganizations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().CreateOrganizations(context.Background(), &workos.OrganizationsCreateOrganizationsParams{})
+	result, err := client.Organizations().Create(context.Background(), &workos.OrganizationsCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestOrganizations_GetOrganizationByExternalID(t *testing.T) {
+func TestOrganizations_GetByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -69,12 +69,12 @@ func TestOrganizations_GetOrganizationByExternalID(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().GetOrganizationByExternalID(context.Background(), "test_external_id")
+	result, err := client.Organizations().GetByExternalID(context.Background(), "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestOrganizations_GetOrganization(t *testing.T) {
+func TestOrganizations_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -85,12 +85,12 @@ func TestOrganizations_GetOrganization(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().GetOrganization(context.Background(), "test_id")
+	result, err := client.Organizations().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestOrganizations_UpdateOrganization(t *testing.T) {
+func TestOrganizations_Update(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -101,12 +101,12 @@ func TestOrganizations_UpdateOrganization(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().UpdateOrganization(context.Background(), "test_id", &workos.OrganizationsUpdateOrganizationParams{})
+	result, err := client.Organizations().Update(context.Background(), "test_id", &workos.OrganizationsUpdateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestOrganizations_DeleteOrganization(t *testing.T) {
+func TestOrganizations_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -114,11 +114,11 @@ func TestOrganizations_DeleteOrganization(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Organizations().DeleteOrganization(context.Background(), "test_id")
+	err := client.Organizations().Delete(context.Background(), "test_id")
 	require.NoError(t, err)
 }
 
-func TestOrganizations_ListOrganizationAuditLogConfiguration(t *testing.T) {
+func TestOrganizations_ListAuditLogConfiguration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -129,7 +129,7 @@ func TestOrganizations_ListOrganizationAuditLogConfiguration(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().ListOrganizationAuditLogConfiguration(context.Background(), "test_id")
+	result, err := client.Organizations().ListAuditLogConfiguration(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -143,7 +143,7 @@ func TestOrganizations_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().ListOrganizations(context.Background(), &workos.OrganizationsListOrganizationsParams{})
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

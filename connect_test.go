@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
 func TestConnect_CompleteOAuth2(t *testing.T) {

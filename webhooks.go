@@ -7,63 +7,63 @@ import (
 	"fmt"
 )
 
-// webhooksService handles Webhooks operations.
-type webhooksService struct {
+// webhookService handles Webhooks operations.
+type webhookService struct {
 	client *Client
 }
 
-// WebhooksListWebhookEndpointsParams contains the parameters for ListWebhookEndpoints.
-type WebhooksListWebhookEndpointsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *WebhooksOrder `url:"order,omitempty"`
+// WebhooksListEndpointsParams contains the parameters for ListEndpoints.
+type WebhooksListEndpointsParams struct {
+	Before *string        `url:"before,omitempty" json:"-"`
+	After  *string        `url:"after,omitempty" json:"-"`
+	Limit  *int           `url:"limit,omitempty" json:"-"`
+	Order  *WebhooksOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListWebhookEndpoints list Webhook Endpoints
+// ListEndpoints listWebhookEndpoints
 // Get a list of all of your existing webhook endpoints.
-func (s *webhooksService) ListWebhookEndpoints(ctx context.Context, params *WebhooksListWebhookEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
-	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "data", opts)
+func (s *webhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
+	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts)
 }
 
-// WebhooksCreateWebhookEndpointsParams contains the parameters for CreateWebhookEndpoints.
-type WebhooksCreateWebhookEndpointsParams struct {
-	EndpointURL string `json:"endpoint_url"`
-	Events []CreateWebhookEndpointEvents `json:"events"`
+// WebhooksCreateEndpointsParams contains the parameters for CreateEndpoints.
+type WebhooksCreateEndpointsParams struct {
+	EndpointURL string                        `json:"endpoint_url"`
+	Events      []CreateWebhookEndpointEvents `json:"events"`
 }
 
-// CreateWebhookEndpoints create a Webhook Endpoint
+// CreateEndpoints createAWebhookEndpoint
 // Create a new webhook endpoint to receive event notifications.
-func (s *webhooksService) CreateWebhookEndpoints(ctx context.Context, params *WebhooksCreateWebhookEndpointsParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
+func (s *webhookService) CreateEndpoints(ctx context.Context, params *WebhooksCreateEndpointsParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
 	var result WebhookEndpointJSON
-	_, err := s.client.request(ctx, "POST", "/webhook_endpoints", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/webhook_endpoints", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// WebhooksUpdateWebhookEndpointParams contains the parameters for UpdateWebhookEndpoint.
-type WebhooksUpdateWebhookEndpointParams struct {
-	EndpointURL *string `json:"endpoint_url,omitempty"`
-	Status *UpdateWebhookEndpointStatus `json:"status,omitempty"`
-	Events []UpdateWebhookEndpointEvents `json:"events,omitempty"`
+// WebhooksUpdateEndpointParams contains the parameters for UpdateEndpoint.
+type WebhooksUpdateEndpointParams struct {
+	EndpointURL *string                       `json:"endpoint_url,omitempty"`
+	Status      *UpdateWebhookEndpointStatus  `json:"status,omitempty"`
+	Events      []UpdateWebhookEndpointEvents `json:"events,omitempty"`
 }
 
-// UpdateWebhookEndpoint update a Webhook Endpoint
+// UpdateEndpoint updateAWebhookEndpoint
 // Update the properties of an existing webhook endpoint.
-func (s *webhooksService) UpdateWebhookEndpoint(ctx context.Context, iD string, params *WebhooksUpdateWebhookEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
+func (s *webhookService) UpdateEndpoint(ctx context.Context, id string, params *WebhooksUpdateEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
 	var result WebhookEndpointJSON
-	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/webhook_endpoints/%s", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/webhook_endpoints/%s", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteWebhookEndpoint delete a Webhook Endpoint
+// DeleteEndpoint deleteAWebhookEndpoint
 // Delete an existing webhook endpoint.
-func (s *webhooksService) DeleteWebhookEndpoint(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/webhook_endpoints/%s", iD), nil, nil, opts)
+func (s *webhookService) DeleteEndpoint(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/webhook_endpoints/%s", id), nil, nil, nil, opts)
 	return err
 }

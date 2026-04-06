@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
-func TestDirectorySync_ListDirectories(t *testing.T) {
+func TestDirectorySync_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,11 +24,11 @@ func TestDirectorySync_ListDirectories(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.DirectorySyncListDirectoriesParams{})
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
 	require.NotNil(t, iter)
 }
 
-func TestDirectorySync_ListDirectories_Empty(t *testing.T) {
+func TestDirectorySync_List_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -37,12 +37,12 @@ func TestDirectorySync_ListDirectories_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.DirectorySyncListDirectoriesParams{})
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestDirectorySync_GetDirectory(t *testing.T) {
+func TestDirectorySync_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -53,12 +53,12 @@ func TestDirectorySync_GetDirectory(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.DirectorySync().GetDirectory(context.Background(), "test_id")
+	result, err := client.DirectorySync().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestDirectorySync_DeleteDirectory(t *testing.T) {
+func TestDirectorySync_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -66,11 +66,11 @@ func TestDirectorySync_DeleteDirectory(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.DirectorySync().DeleteDirectory(context.Background(), "test_id")
+	err := client.DirectorySync().Delete(context.Background(), "test_id")
 	require.NoError(t, err)
 }
 
-func TestDirectorySync_ListDirectoryGroups(t *testing.T) {
+func TestDirectorySync_ListGroups(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -81,11 +81,11 @@ func TestDirectorySync_ListDirectoryGroups(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryGroups(context.Background(), &workos.DirectorySyncListDirectoryGroupsParams{})
+	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{})
 	require.NotNil(t, iter)
 }
 
-func TestDirectorySync_ListDirectoryGroups_Empty(t *testing.T) {
+func TestDirectorySync_ListGroups_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -94,12 +94,12 @@ func TestDirectorySync_ListDirectoryGroups_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryGroups(context.Background(), &workos.DirectorySyncListDirectoryGroupsParams{})
+	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestDirectorySync_GetDirectoryGroup(t *testing.T) {
+func TestDirectorySync_GetGroup(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -110,12 +110,12 @@ func TestDirectorySync_GetDirectoryGroup(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.DirectorySync().GetDirectoryGroup(context.Background(), "test_id")
+	result, err := client.DirectorySync().GetGroup(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestDirectorySync_ListDirectoryUsers(t *testing.T) {
+func TestDirectorySync_ListUsers(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -126,11 +126,11 @@ func TestDirectorySync_ListDirectoryUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryUsers(context.Background(), &workos.DirectorySyncListDirectoryUsersParams{})
+	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{})
 	require.NotNil(t, iter)
 }
 
-func TestDirectorySync_ListDirectoryUsers_Empty(t *testing.T) {
+func TestDirectorySync_ListUsers_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -139,12 +139,12 @@ func TestDirectorySync_ListDirectoryUsers_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryUsers(context.Background(), &workos.DirectorySyncListDirectoryUsersParams{})
+	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestDirectorySync_GetDirectoryUser(t *testing.T) {
+func TestDirectorySync_GetUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -155,7 +155,7 @@ func TestDirectorySync_GetDirectoryUser(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.DirectorySync().GetDirectoryUser(context.Background(), "test_id")
+	result, err := client.DirectorySync().GetUser(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -169,7 +169,7 @@ func TestDirectorySync_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.DirectorySyncListDirectoriesParams{})
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

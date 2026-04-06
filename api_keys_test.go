@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
-func TestApiKeys_CreateValidations(t *testing.T) {
+func TestAPIKeys_CreateValidations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,12 +24,12 @@ func TestApiKeys_CreateValidations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.ApiKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	result, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestApiKeys_DeleteAPIKey(t *testing.T) {
+func TestAPIKeys_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -37,11 +37,11 @@ func TestApiKeys_DeleteAPIKey(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.ApiKeys().DeleteAPIKey(context.Background(), "test_id")
+	err := client.APIKeys().Delete(context.Background(), "test_id")
 	require.NoError(t, err)
 }
 
-func TestApiKeys_ListOrganizationAPIKeys(t *testing.T) {
+func TestAPIKeys_ListOrganizationAPIKeys(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -52,11 +52,11 @@ func TestApiKeys_ListOrganizationAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.ApiKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
+	iter := client.APIKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
 	require.NotNil(t, iter)
 }
 
-func TestApiKeys_ListOrganizationAPIKeys_Empty(t *testing.T) {
+func TestAPIKeys_ListOrganizationAPIKeys_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -65,12 +65,12 @@ func TestApiKeys_ListOrganizationAPIKeys_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.ApiKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
+	iter := client.APIKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestApiKeys_CreateOrganizationAPIKeys(t *testing.T) {
+func TestAPIKeys_CreateOrganizationAPIKeys(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -81,12 +81,12 @@ func TestApiKeys_CreateOrganizationAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.ApiKeys().CreateOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysCreateOrganizationAPIKeysParams{})
+	result, err := client.APIKeys().CreateOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysCreateOrganizationAPIKeysParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestApiKeys_Error401(t *testing.T) {
+func TestAPIKeys_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -95,6 +95,6 @@ func TestApiKeys_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.ApiKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

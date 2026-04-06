@@ -6,25 +6,25 @@ import (
 	"context"
 )
 
-// eventsService handles Events operations.
-type eventsService struct {
+// eventService handles Events operations.
+type eventService struct {
 	client *Client
 }
 
-// EventsListEventsParams contains the parameters for ListEvents.
-type EventsListEventsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *EventsOrder `url:"order,omitempty"`
-	Events []string `url:"events,omitempty"`
-	RangeStart *string `url:"range_start,omitempty"`
-	RangeEnd *string `url:"range_end,omitempty"`
-	OrganizationID *string `url:"organization_id,omitempty"`
+// EventsListParams contains the parameters for List.
+type EventsListParams struct {
+	Before         *string      `url:"before,omitempty" json:"-"`
+	After          *string      `url:"after,omitempty" json:"-"`
+	Limit          *int         `url:"limit,omitempty" json:"-"`
+	Order          *EventsOrder `url:"order,omitempty" json:"-"`
+	Events         []string     `url:"events,omitempty" json:"-"`
+	RangeStart     *string      `url:"range_start,omitempty" json:"-"`
+	RangeEnd       *string      `url:"range_end,omitempty" json:"-"`
+	OrganizationID *string      `url:"organization_id,omitempty" json:"-"`
 }
 
-// ListEvents list events
+// List listEvents
 // List events for the current environment.
-func (s *eventsService) ListEvents(ctx context.Context, params *EventsListEventsParams, opts ...RequestOption) *Iterator[EventSchema] {
-	return newIterator[EventSchema](ctx, s.client, "GET", "/events", params, "data", opts)
+func (s *eventService) List(ctx context.Context, params *EventsListParams, opts ...RequestOption) *Iterator[EventSchema] {
+	return newIterator[EventSchema](ctx, s.client, "GET", "/events", params, "after", "data", opts)
 }

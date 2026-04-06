@@ -7,16 +7,16 @@ import (
 	"fmt"
 )
 
-// auditLogsService handles AuditLogs operations.
-type auditLogsService struct {
+// auditLogService handles AuditLogs operations.
+type auditLogService struct {
 	client *Client
 }
 
-// ListOrganizationAuditLogsRetention get Retention
+// ListOrganizationAuditLogsRetention getRetention
 // Get the configured event retention period for the given Organization.
-func (s *auditLogsService) ListOrganizationAuditLogsRetention(ctx context.Context, iD string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
+func (s *auditLogService) ListOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -28,11 +28,11 @@ type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
 	RetentionPeriodInDays int `json:"retention_period_in_days"`
 }
 
-// UpdateOrganizationAuditLogsRetention set Retention
+// UpdateOrganizationAuditLogsRetention setRetention
 // Set the event retention period for the given Organization.
-func (s *auditLogsService) UpdateOrganizationAuditLogsRetention(ctx context.Context, iD string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
+func (s *auditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Context, id string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -41,44 +41,44 @@ func (s *auditLogsService) UpdateOrganizationAuditLogsRetention(ctx context.Cont
 
 // AuditLogsListActionsParams contains the parameters for ListActions.
 type AuditLogsListActionsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *AuditLogsOrder `url:"order,omitempty"`
+	Before *string         `url:"before,omitempty" json:"-"`
+	After  *string         `url:"after,omitempty" json:"-"`
+	Limit  *int            `url:"limit,omitempty" json:"-"`
+	Order  *AuditLogsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListActions list Actions
+// ListActions listActions
 // Get a list of all Audit Log actions in the current environment.
-func (s *auditLogsService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogActionJSON] {
-	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "data", opts)
+func (s *auditLogService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogActionJSON] {
+	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts)
 }
 
 // AuditLogsListActionSchemasParams contains the parameters for ListActionSchemas.
 type AuditLogsListActionSchemasParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *AuditLogsOrder `url:"order,omitempty"`
+	Before *string         `url:"before,omitempty" json:"-"`
+	After  *string         `url:"after,omitempty" json:"-"`
+	Limit  *int            `url:"limit,omitempty" json:"-"`
+	Order  *AuditLogsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListActionSchemas list Schemas
+// ListActionSchemas listSchemas
 // Get a list of all schemas for the Audit Logs action identified by `:name`.
-func (s *auditLogsService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
-	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), params, "data", opts)
+func (s *auditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
+	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), params, "after", "data", opts)
 }
 
 // AuditLogsCreateActionSchemasParams contains the parameters for CreateActionSchemas.
 type AuditLogsCreateActionSchemasParams struct {
-	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
-	Targets []*AuditLogSchemaTarget `json:"targets"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Actor    *AuditLogSchemaActor    `json:"actor,omitempty"`
+	Targets  []*AuditLogSchemaTarget `json:"targets"`
+	Metadata map[string]interface{}  `json:"metadata,omitempty"`
 }
 
-// CreateActionSchemas create Schema
+// CreateActionSchemas createSchema
 // Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
-func (s *auditLogsService) CreateActionSchemas(ctx context.Context, actionName string, params *AuditLogsCreateActionSchemasParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
+func (s *auditLogService) CreateActionSchemas(ctx context.Context, actionName string, params *AuditLogsCreateActionSchemasParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
 	var result AuditLogSchemaJSON
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -87,18 +87,18 @@ func (s *auditLogsService) CreateActionSchemas(ctx context.Context, actionName s
 
 // AuditLogsCreateEventsParams contains the parameters for CreateEvents.
 type AuditLogsCreateEventsParams struct {
-	OrganizationID string `json:"organization_id"`
-	Event *AuditLogEvent `json:"event"`
+	OrganizationID string         `json:"organization_id"`
+	Event          *AuditLogEvent `json:"event"`
 }
 
-// CreateEvents create Event
+// CreateEvents createEvent
 // Create an Audit Log Event.
 // This API supports idempotency which guarantees that performing the same operation multiple times will have the same result as if the operation were performed only once. This is handy in situations where you may need to retry a request due to a failure or prevent accidental duplicate requests from creating more than one resource.
 // To achieve idempotency, you can add `Idempotency-Key` request header to a Create Event request with a unique string as the value. Each subsequent request matching this unique string will return the same response. We suggest using [v4 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) for idempotency keys to avoid collisions.
 // Idempotency keys expire after 24 hours. The API will generate a new response if you submit a request with an expired key.
-func (s *auditLogsService) CreateEvents(ctx context.Context, params *AuditLogsCreateEventsParams, opts ...RequestOption) (*AuditLogEventCreateResponse, error) {
+func (s *auditLogService) CreateEvents(ctx context.Context, params *AuditLogsCreateEventsParams, opts ...RequestOption) (*AuditLogEventCreateResponse, error) {
 	var result AuditLogEventCreateResponse
-	_, err := s.client.request(ctx, "POST", "/audit_logs/events", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/audit_logs/events", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -107,32 +107,32 @@ func (s *auditLogsService) CreateEvents(ctx context.Context, params *AuditLogsCr
 
 // AuditLogsCreateExportsParams contains the parameters for CreateExports.
 type AuditLogsCreateExportsParams struct {
-	OrganizationID string `json:"organization_id"`
-	RangeStart string `json:"range_start"`
-	RangeEnd string `json:"range_end"`
-	Actions []string `json:"actions,omitempty"`
-	Actors []string `json:"actors,omitempty"`
-	ActorNames []string `json:"actor_names,omitempty"`
-	ActorIds []string `json:"actor_ids,omitempty"`
-	Targets []string `json:"targets,omitempty"`
+	OrganizationID string   `json:"organization_id"`
+	RangeStart     string   `json:"range_start"`
+	RangeEnd       string   `json:"range_end"`
+	Actions        []string `json:"actions,omitempty"`
+	Actors         []string `json:"actors,omitempty"`
+	ActorNames     []string `json:"actor_names,omitempty"`
+	ActorIds       []string `json:"actor_ids,omitempty"`
+	Targets        []string `json:"targets,omitempty"`
 }
 
-// CreateExports create Export
+// CreateExports createExport
 // Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
-func (s *auditLogsService) CreateExports(ctx context.Context, params *AuditLogsCreateExportsParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
+func (s *auditLogService) CreateExports(ctx context.Context, params *AuditLogsCreateExportsParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
-	_, err := s.client.request(ctx, "POST", "/audit_logs/exports", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/audit_logs/exports", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetExport get Export
+// GetExport getExport
 // Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
-func (s *auditLogsService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExportJSON, error) {
+func (s *auditLogService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", auditLogExportID), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", auditLogExportID), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

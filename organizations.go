@@ -7,104 +7,104 @@ import (
 	"fmt"
 )
 
-// organizationsService handles Organizations operations.
-type organizationsService struct {
+// organizationService handles Organizations operations.
+type organizationService struct {
 	client *Client
 }
 
-// OrganizationsListOrganizationsParams contains the parameters for ListOrganizations.
-type OrganizationsListOrganizationsParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *OrganizationsOrder `url:"order,omitempty"`
-	Domains []string `url:"domains,omitempty"`
-	Search *string `url:"search,omitempty"`
+// OrganizationsListParams contains the parameters for List.
+type OrganizationsListParams struct {
+	Before  *string             `url:"before,omitempty" json:"-"`
+	After   *string             `url:"after,omitempty" json:"-"`
+	Limit   *int                `url:"limit,omitempty" json:"-"`
+	Order   *OrganizationsOrder `url:"order,omitempty" json:"-"`
+	Domains []string            `url:"domains,omitempty" json:"-"`
+	Search  *string             `url:"search,omitempty" json:"-"`
 }
 
-// ListOrganizations list Organizations
+// List listOrganizations
 // Get a list of all of your existing organizations matching the criteria specified.
-func (s *organizationsService) ListOrganizations(ctx context.Context, params *OrganizationsListOrganizationsParams, opts ...RequestOption) *Iterator[Organization] {
-	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "data", opts)
+func (s *organizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
+	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts)
 }
 
-// OrganizationsCreateOrganizationsParams contains the parameters for CreateOrganizations.
-type OrganizationsCreateOrganizationsParams struct {
-	Name string `json:"name"`
-	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
-	Domains []string `json:"domains,omitempty"`
-	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
-	Metadata *map[string]string `json:"metadata,omitempty"`
-	ExternalID *string `json:"external_id,omitempty"`
+// OrganizationsCreateParams contains the parameters for Create.
+type OrganizationsCreateParams struct {
+	Name                             string                    `json:"name"`
+	AllowProfilesOutsideOrganization *bool                     `json:"allow_profiles_outside_organization,omitempty"`
+	Domains                          []string                  `json:"domains,omitempty"`
+	DomainData                       []*OrganizationDomainData `json:"domain_data,omitempty"`
+	Metadata                         *map[string]string        `json:"metadata,omitempty"`
+	ExternalID                       *string                   `json:"external_id,omitempty"`
 }
 
-// CreateOrganizations create an Organization
+// Create createAnOrganization
 // Creates a new organization in the current environment.
-func (s *organizationsService) CreateOrganizations(ctx context.Context, params *OrganizationsCreateOrganizationsParams, opts ...RequestOption) (*Organization, error) {
+func (s *organizationService) Create(ctx context.Context, params *OrganizationsCreateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "POST", "/organizations", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/organizations", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetOrganizationByExternalID get an Organization by External ID
+// GetByExternalID getAnOrganizationByExternalID
 // Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
-func (s *organizationsService) GetOrganizationByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
+func (s *organizationService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", externalID), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", externalID), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// GetOrganization get an Organization
+// Get getAnOrganization
 // Get the details of an existing organization.
-func (s *organizationsService) GetOrganization(ctx context.Context, iD string, opts ...RequestOption) (*Organization, error) {
+func (s *organizationService) Get(ctx context.Context, id string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// OrganizationsUpdateOrganizationParams contains the parameters for UpdateOrganization.
-type OrganizationsUpdateOrganizationParams struct {
-	Name *string `json:"name,omitempty"`
-	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
-	Domains []string `json:"domains,omitempty"`
-	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
-	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
-	Metadata *map[string]string `json:"metadata,omitempty"`
-	ExternalID *string `json:"external_id,omitempty"`
+// OrganizationsUpdateParams contains the parameters for Update.
+type OrganizationsUpdateParams struct {
+	Name                             *string                   `json:"name,omitempty"`
+	AllowProfilesOutsideOrganization *bool                     `json:"allow_profiles_outside_organization,omitempty"`
+	Domains                          []string                  `json:"domains,omitempty"`
+	DomainData                       []*OrganizationDomainData `json:"domain_data,omitempty"`
+	StripeCustomerID                 *string                   `json:"stripe_customer_id,omitempty"`
+	Metadata                         *map[string]string        `json:"metadata,omitempty"`
+	ExternalID                       *string                   `json:"external_id,omitempty"`
 }
 
-// UpdateOrganization update an Organization
+// Update updateAnOrganization
 // Updates an organization in the current environment.
-func (s *organizationsService) UpdateOrganization(ctx context.Context, iD string, params *OrganizationsUpdateOrganizationParams, opts ...RequestOption) (*Organization, error) {
+func (s *organizationService) Update(ctx context.Context, id string, params *OrganizationsUpdateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", iD), params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", id), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteOrganization delete an Organization
+// Delete deleteAnOrganization
 // Permanently deletes an organization in the current environment. It cannot be undone.
-func (s *organizationsService) DeleteOrganization(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", iD), nil, nil, opts)
+func (s *organizationService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// ListOrganizationAuditLogConfiguration get Audit Log Configuration
+// ListAuditLogConfiguration getAuditLogConfiguration
 // Get the unified view of audit log trail and stream configuration for an organization.
-func (s *organizationsService) ListOrganizationAuditLogConfiguration(ctx context.Context, iD string, opts ...RequestOption) (*AuditLogConfiguration, error) {
+func (s *organizationService) ListAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", iD), nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

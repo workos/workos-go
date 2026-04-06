@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// apiKeysService handles ApiKeys operations.
-type apiKeysService struct {
+// apiKeyService handles ApiKeys operations.
+type apiKeyService struct {
 	client *Client
 }
 
@@ -17,49 +17,49 @@ type APIKeysCreateValidationsParams struct {
 	Value string `json:"value"`
 }
 
-// CreateValidations validate API key
+// CreateValidations validateAPIKey
 // Validate an API key value and return the API key object if valid.
-func (s *apiKeysService) CreateValidations(ctx context.Context, params *APIKeysCreateValidationsParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
+func (s *apiKeyService) CreateValidations(ctx context.Context, params *APIKeysCreateValidationsParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
 	var result APIKeyValidationResponse
-	_, err := s.client.request(ctx, "POST", "/api_keys/validations", params, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/api_keys/validations", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteAPIKey delete an API key
+// Delete deleteAnAPIKey
 // Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
-func (s *apiKeysService) DeleteAPIKey(ctx context.Context, iD string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", iD), nil, nil, opts)
+func (s *apiKeyService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", id), nil, nil, nil, opts)
 	return err
 }
 
 // APIKeysListOrganizationAPIKeysParams contains the parameters for ListOrganizationAPIKeys.
 type APIKeysListOrganizationAPIKeysParams struct {
-	Before *string `url:"before,omitempty"`
-	After *string `url:"after,omitempty"`
-	Limit *float64 `url:"limit,omitempty"`
-	Order *OrganizationsAPIKeysOrder `url:"order,omitempty"`
+	Before *string                    `url:"before,omitempty" json:"-"`
+	After  *string                    `url:"after,omitempty" json:"-"`
+	Limit  *int                       `url:"limit,omitempty" json:"-"`
+	Order  *OrganizationsAPIKeysOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListOrganizationAPIKeys list API keys for an organization
+// ListOrganizationAPIKeys listAPIKeysForAnOrganization
 // Get a list of all API keys for an organization.
-func (s *apiKeysService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
-	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, "data", opts)
+func (s *apiKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
+	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, "after", "data", opts)
 }
 
 // APIKeysCreateOrganizationAPIKeysParams contains the parameters for CreateOrganizationAPIKeys.
 type APIKeysCreateOrganizationAPIKeysParams struct {
-	Name string `json:"name"`
+	Name        string   `json:"name"`
 	Permissions []string `json:"permissions,omitempty"`
 }
 
-// CreateOrganizationAPIKeys create an API key for an organization
+// CreateOrganizationAPIKeys createAnAPIKeyForAnOrganization
 // Create a new API key for an organization.
-func (s *apiKeysService) CreateOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeysParams, opts ...RequestOption) (*APIKeyWithValue, error) {
+func (s *apiKeyService) CreateOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeysParams, opts ...RequestOption) (*APIKeyWithValue, error) {
 	var result APIKeyWithValue
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", organizationID), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}

@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
+	"github.com/workos/workos-go/v6"
 )
 
-func TestFeatureFlags_ListFeatureFlags(t *testing.T) {
+func TestFeatureFlags_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,11 +24,11 @@ func TestFeatureFlags_ListFeatureFlags(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.FeatureFlagsListFeatureFlagsParams{})
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
 	require.NotNil(t, iter)
 }
 
-func TestFeatureFlags_ListFeatureFlags_Empty(t *testing.T) {
+func TestFeatureFlags_List_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -37,12 +37,12 @@ func TestFeatureFlags_ListFeatureFlags_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.FeatureFlagsListFeatureFlagsParams{})
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestFeatureFlags_GetFeatureFlag(t *testing.T) {
+func TestFeatureFlags_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -53,12 +53,12 @@ func TestFeatureFlags_GetFeatureFlag(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.FeatureFlags().GetFeatureFlag(context.Background(), "test_slug")
+	result, err := client.FeatureFlags().Get(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestFeatureFlags_DisableFeatureFlag(t *testing.T) {
+func TestFeatureFlags_Disable(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -69,12 +69,12 @@ func TestFeatureFlags_DisableFeatureFlag(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.FeatureFlags().DisableFeatureFlag(context.Background(), "test_slug")
+	result, err := client.FeatureFlags().Disable(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestFeatureFlags_EnableFeatureFlag(t *testing.T) {
+func TestFeatureFlags_Enable(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -85,12 +85,12 @@ func TestFeatureFlags_EnableFeatureFlag(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.FeatureFlags().EnableFeatureFlag(context.Background(), "test_slug")
+	result, err := client.FeatureFlags().Enable(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestFeatureFlags_CreateFeatureFlagTarget(t *testing.T) {
+func TestFeatureFlags_CreateTarget(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.WriteHeader(http.StatusOK)
@@ -98,11 +98,11 @@ func TestFeatureFlags_CreateFeatureFlagTarget(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.FeatureFlags().CreateFeatureFlagTarget(context.Background(), "test_resourceId", "test_slug")
+	err := client.FeatureFlags().CreateTarget(context.Background(), "test_resourceId", "test_slug")
 	require.NoError(t, err)
 }
 
-func TestFeatureFlags_DeleteFeatureFlagTarget(t *testing.T) {
+func TestFeatureFlags_DeleteTarget(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		w.WriteHeader(http.StatusNoContent)
@@ -110,7 +110,7 @@ func TestFeatureFlags_DeleteFeatureFlagTarget(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.FeatureFlags().DeleteFeatureFlagTarget(context.Background(), "test_resourceId", "test_slug")
+	err := client.FeatureFlags().DeleteTarget(context.Background(), "test_resourceId", "test_slug")
 	require.NoError(t, err)
 }
 
@@ -181,7 +181,7 @@ func TestFeatureFlags_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.FeatureFlagsListFeatureFlagsParams{})
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

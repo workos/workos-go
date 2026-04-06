@@ -75,29 +75,29 @@ func WithRequestBaseURL(url string) RequestOption {
 
 // Client is the WorkOS API client.
 type Client struct {
-	apiKey       string
-	clientID     string
-	baseURL      string
-	httpClient   *http.Client
-	maxRetries   int
+	apiKey     string
+	clientID   string
+	baseURL    string
+	httpClient *http.Client
+	maxRetries int
 
-	apiKeys *apiKeysService
-	multiFactorAuth *multiFactorAuthService
-	connect *connectService
-	authorization *authorizationService
-	sSO *sSOService
-	pipes *pipesService
-	directorySync *directorySyncService
-	events *eventsService
-	featureFlags *featureFlagsService
-	organizationDomains *organizationDomainsService
-	organizations *organizationsService
-	adminPortal *adminPortalService
-	radar *radarService
-	userManagement *userManagementService
-	webhooks *webhooksService
-	widgets *widgetsService
-	auditLogs *auditLogsService
+	apiKeys             *apiKeyService
+	multiFactorAuth     *multiFactorAuthService
+	connect             *connectService
+	authorization       *authorizationService
+	sso                 *ssoService
+	pipes               *pipeService
+	directorySync       *directorySyncService
+	events              *eventService
+	featureFlags        *featureFlagService
+	organizationDomains *organizationDomainService
+	organizations       *organizationService
+	adminPortal         *adminPortalService
+	radar               *radarService
+	userManagement      *userManagementService
+	webhooks            *webhookService
+	widgets             *widgetService
+	auditLogs           *auditLogService
 }
 
 // NewClient creates a new WorkOS API client.
@@ -111,28 +111,28 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
-	c.apiKeys = &apiKeysService{client: c}
+	c.apiKeys = &apiKeyService{client: c}
 	c.multiFactorAuth = &multiFactorAuthService{client: c}
 	c.connect = &connectService{client: c}
 	c.authorization = &authorizationService{client: c}
-	c.sSO = &sSOService{client: c}
-	c.pipes = &pipesService{client: c}
+	c.sso = &ssoService{client: c}
+	c.pipes = &pipeService{client: c}
 	c.directorySync = &directorySyncService{client: c}
-	c.events = &eventsService{client: c}
-	c.featureFlags = &featureFlagsService{client: c}
-	c.organizationDomains = &organizationDomainsService{client: c}
-	c.organizations = &organizationsService{client: c}
+	c.events = &eventService{client: c}
+	c.featureFlags = &featureFlagService{client: c}
+	c.organizationDomains = &organizationDomainService{client: c}
+	c.organizations = &organizationService{client: c}
 	c.adminPortal = &adminPortalService{client: c}
 	c.radar = &radarService{client: c}
 	c.userManagement = &userManagementService{client: c}
-	c.webhooks = &webhooksService{client: c}
-	c.widgets = &widgetsService{client: c}
-	c.auditLogs = &auditLogsService{client: c}
+	c.webhooks = &webhookService{client: c}
+	c.widgets = &widgetService{client: c}
+	c.auditLogs = &auditLogService{client: c}
 	return c
 }
 
-// ApiKeys returns the ApiKeys service.
-func (c *Client) ApiKeys() *apiKeysService {
+// APIKeys returns the APIKeys service.
+func (c *Client) APIKeys() *apiKeyService {
 	return c.apiKeys
 }
 
@@ -152,12 +152,12 @@ func (c *Client) Authorization() *authorizationService {
 }
 
 // SSO returns the SSO service.
-func (c *Client) SSO() *sSOService {
-	return c.sSO
+func (c *Client) SSO() *ssoService {
+	return c.sso
 }
 
 // Pipes returns the Pipes service.
-func (c *Client) Pipes() *pipesService {
+func (c *Client) Pipes() *pipeService {
 	return c.pipes
 }
 
@@ -167,22 +167,22 @@ func (c *Client) DirectorySync() *directorySyncService {
 }
 
 // Events returns the Events service.
-func (c *Client) Events() *eventsService {
+func (c *Client) Events() *eventService {
 	return c.events
 }
 
 // FeatureFlags returns the FeatureFlags service.
-func (c *Client) FeatureFlags() *featureFlagsService {
+func (c *Client) FeatureFlags() *featureFlagService {
 	return c.featureFlags
 }
 
 // OrganizationDomains returns the OrganizationDomains service.
-func (c *Client) OrganizationDomains() *organizationDomainsService {
+func (c *Client) OrganizationDomains() *organizationDomainService {
 	return c.organizationDomains
 }
 
 // Organizations returns the Organizations service.
-func (c *Client) Organizations() *organizationsService {
+func (c *Client) Organizations() *organizationService {
 	return c.organizations
 }
 
@@ -202,16 +202,16 @@ func (c *Client) UserManagement() *userManagementService {
 }
 
 // Webhooks returns the Webhooks service.
-func (c *Client) Webhooks() *webhooksService {
+func (c *Client) Webhooks() *webhookService {
 	return c.webhooks
 }
 
 // Widgets returns the Widgets service.
-func (c *Client) Widgets() *widgetsService {
+func (c *Client) Widgets() *widgetService {
 	return c.widgets
 }
 
 // AuditLogs returns the AuditLogs service.
-func (c *Client) AuditLogs() *auditLogsService {
+func (c *Client) AuditLogs() *auditLogService {
 	return c.auditLogs
 }
