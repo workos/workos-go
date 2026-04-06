@@ -24,3 +24,8 @@ jobs:
         run: |
           gofmt -d ./
           git diff --exit-code
+
+      - name: Run go vet
+        run: |
+          go mod download
+          go vet ./...
