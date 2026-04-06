@@ -162,6 +162,8 @@ type AuditLogExportCreation struct {
 	// Actions is list of actions to filter against.
 	Actions []string `json:"actions,omitempty"`
 	// Actors is deprecated. Use `actor_names` instead.
+	//
+	// Deprecated: this field is deprecated.
 	Actors []string `json:"actors,omitempty"`
 	// ActorNames is list of actor names to filter against.
 	ActorNames []string `json:"actor_names,omitempty"`
@@ -373,6 +375,8 @@ type UpdateOrganization struct {
 	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
 	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
 	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
+	//
+	// Deprecated: this field is deprecated.
 	Domains []string `json:"domains,omitempty"`
 	// DomainData is the domains associated with the organization, including verification state.
 	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
@@ -919,6 +923,8 @@ type Connection struct {
 	// State is indicates whether a Connection is able to authenticate users.
 	State ConnectionState `json:"state"`
 	// Status is deprecated. Use `state` instead.
+	//
+	// Deprecated: this field is deprecated.
 	Status ConnectionStatus `json:"status"`
 	// Domains is list of Organization Domains.
 	Domains []*ConnectionDomain `json:"domains"`
@@ -2281,5 +2287,7 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	// UpdatedAt is the timestamp when the connection was last updated.
 	UpdatedAt string `json:"updated_at"`
 	// UserlandUserID is use `user_id` instead.
+	//
+	// Deprecated: this field is deprecated.
 	UserlandUserID *string `json:"userlandUserId"`
 }

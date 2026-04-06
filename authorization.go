@@ -14,10 +14,14 @@ type authorizationService struct {
 
 // AuthorizationCheckOrganizationMembershipParams contains the parameters for CheckOrganizationMembership.
 type AuthorizationCheckOrganizationMembershipParams struct {
-	PermissionSlug     string  `json:"permission_slug"`
-	ResourceID         *string `json:"resource_id,omitempty"`
+	// PermissionSlug is the slug of the permission to check.
+	PermissionSlug string `json:"permission_slug"`
+	// ResourceID is the ID of the resource.
+	ResourceID *string `json:"resource_id,omitempty"`
+	// ResourceExternalID is the external ID of the resource.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	ResourceTypeSlug   *string `json:"resource_type_slug,omitempty"`
+	// ResourceTypeSlug is the slug of the resource type.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // CheckOrganizationMembership checkAuthorization
@@ -33,14 +37,22 @@ func (s *authorizationService) CheckOrganizationMembership(ctx context.Context, 
 
 // AuthorizationListOrganizationMembershipResourcesParams contains the parameters for ListOrganizationMembershipResources.
 type AuthorizationListOrganizationMembershipResourcesParams struct {
-	Before                   *string             `url:"before,omitempty" json:"-"`
-	After                    *string             `url:"after,omitempty" json:"-"`
-	Limit                    *int                `url:"limit,omitempty" json:"-"`
-	Order                    *AuthorizationOrder `url:"order,omitempty" json:"-"`
-	PermissionSlug           string              `url:"permission_slug" json:"-"`
-	ParentResourceID         *string             `url:"parent_resource_id,omitempty" json:"-"`
-	ParentResourceTypeSlug   *string             `url:"parent_resource_type_slug,omitempty" json:"-"`
-	ParentResourceExternalID *string             `url:"parent_resource_external_id,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	// PermissionSlug is the permission slug to filter by. Only child resources where the organization membership has this permission are returned.
+	PermissionSlug string `url:"permission_slug" json:"-"`
+	// ParentResourceID is the WorkOS ID of the parent resource. Provide this or both `parent_resource_external_id` and `parent_resource_type_slug`, but not both.
+	ParentResourceID *string `url:"parent_resource_id,omitempty" json:"-"`
+	// ParentResourceTypeSlug is the slug of the parent resource type. Must be provided together with `parent_resource_external_id`.
+	ParentResourceTypeSlug *string `url:"parent_resource_type_slug,omitempty" json:"-"`
+	// ParentResourceExternalID is the application-specific external identifier of the parent resource. Must be provided together with `parent_resource_type_slug`.
+	ParentResourceExternalID *string `url:"parent_resource_external_id,omitempty" json:"-"`
 }
 
 // ListOrganizationMembershipResources listResourcesForOrganizationMembership
@@ -52,10 +64,14 @@ func (s *authorizationService) ListOrganizationMembershipResources(ctx context.C
 
 // AuthorizationListOrganizationMembershipRoleAssignmentsParams contains the parameters for ListOrganizationMembershipRoleAssignments.
 type AuthorizationListOrganizationMembershipRoleAssignmentsParams struct {
-	Before *string             `url:"before,omitempty" json:"-"`
-	After  *string             `url:"after,omitempty" json:"-"`
-	Limit  *int                `url:"limit,omitempty" json:"-"`
-	Order  *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListOrganizationMembershipRoleAssignments listRoleAssignments
@@ -66,10 +82,14 @@ func (s *authorizationService) ListOrganizationMembershipRoleAssignments(ctx con
 
 // AuthorizationCreateOrganizationMembershipRoleAssignmentsParams contains the parameters for CreateOrganizationMembershipRoleAssignments.
 type AuthorizationCreateOrganizationMembershipRoleAssignmentsParams struct {
-	RoleSlug           string  `json:"role_slug"`
-	ResourceID         *string `json:"resource_id,omitempty"`
+	// RoleSlug is the slug of the role to assign.
+	RoleSlug string `json:"role_slug"`
+	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
+	ResourceID *string `json:"resource_id,omitempty"`
+	// ResourceExternalID is the external ID of the resource. Requires `resource_type_slug`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	ResourceTypeSlug   *string `json:"resource_type_slug,omitempty"`
+	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // CreateOrganizationMembershipRoleAssignments assignARole
@@ -85,10 +105,14 @@ func (s *authorizationService) CreateOrganizationMembershipRoleAssignments(ctx c
 
 // AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams contains the parameters for DeleteOrganizationMembershipRoleAssignments.
 type AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams struct {
-	RoleSlug           string  `json:"role_slug"`
-	ResourceID         *string `json:"resource_id,omitempty"`
+	// RoleSlug is the slug of the role to remove.
+	RoleSlug string `json:"role_slug"`
+	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
+	ResourceID *string `json:"resource_id,omitempty"`
+	// ResourceExternalID is the external ID of the resource. Requires `resource_type_slug`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	ResourceTypeSlug   *string `json:"resource_type_slug,omitempty"`
+	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // DeleteOrganizationMembershipRoleAssignments removeARoleAssignment
@@ -118,8 +142,11 @@ func (s *authorizationService) ListOrganizationRoles(ctx context.Context, organi
 
 // AuthorizationCreateOrganizationRolesParams contains the parameters for CreateOrganizationRoles.
 type AuthorizationCreateOrganizationRolesParams struct {
-	Slug        *string `json:"slug,omitempty"`
-	Name        string  `json:"name"`
+	// Slug is a unique identifier for the role within the organization. When provided, must begin with 'org-' and contain only lowercase letters, numbers, hyphens, and underscores. When omitted, a slug is auto-generated from the role name and a random suffix.
+	Slug *string `json:"slug,omitempty"`
+	// Name is a descriptive name for the role.
+	Name string `json:"name"`
+	// Description is an optional description of the role's purpose.
 	Description *string `json:"description,omitempty"`
 }
 
@@ -147,7 +174,9 @@ func (s *authorizationService) GetOrganizationRole(ctx context.Context, organiza
 
 // AuthorizationUpdateOrganizationRoleParams contains the parameters for UpdateOrganizationRole.
 type AuthorizationUpdateOrganizationRoleParams struct {
-	Name        *string `json:"name,omitempty"`
+	// Name is a descriptive name for the role.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the role's purpose.
 	Description *string `json:"description,omitempty"`
 }
 
@@ -186,6 +215,7 @@ func (s *authorizationService) CreateRolePermissions(ctx context.Context, organi
 
 // AuthorizationUpdateRolePermissionsParams contains the parameters for UpdateRolePermissions.
 type AuthorizationUpdateRolePermissionsParams struct {
+	// Permissions is the permission slugs to assign to the role.
 	Permissions []string `json:"permissions"`
 }
 
@@ -220,11 +250,16 @@ func (s *authorizationService) GetOrganizationResource(ctx context.Context, orga
 
 // AuthorizationUpdateOrganizationResourceParams contains the parameters for UpdateOrganizationResource.
 type AuthorizationUpdateOrganizationResourceParams struct {
-	Name                     *string `json:"name,omitempty"`
-	Description              *string `json:"description,omitempty"`
-	ParentResourceID         *string `json:"parent_resource_id,omitempty"`
+	// Name is a display name for the resource.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the resource.
+	Description *string `json:"description,omitempty"`
+	// ParentResourceID is the ID of the parent resource.
+	ParentResourceID *string `json:"parent_resource_id,omitempty"`
+	// ParentResourceExternalID is the external ID of the parent resource.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	ParentResourceTypeSlug   *string `json:"parent_resource_type_slug,omitempty"`
+	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
 // UpdateOrganizationResource updateAResourceByExternalID
@@ -240,6 +275,7 @@ func (s *authorizationService) UpdateOrganizationResource(ctx context.Context, o
 
 // AuthorizationDeleteOrganizationResourceParams contains the parameters for DeleteOrganizationResource.
 type AuthorizationDeleteOrganizationResourceParams struct {
+	// CascadeDelete is if true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
 	CascadeDelete *bool `url:"cascade_delete,omitempty" json:"-"`
 }
 
@@ -252,12 +288,18 @@ func (s *authorizationService) DeleteOrganizationResource(ctx context.Context, o
 
 // AuthorizationListResourceOrganizationMembershipsParams contains the parameters for ListResourceOrganizationMemberships.
 type AuthorizationListResourceOrganizationMembershipsParams struct {
-	Before         *string                  `url:"before,omitempty" json:"-"`
-	After          *string                  `url:"after,omitempty" json:"-"`
-	Limit          *int                     `url:"limit,omitempty" json:"-"`
-	Order          *AuthorizationOrder      `url:"order,omitempty" json:"-"`
-	PermissionSlug string                   `url:"permission_slug" json:"-"`
-	Assignment     *AuthorizationAssignment `url:"assignment,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	// PermissionSlug is the permission slug to filter by. Only users with this permission on the resource are returned.
+	PermissionSlug string `url:"permission_slug" json:"-"`
+	// Assignment is filter by assignment type. Use "direct" for direct assignments only, or "indirect" to include inherited assignments.
+	Assignment *AuthorizationAssignment `url:"assignment,omitempty" json:"-"`
 }
 
 // ListResourceOrganizationMemberships listMembershipsForAResourceByExternalID
@@ -268,16 +310,26 @@ func (s *authorizationService) ListResourceOrganizationMemberships(ctx context.C
 
 // AuthorizationListResourcesParams contains the parameters for ListResources.
 type AuthorizationListResourcesParams struct {
-	Before                 *string             `url:"before,omitempty" json:"-"`
-	After                  *string             `url:"after,omitempty" json:"-"`
-	Limit                  *int                `url:"limit,omitempty" json:"-"`
-	Order                  *AuthorizationOrder `url:"order,omitempty" json:"-"`
-	OrganizationID         *string             `url:"organization_id,omitempty" json:"-"`
-	ResourceTypeSlug       *string             `url:"resource_type_slug,omitempty" json:"-"`
-	ParentResourceID       *string             `url:"parent_resource_id,omitempty" json:"-"`
-	ParentResourceTypeSlug *string             `url:"parent_resource_type_slug,omitempty" json:"-"`
-	ParentExternalID       *string             `url:"parent_external_id,omitempty" json:"-"`
-	Search                 *string             `url:"search,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	// OrganizationID is filter resources by organization ID.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// ResourceTypeSlug is filter resources by resource type slug.
+	ResourceTypeSlug *string `url:"resource_type_slug,omitempty" json:"-"`
+	// ParentResourceID is filter resources by parent resource ID.
+	ParentResourceID *string `url:"parent_resource_id,omitempty" json:"-"`
+	// ParentResourceTypeSlug is filter resources by parent resource type slug.
+	ParentResourceTypeSlug *string `url:"parent_resource_type_slug,omitempty" json:"-"`
+	// ParentExternalID is filter resources by parent external ID.
+	ParentExternalID *string `url:"parent_external_id,omitempty" json:"-"`
+	// Search is search resources by name.
+	Search *string `url:"search,omitempty" json:"-"`
 }
 
 // ListResources listResources
@@ -288,14 +340,22 @@ func (s *authorizationService) ListResources(ctx context.Context, params *Author
 
 // AuthorizationCreateResourcesParams contains the parameters for CreateResources.
 type AuthorizationCreateResourcesParams struct {
-	ExternalID               string  `json:"external_id"`
-	Name                     string  `json:"name"`
-	Description              *string `json:"description,omitempty"`
-	ResourceTypeSlug         string  `json:"resource_type_slug"`
-	OrganizationID           string  `json:"organization_id"`
-	ParentResourceID         *string `json:"parent_resource_id,omitempty"`
+	// ExternalID is an external identifier for the resource.
+	ExternalID string `json:"external_id"`
+	// Name is a display name for the resource.
+	Name string `json:"name"`
+	// Description is an optional description of the resource.
+	Description *string `json:"description,omitempty"`
+	// ResourceTypeSlug is the slug of the resource type.
+	ResourceTypeSlug string `json:"resource_type_slug"`
+	// OrganizationID is the ID of the organization this resource belongs to.
+	OrganizationID string `json:"organization_id"`
+	// ParentResourceID is the ID of the parent resource.
+	ParentResourceID *string `json:"parent_resource_id,omitempty"`
+	// ParentResourceExternalID is the external ID of the parent resource.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	ParentResourceTypeSlug   *string `json:"parent_resource_type_slug,omitempty"`
+	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
 // CreateResources createAnAuthorizationResource
@@ -322,11 +382,16 @@ func (s *authorizationService) GetResource(ctx context.Context, resourceID strin
 
 // AuthorizationUpdateResourceParams contains the parameters for UpdateResource.
 type AuthorizationUpdateResourceParams struct {
-	Name                     *string `json:"name,omitempty"`
-	Description              *string `json:"description,omitempty"`
-	ParentResourceID         *string `json:"parent_resource_id,omitempty"`
+	// Name is a display name for the resource.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the resource.
+	Description *string `json:"description,omitempty"`
+	// ParentResourceID is the ID of the parent resource.
+	ParentResourceID *string `json:"parent_resource_id,omitempty"`
+	// ParentResourceExternalID is the external ID of the parent resource.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	ParentResourceTypeSlug   *string `json:"parent_resource_type_slug,omitempty"`
+	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
 // UpdateResource updateAResource
@@ -342,6 +407,7 @@ func (s *authorizationService) UpdateResource(ctx context.Context, resourceID st
 
 // AuthorizationDeleteResourceParams contains the parameters for DeleteResource.
 type AuthorizationDeleteResourceParams struct {
+	// CascadeDelete is if true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
 	CascadeDelete *bool `url:"cascade_delete,omitempty" json:"-"`
 }
 
@@ -365,9 +431,13 @@ func (s *authorizationService) ListRoles(ctx context.Context, opts ...RequestOpt
 
 // AuthorizationCreateRolesParams contains the parameters for CreateRoles.
 type AuthorizationCreateRolesParams struct {
-	Slug             string  `json:"slug"`
-	Name             string  `json:"name"`
-	Description      *string `json:"description,omitempty"`
+	// Slug is a unique slug for the role.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the role.
+	Name string `json:"name"`
+	// Description is an optional description of the role.
+	Description *string `json:"description,omitempty"`
+	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
@@ -395,7 +465,9 @@ func (s *authorizationService) GetRole(ctx context.Context, slug string, opts ..
 
 // AuthorizationUpdateRoleParams contains the parameters for UpdateRole.
 type AuthorizationUpdateRoleParams struct {
-	Name        *string `json:"name,omitempty"`
+	// Name is a descriptive name for the role.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the role.
 	Description *string `json:"description,omitempty"`
 }
 
@@ -412,10 +484,14 @@ func (s *authorizationService) UpdateRole(ctx context.Context, slug string, para
 
 // AuthorizationListPermissionsParams contains the parameters for ListPermissions.
 type AuthorizationListPermissionsParams struct {
-	Before *string           `url:"before,omitempty" json:"-"`
-	After  *string           `url:"after,omitempty" json:"-"`
-	Limit  *int              `url:"limit,omitempty" json:"-"`
-	Order  *PermissionsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *PermissionsOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListPermissions listPermissions
@@ -426,9 +502,13 @@ func (s *authorizationService) ListPermissions(ctx context.Context, params *Auth
 
 // AuthorizationCreatePermissionsParams contains the parameters for CreatePermissions.
 type AuthorizationCreatePermissionsParams struct {
-	Slug             string  `json:"slug"`
-	Name             string  `json:"name"`
-	Description      *string `json:"description,omitempty"`
+	// Slug is a unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Permission.
+	Name string `json:"name"`
+	// Description is an optional description of the Permission.
+	Description *string `json:"description,omitempty"`
+	// ResourceTypeSlug is the slug of the resource type this permission is scoped to.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
@@ -456,7 +536,9 @@ func (s *authorizationService) GetPermission(ctx context.Context, slug string, o
 
 // AuthorizationUpdatePermissionParams contains the parameters for UpdatePermission.
 type AuthorizationUpdatePermissionParams struct {
-	Name        *string `json:"name,omitempty"`
+	// Name is a descriptive name for the Permission.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the Permission.
 	Description *string `json:"description,omitempty"`
 }
 

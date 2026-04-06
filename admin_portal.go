@@ -13,11 +13,23 @@ type adminPortalService struct {
 
 // AdminPortalGenerateLinkParams contains the parameters for GenerateLink.
 type AdminPortalGenerateLinkParams struct {
-	ReturnURL     *string             `json:"return_url,omitempty"`
-	SuccessURL    *string             `json:"success_url,omitempty"`
-	Organization  string              `json:"organization"`
-	Intent        *GenerateLinkIntent `json:"intent,omitempty"`
-	IntentOptions *IntentOptions      `json:"intent_options,omitempty"`
+	// ReturnURL is the URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
+	ReturnURL *string `json:"return_url,omitempty"`
+	// SuccessURL is the URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
+	SuccessURL *string `json:"success_url,omitempty"`
+	// Organization is an [Organization](https://workos.com/docs/reference/organization) identifier.
+	Organization string `json:"organization"`
+	// Intent is       The intent of the Admin Portal.
+	// - `sso` - Launch Admin Portal for creating SSO connections
+	// - `dsync` - Launch Admin Portal for creating Directory Sync connections
+	// - `audit_logs` - Launch Admin Portal for viewing Audit Logs
+	// - `log_streams` - Launch Admin Portal for creating Log Streams
+	// - `domain_verification` - Launch Admin Portal for Domain Verification
+	// - `certificate_renewal` - Launch Admin Portal for renewing SAML Certificates
+	// - `bring_your_own_key` - Launch Admin Portal for configuring Bring Your Own Key
+	Intent *GenerateLinkIntent `json:"intent,omitempty"`
+	// IntentOptions is options to configure the Admin Portal based on the intent.
+	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
 }
 
 // GenerateLink generateAPortalLink

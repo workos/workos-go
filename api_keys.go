@@ -14,6 +14,7 @@ type apiKeyService struct {
 
 // APIKeysCreateValidationsParams contains the parameters for CreateValidations.
 type APIKeysCreateValidationsParams struct {
+	// Value is the value for an API key.
 	Value string `json:"value"`
 }
 
@@ -37,10 +38,14 @@ func (s *apiKeyService) Delete(ctx context.Context, id string, opts ...RequestOp
 
 // APIKeysListOrganizationAPIKeysParams contains the parameters for ListOrganizationAPIKeys.
 type APIKeysListOrganizationAPIKeysParams struct {
-	Before *string                    `url:"before,omitempty" json:"-"`
-	After  *string                    `url:"after,omitempty" json:"-"`
-	Limit  *int                       `url:"limit,omitempty" json:"-"`
-	Order  *OrganizationsAPIKeysOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *OrganizationsAPIKeysOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListOrganizationAPIKeys listAPIKeysForAnOrganization
@@ -51,7 +56,9 @@ func (s *apiKeyService) ListOrganizationAPIKeys(ctx context.Context, organizatio
 
 // APIKeysCreateOrganizationAPIKeysParams contains the parameters for CreateOrganizationAPIKeys.
 type APIKeysCreateOrganizationAPIKeysParams struct {
-	Name        string   `json:"name"`
+	// Name is the name for the API key.
+	Name string `json:"name"`
+	// Permissions is the permission slugs to assign to the API key.
 	Permissions []string `json:"permissions,omitempty"`
 }
 

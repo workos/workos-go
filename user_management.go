@@ -41,8 +41,11 @@ func (s *userManagementService) CreateAuthenticate(ctx context.Context, params *
 
 // AuthenticateWithPasswordParams contains the parameters for AuthenticateWithPassword.
 type AuthenticateWithPasswordParams struct {
-	Email           string  `json:"email"`
-	Password        string  `json:"password"`
+	// Email is the user's email address.
+	Email string `json:"email"`
+	// Password is the user's password.
+	Password string `json:"password"`
+	// InvitationToken is an invitation token to accept during authentication.
 	InvitationToken *string `json:"invitation_token,omitempty"`
 }
 
@@ -99,7 +102,9 @@ func (s *userManagementService) AuthenticateWithCode(ctx context.Context, params
 
 // AuthenticateWithRefreshTokenParams contains the parameters for AuthenticateWithRefreshToken.
 type AuthenticateWithRefreshTokenParams struct {
-	RefreshToken   string  `json:"refresh_token"`
+	// RefreshToken is the refresh token to exchange for new tokens.
+	RefreshToken string `json:"refresh_token"`
+	// OrganizationID is the ID of the organization to scope the session to.
 	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
@@ -284,22 +289,38 @@ func (s *userManagementService) AuthenticateWithDeviceCode(ctx context.Context, 
 
 // UserManagementGetAuthorizationURLParams contains the parameters for GetAuthorizationURL.
 type UserManagementGetAuthorizationURLParams struct {
-	CodeChallengeMethod *string                                 `url:"code_challenge_method,omitempty" json:"-"`
-	CodeChallenge       *string                                 `url:"code_challenge,omitempty" json:"-"`
-	DomainHint          *string                                 `url:"domain_hint,omitempty" json:"-"`
-	ConnectionID        *string                                 `url:"connection_id,omitempty" json:"-"`
-	ProviderQueryParams map[string]string                       `url:"provider_query_params,omitempty" json:"-"`
-	ProviderScopes      []string                                `url:"provider_scopes,omitempty" json:"-"`
-	InvitationToken     *string                                 `url:"invitation_token,omitempty" json:"-"`
-	ScreenHint          *UserManagementAuthenticationScreenHint `url:"screen_hint,omitempty" json:"-"`
-	LoginHint           *string                                 `url:"login_hint,omitempty" json:"-"`
-	Provider            *UserManagementAuthenticationProvider   `url:"provider,omitempty" json:"-"`
-	Prompt              *string                                 `url:"prompt,omitempty" json:"-"`
-	State               *string                                 `url:"state,omitempty" json:"-"`
-	OrganizationID      *string                                 `url:"organization_id,omitempty" json:"-"`
-	ResponseType        string                                  `url:"response_type" json:"-"`
-	RedirectURI         string                                  `url:"redirect_uri" json:"-"`
-	ClientID            string                                  `url:"client_id" json:"-"`
+	// CodeChallengeMethod is the only valid PKCE code challenge method is `"S256"`. Required when specifying a `code_challenge`.
+	CodeChallengeMethod *string `url:"code_challenge_method,omitempty" json:"-"`
+	// CodeChallenge is code challenge derived from the code verifier used for the PKCE flow.
+	CodeChallenge *string `url:"code_challenge,omitempty" json:"-"`
+	// DomainHint is a domain hint for SSO connection lookup.
+	DomainHint *string `url:"domain_hint,omitempty" json:"-"`
+	// ConnectionID is the ID of an SSO connection to use for authentication.
+	ConnectionID *string `url:"connection_id,omitempty" json:"-"`
+	// ProviderQueryParams is key/value pairs of query parameters to pass to the OAuth provider.
+	ProviderQueryParams map[string]string `url:"provider_query_params,omitempty" json:"-"`
+	// ProviderScopes is additional OAuth scopes to request from the identity provider.
+	ProviderScopes []string `url:"provider_scopes,omitempty" json:"-"`
+	// InvitationToken is a token representing a user invitation to redeem during authentication.
+	InvitationToken *string `url:"invitation_token,omitempty" json:"-"`
+	// ScreenHint is used to specify which screen to display when the provider is `authkit`.
+	ScreenHint *UserManagementAuthenticationScreenHint `url:"screen_hint,omitempty" json:"-"`
+	// LoginHint is a hint to the authorization server about the login identifier the user might use.
+	LoginHint *string `url:"login_hint,omitempty" json:"-"`
+	// Provider is the OAuth provider to authenticate with (e.g., GoogleOAuth, MicrosoftOAuth, GitHubOAuth).
+	Provider *UserManagementAuthenticationProvider `url:"provider,omitempty" json:"-"`
+	// Prompt is controls the authentication flow behavior for the user.
+	Prompt *string `url:"prompt,omitempty" json:"-"`
+	// State is an opaque value used to maintain state between the request and the callback.
+	State *string `url:"state,omitempty" json:"-"`
+	// OrganizationID is the ID of the organization to authenticate the user against.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// ResponseType is the response type of the application.
+	ResponseType string `url:"response_type" json:"-"`
+	// RedirectURI is the callback URI where the authorization code will be sent after authentication.
+	RedirectURI string `url:"redirect_uri" json:"-"`
+	// ClientID is the unique identifier of the WorkOS environment client.
+	ClientID string `url:"client_id" json:"-"`
 }
 
 // GetAuthorizationURL getAnAuthorizationURL
@@ -311,6 +332,7 @@ func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params 
 
 // UserManagementCreateDeviceParams contains the parameters for CreateDevice.
 type UserManagementCreateDeviceParams struct {
+	// ClientID is the WorkOS client ID for your application.
 	ClientID string `json:"client_id"`
 }
 
@@ -327,8 +349,10 @@ func (s *userManagementService) CreateDevice(ctx context.Context, params *UserMa
 
 // UserManagementGetLogoutURLParams contains the parameters for GetLogoutURL.
 type UserManagementGetLogoutURLParams struct {
-	SessionID string  `url:"session_id" json:"-"`
-	ReturnTo  *string `url:"return_to,omitempty" json:"-"`
+	// SessionID is the ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
+	SessionID string `url:"session_id" json:"-"`
+	// ReturnTo is the URL to redirect the user to after session revocation.
+	ReturnTo *string `url:"return_to,omitempty" json:"-"`
 }
 
 // GetLogoutURL logout
@@ -340,8 +364,10 @@ func (s *userManagementService) GetLogoutURL(ctx context.Context, params *UserMa
 
 // UserManagementRevokeSessionParams contains the parameters for RevokeSession.
 type UserManagementRevokeSessionParams struct {
-	SessionID string  `json:"session_id"`
-	ReturnTo  *string `json:"return_to,omitempty"`
+	// SessionID is the ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
+	SessionID string `json:"session_id"`
+	// ReturnTo is the URL to redirect the user to after session revocation.
+	ReturnTo *string `json:"return_to,omitempty"`
 }
 
 // RevokeSession revokeSession
@@ -353,6 +379,7 @@ func (s *userManagementService) RevokeSession(ctx context.Context, params *UserM
 
 // UserManagementCreateCORSOriginsParams contains the parameters for CreateCORSOrigins.
 type UserManagementCreateCORSOriginsParams struct {
+	// Origin is the origin URL to allow for CORS requests.
 	Origin string `json:"origin"`
 }
 
@@ -380,6 +407,7 @@ func (s *userManagementService) GetEmailVerification(ctx context.Context, id str
 
 // UserManagementCreatePasswordResetParams contains the parameters for CreatePasswordReset.
 type UserManagementCreatePasswordResetParams struct {
+	// Email is the email address of the user requesting a password reset.
 	Email string `json:"email"`
 }
 
@@ -396,7 +424,9 @@ func (s *userManagementService) CreatePasswordReset(ctx context.Context, params 
 
 // UserManagementConfirmPasswordResetParams contains the parameters for ConfirmPasswordReset.
 type UserManagementConfirmPasswordResetParams struct {
-	Token       string `json:"token"`
+	// Token is the password reset token.
+	Token string `json:"token"`
+	// NewPassword is the new password to set for the user.
 	NewPassword string `json:"new_password"`
 }
 
@@ -424,13 +454,22 @@ func (s *userManagementService) GetPasswordReset(ctx context.Context, id string,
 
 // UserManagementListParams contains the parameters for List.
 type UserManagementListParams struct {
-	Before         *string                   `url:"before,omitempty" json:"-"`
-	After          *string                   `url:"after,omitempty" json:"-"`
-	Limit          *int                      `url:"limit,omitempty" json:"-"`
-	Order          *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
-	Organization   *string                   `url:"organization,omitempty" json:"-"`
-	OrganizationID *string                   `url:"organization_id,omitempty" json:"-"`
-	Email          *string                   `url:"email,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
+	// Organization is filter users by the organization they are a member of. Deprecated in favor of `organization_id`.
+	//
+	// Deprecated: this parameter is deprecated.
+	Organization *string `url:"organization,omitempty" json:"-"`
+	// OrganizationID is filter users by the organization they are a member of.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// Email is filter users by their email address.
+	Email *string `url:"email,omitempty" json:"-"`
 }
 
 // List listUsers
@@ -441,15 +480,24 @@ func (s *userManagementService) List(ctx context.Context, params *UserManagement
 
 // UserManagementCreateParams contains the parameters for Create.
 type UserManagementCreateParams struct {
-	Email            string                      `json:"email"`
-	Password         *string                     `json:"password,omitempty"`
-	PasswordHash     *string                     `json:"password_hash,omitempty"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
+	Password *string `json:"password,omitempty"`
+	// PasswordHash is the hashed password to set for the user. Mutually exclusive with `password`.
+	PasswordHash *string `json:"password_hash,omitempty"`
+	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`.
 	PasswordHashType *CreateUserPasswordHashType `json:"password_hash_type,omitempty"`
-	FirstName        *string                     `json:"first_name,omitempty"`
-	LastName         *string                     `json:"last_name,omitempty"`
-	EmailVerified    *bool                       `json:"email_verified,omitempty"`
-	Metadata         *map[string]string          `json:"metadata,omitempty"`
-	ExternalID       *string                     `json:"external_id,omitempty"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// EmailVerified is whether the user's email has been verified.
+	EmailVerified *bool `json:"email_verified,omitempty"`
+	// Metadata is object containing metadata key/value pairs associated with the user.
+	Metadata *map[string]string `json:"metadata,omitempty"`
+	// ExternalID is the external ID of the user.
+	ExternalID *string `json:"external_id,omitempty"`
 }
 
 // Create createAUser
@@ -487,16 +535,26 @@ func (s *userManagementService) Get(ctx context.Context, id string, opts ...Requ
 
 // UserManagementUpdateParams contains the parameters for Update.
 type UserManagementUpdateParams struct {
-	Email            *string                     `json:"email,omitempty"`
-	FirstName        *string                     `json:"first_name,omitempty"`
-	LastName         *string                     `json:"last_name,omitempty"`
-	EmailVerified    *bool                       `json:"email_verified,omitempty"`
-	Password         *string                     `json:"password,omitempty"`
-	PasswordHash     *string                     `json:"password_hash,omitempty"`
+	// Email is the email address of the user.
+	Email *string `json:"email,omitempty"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// EmailVerified is whether the user's email has been verified.
+	EmailVerified *bool `json:"email_verified,omitempty"`
+	// Password is the password to set for the user.
+	Password *string `json:"password,omitempty"`
+	// PasswordHash is the hashed password to set for the user. Mutually exclusive with `password`.
+	PasswordHash *string `json:"password_hash,omitempty"`
+	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`.
 	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
-	Metadata         *map[string]string          `json:"metadata,omitempty"`
-	ExternalID       *string                     `json:"external_id,omitempty"`
-	Locale           *string                     `json:"locale,omitempty"`
+	// Metadata is object containing metadata key/value pairs associated with the user.
+	Metadata *map[string]string `json:"metadata,omitempty"`
+	// ExternalID is the external ID of the user.
+	ExternalID *string `json:"external_id,omitempty"`
+	// Locale is the user's preferred locale.
+	Locale *string `json:"locale,omitempty"`
 }
 
 // Update updateAUser
@@ -519,6 +577,7 @@ func (s *userManagementService) Delete(ctx context.Context, id string, opts ...R
 
 // UserManagementConfirmEmailChangeParams contains the parameters for ConfirmEmailChange.
 type UserManagementConfirmEmailChangeParams struct {
+	// Code is the one-time code used to confirm the email change.
 	Code string `json:"code"`
 }
 
@@ -535,6 +594,7 @@ func (s *userManagementService) ConfirmEmailChange(ctx context.Context, id strin
 
 // UserManagementSendEmailChangeParams contains the parameters for SendEmailChange.
 type UserManagementSendEmailChangeParams struct {
+	// NewEmail is the new email address to change to.
 	NewEmail string `json:"new_email"`
 }
 
@@ -551,6 +611,7 @@ func (s *userManagementService) SendEmailChange(ctx context.Context, id string, 
 
 // UserManagementConfirmEmailVerificationParams contains the parameters for ConfirmEmailVerification.
 type UserManagementConfirmEmailVerificationParams struct {
+	// Code is the one-time email verification code.
 	Code string `json:"code"`
 }
 
@@ -589,10 +650,14 @@ func (s *userManagementService) ListIdentities(ctx context.Context, id string, o
 
 // UserManagementListSessionsParams contains the parameters for ListSessions.
 type UserManagementListSessionsParams struct {
-	Before *string                   `url:"before,omitempty" json:"-"`
-	After  *string                   `url:"after,omitempty" json:"-"`
-	Limit  *int                      `url:"limit,omitempty" json:"-"`
-	Order  *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListSessions listSessions
@@ -603,12 +668,18 @@ func (s *userManagementService) ListSessions(ctx context.Context, id string, par
 
 // UserManagementListInvitationsParams contains the parameters for ListInvitations.
 type UserManagementListInvitationsParams struct {
-	Before         *string                         `url:"before,omitempty" json:"-"`
-	After          *string                         `url:"after,omitempty" json:"-"`
-	Limit          *int                            `url:"limit,omitempty" json:"-"`
-	Order          *UserManagementInvitationsOrder `url:"order,omitempty" json:"-"`
-	OrganizationID *string                         `url:"organization_id,omitempty" json:"-"`
-	Email          *string                         `url:"email,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *UserManagementInvitationsOrder `url:"order,omitempty" json:"-"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// Email is the email address of the recipient.
+	Email *string `url:"email,omitempty" json:"-"`
 }
 
 // ListInvitations listInvitations
@@ -619,12 +690,18 @@ func (s *userManagementService) ListInvitations(ctx context.Context, params *Use
 
 // UserManagementCreateInvitationsParams contains the parameters for CreateInvitations.
 type UserManagementCreateInvitationsParams struct {
-	Email          string                         `json:"email"`
-	OrganizationID *string                        `json:"organization_id,omitempty"`
-	RoleSlug       *string                        `json:"role_slug,omitempty"`
-	ExpiresInDays  *int                           `json:"expires_in_days,omitempty"`
-	InviterUserID  *string                        `json:"inviter_user_id,omitempty"`
-	Locale         *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
+	// Email is the email address of the recipient.
+	Email string `json:"email"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// RoleSlug is the [role](https://workos.com/docs/authkit/roles) that the recipient will receive when they join the organization in the invitation.
+	RoleSlug *string `json:"role_slug,omitempty"`
+	// ExpiresInDays is how many days the invitations will be valid for. Must be between 1 and 30 days. Defaults to 7 days if not specified.
+	ExpiresInDays *int `json:"expires_in_days,omitempty"`
+	// InviterUserID is the ID of the [user](https://workos.com/docs/reference/authkit/user) who invites the recipient. The invitation email will mention the name of this user.
+	InviterUserID *string `json:"inviter_user_id,omitempty"`
+	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
+	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
 // CreateInvitations sendAnInvitation
@@ -673,6 +750,7 @@ func (s *userManagementService) AcceptInvitation(ctx context.Context, id string,
 
 // UserManagementResendInvitationParams contains the parameters for ResendInvitation.
 type UserManagementResendInvitationParams struct {
+	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
 	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
@@ -700,6 +778,7 @@ func (s *userManagementService) RevokeInvitation(ctx context.Context, id string,
 
 // UserManagementUpdateJWTTemplateParams contains the parameters for UpdateJWTTemplate.
 type UserManagementUpdateJWTTemplateParams struct {
+	// Content is the JWT template content as a Liquid template string.
 	Content string `json:"content"`
 }
 
@@ -716,7 +795,9 @@ func (s *userManagementService) UpdateJWTTemplate(ctx context.Context, params *U
 
 // UserManagementCreateMagicAuthParams contains the parameters for CreateMagicAuth.
 type UserManagementCreateMagicAuthParams struct {
-	Email           string  `json:"email"`
+	// Email is the email address to send the magic code to.
+	Email string `json:"email"`
+	// InvitationToken is the invitation token to associate with this magic code.
 	InvitationToken *string `json:"invitation_token,omitempty"`
 }
 
@@ -744,13 +825,20 @@ func (s *userManagementService) GetMagicAuth(ctx context.Context, id string, opt
 
 // UserManagementListOrganizationMembershipsParams contains the parameters for ListOrganizationMemberships.
 type UserManagementListOrganizationMembershipsParams struct {
-	Before         *string                                        `url:"before,omitempty" json:"-"`
-	After          *string                                        `url:"after,omitempty" json:"-"`
-	Limit          *int                                           `url:"limit,omitempty" json:"-"`
-	Order          *UserManagementOrganizationMembershipOrder     `url:"order,omitempty" json:"-"`
-	OrganizationID *string                                        `url:"organization_id,omitempty" json:"-"`
-	Statuses       []UserManagementOrganizationMembershipStatuses `url:"statuses,omitempty" json:"-"`
-	UserID         *string                                        `url:"user_id,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *UserManagementOrganizationMembershipOrder `url:"order,omitempty" json:"-"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// Statuses is filter by the status of the organization membership. Array including any of `active`, `inactive`, or `pending`.
+	Statuses []UserManagementOrganizationMembershipStatuses `url:"statuses,omitempty" json:"-"`
+	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
+	UserID *string `url:"user_id,omitempty" json:"-"`
 }
 
 // ListOrganizationMemberships listOrganizationMemberships
@@ -761,10 +849,14 @@ func (s *userManagementService) ListOrganizationMemberships(ctx context.Context,
 
 // UserManagementCreateOrganizationMembershipsParams contains the parameters for CreateOrganizationMemberships.
 type UserManagementCreateOrganizationMembershipsParams struct {
-	UserID         string   `json:"user_id"`
-	OrganizationID string   `json:"organization_id"`
-	RoleSlug       *string  `json:"role_slug,omitempty"`
-	RoleSlugs      []string `json:"role_slugs,omitempty"`
+	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
+	OrganizationID string `json:"organization_id"`
+	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
+	RoleSlug *string `json:"role_slug,omitempty"`
+	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
+	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
 // CreateOrganizationMemberships createAnOrganizationMembership
@@ -792,7 +884,9 @@ func (s *userManagementService) GetOrganizationMembership(ctx context.Context, i
 
 // UserManagementUpdateOrganizationMembershipParams contains the parameters for UpdateOrganizationMembership.
 type UserManagementUpdateOrganizationMembershipParams struct {
-	RoleSlug  *string  `json:"role_slug,omitempty"`
+	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
+	RoleSlug *string `json:"role_slug,omitempty"`
+	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
@@ -844,6 +938,7 @@ func (s *userManagementService) ReactivateOrganizationMembership(ctx context.Con
 
 // UserManagementCreateRedirectURIsParams contains the parameters for CreateRedirectURIs.
 type UserManagementCreateRedirectURIsParams struct {
+	// URI is the redirect URI to create.
 	URI string `json:"uri"`
 }
 
@@ -860,10 +955,14 @@ func (s *userManagementService) CreateRedirectURIs(ctx context.Context, params *
 
 // UserManagementListAuthorizedApplicationsParams contains the parameters for ListAuthorizedApplications.
 type UserManagementListAuthorizedApplicationsParams struct {
-	Before *string                                         `url:"before,omitempty" json:"-"`
-	After  *string                                         `url:"after,omitempty" json:"-"`
-	Limit  *int                                            `url:"limit,omitempty" json:"-"`
-	Order  *UserManagementUsersAuthorizedApplicationsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *UserManagementUsersAuthorizedApplicationsOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListAuthorizedApplications listAuthorizedApplications

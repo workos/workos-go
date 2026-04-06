@@ -14,8 +14,11 @@ type connectService struct {
 
 // ConnectCompleteOAuth2Params contains the parameters for CompleteOAuth2.
 type ConnectCompleteOAuth2Params struct {
-	ExternalAuthID     string               `json:"external_auth_id"`
-	User               *UserObject          `json:"user"`
+	// ExternalAuthID is identifier provided when AuthKit redirected to your login page.
+	ExternalAuthID string `json:"external_auth_id"`
+	// User is the user to create or update in AuthKit.
+	User *UserObject `json:"user"`
+	// UserConsentOptions is array of [User Consent Options](https://workos.com/docs/reference/workos-connect/standalone/user-consent-options) to store with the session.
 	UserConsentOptions []*UserConsentOption `json:"user_consent_options,omitempty"`
 }
 
@@ -37,11 +40,16 @@ func (s *connectService) CompleteOAuth2(ctx context.Context, params *ConnectComp
 
 // ConnectListApplicationsParams contains the parameters for ListApplications.
 type ConnectListApplicationsParams struct {
-	Before         *string            `url:"before,omitempty" json:"-"`
-	After          *string            `url:"after,omitempty" json:"-"`
-	Limit          *int               `url:"limit,omitempty" json:"-"`
-	Order          *ApplicationsOrder `url:"order,omitempty" json:"-"`
-	OrganizationID *string            `url:"organization_id,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *ApplicationsOrder `url:"order,omitempty" json:"-"`
+	// OrganizationID is filter Connect Applications by organization ID.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
 
 // ListApplications listConnectApplications
@@ -157,9 +165,13 @@ func (s *connectService) GetApplication(ctx context.Context, id string, opts ...
 
 // ConnectUpdateApplicationParams contains the parameters for UpdateApplication.
 type ConnectUpdateApplicationParams struct {
-	Name         *string            `json:"name,omitempty"`
-	Description  *string            `json:"description,omitempty"`
-	Scopes       *[]string          `json:"scopes,omitempty"`
+	// Name is the name of the application.
+	Name *string `json:"name,omitempty"`
+	// Description is a description for the application.
+	Description *string `json:"description,omitempty"`
+	// Scopes is the OAuth scopes granted to the application.
+	Scopes *[]string `json:"scopes,omitempty"`
+	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
 	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 }
 

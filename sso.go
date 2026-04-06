@@ -14,14 +14,22 @@ type ssoService struct {
 
 // SSOListConnectionsParams contains the parameters for ListConnections.
 type SSOListConnectionsParams struct {
-	Before         *string                    `url:"before,omitempty" json:"-"`
-	After          *string                    `url:"after,omitempty" json:"-"`
-	Limit          *int                       `url:"limit,omitempty" json:"-"`
-	Order          *ConnectionsOrder          `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *ConnectionsOrder `url:"order,omitempty" json:"-"`
+	// ConnectionType is filter Connections by their type.
 	ConnectionType *ConnectionsConnectionType `url:"connection_type,omitempty" json:"-"`
-	Domain         *string                    `url:"domain,omitempty" json:"-"`
-	OrganizationID *string                    `url:"organization_id,omitempty" json:"-"`
-	Search         *string                    `url:"search,omitempty" json:"-"`
+	// Domain is filter Connections by their associated domain.
+	Domain *string `url:"domain,omitempty" json:"-"`
+	// OrganizationID is filter Connections by their associated organization.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// Search is searchable text to match against Connection names.
+	Search *string `url:"search,omitempty" json:"-"`
 }
 
 // ListConnections listConnections
@@ -50,19 +58,37 @@ func (s *ssoService) DeleteConnection(ctx context.Context, id string, opts ...Re
 
 // SSOGetAuthorizationURLParams contains the parameters for GetAuthorizationURL.
 type SSOGetAuthorizationURLParams struct {
-	ProviderScopes      []string          `url:"provider_scopes,omitempty" json:"-"`
+	// ProviderScopes is additional OAuth scopes to request from the identity provider. Only applicable when using OAuth connections.
+	ProviderScopes []string `url:"provider_scopes,omitempty" json:"-"`
+	// ProviderQueryParams is key/value pairs of query parameters to pass to the OAuth provider. Only applicable when using OAuth connections.
 	ProviderQueryParams map[string]string `url:"provider_query_params,omitempty" json:"-"`
-	ClientID            string            `url:"client_id" json:"-"`
-	Domain              *string           `url:"domain,omitempty" json:"-"`
-	Provider            *SSOProvider      `url:"provider,omitempty" json:"-"`
-	RedirectURI         string            `url:"redirect_uri" json:"-"`
-	ResponseType        string            `url:"response_type" json:"-"`
-	State               *string           `url:"state,omitempty" json:"-"`
-	Connection          *string           `url:"connection,omitempty" json:"-"`
-	Organization        *string           `url:"organization,omitempty" json:"-"`
-	DomainHint          *string           `url:"domain_hint,omitempty" json:"-"`
-	LoginHint           *string           `url:"login_hint,omitempty" json:"-"`
-	Nonce               *string           `url:"nonce,omitempty" json:"-"`
+	// ClientID is the unique identifier of the WorkOS environment client.
+	ClientID string `url:"client_id" json:"-"`
+	// Domain is deprecated. Use `connection` or `organization` instead. Used to initiate SSO for a connection by domain. The domain must be associated with a connection in your WorkOS environment.
+	//
+	// Deprecated: this parameter is deprecated.
+	Domain *string `url:"domain,omitempty" json:"-"`
+	// Provider is used to initiate OAuth authentication with Google, Microsoft, GitHub, or Apple.
+	Provider *SSOProvider `url:"provider,omitempty" json:"-"`
+	// RedirectURI is where to redirect the user after they complete the authentication process. You must use one of the redirect URIs configured via the [Redirects](https://dashboard.workos.com/redirects) page on the dashboard.
+	RedirectURI string `url:"redirect_uri" json:"-"`
+	// ResponseType is the only valid option for the response type parameter is `"code"`.
+	// The `"code"` parameter value initiates an [authorization code grant type](https://tools.ietf.org/html/rfc6749#section-4.1). This grant type allows you to exchange an authorization code for an access token during the redirect that takes place after a user has authenticated with an identity provider.
+	ResponseType string `url:"response_type" json:"-"`
+	// State is an optional parameter that can be used to encode arbitrary information to help restore application state between redirects. If included, the redirect URI received from WorkOS will contain the exact `state` that was passed.
+	State *string `url:"state,omitempty" json:"-"`
+	// Connection is used to initiate SSO for a connection. The value should be a WorkOS connection ID.
+	// You can persist the WorkOS connection ID with application user or team identifiers. WorkOS will use the connection indicated by the connection parameter to direct the user to the corresponding IdP for authentication.
+	Connection *string `url:"connection,omitempty" json:"-"`
+	// Organization is used to initiate SSO for an organization. The value should be a WorkOS organization ID.
+	// You can persist the WorkOS organization ID with application user or team identifiers. WorkOS will use the organization ID to determine the appropriate connection and the IdP to direct the user to for authentication.
+	Organization *string `url:"organization,omitempty" json:"-"`
+	// DomainHint is can be used to pre-fill the domain field when initiating authentication with Microsoft OAuth or with a Google SAML connection type.
+	DomainHint *string `url:"domain_hint,omitempty" json:"-"`
+	// LoginHint is can be used to pre-fill the username/email address field of the IdP sign-in page for the user, if you know their username ahead of time. Currently supported for OAuth, OpenID Connect, Okta, and Entra ID connections.
+	LoginHint *string `url:"login_hint,omitempty" json:"-"`
+	// Nonce is a random string generated by the client that is used to mitigate replay attacks.
+	Nonce *string `url:"nonce,omitempty" json:"-"`
 }
 
 // GetAuthorizationURL initiateSSO
@@ -78,6 +104,7 @@ func (s *ssoService) GetAuthorizationURL(ctx context.Context, params *SSOGetAuth
 
 // SSOGetLogoutURLParams contains the parameters for GetLogoutURL.
 type SSOGetLogoutURLParams struct {
+	// Token is the logout token returned from the [Logout Authorize](https://workos.com/docs/reference/sso/logout/authorize) endpoint.
 	Token string `url:"token" json:"-"`
 }
 
@@ -91,6 +118,7 @@ func (s *ssoService) GetLogoutURL(ctx context.Context, params *SSOGetLogoutURLPa
 
 // SSOAuthorizeLogoutParams contains the parameters for AuthorizeLogout.
 type SSOAuthorizeLogoutParams struct {
+	// ProfileID is the unique ID of the profile to log out.
 	ProfileID string `json:"profile_id"`
 }
 
@@ -118,10 +146,14 @@ func (s *ssoService) GetProfile(ctx context.Context, opts ...RequestOption) (*Pr
 
 // SSOGetProfileAndTokenParams contains the parameters for GetProfileAndToken.
 type SSOGetProfileAndTokenParams struct {
-	ClientID     string `json:"client_id"`
+	// ClientID is the client ID of the WorkOS environment.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the client secret of the WorkOS environment.
 	ClientSecret string `json:"client_secret"`
-	Code         string `json:"code"`
-	GrantType    string `json:"grant_type"`
+	// Code is the authorization code received from the authorization callback.
+	Code string `json:"code"`
+	// GrantType is the grant type for the token request.
+	GrantType string `json:"grant_type"`
 }
 
 // GetProfileAndToken getAProfileAndToken

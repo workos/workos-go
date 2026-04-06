@@ -14,13 +14,20 @@ type directorySyncService struct {
 
 // DirectorySyncListParams contains the parameters for List.
 type DirectorySyncListParams struct {
-	Before         *string           `url:"before,omitempty" json:"-"`
-	After          *string           `url:"after,omitempty" json:"-"`
-	Limit          *int              `url:"limit,omitempty" json:"-"`
-	Order          *DirectoriesOrder `url:"order,omitempty" json:"-"`
-	OrganizationID *string           `url:"organization_id,omitempty" json:"-"`
-	Search         *string           `url:"search,omitempty" json:"-"`
-	Domain         *string           `url:"domain,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *DirectoriesOrder `url:"order,omitempty" json:"-"`
+	// OrganizationID is filter Directories by their associated organization.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// Search is searchable text to match against Directory names.
+	Search *string `url:"search,omitempty" json:"-"`
+	// Domain is filter Directories by their associated domain.
+	Domain *string `url:"domain,omitempty" json:"-"`
 }
 
 // List listDirectories
@@ -49,12 +56,18 @@ func (s *directorySyncService) Delete(ctx context.Context, id string, opts ...Re
 
 // DirectorySyncListGroupsParams contains the parameters for ListGroups.
 type DirectorySyncListGroupsParams struct {
-	Before    *string               `url:"before,omitempty" json:"-"`
-	After     *string               `url:"after,omitempty" json:"-"`
-	Limit     *int                  `url:"limit,omitempty" json:"-"`
-	Order     *DirectoryGroupsOrder `url:"order,omitempty" json:"-"`
-	Directory *string               `url:"directory,omitempty" json:"-"`
-	User      *string               `url:"user,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *DirectoryGroupsOrder `url:"order,omitempty" json:"-"`
+	// Directory is unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
+	Directory *string `url:"directory,omitempty" json:"-"`
+	// User is unique identifier of the WorkOS Directory User. This value can be obtained from the WorkOS API.
+	User *string `url:"user,omitempty" json:"-"`
 }
 
 // ListGroups listDirectoryGroups
@@ -76,12 +89,18 @@ func (s *directorySyncService) GetGroup(ctx context.Context, id string, opts ...
 
 // DirectorySyncListUsersParams contains the parameters for ListUsers.
 type DirectorySyncListUsersParams struct {
-	Before    *string              `url:"before,omitempty" json:"-"`
-	After     *string              `url:"after,omitempty" json:"-"`
-	Limit     *int                 `url:"limit,omitempty" json:"-"`
-	Order     *DirectoryUsersOrder `url:"order,omitempty" json:"-"`
-	Directory *string              `url:"directory,omitempty" json:"-"`
-	Group     *string              `url:"group,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *DirectoryUsersOrder `url:"order,omitempty" json:"-"`
+	// Directory is unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
+	Directory *string `url:"directory,omitempty" json:"-"`
+	// Group is unique identifier of the WorkOS Directory Group. This value can be obtained from the WorkOS API.
+	Group *string `url:"group,omitempty" json:"-"`
 }
 
 // ListUsers listDirectoryUsers

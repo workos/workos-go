@@ -14,6 +14,7 @@ type multiFactorAuthService struct {
 
 // MultiFactorAuthVerifyChallengeParams contains the parameters for VerifyChallenge.
 type MultiFactorAuthVerifyChallengeParams struct {
+	// Code is the one-time code to verify.
 	Code string `json:"code"`
 }
 
@@ -30,11 +31,16 @@ func (s *multiFactorAuthService) VerifyChallenge(ctx context.Context, id string,
 
 // MultiFactorAuthEnrollFactorParams contains the parameters for EnrollFactor.
 type MultiFactorAuthEnrollFactorParams struct {
-	Type        AuthenticationFactorsCreateRequestType `json:"type"`
-	PhoneNumber *string                                `json:"phone_number,omitempty"`
-	TOTPIssuer  *string                                `json:"totp_issuer,omitempty"`
-	TOTPUser    *string                                `json:"totp_user,omitempty"`
-	UserID      *string                                `json:"user_id,omitempty"`
+	// Type is the type of factor to enroll.
+	Type AuthenticationFactorsCreateRequestType `json:"type"`
+	// PhoneNumber is required when type is 'sms'.
+	PhoneNumber *string `json:"phone_number,omitempty"`
+	// TOTPIssuer is required when type is 'totp'.
+	TOTPIssuer *string `json:"totp_issuer,omitempty"`
+	// TOTPUser is required when type is 'totp'.
+	TOTPUser *string `json:"totp_user,omitempty"`
+	// UserID is the ID of the user to associate the factor with.
+	UserID *string `json:"user_id,omitempty"`
 }
 
 // EnrollFactor enrollFactor
@@ -68,6 +74,7 @@ func (s *multiFactorAuthService) DeleteFactor(ctx context.Context, id string, op
 
 // MultiFactorAuthChallengeFactorParams contains the parameters for ChallengeFactor.
 type MultiFactorAuthChallengeFactorParams struct {
+	// SmsTemplate is a custom template for the SMS message. Use the {{code}} placeholder to include the verification code.
 	SmsTemplate *string `json:"sms_template,omitempty"`
 }
 
@@ -84,10 +91,14 @@ func (s *multiFactorAuthService) ChallengeFactor(ctx context.Context, id string,
 
 // MultiFactorAuthListUserAuthFactorsParams contains the parameters for ListUserAuthFactors.
 type MultiFactorAuthListUserAuthFactorsParams struct {
-	Before *string                                       `url:"before,omitempty" json:"-"`
-	After  *string                                       `url:"after,omitempty" json:"-"`
-	Limit  *int                                          `url:"limit,omitempty" json:"-"`
-	Order  *UserManagementMultiFactorAuthenticationOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *UserManagementMultiFactorAuthenticationOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListUserAuthFactors listAuthenticationFactors
@@ -98,9 +109,13 @@ func (s *multiFactorAuthService) ListUserAuthFactors(ctx context.Context, userla
 
 // MultiFactorAuthCreateUserAuthFactorsParams contains the parameters for CreateUserAuthFactors.
 type MultiFactorAuthCreateUserAuthFactorsParams struct {
-	Type       string  `json:"type"`
+	// Type is the type of the factor to enroll.
+	Type string `json:"type"`
+	// TOTPIssuer is your application or company name displayed in the user's authenticator app.
 	TOTPIssuer *string `json:"totp_issuer,omitempty"`
-	TOTPUser   *string `json:"totp_user,omitempty"`
+	// TOTPUser is the user's account name displayed in their authenticator app.
+	TOTPUser *string `json:"totp_user,omitempty"`
+	// TOTPSecret is the Base32-encoded shared secret for TOTP factors. This can be provided when creating the auth factor, otherwise it will be generated. The algorithm used to derive TOTP codes is SHA-1, the code length is 6 digits, and the timestep is 30 seconds – the secret must be compatible with these parameters.
 	TOTPSecret *string `json:"totp_secret,omitempty"`
 }
 

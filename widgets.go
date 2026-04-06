@@ -13,9 +13,12 @@ type widgetService struct {
 
 // WidgetsCreateTokenParams contains the parameters for CreateToken.
 type WidgetsCreateTokenParams struct {
-	OrganizationID string                     `json:"organization_id"`
-	UserID         *string                    `json:"user_id,omitempty"`
-	Scopes         []WidgetSessionTokenScopes `json:"scopes,omitempty"`
+	// OrganizationID is the ID of the organization to scope the widget session to.
+	OrganizationID string `json:"organization_id"`
+	// UserID is the ID of the user to issue the widget session token for.
+	UserID *string `json:"user_id,omitempty"`
+	// Scopes is the scopes to grant the widget session.
+	Scopes []WidgetSessionTokenScopes `json:"scopes,omitempty"`
 }
 
 // CreateToken generateAWidgetToken

@@ -14,10 +14,14 @@ type featureFlagService struct {
 
 // FeatureFlagsListParams contains the parameters for List.
 type FeatureFlagsListParams struct {
-	Before *string            `url:"before,omitempty" json:"-"`
-	After  *string            `url:"after,omitempty" json:"-"`
-	Limit  *int               `url:"limit,omitempty" json:"-"`
-	Order  *FeatureFlagsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *FeatureFlagsOrder `url:"order,omitempty" json:"-"`
 }
 
 // List listFeatureFlags
@@ -75,10 +79,14 @@ func (s *featureFlagService) DeleteTarget(ctx context.Context, resourceID string
 
 // FeatureFlagsListOrganizationFeatureFlagsParams contains the parameters for ListOrganizationFeatureFlags.
 type FeatureFlagsListOrganizationFeatureFlagsParams struct {
-	Before *string                         `url:"before,omitempty" json:"-"`
-	After  *string                         `url:"after,omitempty" json:"-"`
-	Limit  *int                            `url:"limit,omitempty" json:"-"`
-	Order  *OrganizationsFeatureFlagsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *OrganizationsFeatureFlagsOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListOrganizationFeatureFlags listEnabledFeatureFlagsForAnOrganization
@@ -89,10 +97,14 @@ func (s *featureFlagService) ListOrganizationFeatureFlags(ctx context.Context, o
 
 // FeatureFlagsListUserFeatureFlagsParams contains the parameters for ListUserFeatureFlags.
 type FeatureFlagsListUserFeatureFlagsParams struct {
-	Before *string                               `url:"before,omitempty" json:"-"`
-	After  *string                               `url:"after,omitempty" json:"-"`
-	Limit  *int                                  `url:"limit,omitempty" json:"-"`
-	Order  *UserManagementUsersFeatureFlagsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *UserManagementUsersFeatureFlagsOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListUserFeatureFlags listEnabledFeatureFlagsForAUser

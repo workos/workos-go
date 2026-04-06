@@ -25,6 +25,7 @@ func (s *auditLogService) ListOrganizationAuditLogsRetention(ctx context.Context
 
 // AuditLogsUpdateOrganizationAuditLogsRetentionParams contains the parameters for UpdateOrganizationAuditLogsRetention.
 type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
+	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` and `365`.
 	RetentionPeriodInDays int `json:"retention_period_in_days"`
 }
 
@@ -41,10 +42,14 @@ func (s *auditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Conte
 
 // AuditLogsListActionsParams contains the parameters for ListActions.
 type AuditLogsListActionsParams struct {
-	Before *string         `url:"before,omitempty" json:"-"`
-	After  *string         `url:"after,omitempty" json:"-"`
-	Limit  *int            `url:"limit,omitempty" json:"-"`
-	Order  *AuditLogsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *AuditLogsOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListActions listActions
@@ -55,10 +60,14 @@ func (s *auditLogService) ListActions(ctx context.Context, params *AuditLogsList
 
 // AuditLogsListActionSchemasParams contains the parameters for ListActionSchemas.
 type AuditLogsListActionSchemasParams struct {
-	Before *string         `url:"before,omitempty" json:"-"`
-	After  *string         `url:"after,omitempty" json:"-"`
-	Limit  *int            `url:"limit,omitempty" json:"-"`
-	Order  *AuditLogsOrder `url:"order,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time.
+	Order *AuditLogsOrder `url:"order,omitempty" json:"-"`
 }
 
 // ListActionSchemas listSchemas
@@ -69,9 +78,12 @@ func (s *auditLogService) ListActionSchemas(ctx context.Context, actionName stri
 
 // AuditLogsCreateActionSchemasParams contains the parameters for CreateActionSchemas.
 type AuditLogsCreateActionSchemasParams struct {
-	Actor    *AuditLogSchemaActor    `json:"actor,omitempty"`
-	Targets  []*AuditLogSchemaTarget `json:"targets"`
-	Metadata map[string]interface{}  `json:"metadata,omitempty"`
+	// Actor is the metadata schema for the actor.
+	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
+	// Targets is the list of targets for the schema.
+	Targets []*AuditLogSchemaTarget `json:"targets"`
+	// Metadata is optional JSON schema for event metadata.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // CreateActionSchemas createSchema
@@ -87,8 +99,10 @@ func (s *auditLogService) CreateActionSchemas(ctx context.Context, actionName st
 
 // AuditLogsCreateEventsParams contains the parameters for CreateEvents.
 type AuditLogsCreateEventsParams struct {
-	OrganizationID string         `json:"organization_id"`
-	Event          *AuditLogEvent `json:"event"`
+	// OrganizationID is the unique ID of the Organization.
+	OrganizationID string `json:"organization_id"`
+	// Event is the audit log event to create.
+	Event *AuditLogEvent `json:"event"`
 }
 
 // CreateEvents createEvent
@@ -107,14 +121,24 @@ func (s *auditLogService) CreateEvents(ctx context.Context, params *AuditLogsCre
 
 // AuditLogsCreateExportsParams contains the parameters for CreateExports.
 type AuditLogsCreateExportsParams struct {
-	OrganizationID string   `json:"organization_id"`
-	RangeStart     string   `json:"range_start"`
-	RangeEnd       string   `json:"range_end"`
-	Actions        []string `json:"actions,omitempty"`
-	Actors         []string `json:"actors,omitempty"`
-	ActorNames     []string `json:"actor_names,omitempty"`
-	ActorIds       []string `json:"actor_ids,omitempty"`
-	Targets        []string `json:"targets,omitempty"`
+	// OrganizationID is the unique ID of the Organization.
+	OrganizationID string `json:"organization_id"`
+	// RangeStart is iSO-8601 value for start of the export range.
+	RangeStart string `json:"range_start"`
+	// RangeEnd is iSO-8601 value for end of the export range.
+	RangeEnd string `json:"range_end"`
+	// Actions is list of actions to filter against.
+	Actions []string `json:"actions,omitempty"`
+	// Actors is deprecated. Use `actor_names` instead.
+	//
+	// Deprecated: this field is deprecated.
+	Actors []string `json:"actors,omitempty"`
+	// ActorNames is list of actor names to filter against.
+	ActorNames []string `json:"actor_names,omitempty"`
+	// ActorIds is list of actor IDs to filter against.
+	ActorIds []string `json:"actor_ids,omitempty"`
+	// Targets is list of target types to filter against.
+	Targets []string `json:"targets,omitempty"`
 }
 
 // CreateExports createExport

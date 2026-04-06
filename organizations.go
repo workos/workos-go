@@ -14,12 +14,18 @@ type organizationService struct {
 
 // OrganizationsListParams contains the parameters for List.
 type OrganizationsListParams struct {
-	Before  *string             `url:"before,omitempty" json:"-"`
-	After   *string             `url:"after,omitempty" json:"-"`
-	Limit   *int                `url:"limit,omitempty" json:"-"`
-	Order   *OrganizationsOrder `url:"order,omitempty" json:"-"`
-	Domains []string            `url:"domains,omitempty" json:"-"`
-	Search  *string             `url:"search,omitempty" json:"-"`
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *OrganizationsOrder `url:"order,omitempty" json:"-"`
+	// Domains is the domains of an Organization. Any Organization with a matching domain will be returned.
+	Domains []string `url:"domains,omitempty" json:"-"`
+	// Search is searchable text for an Organization. Matches against the organization name.
+	Search *string `url:"search,omitempty" json:"-"`
 }
 
 // List listOrganizations
@@ -30,12 +36,18 @@ func (s *organizationService) List(ctx context.Context, params *OrganizationsLis
 
 // OrganizationsCreateParams contains the parameters for Create.
 type OrganizationsCreateParams struct {
-	Name                             string                    `json:"name"`
-	AllowProfilesOutsideOrganization *bool                     `json:"allow_profiles_outside_organization,omitempty"`
-	Domains                          []string                  `json:"domains,omitempty"`
-	DomainData                       []*OrganizationDomainData `json:"domain_data,omitempty"`
-	Metadata                         *map[string]string        `json:"metadata,omitempty"`
-	ExternalID                       *string                   `json:"external_id,omitempty"`
+	// Name is the name of the organization.
+	Name string `json:"name"`
+	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
+	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
+	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
+	Domains []string `json:"domains,omitempty"`
+	// DomainData is the domains associated with the organization, including verification state.
+	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
+	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
+	Metadata *map[string]string `json:"metadata,omitempty"`
+	// ExternalID is an external identifier for the Organization.
+	ExternalID *string `json:"external_id,omitempty"`
 }
 
 // Create createAnOrganization
@@ -73,13 +85,22 @@ func (s *organizationService) Get(ctx context.Context, id string, opts ...Reques
 
 // OrganizationsUpdateParams contains the parameters for Update.
 type OrganizationsUpdateParams struct {
-	Name                             *string                   `json:"name,omitempty"`
-	AllowProfilesOutsideOrganization *bool                     `json:"allow_profiles_outside_organization,omitempty"`
-	Domains                          []string                  `json:"domains,omitempty"`
-	DomainData                       []*OrganizationDomainData `json:"domain_data,omitempty"`
-	StripeCustomerID                 *string                   `json:"stripe_customer_id,omitempty"`
-	Metadata                         *map[string]string        `json:"metadata,omitempty"`
-	ExternalID                       *string                   `json:"external_id,omitempty"`
+	// Name is the name of the organization.
+	Name *string `json:"name,omitempty"`
+	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
+	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
+	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
+	//
+	// Deprecated: this field is deprecated.
+	Domains []string `json:"domains,omitempty"`
+	// DomainData is the domains associated with the organization, including verification state.
+	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
+	// StripeCustomerID is the Stripe customer ID associated with the organization.
+	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
+	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
+	Metadata *map[string]string `json:"metadata,omitempty"`
+	// ExternalID is an external identifier for the Organization.
+	ExternalID *string `json:"external_id,omitempty"`
 }
 
 // Update updateAnOrganization
