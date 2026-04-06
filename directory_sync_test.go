@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestDirectorySync_ListDirectories(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.ListDirectoriesParams{})
+	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.DirectorySyncListDirectoriesParams{})
 	require.NotNil(t, iter)
 }
 
@@ -37,7 +37,7 @@ func TestDirectorySync_ListDirectories_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.ListDirectoriesParams{})
+	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.DirectorySyncListDirectoriesParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -81,7 +81,7 @@ func TestDirectorySync_ListDirectoryGroups(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryGroups(context.Background(), &workos.ListDirectoryGroupsParams{})
+	iter := client.DirectorySync().ListDirectoryGroups(context.Background(), &workos.DirectorySyncListDirectoryGroupsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -94,7 +94,7 @@ func TestDirectorySync_ListDirectoryGroups_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryGroups(context.Background(), &workos.ListDirectoryGroupsParams{})
+	iter := client.DirectorySync().ListDirectoryGroups(context.Background(), &workos.DirectorySyncListDirectoryGroupsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -126,7 +126,7 @@ func TestDirectorySync_ListDirectoryUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryUsers(context.Background(), &workos.ListDirectoryUsersParams{})
+	iter := client.DirectorySync().ListDirectoryUsers(context.Background(), &workos.DirectorySyncListDirectoryUsersParams{})
 	require.NotNil(t, iter)
 }
 
@@ -139,7 +139,7 @@ func TestDirectorySync_ListDirectoryUsers_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectoryUsers(context.Background(), &workos.ListDirectoryUsersParams{})
+	iter := client.DirectorySync().ListDirectoryUsers(context.Background(), &workos.DirectorySyncListDirectoryUsersParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -169,7 +169,7 @@ func TestDirectorySync_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.ListDirectoriesParams{})
+	iter := client.DirectorySync().ListDirectories(context.Background(), &workos.DirectorySyncListDirectoriesParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

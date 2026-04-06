@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestAuthorization_CheckOrganizationMembership(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.CheckOrganizationMembershipParams{})
+	result, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -40,7 +40,7 @@ func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.ListOrganizationMembershipResourcesParams{})
+	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{})
 	require.NotNil(t, iter)
 }
 
@@ -53,7 +53,7 @@ func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.ListOrganizationMembershipResourcesParams{})
+	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -69,7 +69,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.ListOrganizationMembershipRoleAssignmentsParams{})
+	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -82,7 +82,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testin
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.ListOrganizationMembershipRoleAssignmentsParams{})
+	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -98,7 +98,7 @@ func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T)
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.CreateOrganizationMembershipRoleAssignmentsParams{})
+	result, err := client.Authorization().CreateOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationCreateOrganizationMembershipRoleAssignmentsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -111,7 +111,7 @@ func TestAuthorization_DeleteOrganizationMembershipRoleAssignments(t *testing.T)
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.DeleteOrganizationMembershipRoleAssignmentsParams{})
+	err := client.Authorization().DeleteOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams{})
 	require.NoError(t, err)
 }
 
@@ -154,7 +154,7 @@ func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateOrganizationRoles(context.Background(), "test_organizationId", &workos.CreateOrganizationRolesParams{})
+	result, err := client.Authorization().CreateOrganizationRoles(context.Background(), "test_organizationId", &workos.AuthorizationCreateOrganizationRolesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -186,7 +186,7 @@ func TestAuthorization_UpdateOrganizationRole(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateOrganizationRole(context.Background(), "test_organizationId", "test_slug", &workos.UpdateOrganizationRoleParams{})
+	result, err := client.Authorization().UpdateOrganizationRole(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateOrganizationRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -214,7 +214,7 @@ func TestAuthorization_CreateRolePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.CreateRolePermissionsParams{})
+	result, err := client.Authorization().CreateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationCreateRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -230,7 +230,7 @@ func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.UpdateRolePermissionsParams{})
+	result, err := client.Authorization().UpdateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -274,7 +274,7 @@ func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.UpdateOrganizationResourceParams{})
+	result, err := client.Authorization().UpdateOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationUpdateOrganizationResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -287,7 +287,7 @@ func TestAuthorization_DeleteOrganizationResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.DeleteOrganizationResourceParams{})
+	err := client.Authorization().DeleteOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationDeleteOrganizationResourceParams{})
 	require.NoError(t, err)
 }
 
@@ -302,7 +302,7 @@ func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.ListResourceOrganizationMembershipsParams{})
+	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -315,7 +315,7 @@ func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.ListResourceOrganizationMembershipsParams{})
+	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -331,7 +331,7 @@ func TestAuthorization_ListResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResources(context.Background(), &workos.ListResourcesParams{})
+	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{})
 	require.NotNil(t, iter)
 }
 
@@ -344,7 +344,7 @@ func TestAuthorization_ListResources_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResources(context.Background(), &workos.ListResourcesParams{})
+	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -360,7 +360,7 @@ func TestAuthorization_CreateResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateResources(context.Background(), &workos.CreateResourcesParams{})
+	result, err := client.Authorization().CreateResources(context.Background(), &workos.AuthorizationCreateResourcesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -392,7 +392,7 @@ func TestAuthorization_UpdateResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateResource(context.Background(), "test_resource_id", &workos.UpdateResourceParams{})
+	result, err := client.Authorization().UpdateResource(context.Background(), "test_resource_id", &workos.AuthorizationUpdateResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -405,37 +405,8 @@ func TestAuthorization_DeleteResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteResource(context.Background(), "test_resource_id", &workos.DeleteResourceParams{})
+	err := client.Authorization().DeleteResource(context.Background(), "test_resource_id", &workos.AuthorizationDeleteResourceParams{})
 	require.NoError(t, err)
-}
-
-func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "GET", r.Method)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_organization_membership_base_list.json")
-		w.Write(fixture)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_resource_id", &workos.ListResourceOrganizationMembershipsParams{})
-	require.NotNil(t, iter)
-}
-
-func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_resource_id", &workos.ListResourceOrganizationMembershipsParams{})
-	require.False(t, iter.Next())
-	require.NoError(t, iter.Err())
 }
 
 func TestAuthorization_ListRoles(t *testing.T) {
@@ -465,7 +436,7 @@ func TestAuthorization_CreateRoles(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateRoles(context.Background(), &workos.CreateRolesParams{})
+	result, err := client.Authorization().CreateRoles(context.Background(), &workos.AuthorizationCreateRolesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -497,39 +468,7 @@ func TestAuthorization_UpdateRole(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateRole(context.Background(), "test_slug", &workos.UpdateRoleParams{})
-	require.NoError(t, err)
-	require.NotNil(t, result)
-}
-
-func TestAuthorization_CreateRolePermissions(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "POST", r.Method)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
-		w.Write(fixture)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateRolePermissions(context.Background(), "test_slug", &workos.CreateRolePermissionsParams{})
-	require.NoError(t, err)
-	require.NotNil(t, result)
-}
-
-func TestAuthorization_UpdateRolePermissions(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "PUT", r.Method)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
-		w.Write(fixture)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateRolePermissions(context.Background(), "test_slug", &workos.UpdateRolePermissionsParams{})
+	result, err := client.Authorization().UpdateRole(context.Background(), "test_slug", &workos.AuthorizationUpdateRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -545,7 +484,7 @@ func TestAuthorization_ListPermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListPermissions(context.Background(), &workos.ListPermissionsParams{})
+	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -558,7 +497,7 @@ func TestAuthorization_ListPermissions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListPermissions(context.Background(), &workos.ListPermissionsParams{})
+	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -574,7 +513,7 @@ func TestAuthorization_CreatePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreatePermissions(context.Background(), &workos.CreatePermissionsParams{})
+	result, err := client.Authorization().CreatePermissions(context.Background(), &workos.AuthorizationCreatePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -606,7 +545,7 @@ func TestAuthorization_UpdatePermission(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdatePermission(context.Background(), "test_slug", &workos.UpdatePermissionParams{})
+	result, err := client.Authorization().UpdatePermission(context.Background(), "test_slug", &workos.AuthorizationUpdatePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -632,6 +571,6 @@ func TestAuthorization_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.CheckOrganizationMembershipParams{})
+	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestEvents_ListEvents(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().ListEvents(context.Background(), &workos.ListEventsParams{})
+	iter := client.Events().ListEvents(context.Background(), &workos.EventsListEventsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -37,7 +37,7 @@ func TestEvents_ListEvents_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().ListEvents(context.Background(), &workos.ListEventsParams{})
+	iter := client.Events().ListEvents(context.Background(), &workos.EventsListEventsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -51,7 +51,7 @@ func TestEvents_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().ListEvents(context.Background(), &workos.ListEventsParams{})
+	iter := client.Events().ListEvents(context.Background(), &workos.EventsListEventsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

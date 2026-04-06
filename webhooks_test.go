@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestWebhooks_ListWebhookEndpoints(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Webhooks().ListWebhookEndpoints(context.Background(), &workos.ListWebhookEndpointsParams{})
+	iter := client.Webhooks().ListWebhookEndpoints(context.Background(), &workos.WebhooksListWebhookEndpointsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -37,7 +37,7 @@ func TestWebhooks_ListWebhookEndpoints_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Webhooks().ListWebhookEndpoints(context.Background(), &workos.ListWebhookEndpointsParams{})
+	iter := client.Webhooks().ListWebhookEndpoints(context.Background(), &workos.WebhooksListWebhookEndpointsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -53,7 +53,7 @@ func TestWebhooks_CreateWebhookEndpoints(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Webhooks().CreateWebhookEndpoints(context.Background(), &workos.CreateWebhookEndpointsParams{})
+	result, err := client.Webhooks().CreateWebhookEndpoints(context.Background(), &workos.WebhooksCreateWebhookEndpointsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -69,7 +69,7 @@ func TestWebhooks_UpdateWebhookEndpoint(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Webhooks().UpdateWebhookEndpoint(context.Background(), "test_id", &workos.UpdateWebhookEndpointParams{})
+	result, err := client.Webhooks().UpdateWebhookEndpoint(context.Background(), "test_id", &workos.WebhooksUpdateWebhookEndpointParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -95,7 +95,7 @@ func TestWebhooks_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Webhooks().ListWebhookEndpoints(context.Background(), &workos.ListWebhookEndpointsParams{})
+	iter := client.Webhooks().ListWebhookEndpoints(context.Background(), &workos.WebhooksListWebhookEndpointsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

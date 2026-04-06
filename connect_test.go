@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestConnect_CompleteOAuth2(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CompleteOAuth2(context.Background(), &workos.CompleteOAuth2Params{})
+	result, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -40,7 +40,7 @@ func TestConnect_ListApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Connect().ListApplications(context.Background(), &workos.ListApplicationsParams{})
+	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -53,7 +53,7 @@ func TestConnect_ListApplications_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Connect().ListApplications(context.Background(), &workos.ListApplicationsParams{})
+	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -69,7 +69,7 @@ func TestConnect_CreateApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateApplications(context.Background(), &workos.CreateApplicationsParams{})
+	result, err := client.Connect().CreateApplications(context.Background(), &workos.ConnectCreateApplicationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -101,7 +101,7 @@ func TestConnect_UpdateApplication(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().UpdateApplication(context.Background(), "test_id", &workos.UpdateApplicationParams{})
+	result, err := client.Connect().UpdateApplication(context.Background(), "test_id", &workos.ConnectUpdateApplicationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -145,7 +145,7 @@ func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id", &workos.CreateApplicationClientSecretsParams{})
+	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id", &workos.ConnectCreateApplicationClientSecretsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -171,6 +171,6 @@ func TestConnect_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Connect().CompleteOAuth2(context.Background(), &workos.CompleteOAuth2Params{})
+	_, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

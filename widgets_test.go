@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestWidgets_CreateToken(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Widgets().CreateToken(context.Background(), &workos.CreateTokenParams{})
+	result, err := client.Widgets().CreateToken(context.Background(), &workos.WidgetsCreateTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -38,6 +38,6 @@ func TestWidgets_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Widgets().CreateToken(context.Background(), &workos.CreateTokenParams{})
+	_, err := client.Widgets().CreateToken(context.Background(), &workos.WidgetsCreateTokenParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

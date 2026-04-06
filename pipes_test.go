@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.AuthorizeDataIntegrationParams{})
+	result, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -40,7 +40,7 @@ func TestPipes_CreateDataIntegrationToken(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Pipes().CreateDataIntegrationToken(context.Background(), "test_slug", &workos.CreateDataIntegrationTokenParams{})
+	result, err := client.Pipes().CreateDataIntegrationToken(context.Background(), "test_slug", &workos.PipesCreateDataIntegrationTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -56,7 +56,7 @@ func TestPipes_GetUserConnectedAccount(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Pipes().GetUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.GetUserConnectedAccountParams{})
+	result, err := client.Pipes().GetUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.PipesGetUserConnectedAccountParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -69,7 +69,7 @@ func TestPipes_DeleteUserConnectedAccount(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Pipes().DeleteUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.DeleteUserConnectedAccountParams{})
+	err := client.Pipes().DeleteUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.PipesDeleteUserConnectedAccountParams{})
 	require.NoError(t, err)
 }
 
@@ -84,7 +84,7 @@ func TestPipes_ListUserDataProviders(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Pipes().ListUserDataProviders(context.Background(), "test_user_id", &workos.ListUserDataProvidersParams{})
+	result, err := client.Pipes().ListUserDataProviders(context.Background(), "test_user_id", &workos.PipesListUserDataProvidersParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -98,6 +98,6 @@ func TestPipes_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.AuthorizeDataIntegrationParams{})
+	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

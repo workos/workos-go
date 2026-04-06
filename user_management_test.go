@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,7 +40,7 @@ func TestUserManagement_CreateAuthenticate(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateAuthenticate(context.Background(), &workos.CreateAuthenticateParams{})
+	result, err := client.UserManagement().CreateAuthenticate(context.Background(), &workos.UserManagementCreateAuthenticateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -56,7 +56,7 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateDevice(context.Background(), &workos.CreateDeviceParams{})
+	result, err := client.UserManagement().CreateDevice(context.Background(), &workos.UserManagementCreateDeviceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -69,7 +69,7 @@ func TestUserManagement_RevokeSession(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.UserManagement().RevokeSession(context.Background(), &workos.RevokeSessionParams{})
+	err := client.UserManagement().RevokeSession(context.Background(), &workos.UserManagementRevokeSessionParams{})
 	require.NoError(t, err)
 }
 
@@ -84,7 +84,7 @@ func TestUserManagement_CreateCORSOrigins(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateCORSOrigins(context.Background(), &workos.CreateCORSOriginsParams{})
+	result, err := client.UserManagement().CreateCORSOrigins(context.Background(), &workos.UserManagementCreateCORSOriginsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -116,7 +116,7 @@ func TestUserManagement_CreatePasswordReset(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreatePasswordReset(context.Background(), &workos.CreatePasswordResetParams{})
+	result, err := client.UserManagement().CreatePasswordReset(context.Background(), &workos.UserManagementCreatePasswordResetParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -132,7 +132,7 @@ func TestUserManagement_ConfirmPasswordReset(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ConfirmPasswordReset(context.Background(), &workos.ConfirmPasswordResetParams{})
+	result, err := client.UserManagement().ConfirmPasswordReset(context.Background(), &workos.UserManagementConfirmPasswordResetParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -164,7 +164,7 @@ func TestUserManagement_ListUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUsers(context.Background(), &workos.ListUsersParams{})
+	iter := client.UserManagement().ListUsers(context.Background(), &workos.UserManagementListUsersParams{})
 	require.NotNil(t, iter)
 }
 
@@ -177,7 +177,7 @@ func TestUserManagement_ListUsers_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUsers(context.Background(), &workos.ListUsersParams{})
+	iter := client.UserManagement().ListUsers(context.Background(), &workos.UserManagementListUsersParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -193,7 +193,7 @@ func TestUserManagement_CreateUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateUsers(context.Background(), &workos.CreateUsersParams{})
+	result, err := client.UserManagement().CreateUsers(context.Background(), &workos.UserManagementCreateUsersParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -241,7 +241,7 @@ func TestUserManagement_UpdateUser(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().UpdateUser(context.Background(), "test_id", &workos.UpdateUserParams{})
+	result, err := client.UserManagement().UpdateUser(context.Background(), "test_id", &workos.UserManagementUpdateUserParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -269,7 +269,7 @@ func TestUserManagement_ConfirmEmailChange(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ConfirmEmailChange(context.Background(), "test_id", &workos.ConfirmEmailChangeParams{})
+	result, err := client.UserManagement().ConfirmEmailChange(context.Background(), "test_id", &workos.UserManagementConfirmEmailChangeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -285,7 +285,7 @@ func TestUserManagement_SendEmailChange(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().SendEmailChange(context.Background(), "test_id", &workos.SendEmailChangeParams{})
+	result, err := client.UserManagement().SendEmailChange(context.Background(), "test_id", &workos.UserManagementSendEmailChangeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -301,7 +301,7 @@ func TestUserManagement_ConfirmEmailVerification(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ConfirmEmailVerification(context.Background(), "test_id", &workos.ConfirmEmailVerificationParams{})
+	result, err := client.UserManagement().ConfirmEmailVerification(context.Background(), "test_id", &workos.UserManagementConfirmEmailVerificationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -349,7 +349,7 @@ func TestUserManagement_ListUserSessions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserSessions(context.Background(), "test_id", &workos.ListUserSessionsParams{})
+	iter := client.UserManagement().ListUserSessions(context.Background(), "test_id", &workos.UserManagementListUserSessionsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -362,7 +362,7 @@ func TestUserManagement_ListUserSessions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserSessions(context.Background(), "test_id", &workos.ListUserSessionsParams{})
+	iter := client.UserManagement().ListUserSessions(context.Background(), "test_id", &workos.UserManagementListUserSessionsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -378,7 +378,7 @@ func TestUserManagement_ListInvitations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListInvitations(context.Background(), &workos.ListInvitationsParams{})
+	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -391,7 +391,7 @@ func TestUserManagement_ListInvitations_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListInvitations(context.Background(), &workos.ListInvitationsParams{})
+	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -407,7 +407,7 @@ func TestUserManagement_CreateInvitations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateInvitations(context.Background(), &workos.CreateInvitationsParams{})
+	result, err := client.UserManagement().CreateInvitations(context.Background(), &workos.UserManagementCreateInvitationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -471,7 +471,7 @@ func TestUserManagement_ResendInvitation(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ResendInvitation(context.Background(), "test_id", &workos.ResendInvitationParams{})
+	result, err := client.UserManagement().ResendInvitation(context.Background(), "test_id", &workos.UserManagementResendInvitationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -503,7 +503,7 @@ func TestUserManagement_UpdateJWTTemplate(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().UpdateJWTTemplate(context.Background(), &workos.UpdateJWTTemplateParams{})
+	result, err := client.UserManagement().UpdateJWTTemplate(context.Background(), &workos.UserManagementUpdateJWTTemplateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -519,7 +519,7 @@ func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateMagicAuth(context.Background(), &workos.CreateMagicAuthParams{})
+	result, err := client.UserManagement().CreateMagicAuth(context.Background(), &workos.UserManagementCreateMagicAuthParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -551,7 +551,7 @@ func TestUserManagement_ListOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.ListOrganizationMembershipsParams{})
+	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -564,7 +564,7 @@ func TestUserManagement_ListOrganizationMemberships_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.ListOrganizationMembershipsParams{})
+	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -580,7 +580,7 @@ func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateOrganizationMemberships(context.Background(), &workos.CreateOrganizationMembershipsParams{})
+	result, err := client.UserManagement().CreateOrganizationMemberships(context.Background(), &workos.UserManagementCreateOrganizationMembershipsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -612,7 +612,7 @@ func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().UpdateOrganizationMembership(context.Background(), "test_id", &workos.UpdateOrganizationMembershipParams{})
+	result, err := client.UserManagement().UpdateOrganizationMembership(context.Background(), "test_id", &workos.UserManagementUpdateOrganizationMembershipParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -672,7 +672,7 @@ func TestUserManagement_CreateRedirectUris(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateRedirectUris(context.Background(), &workos.CreateRedirectUrisParams{})
+	result, err := client.UserManagement().CreateRedirectUris(context.Background(), &workos.UserManagementCreateRedirectUrisParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -688,7 +688,7 @@ func TestUserManagement_ListUserAuthorizedApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserAuthorizedApplications(context.Background(), "test_user_id", &workos.ListUserAuthorizedApplicationsParams{})
+	iter := client.UserManagement().ListUserAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListUserAuthorizedApplicationsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -701,7 +701,7 @@ func TestUserManagement_ListUserAuthorizedApplications_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListUserAuthorizedApplications(context.Background(), "test_user_id", &workos.ListUserAuthorizedApplicationsParams{})
+	iter := client.UserManagement().ListUserAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListUserAuthorizedApplicationsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }

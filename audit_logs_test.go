@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,7 +40,7 @@ func TestAuditLogs_UpdateOrganizationAuditLogsRetention(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().UpdateOrganizationAuditLogsRetention(context.Background(), "test_id", &workos.UpdateOrganizationAuditLogsRetentionParams{})
+	result, err := client.AuditLogs().UpdateOrganizationAuditLogsRetention(context.Background(), "test_id", &workos.AuditLogsUpdateOrganizationAuditLogsRetentionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -56,7 +56,7 @@ func TestAuditLogs_ListActions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActions(context.Background(), &workos.ListActionsParams{})
+	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -69,7 +69,7 @@ func TestAuditLogs_ListActions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActions(context.Background(), &workos.ListActionsParams{})
+	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -85,7 +85,7 @@ func TestAuditLogs_ListActionSchemas(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.ListActionSchemasParams{})
+	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{})
 	require.NotNil(t, iter)
 }
 
@@ -98,7 +98,7 @@ func TestAuditLogs_ListActionSchemas_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.ListActionSchemasParams{})
+	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -114,7 +114,7 @@ func TestAuditLogs_CreateActionSchemas(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().CreateActionSchemas(context.Background(), "test_actionName", &workos.CreateActionSchemasParams{})
+	result, err := client.AuditLogs().CreateActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsCreateActionSchemasParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -130,7 +130,7 @@ func TestAuditLogs_CreateEvents(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().CreateEvents(context.Background(), &workos.CreateEventsParams{})
+	result, err := client.AuditLogs().CreateEvents(context.Background(), &workos.AuditLogsCreateEventsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -146,7 +146,7 @@ func TestAuditLogs_CreateExports(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().CreateExports(context.Background(), &workos.CreateExportsParams{})
+	result, err := client.AuditLogs().CreateExports(context.Background(), &workos.AuditLogsCreateExportsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }

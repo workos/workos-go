@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestFeatureFlags_ListFeatureFlags(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.ListFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.FeatureFlagsListFeatureFlagsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -37,7 +37,7 @@ func TestFeatureFlags_ListFeatureFlags_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.ListFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.FeatureFlagsListFeatureFlagsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -125,7 +125,7 @@ func TestFeatureFlags_ListOrganizationFeatureFlags(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.ListOrganizationFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -138,7 +138,7 @@ func TestFeatureFlags_ListOrganizationFeatureFlags_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.ListOrganizationFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -154,7 +154,7 @@ func TestFeatureFlags_ListUserFeatureFlags(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.ListUserFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -167,7 +167,7 @@ func TestFeatureFlags_ListUserFeatureFlags_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.ListUserFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -181,7 +181,7 @@ func TestFeatureFlags_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.ListFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListFeatureFlags(context.Background(), &workos.FeatureFlagsListFeatureFlagsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

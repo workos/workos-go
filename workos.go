@@ -32,6 +32,11 @@ func WithMaxRetries(n int) ClientOption {
 	return func(c *Client) { c.maxRetries = n }
 }
 
+// WithClientID sets the client ID (used for authentication flows).
+func WithClientID(id string) ClientOption {
+	return func(c *Client) { c.clientID = id }
+}
+
 // RequestOption configures a single API request.
 type RequestOption func(*requestConfig)
 
@@ -70,10 +75,11 @@ func WithRequestBaseURL(url string) RequestOption {
 
 // Client is the WorkOS API client.
 type Client struct {
-	apiKey     string
-	baseURL    string
-	httpClient *http.Client
-	maxRetries int
+	apiKey       string
+	clientID     string
+	baseURL      string
+	httpClient   *http.Client
+	maxRetries   int
 
 	apiKeys *apiKeysService
 	multiFactorAuth *multiFactorAuthService

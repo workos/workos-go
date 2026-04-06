@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestOrganizations_ListOrganizations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().ListOrganizations(context.Background(), &workos.ListOrganizationsParams{})
+	iter := client.Organizations().ListOrganizations(context.Background(), &workos.OrganizationsListOrganizationsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -37,7 +37,7 @@ func TestOrganizations_ListOrganizations_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().ListOrganizations(context.Background(), &workos.ListOrganizationsParams{})
+	iter := client.Organizations().ListOrganizations(context.Background(), &workos.OrganizationsListOrganizationsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -53,7 +53,7 @@ func TestOrganizations_CreateOrganizations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().CreateOrganizations(context.Background(), &workos.CreateOrganizationsParams{})
+	result, err := client.Organizations().CreateOrganizations(context.Background(), &workos.OrganizationsCreateOrganizationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -101,7 +101,7 @@ func TestOrganizations_UpdateOrganization(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().UpdateOrganization(context.Background(), "test_id", &workos.UpdateOrganizationParams{})
+	result, err := client.Organizations().UpdateOrganization(context.Background(), "test_id", &workos.OrganizationsUpdateOrganizationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -143,7 +143,7 @@ func TestOrganizations_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().ListOrganizations(context.Background(), &workos.ListOrganizationsParams{})
+	iter := client.Organizations().ListOrganizations(context.Background(), &workos.OrganizationsListOrganizationsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }

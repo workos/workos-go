@@ -66,6 +66,84 @@ func (s *connectService) CreateApplications(ctx context.Context, params *Connect
 	return &result, nil
 }
 
+
+// CreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
+type CreateOAuthApplicationParams struct {
+	Name *string `json:"name,omitempty"`
+	IsFirstParty *string `json:"is_first_party,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Scopes *string `json:"scopes,omitempty"`
+	RedirectUris *string `json:"redirect_uris,omitempty"`
+	UsesPKCE *string `json:"uses_pkce,omitempty"`
+	OrganizationID *string `json:"organization_id,omitempty"`
+}
+
+// CreateOAuthApplication Create oauth application.
+func (s *connectService) CreateOAuthApplication(ctx context.Context, params *CreateOAuthApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
+	body := map[string]interface{}{
+		"application_type": "oauth",
+	}
+	if params.Name != nil {
+		body["name"] = *params.Name
+	}
+	if params.IsFirstParty != nil {
+		body["is_first_party"] = *params.IsFirstParty
+	}
+	if params.Description != nil {
+		body["description"] = *params.Description
+	}
+	if params.Scopes != nil {
+		body["scopes"] = *params.Scopes
+	}
+	if params.RedirectUris != nil {
+		body["redirect_uris"] = *params.RedirectUris
+	}
+	if params.UsesPKCE != nil {
+		body["uses_pkce"] = *params.UsesPKCE
+	}
+	if params.OrganizationID != nil {
+		body["organization_id"] = *params.OrganizationID
+	}
+	var result ConnectApplication
+	_, err := s.client.request(ctx, "POST", "/connect/applications", body, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// CreateM2MApplicationParams contains the parameters for CreateM2MApplication.
+type CreateM2MApplicationParams struct {
+	Name *string `json:"name,omitempty"`
+	OrganizationID *string `json:"organization_id,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Scopes *string `json:"scopes,omitempty"`
+}
+
+// CreateM2MApplication Create m2m application.
+func (s *connectService) CreateM2MApplication(ctx context.Context, params *CreateM2MApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
+	body := map[string]interface{}{
+		"application_type": "m2m",
+	}
+	if params.Name != nil {
+		body["name"] = *params.Name
+	}
+	if params.OrganizationID != nil {
+		body["organization_id"] = *params.OrganizationID
+	}
+	if params.Description != nil {
+		body["description"] = *params.Description
+	}
+	if params.Scopes != nil {
+		body["scopes"] = *params.Scopes
+	}
+	var result ConnectApplication
+	_, err := s.client.request(ctx, "POST", "/connect/applications", body, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
 // GetApplication get a Connect Application
 // Retrieve details for a specific Connect Application by ID or client ID.
 func (s *connectService) GetApplication(ctx context.Context, iD string, opts ...RequestOption) (*ConnectApplication, error) {

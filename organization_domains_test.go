@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestOrganizationDomains_CreateOrganizationDomains(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.OrganizationDomains().CreateOrganizationDomains(context.Background(), &workos.CreateOrganizationDomainsParams{})
+	result, err := client.OrganizationDomains().CreateOrganizationDomains(context.Background(), &workos.OrganizationDomainsCreateOrganizationDomainsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -82,6 +82,6 @@ func TestOrganizationDomains_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.OrganizationDomains().CreateOrganizationDomains(context.Background(), &workos.CreateOrganizationDomainsParams{})
+	_, err := client.OrganizationDomains().CreateOrganizationDomains(context.Background(), &workos.OrganizationDomainsCreateOrganizationDomainsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

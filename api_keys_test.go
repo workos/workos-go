@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestApiKeys_CreateValidations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.ApiKeys().CreateValidations(context.Background(), &workos.CreateValidationsParams{})
+	result, err := client.ApiKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -52,7 +52,7 @@ func TestApiKeys_ListOrganizationAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.ApiKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.ListOrganizationAPIKeysParams{})
+	iter := client.ApiKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
 	require.NotNil(t, iter)
 }
 
@@ -65,7 +65,7 @@ func TestApiKeys_ListOrganizationAPIKeys_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.ApiKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.ListOrganizationAPIKeysParams{})
+	iter := client.ApiKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -81,7 +81,7 @@ func TestApiKeys_CreateOrganizationAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.ApiKeys().CreateOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.CreateOrganizationAPIKeysParams{})
+	result, err := client.ApiKeys().CreateOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysCreateOrganizationAPIKeysParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -95,6 +95,6 @@ func TestApiKeys_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.ApiKeys().CreateValidations(context.Background(), &workos.CreateValidationsParams{})
+	_, err := client.ApiKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

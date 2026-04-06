@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestMultiFactorAuth_VerifyChallenge(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.VerifyChallengeParams{})
+	result, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.MultiFactorAuthVerifyChallengeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -40,7 +40,7 @@ func TestMultiFactorAuth_EnrollFactor(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.MultiFactorAuth().EnrollFactor(context.Background(), &workos.EnrollFactorParams{})
+	result, err := client.MultiFactorAuth().EnrollFactor(context.Background(), &workos.MultiFactorAuthEnrollFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -84,7 +84,7 @@ func TestMultiFactorAuth_ChallengeFactor(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.MultiFactorAuth().ChallengeFactor(context.Background(), "test_id", &workos.ChallengeFactorParams{})
+	result, err := client.MultiFactorAuth().ChallengeFactor(context.Background(), "test_id", &workos.MultiFactorAuthChallengeFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -100,7 +100,7 @@ func TestMultiFactorAuth_ListUserAuthFactors(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.ListUserAuthFactorsParams{})
+	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -113,7 +113,7 @@ func TestMultiFactorAuth_ListUserAuthFactors_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.ListUserAuthFactorsParams{})
+	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -129,7 +129,7 @@ func TestMultiFactorAuth_CreateUserAuthFactors(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.MultiFactorAuth().CreateUserAuthFactors(context.Background(), "test_userlandUserId", &workos.CreateUserAuthFactorsParams{})
+	result, err := client.MultiFactorAuth().CreateUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthCreateUserAuthFactorsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -143,6 +143,6 @@ func TestMultiFactorAuth_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.VerifyChallengeParams{})
+	_, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.MultiFactorAuthVerifyChallengeParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

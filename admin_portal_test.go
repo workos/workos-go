@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestAdminPortal_GenerateLink(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AdminPortal().GenerateLink(context.Background(), &workos.GenerateLinkParams{})
+	result, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -38,6 +38,6 @@ func TestAdminPortal_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.AdminPortal().GenerateLink(context.Background(), &workos.GenerateLinkParams{})
+	_, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

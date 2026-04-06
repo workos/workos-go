@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestRadar_CreateAttempts(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Radar().CreateAttempts(context.Background(), &workos.CreateAttemptsParams{})
+	result, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -37,7 +37,7 @@ func TestRadar_UpdateAttempt(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Radar().UpdateAttempt(context.Background(), "test_id", &workos.UpdateAttemptParams{})
+	err := client.Radar().UpdateAttempt(context.Background(), "test_id", &workos.RadarUpdateAttemptParams{})
 	require.NoError(t, err)
 }
 
@@ -52,7 +52,7 @@ func TestRadar_AddListEntry(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Radar().AddListEntry(context.Background(), "test_type", "test_action", &workos.AddListEntryParams{})
+	result, err := client.Radar().AddListEntry(context.Background(), "test_type", "test_action", &workos.RadarAddListEntryParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -65,7 +65,7 @@ func TestRadar_RemoveListEntry(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Radar().RemoveListEntry(context.Background(), "test_type", "test_action", &workos.RemoveListEntryParams{})
+	err := client.Radar().RemoveListEntry(context.Background(), "test_type", "test_action", &workos.RadarRemoveListEntryParams{})
 	require.NoError(t, err)
 }
 
@@ -78,6 +78,6 @@ func TestRadar_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Radar().CreateAttempts(context.Background(), &workos.CreateAttemptsParams{})
+	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

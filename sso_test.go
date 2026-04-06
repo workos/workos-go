@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/workos/workos-go/v2"
+	"github.com/workos/workos-go/v6"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestSSO_ListConnections(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.SSO().ListConnections(context.Background(), &workos.ListConnectionsParams{})
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
 	require.NotNil(t, iter)
 }
 
@@ -37,7 +37,7 @@ func TestSSO_ListConnections_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.SSO().ListConnections(context.Background(), &workos.ListConnectionsParams{})
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -81,7 +81,7 @@ func TestSSO_AuthorizeLogout(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.SSO().AuthorizeLogout(context.Background(), &workos.AuthorizeLogoutParams{})
+	result, err := client.SSO().AuthorizeLogout(context.Background(), &workos.SSOAuthorizeLogoutParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -113,7 +113,7 @@ func TestSSO_GetProfileAndToken(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.SSO().GetProfileAndToken(context.Background(), &workos.GetProfileAndTokenParams{})
+	result, err := client.SSO().GetProfileAndToken(context.Background(), &workos.SSOGetProfileAndTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -127,7 +127,7 @@ func TestSSO_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.SSO().ListConnections(context.Background(), &workos.ListConnectionsParams{})
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }
