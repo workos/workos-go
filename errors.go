@@ -1,3 +1,5 @@
+// @oagen-ignore-file
+
 package workos
 
 import "fmt"
