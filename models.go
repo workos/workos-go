@@ -1183,8 +1183,9 @@ type DataIntegrationAuthorizeURLResponse struct {
 	URL string `json:"url"`
 }
 
-// DataIntegrationAccessTokenResponse is an alias for CreateApplicationSecret.
-type DataIntegrationAccessTokenResponse = CreateApplicationSecret
+// DataIntegrationAccessTokenResponse represents a data integration access token response.
+type DataIntegrationAccessTokenResponse struct {
+}
 
 // ConnectedAccount represents a connected account.
 type ConnectedAccount struct {

@@ -16,9 +16,13 @@ import (
 func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/authorize", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/data_integration_authorize_url_response.json")
+		fixture, err := os.ReadFile("testdata/data_integration_authorize_url_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -27,14 +31,19 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	result, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.URL)
 }
 
 func TestPipes_CreateDataIntegrationToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/token", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/data_integration_access_token_response.json")
+		fixture, err := os.ReadFile("testdata/data_integration_access_token_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -48,9 +57,13 @@ func TestPipes_CreateDataIntegrationToken(t *testing.T) {
 func TestPipes_GetUserConnectedAccount(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/connected_accounts/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connected_account.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -59,11 +72,13 @@ func TestPipes_GetUserConnectedAccount(t *testing.T) {
 	result, err := client.Pipes().GetUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.PipesGetUserConnectedAccountParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestPipes_DeleteUserConnectedAccount(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/connected_accounts/test_slug", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -76,9 +91,13 @@ func TestPipes_DeleteUserConnectedAccount(t *testing.T) {
 func TestPipes_ListUserDataProviders(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/data_providers", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/data_integrations_list_response.json")
+		fixture, err := os.ReadFile("testdata/data_integrations_list_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()

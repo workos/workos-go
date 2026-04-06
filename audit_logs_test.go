@@ -16,9 +16,13 @@ import (
 func TestAuditLogs_ListOrganizationAuditLogsRetention(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organizations/test_id/audit_logs_retention", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/audit_logs_retention_json.json")
+		fixture, err := os.ReadFile("testdata/audit_logs_retention_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -32,9 +36,13 @@ func TestAuditLogs_ListOrganizationAuditLogsRetention(t *testing.T) {
 func TestAuditLogs_UpdateOrganizationAuditLogsRetention(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/organizations/test_id/audit_logs_retention", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/audit_logs_retention_json.json")
+		fixture, err := os.ReadFile("testdata/audit_logs_retention_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -48,9 +56,13 @@ func TestAuditLogs_UpdateOrganizationAuditLogsRetention(t *testing.T) {
 func TestAuditLogs_ListActions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/audit_logs/actions", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_audit_log_action_json.json")
+		fixture, err := os.ReadFile("testdata/list_audit_log_action_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -58,6 +70,10 @@ func TestAuditLogs_ListActions(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuditLogs_ListActions_Empty(t *testing.T) {
@@ -77,9 +93,13 @@ func TestAuditLogs_ListActions_Empty(t *testing.T) {
 func TestAuditLogs_ListActionSchemas(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/audit_logs/actions/test_actionName/schemas", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_audit_log_schema_json.json")
+		fixture, err := os.ReadFile("testdata/list_audit_log_schema_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -87,6 +107,10 @@ func TestAuditLogs_ListActionSchemas(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuditLogs_ListActionSchemas_Empty(t *testing.T) {
@@ -106,9 +130,13 @@ func TestAuditLogs_ListActionSchemas_Empty(t *testing.T) {
 func TestAuditLogs_CreateActionSchemas(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/audit_logs/actions/test_actionName/schemas", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/audit_log_schema_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_schema_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -117,14 +145,19 @@ func TestAuditLogs_CreateActionSchemas(t *testing.T) {
 	result, err := client.AuditLogs().CreateActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsCreateActionSchemasParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.CreatedAt)
 }
 
 func TestAuditLogs_CreateEvents(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/audit_logs/events", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/audit_log_event_create_response.json")
+		fixture, err := os.ReadFile("testdata/audit_log_event_create_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -138,9 +171,13 @@ func TestAuditLogs_CreateEvents(t *testing.T) {
 func TestAuditLogs_CreateExports(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/audit_logs/exports", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/audit_log_export_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_export_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -149,14 +186,19 @@ func TestAuditLogs_CreateExports(t *testing.T) {
 	result, err := client.AuditLogs().CreateExports(context.Background(), &workos.AuditLogsCreateExportsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuditLogs_GetExport(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/audit_logs/exports/test_auditLogExportId", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/audit_log_export_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_export_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -165,6 +207,7 @@ func TestAuditLogs_GetExport(t *testing.T) {
 	result, err := client.AuditLogs().GetExport(context.Background(), "test_auditLogExportId")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuditLogs_Error401(t *testing.T) {

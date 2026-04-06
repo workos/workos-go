@@ -16,9 +16,13 @@ import (
 func TestFeatureFlags_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/feature-flags", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_flag_list.json")
+		fixture, err := os.ReadFile("testdata/list_flag.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -26,6 +30,10 @@ func TestFeatureFlags_List(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestFeatureFlags_List_Empty(t *testing.T) {
@@ -45,9 +53,13 @@ func TestFeatureFlags_List_Empty(t *testing.T) {
 func TestFeatureFlags_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/feature-flags/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/flag.json")
+		fixture, err := os.ReadFile("testdata/flag.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -56,14 +68,19 @@ func TestFeatureFlags_Get(t *testing.T) {
 	result, err := client.FeatureFlags().Get(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestFeatureFlags_Disable(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/feature-flags/test_slug/disable", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/feature_flag.json")
+		fixture, err := os.ReadFile("testdata/feature_flag.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -72,14 +89,19 @@ func TestFeatureFlags_Disable(t *testing.T) {
 	result, err := client.FeatureFlags().Disable(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestFeatureFlags_Enable(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/feature-flags/test_slug/enable", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/feature_flag.json")
+		fixture, err := os.ReadFile("testdata/feature_flag.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -88,38 +110,45 @@ func TestFeatureFlags_Enable(t *testing.T) {
 	result, err := client.FeatureFlags().Enable(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestFeatureFlags_CreateTarget(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/feature-flags/test_slug/targets/test_resourceId", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.FeatureFlags().CreateTarget(context.Background(), "test_resourceId", "test_slug")
+	err := client.FeatureFlags().CreateTarget(context.Background(), "test_slug", "test_resourceId")
 	require.NoError(t, err)
 }
 
 func TestFeatureFlags_DeleteTarget(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/feature-flags/test_slug/targets/test_resourceId", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.FeatureFlags().DeleteTarget(context.Background(), "test_resourceId", "test_slug")
+	err := client.FeatureFlags().DeleteTarget(context.Background(), "test_slug", "test_resourceId")
 	require.NoError(t, err)
 }
 
 func TestFeatureFlags_ListOrganizationFeatureFlags(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organizations/test_organizationId/feature-flags", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_flag_list.json")
+		fixture, err := os.ReadFile("testdata/list_flag.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -127,6 +156,10 @@ func TestFeatureFlags_ListOrganizationFeatureFlags(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestFeatureFlags_ListOrganizationFeatureFlags_Empty(t *testing.T) {
@@ -146,9 +179,13 @@ func TestFeatureFlags_ListOrganizationFeatureFlags_Empty(t *testing.T) {
 func TestFeatureFlags_ListUserFeatureFlags(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_userId/feature-flags", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_flag_list.json")
+		fixture, err := os.ReadFile("testdata/list_flag.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -156,6 +193,10 @@ func TestFeatureFlags_ListUserFeatureFlags(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestFeatureFlags_ListUserFeatureFlags_Empty(t *testing.T) {

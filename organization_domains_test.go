@@ -16,9 +16,13 @@ import (
 func TestOrganizationDomains_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/organization_domains", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/organization_domain.json")
+		fixture, err := os.ReadFile("testdata/organization_domain.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -27,14 +31,19 @@ func TestOrganizationDomains_Create(t *testing.T) {
 	result, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestOrganizationDomains_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organization_domains/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/organization_domain_stand_alone.json")
+		fixture, err := os.ReadFile("testdata/organization_domain_stand_alone.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -43,11 +52,13 @@ func TestOrganizationDomains_Get(t *testing.T) {
 	result, err := client.OrganizationDomains().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestOrganizationDomains_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/organization_domains/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -60,9 +71,13 @@ func TestOrganizationDomains_Delete(t *testing.T) {
 func TestOrganizationDomains_Verify(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/organization_domains/test_id/verify", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/organization_domain_stand_alone.json")
+		fixture, err := os.ReadFile("testdata/organization_domain_stand_alone.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -71,6 +86,7 @@ func TestOrganizationDomains_Verify(t *testing.T) {
 	result, err := client.OrganizationDomains().Verify(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestOrganizationDomains_Error401(t *testing.T) {

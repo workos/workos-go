@@ -16,9 +16,13 @@ import (
 func TestEvents_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/events", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_event_list.json")
+		fixture, err := os.ReadFile("testdata/list_event_schema.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -26,6 +30,10 @@ func TestEvents_List(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Events().List(context.Background(), &workos.EventsListParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestEvents_List_Empty(t *testing.T) {

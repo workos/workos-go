@@ -16,9 +16,13 @@ import (
 func TestMultiFactorAuth_VerifyChallenge(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/auth/challenges/test_id/verify", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authentication_challenge_verify_response.json")
+		fixture, err := os.ReadFile("testdata/authentication_challenge_verify_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -32,9 +36,13 @@ func TestMultiFactorAuth_VerifyChallenge(t *testing.T) {
 func TestMultiFactorAuth_EnrollFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/auth/factors/enroll", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authentication_factor_enrolled.json")
+		fixture, err := os.ReadFile("testdata/authentication_factor_enrolled.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -43,14 +51,19 @@ func TestMultiFactorAuth_EnrollFactor(t *testing.T) {
 	result, err := client.MultiFactorAuth().EnrollFactor(context.Background(), &workos.MultiFactorAuthEnrollFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestMultiFactorAuth_GetFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/auth/factors/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authentication_factor.json")
+		fixture, err := os.ReadFile("testdata/authentication_factor.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -59,11 +72,13 @@ func TestMultiFactorAuth_GetFactor(t *testing.T) {
 	result, err := client.MultiFactorAuth().GetFactor(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestMultiFactorAuth_DeleteFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/auth/factors/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -76,9 +91,13 @@ func TestMultiFactorAuth_DeleteFactor(t *testing.T) {
 func TestMultiFactorAuth_ChallengeFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/auth/factors/test_id/challenge", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authentication_challenge.json")
+		fixture, err := os.ReadFile("testdata/authentication_challenge.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -87,14 +106,19 @@ func TestMultiFactorAuth_ChallengeFactor(t *testing.T) {
 	result, err := client.MultiFactorAuth().ChallengeFactor(context.Background(), "test_id", &workos.MultiFactorAuthChallengeFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestMultiFactorAuth_ListUserAuthFactors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_userlandUserId/auth_factors", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_authentication_factor_list.json")
+		fixture, err := os.ReadFile("testdata/list_authentication_factor.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -102,6 +126,10 @@ func TestMultiFactorAuth_ListUserAuthFactors(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestMultiFactorAuth_ListUserAuthFactors_Empty(t *testing.T) {
@@ -121,9 +149,13 @@ func TestMultiFactorAuth_ListUserAuthFactors_Empty(t *testing.T) {
 func TestMultiFactorAuth_CreateUserAuthFactors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_userlandUserId/auth_factors", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_authentication_factor_enroll_response.json")
+		fixture, err := os.ReadFile("testdata/user_authentication_factor_enroll_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()

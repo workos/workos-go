@@ -639,13 +639,13 @@ func (s *userManagementService) SendEmailVerification(ctx context.Context, id st
 
 // ListIdentities getUserIdentities
 // Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
-func (s *userManagementService) ListIdentities(ctx context.Context, id string, opts ...RequestOption) (*UserIdentitiesGetItem, error) {
-	var result UserIdentitiesGetItem
+func (s *userManagementService) ListIdentities(ctx context.Context, id string, opts ...RequestOption) ([]UserIdentitiesGetItem, error) {
+	var result []UserIdentitiesGetItem
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return result, nil
 }
 
 // UserManagementListSessionsParams contains the parameters for ListSessions.
@@ -973,7 +973,7 @@ func (s *userManagementService) ListAuthorizedApplications(ctx context.Context, 
 
 // DeleteAuthorizedApplication deleteAnAuthorizedApplication
 // Delete an existing Authorized Connect Application.
-func (s *userManagementService) DeleteAuthorizedApplication(ctx context.Context, applicationID string, userID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", applicationID, userID), nil, nil, nil, opts)
+func (s *userManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", userID, applicationID), nil, nil, nil, opts)
 	return err
 }

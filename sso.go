@@ -147,13 +147,13 @@ func (s *ssoService) GetProfile(ctx context.Context, opts ...RequestOption) (*Pr
 // SSOGetProfileAndTokenParams contains the parameters for GetProfileAndToken.
 type SSOGetProfileAndTokenParams struct {
 	// ClientID is the client ID of the WorkOS environment.
-	ClientID string `json:"client_id"`
+	ClientID string `json:"client_id" url:"client_id"`
 	// ClientSecret is the client secret of the WorkOS environment.
-	ClientSecret string `json:"client_secret"`
+	ClientSecret string `json:"client_secret" url:"client_secret"`
 	// Code is the authorization code received from the authorization callback.
-	Code string `json:"code"`
+	Code string `json:"code" url:"code"`
 	// GrantType is the grant type for the token request.
-	GrantType string `json:"grant_type"`
+	GrantType string `json:"grant_type" url:"grant_type"`
 }
 
 // GetProfileAndToken getAProfileAndToken

@@ -16,9 +16,13 @@ import (
 func TestAuthorization_CheckOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/check", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_check.json")
+		fixture, err := os.ReadFile("testdata/authorization_check.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -32,9 +36,13 @@ func TestAuthorization_CheckOrganizationMembership(t *testing.T) {
 func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/resources", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_authorization_resource_list.json")
+		fixture, err := os.ReadFile("testdata/list_authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -42,6 +50,10 @@ func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
@@ -61,9 +73,13 @@ func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
 func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_role_assignment_list.json")
+		fixture, err := os.ReadFile("testdata/list_role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -71,6 +87,10 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testing.T) {
@@ -90,9 +110,13 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testin
 func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role_assignment.json")
+		fixture, err := os.ReadFile("testdata/role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -101,11 +125,13 @@ func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T)
 	result, err := client.Authorization().CreateOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationCreateOrganizationMembershipRoleAssignmentsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_DeleteOrganizationMembershipRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -118,6 +144,7 @@ func TestAuthorization_DeleteOrganizationMembershipRoleAssignments(t *testing.T)
 func TestAuthorization_DeleteOrganizationMembershipRoleAssignment(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments/test_role_assignment_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -130,9 +157,13 @@ func TestAuthorization_DeleteOrganizationMembershipRoleAssignment(t *testing.T) 
 func TestAuthorization_ListOrganizationRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list.json")
+		fixture, err := os.ReadFile("testdata/list.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -146,9 +177,13 @@ func TestAuthorization_ListOrganizationRoles(t *testing.T) {
 func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -157,14 +192,19 @@ func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
 	result, err := client.Authorization().CreateOrganizationRoles(context.Background(), "test_organizationId", &workos.AuthorizationCreateOrganizationRolesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_GetOrganizationRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -173,14 +213,19 @@ func TestAuthorization_GetOrganizationRole(t *testing.T) {
 	result, err := client.Authorization().GetOrganizationRole(context.Background(), "test_organizationId", "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_UpdateOrganizationRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -189,11 +234,13 @@ func TestAuthorization_UpdateOrganizationRole(t *testing.T) {
 	result, err := client.Authorization().UpdateOrganizationRole(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateOrganizationRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_DeleteOrganizationRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -206,9 +253,13 @@ func TestAuthorization_DeleteOrganizationRole(t *testing.T) {
 func TestAuthorization_CreateRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -217,14 +268,19 @@ func TestAuthorization_CreateRolePermissions(t *testing.T) {
 	result, err := client.Authorization().CreateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationCreateRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -233,11 +289,13 @@ func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	result, err := client.Authorization().UpdateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_DeleteRolePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions/test_permissionSlug", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -250,9 +308,13 @@ func TestAuthorization_DeleteRolePermission(t *testing.T) {
 func TestAuthorization_GetOrganizationResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_resource.json")
+		fixture, err := os.ReadFile("testdata/authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -261,14 +323,19 @@ func TestAuthorization_GetOrganizationResource(t *testing.T) {
 	result, err := client.Authorization().GetOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_resource.json")
+		fixture, err := os.ReadFile("testdata/authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -277,11 +344,13 @@ func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	result, err := client.Authorization().UpdateOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationUpdateOrganizationResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_DeleteOrganizationResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -294,9 +363,13 @@ func TestAuthorization_DeleteOrganizationResource(t *testing.T) {
 func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id/organization_memberships", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_organization_membership_base_list.json")
+		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_list_data.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -304,6 +377,10 @@ func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
@@ -323,9 +400,13 @@ func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
 func TestAuthorization_ListResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/resources", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_authorization_resource_list.json")
+		fixture, err := os.ReadFile("testdata/list_authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -333,6 +414,10 @@ func TestAuthorization_ListResources(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuthorization_ListResources_Empty(t *testing.T) {
@@ -352,9 +437,13 @@ func TestAuthorization_ListResources_Empty(t *testing.T) {
 func TestAuthorization_CreateResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/resources", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_resource.json")
+		fixture, err := os.ReadFile("testdata/authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -363,14 +452,19 @@ func TestAuthorization_CreateResources(t *testing.T) {
 	result, err := client.Authorization().CreateResources(context.Background(), &workos.AuthorizationCreateResourcesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_GetResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/resources/test_resource_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_resource.json")
+		fixture, err := os.ReadFile("testdata/authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -379,14 +473,19 @@ func TestAuthorization_GetResource(t *testing.T) {
 	result, err := client.Authorization().GetResource(context.Background(), "test_resource_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_UpdateResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/resources/test_resource_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_resource.json")
+		fixture, err := os.ReadFile("testdata/authorization_resource.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -395,11 +494,13 @@ func TestAuthorization_UpdateResource(t *testing.T) {
 	result, err := client.Authorization().UpdateResource(context.Background(), "test_resource_id", &workos.AuthorizationUpdateResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_DeleteResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/resources/test_resource_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -409,12 +510,53 @@ func TestAuthorization_DeleteResource(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestAuthorization_ListMembershipsForResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/resources/test_resource_id/organization_memberships", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_list_data.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAuthorization_ListMembershipsForResource_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
 func TestAuthorization_ListRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/roles", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role_list.json")
+		fixture, err := os.ReadFile("testdata/role_list.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -428,9 +570,13 @@ func TestAuthorization_ListRoles(t *testing.T) {
 func TestAuthorization_CreateRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/roles", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -439,14 +585,19 @@ func TestAuthorization_CreateRoles(t *testing.T) {
 	result, err := client.Authorization().CreateRoles(context.Background(), &workos.AuthorizationCreateRolesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_GetRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/roles/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -455,14 +606,19 @@ func TestAuthorization_GetRole(t *testing.T) {
 	result, err := client.Authorization().GetRole(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_UpdateRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/roles/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/role.json")
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -471,14 +627,61 @@ func TestAuthorization_UpdateRole(t *testing.T) {
 	result, err := client.Authorization().UpdateRole(context.Background(), "test_slug", &workos.AuthorizationUpdateRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
+}
+
+func TestAuthorization_AddRolePermission(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/roles/test_slug/permissions", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Authorization().AddRolePermission(context.Background(), "test_slug", &workos.AuthorizationAddRolePermissionParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
+}
+
+func TestAuthorization_SetRolePermissions(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/authorization/roles/test_slug/permissions", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/role.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Authorization().SetRolePermissions(context.Background(), "test_slug", &workos.AuthorizationSetRolePermissionsParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_ListPermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/permissions", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_authorization_permission_list.json")
+		fixture, err := os.ReadFile("testdata/list_authorization_permission.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -486,6 +689,10 @@ func TestAuthorization_ListPermissions(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestAuthorization_ListPermissions_Empty(t *testing.T) {
@@ -505,9 +712,13 @@ func TestAuthorization_ListPermissions_Empty(t *testing.T) {
 func TestAuthorization_CreatePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/permissions", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/permission.json")
+		fixture, err := os.ReadFile("testdata/permission.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -516,14 +727,19 @@ func TestAuthorization_CreatePermissions(t *testing.T) {
 	result, err := client.Authorization().CreatePermissions(context.Background(), &workos.AuthorizationCreatePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_GetPermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/permissions/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_permission.json")
+		fixture, err := os.ReadFile("testdata/authorization_permission.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -532,14 +748,19 @@ func TestAuthorization_GetPermission(t *testing.T) {
 	result, err := client.Authorization().GetPermission(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_UpdatePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/permissions/test_slug", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authorization_permission.json")
+		fixture, err := os.ReadFile("testdata/authorization_permission.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -548,11 +769,13 @@ func TestAuthorization_UpdatePermission(t *testing.T) {
 	result, err := client.Authorization().UpdatePermission(context.Background(), "test_slug", &workos.AuthorizationUpdatePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestAuthorization_DeletePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/permissions/test_slug", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()

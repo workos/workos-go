@@ -16,9 +16,13 @@ import (
 func TestDirectorySync_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/directories", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_directory_list.json")
+		fixture, err := os.ReadFile("testdata/list_directory.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -26,6 +30,10 @@ func TestDirectorySync_List(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestDirectorySync_List_Empty(t *testing.T) {
@@ -45,9 +53,13 @@ func TestDirectorySync_List_Empty(t *testing.T) {
 func TestDirectorySync_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/directories/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/directory.json")
+		fixture, err := os.ReadFile("testdata/directory.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -56,11 +68,13 @@ func TestDirectorySync_Get(t *testing.T) {
 	result, err := client.DirectorySync().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestDirectorySync_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/directories/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -73,9 +87,13 @@ func TestDirectorySync_Delete(t *testing.T) {
 func TestDirectorySync_ListGroups(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/directory_groups", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_directory_group_list.json")
+		fixture, err := os.ReadFile("testdata/list_directory_group.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -83,6 +101,10 @@ func TestDirectorySync_ListGroups(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestDirectorySync_ListGroups_Empty(t *testing.T) {
@@ -102,9 +124,13 @@ func TestDirectorySync_ListGroups_Empty(t *testing.T) {
 func TestDirectorySync_GetGroup(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/directory_groups/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/directory_group.json")
+		fixture, err := os.ReadFile("testdata/directory_group.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -113,14 +139,19 @@ func TestDirectorySync_GetGroup(t *testing.T) {
 	result, err := client.DirectorySync().GetGroup(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestDirectorySync_ListUsers(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/directory_users", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_directory_user_list.json")
+		fixture, err := os.ReadFile("testdata/list_directory_user_with_groups.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -128,6 +159,10 @@ func TestDirectorySync_ListUsers(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestDirectorySync_ListUsers_Empty(t *testing.T) {
@@ -147,9 +182,13 @@ func TestDirectorySync_ListUsers_Empty(t *testing.T) {
 func TestDirectorySync_GetUser(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/directory_users/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/directory_user_with_groups.json")
+		fixture, err := os.ReadFile("testdata/directory_user_with_groups.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -158,6 +197,7 @@ func TestDirectorySync_GetUser(t *testing.T) {
 	result, err := client.DirectorySync().GetUser(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestDirectorySync_Error401(t *testing.T) {

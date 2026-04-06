@@ -16,9 +16,13 @@ import (
 func TestAdminPortal_GenerateLink(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/portal/generate_link", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/portal_link_response.json")
+		fixture, err := os.ReadFile("testdata/portal_link_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -27,6 +31,7 @@ func TestAdminPortal_GenerateLink(t *testing.T) {
 	result, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.Link)
 }
 
 func TestAdminPortal_Error401(t *testing.T) {

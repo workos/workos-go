@@ -200,6 +200,8 @@ func (s *authorizationService) DeleteOrganizationRole(ctx context.Context, organ
 
 // AuthorizationCreateRolePermissionsParams contains the parameters for CreateRolePermissions.
 type AuthorizationCreateRolePermissionsParams struct {
+	// Slug is the slug of the permission to add to the role.
+	Slug string `json:"slug"`
 }
 
 // CreateRolePermissions addAPermissionToAnOrganizationRole
@@ -418,6 +420,28 @@ func (s *authorizationService) DeleteResource(ctx context.Context, resourceID st
 	return err
 }
 
+// AuthorizationListMembershipsForResourceParams contains the parameters for ListMembershipsForResource.
+type AuthorizationListMembershipsForResourceParams struct {
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	// PermissionSlug is the permission slug to filter by. Only users with this permission on the resource are returned.
+	PermissionSlug string `url:"permission_slug" json:"-"`
+	// Assignment is filter by assignment type. Use `direct` for direct assignments only, or `indirect` to include inherited assignments.
+	Assignment *AuthorizationAssignment `url:"assignment,omitempty" json:"-"`
+}
+
+// ListMembershipsForResource listOrganizationMembershipsForResource
+// Returns all organization memberships that have a specific permission on a resource instance. This is useful for answering "Who can access this resource?".
+func (s *authorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
+	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", resourceID), params, "after", "data", opts)
+}
+
 // ListRoles listEnvironmentRoles
 // List all environment roles in priority order.
 func (s *authorizationService) ListRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
@@ -476,6 +500,40 @@ type AuthorizationUpdateRoleParams struct {
 func (s *authorizationService) UpdateRole(ctx context.Context, slug string, params *AuthorizationUpdateRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/roles/%s", slug), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AuthorizationAddRolePermissionParams contains the parameters for AddRolePermission.
+type AuthorizationAddRolePermissionParams struct {
+	// Slug is the slug of the permission to add to the role.
+	Slug string `json:"slug"`
+}
+
+// AddRolePermission addAPermissionToAnEnvironmentRole
+// Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
+func (s *authorizationService) AddRolePermission(ctx context.Context, slug string, params *AuthorizationAddRolePermissionParams, opts ...RequestOption) (*Role, error) {
+	var result Role
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/roles/%s/permissions", slug), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AuthorizationSetRolePermissionsParams contains the parameters for SetRolePermissions.
+type AuthorizationSetRolePermissionsParams struct {
+	// Permissions is the permission slugs to assign to the role.
+	Permissions []string `json:"permissions"`
+}
+
+// SetRolePermissions setPermissionsForAnEnvironmentRole
+// Replace all permissions on an environment role with the provided list.
+func (s *authorizationService) SetRolePermissions(ctx context.Context, slug string, params *AuthorizationSetRolePermissionsParams, opts ...RequestOption) (*Role, error) {
+	var result Role
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/authorization/roles/%s/permissions", slug), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}

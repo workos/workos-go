@@ -16,9 +16,13 @@ import (
 func TestWebhooks_ListEndpoints(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/webhook_endpoints", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_webhook_endpoint_list.json")
+		fixture, err := os.ReadFile("testdata/list_webhook_endpoint_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -26,6 +30,10 @@ func TestWebhooks_ListEndpoints(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestWebhooks_ListEndpoints_Empty(t *testing.T) {
@@ -45,9 +53,13 @@ func TestWebhooks_ListEndpoints_Empty(t *testing.T) {
 func TestWebhooks_CreateEndpoints(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/webhook_endpoints", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/webhook_endpoint_json.json")
+		fixture, err := os.ReadFile("testdata/webhook_endpoint_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -56,14 +68,19 @@ func TestWebhooks_CreateEndpoints(t *testing.T) {
 	result, err := client.Webhooks().CreateEndpoints(context.Background(), &workos.WebhooksCreateEndpointsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestWebhooks_UpdateEndpoint(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/webhook_endpoints/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/webhook_endpoint_json.json")
+		fixture, err := os.ReadFile("testdata/webhook_endpoint_json.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -72,11 +89,13 @@ func TestWebhooks_UpdateEndpoint(t *testing.T) {
 	result, err := client.Webhooks().UpdateEndpoint(context.Background(), "test_id", &workos.WebhooksUpdateEndpointParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestWebhooks_DeleteEndpoint(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/webhook_endpoints/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()

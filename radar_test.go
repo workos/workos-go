@@ -16,9 +16,13 @@ import (
 func TestRadar_CreateAttempts(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/radar/attempts", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/radar_standalone_response.json")
+		fixture, err := os.ReadFile("testdata/radar_standalone_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -27,11 +31,13 @@ func TestRadar_CreateAttempts(t *testing.T) {
 	result, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.Reason)
 }
 
 func TestRadar_UpdateAttempt(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/radar/attempts/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -44,9 +50,13 @@ func TestRadar_UpdateAttempt(t *testing.T) {
 func TestRadar_AddListEntry(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/radar/lists/test_type/test_action", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/radar_list_entry_already_present_response.json")
+		fixture, err := os.ReadFile("testdata/radar_list_entry_already_present_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -55,11 +65,13 @@ func TestRadar_AddListEntry(t *testing.T) {
 	result, err := client.Radar().AddListEntry(context.Background(), "test_type", "test_action", &workos.RadarAddListEntryParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.Message)
 }
 
 func TestRadar_RemoveListEntry(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/radar/lists/test_type/test_action", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()

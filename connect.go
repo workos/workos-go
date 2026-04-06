@@ -195,13 +195,13 @@ func (s *connectService) DeleteApplication(ctx context.Context, id string, opts 
 
 // ListApplicationClientSecrets listClientSecretsForAConnectApplication
 // List all client secrets associated with a Connect Application.
-func (s *connectService) ListApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) (*ApplicationCredentialsListItem, error) {
-	var result ApplicationCredentialsListItem
+func (s *connectService) ListApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) ([]ApplicationCredentialsListItem, error) {
+	var result []ApplicationCredentialsListItem
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s/client_secrets", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return result, nil
 }
 
 // ConnectCreateApplicationClientSecretsParams contains the parameters for CreateApplicationClientSecrets.

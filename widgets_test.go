@@ -16,9 +16,13 @@ import (
 func TestWidgets_CreateToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/widgets/token", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/widget_session_token_response.json")
+		fixture, err := os.ReadFile("testdata/widget_session_token_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -27,6 +31,7 @@ func TestWidgets_CreateToken(t *testing.T) {
 	result, err := client.Widgets().CreateToken(context.Background(), &workos.WidgetsCreateTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.Token)
 }
 
 func TestWidgets_Error401(t *testing.T) {

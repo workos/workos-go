@@ -16,9 +16,13 @@ import (
 func TestSSO_ListConnections(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connections", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_connection_list.json")
+		fixture, err := os.ReadFile("testdata/list_connection.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -26,6 +30,10 @@ func TestSSO_ListConnections(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestSSO_ListConnections_Empty(t *testing.T) {
@@ -45,9 +53,13 @@ func TestSSO_ListConnections_Empty(t *testing.T) {
 func TestSSO_GetConnection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connections/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connection.json")
+		fixture, err := os.ReadFile("testdata/connection.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -56,11 +68,13 @@ func TestSSO_GetConnection(t *testing.T) {
 	result, err := client.SSO().GetConnection(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestSSO_DeleteConnection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/connections/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -73,9 +87,13 @@ func TestSSO_DeleteConnection(t *testing.T) {
 func TestSSO_GetAuthorizationURL(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/sso/authorize", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/sso_authorize_url_response.json")
+		fixture, err := os.ReadFile("testdata/sso_authorize_url_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -84,11 +102,13 @@ func TestSSO_GetAuthorizationURL(t *testing.T) {
 	result, err := client.SSO().GetAuthorizationURL(context.Background(), &workos.SSOGetAuthorizationURLParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.URL)
 }
 
 func TestSSO_GetLogoutURL(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/sso/logout", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -101,9 +121,13 @@ func TestSSO_GetLogoutURL(t *testing.T) {
 func TestSSO_AuthorizeLogout(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/sso/logout/authorize", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/sso_logout_authorize_response.json")
+		fixture, err := os.ReadFile("testdata/sso_logout_authorize_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -112,14 +136,19 @@ func TestSSO_AuthorizeLogout(t *testing.T) {
 	result, err := client.SSO().AuthorizeLogout(context.Background(), &workos.SSOAuthorizeLogoutParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.LogoutURL)
 }
 
 func TestSSO_GetProfile(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/sso/profile", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/profile.json")
+		fixture, err := os.ReadFile("testdata/profile.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -128,14 +157,19 @@ func TestSSO_GetProfile(t *testing.T) {
 	result, err := client.SSO().GetProfile(context.Background())
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestSSO_GetProfileAndToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/sso/token", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/sso_token_response.json")
+		fixture, err := os.ReadFile("testdata/sso_token_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -144,6 +178,7 @@ func TestSSO_GetProfileAndToken(t *testing.T) {
 	result, err := client.SSO().GetProfileAndToken(context.Background(), &workos.SSOGetProfileAndTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.AccessToken)
 }
 
 func TestSSO_Error401(t *testing.T) {

@@ -16,9 +16,13 @@ import (
 func TestConnect_CompleteOAuth2(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authkit/oauth2/complete", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/external_auth_complete_response.json")
+		fixture, err := os.ReadFile("testdata/external_auth_complete_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -27,14 +31,19 @@ func TestConnect_CompleteOAuth2(t *testing.T) {
 	result, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.RedirectURI)
 }
 
 func TestConnect_ListApplications(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connect/applications", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_connect_application_list.json")
+		fixture, err := os.ReadFile("testdata/list_connect_application.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -42,6 +51,10 @@ func TestConnect_ListApplications(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestConnect_ListApplications_Empty(t *testing.T) {
@@ -61,9 +74,13 @@ func TestConnect_ListApplications_Empty(t *testing.T) {
 func TestConnect_CreateApplications(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connect/applications", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		fixture, err := os.ReadFile("testdata/connect_application.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -72,14 +89,19 @@ func TestConnect_CreateApplications(t *testing.T) {
 	result, err := client.Connect().CreateApplications(context.Background(), &workos.ConnectCreateApplicationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestConnect_GetApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connect/applications/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		fixture, err := os.ReadFile("testdata/connect_application.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -88,14 +110,19 @@ func TestConnect_GetApplication(t *testing.T) {
 	result, err := client.Connect().GetApplication(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestConnect_UpdateApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/connect/applications/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		fixture, err := os.ReadFile("testdata/connect_application.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -104,11 +131,13 @@ func TestConnect_UpdateApplication(t *testing.T) {
 	result, err := client.Connect().UpdateApplication(context.Background(), "test_id", &workos.ConnectUpdateApplicationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestConnect_DeleteApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/connect/applications/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -121,25 +150,33 @@ func TestConnect_DeleteApplication(t *testing.T) {
 func TestConnect_ListApplicationClientSecrets(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connect/applications/test_id/client_secrets", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/application_credentials_list_item.json")
-		w.Write(fixture)
+		fixture, err := os.ReadFile("testdata/application_credentials_list_item.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write([]byte("[" + string(fixture) + "]"))
 	}))
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	result, err := client.Connect().ListApplicationClientSecrets(context.Background(), "test_id")
 	require.NoError(t, err)
-	require.NotNil(t, result)
+	require.NotEmpty(t, result)
 }
 
 func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connect/applications/test_id/client_secrets", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/new_connect_application_secret.json")
+		fixture, err := os.ReadFile("testdata/new_connect_application_secret.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -148,11 +185,13 @@ func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
 	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id", &workos.ConnectCreateApplicationClientSecretsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestConnect_DeleteClientSecret(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/connect/client_secrets/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -165,9 +204,13 @@ func TestConnect_DeleteClientSecret(t *testing.T) {
 func TestConnect_CreateOAuthApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connect/applications", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		fixture, err := os.ReadFile("testdata/connect_application.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -181,9 +224,13 @@ func TestConnect_CreateOAuthApplication(t *testing.T) {
 func TestConnect_CreateM2MApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connect/applications", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		fixture, err := os.ReadFile("testdata/connect_application.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()

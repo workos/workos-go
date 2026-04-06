@@ -16,9 +16,13 @@ import (
 func TestUserManagement_GetJWKS(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/sso/jwks/test_clientId", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/jwks_response.json")
+		fixture, err := os.ReadFile("testdata/jwks_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -32,9 +36,13 @@ func TestUserManagement_GetJWKS(t *testing.T) {
 func TestUserManagement_CreateAuthenticate(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -43,11 +51,13 @@ func TestUserManagement_CreateAuthenticate(t *testing.T) {
 	result, err := client.UserManagement().CreateAuthenticate(context.Background(), &workos.UserManagementCreateAuthenticateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.AccessToken)
 }
 
 func TestUserManagement_GetAuthorizationURL(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/authorize", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -60,9 +70,13 @@ func TestUserManagement_GetAuthorizationURL(t *testing.T) {
 func TestUserManagement_CreateDevice(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authorize/device", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/device_authorization_response.json")
+		fixture, err := os.ReadFile("testdata/device_authorization_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -71,11 +85,13 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 	result, err := client.UserManagement().CreateDevice(context.Background(), &workos.UserManagementCreateDeviceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.DeviceCode)
 }
 
 func TestUserManagement_GetLogoutURL(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/sessions/logout", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -88,6 +104,7 @@ func TestUserManagement_GetLogoutURL(t *testing.T) {
 func TestUserManagement_RevokeSession(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/sessions/revoke", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -100,9 +117,13 @@ func TestUserManagement_RevokeSession(t *testing.T) {
 func TestUserManagement_CreateCORSOrigins(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/cors_origins", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/cors_origin_response.json")
+		fixture, err := os.ReadFile("testdata/cors_origin_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -111,14 +132,19 @@ func TestUserManagement_CreateCORSOrigins(t *testing.T) {
 	result, err := client.UserManagement().CreateCORSOrigins(context.Background(), &workos.UserManagementCreateCORSOriginsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_GetEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/email_verification/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/email_verification.json")
+		fixture, err := os.ReadFile("testdata/email_verification.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -127,14 +153,19 @@ func TestUserManagement_GetEmailVerification(t *testing.T) {
 	result, err := client.UserManagement().GetEmailVerification(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_CreatePasswordReset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/password_reset", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/password_reset.json")
+		fixture, err := os.ReadFile("testdata/password_reset.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -143,14 +174,19 @@ func TestUserManagement_CreatePasswordReset(t *testing.T) {
 	result, err := client.UserManagement().CreatePasswordReset(context.Background(), &workos.UserManagementCreatePasswordResetParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_ConfirmPasswordReset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/password_reset/confirm", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/reset_password_response.json")
+		fixture, err := os.ReadFile("testdata/reset_password_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -164,9 +200,13 @@ func TestUserManagement_ConfirmPasswordReset(t *testing.T) {
 func TestUserManagement_GetPasswordReset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/password_reset/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/password_reset.json")
+		fixture, err := os.ReadFile("testdata/password_reset.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -175,14 +215,19 @@ func TestUserManagement_GetPasswordReset(t *testing.T) {
 	result, err := client.UserManagement().GetPasswordReset(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_list.json")
+		fixture, err := os.ReadFile("testdata/list_user.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -190,6 +235,10 @@ func TestUserManagement_List(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestUserManagement_List_Empty(t *testing.T) {
@@ -209,9 +258,13 @@ func TestUserManagement_List_Empty(t *testing.T) {
 func TestUserManagement_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user.json")
+		fixture, err := os.ReadFile("testdata/user.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -220,14 +273,19 @@ func TestUserManagement_Create(t *testing.T) {
 	result, err := client.UserManagement().Create(context.Background(), &workos.UserManagementCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_GetByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/external_id/test_external_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user.json")
+		fixture, err := os.ReadFile("testdata/user.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -236,14 +294,19 @@ func TestUserManagement_GetByExternalID(t *testing.T) {
 	result, err := client.UserManagement().GetByExternalID(context.Background(), "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user.json")
+		fixture, err := os.ReadFile("testdata/user.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -252,14 +315,19 @@ func TestUserManagement_Get(t *testing.T) {
 	result, err := client.UserManagement().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_Update(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/user_management/users/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user.json")
+		fixture, err := os.ReadFile("testdata/user.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -268,11 +336,13 @@ func TestUserManagement_Update(t *testing.T) {
 	result, err := client.UserManagement().Update(context.Background(), "test_id", &workos.UserManagementUpdateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_Delete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/users/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -285,9 +355,13 @@ func TestUserManagement_Delete(t *testing.T) {
 func TestUserManagement_ConfirmEmailChange(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_id/email_change/confirm", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/email_change_confirmation.json")
+		fixture, err := os.ReadFile("testdata/email_change_confirmation.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -301,9 +375,13 @@ func TestUserManagement_ConfirmEmailChange(t *testing.T) {
 func TestUserManagement_SendEmailChange(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_id/email_change/send", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/email_change.json")
+		fixture, err := os.ReadFile("testdata/email_change.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -312,14 +390,19 @@ func TestUserManagement_SendEmailChange(t *testing.T) {
 	result, err := client.UserManagement().SendEmailChange(context.Background(), "test_id", &workos.UserManagementSendEmailChangeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.NewEmail)
 }
 
 func TestUserManagement_ConfirmEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_id/email_verification/confirm", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/verify_email_response.json")
+		fixture, err := os.ReadFile("testdata/verify_email_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -333,9 +416,13 @@ func TestUserManagement_ConfirmEmailVerification(t *testing.T) {
 func TestUserManagement_SendEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_id/email_verification/send", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/send_verification_email_response.json")
+		fixture, err := os.ReadFile("testdata/send_verification_email_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -349,25 +436,33 @@ func TestUserManagement_SendEmailVerification(t *testing.T) {
 func TestUserManagement_ListIdentities(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_id/identities", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_identities_get_item.json")
-		w.Write(fixture)
+		fixture, err := os.ReadFile("testdata/user_identities_get_item.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write([]byte("[" + string(fixture) + "]"))
 	}))
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	result, err := client.UserManagement().ListIdentities(context.Background(), "test_id")
 	require.NoError(t, err)
-	require.NotNil(t, result)
+	require.NotEmpty(t, result)
 }
 
 func TestUserManagement_ListSessions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_id/sessions", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_sessions_list_item.json")
+		fixture, err := os.ReadFile("testdata/list_user_sessions_list_item.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -375,6 +470,10 @@ func TestUserManagement_ListSessions(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestUserManagement_ListSessions_Empty(t *testing.T) {
@@ -394,9 +493,13 @@ func TestUserManagement_ListSessions_Empty(t *testing.T) {
 func TestUserManagement_ListInvitations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/invitations", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_invite.json")
+		fixture, err := os.ReadFile("testdata/list_user_invite.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -404,6 +507,10 @@ func TestUserManagement_ListInvitations(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestUserManagement_ListInvitations_Empty(t *testing.T) {
@@ -423,9 +530,13 @@ func TestUserManagement_ListInvitations_Empty(t *testing.T) {
 func TestUserManagement_CreateInvitations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/invitations", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_invite.json")
+		fixture, err := os.ReadFile("testdata/user_invite.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -434,14 +545,19 @@ func TestUserManagement_CreateInvitations(t *testing.T) {
 	result, err := client.UserManagement().CreateInvitations(context.Background(), &workos.UserManagementCreateInvitationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_GetByToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/invitations/by_token/test_token", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_invite.json")
+		fixture, err := os.ReadFile("testdata/user_invite.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -450,14 +566,19 @@ func TestUserManagement_GetByToken(t *testing.T) {
 	result, err := client.UserManagement().GetByToken(context.Background(), "test_token")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_GetInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/invitations/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_invite.json")
+		fixture, err := os.ReadFile("testdata/user_invite.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -466,14 +587,19 @@ func TestUserManagement_GetInvitation(t *testing.T) {
 	result, err := client.UserManagement().GetInvitation(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_AcceptInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/invitations/test_id/accept", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/invitation.json")
+		fixture, err := os.ReadFile("testdata/invitation.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -482,14 +608,19 @@ func TestUserManagement_AcceptInvitation(t *testing.T) {
 	result, err := client.UserManagement().AcceptInvitation(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_ResendInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/invitations/test_id/resend", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_invite.json")
+		fixture, err := os.ReadFile("testdata/user_invite.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -498,14 +629,19 @@ func TestUserManagement_ResendInvitation(t *testing.T) {
 	result, err := client.UserManagement().ResendInvitation(context.Background(), "test_id", &workos.UserManagementResendInvitationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_RevokeInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/invitations/test_id/revoke", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/invitation.json")
+		fixture, err := os.ReadFile("testdata/invitation.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -514,14 +650,19 @@ func TestUserManagement_RevokeInvitation(t *testing.T) {
 	result, err := client.UserManagement().RevokeInvitation(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_UpdateJWTTemplate(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/user_management/jwt_template", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/jwt_template_response.json")
+		fixture, err := os.ReadFile("testdata/jwt_template_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -530,14 +671,19 @@ func TestUserManagement_UpdateJWTTemplate(t *testing.T) {
 	result, err := client.UserManagement().UpdateJWTTemplate(context.Background(), &workos.UserManagementUpdateJWTTemplateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.Content)
 }
 
 func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/magic_auth", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/magic_auth.json")
+		fixture, err := os.ReadFile("testdata/magic_auth.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -546,14 +692,19 @@ func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	result, err := client.UserManagement().CreateMagicAuth(context.Background(), &workos.UserManagementCreateMagicAuthParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_GetMagicAuth(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/magic_auth/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/magic_auth.json")
+		fixture, err := os.ReadFile("testdata/magic_auth.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -562,14 +713,19 @@ func TestUserManagement_GetMagicAuth(t *testing.T) {
 	result, err := client.UserManagement().GetMagicAuth(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_ListOrganizationMemberships(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/organization_memberships", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_user_organization_membership.json")
+		fixture, err := os.ReadFile("testdata/list_user_organization_membership.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -577,6 +733,10 @@ func TestUserManagement_ListOrganizationMemberships(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestUserManagement_ListOrganizationMemberships_Empty(t *testing.T) {
@@ -596,9 +756,13 @@ func TestUserManagement_ListOrganizationMemberships_Empty(t *testing.T) {
 func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/organization_memberships", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/organization_membership.json")
+		fixture, err := os.ReadFile("testdata/organization_membership.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -607,14 +771,19 @@ func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
 	result, err := client.UserManagement().CreateOrganizationMemberships(context.Background(), &workos.UserManagementCreateOrganizationMembershipsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_GetOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/organization_memberships/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_organization_membership.json")
+		fixture, err := os.ReadFile("testdata/user_organization_membership.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -623,14 +792,19 @@ func TestUserManagement_GetOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().GetOrganizationMembership(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/user_management/organization_memberships/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_organization_membership.json")
+		fixture, err := os.ReadFile("testdata/user_organization_membership.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -639,11 +813,13 @@ func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().UpdateOrganizationMembership(context.Background(), "test_id", &workos.UserManagementUpdateOrganizationMembershipParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_DeleteOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/organization_memberships/test_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
@@ -656,9 +832,13 @@ func TestUserManagement_DeleteOrganizationMembership(t *testing.T) {
 func TestUserManagement_DeactivateOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/user_management/organization_memberships/test_id/deactivate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/organization_membership.json")
+		fixture, err := os.ReadFile("testdata/organization_membership.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -667,14 +847,19 @@ func TestUserManagement_DeactivateOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().DeactivateOrganizationMembership(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/user_management/organization_memberships/test_id/reactivate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/user_organization_membership.json")
+		fixture, err := os.ReadFile("testdata/user_organization_membership.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -683,14 +868,19 @@ func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().ReactivateOrganizationMembership(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_CreateRedirectURIs(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/redirect_uris", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/redirect_uri.json")
+		fixture, err := os.ReadFile("testdata/redirect_uri.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -699,14 +889,19 @@ func TestUserManagement_CreateRedirectURIs(t *testing.T) {
 	result, err := client.UserManagement().CreateRedirectURIs(context.Background(), &workos.UserManagementCreateRedirectURIsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.NotEmpty(t, result.ID)
 }
 
 func TestUserManagement_ListAuthorizedApplications(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/authorized_applications", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/list_authorized_connect_application_list.json")
+		fixture, err := os.ReadFile("testdata/list_authorized_connect_application_list_data.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -714,6 +909,10 @@ func TestUserManagement_ListAuthorizedApplications(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{})
 	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
 }
 
 func TestUserManagement_ListAuthorizedApplications_Empty(t *testing.T) {
@@ -733,21 +932,26 @@ func TestUserManagement_ListAuthorizedApplications_Empty(t *testing.T) {
 func TestUserManagement_DeleteAuthorizedApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/authorized_applications/test_application_id", r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.UserManagement().DeleteAuthorizedApplication(context.Background(), "test_application_id", "test_user_id")
+	err := client.UserManagement().DeleteAuthorizedApplication(context.Background(), "test_user_id", "test_application_id")
 	require.NoError(t, err)
 }
 
 func TestUserManagement_AuthenticateWithPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -761,9 +965,13 @@ func TestUserManagement_AuthenticateWithPassword(t *testing.T) {
 func TestUserManagement_AuthenticateWithCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -777,9 +985,13 @@ func TestUserManagement_AuthenticateWithCode(t *testing.T) {
 func TestUserManagement_AuthenticateWithRefreshToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -793,9 +1005,13 @@ func TestUserManagement_AuthenticateWithRefreshToken(t *testing.T) {
 func TestUserManagement_AuthenticateWithMagicAuth(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -809,9 +1025,13 @@ func TestUserManagement_AuthenticateWithMagicAuth(t *testing.T) {
 func TestUserManagement_AuthenticateWithEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -825,9 +1045,13 @@ func TestUserManagement_AuthenticateWithEmailVerification(t *testing.T) {
 func TestUserManagement_AuthenticateWithTOTP(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -841,9 +1065,13 @@ func TestUserManagement_AuthenticateWithTOTP(t *testing.T) {
 func TestUserManagement_AuthenticateWithOrganizationSelection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()
@@ -857,9 +1085,13 @@ func TestUserManagement_AuthenticateWithOrganizationSelection(t *testing.T) {
 func TestUserManagement_AuthenticateWithDeviceCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
 		w.Write(fixture)
 	}))
 	defer server.Close()

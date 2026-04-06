@@ -65,15 +65,15 @@ func (s *featureFlagService) Enable(ctx context.Context, slug string, opts ...Re
 
 // CreateTarget addAFeatureFlagTarget
 // Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
-func (s *featureFlagService) CreateTarget(ctx context.Context, resourceID string, slug string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/feature-flags/%s/targets/%s", resourceID, slug), nil, nil, nil, opts)
+func (s *featureFlagService) CreateTarget(ctx context.Context, slug string, resourceID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/feature-flags/%s/targets/%s", slug, resourceID), nil, nil, nil, opts)
 	return err
 }
 
 // DeleteTarget removeAFeatureFlagTarget
 // Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
-func (s *featureFlagService) DeleteTarget(ctx context.Context, resourceID string, slug string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/feature-flags/%s/targets/%s", resourceID, slug), nil, nil, nil, opts)
+func (s *featureFlagService) DeleteTarget(ctx context.Context, slug string, resourceID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/feature-flags/%s/targets/%s", slug, resourceID), nil, nil, nil, opts)
 	return err
 }
 
