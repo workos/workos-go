@@ -26,12 +26,12 @@ type KeyContext struct {
 // ObjectMetadata contains metadata about a vault object.
 type ObjectMetadata struct {
 	Context       KeyContext `json:"context"`
-	EnvironmentID string    `json:"environment_id"`
-	ID            string    `json:"id"`
-	KeyID         string    `json:"key_id"`
-	UpdatedAt     string    `json:"updated_at"`
-	UpdatedBy     string    `json:"updated_by"`
-	VersionID     string    `json:"version_id"`
+	EnvironmentID string     `json:"environment_id"`
+	ID            string     `json:"id"`
+	KeyID         string     `json:"key_id"`
+	UpdatedAt     string     `json:"updated_at"`
+	UpdatedBy     string     `json:"updated_by"`
+	VersionID     string     `json:"version_id"`
 }
 
 // VaultObject represents a vault key-value object.
@@ -62,7 +62,7 @@ type VaultObjectVersion struct {
 type DataKeyPair struct {
 	Context       KeyContext `json:"context"`
 	DataKey       DataKey    `json:"data_key"`
-	EncryptedKeys string    `json:"encrypted_keys"`
+	EncryptedKeys string     `json:"encrypted_keys"`
 }
 
 // DataKey holds a plaintext data key.
@@ -92,10 +92,10 @@ func (s *vaultService) ListObjects(ctx context.Context, params *VaultListObjects
 
 // VaultCreateObjectParams contains the parameters for CreateObject.
 type VaultCreateObjectParams struct {
-	Name        string     `json:"name"`
-	Value       string     `json:"value"`
-	KeyContext   *KeyContext `json:"key_context,omitempty"`
-	Description *string    `json:"description,omitempty"`
+	Name        string      `json:"name"`
+	Value       string      `json:"value"`
+	KeyContext  *KeyContext `json:"key_context,omitempty"`
+	Description *string     `json:"description,omitempty"`
 }
 
 // CreateObject creates a new vault object (POST /vault/v1/kv).
@@ -140,9 +140,9 @@ func (s *vaultService) DescribeObject(ctx context.Context, objectID string, opts
 
 // VaultUpdateObjectParams contains the parameters for UpdateObject.
 type VaultUpdateObjectParams struct {
-	Value       string     `json:"value"`
-	KeyContext   *KeyContext `json:"key_context,omitempty"`
-	Description *string    `json:"description,omitempty"`
+	Value       string      `json:"value"`
+	KeyContext  *KeyContext `json:"key_context,omitempty"`
+	Description *string     `json:"description,omitempty"`
 }
 
 // UpdateObject updates a vault object (PUT /vault/v1/kv/{id}).
@@ -194,7 +194,7 @@ func (s *vaultService) CreateDataKey(ctx context.Context, params *VaultCreateDat
 // VaultDecryptDataKeyParams contains the parameters for DecryptDataKey.
 type VaultDecryptDataKeyParams struct {
 	Context       KeyContext `json:"context"`
-	EncryptedKeys string    `json:"encrypted_keys"`
+	EncryptedKeys string     `json:"encrypted_keys"`
 }
 
 // DecryptDataKey decrypts a data key (POST /vault/v1/keys/decrypt).

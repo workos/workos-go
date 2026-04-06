@@ -16,7 +16,7 @@ import (
 // VaultEncryptResult is the result of a Vault.Encrypt call.
 type VaultEncryptResult struct {
 	EncryptedData string
-	KeyContext     KeyContext
+	KeyContext    KeyContext
 	EncryptedKeys string
 }
 
@@ -36,7 +36,7 @@ func (s *vaultService) Encrypt(ctx context.Context, data string, keyContext KeyC
 
 	return &VaultEncryptResult{
 		EncryptedData: encrypted,
-		KeyContext:     keyPair.Context,
+		KeyContext:    keyPair.Context,
 		EncryptedKeys: keyPair.EncryptedKeys,
 	}, nil
 }
