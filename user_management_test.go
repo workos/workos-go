@@ -13,7 +13,7 @@ import (
 	"github.com/workos/workos-go/v6"
 )
 
-func TestUserManagement_GetJwks(t *testing.T) {
+func TestUserManagement_GetJWKS(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,7 +24,7 @@ func TestUserManagement_GetJwks(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().GetJwks(context.Background(), "test_clientId")
+	result, err := client.UserManagement().GetJWKS(context.Background(), "test_clientId")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -45,6 +45,18 @@ func TestUserManagement_CreateAuthenticate(t *testing.T) {
 	require.NotNil(t, result)
 }
 
+func TestUserManagement_GetAuthorizationURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.UserManagement().GetAuthorizationURL(context.Background(), &workos.UserManagementGetAuthorizationURLParams{})
+	require.NoError(t, err)
+}
+
 func TestUserManagement_CreateDevice(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
@@ -59,6 +71,18 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 	result, err := client.UserManagement().CreateDevice(context.Background(), &workos.UserManagementCreateDeviceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+}
+
+func TestUserManagement_GetLogoutURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.UserManagement().GetLogoutURL(context.Background(), &workos.UserManagementGetLogoutURLParams{})
+	require.NoError(t, err)
 }
 
 func TestUserManagement_RevokeSession(t *testing.T) {
@@ -661,7 +685,7 @@ func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_CreateRedirectUris(t *testing.T) {
+func TestUserManagement_CreateRedirectURIs(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		w.Header().Set("Content-Type", "application/json")
@@ -672,7 +696,7 @@ func TestUserManagement_CreateRedirectUris(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateRedirectUris(context.Background(), &workos.UserManagementCreateRedirectUrisParams{})
+	result, err := client.UserManagement().CreateRedirectURIs(context.Background(), &workos.UserManagementCreateRedirectURIsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -718,6 +742,134 @@ func TestUserManagement_DeleteAuthorizedApplication(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestUserManagement_AuthenticateWithPassword(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithPassword(context.Background(), &workos.AuthenticateWithPasswordParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithCode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithCode(context.Background(), &workos.AuthenticateWithCodeParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithRefreshToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithRefreshToken(context.Background(), &workos.AuthenticateWithRefreshTokenParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithMagicAuth(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithMagicAuth(context.Background(), &workos.AuthenticateWithMagicAuthParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithEmailVerification(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithEmailVerification(context.Background(), &workos.AuthenticateWithEmailVerificationParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithTOTP(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithTOTP(context.Background(), &workos.AuthenticateWithTOTPParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithOrganizationSelection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithOrganizationSelection(context.Background(), &workos.AuthenticateWithOrganizationSelectionParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithDeviceCode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithDeviceCode(context.Background(), &workos.AuthenticateWithDeviceCodeParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
 func TestUserManagement_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -727,6 +879,6 @@ func TestUserManagement_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.UserManagement().GetJwks(context.Background(), "test_clientId")
+	_, err := client.UserManagement().GetJWKS(context.Background(), "test_clientId")
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }

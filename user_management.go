@@ -12,10 +12,10 @@ type userManagementService struct {
 	client *Client
 }
 
-// GetJwks getJwks
+// GetJWKS getJWKS
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
-func (s *userManagementService) GetJwks(ctx context.Context, clientID string, opts ...RequestOption) (*JwksResponse, error) {
-	var result JwksResponse
+func (s *userManagementService) GetJWKS(ctx context.Context, clientID string, opts ...RequestOption) (*JWKSResponse, error) {
+	var result JWKSResponse
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", clientID), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
@@ -192,15 +192,15 @@ func (s *userManagementService) AuthenticateWithEmailVerification(ctx context.Co
 	return &result, nil
 }
 
-// AuthenticateWithTotpParams contains the parameters for AuthenticateWithTotp.
-type AuthenticateWithTotpParams struct {
+// AuthenticateWithTOTPParams contains the parameters for AuthenticateWithTOTP.
+type AuthenticateWithTOTPParams struct {
 	Code                       *string `json:"code,omitempty"`
 	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
 	AuthenticationChallengeID  *string `json:"authentication_challenge_id,omitempty"`
 }
 
-// AuthenticateWithTotp Authenticate with totp.
-func (s *userManagementService) AuthenticateWithTotp(ctx context.Context, params *AuthenticateWithTotpParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+// AuthenticateWithTOTP Authenticate with totp.
+func (s *userManagementService) AuthenticateWithTOTP(ctx context.Context, params *AuthenticateWithTOTPParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := map[string]interface{}{
 		"grant_type": "urn:workos:oauth:grant-type:mfa-totp",
 	}
@@ -842,14 +842,14 @@ func (s *userManagementService) ReactivateOrganizationMembership(ctx context.Con
 	return &result, nil
 }
 
-// UserManagementCreateRedirectUrisParams contains the parameters for CreateRedirectUris.
-type UserManagementCreateRedirectUrisParams struct {
+// UserManagementCreateRedirectURIsParams contains the parameters for CreateRedirectURIs.
+type UserManagementCreateRedirectURIsParams struct {
 	URI string `json:"uri"`
 }
 
-// CreateRedirectUris createARedirectURI
+// CreateRedirectURIs createARedirectURI
 // Creates a new redirect URI for an environment.
-func (s *userManagementService) CreateRedirectUris(ctx context.Context, params *UserManagementCreateRedirectUrisParams, opts ...RequestOption) (*RedirectURI, error) {
+func (s *userManagementService) CreateRedirectURIs(ctx context.Context, params *UserManagementCreateRedirectURIsParams, opts ...RequestOption) (*RedirectURI, error) {
 	var result RedirectURI
 	_, err := s.client.request(ctx, "POST", "/user_management/redirect_uris", nil, params, &result, opts)
 	if err != nil {

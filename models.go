@@ -62,8 +62,8 @@ type CreateOAuthApplication struct {
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
-	// RedirectUris is redirect URIs for the application.
-	RedirectUris *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
+	// RedirectURIs is redirect URIs for the application.
+	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -94,8 +94,8 @@ type UpdateOAuthApplication struct {
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
-	// RedirectUris is updated redirect URIs for the application. OAuth applications only.
-	RedirectUris *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
+	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
+	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 }
 
 // CreateApplicationSecret represents a create application secret.
@@ -429,12 +429,12 @@ type CreateRedirectURI struct {
 type EnrollUserAuthenticationFactor struct {
 	// Type is the type of the factor to enroll.
 	Type string `json:"type"`
-	// TotpIssuer is your application or company name displayed in the user's authenticator app.
-	TotpIssuer *string `json:"totp_issuer,omitempty"`
-	// TotpUser is the user's account name displayed in their authenticator app.
-	TotpUser *string `json:"totp_user,omitempty"`
-	// TotpSecret is the Base32-encoded shared secret for TOTP factors. This can be provided when creating the auth factor, otherwise it will be generated. The algorithm used to derive TOTP codes is SHA-1, the code length is 6 digits, and the timestep is 30 seconds – the secret must be compatible with these parameters.
-	TotpSecret *string `json:"totp_secret,omitempty"`
+	// TOTPIssuer is your application or company name displayed in the user's authenticator app.
+	TOTPIssuer *string `json:"totp_issuer,omitempty"`
+	// TOTPUser is the user's account name displayed in their authenticator app.
+	TOTPUser *string `json:"totp_user,omitempty"`
+	// TOTPSecret is the Base32-encoded shared secret for TOTP factors. This can be provided when creating the auth factor, otherwise it will be generated. The algorithm used to derive TOTP codes is SHA-1, the code length is 6 digits, and the timestep is 30 seconds – the secret must be compatible with these parameters.
+	TOTPSecret *string `json:"totp_secret,omitempty"`
 }
 
 // CreateMagicCodeAndReturn represents a create magic code and return.
@@ -774,8 +774,8 @@ type AuthenticationFactorEnrolled struct {
 	UserID *string `json:"user_id,omitempty"`
 	// Sms is sMS-based authentication factor details.
 	Sms *AuthenticationFactorEnrolledSms `json:"sms,omitempty"`
-	// Totp is tOTP-based authentication factor details. Includes enrollment secrets only available at creation time.
-	Totp *AuthenticationFactorEnrolledTotp `json:"totp,omitempty"`
+	// TOTP is tOTP-based authentication factor details. Includes enrollment secrets only available at creation time.
+	TOTP *AuthenticationFactorEnrolledTOTP `json:"totp,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -794,8 +794,8 @@ type AuthenticationFactor struct {
 	UserID *string `json:"user_id,omitempty"`
 	// Sms is sMS-based authentication factor details.
 	Sms *AuthenticationFactorSms `json:"sms,omitempty"`
-	// Totp is tOTP-based authentication factor details.
-	Totp *AuthenticationFactorTotp `json:"totp,omitempty"`
+	// TOTP is tOTP-based authentication factor details.
+	TOTP *AuthenticationFactorTOTP `json:"totp,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -1529,14 +1529,14 @@ type SSOLogoutAuthorizeResponse struct {
 	LogoutToken string `json:"logout_token"`
 }
 
-// JwksResponse represents a jwks response.
-type JwksResponse struct {
+// JWKSResponse represents a jwks response.
+type JWKSResponse struct {
 	// Keys is the public keys used for verifying access tokens.
-	Keys []*JwksResponseKeys `json:"keys"`
+	Keys []*JWKSResponseKeys `json:"keys"`
 }
 
-// JwksResponseKeys represents a jwks response keys.
-type JwksResponseKeys struct {
+// JWKSResponseKeys represents a jwks response keys.
+type JWKSResponseKeys struct {
 	// Alg is algorithm.
 	Alg string `json:"alg"`
 	// Kty is key type.
@@ -1723,8 +1723,8 @@ type RoleAssignmentResource struct {
 // AuthenticationFactorSms is an alias for AuthenticationFactorEnrolledSms.
 type AuthenticationFactorSms = AuthenticationFactorEnrolledSms
 
-// AuthenticationFactorTotp tOTP-based authentication factor details.
-type AuthenticationFactorTotp struct {
+// AuthenticationFactorTOTP tOTP-based authentication factor details.
+type AuthenticationFactorTOTP struct {
 	// Issuer is your application or company name displayed in the user's authenticator app. Defaults to your WorkOS team name.
 	Issuer string `json:"issuer"`
 	// User is the user's account name displayed in their authenticator app. Defaults to the user's email.
@@ -1737,8 +1737,8 @@ type AuthenticationFactorEnrolledSms struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
-// AuthenticationFactorEnrolledTotp tOTP-based authentication factor details. Includes enrollment secrets only available at creation time.
-type AuthenticationFactorEnrolledTotp struct {
+// AuthenticationFactorEnrolledTOTP tOTP-based authentication factor details. Includes enrollment secrets only available at creation time.
+type AuthenticationFactorEnrolledTOTP struct {
 	// Issuer is your application or company name displayed in the user's authenticator app. Defaults to your WorkOS team name.
 	Issuer string `json:"issuer"`
 	// User is the user's account name displayed in their authenticator app. Defaults to the user's email.
@@ -1801,10 +1801,10 @@ type AuthenticationFactorsCreateRequest struct {
 	Type AuthenticationFactorsCreateRequestType `json:"type"`
 	// PhoneNumber is required when type is 'sms'.
 	PhoneNumber *string `json:"phone_number,omitempty"`
-	// TotpIssuer is required when type is 'totp'.
-	TotpIssuer *string `json:"totp_issuer,omitempty"`
-	// TotpUser is required when type is 'totp'.
-	TotpUser *string `json:"totp_user,omitempty"`
+	// TOTPIssuer is required when type is 'totp'.
+	TOTPIssuer *string `json:"totp_issuer,omitempty"`
+	// TOTPUser is required when type is 'totp'.
+	TOTPUser *string `json:"totp_user,omitempty"`
 	// UserID is the ID of the user to associate the factor with.
 	UserID *string `json:"user_id,omitempty"`
 }
@@ -2051,8 +2051,8 @@ type UrnWorkOSOAuthGrantTypeEmailVerificationCodeSessionAuthenticateRequest stru
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// UrnWorkOSOAuthGrantTypeMFATotpSessionAuthenticateRequest represents a urn workos o auth grant type mfa totp session authenticate request.
-type UrnWorkOSOAuthGrantTypeMFATotpSessionAuthenticateRequest struct {
+// UrnWorkOSOAuthGrantTypeMFATOTPSessionAuthenticateRequest represents a urn workos o auth grant type mfa totp session authenticate request.
+type UrnWorkOSOAuthGrantTypeMFATOTPSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.

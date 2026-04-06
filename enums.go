@@ -250,7 +250,7 @@ type AuthenticationFactorEnrolledType string
 const (
 	AuthenticationFactorEnrolledTypeGenericOtp AuthenticationFactorEnrolledType = "generic_otp"
 	AuthenticationFactorEnrolledTypeSms        AuthenticationFactorEnrolledType = "sms"
-	AuthenticationFactorEnrolledTypeTotp       AuthenticationFactorEnrolledType = "totp"
+	AuthenticationFactorEnrolledTypeTOTP       AuthenticationFactorEnrolledType = "totp"
 	AuthenticationFactorEnrolledTypeWebauthn   AuthenticationFactorEnrolledType = "webauthn"
 )
 
@@ -548,7 +548,7 @@ type AuthenticationFactorsCreateRequestType string
 const (
 	AuthenticationFactorsCreateRequestTypeGenericOtp AuthenticationFactorsCreateRequestType = "generic_otp"
 	AuthenticationFactorsCreateRequestTypeSms        AuthenticationFactorsCreateRequestType = "sms"
-	AuthenticationFactorsCreateRequestTypeTotp       AuthenticationFactorsCreateRequestType = "totp"
+	AuthenticationFactorsCreateRequestTypeTOTP       AuthenticationFactorsCreateRequestType = "totp"
 )
 
 // ListDataType represents list data type values.

@@ -162,6 +162,38 @@ func TestConnect_DeleteClientSecret(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestConnect_CreateOAuthApplication(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Connect().CreateOAuthApplication(context.Background(), &workos.CreateOAuthApplicationParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestConnect_CreateM2MApplication(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/connect_application.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Connect().CreateM2MApplication(context.Background(), &workos.CreateM2MApplicationParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
 func TestConnect_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

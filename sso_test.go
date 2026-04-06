@@ -70,6 +70,34 @@ func TestSSO_DeleteConnection(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestSSO_GetAuthorizationURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/sso_authorize_url_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().GetAuthorizationURL(context.Background(), &workos.SSOGetAuthorizationURLParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestSSO_GetLogoutURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.SSO().GetLogoutURL(context.Background(), &workos.SSOGetLogoutURLParams{})
+	require.NoError(t, err)
+}
+
 func TestSSO_AuthorizeLogout(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)

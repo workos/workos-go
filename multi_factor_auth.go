@@ -32,8 +32,8 @@ func (s *multiFactorAuthService) VerifyChallenge(ctx context.Context, id string,
 type MultiFactorAuthEnrollFactorParams struct {
 	Type        AuthenticationFactorsCreateRequestType `json:"type"`
 	PhoneNumber *string                                `json:"phone_number,omitempty"`
-	TotpIssuer  *string                                `json:"totp_issuer,omitempty"`
-	TotpUser    *string                                `json:"totp_user,omitempty"`
+	TOTPIssuer  *string                                `json:"totp_issuer,omitempty"`
+	TOTPUser    *string                                `json:"totp_user,omitempty"`
 	UserID      *string                                `json:"user_id,omitempty"`
 }
 
@@ -99,9 +99,9 @@ func (s *multiFactorAuthService) ListUserAuthFactors(ctx context.Context, userla
 // MultiFactorAuthCreateUserAuthFactorsParams contains the parameters for CreateUserAuthFactors.
 type MultiFactorAuthCreateUserAuthFactorsParams struct {
 	Type       string  `json:"type"`
-	TotpIssuer *string `json:"totp_issuer,omitempty"`
-	TotpUser   *string `json:"totp_user,omitempty"`
-	TotpSecret *string `json:"totp_secret,omitempty"`
+	TOTPIssuer *string `json:"totp_issuer,omitempty"`
+	TOTPUser   *string `json:"totp_user,omitempty"`
+	TOTPSecret *string `json:"totp_secret,omitempty"`
 }
 
 // CreateUserAuthFactors enrollAnAuthenticationFactor

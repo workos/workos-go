@@ -72,7 +72,7 @@ type CreateOAuthApplicationParams struct {
 	IsFirstParty   *string `json:"is_first_party,omitempty"`
 	Description    *string `json:"description,omitempty"`
 	Scopes         *string `json:"scopes,omitempty"`
-	RedirectUris   *string `json:"redirect_uris,omitempty"`
+	RedirectURIs   *string `json:"redirect_uris,omitempty"`
 	UsesPKCE       *string `json:"uses_pkce,omitempty"`
 	OrganizationID *string `json:"organization_id,omitempty"`
 }
@@ -94,8 +94,8 @@ func (s *connectService) CreateOAuthApplication(ctx context.Context, params *Cre
 	if params.Scopes != nil {
 		body["scopes"] = *params.Scopes
 	}
-	if params.RedirectUris != nil {
-		body["redirect_uris"] = *params.RedirectUris
+	if params.RedirectURIs != nil {
+		body["redirect_uris"] = *params.RedirectURIs
 	}
 	if params.UsesPKCE != nil {
 		body["uses_pkce"] = *params.UsesPKCE
@@ -160,7 +160,7 @@ type ConnectUpdateApplicationParams struct {
 	Name         *string            `json:"name,omitempty"`
 	Description  *string            `json:"description,omitempty"`
 	Scopes       *[]string          `json:"scopes,omitempty"`
-	RedirectUris *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
+	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
 }
 
 // UpdateApplication updateAConnectApplication
