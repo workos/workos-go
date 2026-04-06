@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -199,4 +201,82 @@ func TestAuthKitPKCECodeExchange_WithMockServer(t *testing.T) {
 	require.NotNil(t, result)
 	require.Equal(t, "access_tok_abc", result.AccessToken)
 	require.Equal(t, "refresh_tok_def", result.RefreshToken)
+}
+
+func TestAuthKitStartDeviceAuthorization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authorize/device", r.URL.Path)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/device_authorization_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test",
+		workos.WithClientID("client_123"),
+		workos.WithBaseURL(server.URL),
+	)
+
+	result, err := client.AuthKitStartDeviceAuthorization(context.Background())
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "CVE2wOfIFK4vhmiDBntpX9s8KT2f0qngpWYL0LGy9HxYgBRXUKIUkZB9BgIFho5h", result.DeviceCode)
+	require.Equal(t, "BCDF-GHJK", result.UserCode)
+	require.Equal(t, "https://authkit_domain/device", result.VerificationURI)
+	require.Equal(t, float64(5), *result.Interval)
+}
+
+func TestAuthKitPollDeviceCode_Success(t *testing.T) {
+	var callCount atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+
+		n := callCount.Add(1)
+		if n == 1 {
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte(`{"code":"authorization_pending","message":"Authorization is pending"}`))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fixture, _ := os.ReadFile("testdata/authenticate_response.json")
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test",
+		workos.WithClientID("client_123"),
+		workos.WithBaseURL(server.URL),
+	)
+
+	result, err := client.AuthKitPollDeviceCode(context.Background(), "device_code_abc", 1)
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "eyJhb.nNzb19vaWRjX2tleV9.lc5Uk4yWVk5In0", result.AccessToken)
+	require.Equal(t, int32(2), callCount.Load())
+}
+
+func TestAuthKitPollDeviceCode_ContextCancellation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"code":"authorization_pending","message":"Authorization is pending"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test",
+		workos.WithClientID("client_123"),
+		workos.WithBaseURL(server.URL),
+	)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.AuthKitPollDeviceCode(ctx, "device_code_abc", 1)
+	require.Error(t, err)
+	require.ErrorIs(t, err, context.Canceled)
 }
