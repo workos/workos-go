@@ -123,6 +123,7 @@ func TestVault_DeleteObject_NotFound(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	err := client.Vault().DeleteObject(context.Background(), "nonexistent_id")
 	require.Error(t, err)
+	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
 func TestVault_ListObjects(t *testing.T) {

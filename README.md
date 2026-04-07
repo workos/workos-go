@@ -25,10 +25,10 @@ import (
 )
 
 func main() {
-client := workos.NewClient(
-	"<WORKOS_API_KEY>",
-	workos.WithClientID("<WORKOS_CLIENT_ID>"),
-)
+	client := workos.NewClient(
+		"<WORKOS_API_KEY>",
+		workos.WithClientID("<WORKOS_CLIENT_ID>"),
+	)
 
 	organization, err := client.Organizations().Get(context.Background(), "org_123")
 	if err != nil {
@@ -37,6 +37,153 @@ client := workos.NewClient(
 
 	_ = organization
 }
+```
+
+## Services
+
+All API resources are accessed through service accessors on the `Client`:
+
+| Accessor | Description |
+|---|---|
+| `APIKeys()` | Organization API key management |
+| `AdminPortal()` | Admin Portal link generation |
+| `AuditLogs()` | Audit log events and retention |
+| `Authorization()` | Fine-grained authorization (FGA) and RBAC |
+| `Connect()` | Connect application management |
+| `DirectorySync()` | Directory Sync (directories, users, groups) |
+| `Events()` | Event stream |
+| `FeatureFlags()` | Feature flag management and evaluation |
+| `MultiFactorAuth()` | Multi-factor authentication challenges |
+| `OrganizationDomains()` | Organization domain verification |
+| `Organizations()` | Organization CRUD |
+| `Passwordless()` | Passwordless authentication sessions |
+| `Pipes()` | Data integration pipes |
+| `Radar()` | Radar list management |
+| `SSO()` | Single Sign-On connections and profiles |
+| `UserManagement()` | Users, invitations, auth methods |
+| `Vault()` | Key-value storage and client-side encryption |
+| `Webhooks()` | Webhook event construction and verification |
+| `Widgets()` | Widget token generation |
+
+## Error Handling
+
+The SDK returns typed errors that can be inspected with `errors.Is` and `errors.As`:
+
+| Type | HTTP Status | Description |
+|---|---|---|
+| `AuthenticationError` | 401 | Invalid or missing API key |
+| `NotFoundError` | 404 | Requested resource does not exist |
+| `UnprocessableEntityError` | 422 | Validation errors |
+| `RateLimitExceededError` | 429 | Rate limit exceeded (auto-retried) |
+| `ServerError` | 5xx | WorkOS server error (auto-retried) |
+| `NetworkError` | - | Connection failure |
+
+```go
+result, err := client.Organizations().Get(ctx, "org_123")
+if err != nil {
+	var notFound *workos.NotFoundError
+	if errors.As(err, &notFound) {
+		log.Printf("Organization not found: %s", notFound.Message)
+	}
+}
+```
+
+## Pagination
+
+List endpoints return an `Iterator[T]` for auto-pagination:
+
+```go
+iter := client.UserManagement().ListUsers(ctx, &workos.UserManagementListParams{})
+for iter.Next() {
+	user := iter.Current()
+	fmt.Println(user.Email)
+}
+if err := iter.Err(); err != nil {
+	log.Fatal(err)
+}
+```
+
+## Webhook Verification
+
+Verify incoming webhook payloads and construct typed events:
+
+```go
+payload, err := client.Webhooks().VerifyPayload(rawBody, sigHeader, secret)
+if err != nil {
+	log.Fatal("invalid webhook signature")
+}
+
+event, err := client.Webhooks().ConstructEvent(rawBody, sigHeader, secret)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(event.Event, event.ID)
+```
+
+## Session Management
+
+Authenticate and refresh user sessions using sealed cookies:
+
+```go
+session := workos.NewSession(client, sealedCookie, cookiePassword)
+
+result, err := session.Authenticate()
+if result.Authenticated {
+	fmt.Println("User:", result.User)
+	fmt.Println("Org:", result.OrganizationID)
+}
+
+refreshed, err := session.Refresh(ctx)
+if refreshed.Authenticated {
+	// Set refreshed.SealedSession as the new cookie value
+}
+```
+
+## Vault
+
+Store and retrieve encrypted key-value data with client-side encryption:
+
+```go
+// KV operations
+obj, _ := client.Vault().CreateObject(ctx, &workos.VaultCreateObjectParams{
+	Name: "api-token", Value: "secret-value",
+})
+read, _ := client.Vault().ReadObject(ctx, obj.ID)
+
+// Client-side encryption (AES-256-GCM)
+encrypted, _ := client.Vault().Encrypt(ctx, "sensitive data", keyContext, "")
+decrypted, _ := client.Vault().Decrypt(ctx, encrypted.EncryptedData, "")
+```
+
+## Request Options
+
+Customize individual requests with functional options:
+
+```go
+result, err := client.Organizations().Get(ctx, "org_123",
+	workos.WithTimeout(5 * time.Second),
+	workos.WithIdempotencyKey("unique-key"),
+	workos.WithExtraHeaders(map[string]string{"X-Custom": "value"}),
+)
+```
+
+## AuthKit / SSO Helpers
+
+Build authorization URLs client-side without making HTTP requests:
+
+```go
+// AuthKit with PKCE
+result, err := client.GetAuthKitPKCEAuthorizationURL(workos.AuthKitAuthorizationURLParams{
+	RedirectURI: "https://example.com/callback",
+})
+fmt.Println(result.URL)          // redirect the user here
+fmt.Println(result.CodeVerifier) // store securely for token exchange
+
+// SSO authorization
+url, err := client.GetSSOAuthorizationURL(workos.SSOAuthorizationURLParams{
+	RedirectURI: "https://example.com/sso/callback",
+	ConnectionID: &connID,
+})
 ```
 
 ## Package Layout

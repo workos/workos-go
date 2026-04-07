@@ -13,16 +13,7 @@ type eventService struct {
 
 // EventsListParams contains the parameters for List.
 type EventsListParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *EventsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// Events is filter events by one or more event types (e.g. `dsync.user.created`).
 	Events []string `url:"events,omitempty" json:"-"`
 	// RangeStart is iso-8601 date string to filter events created after this date.

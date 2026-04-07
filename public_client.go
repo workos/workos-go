@@ -25,7 +25,7 @@ func WithPublicClientBaseURL(baseURL string) PublicClientOption {
 	}
 }
 
-// NewPublicClient creates a public client that only supports PKCE flows (H19).
+// NewPublicClient creates a public client that only supports PKCE flows.
 // No API key is required.
 func NewPublicClient(clientID string, opts ...PublicClientOption) *PublicClient {
 	p := &PublicClient{

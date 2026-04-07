@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/data-integrations/test_slug/authorize", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/data_integration_authorize_url_response.json")
@@ -31,13 +36,16 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	result, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.URL)
+	require.Equal(t, "https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect", result.URL)
 }
 
 func TestPipes_CreateDataIntegrationToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/data-integrations/test_slug/token", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/data_integration_access_token_response.json")
@@ -72,7 +80,9 @@ func TestPipes_GetUserConnectedAccount(t *testing.T) {
 	result, err := client.Pipes().GetUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.PipesGetUserConnectedAccountParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
 }
 
 func TestPipes_DeleteUserConnectedAccount(t *testing.T) {
@@ -119,4 +129,30 @@ func TestPipes_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestPipes_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestPipes_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

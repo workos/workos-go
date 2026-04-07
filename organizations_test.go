@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,7 @@ func TestOrganizations_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/organizations", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_organization.json")
@@ -28,7 +31,7 @@ func TestOrganizations_List(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -45,7 +48,7 @@ func TestOrganizations_List_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -54,6 +57,9 @@ func TestOrganizations_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/organizations", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/organization.json")
@@ -68,7 +74,9 @@ func TestOrganizations_Create(t *testing.T) {
 	result, err := client.Organizations().Create(context.Background(), &workos.OrganizationsCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Acme Inc.", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestOrganizations_GetByExternalID(t *testing.T) {
@@ -89,7 +97,9 @@ func TestOrganizations_GetByExternalID(t *testing.T) {
 	result, err := client.Organizations().GetByExternalID(context.Background(), "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Acme Inc.", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestOrganizations_Get(t *testing.T) {
@@ -110,13 +120,18 @@ func TestOrganizations_Get(t *testing.T) {
 	result, err := client.Organizations().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Acme Inc.", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestOrganizations_Update(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/organizations/test_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/organization.json")
@@ -131,7 +146,9 @@ func TestOrganizations_Update(t *testing.T) {
 	result, err := client.Organizations().Update(context.Background(), "test_id", &workos.OrganizationsUpdateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Acme Inc.", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestOrganizations_Delete(t *testing.T) {
@@ -165,7 +182,7 @@ func TestOrganizations_ListAuditLogConfiguration(t *testing.T) {
 	result, err := client.Organizations().ListAuditLogConfiguration(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.OrganizationID)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestOrganizations_Error401(t *testing.T) {
@@ -180,4 +197,32 @@ func TestOrganizations_Error401(t *testing.T) {
 	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
+}
+
+func TestOrganizations_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
+}
+
+func TestOrganizations_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Organizations().List(context.Background(), &workos.OrganizationsListParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

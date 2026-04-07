@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,7 @@ func TestWebhooks_ListEndpoints(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/webhook_endpoints", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_webhook_endpoint_json.json")
@@ -28,7 +31,7 @@ func TestWebhooks_ListEndpoints(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{})
+	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -45,7 +48,7 @@ func TestWebhooks_ListEndpoints_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{})
+	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -54,6 +57,9 @@ func TestWebhooks_CreateEndpoints(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/webhook_endpoints", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/webhook_endpoint_json.json")
@@ -68,13 +74,18 @@ func TestWebhooks_CreateEndpoints(t *testing.T) {
 	result, err := client.Webhooks().CreateEndpoints(context.Background(), &workos.WebhooksCreateEndpointsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "we_0123456789", result.ID)
+	require.Equal(t, "https://example.com/webhooks", result.EndpointURL)
+	require.Equal(t, "whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4", result.Secret)
 }
 
 func TestWebhooks_UpdateEndpoint(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/webhook_endpoints/test_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/webhook_endpoint_json.json")
@@ -89,7 +100,9 @@ func TestWebhooks_UpdateEndpoint(t *testing.T) {
 	result, err := client.Webhooks().UpdateEndpoint(context.Background(), "test_id", &workos.WebhooksUpdateEndpointParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "we_0123456789", result.ID)
+	require.Equal(t, "https://example.com/webhooks", result.EndpointURL)
+	require.Equal(t, "whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4", result.Secret)
 }
 
 func TestWebhooks_DeleteEndpoint(t *testing.T) {
@@ -117,4 +130,32 @@ func TestWebhooks_Error401(t *testing.T) {
 	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
+}
+
+func TestWebhooks_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
+}
+
+func TestWebhooks_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Webhooks().ListEndpoints(context.Background(), &workos.WebhooksListEndpointsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

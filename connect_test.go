@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestConnect_CompleteOAuth2(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authkit/oauth2/complete", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/external_auth_complete_response.json")
@@ -31,13 +36,14 @@ func TestConnect_CompleteOAuth2(t *testing.T) {
 	result, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.RedirectURI)
+	require.Equal(t, "https://your-authkit-domain.workos.com/oauth/authorize/complete?state=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGF0ZSI6InJhbmRvbV9zdGF0ZV9zdHJpbmciLCJpYXQiOjE3NDI2MDQ4NTN9.abc123def456ghi789", result.RedirectURI)
 }
 
 func TestConnect_ListApplications(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/connect/applications", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_connect_application.json")
@@ -49,7 +55,7 @@ func TestConnect_ListApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{})
+	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -66,7 +72,7 @@ func TestConnect_ListApplications_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{})
+	iter := client.Connect().ListApplications(context.Background(), &workos.ConnectListApplicationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -89,7 +95,9 @@ func TestConnect_CreateApplications(t *testing.T) {
 	result, err := client.Connect().CreateApplications(context.Background(), &workos.ConnectCreateApplicationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "conn_app_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "client_01HXYZ123456789ABCDEFGHIJ", result.ClientID)
+	require.Equal(t, "My Application", result.Name)
 }
 
 func TestConnect_GetApplication(t *testing.T) {
@@ -110,13 +118,18 @@ func TestConnect_GetApplication(t *testing.T) {
 	result, err := client.Connect().GetApplication(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "conn_app_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "client_01HXYZ123456789ABCDEFGHIJ", result.ClientID)
+	require.Equal(t, "My Application", result.Name)
 }
 
 func TestConnect_UpdateApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/connect/applications/test_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/connect_application.json")
@@ -131,7 +144,9 @@ func TestConnect_UpdateApplication(t *testing.T) {
 	result, err := client.Connect().UpdateApplication(context.Background(), "test_id", &workos.ConnectUpdateApplicationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "conn_app_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "client_01HXYZ123456789ABCDEFGHIJ", result.ClientID)
+	require.Equal(t, "My Application", result.Name)
 }
 
 func TestConnect_DeleteApplication(t *testing.T) {
@@ -185,7 +200,9 @@ func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
 	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q", result.ID)
+	require.Equal(t, "abc123", result.SecretHint)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestConnect_DeleteClientSecret(t *testing.T) {
@@ -205,6 +222,9 @@ func TestConnect_CreateOAuthApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/connect/applications", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/connect_application.json")
@@ -225,6 +245,9 @@ func TestConnect_CreateM2MApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/connect/applications", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/connect_application.json")
@@ -252,4 +275,30 @@ func TestConnect_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestConnect_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestConnect_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Connect().CompleteOAuth2(context.Background(), &workos.ConnectCompleteOAuth2Params{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

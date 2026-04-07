@@ -40,14 +40,14 @@ type RefreshSessionResult struct {
 	Reason        string
 }
 
-// Session provides session cookie management (H04).
+// Session provides session cookie management.
 type Session struct {
 	client         *Client
 	cookiePassword string
 	sessionData    string // sealed session cookie value
 }
 
-// NewSession creates a new Session helper (H04).
+// NewSession creates a new Session helper.
 func NewSession(client *Client, sessionData string, cookiePassword string) *Session {
 	return &Session{
 		client:         client,
@@ -56,7 +56,7 @@ func NewSession(client *Client, sessionData string, cookiePassword string) *Sess
 	}
 }
 
-// Authenticate validates the session cookie (H04).
+// Authenticate validates the session cookie.
 // Unseals the session data, validates that the access token is present,
 // and extracts claims from the JWT payload.
 func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
@@ -120,7 +120,7 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 	}, nil
 }
 
-// Refresh refreshes the session using the refresh token (H04).
+// Refresh refreshes the session using the refresh token.
 func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshSessionResult, error) {
 	if s.sessionData == "" {
 		return &RefreshSessionResult{
@@ -209,7 +209,7 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 	}, nil
 }
 
-// GetLogoutURL returns a logout URL for the session (H04).
+// GetLogoutURL returns a logout URL for the session.
 // The returnTo parameter is optional — pass an empty string to omit it.
 func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...RequestOption) (string, error) {
 	if s.sessionData == "" {
@@ -238,7 +238,7 @@ func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...Req
 	return logoutURL, nil
 }
 
-// SealSessionFromAuthResponse creates a sealed session cookie from an authentication response (H07).
+// SealSessionFromAuthResponse creates a sealed session cookie from an authentication response.
 func SealSessionFromAuthResponse(accessToken string, refreshToken string, user map[string]interface{}, impersonator map[string]interface{}, cookiePassword string) (string, error) {
 	data := map[string]interface{}{
 		"access_token":  accessToken,
@@ -254,14 +254,14 @@ func SealSessionFromAuthResponse(accessToken string, refreshToken string, user m
 	return SealData(data, cookiePassword)
 }
 
-// AuthenticateSession is a convenience method for one-shot session authentication (H05).
+// AuthenticateSession is a convenience method for one-shot session authentication.
 // It does not require a Client — only the sealed session and cookie password.
 func AuthenticateSession(sealedSession string, cookiePassword string) (*AuthenticateSessionResult, error) {
 	session := NewSession(nil, sealedSession, cookiePassword)
 	return session.Authenticate()
 }
 
-// RefreshSession is a convenience method on Client for one-shot session refresh (H05).
+// RefreshSession is a convenience method on Client for one-shot session refresh.
 func (c *Client) RefreshSession(ctx context.Context, sealedSession string, cookiePassword string, opts ...RequestOption) (*RefreshSessionResult, error) {
 	session := NewSession(c, sealedSession, cookiePassword)
 	return session.Refresh(ctx, opts...)

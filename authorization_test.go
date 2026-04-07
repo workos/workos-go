@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestAuthorization_CheckOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/check", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authorization_check.json")
@@ -37,6 +42,7 @@ func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/resources", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_authorization_resource.json")
@@ -48,7 +54,7 @@ func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{})
+	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -65,7 +71,7 @@ func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{})
+	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -74,6 +80,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_role_assignment.json")
@@ -85,7 +92,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{})
+	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -102,7 +109,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testin
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{})
+	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -111,6 +118,9 @@ func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role_assignment.json")
@@ -125,7 +135,9 @@ func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T)
 	result, err := client.Authorization().CreateOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationCreateOrganizationMembershipRoleAssignmentsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_assignment_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
 func TestAuthorization_DeleteOrganizationMembershipRoleAssignments(t *testing.T) {
@@ -178,6 +190,9 @@ func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -192,7 +207,9 @@ func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
 	result, err := client.Authorization().CreateOrganizationRoles(context.Background(), "test_organizationId", &workos.AuthorizationCreateOrganizationRolesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_GetOrganizationRole(t *testing.T) {
@@ -213,13 +230,18 @@ func TestAuthorization_GetOrganizationRole(t *testing.T) {
 	result, err := client.Authorization().GetOrganizationRole(context.Background(), "test_organizationId", "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_UpdateOrganizationRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -234,7 +256,9 @@ func TestAuthorization_UpdateOrganizationRole(t *testing.T) {
 	result, err := client.Authorization().UpdateOrganizationRole(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateOrganizationRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_DeleteOrganizationRole(t *testing.T) {
@@ -254,6 +278,9 @@ func TestAuthorization_CreateRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -268,13 +295,18 @@ func TestAuthorization_CreateRolePermissions(t *testing.T) {
 	result, err := client.Authorization().CreateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationCreateRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -289,7 +321,9 @@ func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	result, err := client.Authorization().UpdateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_DeleteRolePermission(t *testing.T) {
@@ -323,13 +357,18 @@ func TestAuthorization_GetOrganizationResource(t *testing.T) {
 	result, err := client.Authorization().GetOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "Website Redesign", result.Name)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authorization_resource.json")
@@ -344,7 +383,9 @@ func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	result, err := client.Authorization().UpdateOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationUpdateOrganizationResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "Website Redesign", result.Name)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestAuthorization_DeleteOrganizationResource(t *testing.T) {
@@ -364,6 +405,7 @@ func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id/organization_memberships", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_list_data.json")
@@ -375,7 +417,7 @@ func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{})
+	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -392,7 +434,7 @@ func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{})
+	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -401,6 +443,7 @@ func TestAuthorization_ListResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/resources", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_authorization_resource.json")
@@ -412,7 +455,7 @@ func TestAuthorization_ListResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{})
+	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -429,7 +472,7 @@ func TestAuthorization_ListResources_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{})
+	iter := client.Authorization().ListResources(context.Background(), &workos.AuthorizationListResourcesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -438,6 +481,9 @@ func TestAuthorization_CreateResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/resources", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authorization_resource.json")
@@ -452,7 +498,9 @@ func TestAuthorization_CreateResources(t *testing.T) {
 	result, err := client.Authorization().CreateResources(context.Background(), &workos.AuthorizationCreateResourcesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "Website Redesign", result.Name)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestAuthorization_GetResource(t *testing.T) {
@@ -473,13 +521,18 @@ func TestAuthorization_GetResource(t *testing.T) {
 	result, err := client.Authorization().GetResource(context.Background(), "test_resource_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "Website Redesign", result.Name)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestAuthorization_UpdateResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/resources/test_resource_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authorization_resource.json")
@@ -494,7 +547,9 @@ func TestAuthorization_UpdateResource(t *testing.T) {
 	result, err := client.Authorization().UpdateResource(context.Background(), "test_resource_id", &workos.AuthorizationUpdateResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "Website Redesign", result.Name)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestAuthorization_DeleteResource(t *testing.T) {
@@ -514,6 +569,7 @@ func TestAuthorization_ListMembershipsForResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/resources/test_resource_id/organization_memberships", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_list_data.json")
@@ -525,7 +581,7 @@ func TestAuthorization_ListMembershipsForResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{})
+	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -542,7 +598,7 @@ func TestAuthorization_ListMembershipsForResource_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{})
+	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -571,6 +627,9 @@ func TestAuthorization_CreateRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/roles", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -585,7 +644,9 @@ func TestAuthorization_CreateRoles(t *testing.T) {
 	result, err := client.Authorization().CreateRoles(context.Background(), &workos.AuthorizationCreateRolesParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_GetRole(t *testing.T) {
@@ -606,13 +667,18 @@ func TestAuthorization_GetRole(t *testing.T) {
 	result, err := client.Authorization().GetRole(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_UpdateRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -627,13 +693,18 @@ func TestAuthorization_UpdateRole(t *testing.T) {
 	result, err := client.Authorization().UpdateRole(context.Background(), "test_slug", &workos.AuthorizationUpdateRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_AddRolePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug/permissions", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -648,13 +719,18 @@ func TestAuthorization_AddRolePermission(t *testing.T) {
 	result, err := client.Authorization().AddRolePermission(context.Background(), "test_slug", &workos.AuthorizationAddRolePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_SetRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug/permissions", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/role.json")
@@ -669,13 +745,16 @@ func TestAuthorization_SetRolePermissions(t *testing.T) {
 	result, err := client.Authorization().SetRolePermissions(context.Background(), "test_slug", &workos.AuthorizationSetRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
+	require.Equal(t, "admin", result.Slug)
+	require.Equal(t, "Admin", result.Name)
 }
 
 func TestAuthorization_ListPermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/permissions", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_authorization_permission.json")
@@ -687,7 +766,7 @@ func TestAuthorization_ListPermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{})
+	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -704,7 +783,7 @@ func TestAuthorization_ListPermissions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{})
+	iter := client.Authorization().ListPermissions(context.Background(), &workos.AuthorizationListPermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -713,6 +792,9 @@ func TestAuthorization_CreatePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/permissions", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/permission.json")
@@ -727,7 +809,9 @@ func TestAuthorization_CreatePermissions(t *testing.T) {
 	result, err := client.Authorization().CreatePermissions(context.Background(), &workos.AuthorizationCreatePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "perm_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "documents:read", result.Slug)
+	require.Equal(t, "View Documents", result.Name)
 }
 
 func TestAuthorization_GetPermission(t *testing.T) {
@@ -748,13 +832,18 @@ func TestAuthorization_GetPermission(t *testing.T) {
 	result, err := client.Authorization().GetPermission(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "perm_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "documents:read", result.Slug)
+	require.Equal(t, "View Documents", result.Name)
 }
 
 func TestAuthorization_UpdatePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/permissions/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authorization_permission.json")
@@ -769,7 +858,9 @@ func TestAuthorization_UpdatePermission(t *testing.T) {
 	result, err := client.Authorization().UpdatePermission(context.Background(), "test_slug", &workos.AuthorizationUpdatePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "perm_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "documents:read", result.Slug)
+	require.Equal(t, "View Documents", result.Name)
 }
 
 func TestAuthorization_DeletePermission(t *testing.T) {
@@ -796,4 +887,30 @@ func TestAuthorization_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestAuthorization_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestAuthorization_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

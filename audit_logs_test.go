@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -37,6 +39,9 @@ func TestAuditLogs_UpdateOrganizationAuditLogsRetention(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/organizations/test_id/audit_logs_retention", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/audit_logs_retention_json.json")
@@ -57,6 +62,7 @@ func TestAuditLogs_ListActions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/audit_logs/actions", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_audit_log_action_json.json")
@@ -68,7 +74,7 @@ func TestAuditLogs_ListActions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{})
+	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -85,7 +91,7 @@ func TestAuditLogs_ListActions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{})
+	iter := client.AuditLogs().ListActions(context.Background(), &workos.AuditLogsListActionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -94,6 +100,7 @@ func TestAuditLogs_ListActionSchemas(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/audit_logs/actions/test_actionName/schemas", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_audit_log_schema_json.json")
@@ -105,7 +112,7 @@ func TestAuditLogs_ListActionSchemas(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{})
+	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -122,7 +129,7 @@ func TestAuditLogs_ListActionSchemas_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{})
+	iter := client.AuditLogs().ListActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsListActionSchemasParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -131,6 +138,9 @@ func TestAuditLogs_CreateActionSchemas(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/audit_logs/actions/test_actionName/schemas", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/audit_log_schema_json.json")
@@ -145,13 +155,16 @@ func TestAuditLogs_CreateActionSchemas(t *testing.T) {
 	result, err := client.AuditLogs().CreateActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsCreateActionSchemasParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestAuditLogs_CreateEvents(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/audit_logs/events", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/audit_log_event_create_response.json")
@@ -172,6 +185,9 @@ func TestAuditLogs_CreateExports(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/audit_logs/exports", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/audit_log_export_json.json")
@@ -186,7 +202,9 @@ func TestAuditLogs_CreateExports(t *testing.T) {
 	result, err := client.AuditLogs().CreateExports(context.Background(), &workos.AuditLogsCreateExportsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V", result.ID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
 func TestAuditLogs_GetExport(t *testing.T) {
@@ -207,7 +225,9 @@ func TestAuditLogs_GetExport(t *testing.T) {
 	result, err := client.AuditLogs().GetExport(context.Background(), "test_auditLogExportId")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V", result.ID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
 func TestAuditLogs_Error401(t *testing.T) {
@@ -221,4 +241,30 @@ func TestAuditLogs_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestAuditLogs_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestAuditLogs_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

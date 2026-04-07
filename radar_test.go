@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestRadar_CreateAttempts(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/radar/attempts", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/radar_standalone_response.json")
@@ -31,7 +36,8 @@ func TestRadar_CreateAttempts(t *testing.T) {
 	result, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.Reason)
+	require.Equal(t, "Detected enabled Radar control", result.Reason)
+	require.Equal(t, "radar_att_01HZBC6N1EB1ZY7KG32X", result.AttemptID)
 }
 
 func TestRadar_UpdateAttempt(t *testing.T) {
@@ -51,6 +57,9 @@ func TestRadar_AddListEntry(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/radar/lists/test_type/test_action", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/radar_list_entry_already_present_response.json")
@@ -65,7 +74,7 @@ func TestRadar_AddListEntry(t *testing.T) {
 	result, err := client.Radar().AddListEntry(context.Background(), "test_type", "test_action", &workos.RadarAddListEntryParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.Message)
+	require.Equal(t, "Entry already present in list", result.Message)
 }
 
 func TestRadar_RemoveListEntry(t *testing.T) {
@@ -92,4 +101,30 @@ func TestRadar_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestRadar_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestRadar_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

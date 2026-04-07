@@ -42,16 +42,7 @@ func (s *auditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Conte
 
 // AuditLogsListActionsParams contains the parameters for ListActions.
 type AuditLogsListActionsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *AuditLogsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListActions list Actions
@@ -62,16 +53,7 @@ func (s *auditLogService) ListActions(ctx context.Context, params *AuditLogsList
 
 // AuditLogsListActionSchemasParams contains the parameters for ListActionSchemas.
 type AuditLogsListActionSchemasParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *AuditLogsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListActionSchemas list Schemas

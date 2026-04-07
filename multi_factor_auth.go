@@ -91,16 +91,7 @@ func (s *multiFactorAuthService) ChallengeFactor(ctx context.Context, id string,
 
 // MultiFactorAuthListUserAuthFactorsParams contains the parameters for ListUserAuthFactors.
 type MultiFactorAuthListUserAuthFactorsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *UserManagementMultiFactorAuthenticationOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListUserAuthFactors list authentication factors

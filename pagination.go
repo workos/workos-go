@@ -22,6 +22,17 @@ type listMetadata struct {
 }
 
 // Iterator provides auto-pagination over list endpoints.
+//
+// Example usage:
+//
+//	iter := client.UserManagement().ListUsers(ctx, &workos.UserManagementListUsersParams{})
+//	for iter.Next() {
+//	    user := iter.Current()
+//	    fmt.Println(user.Email)
+//	}
+//	if err := iter.Err(); err != nil {
+//	    log.Fatal(err)
+//	}
 type Iterator[T any] struct {
 	cur      *T
 	items    []T

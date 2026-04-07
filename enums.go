@@ -555,7 +555,7 @@ type ConnectionDeletedDataConnectionType = ConnectionActivatedDataConnectionType
 // ConnectionDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
 type ConnectionDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
 
-// ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType represents connection saml certificate renewal required data certificate certificate type values.
+// ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType represents connection SAML certificate renewal required data certificate certificate type values.
 type ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType string
 
 const (
@@ -1337,7 +1337,7 @@ const (
 	RadarActionAllow RadarAction = "allow"
 )
 
-// SSOProvider represents sso provider values.
+// SSOProvider represents SSO provider values.
 type SSOProvider string
 
 const (

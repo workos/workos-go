@@ -2,7 +2,7 @@
 
 package workos
 
-// UserObject represents a user object.
+// UserObject represents an user object.
 type UserObject struct {
 	// ID is your application's user identifier, which will be stored as an [`external_id`](https://workos.com/docs/authkit/metadata/external-identifiers). Used for upserting and deduplication.
 	ID string `json:"id"`
@@ -16,7 +16,7 @@ type UserObject struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// UserConsentOption represents a user consent option.
+// UserConsentOption represents an user consent option.
 type UserConsentOption struct {
 	// Claim is the claim name for this consent option.
 	Claim string `json:"claim"`
@@ -28,7 +28,7 @@ type UserConsentOption struct {
 	Choices []*UserConsentOptionChoice `json:"choices"`
 }
 
-// UserManagementLoginRequest represents a user management login request.
+// UserManagementLoginRequest represents an user management login request.
 type UserManagementLoginRequest struct {
 	// ExternalAuthID is identifier provided when AuthKit redirected to your login page.
 	ExternalAuthID string `json:"external_auth_id"`
@@ -52,7 +52,7 @@ type RedirectURIInput struct {
 	Default *bool `json:"default,omitempty"`
 }
 
-// CreateOAuthApplication represents a create o auth application.
+// CreateOAuthApplication represents a create OAuth application.
 type CreateOAuthApplication struct {
 	// Name is the name of the application.
 	Name string `json:"name"`
@@ -86,7 +86,7 @@ type CreateM2MApplication struct {
 	OrganizationID string `json:"organization_id"`
 }
 
-// UpdateOAuthApplication represents a update o auth application.
+// UpdateOAuthApplication represents an update OAuth application.
 type UpdateOAuthApplication struct {
 	// Name is the name of the application.
 	Name *string `json:"name,omitempty"`
@@ -102,7 +102,7 @@ type UpdateOAuthApplication struct {
 type CreateApplicationSecret struct {
 }
 
-// AuditLogEventActor represents a audit log event actor.
+// AuditLogEventActor represents an audit log event actor.
 type AuditLogEventActor struct {
 	// ID is actor identifier.
 	ID string `json:"id"`
@@ -117,7 +117,7 @@ type AuditLogEventActor struct {
 // AuditLogEventTarget is an alias for AuditLogEventActor.
 type AuditLogEventTarget = AuditLogEventActor
 
-// AuditLogEventContext represents a audit log event context.
+// AuditLogEventContext represents an audit log event context.
 type AuditLogEventContext struct {
 	// Location is ip Address or some other geolocation identifier.
 	Location string `json:"location"`
@@ -125,7 +125,7 @@ type AuditLogEventContext struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// AuditLogEvent represents a audit log event.
+// AuditLogEvent represents an audit log event.
 type AuditLogEvent struct {
 	// Action is identifier of what happened.
 	Action string `json:"action"`
@@ -143,7 +143,7 @@ type AuditLogEvent struct {
 	Version *float64 `json:"version,omitempty"`
 }
 
-// AuditLogEventIngestion represents a audit log event ingestion.
+// AuditLogEventIngestion represents an audit log event ingestion.
 type AuditLogEventIngestion struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id"`
@@ -151,7 +151,7 @@ type AuditLogEventIngestion struct {
 	Event *AuditLogEvent `json:"event"`
 }
 
-// AuditLogExportCreation represents a audit log export creation.
+// AuditLogExportCreation represents an audit log export creation.
 type AuditLogExportCreation struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id"`
@@ -163,7 +163,7 @@ type AuditLogExportCreation struct {
 	Actions []string `json:"actions,omitempty"`
 	// Actors is deprecated. Use `actor_names` instead.
 	//
-	// Deprecated: this field is deprecated.
+	// Deprecated: Use `actor_names` instead.
 	Actors []string `json:"actors,omitempty"`
 	// ActorNames is list of actor names to filter against.
 	ActorNames []string `json:"actor_names,omitempty"`
@@ -173,13 +173,13 @@ type AuditLogExportCreation struct {
 	Targets []string `json:"targets,omitempty"`
 }
 
-// UpdateAuditLogsRetention represents a update audit logs retention.
+// UpdateAuditLogsRetention represents an update audit logs retention.
 type UpdateAuditLogsRetention struct {
 	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` and `365`.
 	RetentionPeriodInDays int `json:"retention_period_in_days"`
 }
 
-// AuditLogSchemaActor represents a audit log schema actor.
+// AuditLogSchemaActor represents an audit log schema actor.
 type AuditLogSchemaActor struct {
 	// Metadata is json schema for actor metadata.
 	Metadata map[string]interface{} `json:"metadata"`
@@ -188,7 +188,7 @@ type AuditLogSchemaActor struct {
 // AuditLogSchemaTarget is an alias for AuditLogSchemaJSONTarget.
 type AuditLogSchemaTarget = AuditLogSchemaJSONTarget
 
-// AuditLogSchema represents a audit log schema.
+// AuditLogSchema represents an audit log schema.
 type AuditLogSchema struct {
 	// Actor is the metadata schema for the actor.
 	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
@@ -216,7 +216,7 @@ type CheckAuthorization struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// AssignRole represents a assign role.
+// AssignRole represents an assign role.
 type AssignRole struct {
 	// RoleSlug is the slug of the role to assign.
 	RoleSlug string `json:"role_slug"`
@@ -237,7 +237,7 @@ type SetRolePermissions struct {
 	Permissions []string `json:"permissions"`
 }
 
-// AddRolePermission represents a add role permission.
+// AddRolePermission represents an add role permission.
 type AddRolePermission struct {
 	// Slug is the slug of the permission to add to the role.
 	Slug string `json:"slug"`
@@ -268,7 +268,7 @@ type CreateAuthorizationPermission struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// UpdateAuthorizationPermission represents a update authorization permission.
+// UpdateAuthorizationPermission represents an update authorization permission.
 type UpdateAuthorizationPermission struct {
 	// Name is a descriptive name for the Permission.
 	Name *string `json:"name,omitempty"`
@@ -282,7 +282,7 @@ type CreateRole = CreateAuthorizationPermission
 // UpdateRole is an alias for UpdateAuthorizationPermission.
 type UpdateRole = UpdateAuthorizationPermission
 
-// UpdateAuthorizationResource represents a update authorization resource.
+// UpdateAuthorizationResource represents an update authorization resource.
 type UpdateAuthorizationResource struct {
 	// Name is a display name for the resource.
 	Name *string `json:"name,omitempty"`
@@ -322,7 +322,7 @@ type CreateCORSOrigin struct {
 	Origin string `json:"origin"`
 }
 
-// UpdateJWTTemplate represents a update jwt template.
+// UpdateJWTTemplate represents an update JWT template.
 type UpdateJWTTemplate struct {
 	// Content is the JWT template content as a Liquid template string.
 	Content string `json:"content"`
@@ -344,7 +344,7 @@ type CreateOrganizationAPIKey struct {
 	Permissions []string `json:"permissions,omitempty"`
 }
 
-// OrganizationDomainData represents a organization domain data.
+// OrganizationDomainData represents an organization domain data.
 type OrganizationDomainData struct {
 	// Domain is the domain value.
 	Domain string `json:"domain"`
@@ -352,7 +352,7 @@ type OrganizationDomainData struct {
 	State OrganizationDomainDataState `json:"state"`
 }
 
-// OrganizationInput represents a organization input.
+// OrganizationInput represents an organization input.
 type OrganizationInput struct {
 	// Name is the name of the organization.
 	Name string `json:"name"`
@@ -368,7 +368,7 @@ type OrganizationInput struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// UpdateOrganization represents a update organization.
+// UpdateOrganization represents an update organization.
 type UpdateOrganization struct {
 	// Name is the name of the organization.
 	Name *string `json:"name,omitempty"`
@@ -376,7 +376,7 @@ type UpdateOrganization struct {
 	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
 	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
 	//
-	// Deprecated: this field is deprecated.
+	// Deprecated: Deprecated in favor of `domain_data.
 	Domains []string `json:"domains,omitempty"`
 	// DomainData is the domains associated with the organization, including verification state.
 	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
@@ -388,7 +388,7 @@ type UpdateOrganization struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// SSOIntentOptions represents a sso intent options.
+// SSOIntentOptions represents a SSO intent options.
 type SSOIntentOptions struct {
 	// BookmarkSlug is the bookmark slug to use for SSO.
 	BookmarkSlug *string `json:"bookmark_slug,omitempty"`
@@ -396,7 +396,7 @@ type SSOIntentOptions struct {
 	ProviderType *string `json:"provider_type,omitempty"`
 }
 
-// IntentOptions represents a intent options.
+// IntentOptions represents an intent options.
 type IntentOptions struct {
 	// SSO is sso-specific options for the Admin Portal.
 	SSO *SSOIntentOptions `json:"sso"`
@@ -429,7 +429,7 @@ type CreateRedirectURI struct {
 	URI string `json:"uri"`
 }
 
-// EnrollUserAuthenticationFactor represents a enroll user authentication factor.
+// EnrollUserAuthenticationFactor represents an enroll user authentication factor.
 type EnrollUserAuthenticationFactor struct {
 	// Type is the type of the factor to enroll.
 	Type string `json:"type"`
@@ -483,7 +483,7 @@ type CreateUserOrganizationMembership struct {
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
-// UpdateUserOrganizationMembership represents a update user organization membership.
+// UpdateUserOrganizationMembership represents an update user organization membership.
 type UpdateUserOrganizationMembership struct {
 	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
 	RoleSlug *string `json:"role_slug,omitempty"`
@@ -513,7 +513,7 @@ type CreateUser struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// UpdateUser represents a update user.
+// UpdateUser represents an update user.
 type UpdateUser struct {
 	// Email is the email address of the user.
 	Email *string `json:"email,omitempty"`
@@ -579,7 +579,7 @@ type CreateWebhookEndpoint struct {
 	Events []CreateWebhookEndpointEvents `json:"events"`
 }
 
-// UpdateWebhookEndpoint represents a update webhook endpoint.
+// UpdateWebhookEndpoint represents an update webhook endpoint.
 type UpdateWebhookEndpoint struct {
 	// EndpointURL is the HTTPS URL where webhooks will be sent.
 	EndpointURL *string `json:"endpoint_url,omitempty"`
@@ -611,7 +611,7 @@ type TokenQuery struct {
 	GrantType string `json:"grant_type"`
 }
 
-// ExternalAuthCompleteResponse represents a external auth complete response.
+// ExternalAuthCompleteResponse represents an external auth complete response.
 type ExternalAuthCompleteResponse struct {
 	// RedirectURI is uri to redirect the user back to AuthKit to complete the OAuth flow.
 	RedirectURI string `json:"redirect_uri"`
@@ -619,7 +619,7 @@ type ExternalAuthCompleteResponse struct {
 
 // APIKey the API Key object if the value is valid, or `null` if invalid.
 type APIKey struct {
-	// Object is distinguishes the API Key object.
+	// Object distinguishes the API Key object.
 	Object string `json:"object"`
 	// ID is unique identifier of the API Key.
 	ID string `json:"id"`
@@ -639,14 +639,14 @@ type APIKey struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyValidationResponse represents a api key validation response.
+// APIKeyValidationResponse represents an api key validation response.
 type APIKeyValidationResponse struct {
 	APIKey *APIKey `json:"api_key"`
 }
 
 // ConnectApplication represents a connect application.
 type ConnectApplication struct {
-	// Object is distinguishes the connect application object.
+	// Object distinguishes the connect application object.
 	Object string `json:"object"`
 	// ID is the unique ID of the connect application.
 	ID string `json:"id"`
@@ -662,11 +662,23 @@ type ConnectApplication struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+	// ApplicationType is the type of the application.
+	ApplicationType *string `json:"application_type,omitempty"`
+	// RedirectURIs is the redirect URIs configured for this application.
+	RedirectURIs []interface{} `json:"redirect_uris,omitempty"`
+	// UsesPKCE is whether the application uses PKCE for authorization.
+	UsesPKCE *bool `json:"uses_pkce,omitempty"`
+	// IsFirstParty is whether the application is a first-party application.
+	IsFirstParty *bool `json:"is_first_party,omitempty"`
+	// WasDynamicallyRegistered is whether the application was dynamically registered.
+	WasDynamicallyRegistered *bool `json:"was_dynamically_registered,omitempty"`
+	// OrganizationID is the ID of the organization the application belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
 // NewConnectApplicationSecret represents a new connect application secret.
 type NewConnectApplicationSecret struct {
-	// Object is distinguishes the connect application secret object.
+	// Object distinguishes the connect application secret object.
 	Object string `json:"object"`
 	// ID is the unique ID of the client secret.
 	ID string `json:"id"`
@@ -682,15 +694,15 @@ type NewConnectApplicationSecret struct {
 	Secret string `json:"secret"`
 }
 
-// AuditLogEventCreateResponse represents a audit log event create response.
+// AuditLogEventCreateResponse represents an audit log event create response.
 type AuditLogEventCreateResponse struct {
 	// Success is whether the Audit Log event was created successfully.
 	Success bool `json:"success"`
 }
 
-// AuditLogExportJSON represents a audit log export json.
+// AuditLogExportJSON represents an audit log export json.
 type AuditLogExportJSON struct {
-	// Object is distinguishes the Audit Log Export object.
+	// Object distinguishes the Audit Log Export object.
 	Object string `json:"object"`
 	// ID is the unique ID of the Audit Log Export.
 	ID string `json:"id"`
@@ -704,15 +716,15 @@ type AuditLogExportJSON struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuditLogsRetentionJSON represents a audit logs retention json.
+// AuditLogsRetentionJSON represents an audit logs retention json.
 type AuditLogsRetentionJSON struct {
 	// RetentionPeriodInDays is the number of days Audit Log events will be retained before being permanently deleted. Valid values are 30 and 365.
 	RetentionPeriodInDays *int `json:"retention_period_in_days"`
 }
 
-// AuditLogSchemaJSON represents a audit log schema json.
+// AuditLogSchemaJSON represents an audit log schema json.
 type AuditLogSchemaJSON struct {
-	// Object is distinguishes the Audit Log Schema object.
+	// Object distinguishes the Audit Log Schema object.
 	Object string `json:"object"`
 	// Version is the version of the schema.
 	Version int `json:"version"`
@@ -726,9 +738,9 @@ type AuditLogSchemaJSON struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// AuditLogActionJSON represents a audit log action json.
+// AuditLogActionJSON represents an audit log action json.
 type AuditLogActionJSON struct {
-	// Object is distinguishes the Audit Log Action object.
+	// Object distinguishes the Audit Log Action object.
 	Object string `json:"object"`
 	// Name is identifier of what action was taken.
 	Name string `json:"name"`
@@ -740,9 +752,9 @@ type AuditLogActionJSON struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuthenticationChallenge represents a authentication challenge.
+// AuthenticationChallenge represents an authentication challenge.
 type AuthenticationChallenge struct {
-	// Object is distinguishes the authentication challenge object.
+	// Object distinguishes the authentication challenge object.
 	Object string `json:"object"`
 	// ID is the unique ID of the authentication challenge.
 	ID string `json:"id"`
@@ -758,7 +770,7 @@ type AuthenticationChallenge struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuthenticationChallengeVerifyResponse represents a authentication challenge verify response.
+// AuthenticationChallengeVerifyResponse represents an authentication challenge verify response.
 type AuthenticationChallengeVerifyResponse struct {
 	// Challenge is the authentication challenge object.
 	Challenge *AuthenticationChallenge `json:"challenge"`
@@ -766,9 +778,9 @@ type AuthenticationChallengeVerifyResponse struct {
 	Valid bool `json:"valid"`
 }
 
-// AuthenticationFactorEnrolled represents a authentication factor enrolled.
+// AuthenticationFactorEnrolled represents an authentication factor enrolled.
 type AuthenticationFactorEnrolled struct {
-	// Object is distinguishes the authentication factor object.
+	// Object distinguishes the authentication factor object.
 	Object string `json:"object"`
 	// ID is the unique ID of the factor.
 	ID string `json:"id"`
@@ -786,9 +798,9 @@ type AuthenticationFactorEnrolled struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuthenticationFactor represents a authentication factor.
+// AuthenticationFactor represents an authentication factor.
 type AuthenticationFactor struct {
-	// Object is distinguishes the authentication factor object.
+	// Object distinguishes the authentication factor object.
 	Object string `json:"object"`
 	// ID is the unique ID of the factor.
 	ID string `json:"id"`
@@ -806,15 +818,15 @@ type AuthenticationFactor struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuthorizationCheck represents a authorization check.
+// AuthorizationCheck represents an authorization check.
 type AuthorizationCheck struct {
 	// Authorized is whether the organization membership has the specified permission on the resource.
 	Authorized bool `json:"authorized"`
 }
 
-// AuthorizationResource represents a authorization resource.
+// AuthorizationResource represents an authorization resource.
 type AuthorizationResource struct {
-	// Object is distinguishes the Resource object.
+	// Object distinguishes the Resource object.
 	Object string `json:"object"`
 	// Name is a human-readable name for the Resource.
 	Name string `json:"name"`
@@ -836,12 +848,19 @@ type AuthorizationResource struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// SlimRole is an alias for AddRolePermission.
-type SlimRole = AddRolePermission
+// The following types are structurally identical to AddRolePermission.
+type (
+	SlimRole                          = AddRolePermission
+	DsyncGroupUserAddedDataUserRole   = AddRolePermission
+	DsyncUserCreatedDataRole          = AddRolePermission
+	DsyncUserDeletedDataRole          = AddRolePermission
+	DsyncGroupUserRemovedDataUserRole = AddRolePermission
+	DsyncUserUpdatedDataRole          = AddRolePermission
+)
 
 // RoleAssignment represents a role assignment.
 type RoleAssignment struct {
-	// Object is distinguishes the role assignment object.
+	// Object distinguishes the role assignment object.
 	Object string `json:"object"`
 	// ID is unique identifier of the role assignment.
 	ID string `json:"id"`
@@ -859,7 +878,7 @@ type RoleAssignment struct {
 type Role struct {
 	// Slug is a unique slug for the role.
 	Slug string `json:"slug"`
-	// Object is distinguishes the role object.
+	// Object distinguishes the role object.
 	Object string `json:"object"`
 	// ID is unique identifier of the role.
 	ID string `json:"id"`
@@ -879,9 +898,9 @@ type Role struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuthorizationPermission represents a authorization permission.
+// AuthorizationPermission represents an authorization permission.
 type AuthorizationPermission struct {
-	// Object is distinguishes the Permission object.
+	// Object distinguishes the Permission object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Permission.
 	ID string `json:"id"`
@@ -910,7 +929,7 @@ type RoleList struct {
 
 // Connection represents a connection.
 type Connection struct {
-	// Object is distinguishes the Connection object.
+	// Object distinguishes the Connection object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Connection.
 	ID string `json:"id"`
@@ -920,11 +939,11 @@ type Connection struct {
 	ConnectionType ConnectionType `json:"connection_type"`
 	// Name is a human-readable name for the Connection. This will most commonly be the organization's name.
 	Name string `json:"name"`
-	// State is indicates whether a Connection is able to authenticate users.
+	// State indicates whether a Connection is able to authenticate users.
 	State ConnectionState `json:"state"`
 	// Status is deprecated. Use `state` instead.
 	//
-	// Deprecated: this field is deprecated.
+	// Deprecated: Use `state` instead.
 	Status ConnectionStatus `json:"status"`
 	// Domains is list of Organization Domains.
 	Domains []*ConnectionDomain `json:"domains"`
@@ -938,7 +957,7 @@ type Connection struct {
 
 // CORSOriginResponse represents a cors origin response.
 type CORSOriginResponse struct {
-	// Object is distinguishes the CORS origin object.
+	// Object distinguishes the CORS origin object.
 	Object string `json:"object"`
 	// ID is unique identifier of the CORS origin.
 	ID string `json:"id"`
@@ -952,7 +971,7 @@ type CORSOriginResponse struct {
 
 // Directory represents a directory.
 type Directory struct {
-	// Object is distinguishes the Directory object.
+	// Object distinguishes the Directory object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory.
 	ID string `json:"id"`
@@ -962,7 +981,7 @@ type Directory struct {
 	ExternalKey string `json:"external_key"`
 	// Type is the type of external Directory Provider integrated with.
 	Type DirectoryType `json:"type"`
-	// State is describes whether the Directory has been successfully connected to an external provider.
+	// State describes whether the Directory has been successfully connected to an external provider.
 	State DirectoryState `json:"state"`
 	// Name is the name of the directory.
 	Name string `json:"name"`
@@ -978,7 +997,7 @@ type Directory struct {
 
 // DirectoryGroup represents a directory group.
 type DirectoryGroup struct {
-	// Object is distinguishes the Directory Group object.
+	// Object distinguishes the Directory Group object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory Group.
 	ID string `json:"id"`
@@ -1000,7 +1019,7 @@ type DirectoryGroup struct {
 
 // DirectoryUserWithGroups represents a directory user with groups.
 type DirectoryUserWithGroups struct {
-	// Object is distinguishes the Directory User object.
+	// Object distinguishes the Directory User object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory User.
 	ID string `json:"id"`
@@ -1049,7 +1068,7 @@ type DirectoryUserWithGroups struct {
 
 // EventSchema an event emitted by WorkOS.
 type EventSchema struct {
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Event.
 	ID string `json:"id"`
@@ -1063,7 +1082,7 @@ type EventSchema struct {
 	Context map[string]interface{} `json:"context,omitempty"`
 }
 
-// ActionAuthenticationDenied represents a action authentication denied.
+// ActionAuthenticationDenied represents an action authentication denied.
 type ActionAuthenticationDenied struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1074,7 +1093,7 @@ type ActionAuthenticationDenied struct {
 	Context *ActionAuthenticationDeniedContext `json:"context,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1116,7 +1135,7 @@ type ActionAuthenticationDeniedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ActionAuthenticationDeniedContextGoogleAnalyticsSession represents a action authentication denied context google analytics session.
+// ActionAuthenticationDeniedContextGoogleAnalyticsSession represents an action authentication denied context google analytics session.
 type ActionAuthenticationDeniedContextGoogleAnalyticsSession struct {
 	// ContainerID is the Google Analytics container ID.
 	ContainerID string `json:"containerId"`
@@ -1136,7 +1155,7 @@ type ActionAuthenticationDeniedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// ActionUserRegistrationDenied represents a action user registration denied.
+// ActionUserRegistrationDenied represents an action user registration denied.
 type ActionUserRegistrationDenied struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1147,7 +1166,7 @@ type ActionUserRegistrationDenied struct {
 	Context *ActionUserRegistrationDeniedContext `json:"context,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1187,8 +1206,88 @@ type ActionUserRegistrationDeniedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ActionUserRegistrationDeniedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type ActionUserRegistrationDeniedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+// The following types are structurally identical to ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type (
+	ActionUserRegistrationDeniedContextGoogleAnalyticsSession             = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	APIKeyCreatedContextGoogleAnalyticsSession                            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	APIKeyRevokedContextGoogleAnalyticsSession                            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationEmailVerificationFailedContextGoogleAnalyticsSession    = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationEmailVerificationSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationMagicAuthFailedContextGoogleAnalyticsSession            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationMagicAuthSucceededContextGoogleAnalyticsSession         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationMFAFailedContextGoogleAnalyticsSession                  = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationMFASucceededContextGoogleAnalyticsSession               = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationOAuthFailedContextGoogleAnalyticsSession                = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationOAuthSucceededContextGoogleAnalyticsSession             = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationPasskeyFailedContextGoogleAnalyticsSession              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationPasskeySucceededContextGoogleAnalyticsSession           = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationPasswordFailedContextGoogleAnalyticsSession             = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationPasswordSucceededContextGoogleAnalyticsSession          = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationRadarRiskDetectedContextGoogleAnalyticsSession          = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationSSOFailedContextGoogleAnalyticsSession                  = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationSSOStartedContextGoogleAnalyticsSession                 = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationSSOSucceededContextGoogleAnalyticsSession               = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	AuthenticationSSOTimedOutContextGoogleAnalyticsSession                = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	ConnectionActivatedContextGoogleAnalyticsSession                      = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	ConnectionDeactivatedContextGoogleAnalyticsSession                    = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	ConnectionDeletedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	ConnectionSAMLCertificateRenewalRequiredContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	ConnectionSAMLCertificateRenewedContextGoogleAnalyticsSession         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncActivatedContextGoogleAnalyticsSession                           = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncDeactivatedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncDeletedContextGoogleAnalyticsSession                             = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncGroupCreatedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncGroupDeletedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncGroupUpdatedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncGroupUserAddedContextGoogleAnalyticsSession                      = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncUserCreatedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncUserDeletedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncGroupUserRemovedContextGoogleAnalyticsSession                    = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	DsyncUserUpdatedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	EmailVerificationCreatedContextGoogleAnalyticsSession                 = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	InvitationAcceptedContextGoogleAnalyticsSession                       = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	InvitationCreatedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	InvitationResentContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	InvitationRevokedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	MagicAuthCreatedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationCreatedContextGoogleAnalyticsSession                      = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationDeletedContextGoogleAnalyticsSession                      = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationDomainCreatedContextGoogleAnalyticsSession                = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationDomainDeletedContextGoogleAnalyticsSession                = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationDomainUpdatedContextGoogleAnalyticsSession                = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationDomainVerificationFailedContextGoogleAnalyticsSession     = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationDomainVerifiedContextGoogleAnalyticsSession               = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationMembershipCreatedContextGoogleAnalyticsSession            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationMembershipDeletedContextGoogleAnalyticsSession            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationMembershipUpdatedContextGoogleAnalyticsSession            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationRoleCreatedContextGoogleAnalyticsSession                  = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationRoleDeletedContextGoogleAnalyticsSession                  = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationRoleUpdatedContextGoogleAnalyticsSession                  = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	OrganizationUpdatedContextGoogleAnalyticsSession                      = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	PasswordResetCreatedContextGoogleAnalyticsSession                     = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	PasswordResetSucceededContextGoogleAnalyticsSession                   = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	PermissionCreatedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	PermissionDeletedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	PermissionUpdatedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	RoleCreatedContextGoogleAnalyticsSession                              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	RoleDeletedContextGoogleAnalyticsSession                              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	RoleUpdatedContextGoogleAnalyticsSession                              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	SessionCreatedContextGoogleAnalyticsSession                           = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	SessionRevokedContextGoogleAnalyticsSession                           = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	UserCreatedContextGoogleAnalyticsSession                              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	UserDeletedContextGoogleAnalyticsSession                              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	UserUpdatedContextGoogleAnalyticsSession                              = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultByokKeyVerificationCompletedContextGoogleAnalyticsSession        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultDataCreatedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultDataDeletedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultDataReadContextGoogleAnalyticsSession                            = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultDataUpdatedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultDekDecryptedContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultDekReadContextGoogleAnalyticsSession                             = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultKekCreatedContextGoogleAnalyticsSession                          = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultMetadataReadContextGoogleAnalyticsSession                        = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+	VaultNamesListedContextGoogleAnalyticsSession                         = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+)
 
 // ActionUserRegistrationDeniedContextActor the actor who performed the action.
 type ActionUserRegistrationDeniedContextActor struct {
@@ -1200,7 +1299,7 @@ type ActionUserRegistrationDeniedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// APIKeyCreated represents a api key created.
+// APIKeyCreated represents an api key created.
 type APIKeyCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1211,13 +1310,13 @@ type APIKeyCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *APIKeyCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // APIKeyCreatedData the event payload.
 type APIKeyCreatedData struct {
-	// Object is distinguishes the API key object.
+	// Object distinguishes the API key object.
 	Object string `json:"object"`
 	// ID is unique identifier of the API key.
 	ID string `json:"id"`
@@ -1261,9 +1360,6 @@ type APIKeyCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// APIKeyCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type APIKeyCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // APIKeyCreatedContextActor the actor who performed the action.
 type APIKeyCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1274,7 +1370,7 @@ type APIKeyCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// APIKeyRevoked represents a api key revoked.
+// APIKeyRevoked represents an api key revoked.
 type APIKeyRevoked struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1285,13 +1381,13 @@ type APIKeyRevoked struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *APIKeyRevokedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // APIKeyRevokedData the event payload.
 type APIKeyRevokedData struct {
-	// Object is distinguishes the API key object.
+	// Object distinguishes the API key object.
 	Object string `json:"object"`
 	// ID is unique identifier of the API key.
 	ID string `json:"id"`
@@ -1330,9 +1426,6 @@ type APIKeyRevokedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// APIKeyRevokedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type APIKeyRevokedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // APIKeyRevokedContextActor the actor who performed the action.
 type APIKeyRevokedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1343,7 +1436,7 @@ type APIKeyRevokedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationEmailVerificationFailed represents a authentication email verification failed.
+// AuthenticationEmailVerificationFailed represents an authentication email verification failed.
 type AuthenticationEmailVerificationFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1354,7 +1447,7 @@ type AuthenticationEmailVerificationFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationEmailVerificationFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1398,9 +1491,6 @@ type AuthenticationEmailVerificationFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationEmailVerificationFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationEmailVerificationFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationEmailVerificationFailedContextActor the actor who performed the action.
 type AuthenticationEmailVerificationFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1411,7 +1501,7 @@ type AuthenticationEmailVerificationFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationEmailVerificationSucceeded represents a authentication email verification succeeded.
+// AuthenticationEmailVerificationSucceeded represents an authentication email verification succeeded.
 type AuthenticationEmailVerificationSucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1422,7 +1512,7 @@ type AuthenticationEmailVerificationSucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationEmailVerificationSucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1456,9 +1546,6 @@ type AuthenticationEmailVerificationSucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationEmailVerificationSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationEmailVerificationSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationEmailVerificationSucceededContextActor the actor who performed the action.
 type AuthenticationEmailVerificationSucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1469,7 +1556,7 @@ type AuthenticationEmailVerificationSucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationMagicAuthFailed represents a authentication magic auth failed.
+// AuthenticationMagicAuthFailed represents an authentication magic auth failed.
 type AuthenticationMagicAuthFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1480,7 +1567,7 @@ type AuthenticationMagicAuthFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationMagicAuthFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1500,8 +1587,16 @@ type AuthenticationMagicAuthFailedData struct {
 	Error *AuthenticationMagicAuthFailedDataError `json:"error"`
 }
 
-// AuthenticationMagicAuthFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
+// The following types are structurally identical to AuthenticationEmailVerificationFailedDataError.
+type (
+	AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
+	AuthenticationMFAFailedDataError       = AuthenticationEmailVerificationFailedDataError
+	AuthenticationOAuthFailedDataError     = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasskeyFailedDataError   = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasswordFailedDataError  = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOFailedDataError       = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOTimedOutDataError     = AuthenticationEmailVerificationFailedDataError
+)
 
 // AuthenticationMagicAuthFailedContext additional context about the event.
 type AuthenticationMagicAuthFailedContext struct {
@@ -1519,9 +1614,6 @@ type AuthenticationMagicAuthFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationMagicAuthFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationMagicAuthFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationMagicAuthFailedContextActor the actor who performed the action.
 type AuthenticationMagicAuthFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1532,7 +1624,7 @@ type AuthenticationMagicAuthFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationMagicAuthSucceeded represents a authentication magic auth succeeded.
+// AuthenticationMagicAuthSucceeded represents an authentication magic auth succeeded.
 type AuthenticationMagicAuthSucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1543,7 +1635,7 @@ type AuthenticationMagicAuthSucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationMagicAuthSucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1577,9 +1669,6 @@ type AuthenticationMagicAuthSucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationMagicAuthSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationMagicAuthSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationMagicAuthSucceededContextActor the actor who performed the action.
 type AuthenticationMagicAuthSucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1590,7 +1679,7 @@ type AuthenticationMagicAuthSucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationMFAFailed represents a authentication mfa failed.
+// AuthenticationMFAFailed represents an authentication mfa failed.
 type AuthenticationMFAFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1601,7 +1690,7 @@ type AuthenticationMFAFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationMFAFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1621,9 +1710,6 @@ type AuthenticationMFAFailedData struct {
 	Error *AuthenticationMFAFailedDataError `json:"error"`
 }
 
-// AuthenticationMFAFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationMFAFailedDataError = AuthenticationEmailVerificationFailedDataError
-
 // AuthenticationMFAFailedContext additional context about the event.
 type AuthenticationMFAFailedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -1640,9 +1726,6 @@ type AuthenticationMFAFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationMFAFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationMFAFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationMFAFailedContextActor the actor who performed the action.
 type AuthenticationMFAFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1653,7 +1736,7 @@ type AuthenticationMFAFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationMFASucceeded represents a authentication mfa succeeded.
+// AuthenticationMFASucceeded represents an authentication mfa succeeded.
 type AuthenticationMFASucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1664,7 +1747,7 @@ type AuthenticationMFASucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationMFASucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1698,9 +1781,6 @@ type AuthenticationMFASucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationMFASucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationMFASucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationMFASucceededContextActor the actor who performed the action.
 type AuthenticationMFASucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1711,7 +1791,7 @@ type AuthenticationMFASucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationOAuthFailed represents a authentication o auth failed.
+// AuthenticationOAuthFailed represents an authentication OAuth failed.
 type AuthenticationOAuthFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1722,7 +1802,7 @@ type AuthenticationOAuthFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationOAuthFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1742,9 +1822,6 @@ type AuthenticationOAuthFailedData struct {
 	Error *AuthenticationOAuthFailedDataError `json:"error"`
 }
 
-// AuthenticationOAuthFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationOAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
-
 // AuthenticationOAuthFailedContext additional context about the event.
 type AuthenticationOAuthFailedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -1761,9 +1838,6 @@ type AuthenticationOAuthFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationOAuthFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationOAuthFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationOAuthFailedContextActor the actor who performed the action.
 type AuthenticationOAuthFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1774,7 +1848,7 @@ type AuthenticationOAuthFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationOAuthSucceeded represents a authentication o auth succeeded.
+// AuthenticationOAuthSucceeded represents an authentication OAuth succeeded.
 type AuthenticationOAuthSucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1785,7 +1859,7 @@ type AuthenticationOAuthSucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationOAuthSucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1819,9 +1893,6 @@ type AuthenticationOAuthSucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationOAuthSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationOAuthSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationOAuthSucceededContextActor the actor who performed the action.
 type AuthenticationOAuthSucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1832,7 +1903,7 @@ type AuthenticationOAuthSucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationPasskeyFailed represents a authentication passkey failed.
+// AuthenticationPasskeyFailed represents an authentication passkey failed.
 type AuthenticationPasskeyFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1843,7 +1914,7 @@ type AuthenticationPasskeyFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationPasskeyFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1863,9 +1934,6 @@ type AuthenticationPasskeyFailedData struct {
 	Error *AuthenticationPasskeyFailedDataError `json:"error"`
 }
 
-// AuthenticationPasskeyFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationPasskeyFailedDataError = AuthenticationEmailVerificationFailedDataError
-
 // AuthenticationPasskeyFailedContext additional context about the event.
 type AuthenticationPasskeyFailedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -1882,9 +1950,6 @@ type AuthenticationPasskeyFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationPasskeyFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationPasskeyFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationPasskeyFailedContextActor the actor who performed the action.
 type AuthenticationPasskeyFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1895,7 +1960,7 @@ type AuthenticationPasskeyFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationPasskeySucceeded represents a authentication passkey succeeded.
+// AuthenticationPasskeySucceeded represents an authentication passkey succeeded.
 type AuthenticationPasskeySucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1906,7 +1971,7 @@ type AuthenticationPasskeySucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationPasskeySucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1940,9 +2005,6 @@ type AuthenticationPasskeySucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationPasskeySucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationPasskeySucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationPasskeySucceededContextActor the actor who performed the action.
 type AuthenticationPasskeySucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -1953,7 +2015,7 @@ type AuthenticationPasskeySucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationPasswordFailed represents a authentication password failed.
+// AuthenticationPasswordFailed represents an authentication password failed.
 type AuthenticationPasswordFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -1964,7 +2026,7 @@ type AuthenticationPasswordFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationPasswordFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -1984,9 +2046,6 @@ type AuthenticationPasswordFailedData struct {
 	Error *AuthenticationPasswordFailedDataError `json:"error"`
 }
 
-// AuthenticationPasswordFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationPasswordFailedDataError = AuthenticationEmailVerificationFailedDataError
-
 // AuthenticationPasswordFailedContext additional context about the event.
 type AuthenticationPasswordFailedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -2003,9 +2062,6 @@ type AuthenticationPasswordFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationPasswordFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationPasswordFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationPasswordFailedContextActor the actor who performed the action.
 type AuthenticationPasswordFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2016,7 +2072,7 @@ type AuthenticationPasswordFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationPasswordSucceeded represents a authentication password succeeded.
+// AuthenticationPasswordSucceeded represents an authentication password succeeded.
 type AuthenticationPasswordSucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2027,7 +2083,7 @@ type AuthenticationPasswordSucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationPasswordSucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2061,9 +2117,6 @@ type AuthenticationPasswordSucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationPasswordSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationPasswordSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationPasswordSucceededContextActor the actor who performed the action.
 type AuthenticationPasswordSucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2074,7 +2127,7 @@ type AuthenticationPasswordSucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationRadarRiskDetected represents a authentication radar risk detected.
+// AuthenticationRadarRiskDetected represents an authentication radar risk detected.
 type AuthenticationRadarRiskDetected struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2085,7 +2138,7 @@ type AuthenticationRadarRiskDetected struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationRadarRiskDetectedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2124,9 +2177,6 @@ type AuthenticationRadarRiskDetectedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationRadarRiskDetectedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationRadarRiskDetectedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationRadarRiskDetectedContextActor the actor who performed the action.
 type AuthenticationRadarRiskDetectedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2137,7 +2187,7 @@ type AuthenticationRadarRiskDetectedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationSSOFailed represents a authentication sso failed.
+// AuthenticationSSOFailed represents an authentication SSO failed.
 type AuthenticationSSOFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2148,7 +2198,7 @@ type AuthenticationSSOFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationSSOFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2180,9 +2230,6 @@ type AuthenticationSSOFailedDataSSO struct {
 	SessionID *string `json:"session_id"`
 }
 
-// AuthenticationSSOFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationSSOFailedDataError = AuthenticationEmailVerificationFailedDataError
-
 // AuthenticationSSOFailedContext additional context about the event.
 type AuthenticationSSOFailedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -2199,9 +2246,6 @@ type AuthenticationSSOFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationSSOFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationSSOFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationSSOFailedContextActor the actor who performed the action.
 type AuthenticationSSOFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2212,7 +2256,7 @@ type AuthenticationSSOFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationSSOStarted represents a authentication sso started.
+// AuthenticationSSOStarted represents an authentication SSO started.
 type AuthenticationSSOStarted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2223,7 +2267,7 @@ type AuthenticationSSOStarted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationSSOStartedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2262,9 +2306,6 @@ type AuthenticationSSOStartedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationSSOStartedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationSSOStartedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationSSOStartedContextActor the actor who performed the action.
 type AuthenticationSSOStartedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2275,7 +2316,7 @@ type AuthenticationSSOStartedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationSSOSucceeded represents a authentication sso succeeded.
+// AuthenticationSSOSucceeded represents an authentication SSO succeeded.
 type AuthenticationSSOSucceeded struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2286,7 +2327,7 @@ type AuthenticationSSOSucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationSSOSucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2325,9 +2366,6 @@ type AuthenticationSSOSucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// AuthenticationSSOSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationSSOSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // AuthenticationSSOSucceededContextActor the actor who performed the action.
 type AuthenticationSSOSucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2338,7 +2376,7 @@ type AuthenticationSSOSucceededContextActor struct {
 	Name *string `json:"name"`
 }
 
-// AuthenticationSSOTimedOut represents a authentication sso timed out.
+// AuthenticationSSOTimedOut represents an authentication SSO timed out.
 type AuthenticationSSOTimedOut struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2349,7 +2387,7 @@ type AuthenticationSSOTimedOut struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *AuthenticationSSOTimedOutContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2374,9 +2412,6 @@ type AuthenticationSSOTimedOutData struct {
 // AuthenticationSSOTimedOutDataSSO is an alias for AuthenticationSSOFailedDataSSO.
 type AuthenticationSSOTimedOutDataSSO = AuthenticationSSOFailedDataSSO
 
-// AuthenticationSSOTimedOutDataError is an alias for AuthenticationEmailVerificationFailedDataError.
-type AuthenticationSSOTimedOutDataError = AuthenticationEmailVerificationFailedDataError
-
 // AuthenticationSSOTimedOutContext additional context about the event.
 type AuthenticationSSOTimedOutContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -2392,9 +2427,6 @@ type AuthenticationSSOTimedOutContext struct {
 	// PreviousAttributes is attributes that changed from their previous values.
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
-
-// AuthenticationSSOTimedOutContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type AuthenticationSSOTimedOutContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
 
 // AuthenticationSSOTimedOutContextActor the actor who performed the action.
 type AuthenticationSSOTimedOutContextActor struct {
@@ -2417,13 +2449,13 @@ type ConnectionActivated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *ConnectionActivatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // ConnectionActivatedData the event payload.
 type ConnectionActivatedData struct {
-	// Object is distinguishes the connection object.
+	// Object distinguishes the connection object.
 	Object string `json:"object"`
 	// ID is unique identifier of the connection.
 	ID string `json:"id"`
@@ -2449,7 +2481,7 @@ type ConnectionActivatedData struct {
 
 // ConnectionActivatedDataDomain represents a connection activated data domain.
 type ConnectionActivatedDataDomain struct {
-	// Object is distinguishes the connection domain object.
+	// Object distinguishes the connection domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the connection domain.
 	ID string `json:"id"`
@@ -2473,9 +2505,6 @@ type ConnectionActivatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ConnectionActivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type ConnectionActivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // ConnectionActivatedContextActor the actor who performed the action.
 type ConnectionActivatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2497,13 +2526,13 @@ type ConnectionDeactivated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *ConnectionDeactivatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // ConnectionDeactivatedData the event payload.
 type ConnectionDeactivatedData struct {
-	// Object is distinguishes the connection object.
+	// Object distinguishes the connection object.
 	Object string `json:"object"`
 	// ID is unique identifier of the connection.
 	ID string `json:"id"`
@@ -2546,9 +2575,6 @@ type ConnectionDeactivatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ConnectionDeactivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type ConnectionDeactivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // ConnectionDeactivatedContextActor the actor who performed the action.
 type ConnectionDeactivatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2570,13 +2596,13 @@ type ConnectionDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *ConnectionDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // ConnectionDeletedData the event payload.
 type ConnectionDeletedData struct {
-	// Object is distinguishes the connection object.
+	// Object distinguishes the connection object.
 	Object string `json:"object"`
 	// ID is unique identifier of the connection.
 	ID string `json:"id"`
@@ -2610,9 +2636,6 @@ type ConnectionDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ConnectionDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type ConnectionDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // ConnectionDeletedContextActor the actor who performed the action.
 type ConnectionDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2623,7 +2646,7 @@ type ConnectionDeletedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// ConnectionSAMLCertificateRenewalRequired represents a connection saml certificate renewal required.
+// ConnectionSAMLCertificateRenewalRequired represents a connection SAML certificate renewal required.
 type ConnectionSAMLCertificateRenewalRequired struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2634,7 +2657,7 @@ type ConnectionSAMLCertificateRenewalRequired struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *ConnectionSAMLCertificateRenewalRequiredContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2682,9 +2705,6 @@ type ConnectionSAMLCertificateRenewalRequiredContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ConnectionSAMLCertificateRenewalRequiredContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type ConnectionSAMLCertificateRenewalRequiredContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // ConnectionSAMLCertificateRenewalRequiredContextActor the actor who performed the action.
 type ConnectionSAMLCertificateRenewalRequiredContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2695,7 +2715,7 @@ type ConnectionSAMLCertificateRenewalRequiredContextActor struct {
 	Name *string `json:"name"`
 }
 
-// ConnectionSAMLCertificateRenewed represents a connection saml certificate renewed.
+// ConnectionSAMLCertificateRenewed represents a connection SAML certificate renewed.
 type ConnectionSAMLCertificateRenewed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -2706,7 +2726,7 @@ type ConnectionSAMLCertificateRenewed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *ConnectionSAMLCertificateRenewedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -2747,9 +2767,6 @@ type ConnectionSAMLCertificateRenewedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// ConnectionSAMLCertificateRenewedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type ConnectionSAMLCertificateRenewedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // ConnectionSAMLCertificateRenewedContextActor the actor who performed the action.
 type ConnectionSAMLCertificateRenewedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2771,13 +2788,13 @@ type DsyncActivated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncActivatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncActivatedData the event payload.
 type DsyncActivatedData struct {
-	// Object is distinguishes the directory object.
+	// Object distinguishes the directory object.
 	Object string `json:"object"`
 	// ID is unique identifier of the directory.
 	ID string `json:"id"`
@@ -2801,7 +2818,7 @@ type DsyncActivatedData struct {
 
 // DsyncActivatedDataDomain represents a dsync activated data domain.
 type DsyncActivatedDataDomain struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -2825,9 +2842,6 @@ type DsyncActivatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncActivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncActivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncActivatedContextActor the actor who performed the action.
 type DsyncActivatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2849,13 +2863,13 @@ type DsyncDeactivated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncDeactivatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncDeactivatedData the event payload.
 type DsyncDeactivatedData struct {
-	// Object is distinguishes the directory object.
+	// Object distinguishes the directory object.
 	Object string `json:"object"`
 	// ID is unique identifier of the directory.
 	ID string `json:"id"`
@@ -2896,9 +2910,6 @@ type DsyncDeactivatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncDeactivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncDeactivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncDeactivatedContextActor the actor who performed the action.
 type DsyncDeactivatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2920,13 +2931,13 @@ type DsyncDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncDeletedData the event payload.
 type DsyncDeletedData struct {
-	// Object is distinguishes the directory object.
+	// Object distinguishes the directory object.
 	Object string `json:"object"`
 	// ID is unique identifier of the directory.
 	ID string `json:"id"`
@@ -2960,9 +2971,6 @@ type DsyncDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncDeletedContextActor the actor who performed the action.
 type DsyncDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -2984,7 +2992,7 @@ type DsyncGroupCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncGroupCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3007,9 +3015,6 @@ type DsyncGroupCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncGroupCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncGroupCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncGroupCreatedContextActor the actor who performed the action.
 type DsyncGroupCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -3031,7 +3036,7 @@ type DsyncGroupDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncGroupDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3054,9 +3059,6 @@ type DsyncGroupDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncGroupDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncGroupDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncGroupDeletedContextActor the actor who performed the action.
 type DsyncGroupDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -3078,13 +3080,13 @@ type DsyncGroupUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncGroupUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncGroupUpdatedData the event payload.
 type DsyncGroupUpdatedData struct {
-	// Object is distinguishes the Directory Group object.
+	// Object distinguishes the Directory Group object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory Group.
 	ID string `json:"id"`
@@ -3121,9 +3123,6 @@ type DsyncGroupUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncGroupUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncGroupUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncGroupUpdatedContextActor the actor who performed the action.
 type DsyncGroupUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -3145,7 +3144,7 @@ type DsyncGroupUserAdded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncGroupUserAddedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3161,7 +3160,7 @@ type DsyncGroupUserAddedData struct {
 
 // DsyncGroupUserAddedDataUser the directory user added to the group.
 type DsyncGroupUserAddedDataUser struct {
-	// Object is distinguishes the Directory User object.
+	// Object distinguishes the Directory User object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory User.
 	ID string `json:"id"`
@@ -3207,11 +3206,14 @@ type DsyncGroupUserAddedDataUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DsyncGroupUserAddedDataUserEmail is an alias for DirectoryUserWithGroupsEmail.
-type DsyncGroupUserAddedDataUserEmail = DirectoryUserWithGroupsEmail
-
-// DsyncGroupUserAddedDataUserRole is an alias for AddRolePermission.
-type DsyncGroupUserAddedDataUserRole = AddRolePermission
+// The following types are structurally identical to DirectoryUserWithGroupsEmail.
+type (
+	DsyncGroupUserAddedDataUserEmail   = DirectoryUserWithGroupsEmail
+	DsyncUserCreatedDataEmail          = DirectoryUserWithGroupsEmail
+	DsyncUserDeletedDataEmail          = DirectoryUserWithGroupsEmail
+	DsyncGroupUserRemovedDataUserEmail = DirectoryUserWithGroupsEmail
+	DsyncUserUpdatedDataEmail          = DirectoryUserWithGroupsEmail
+)
 
 // DsyncGroupUserAddedDataGroup is an alias for DirectoryGroup.
 type DsyncGroupUserAddedDataGroup = DirectoryGroup
@@ -3231,9 +3233,6 @@ type DsyncGroupUserAddedContext struct {
 	// PreviousAttributes is attributes that changed from their previous values.
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
-
-// DsyncGroupUserAddedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncGroupUserAddedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
 
 // DsyncGroupUserAddedContextActor the actor who performed the action.
 type DsyncGroupUserAddedContextActor struct {
@@ -3256,13 +3255,13 @@ type DsyncUserCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncUserCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncUserCreatedData the event payload.
 type DsyncUserCreatedData struct {
-	// Object is distinguishes the Directory User object.
+	// Object distinguishes the Directory User object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory User.
 	ID string `json:"id"`
@@ -3308,12 +3307,6 @@ type DsyncUserCreatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DsyncUserCreatedDataEmail is an alias for DirectoryUserWithGroupsEmail.
-type DsyncUserCreatedDataEmail = DirectoryUserWithGroupsEmail
-
-// DsyncUserCreatedDataRole is an alias for AddRolePermission.
-type DsyncUserCreatedDataRole = AddRolePermission
-
 // DsyncUserCreatedContext additional context about the event.
 type DsyncUserCreatedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -3329,9 +3322,6 @@ type DsyncUserCreatedContext struct {
 	// PreviousAttributes is attributes that changed from their previous values.
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
-
-// DsyncUserCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncUserCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
 
 // DsyncUserCreatedContextActor the actor who performed the action.
 type DsyncUserCreatedContextActor struct {
@@ -3354,13 +3344,13 @@ type DsyncUserDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncUserDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncUserDeletedData the event payload.
 type DsyncUserDeletedData struct {
-	// Object is distinguishes the Directory User object.
+	// Object distinguishes the Directory User object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory User.
 	ID string `json:"id"`
@@ -3406,12 +3396,6 @@ type DsyncUserDeletedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DsyncUserDeletedDataEmail is an alias for DirectoryUserWithGroupsEmail.
-type DsyncUserDeletedDataEmail = DirectoryUserWithGroupsEmail
-
-// DsyncUserDeletedDataRole is an alias for AddRolePermission.
-type DsyncUserDeletedDataRole = AddRolePermission
-
 // DsyncUserDeletedContext additional context about the event.
 type DsyncUserDeletedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -3427,9 +3411,6 @@ type DsyncUserDeletedContext struct {
 	// PreviousAttributes is attributes that changed from their previous values.
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
-
-// DsyncUserDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncUserDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
 
 // DsyncUserDeletedContextActor the actor who performed the action.
 type DsyncUserDeletedContextActor struct {
@@ -3452,7 +3433,7 @@ type DsyncGroupUserRemoved struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncGroupUserRemovedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3468,7 +3449,7 @@ type DsyncGroupUserRemovedData struct {
 
 // DsyncGroupUserRemovedDataUser the directory user removed from the group.
 type DsyncGroupUserRemovedDataUser struct {
-	// Object is distinguishes the Directory User object.
+	// Object distinguishes the Directory User object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory User.
 	ID string `json:"id"`
@@ -3514,12 +3495,6 @@ type DsyncGroupUserRemovedDataUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DsyncGroupUserRemovedDataUserEmail is an alias for DirectoryUserWithGroupsEmail.
-type DsyncGroupUserRemovedDataUserEmail = DirectoryUserWithGroupsEmail
-
-// DsyncGroupUserRemovedDataUserRole is an alias for AddRolePermission.
-type DsyncGroupUserRemovedDataUserRole = AddRolePermission
-
 // DsyncGroupUserRemovedDataGroup is an alias for DirectoryGroup.
 type DsyncGroupUserRemovedDataGroup = DirectoryGroup
 
@@ -3538,9 +3513,6 @@ type DsyncGroupUserRemovedContext struct {
 	// PreviousAttributes is attributes that changed from their previous values.
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
-
-// DsyncGroupUserRemovedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncGroupUserRemovedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
 
 // DsyncGroupUserRemovedContextActor the actor who performed the action.
 type DsyncGroupUserRemovedContextActor struct {
@@ -3563,13 +3535,13 @@ type DsyncUserUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *DsyncUserUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // DsyncUserUpdatedData the event payload.
 type DsyncUserUpdatedData struct {
-	// Object is distinguishes the Directory User object.
+	// Object distinguishes the Directory User object.
 	Object string `json:"object"`
 	// ID is unique identifier for the Directory User.
 	ID string `json:"id"`
@@ -3616,12 +3588,6 @@ type DsyncUserUpdatedData struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncUserUpdatedDataEmail is an alias for DirectoryUserWithGroupsEmail.
-type DsyncUserUpdatedDataEmail = DirectoryUserWithGroupsEmail
-
-// DsyncUserUpdatedDataRole is an alias for AddRolePermission.
-type DsyncUserUpdatedDataRole = AddRolePermission
-
 // DsyncUserUpdatedContext additional context about the event.
 type DsyncUserUpdatedContext struct {
 	// GoogleAnalyticsClientID is the Google Analytics client ID.
@@ -3638,9 +3604,6 @@ type DsyncUserUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// DsyncUserUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type DsyncUserUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // DsyncUserUpdatedContextActor the actor who performed the action.
 type DsyncUserUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -3651,7 +3614,7 @@ type DsyncUserUpdatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// EmailVerificationCreated represents a email verification created.
+// EmailVerificationCreated represents an email verification created.
 type EmailVerificationCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -3662,13 +3625,13 @@ type EmailVerificationCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *EmailVerificationCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // EmailVerificationCreatedData the event payload.
 type EmailVerificationCreatedData struct {
-	// Object is distinguishes the email verification object.
+	// Object distinguishes the email verification object.
 	Object string `json:"object"`
 	// ID is the unique ID of the email verification code.
 	ID string `json:"id"`
@@ -3700,9 +3663,6 @@ type EmailVerificationCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// EmailVerificationCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type EmailVerificationCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // EmailVerificationCreatedContextActor the actor who performed the action.
 type EmailVerificationCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -3724,7 +3684,7 @@ type FlagCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagCreatedContext `json:"context"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3745,7 +3705,7 @@ type FlagCreatedData struct {
 	Owner *FlagCreatedDataOwner `json:"owner"`
 	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
 	Tags []string `json:"tags"`
-	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	// Enabled specifies whether the Feature Flag is active for the current environment.
 	Enabled bool `json:"enabled"`
 	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
 	DefaultValue bool `json:"default_value"`
@@ -3755,8 +3715,14 @@ type FlagCreatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// FlagCreatedDataOwner is an alias for FeatureFlagOwner.
-type FlagCreatedDataOwner = FeatureFlagOwner
+// The following types are structurally identical to FeatureFlagOwner.
+type (
+	FlagCreatedDataOwner     = FeatureFlagOwner
+	FlagDeletedDataOwner     = FeatureFlagOwner
+	FlagRuleUpdatedDataOwner = FeatureFlagOwner
+	FlagUpdatedDataOwner     = FeatureFlagOwner
+	FlagOwner                = FeatureFlagOwner
+)
 
 // FlagCreatedContext additional context about the event.
 type FlagCreatedContext struct {
@@ -3787,7 +3753,7 @@ type FlagDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagDeletedContext `json:"context"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3808,7 +3774,7 @@ type FlagDeletedData struct {
 	Owner *FlagDeletedDataOwner `json:"owner"`
 	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
 	Tags []string `json:"tags"`
-	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	// Enabled specifies whether the Feature Flag is active for the current environment.
 	Enabled bool `json:"enabled"`
 	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
 	DefaultValue bool `json:"default_value"`
@@ -3817,9 +3783,6 @@ type FlagDeletedData struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// FlagDeletedDataOwner is an alias for FeatureFlagOwner.
-type FlagDeletedDataOwner = FeatureFlagOwner
 
 // FlagDeletedContext additional context about the event.
 type FlagDeletedContext struct {
@@ -3850,7 +3813,7 @@ type FlagRuleUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagRuleUpdatedContext `json:"context"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -3871,7 +3834,7 @@ type FlagRuleUpdatedData struct {
 	Owner *FlagRuleUpdatedDataOwner `json:"owner"`
 	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
 	Tags []string `json:"tags"`
-	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	// Enabled specifies whether the Feature Flag is active for the current environment.
 	Enabled bool `json:"enabled"`
 	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
 	DefaultValue bool `json:"default_value"`
@@ -3880,9 +3843,6 @@ type FlagRuleUpdatedData struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// FlagRuleUpdatedDataOwner is an alias for FeatureFlagOwner.
-type FlagRuleUpdatedDataOwner = FeatureFlagOwner
 
 // FlagRuleUpdatedContext additional context about the event.
 type FlagRuleUpdatedContext struct {
@@ -3980,7 +3940,7 @@ type FlagUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagUpdatedContext `json:"context"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -4001,7 +3961,7 @@ type FlagUpdatedData struct {
 	Owner *FlagUpdatedDataOwner `json:"owner"`
 	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
 	Tags []string `json:"tags"`
-	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	// Enabled specifies whether the Feature Flag is active for the current environment.
 	Enabled bool `json:"enabled"`
 	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
 	DefaultValue bool `json:"default_value"`
@@ -4010,9 +3970,6 @@ type FlagUpdatedData struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// FlagUpdatedDataOwner is an alias for FeatureFlagOwner.
-type FlagUpdatedDataOwner = FeatureFlagOwner
 
 // FlagUpdatedContext additional context about the event.
 type FlagUpdatedContext struct {
@@ -4054,7 +4011,7 @@ type FlagUpdatedContextPreviousAttributeData struct {
 	DefaultValue *bool `json:"default_value,omitempty"`
 }
 
-// InvitationAccepted represents a invitation accepted.
+// InvitationAccepted represents an invitation accepted.
 type InvitationAccepted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4065,13 +4022,13 @@ type InvitationAccepted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *InvitationAcceptedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // InvitationAcceptedData the event payload.
 type InvitationAcceptedData struct {
-	// Object is distinguishes the invitation object.
+	// Object distinguishes the invitation object.
 	Object string `json:"object"`
 	// ID is the unique ID of the invitation.
 	ID string `json:"id"`
@@ -4113,9 +4070,6 @@ type InvitationAcceptedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// InvitationAcceptedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type InvitationAcceptedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // InvitationAcceptedContextActor the actor who performed the action.
 type InvitationAcceptedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4126,7 +4080,7 @@ type InvitationAcceptedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// InvitationCreated represents a invitation created.
+// InvitationCreated represents an invitation created.
 type InvitationCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4137,13 +4091,13 @@ type InvitationCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *InvitationCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // InvitationCreatedData the event payload.
 type InvitationCreatedData struct {
-	// Object is distinguishes the invitation object.
+	// Object distinguishes the invitation object.
 	Object string `json:"object"`
 	// ID is the unique ID of the invitation.
 	ID string `json:"id"`
@@ -4185,9 +4139,6 @@ type InvitationCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// InvitationCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type InvitationCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // InvitationCreatedContextActor the actor who performed the action.
 type InvitationCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4198,7 +4149,7 @@ type InvitationCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// InvitationResent represents a invitation resent.
+// InvitationResent represents an invitation resent.
 type InvitationResent struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4209,13 +4160,13 @@ type InvitationResent struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *InvitationResentContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // InvitationResentData the event payload.
 type InvitationResentData struct {
-	// Object is distinguishes the invitation object.
+	// Object distinguishes the invitation object.
 	Object string `json:"object"`
 	// ID is the unique ID of the invitation.
 	ID string `json:"id"`
@@ -4257,9 +4208,6 @@ type InvitationResentContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// InvitationResentContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type InvitationResentContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // InvitationResentContextActor the actor who performed the action.
 type InvitationResentContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4270,7 +4218,7 @@ type InvitationResentContextActor struct {
 	Name *string `json:"name"`
 }
 
-// InvitationRevoked represents a invitation revoked.
+// InvitationRevoked represents an invitation revoked.
 type InvitationRevoked struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4281,13 +4229,13 @@ type InvitationRevoked struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *InvitationRevokedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // InvitationRevokedData the event payload.
 type InvitationRevokedData struct {
-	// Object is distinguishes the invitation object.
+	// Object distinguishes the invitation object.
 	Object string `json:"object"`
 	// ID is the unique ID of the invitation.
 	ID string `json:"id"`
@@ -4329,9 +4277,6 @@ type InvitationRevokedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// InvitationRevokedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type InvitationRevokedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // InvitationRevokedContextActor the actor who performed the action.
 type InvitationRevokedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4353,13 +4298,13 @@ type MagicAuthCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *MagicAuthCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // MagicAuthCreatedData the event payload.
 type MagicAuthCreatedData struct {
-	// Object is distinguishes the Magic Auth object.
+	// Object distinguishes the Magic Auth object.
 	Object string `json:"object"`
 	// ID is the unique ID of the Magic Auth code.
 	ID string `json:"id"`
@@ -4391,9 +4336,6 @@ type MagicAuthCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// MagicAuthCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type MagicAuthCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // MagicAuthCreatedContextActor the actor who performed the action.
 type MagicAuthCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4404,7 +4346,7 @@ type MagicAuthCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationCreated represents a organization created.
+// OrganizationCreated represents an organization created.
 type OrganizationCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4415,13 +4357,13 @@ type OrganizationCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationCreatedData the event payload.
 type OrganizationCreatedData struct {
-	// Object is distinguishes the Organization object.
+	// Object distinguishes the Organization object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Organization.
 	ID string `json:"id"`
@@ -4441,9 +4383,9 @@ type OrganizationCreatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// OrganizationCreatedDataDomain represents a organization created data domain.
+// OrganizationCreatedDataDomain represents an organization created data domain.
 type OrganizationCreatedDataDomain struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4481,9 +4423,6 @@ type OrganizationCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationCreatedContextActor the actor who performed the action.
 type OrganizationCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4494,7 +4433,7 @@ type OrganizationCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationDeleted represents a organization deleted.
+// OrganizationDeleted represents an organization deleted.
 type OrganizationDeleted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4505,13 +4444,13 @@ type OrganizationDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationDeletedData the event payload.
 type OrganizationDeletedData struct {
-	// Object is distinguishes the Organization object.
+	// Object distinguishes the Organization object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Organization.
 	ID string `json:"id"`
@@ -4531,9 +4470,9 @@ type OrganizationDeletedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// OrganizationDeletedDataDomain represents a organization deleted data domain.
+// OrganizationDeletedDataDomain represents an organization deleted data domain.
 type OrganizationDeletedDataDomain struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4571,9 +4510,6 @@ type OrganizationDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationDeletedContextActor the actor who performed the action.
 type OrganizationDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4584,7 +4520,7 @@ type OrganizationDeletedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationDomainCreated represents a organization domain created.
+// OrganizationDomainCreated represents an organization domain created.
 type OrganizationDomainCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4595,13 +4531,13 @@ type OrganizationDomainCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationDomainCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationDomainCreatedData the event payload.
 type OrganizationDomainCreatedData struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4639,9 +4575,6 @@ type OrganizationDomainCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationDomainCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationDomainCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationDomainCreatedContextActor the actor who performed the action.
 type OrganizationDomainCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4652,7 +4585,7 @@ type OrganizationDomainCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationDomainDeleted represents a organization domain deleted.
+// OrganizationDomainDeleted represents an organization domain deleted.
 type OrganizationDomainDeleted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4663,13 +4596,13 @@ type OrganizationDomainDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationDomainDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationDomainDeletedData the event payload.
 type OrganizationDomainDeletedData struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4707,9 +4640,6 @@ type OrganizationDomainDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationDomainDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationDomainDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationDomainDeletedContextActor the actor who performed the action.
 type OrganizationDomainDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4720,7 +4650,7 @@ type OrganizationDomainDeletedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationDomainUpdated represents a organization domain updated.
+// OrganizationDomainUpdated represents an organization domain updated.
 type OrganizationDomainUpdated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4731,13 +4661,13 @@ type OrganizationDomainUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationDomainUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationDomainUpdatedData the event payload.
 type OrganizationDomainUpdatedData struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4775,9 +4705,6 @@ type OrganizationDomainUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationDomainUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationDomainUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationDomainUpdatedContextActor the actor who performed the action.
 type OrganizationDomainUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4788,7 +4715,7 @@ type OrganizationDomainUpdatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationDomainVerificationFailed represents a organization domain verification failed.
+// OrganizationDomainVerificationFailed represents an organization domain verification failed.
 type OrganizationDomainVerificationFailed struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4799,7 +4726,7 @@ type OrganizationDomainVerificationFailed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationDomainVerificationFailedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -4813,7 +4740,7 @@ type OrganizationDomainVerificationFailedData struct {
 
 // OrganizationDomainVerificationFailedDataOrganizationDomain the organization domain that failed verification.
 type OrganizationDomainVerificationFailedDataOrganizationDomain struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4851,9 +4778,6 @@ type OrganizationDomainVerificationFailedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationDomainVerificationFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationDomainVerificationFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationDomainVerificationFailedContextActor the actor who performed the action.
 type OrganizationDomainVerificationFailedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4864,7 +4788,7 @@ type OrganizationDomainVerificationFailedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationDomainVerified represents a organization domain verified.
+// OrganizationDomainVerified represents an organization domain verified.
 type OrganizationDomainVerified struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4875,13 +4799,13 @@ type OrganizationDomainVerified struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationDomainVerifiedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationDomainVerifiedData the event payload.
 type OrganizationDomainVerifiedData struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -4919,9 +4843,6 @@ type OrganizationDomainVerifiedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationDomainVerifiedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationDomainVerifiedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationDomainVerifiedContextActor the actor who performed the action.
 type OrganizationDomainVerifiedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -4932,7 +4853,7 @@ type OrganizationDomainVerifiedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationMembershipCreated represents a organization membership created.
+// OrganizationMembershipCreated represents an organization membership created.
 type OrganizationMembershipCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4943,13 +4864,13 @@ type OrganizationMembershipCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationMembershipCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationMembershipCreatedData the event payload.
 type OrganizationMembershipCreatedData struct {
-	// Object is distinguishes the organization membership object.
+	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization membership.
 	ID string `json:"id"`
@@ -4989,9 +4910,6 @@ type OrganizationMembershipCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationMembershipCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationMembershipCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationMembershipCreatedContextActor the actor who performed the action.
 type OrganizationMembershipCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5002,7 +4920,7 @@ type OrganizationMembershipCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationMembershipDeleted represents a organization membership deleted.
+// OrganizationMembershipDeleted represents an organization membership deleted.
 type OrganizationMembershipDeleted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5013,13 +4931,13 @@ type OrganizationMembershipDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationMembershipDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationMembershipDeletedData the event payload.
 type OrganizationMembershipDeletedData struct {
-	// Object is distinguishes the organization membership object.
+	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization membership.
 	ID string `json:"id"`
@@ -5059,9 +4977,6 @@ type OrganizationMembershipDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationMembershipDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationMembershipDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationMembershipDeletedContextActor the actor who performed the action.
 type OrganizationMembershipDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5072,7 +4987,7 @@ type OrganizationMembershipDeletedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationMembershipUpdated represents a organization membership updated.
+// OrganizationMembershipUpdated represents an organization membership updated.
 type OrganizationMembershipUpdated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5083,13 +4998,13 @@ type OrganizationMembershipUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationMembershipUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationMembershipUpdatedData the event payload.
 type OrganizationMembershipUpdatedData struct {
-	// Object is distinguishes the organization membership object.
+	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization membership.
 	ID string `json:"id"`
@@ -5129,9 +5044,6 @@ type OrganizationMembershipUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationMembershipUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationMembershipUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationMembershipUpdatedContextActor the actor who performed the action.
 type OrganizationMembershipUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5142,7 +5054,7 @@ type OrganizationMembershipUpdatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationRoleCreated represents a organization role created.
+// OrganizationRoleCreated represents an organization role created.
 type OrganizationRoleCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5153,13 +5065,13 @@ type OrganizationRoleCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationRoleCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationRoleCreatedData the event payload.
 type OrganizationRoleCreatedData struct {
-	// Object is distinguishes the organization role object.
+	// Object distinguishes the organization role object.
 	Object string `json:"object"`
 	// OrganizationID is the ID of the organization the role belongs to.
 	OrganizationID string `json:"organization_id"`
@@ -5195,9 +5107,6 @@ type OrganizationRoleCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationRoleCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationRoleCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationRoleCreatedContextActor the actor who performed the action.
 type OrganizationRoleCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5208,7 +5117,7 @@ type OrganizationRoleCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationRoleDeleted represents a organization role deleted.
+// OrganizationRoleDeleted represents an organization role deleted.
 type OrganizationRoleDeleted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5219,7 +5128,7 @@ type OrganizationRoleDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationRoleDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5242,9 +5151,6 @@ type OrganizationRoleDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationRoleDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationRoleDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationRoleDeletedContextActor the actor who performed the action.
 type OrganizationRoleDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5255,7 +5161,7 @@ type OrganizationRoleDeletedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationRoleUpdated represents a organization role updated.
+// OrganizationRoleUpdated represents an organization role updated.
 type OrganizationRoleUpdated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5266,7 +5172,7 @@ type OrganizationRoleUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationRoleUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5289,9 +5195,6 @@ type OrganizationRoleUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationRoleUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationRoleUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationRoleUpdatedContextActor the actor who performed the action.
 type OrganizationRoleUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5302,7 +5205,7 @@ type OrganizationRoleUpdatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// OrganizationUpdated represents a organization updated.
+// OrganizationUpdated represents an organization updated.
 type OrganizationUpdated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5313,13 +5216,13 @@ type OrganizationUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *OrganizationUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // OrganizationUpdatedData the event payload.
 type OrganizationUpdatedData struct {
-	// Object is distinguishes the Organization object.
+	// Object distinguishes the Organization object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Organization.
 	ID string `json:"id"`
@@ -5339,9 +5242,9 @@ type OrganizationUpdatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// OrganizationUpdatedDataDomain represents a organization updated data domain.
+// OrganizationUpdatedDataDomain represents an organization updated data domain.
 type OrganizationUpdatedDataDomain struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -5379,9 +5282,6 @@ type OrganizationUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// OrganizationUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type OrganizationUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // OrganizationUpdatedContextActor the actor who performed the action.
 type OrganizationUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5403,13 +5303,13 @@ type PasswordResetCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *PasswordResetCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // PasswordResetCreatedData the event payload.
 type PasswordResetCreatedData struct {
-	// Object is distinguishes the password reset object.
+	// Object distinguishes the password reset object.
 	Object string `json:"object"`
 	// ID is the unique ID of the password reset object.
 	ID string `json:"id"`
@@ -5439,9 +5339,6 @@ type PasswordResetCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// PasswordResetCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type PasswordResetCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // PasswordResetCreatedContextActor the actor who performed the action.
 type PasswordResetCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5463,7 +5360,7 @@ type PasswordResetSucceeded struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *PasswordResetSucceededContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5486,9 +5383,6 @@ type PasswordResetSucceededContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// PasswordResetSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type PasswordResetSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // PasswordResetSucceededContextActor the actor who performed the action.
 type PasswordResetSucceededContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5510,13 +5404,13 @@ type PermissionCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *PermissionCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // PermissionCreatedData the event payload.
 type PermissionCreatedData struct {
-	// Object is distinguishes the permission object.
+	// Object distinguishes the permission object.
 	Object string `json:"object"`
 	// ID is unique identifier of the permission.
 	ID string `json:"id"`
@@ -5550,9 +5444,6 @@ type PermissionCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// PermissionCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type PermissionCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // PermissionCreatedContextActor the actor who performed the action.
 type PermissionCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5574,7 +5465,7 @@ type PermissionDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *PermissionDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5597,9 +5488,6 @@ type PermissionDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// PermissionDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type PermissionDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // PermissionDeletedContextActor the actor who performed the action.
 type PermissionDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5621,7 +5509,7 @@ type PermissionUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *PermissionUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5644,9 +5532,6 @@ type PermissionUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// PermissionUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type PermissionUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // PermissionUpdatedContextActor the actor who performed the action.
 type PermissionUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5668,13 +5553,13 @@ type RoleCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *RoleCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // RoleCreatedData the event payload.
 type RoleCreatedData struct {
-	// Object is distinguishes the role object.
+	// Object distinguishes the role object.
 	Object string `json:"object"`
 	// Slug is the slug identifier of the role.
 	Slug string `json:"slug"`
@@ -5704,9 +5589,6 @@ type RoleCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// RoleCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type RoleCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // RoleCreatedContextActor the actor who performed the action.
 type RoleCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5728,7 +5610,7 @@ type RoleDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *RoleDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5751,9 +5633,6 @@ type RoleDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// RoleDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type RoleDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // RoleDeletedContextActor the actor who performed the action.
 type RoleDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5775,7 +5654,7 @@ type RoleUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *RoleUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5798,9 +5677,6 @@ type RoleUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// RoleUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type RoleUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // RoleUpdatedContextActor the actor who performed the action.
 type RoleUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5822,13 +5698,13 @@ type SessionCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *SessionCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // SessionCreatedData the event payload.
 type SessionCreatedData struct {
-	// Object is distinguishes the session object.
+	// Object distinguishes the session object.
 	Object string `json:"object"`
 	// ID is the unique ID of the session.
 	ID string `json:"id"`
@@ -5875,9 +5751,6 @@ type SessionCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// SessionCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type SessionCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // SessionCreatedContextActor the actor who performed the action.
 type SessionCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5899,13 +5772,13 @@ type SessionRevoked struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *SessionRevokedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
 // SessionRevokedData the event payload.
 type SessionRevokedData struct {
-	// Object is distinguishes the session object.
+	// Object distinguishes the session object.
 	Object string `json:"object"`
 	// ID is the unique ID of the session.
 	ID string `json:"id"`
@@ -5952,9 +5825,6 @@ type SessionRevokedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// SessionRevokedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type SessionRevokedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // SessionRevokedContextActor the actor who performed the action.
 type SessionRevokedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -5965,7 +5835,7 @@ type SessionRevokedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// UserCreated represents a user created.
+// UserCreated represents an user created.
 type UserCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -5976,7 +5846,7 @@ type UserCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *UserCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -5999,9 +5869,6 @@ type UserCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// UserCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type UserCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // UserCreatedContextActor the actor who performed the action.
 type UserCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6012,7 +5879,7 @@ type UserCreatedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// UserDeleted represents a user deleted.
+// UserDeleted represents an user deleted.
 type UserDeleted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -6023,7 +5890,7 @@ type UserDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *UserDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6046,9 +5913,6 @@ type UserDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// UserDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type UserDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // UserDeletedContextActor the actor who performed the action.
 type UserDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6059,7 +5923,7 @@ type UserDeletedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// UserUpdated represents a user updated.
+// UserUpdated represents an user updated.
 type UserUpdated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -6070,7 +5934,7 @@ type UserUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *UserUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6093,9 +5957,6 @@ type UserUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// UserUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type UserUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // UserUpdatedContextActor the actor who performed the action.
 type UserUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6117,7 +5978,7 @@ type VaultByokKeyVerificationCompleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultByokKeyVerificationCompletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6147,9 +6008,6 @@ type VaultByokKeyVerificationCompletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultByokKeyVerificationCompletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultByokKeyVerificationCompletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultByokKeyVerificationCompletedContextActor the actor who performed the action.
 type VaultByokKeyVerificationCompletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6171,7 +6029,7 @@ type VaultDataCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultDataCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6205,9 +6063,6 @@ type VaultDataCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultDataCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultDataCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultDataCreatedContextActor the actor who performed the action.
 type VaultDataCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6229,7 +6084,7 @@ type VaultDataDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultDataDeletedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6260,9 +6115,6 @@ type VaultDataDeletedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultDataDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultDataDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultDataDeletedContextActor the actor who performed the action.
 type VaultDataDeletedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6284,7 +6136,7 @@ type VaultDataRead struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultDataReadContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6317,9 +6169,6 @@ type VaultDataReadContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultDataReadContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultDataReadContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultDataReadContextActor the actor who performed the action.
 type VaultDataReadContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6341,7 +6190,7 @@ type VaultDataUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultDataUpdatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6375,9 +6224,6 @@ type VaultDataUpdatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultDataUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultDataUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultDataUpdatedContextActor the actor who performed the action.
 type VaultDataUpdatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6399,7 +6245,7 @@ type VaultDekDecrypted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultDekDecryptedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6430,9 +6276,6 @@ type VaultDekDecryptedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultDekDecryptedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultDekDecryptedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultDekDecryptedContextActor the actor who performed the action.
 type VaultDekDecryptedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6454,7 +6297,7 @@ type VaultDekRead struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultDekReadContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6486,9 +6329,6 @@ type VaultDekReadContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultDekReadContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultDekReadContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultDekReadContextActor the actor who performed the action.
 type VaultDekReadContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6510,7 +6350,7 @@ type VaultKekCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultKekCreatedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6543,9 +6383,6 @@ type VaultKekCreatedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultKekCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultKekCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultKekCreatedContextActor the actor who performed the action.
 type VaultKekCreatedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6567,7 +6404,7 @@ type VaultMetadataRead struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultMetadataReadContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6598,9 +6435,6 @@ type VaultMetadataReadContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultMetadataReadContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultMetadataReadContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultMetadataReadContextActor the actor who performed the action.
 type VaultMetadataReadContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6622,7 +6456,7 @@ type VaultNamesListed struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *VaultNamesListedContext `json:"context,omitempty"`
-	// Object is distinguishes the Event object.
+	// Object distinguishes the Event object.
 	Object string `json:"object"`
 }
 
@@ -6651,9 +6485,6 @@ type VaultNamesListedContext struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
-// VaultNamesListedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
-type VaultNamesListedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
-
 // VaultNamesListedContextActor the actor who performed the action.
 type VaultNamesListedContextActor struct {
 	// ID is unique identifier of the actor.
@@ -6664,7 +6495,7 @@ type VaultNamesListedContextActor struct {
 	Name *string `json:"name"`
 }
 
-// JWTTemplateResponse represents a jwt template response.
+// JWTTemplateResponse represents a JWT template response.
 type JWTTemplateResponse struct {
 	// Object is the object type.
 	Object string `json:"object"`
@@ -6676,9 +6507,9 @@ type JWTTemplateResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// OrganizationDomainStandAlone represents a organization domain stand alone.
+// OrganizationDomainStandAlone represents an organization domain stand alone.
 type OrganizationDomainStandAlone struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -6702,7 +6533,7 @@ type OrganizationDomainStandAlone struct {
 
 // Flag represents a flag.
 type Flag struct {
-	// Object is distinguishes the Feature Flag object.
+	// Object distinguishes the Feature Flag object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Feature Flag.
 	ID string `json:"id"`
@@ -6716,7 +6547,7 @@ type Flag struct {
 	Owner *FlagOwner `json:"owner"`
 	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
 	Tags []string `json:"tags"`
-	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	// Enabled specifies whether the Feature Flag is active for the current environment.
 	Enabled bool `json:"enabled"`
 	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
 	DefaultValue bool `json:"default_value"`
@@ -6726,9 +6557,9 @@ type Flag struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyWithValue represents a api key with value.
+// APIKeyWithValue represents an api key with value.
 type APIKeyWithValue struct {
-	// Object is distinguishes the API Key object.
+	// Object distinguishes the API Key object.
 	Object string `json:"object"`
 	// ID is unique identifier of the API Key.
 	ID string `json:"id"`
@@ -6750,9 +6581,9 @@ type APIKeyWithValue struct {
 	Value string `json:"value"`
 }
 
-// Organization represents a organization.
+// Organization represents an organization.
 type Organization struct {
-	// Object is distinguishes the Organization object.
+	// Object distinguishes the Organization object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Organization.
 	ID string `json:"id"`
@@ -6776,7 +6607,7 @@ type Organization struct {
 	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
 }
 
-// AuditLogConfiguration represents a audit log configuration.
+// AuditLogConfiguration represents an audit log configuration.
 type AuditLogConfiguration struct {
 	// OrganizationID is unique identifier of the Organization.
 	OrganizationID string `json:"organization_id"`
@@ -6796,11 +6627,18 @@ type DataIntegrationAuthorizeURLResponse struct {
 
 // DataIntegrationAccessTokenResponse represents a data integration access token response.
 type DataIntegrationAccessTokenResponse struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active *bool `json:"active,omitempty"`
+	// AccessToken is the [access token](/reference/pipes/access-token) object, present when `active` is `true`.
+	AccessToken *interface{} `json:"access_token,omitempty"`
+	// Error is - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error *string `json:"error,omitempty"`
 }
 
 // ConnectedAccount represents a connected account.
 type ConnectedAccount struct {
-	// Object is distinguishes the connected account object.
+	// Object distinguishes the connected account object.
 	Object string `json:"object"`
 	// ID is the unique identifier of the connected account.
 	ID string `json:"id"`
@@ -6823,7 +6661,7 @@ type ConnectedAccount struct {
 
 // DataIntegrationsListResponse represents a data integrations list response.
 type DataIntegrationsListResponse struct {
-	// Object is indicates this is a list response.
+	// Object indicates this is a list response.
 	Object string `json:"object"`
 	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including a [`connected_account`](https://workos.com/docs/reference/pipes/connected-account) field with the user's connection status.
 	Data []*DataIntegrationsListResponseData `json:"data"`
@@ -6871,7 +6709,7 @@ type RedirectURI struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// UserAuthenticationFactorEnrollResponse represents a user authentication factor enroll response.
+// UserAuthenticationFactorEnrollResponse represents an user authentication factor enroll response.
 type UserAuthenticationFactorEnrollResponse struct {
 	// AuthenticationFactor is the [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor) object that represents the additional authentication method used on top of the existing authentication strategy.
 	AuthenticationFactor *AuthenticationFactorEnrolled `json:"authentication_factor"`
@@ -6881,7 +6719,7 @@ type UserAuthenticationFactorEnrollResponse struct {
 
 // MagicAuth represents a magic auth.
 type MagicAuth struct {
-	// Object is distinguishes the Magic Auth object.
+	// Object distinguishes the Magic Auth object.
 	Object string `json:"object"`
 	// ID is the unique ID of the Magic Auth code.
 	ID string `json:"id"`
@@ -6899,9 +6737,9 @@ type MagicAuth struct {
 	Code string `json:"code"`
 }
 
-// UserInvite represents a user invite.
+// UserInvite represents an user invite.
 type UserInvite struct {
-	// Object is distinguishes the invitation object.
+	// Object distinguishes the invitation object.
 	Object string `json:"object"`
 	// ID is the unique ID of the invitation.
 	ID string `json:"id"`
@@ -6931,9 +6769,9 @@ type UserInvite struct {
 	AcceptInvitationURL string `json:"accept_invitation_url"`
 }
 
-// UserOrganizationMembership represents a user organization membership.
+// UserOrganizationMembership represents an user organization membership.
 type UserOrganizationMembership struct {
-	// Object is distinguishes the organization membership object.
+	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
 	// ID is the unique ID of the organization membership.
 	ID string `json:"id"`
@@ -6960,9 +6798,9 @@ type UserOrganizationMembership struct {
 // User is an alias for EmailChangeConfirmationUser.
 type User = EmailChangeConfirmationUser
 
-// EmailVerification represents a email verification.
+// EmailVerification represents an email verification.
 type EmailVerification struct {
-	// Object is distinguishes the email verification object.
+	// Object distinguishes the email verification object.
 	Object string `json:"object"`
 	// ID is the unique ID of the email verification code.
 	ID string `json:"id"`
@@ -6988,7 +6826,7 @@ type VerifyEmailResponse = ResetPasswordResponse
 
 // PasswordReset represents a password reset.
 type PasswordReset struct {
-	// Object is distinguishes the password reset object.
+	// Object distinguishes the password reset object.
 	Object string `json:"object"`
 	// ID is the unique ID of the password reset object.
 	ID string `json:"id"`
@@ -7012,9 +6850,9 @@ type ResetPasswordResponse struct {
 	User *User `json:"user"`
 }
 
-// EmailChange represents a email change.
+// EmailChange represents an email change.
 type EmailChange struct {
-	// Object is distinguishes the email change object.
+	// Object distinguishes the email change object.
 	Object string `json:"object"`
 	User   *User  `json:"user"`
 	// NewEmail is the new email address the user is changing to.
@@ -7025,7 +6863,7 @@ type EmailChange struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// AuthenticateResponse represents a authenticate response.
+// AuthenticateResponse represents an authenticate response.
 type AuthenticateResponse struct {
 	// User is the corresponding [user](https://workos.com/docs/reference/authkit/user) object.
 	User *User `json:"user"`
@@ -7063,7 +6901,7 @@ type DeviceAuthorizationResponse struct {
 
 // WebhookEndpointJSON represents a webhook endpoint json.
 type WebhookEndpointJSON struct {
-	// Object is distinguishes the Webhook Endpoint object.
+	// Object distinguishes the Webhook Endpoint object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Webhook Endpoint.
 	ID string `json:"id"`
@@ -7087,7 +6925,7 @@ type WidgetSessionTokenResponse struct {
 	Token string `json:"token"`
 }
 
-// SSOAuthorizeURLResponse represents a sso authorize url response.
+// SSOAuthorizeURLResponse represents a SSOauth_acr norize url response.
 type SSOAuthorizeURLResponse struct {
 	// URL is an OAuth 2.0 authorization URL.
 	URL string `json:"url"`
@@ -7095,7 +6933,7 @@ type SSOAuthorizeURLResponse struct {
 
 // Profile represents a profile.
 type Profile struct {
-	// Object is distinguishes the profile object.
+	// Object distinguishes the profile object.
 	Object string `json:"object"`
 	// ID is unique identifier of the profile.
 	ID string `json:"id"`
@@ -7125,7 +6963,7 @@ type Profile struct {
 	RawAttributes map[string]interface{} `json:"raw_attributes"`
 }
 
-// SSOTokenResponse represents a sso token response.
+// SSOTokenResponse represents a SSO token response.
 type SSOTokenResponse struct {
 	// TokenType is the type of token issued.
 	TokenType string `json:"token_type"`
@@ -7139,7 +6977,7 @@ type SSOTokenResponse struct {
 	OAuthTokens *SSOTokenResponseOAuthToken `json:"oauth_tokens,omitempty"`
 }
 
-// SSOLogoutAuthorizeResponse represents a sso logout authorize response.
+// SSOLogoutAuthorizeResponse represents a SSO logout authorize response.
 type SSOLogoutAuthorizeResponse struct {
 	// LogoutURL is the URL to redirect the user to in order to log out ([Logout Redirect](https://workos.com/docs/reference/sso/logout) endpoint ready to use).
 	LogoutURL string `json:"logout_url"`
@@ -7200,7 +7038,7 @@ type AuthenticateResponseOAuthToken struct {
 
 // DataIntegrationsListResponseData represents a data integrations list response data.
 type DataIntegrationsListResponseData struct {
-	// Object is distinguishes the data provider object.
+	// Object distinguishes the data provider object.
 	Object string `json:"object"`
 	// ID is the unique identifier of the provider.
 	ID string `json:"id"`
@@ -7240,9 +7078,9 @@ type AuditLogConfigurationLogStream struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// OrganizationDomain represents a organization domain.
+// OrganizationDomain represents an organization domain.
 type OrganizationDomain struct {
-	// Object is distinguishes the organization domain object.
+	// Object distinguishes the organization domain object.
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
@@ -7266,9 +7104,6 @@ type OrganizationDomain struct {
 
 // APIKeyWithValueOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyWithValueOwner = APIKeyCreatedDataOwner
-
-// FlagOwner is an alias for FeatureFlagOwner.
-type FlagOwner = FeatureFlagOwner
 
 // EventListListMetadata pagination cursor for navigating to the next page of results.
 type EventListListMetadata struct {
@@ -7303,9 +7138,9 @@ type ConnectionOption struct {
 	SigningCert *string `json:"signing_cert"`
 }
 
-// UserOrganizationMembershipBaseListData represents a user organization membership base list data.
+// UserOrganizationMembershipBaseListData represents an user organization membership base list data.
 type UserOrganizationMembershipBaseListData struct {
-	// Object is distinguishes the organization membership object.
+	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
 	// ID is the unique ID of the organization membership.
 	ID string `json:"id"`
@@ -7371,7 +7206,7 @@ type AuthenticationFactorEnrolledTOTP struct {
 // AuditLogSchemaJSONActor is an alias for AuditLogSchemaActor.
 type AuditLogSchemaJSONActor = AuditLogSchemaActor
 
-// AuditLogSchemaJSONTarget represents a audit log schema json target.
+// AuditLogSchemaJSONTarget represents an audit log schema json target.
 type AuditLogSchemaJSONTarget struct {
 	// Type is the type of the target resource.
 	Type string `json:"type"`
@@ -7379,9 +7214,9 @@ type AuditLogSchemaJSONTarget struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// AuthorizedConnectApplicationListData represents a authorized connect application list data.
+// AuthorizedConnectApplicationListData represents an authorized connect application list data.
 type AuthorizedConnectApplicationListData struct {
-	// Object is distinguishes the authorized connect application object.
+	// Object distinguishes the authorized connect application object.
 	Object string `json:"object"`
 	// ID is the unique ID of the authorized connect application.
 	ID string `json:"id"`
@@ -7393,7 +7228,7 @@ type AuthorizedConnectApplicationListData struct {
 // APIKeyOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyOwner = APIKeyCreatedDataOwner
 
-// UserConsentOptionChoice represents a user consent option choice.
+// UserConsentOptionChoice represents an user consent option choice.
 type UserConsentOptionChoice struct {
 	// Value is the value of this choice.
 	Value *string `json:"value,omitempty"`
@@ -7401,13 +7236,13 @@ type UserConsentOptionChoice struct {
 	Label *string `json:"label,omitempty"`
 }
 
-// AuthenticationChallengesVerifyRequest represents a authentication challenges verify request.
+// AuthenticationChallengesVerifyRequest represents an authentication challenges verify request.
 type AuthenticationChallengesVerifyRequest struct {
 	// Code is the one-time code to verify.
 	Code string `json:"code"`
 }
 
-// AuthenticationFactorsCreateRequest represents a authentication factors create request.
+// AuthenticationFactorsCreateRequest represents an authentication factors create request.
 type AuthenticationFactorsCreateRequest struct {
 	// Type is the type of factor to enroll.
 	Type AuthenticationFactorsCreateRequestType `json:"type"`
@@ -7432,7 +7267,7 @@ type List struct {
 type ListData struct {
 	// Slug is a unique slug for the role.
 	Slug string `json:"slug"`
-	// Object is distinguishes the role object.
+	// Object distinguishes the role object.
 	Object string `json:"object"`
 	// ID is unique identifier of the role.
 	ID string `json:"id"`
@@ -7455,9 +7290,9 @@ type ListData struct {
 // Permission is an alias for AuthorizationPermission.
 type Permission = AuthorizationPermission
 
-// ApplicationCredentialsListItem represents a application credentials list item.
+// ApplicationCredentialsListItem represents an application credentials list item.
 type ApplicationCredentialsListItem struct {
-	// Object is distinguishes the connect application secret object.
+	// Object distinguishes the connect application secret object.
 	Object string `json:"object"`
 	// ID is the unique ID of the client secret.
 	ID string `json:"id"`
@@ -7491,7 +7326,7 @@ type DataIntegrationsGetUserTokenRequest struct {
 
 // FeatureFlag represents a feature flag.
 type FeatureFlag struct {
-	// Object is distinguishes the Feature Flag object.
+	// Object distinguishes the Feature Flag object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Feature Flag.
 	ID string `json:"id"`
@@ -7505,7 +7340,7 @@ type FeatureFlag struct {
 	Owner *FeatureFlagOwner `json:"owner"`
 	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
 	Tags []string `json:"tags"`
-	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	// Enabled specifies whether the Feature Flag is active for the current environment.
 	Enabled bool `json:"enabled"`
 	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
 	DefaultValue bool `json:"default_value"`
@@ -7560,13 +7395,13 @@ type RadarStandaloneDeleteRadarListEntryRequest struct {
 	Entry string `json:"entry"`
 }
 
-// SSOLogoutAuthorizeRequest represents a sso logout authorize request.
+// SSOLogoutAuthorizeRequest represents a SSO logout authorize request.
 type SSOLogoutAuthorizeRequest struct {
 	// ProfileID is the unique ID of the profile to log out.
 	ProfileID string `json:"profile_id"`
 }
 
-// AuthorizationCodeSessionAuthenticateRequest represents a authorization code session authenticate request.
+// AuthorizationCodeSessionAuthenticateRequest represents an authorization code session authenticate request.
 type AuthorizationCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -7623,7 +7458,7 @@ type RefreshTokenSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// MagicAuthCodeSessionAuthenticateRequest represents a urn workos o auth grant type magic auth code session authenticate request.
+// MagicAuthCodeSessionAuthenticateRequest represents an urn workos OAuth grant type magic auth code session authenticate request.
 type MagicAuthCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -7644,7 +7479,7 @@ type MagicAuthCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// EmailVerificationCodeSessionAuthenticateRequest represents a urn workos o auth grant type email verification code session authenticate request.
+// EmailVerificationCodeSessionAuthenticateRequest represents an urn workos OAuth grant type email verification code session authenticate request.
 type EmailVerificationCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -7663,7 +7498,7 @@ type EmailVerificationCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// MFATOTPSessionAuthenticateRequest represents a urn workos o auth grant type mfa totp session authenticate request.
+// MFATOTPSessionAuthenticateRequest represents an urn workos OAuth grant type mfa totp session authenticate request.
 type MFATOTPSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -7684,7 +7519,7 @@ type MFATOTPSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// OrganizationSelectionSessionAuthenticateRequest represents a urn workos o auth grant type organization selection session authenticate request.
+// OrganizationSelectionSessionAuthenticateRequest represents an urn workos OAuth grant type organization selection session authenticate request.
 type OrganizationSelectionSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -7703,7 +7538,7 @@ type OrganizationSelectionSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// DeviceCodeSessionAuthenticateRequest represents a urn ietf params o auth grant type device code session authenticate request.
+// DeviceCodeSessionAuthenticateRequest represents an urn ietf params OAuth grant type device code session authenticate request.
 type DeviceCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID  string `json:"client_id"`
@@ -7718,15 +7553,15 @@ type DeviceCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// SSODeviceAuthorizationRequest represents a sso device authorization request.
+// SSODeviceAuthorizationRequest represents a SSO device authorization request.
 type SSODeviceAuthorizationRequest struct {
 	// ClientID is the WorkOS client ID for your application.
 	ClientID string `json:"client_id"`
 }
 
-// Invitation represents a invitation.
+// Invitation represents an invitation.
 type Invitation struct {
-	// Object is distinguishes the invitation object.
+	// Object distinguishes the invitation object.
 	Object string `json:"object"`
 	// ID is the unique ID of the invitation.
 	ID string `json:"id"`
@@ -7756,9 +7591,9 @@ type Invitation struct {
 	AcceptInvitationURL string `json:"accept_invitation_url"`
 }
 
-// OrganizationMembership represents a organization membership.
+// OrganizationMembership represents an organization membership.
 type OrganizationMembership struct {
-	// Object is distinguishes the organization membership object.
+	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
 	// ID is the unique ID of the organization membership.
 	ID string `json:"id"`
@@ -7782,9 +7617,9 @@ type OrganizationMembership struct {
 	Role *SlimRole `json:"role"`
 }
 
-// EmailChangeConfirmation represents a email change confirmation.
+// EmailChangeConfirmation represents an email change confirmation.
 type EmailChangeConfirmation struct {
-	// Object is distinguishes the email change confirmation object.
+	// Object distinguishes the email change confirmation object.
 	Object string `json:"object"`
 	// User is the user object.
 	User *EmailChangeConfirmationUser `json:"user"`
@@ -7792,7 +7627,7 @@ type EmailChangeConfirmation struct {
 
 // EmailChangeConfirmationUser the user object.
 type EmailChangeConfirmationUser struct {
-	// Object is distinguishes the user object.
+	// Object distinguishes the user object.
 	Object string `json:"object"`
 	// ID is the unique ID of the user.
 	ID string `json:"id"`
@@ -7820,7 +7655,7 @@ type EmailChangeConfirmationUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// UserIdentitiesGetItem represents a user identities get item.
+// UserIdentitiesGetItem represents an user identities get item.
 type UserIdentitiesGetItem struct {
 	// IdpID is the unique ID of the user in the external identity provider.
 	IdpID string `json:"idp_id"`
@@ -7830,9 +7665,9 @@ type UserIdentitiesGetItem struct {
 	Provider UserIdentitiesGetItemProvider `json:"provider"`
 }
 
-// UserSessionsListItem represents a user sessions list item.
+// UserSessionsListItem represents an user sessions list item.
 type UserSessionsListItem struct {
-	// Object is distinguishes the session object.
+	// Object distinguishes the session object.
 	Object string `json:"object"`
 	// ID is the unique ID of the session.
 	ID string `json:"id"`
@@ -7873,7 +7708,7 @@ type DirectoryMetadataUser struct {
 
 // DataIntegrationsListResponseDataConnectedAccount represents a data integrations list response data connected account.
 type DataIntegrationsListResponseDataConnectedAccount struct {
-	// Object is distinguishes the connected account object.
+	// Object distinguishes the connected account object.
 	Object string `json:"object"`
 	// ID is the unique identifier of the connected account.
 	ID string `json:"id"`
@@ -7894,6 +7729,18 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	UpdatedAt string `json:"updated_at"`
 	// UserlandUserID is use `user_id` instead.
 	//
-	// Deprecated: this field is deprecated.
+	// Deprecated: Use `user_id` instead.
 	UserlandUserID *string `json:"userlandUserId"`
+}
+
+// PaginationParams contains common pagination parameters for list operations.
+type PaginationParams struct {
+	// Before is a cursor for reverse pagination.
+	Before *string `url:"before,omitempty" json:"-"`
+	// After is a cursor for forward pagination.
+	After *string `url:"after,omitempty" json:"-"`
+	// Limit is the maximum number of items to return per page.
+	Limit *int `url:"limit,omitempty" json:"-"`
+	// Order is the sort order for results (asc or desc).
+	Order *string `url:"order,omitempty" json:"-"`
 }

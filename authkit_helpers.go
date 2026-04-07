@@ -27,7 +27,7 @@ type AuthKitAuthorizationURLParams struct {
 	ScreenHint          *string
 }
 
-// GetAuthKitAuthorizationURL builds an AuthKit authorization URL (H09).
+// GetAuthKitAuthorizationURL builds an AuthKit authorization URL.
 // This is a helper that constructs the URL client-side without making an HTTP request.
 func (c *Client) GetAuthKitAuthorizationURL(params AuthKitAuthorizationURLParams) (string, error) {
 	clientID := params.ClientID
@@ -95,7 +95,7 @@ type AuthKitPKCEAuthorizationURLResult struct {
 	State        string
 }
 
-// GetAuthKitPKCEAuthorizationURL generates PKCE parameters and builds an AuthKit authorization URL (H10).
+// GetAuthKitPKCEAuthorizationURL generates PKCE parameters and builds an AuthKit authorization URL.
 func (c *Client) GetAuthKitPKCEAuthorizationURL(params AuthKitAuthorizationURLParams) (*AuthKitPKCEAuthorizationURLResult, error) {
 	pair, err := GeneratePKCEPair()
 	if err != nil {
@@ -136,7 +136,7 @@ type AuthKitPKCECodeExchangeParams struct {
 	CodeVerifier string
 }
 
-// AuthKitPKCECodeExchange exchanges an authorization code with a code verifier (H11).
+// AuthKitPKCECodeExchange exchanges an authorization code with a code verifier.
 // This calls the authenticate endpoint with the code_verifier parameter.
 func (c *Client) AuthKitPKCECodeExchange(ctx context.Context, params AuthKitPKCECodeExchangeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	clientID := c.clientID
@@ -160,14 +160,14 @@ func (c *Client) AuthKitPKCECodeExchange(ctx context.Context, params AuthKitPKCE
 	return &result, nil
 }
 
-// AuthKitStartDeviceAuthorization initiates a device authorization flow (H12, part 1).
+// AuthKitStartDeviceAuthorization initiates a device authorization flow (part 1).
 func (c *Client) AuthKitStartDeviceAuthorization(ctx context.Context, opts ...RequestOption) (*DeviceAuthorizationResponse, error) {
 	return c.UserManagement().CreateDevice(ctx, &UserManagementCreateDeviceParams{
 		ClientID: c.clientID,
 	}, opts...)
 }
 
-// AuthKitPollDeviceCode polls for device code completion (H12, part 2).
+// AuthKitPollDeviceCode polls for device code completion (part 2).
 // Returns the authentication response once the user completes authorization.
 // This method blocks until authorization completes, an error occurs, or the context is cancelled.
 func (c *Client) AuthKitPollDeviceCode(ctx context.Context, deviceCode string, interval int, opts ...RequestOption) (*AuthenticateResponse, error) {

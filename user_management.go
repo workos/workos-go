@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 )
 
 // userManagementService handles UserManagement operations.
@@ -311,7 +312,7 @@ type UserManagementGetAuthorizationURLParams struct {
 	LoginHint *string `url:"login_hint,omitempty" json:"-"`
 	// Provider is the OAuth provider to authenticate with (e.g., GoogleOAuth, MicrosoftOAuth, GitHubOAuth).
 	Provider *UserManagementAuthenticationProvider `url:"provider,omitempty" json:"-"`
-	// Prompt is controls the authentication flow behavior for the user.
+	// Prompt controls the authentication flow behavior for the user.
 	Prompt *string `url:"prompt,omitempty" json:"-"`
 	// State is an opaque value used to maintain state between the request and the callback.
 	State *string `url:"state,omitempty" json:"-"`
@@ -342,10 +343,12 @@ func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params 
 		query.Set("connection_id", *params.ConnectionID)
 	}
 	if params.ProviderQueryParams != nil {
-		query.Set("provider_query_params", fmt.Sprintf("%v", params.ProviderQueryParams))
+		for k, v := range params.ProviderQueryParams {
+			query.Set(fmt.Sprintf("provider_query_params[%s]", k), fmt.Sprintf("%v", v))
+		}
 	}
 	if params.ProviderScopes != nil {
-		query.Set("provider_scopes", fmt.Sprintf("%v", params.ProviderScopes))
+		query.Set("provider_scopes", strings.Join(params.ProviderScopes, ","))
 	}
 	if params.InvitationToken != nil {
 		query.Set("invitation_token", *params.InvitationToken)
@@ -497,16 +500,7 @@ func (s *userManagementService) GetPasswordReset(ctx context.Context, id string,
 
 // UserManagementListParams contains the parameters for List.
 type UserManagementListParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// Organization is filter users by the organization they are a member of. Deprecated in favor of `organization_id`.
 	//
 	// Deprecated: this parameter is deprecated.
@@ -695,16 +689,7 @@ func (s *userManagementService) ListIdentities(ctx context.Context, id string, o
 
 // UserManagementListSessionsParams contains the parameters for ListSessions.
 type UserManagementListSessionsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListSessions list sessions
@@ -715,16 +700,7 @@ func (s *userManagementService) ListSessions(ctx context.Context, id string, par
 
 // UserManagementListInvitationsParams contains the parameters for ListInvitations.
 type UserManagementListInvitationsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *UserManagementInvitationsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// Email is the email address of the recipient.
@@ -874,16 +850,7 @@ func (s *userManagementService) GetMagicAuth(ctx context.Context, id string, opt
 
 // UserManagementListOrganizationMembershipsParams contains the parameters for ListOrganizationMemberships.
 type UserManagementListOrganizationMembershipsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *UserManagementOrganizationMembershipOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// Statuses is filter by the status of the organization membership. Array including any of `active`, `inactive`, or `pending`.
@@ -1006,16 +973,7 @@ func (s *userManagementService) CreateRedirectURIs(ctx context.Context, params *
 
 // UserManagementListAuthorizedApplicationsParams contains the parameters for ListAuthorizedApplications.
 type UserManagementListAuthorizedApplicationsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *UserManagementUsersAuthorizedApplicationsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListAuthorizedApplications list authorized applications

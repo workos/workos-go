@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestAdminPortal_GenerateLink(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/portal/generate_link", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/portal_link_response.json")
@@ -31,7 +36,7 @@ func TestAdminPortal_GenerateLink(t *testing.T) {
 	result, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.Link)
+	require.Equal(t, "https://setup.workos.com?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", result.Link)
 }
 
 func TestAdminPortal_Error401(t *testing.T) {
@@ -45,4 +50,30 @@ func TestAdminPortal_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestAdminPortal_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestAdminPortal_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

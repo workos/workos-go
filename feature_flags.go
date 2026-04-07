@@ -14,16 +14,7 @@ type featureFlagService struct {
 
 // FeatureFlagsListParams contains the parameters for List.
 type FeatureFlagsListParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *FeatureFlagsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // List list feature flags
@@ -81,16 +72,7 @@ func (s *featureFlagService) DeleteTarget(ctx context.Context, slug string, reso
 
 // FeatureFlagsListOrganizationFeatureFlagsParams contains the parameters for ListOrganizationFeatureFlags.
 type FeatureFlagsListOrganizationFeatureFlagsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *OrganizationsFeatureFlagsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListOrganizationFeatureFlags list enabled feature flags for an organization
@@ -101,16 +83,7 @@ func (s *featureFlagService) ListOrganizationFeatureFlags(ctx context.Context, o
 
 // FeatureFlagsListUserFeatureFlagsParams contains the parameters for ListUserFeatureFlags.
 type FeatureFlagsListUserFeatureFlagsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *UserManagementUsersFeatureFlagsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListUserFeatureFlags list enabled feature flags for a user

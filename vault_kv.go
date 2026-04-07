@@ -19,19 +19,28 @@ func (c *Client) Vault() *vaultService {
 
 // KeyContext describes the encryption context for a vault key.
 type KeyContext struct {
-	Type          string `json:"type"`
+	// Type is the key context type (e.g., "environment").
+	Type string `json:"type"`
+	// EnvironmentID is the WorkOS environment ID this key is scoped to.
 	EnvironmentID string `json:"environment_id"`
 }
 
 // ObjectMetadata contains metadata about a vault object.
 type ObjectMetadata struct {
-	Context       KeyContext `json:"context"`
-	EnvironmentID string     `json:"environment_id"`
-	ID            string     `json:"id"`
-	KeyID         string     `json:"key_id"`
-	UpdatedAt     string     `json:"updated_at"`
-	UpdatedBy     string     `json:"updated_by"`
-	VersionID     string     `json:"version_id"`
+	// Context is the encryption key context used for this object.
+	Context KeyContext `json:"context"`
+	// EnvironmentID is the WorkOS environment ID.
+	EnvironmentID string `json:"environment_id"`
+	// ID is the unique identifier of the vault object.
+	ID string `json:"id"`
+	// KeyID is the identifier of the encryption key used.
+	KeyID string `json:"key_id"`
+	// UpdatedAt is the ISO-8601 timestamp of the last update.
+	UpdatedAt string `json:"updated_at"`
+	// UpdatedBy is the identifier of the actor who last updated the object.
+	UpdatedBy string `json:"updated_by"`
+	// VersionID is the current version identifier.
+	VersionID string `json:"version_id"`
 }
 
 // VaultObject represents a vault key-value object.
@@ -60,13 +69,17 @@ type VaultObjectVersion struct {
 
 // DataKeyPair contains an encryption data key and its encrypted counterpart.
 type DataKeyPair struct {
-	Context       KeyContext `json:"context"`
-	DataKey       DataKey    `json:"data_key"`
-	EncryptedKeys string     `json:"encrypted_keys"`
+	// Context is the encryption key context for this data key.
+	Context KeyContext `json:"context"`
+	// DataKey is the plaintext data key for local encryption/decryption.
+	DataKey DataKey `json:"data_key"`
+	// EncryptedKeys is the base64-encoded encrypted key blob for server-side decryption.
+	EncryptedKeys string `json:"encrypted_keys"`
 }
 
 // DataKey holds a plaintext data key.
 type DataKey struct {
+	// Key is the base64-encoded plaintext AES key.
 	Key string `json:"key"`
 }
 

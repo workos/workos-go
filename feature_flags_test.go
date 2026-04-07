@@ -17,6 +17,7 @@ func TestFeatureFlags_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/feature-flags", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_flag.json")
@@ -28,7 +29,7 @@ func TestFeatureFlags_List(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -45,7 +46,7 @@ func TestFeatureFlags_List_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -68,7 +69,9 @@ func TestFeatureFlags_Get(t *testing.T) {
 	result, err := client.FeatureFlags().Get(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "flag_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "advanced-analytics", result.Slug)
+	require.Equal(t, "Advanced Analytics", result.Name)
 }
 
 func TestFeatureFlags_Disable(t *testing.T) {
@@ -89,7 +92,9 @@ func TestFeatureFlags_Disable(t *testing.T) {
 	result, err := client.FeatureFlags().Disable(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "flag_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "advanced-analytics", result.Slug)
+	require.Equal(t, "Advanced Analytics", result.Name)
 }
 
 func TestFeatureFlags_Enable(t *testing.T) {
@@ -110,7 +115,9 @@ func TestFeatureFlags_Enable(t *testing.T) {
 	result, err := client.FeatureFlags().Enable(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "flag_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "advanced-analytics", result.Slug)
+	require.Equal(t, "Advanced Analytics", result.Name)
 }
 
 func TestFeatureFlags_CreateTarget(t *testing.T) {
@@ -143,6 +150,7 @@ func TestFeatureFlags_ListOrganizationFeatureFlags(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/organizations/test_organizationId/feature-flags", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_flag.json")
@@ -154,7 +162,7 @@ func TestFeatureFlags_ListOrganizationFeatureFlags(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -171,7 +179,7 @@ func TestFeatureFlags_ListOrganizationFeatureFlags_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListOrganizationFeatureFlags(context.Background(), "test_organizationId", &workos.FeatureFlagsListOrganizationFeatureFlagsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -180,6 +188,7 @@ func TestFeatureFlags_ListUserFeatureFlags(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/users/test_userId/feature-flags", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_flag.json")
@@ -191,7 +200,7 @@ func TestFeatureFlags_ListUserFeatureFlags(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -208,7 +217,7 @@ func TestFeatureFlags_ListUserFeatureFlags_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{})
+	iter := client.FeatureFlags().ListUserFeatureFlags(context.Background(), "test_userId", &workos.FeatureFlagsListUserFeatureFlagsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -225,4 +234,32 @@ func TestFeatureFlags_Error401(t *testing.T) {
 	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
+}
+
+func TestFeatureFlags_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
+}
+
+func TestFeatureFlags_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.FeatureFlags().List(context.Background(), &workos.FeatureFlagsListParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

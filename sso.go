@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 )
 
 // ssoService handles SSO operations.
@@ -15,16 +16,7 @@ type ssoService struct {
 
 // SSOListConnectionsParams contains the parameters for ListConnections.
 type SSOListConnectionsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time.
-	// Defaults to "desc".
-	Order *ConnectionsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// ConnectionType is filter Connections by their type.
 	ConnectionType *ConnectionsConnectionType `url:"connection_type,omitempty" json:"-"`
 	// Domain is filter Connections by their associated domain.
@@ -98,10 +90,12 @@ func (s *ssoService) GetAuthorizationURL(ctx context.Context, params *SSOGetAuth
 		query.Set("client_id", s.client.clientID)
 	}
 	if params.ProviderScopes != nil {
-		query.Set("provider_scopes", fmt.Sprintf("%v", params.ProviderScopes))
+		query.Set("provider_scopes", strings.Join(params.ProviderScopes, ","))
 	}
 	if params.ProviderQueryParams != nil {
-		query.Set("provider_query_params", fmt.Sprintf("%v", params.ProviderQueryParams))
+		for k, v := range params.ProviderQueryParams {
+			query.Set(fmt.Sprintf("provider_query_params[%s]", k), fmt.Sprintf("%v", v))
+		}
 	}
 	if params.Domain != nil {
 		query.Set("domain", *params.Domain)

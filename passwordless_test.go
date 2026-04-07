@@ -119,4 +119,5 @@ func TestPasswordless_SendSession_NotFound(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	err := client.Passwordless().SendSession(context.Background(), "nonexistent_id")
 	require.Error(t, err)
+	require.IsType(t, &workos.NotFoundError{}, err)
 }

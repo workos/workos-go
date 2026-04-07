@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -51,7 +53,8 @@ func TestUserManagement_CreateAuthenticate(t *testing.T) {
 	result, err := client.UserManagement().CreateAuthenticate(context.Background(), &workos.UserManagementCreateAuthenticateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.AccessToken)
+	require.Equal(t, "eyJhb.nNzb19vaWRjX2tleV9.lc5Uk4yWVk5In0", result.AccessToken)
+	require.Equal(t, "yAjhKk123NLIjdrBdGZPf8pLIDvK", result.RefreshToken)
 }
 
 func TestUserManagement_GetAuthorizationURL(t *testing.T) {
@@ -71,6 +74,9 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authorize/device", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/device_authorization_response.json")
@@ -85,7 +91,8 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 	result, err := client.UserManagement().CreateDevice(context.Background(), &workos.UserManagementCreateDeviceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.DeviceCode)
+	require.Equal(t, "CVE2wOfIFK4vhmiDBntpX9s8KT2f0qngpWYL0LGy9HxYgBRXUKIUkZB9BgIFho5h", result.DeviceCode)
+	require.Equal(t, "BCDF-GHJK", result.UserCode)
 }
 
 func TestUserManagement_GetLogoutURL(t *testing.T) {
@@ -118,6 +125,9 @@ func TestUserManagement_CreateCORSOrigins(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/cors_origins", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/cors_origin_response.json")
@@ -132,7 +142,9 @@ func TestUserManagement_CreateCORSOrigins(t *testing.T) {
 	result, err := client.UserManagement().CreateCORSOrigins(context.Background(), &workos.UserManagementCreateCORSOriginsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "cors_origin_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "https://example.com", result.Origin)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_GetEmailVerification(t *testing.T) {
@@ -153,13 +165,18 @@ func TestUserManagement_GetEmailVerification(t *testing.T) {
 	result, err := client.UserManagement().GetEmailVerification(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "email_verification_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_CreatePasswordReset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/password_reset", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/password_reset.json")
@@ -174,13 +191,18 @@ func TestUserManagement_CreatePasswordReset(t *testing.T) {
 	result, err := client.UserManagement().CreatePasswordReset(context.Background(), &workos.UserManagementCreatePasswordResetParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "password_reset_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_ConfirmPasswordReset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/password_reset/confirm", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/reset_password_response.json")
@@ -215,13 +237,16 @@ func TestUserManagement_GetPasswordReset(t *testing.T) {
 	result, err := client.UserManagement().GetPasswordReset(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "password_reset_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/users", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_user.json")
@@ -233,7 +258,7 @@ func TestUserManagement_List(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{})
+	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -250,7 +275,7 @@ func TestUserManagement_List_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{})
+	iter := client.UserManagement().List(context.Background(), &workos.UserManagementListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -259,6 +284,9 @@ func TestUserManagement_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/user.json")
@@ -273,7 +301,9 @@ func TestUserManagement_Create(t *testing.T) {
 	result, err := client.UserManagement().Create(context.Background(), &workos.UserManagementCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_GetByExternalID(t *testing.T) {
@@ -294,7 +324,9 @@ func TestUserManagement_GetByExternalID(t *testing.T) {
 	result, err := client.UserManagement().GetByExternalID(context.Background(), "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_Get(t *testing.T) {
@@ -315,13 +347,18 @@ func TestUserManagement_Get(t *testing.T) {
 	result, err := client.UserManagement().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_Update(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/user_management/users/test_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/user.json")
@@ -336,7 +373,9 @@ func TestUserManagement_Update(t *testing.T) {
 	result, err := client.UserManagement().Update(context.Background(), "test_id", &workos.UserManagementUpdateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_Delete(t *testing.T) {
@@ -356,6 +395,9 @@ func TestUserManagement_ConfirmEmailChange(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_id/email_change/confirm", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/email_change_confirmation.json")
@@ -376,6 +418,9 @@ func TestUserManagement_SendEmailChange(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_id/email_change/send", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/email_change.json")
@@ -390,13 +435,17 @@ func TestUserManagement_SendEmailChange(t *testing.T) {
 	result, err := client.UserManagement().SendEmailChange(context.Background(), "test_id", &workos.UserManagementSendEmailChangeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.NewEmail)
+	require.Equal(t, "new.email@example.com", result.NewEmail)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_ConfirmEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_id/email_verification/confirm", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/verify_email_response.json")
@@ -457,6 +506,7 @@ func TestUserManagement_ListSessions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/users/test_id/sessions", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_user_sessions_list_item.json")
@@ -468,7 +518,7 @@ func TestUserManagement_ListSessions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{})
+	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -485,7 +535,7 @@ func TestUserManagement_ListSessions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{})
+	iter := client.UserManagement().ListSessions(context.Background(), "test_id", &workos.UserManagementListSessionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -494,6 +544,7 @@ func TestUserManagement_ListInvitations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/invitations", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_user_invite.json")
@@ -505,7 +556,7 @@ func TestUserManagement_ListInvitations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{})
+	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -522,7 +573,7 @@ func TestUserManagement_ListInvitations_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{})
+	iter := client.UserManagement().ListInvitations(context.Background(), &workos.UserManagementListInvitationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -531,6 +582,9 @@ func TestUserManagement_CreateInvitations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/invitations", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/user_invite.json")
@@ -545,7 +599,9 @@ func TestUserManagement_CreateInvitations(t *testing.T) {
 	result, err := client.UserManagement().CreateInvitations(context.Background(), &workos.UserManagementCreateInvitationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_GetByToken(t *testing.T) {
@@ -566,7 +622,9 @@ func TestUserManagement_GetByToken(t *testing.T) {
 	result, err := client.UserManagement().GetByToken(context.Background(), "test_token")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_GetInvitation(t *testing.T) {
@@ -587,7 +645,9 @@ func TestUserManagement_GetInvitation(t *testing.T) {
 	result, err := client.UserManagement().GetInvitation(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_AcceptInvitation(t *testing.T) {
@@ -608,13 +668,18 @@ func TestUserManagement_AcceptInvitation(t *testing.T) {
 	result, err := client.UserManagement().AcceptInvitation(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_ResendInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/invitations/test_id/resend", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/user_invite.json")
@@ -629,7 +694,9 @@ func TestUserManagement_ResendInvitation(t *testing.T) {
 	result, err := client.UserManagement().ResendInvitation(context.Background(), "test_id", &workos.UserManagementResendInvitationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_RevokeInvitation(t *testing.T) {
@@ -650,13 +717,18 @@ func TestUserManagement_RevokeInvitation(t *testing.T) {
 	result, err := client.UserManagement().RevokeInvitation(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
 func TestUserManagement_UpdateJWTTemplate(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/user_management/jwt_template", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/jwt_template_response.json")
@@ -672,12 +744,16 @@ func TestUserManagement_UpdateJWTTemplate(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.NotEmpty(t, result.Content)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/magic_auth", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/magic_auth.json")
@@ -692,7 +768,9 @@ func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	result, err := client.UserManagement().CreateMagicAuth(context.Background(), &workos.UserManagementCreateMagicAuthParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "magic_auth_01HWZBQZY2M3AMQW166Q22K88F", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_GetMagicAuth(t *testing.T) {
@@ -713,13 +791,16 @@ func TestUserManagement_GetMagicAuth(t *testing.T) {
 	result, err := client.UserManagement().GetMagicAuth(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "magic_auth_01HWZBQZY2M3AMQW166Q22K88F", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_ListOrganizationMemberships(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/organization_memberships", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_user_organization_membership.json")
@@ -731,7 +812,7 @@ func TestUserManagement_ListOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{})
+	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -748,7 +829,7 @@ func TestUserManagement_ListOrganizationMemberships_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{})
+	iter := client.UserManagement().ListOrganizationMemberships(context.Background(), &workos.UserManagementListOrganizationMembershipsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -757,6 +838,9 @@ func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/organization_memberships", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/organization_membership.json")
@@ -771,7 +855,9 @@ func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
 	result, err := client.UserManagement().CreateOrganizationMemberships(context.Background(), &workos.UserManagementCreateOrganizationMembershipsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E", result.UserID)
+	require.Equal(t, "org_01E4ZCR3C56J083X43JQXF3JK5", result.OrganizationID)
 }
 
 func TestUserManagement_GetOrganizationMembership(t *testing.T) {
@@ -792,13 +878,18 @@ func TestUserManagement_GetOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().GetOrganizationMembership(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/user_management/organization_memberships/test_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/user_organization_membership.json")
@@ -813,7 +904,9 @@ func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().UpdateOrganizationMembership(context.Background(), "test_id", &workos.UserManagementUpdateOrganizationMembershipParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestUserManagement_DeleteOrganizationMembership(t *testing.T) {
@@ -847,7 +940,9 @@ func TestUserManagement_DeactivateOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().DeactivateOrganizationMembership(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "user_01E4ZCR3C5A4QZ2Z2JQXGKZJ9E", result.UserID)
+	require.Equal(t, "org_01E4ZCR3C56J083X43JQXF3JK5", result.OrganizationID)
 }
 
 func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
@@ -868,13 +963,18 @@ func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	result, err := client.UserManagement().ReactivateOrganizationMembership(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
 func TestUserManagement_CreateRedirectURIs(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/redirect_uris", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/redirect_uri.json")
@@ -889,13 +989,16 @@ func TestUserManagement_CreateRedirectURIs(t *testing.T) {
 	result, err := client.UserManagement().CreateRedirectURIs(context.Background(), &workos.UserManagementCreateRedirectURIsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "ruri_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "https://example.com/callback", result.URI)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_ListAuthorizedApplications(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/users/test_user_id/authorized_applications", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_authorized_connect_application_list_data.json")
@@ -907,7 +1010,7 @@ func TestUserManagement_ListAuthorizedApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{})
+	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -924,7 +1027,7 @@ func TestUserManagement_ListAuthorizedApplications_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{})
+	iter := client.UserManagement().ListAuthorizedApplications(context.Background(), "test_user_id", &workos.UserManagementListAuthorizedApplicationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -946,6 +1049,9 @@ func TestUserManagement_AuthenticateWithPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -966,6 +1072,9 @@ func TestUserManagement_AuthenticateWithCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -986,6 +1095,9 @@ func TestUserManagement_AuthenticateWithRefreshToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -1006,6 +1118,9 @@ func TestUserManagement_AuthenticateWithMagicAuth(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -1026,6 +1141,9 @@ func TestUserManagement_AuthenticateWithEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -1046,6 +1164,9 @@ func TestUserManagement_AuthenticateWithTOTP(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -1066,6 +1187,9 @@ func TestUserManagement_AuthenticateWithOrganizationSelection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -1086,6 +1210,9 @@ func TestUserManagement_AuthenticateWithDeviceCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authenticate_response.json")
@@ -1113,4 +1240,30 @@ func TestUserManagement_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.UserManagement().GetJWKS(context.Background(), "test_clientId")
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestUserManagement_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.UserManagement().GetJWKS(context.Background(), "test_clientId")
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestUserManagement_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.UserManagement().GetJWKS(context.Background(), "test_clientId")
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

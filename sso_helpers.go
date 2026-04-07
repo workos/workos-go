@@ -24,7 +24,7 @@ type SSOAuthorizationURLParams struct {
 	CodeChallengeMethod *string
 }
 
-// GetSSOAuthorizationURL builds an SSO authorization URL client-side (H14).
+// GetSSOAuthorizationURL builds an SSO authorization URL client-side.
 func (c *Client) GetSSOAuthorizationURL(params SSOAuthorizationURLParams) (string, error) {
 	clientID := params.ClientID
 	if clientID == "" {
@@ -88,7 +88,7 @@ type SSOPKCEAuthorizationURLResult struct {
 	State        string
 }
 
-// GetSSOPKCEAuthorizationURL generates PKCE parameters and builds an SSO authorization URL (H15).
+// GetSSOPKCEAuthorizationURL generates PKCE parameters and builds an SSO authorization URL.
 func (c *Client) GetSSOPKCEAuthorizationURL(params SSOAuthorizationURLParams) (*SSOPKCEAuthorizationURLResult, error) {
 	pair, err := GeneratePKCEPair()
 	if err != nil {
@@ -129,7 +129,7 @@ type SSOPKCECodeExchangeParams struct {
 	CodeVerifier string
 }
 
-// SSOPKCECodeExchange exchanges an SSO authorization code with PKCE (H16).
+// SSOPKCECodeExchange exchanges an SSO authorization code with PKCE.
 func (c *Client) SSOPKCECodeExchange(ctx context.Context, params SSOPKCECodeExchangeParams, opts ...RequestOption) (*SSOTokenResponse, error) {
 	clientID := c.clientID
 	body := map[string]interface{}{
@@ -158,7 +158,7 @@ type SSOLogoutParams struct {
 	ReturnTo  *string
 }
 
-// SSOLogout initiates a logout flow (H17).
+// SSOLogout initiates a logout flow.
 // First obtains a logout token via AuthorizeLogout, then builds the logout redirect URL.
 func (c *Client) SSOLogout(ctx context.Context, params SSOLogoutParams, opts ...RequestOption) (string, error) {
 	// Step 1: Call AuthorizeLogout to get a logout token.

@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestOrganizationDomains_Create(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/organization_domains", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/organization_domain.json")
@@ -31,7 +36,9 @@ func TestOrganizationDomains_Create(t *testing.T) {
 	result, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A", result.ID)
+	require.Equal(t, "org_01HE8GSH8FQPASKSY27THRKRBP", result.OrganizationID)
+	require.Equal(t, "foo-corp.com", result.Domain)
 }
 
 func TestOrganizationDomains_Get(t *testing.T) {
@@ -52,7 +59,9 @@ func TestOrganizationDomains_Get(t *testing.T) {
 	result, err := client.OrganizationDomains().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A", result.ID)
+	require.Equal(t, "org_01HE8GSH8FQPASKSY27THRKRBP", result.OrganizationID)
+	require.Equal(t, "foo-corp.com", result.Domain)
 }
 
 func TestOrganizationDomains_Delete(t *testing.T) {
@@ -86,7 +95,9 @@ func TestOrganizationDomains_Verify(t *testing.T) {
 	result, err := client.OrganizationDomains().Verify(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A", result.ID)
+	require.Equal(t, "org_01HE8GSH8FQPASKSY27THRKRBP", result.OrganizationID)
+	require.Equal(t, "foo-corp.com", result.Domain)
 }
 
 func TestOrganizationDomains_Error401(t *testing.T) {
@@ -100,4 +111,30 @@ func TestOrganizationDomains_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestOrganizationDomains_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestOrganizationDomains_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.OrganizationDomains().Create(context.Background(), &workos.OrganizationDomainsCreateParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

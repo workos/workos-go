@@ -15,8 +15,11 @@ import (
 
 // VaultEncryptResult is the result of a Vault.Encrypt call.
 type VaultEncryptResult struct {
+	// EncryptedData is the base64-encoded ciphertext (LEB128 header + encrypted keys + nonce + AES-GCM output).
 	EncryptedData string
-	KeyContext    KeyContext
+	// KeyContext is the encryption key context used for this operation.
+	KeyContext KeyContext
+	// EncryptedKeys is the base64-encoded encrypted key blob for later decryption via the API.
 	EncryptedKeys string
 }
 

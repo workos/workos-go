@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestAPIKeys_CreateValidations(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/api_keys/validations", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/api_key_validation_response.json")
@@ -50,6 +55,7 @@ func TestAPIKeys_ListOrganizationAPIKeys(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/organizations/test_organizationId/api_keys", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_api_key.json")
@@ -61,7 +67,7 @@ func TestAPIKeys_ListOrganizationAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.APIKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
+	iter := client.APIKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -78,7 +84,7 @@ func TestAPIKeys_ListOrganizationAPIKeys_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.APIKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{})
+	iter := client.APIKeys().ListOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysListOrganizationAPIKeysParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -87,6 +93,9 @@ func TestAPIKeys_CreateOrganizationAPIKeys(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/organizations/test_organizationId/api_keys", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/api_key_with_value.json")
@@ -101,7 +110,9 @@ func TestAPIKeys_CreateOrganizationAPIKeys(t *testing.T) {
 	result, err := client.APIKeys().CreateOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysCreateOrganizationAPIKeysParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "api_key_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "Production API Key", result.Name)
+	require.Equal(t, "sk_...3456", result.ObfuscatedValue)
 }
 
 func TestAPIKeys_Error401(t *testing.T) {
@@ -115,4 +126,30 @@ func TestAPIKeys_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestAPIKeys_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestAPIKeys_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,7 @@ func TestSSO_ListConnections(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/connections", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_connection.json")
@@ -28,7 +31,7 @@ func TestSSO_ListConnections(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -45,7 +48,7 @@ func TestSSO_ListConnections_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -68,7 +71,9 @@ func TestSSO_GetConnection(t *testing.T) {
 	result, err := client.SSO().GetConnection(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "conn_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "Foo Corp", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestSSO_DeleteConnection(t *testing.T) {
@@ -102,7 +107,7 @@ func TestSSO_GetAuthorizationURL(t *testing.T) {
 	result, err := client.SSO().GetAuthorizationURL(context.Background(), &workos.SSOGetAuthorizationURLParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.URL)
+	require.Equal(t, "https://accounts.google.com/o/oauth2/v2/auth?client_id=example&redirect_uri=https%3A%2F%2Fapi.workos.com%2Fsso%2Fcallback&response_type=code&scope=openid%20profile%20email", result.URL)
 }
 
 func TestSSO_GetLogoutURL(t *testing.T) {
@@ -122,6 +127,9 @@ func TestSSO_AuthorizeLogout(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/sso/logout/authorize", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/sso_logout_authorize_response.json")
@@ -136,7 +144,8 @@ func TestSSO_AuthorizeLogout(t *testing.T) {
 	result, err := client.SSO().AuthorizeLogout(context.Background(), &workos.SSOAuthorizeLogoutParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.LogoutURL)
+	require.Equal(t, "https://auth.workos.com/sso/logout?token=eyJhbGciOiJSUzI1NiJ9", result.LogoutURL)
+	require.Equal(t, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9maWxlX2lkIjoicHJvZl8wMUdXUTFHMEgyRk02QVNFRjBIUzEzSENXOS0zMDRrZzAzZyIsImV4cCI6IjE1MTYyMzkwMjIifQ.Wru9Qlnf5DpohtGCKhZU4cVOd3zpiu7QQ-XEX--5A_4", result.LogoutToken)
 }
 
 func TestSSO_GetProfile(t *testing.T) {
@@ -157,13 +166,18 @@ func TestSSO_GetProfile(t *testing.T) {
 	result, err := client.SSO().GetProfile(context.Background())
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "prof_01DMC79VCBZ0NY2099737PSVF1", result.ID)
+	require.Equal(t, "conn_01E4ZCR3C56J083X43JQXF3JK5", result.ConnectionID)
+	require.Equal(t, "103456789012345678901", result.IdpID)
 }
 
 func TestSSO_GetProfileAndToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/sso/token", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/sso_token_response.json")
@@ -178,7 +192,7 @@ func TestSSO_GetProfileAndToken(t *testing.T) {
 	result, err := client.SSO().GetProfileAndToken(context.Background(), &workos.SSOGetProfileAndTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.AccessToken)
+	require.Equal(t, "eyJhbGciOiJSUzI1NiIsImtpZCI6InNzby...", result.AccessToken)
 }
 
 func TestSSO_Error401(t *testing.T) {
@@ -193,4 +207,32 @@ func TestSSO_Error401(t *testing.T) {
 	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
+}
+
+func TestSSO_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
+}
+
+func TestSSO_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.SSO().ListConnections(context.Background(), &workos.SSOListConnectionsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

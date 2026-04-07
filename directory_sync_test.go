@@ -17,6 +17,7 @@ func TestDirectorySync_List(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/directories", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_directory.json")
@@ -28,7 +29,7 @@ func TestDirectorySync_List(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -45,7 +46,7 @@ func TestDirectorySync_List_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -68,7 +69,9 @@ func TestDirectorySync_Get(t *testing.T) {
 	result, err := client.DirectorySync().Get(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "directory_01ECAZ4NV9QMV47GW873HDCX74", result.ID)
+	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
+	require.Equal(t, "sPa12dwRQ", result.ExternalKey)
 }
 
 func TestDirectorySync_Delete(t *testing.T) {
@@ -88,6 +91,7 @@ func TestDirectorySync_ListGroups(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/directory_groups", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_directory_group.json")
@@ -99,7 +103,7 @@ func TestDirectorySync_ListGroups(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{})
+	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -116,7 +120,7 @@ func TestDirectorySync_ListGroups_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{})
+	iter := client.DirectorySync().ListGroups(context.Background(), &workos.DirectorySyncListGroupsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -139,13 +143,16 @@ func TestDirectorySync_GetGroup(t *testing.T) {
 	result, err := client.DirectorySync().GetGroup(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z", result.ID)
+	require.Equal(t, "02grqrue4294w24", result.IdpID)
+	require.Equal(t, "directory_01ECAZ4NV9QMV47GW873HDCX74", result.DirectoryID)
 }
 
 func TestDirectorySync_ListUsers(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/directory_users", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_directory_user_with_groups.json")
@@ -157,7 +164,7 @@ func TestDirectorySync_ListUsers(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{})
+	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -174,7 +181,7 @@ func TestDirectorySync_ListUsers_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{})
+	iter := client.DirectorySync().ListUsers(context.Background(), &workos.DirectorySyncListUsersParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -197,7 +204,9 @@ func TestDirectorySync_GetUser(t *testing.T) {
 	result, err := client.DirectorySync().GetUser(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ", result.ID)
+	require.Equal(t, "directory_01ECAZ4NV9QMV47GW873HDCX74", result.DirectoryID)
+	require.Equal(t, "org_01EZTR6WYX1A0DSE2CYMGXQ24Y", result.OrganizationID)
 }
 
 func TestDirectorySync_Error401(t *testing.T) {
@@ -212,4 +221,32 @@ func TestDirectorySync_Error401(t *testing.T) {
 	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
 	require.False(t, iter.Next())
 	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
+}
+
+func TestDirectorySync_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
+}
+
+func TestDirectorySync_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.DirectorySync().List(context.Background(), &workos.DirectorySyncListParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

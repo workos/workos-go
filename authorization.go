@@ -37,16 +37,7 @@ func (s *authorizationService) CheckOrganizationMembership(ctx context.Context, 
 
 // AuthorizationListOrganizationMembershipResourcesParams contains the parameters for ListOrganizationMembershipResources.
 type AuthorizationListOrganizationMembershipResourcesParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// PermissionSlug is the permission slug to filter by. Only child resources where the organization membership has this permission are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
 	// ParentResourceID is the WorkOS ID of the parent resource. Provide this or both `parent_resource_external_id` and `parent_resource_type_slug`, but not both.
@@ -66,16 +57,7 @@ func (s *authorizationService) ListOrganizationMembershipResources(ctx context.C
 
 // AuthorizationListOrganizationMembershipRoleAssignmentsParams contains the parameters for ListOrganizationMembershipRoleAssignments.
 type AuthorizationListOrganizationMembershipRoleAssignmentsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListOrganizationMembershipRoleAssignments list role assignments
@@ -295,16 +277,7 @@ func (s *authorizationService) DeleteOrganizationResource(ctx context.Context, o
 
 // AuthorizationListResourceOrganizationMembershipsParams contains the parameters for ListResourceOrganizationMemberships.
 type AuthorizationListResourceOrganizationMembershipsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// PermissionSlug is the permission slug to filter by. Only users with this permission on the resource are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
 	// Assignment is filter by assignment type. Use "direct" for direct assignments only, or "indirect" to include inherited assignments.
@@ -319,16 +292,7 @@ func (s *authorizationService) ListResourceOrganizationMemberships(ctx context.C
 
 // AuthorizationListResourcesParams contains the parameters for ListResources.
 type AuthorizationListResourcesParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// OrganizationID is filter resources by organization ID.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// ResourceTypeSlug is filter resources by resource type slug.
@@ -432,16 +396,7 @@ func (s *authorizationService) DeleteResource(ctx context.Context, resourceID st
 
 // AuthorizationListMembershipsForResourceParams contains the parameters for ListMembershipsForResource.
 type AuthorizationListMembershipsForResourceParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 	// PermissionSlug is the permission slug to filter by. Only users with this permission on the resource are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
 	// Assignment is filter by assignment type. Use `direct` for direct assignments only, or `indirect` to include inherited assignments.
@@ -554,16 +509,7 @@ func (s *authorizationService) SetRolePermissions(ctx context.Context, slug stri
 
 // AuthorizationListPermissionsParams contains the parameters for ListPermissions.
 type AuthorizationListPermissionsParams struct {
-	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-	Before *string `url:"before,omitempty" json:"-"`
-	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
-	After *string `url:"after,omitempty" json:"-"`
-	// Limit is upper limit on the number of objects to return, between `1` and `100`.
-	// Defaults to 10.
-	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
-	// Defaults to "desc".
-	Order *PermissionsOrder `url:"order,omitempty" json:"-"`
+	PaginationParams
 }
 
 // ListPermissions list permissions

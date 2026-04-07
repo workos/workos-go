@@ -4,6 +4,8 @@ package workos_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +19,9 @@ func TestMultiFactorAuth_VerifyChallenge(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/auth/challenges/test_id/verify", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authentication_challenge_verify_response.json")
@@ -37,6 +42,9 @@ func TestMultiFactorAuth_EnrollFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/auth/factors/enroll", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authentication_factor_enrolled.json")
@@ -51,7 +59,9 @@ func TestMultiFactorAuth_EnrollFactor(t *testing.T) {
 	result, err := client.MultiFactorAuth().EnrollFactor(context.Background(), &workos.MultiFactorAuthEnrollFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ", result.ID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
 func TestMultiFactorAuth_GetFactor(t *testing.T) {
@@ -72,7 +82,9 @@ func TestMultiFactorAuth_GetFactor(t *testing.T) {
 	result, err := client.MultiFactorAuth().GetFactor(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ", result.ID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
 func TestMultiFactorAuth_DeleteFactor(t *testing.T) {
@@ -92,6 +104,9 @@ func TestMultiFactorAuth_ChallengeFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/auth/factors/test_id/challenge", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/authentication_challenge.json")
@@ -106,13 +121,16 @@ func TestMultiFactorAuth_ChallengeFactor(t *testing.T) {
 	result, err := client.MultiFactorAuth().ChallengeFactor(context.Background(), "test_id", &workos.MultiFactorAuthChallengeFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.NotEmpty(t, result.ID)
+	require.Equal(t, "auth_challenge_01FVYZ5QM8N98T9ME5BCB2BBMJ", result.ID)
+	require.Equal(t, "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ", result.AuthenticationFactorID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestMultiFactorAuth_ListUserAuthFactors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/users/test_userlandUserId/auth_factors", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/list_authentication_factor.json")
@@ -124,7 +142,7 @@ func TestMultiFactorAuth_ListUserAuthFactors(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{})
+	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -141,7 +159,7 @@ func TestMultiFactorAuth_ListUserAuthFactors_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{})
+	iter := client.MultiFactorAuth().ListUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthListUserAuthFactorsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -150,6 +168,9 @@ func TestMultiFactorAuth_CreateUserAuthFactors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_userlandUserId/auth_factors", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/user_authentication_factor_enroll_response.json")
@@ -177,4 +198,30 @@ func TestMultiFactorAuth_Error401(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	_, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.MultiFactorAuthVerifyChallengeParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
+}
+
+func TestMultiFactorAuth_Error404(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"code":"not_found","message":"Not Found"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.MultiFactorAuthVerifyChallengeParams{})
+	require.IsType(t, &workos.NotFoundError{}, err)
+}
+
+func TestMultiFactorAuth_Error422(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(422)
+		w.Write([]byte(`{"code":"unprocessable_entity","message":"Unprocessable"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.MultiFactorAuth().VerifyChallenge(context.Background(), "test_id", &workos.MultiFactorAuthVerifyChallengeParams{})
+	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }
