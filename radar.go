@@ -30,7 +30,7 @@ type RadarCreateAttemptsParams struct {
 	BotScore *string `json:"bot_score,omitempty"`
 }
 
-// CreateAttempts createAnAttempt
+// CreateAttempts create an attempt
 // Assess a request for risk using the Radar engine and receive a verdict.
 func (s *radarService) CreateAttempts(ctx context.Context, params *RadarCreateAttemptsParams, opts ...RequestOption) (*RadarStandaloneResponse, error) {
 	var result RadarStandaloneResponse
@@ -49,7 +49,7 @@ type RadarUpdateAttemptParams struct {
 	AttemptStatus *string `json:"attempt_status,omitempty"`
 }
 
-// UpdateAttempt updateARadarAttempt
+// UpdateAttempt update a Radar attempt
 // You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
 func (s *radarService) UpdateAttempt(ctx context.Context, id string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", id), nil, params, nil, opts)
@@ -62,7 +62,7 @@ type RadarAddListEntryParams struct {
 	Entry string `json:"entry"`
 }
 
-// AddListEntry addAnEntryToARadarList
+// AddListEntry add an entry to a Radar list
 // Add an entry to a Radar list.
 func (s *radarService) AddListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
 	var result RadarListEntryAlreadyPresentResponse
@@ -79,7 +79,7 @@ type RadarRemoveListEntryParams struct {
 	Entry string `json:"entry"`
 }
 
-// RemoveListEntry removeAnEntryFromARadarList
+// RemoveListEntry remove an entry from a Radar list
 // Remove an entry from a Radar list.
 func (s *radarService) RemoveListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, nil, opts)

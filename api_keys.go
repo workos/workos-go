@@ -18,7 +18,7 @@ type APIKeysCreateValidationsParams struct {
 	Value string `json:"value"`
 }
 
-// CreateValidations validateAPIKey
+// CreateValidations validate API key
 // Validate an API key value and return the API key object if valid.
 func (s *apiKeyService) CreateValidations(ctx context.Context, params *APIKeysCreateValidationsParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
 	var result APIKeyValidationResponse
@@ -29,7 +29,7 @@ func (s *apiKeyService) CreateValidations(ctx context.Context, params *APIKeysCr
 	return &result, nil
 }
 
-// Delete deleteAnAPIKey
+// Delete delete an API key
 // Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
 func (s *apiKeyService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", id), nil, nil, nil, opts)
@@ -43,12 +43,14 @@ type APIKeysListOrganizationAPIKeysParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time.
+	// Defaults to "desc".
 	Order *OrganizationsAPIKeysOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListOrganizationAPIKeys listAPIKeysForAnOrganization
+// ListOrganizationAPIKeys list API keys for an organization
 // Get a list of all API keys for an organization.
 func (s *apiKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
 	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, "after", "data", opts)
@@ -62,7 +64,7 @@ type APIKeysCreateOrganizationAPIKeysParams struct {
 	Permissions []string `json:"permissions,omitempty"`
 }
 
-// CreateOrganizationAPIKeys createAnAPIKeyForAnOrganization
+// CreateOrganizationAPIKeys create an API key for an organization
 // Create a new API key for an organization.
 func (s *apiKeyService) CreateOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeysParams, opts ...RequestOption) (*APIKeyWithValue, error) {
 	var result APIKeyWithValue

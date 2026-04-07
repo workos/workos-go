@@ -32,7 +32,7 @@ type AdminPortalGenerateLinkParams struct {
 	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
 }
 
-// GenerateLink generateAPortalLink
+// GenerateLink generate a Portal Link
 // Generate a Portal Link scoped to an Organization.
 func (s *adminPortalService) GenerateLink(ctx context.Context, params *AdminPortalGenerateLinkParams, opts ...RequestOption) (*PortalLinkResponse, error) {
 	var result PortalLinkResponse

@@ -329,19 +329,13 @@ const (
 	ConnectionStateDeleting     ConnectionState = "deleting"
 )
 
-// ConnectionStatus represents connection status values.
-type ConnectionStatus string
-
-const (
-	ConnectionStatusLinked   ConnectionStatus = "linked"
-	ConnectionStatusUnlinked ConnectionStatus = "unlinked"
-)
+// ConnectionStatus is an alias for ConnectionActivatedDataStatus.
+type ConnectionStatus = ConnectionActivatedDataStatus
 
 // DirectoryType represents directory type values.
 type DirectoryType string
 
 const (
-	DirectoryTypePending             DirectoryType = "pending"
 	DirectoryTypeAzureSCIMV20        DirectoryType = "azure scim v2.0"
 	DirectoryTypeBamboohr            DirectoryType = "bamboohr"
 	DirectoryTypeBreatheHr           DirectoryType = "breathe hr"
@@ -363,15 +357,12 @@ const (
 	DirectoryTypeSftp                DirectoryType = "sftp"
 	DirectoryTypeSftpWorkday         DirectoryType = "sftp workday"
 	DirectoryTypeWorkday             DirectoryType = "workday"
-	DirectoryTypeGusto               DirectoryType = "gusto"
-	DirectoryTypeRippling            DirectoryType = "rippling"
 )
 
 // DirectoryState represents directory state values.
 type DirectoryState string
 
 const (
-	DirectoryStateRequiresType       DirectoryState = "requires_type"
 	DirectoryStateLinked             DirectoryState = "linked"
 	DirectoryStateValidating         DirectoryState = "validating"
 	DirectoryStateInvalidCredentials DirectoryState = "invalid_credentials"
@@ -388,24 +379,633 @@ const (
 	DirectoryUserWithGroupsStateInactive  DirectoryUserWithGroupsState = "inactive"
 )
 
-// OrganizationDomainStandAloneState represents organization domain stand alone state values.
-type OrganizationDomainStandAloneState string
+// ActionAuthenticationDeniedContextActorSource represents action authentication denied context actor source values.
+type ActionAuthenticationDeniedContextActorSource string
 
 const (
-	OrganizationDomainStandAloneStateFailed         OrganizationDomainStandAloneState = "failed"
-	OrganizationDomainStandAloneStateLegacyVerified OrganizationDomainStandAloneState = "legacy_verified"
-	OrganizationDomainStandAloneStatePending        OrganizationDomainStandAloneState = "pending"
-	OrganizationDomainStandAloneStateUnverified     OrganizationDomainStandAloneState = "unverified"
-	OrganizationDomainStandAloneStateVerified       OrganizationDomainStandAloneState = "verified"
+	ActionAuthenticationDeniedContextActorSourceAPI       ActionAuthenticationDeniedContextActorSource = "api"
+	ActionAuthenticationDeniedContextActorSourceDashboard ActionAuthenticationDeniedContextActorSource = "dashboard"
+	ActionAuthenticationDeniedContextActorSourceSystem    ActionAuthenticationDeniedContextActorSource = "system"
 )
 
-// OrganizationDomainStandAloneVerificationStrategy represents organization domain stand alone verification strategy values.
-type OrganizationDomainStandAloneVerificationStrategy string
+// ActionUserRegistrationDeniedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type ActionUserRegistrationDeniedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// APIKeyCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type APIKeyCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// APIKeyRevokedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type APIKeyRevokedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationEmailVerificationFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationEmailVerificationFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationEmailVerificationSucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationEmailVerificationSucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationMagicAuthFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationMagicAuthFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationMagicAuthSucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationMagicAuthSucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationMFAFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationMFAFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationMFASucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationMFASucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationOAuthFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationOAuthFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationOAuthSucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationOAuthSucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationPasskeyFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationPasskeyFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationPasskeySucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationPasskeySucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationPasswordFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationPasswordFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationPasswordSucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationPasswordSucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationRadarRiskDetectedDataAction represents authentication radar risk detected data action values.
+type AuthenticationRadarRiskDetectedDataAction string
 
 const (
-	OrganizationDomainStandAloneVerificationStrategyDns    OrganizationDomainStandAloneVerificationStrategy = "dns"
-	OrganizationDomainStandAloneVerificationStrategyManual OrganizationDomainStandAloneVerificationStrategy = "manual"
+	AuthenticationRadarRiskDetectedDataActionSignup AuthenticationRadarRiskDetectedDataAction = "signup"
+	AuthenticationRadarRiskDetectedDataActionLogin  AuthenticationRadarRiskDetectedDataAction = "login"
 )
+
+// AuthenticationRadarRiskDetectedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationRadarRiskDetectedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationSSOFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationSSOFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationSSOStartedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationSSOStartedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationSSOSucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationSSOSucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// AuthenticationSSOTimedOutContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type AuthenticationSSOTimedOutContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// ConnectionActivatedDataState represents connection activated data state values.
+type ConnectionActivatedDataState string
+
+const (
+	ConnectionActivatedDataStateDraft      ConnectionActivatedDataState = "draft"
+	ConnectionActivatedDataStateActive     ConnectionActivatedDataState = "active"
+	ConnectionActivatedDataStateValidating ConnectionActivatedDataState = "validating"
+	ConnectionActivatedDataStateInactive   ConnectionActivatedDataState = "inactive"
+	ConnectionActivatedDataStateDeleting   ConnectionActivatedDataState = "deleting"
+)
+
+// ConnectionActivatedDataConnectionType represents connection activated data connection type values.
+type ConnectionActivatedDataConnectionType string
+
+const (
+	ConnectionActivatedDataConnectionTypeAdfssaml               ConnectionActivatedDataConnectionType = "ADFSSAML"
+	ConnectionActivatedDataConnectionTypeAdpOIDC                ConnectionActivatedDataConnectionType = "AdpOidc"
+	ConnectionActivatedDataConnectionTypeAppleOAuth             ConnectionActivatedDataConnectionType = "AppleOAuth"
+	ConnectionActivatedDataConnectionTypeAuth0Migration         ConnectionActivatedDataConnectionType = "Auth0Migration"
+	ConnectionActivatedDataConnectionTypeAuth0SAML              ConnectionActivatedDataConnectionType = "Auth0SAML"
+	ConnectionActivatedDataConnectionTypeAzureSAML              ConnectionActivatedDataConnectionType = "AzureSAML"
+	ConnectionActivatedDataConnectionTypeBitbucketOAuth         ConnectionActivatedDataConnectionType = "BitbucketOAuth"
+	ConnectionActivatedDataConnectionTypeCasSAML                ConnectionActivatedDataConnectionType = "CasSAML"
+	ConnectionActivatedDataConnectionTypeClassLinkSAML          ConnectionActivatedDataConnectionType = "ClassLinkSAML"
+	ConnectionActivatedDataConnectionTypeCleverOIDC             ConnectionActivatedDataConnectionType = "CleverOIDC"
+	ConnectionActivatedDataConnectionTypeCloudflareSAML         ConnectionActivatedDataConnectionType = "CloudflareSAML"
+	ConnectionActivatedDataConnectionTypeCyberArkSAML           ConnectionActivatedDataConnectionType = "CyberArkSAML"
+	ConnectionActivatedDataConnectionTypeDiscordOAuth           ConnectionActivatedDataConnectionType = "DiscordOAuth"
+	ConnectionActivatedDataConnectionTypeDuoSAML                ConnectionActivatedDataConnectionType = "DuoSAML"
+	ConnectionActivatedDataConnectionTypeEntraIDOIDC            ConnectionActivatedDataConnectionType = "EntraIdOIDC"
+	ConnectionActivatedDataConnectionTypeGenericOIDC            ConnectionActivatedDataConnectionType = "GenericOIDC"
+	ConnectionActivatedDataConnectionTypeGenericSAML            ConnectionActivatedDataConnectionType = "GenericSAML"
+	ConnectionActivatedDataConnectionTypeGitHubOAuth            ConnectionActivatedDataConnectionType = "GitHubOAuth"
+	ConnectionActivatedDataConnectionTypeGitLabOAuth            ConnectionActivatedDataConnectionType = "GitLabOAuth"
+	ConnectionActivatedDataConnectionTypeGoogleOAuth            ConnectionActivatedDataConnectionType = "GoogleOAuth"
+	ConnectionActivatedDataConnectionTypeGoogleOIDC             ConnectionActivatedDataConnectionType = "GoogleOIDC"
+	ConnectionActivatedDataConnectionTypeGoogleSAML             ConnectionActivatedDataConnectionType = "GoogleSAML"
+	ConnectionActivatedDataConnectionTypeIntuitOAuth            ConnectionActivatedDataConnectionType = "IntuitOAuth"
+	ConnectionActivatedDataConnectionTypeJumpCloudSAML          ConnectionActivatedDataConnectionType = "JumpCloudSAML"
+	ConnectionActivatedDataConnectionTypeKeycloakSAML           ConnectionActivatedDataConnectionType = "KeycloakSAML"
+	ConnectionActivatedDataConnectionTypeLastPassSAML           ConnectionActivatedDataConnectionType = "LastPassSAML"
+	ConnectionActivatedDataConnectionTypeLinkedInOAuth          ConnectionActivatedDataConnectionType = "LinkedInOAuth"
+	ConnectionActivatedDataConnectionTypeLoginGovOIDC           ConnectionActivatedDataConnectionType = "LoginGovOidc"
+	ConnectionActivatedDataConnectionTypeMagicLink              ConnectionActivatedDataConnectionType = "MagicLink"
+	ConnectionActivatedDataConnectionTypeMicrosoftOAuth         ConnectionActivatedDataConnectionType = "MicrosoftOAuth"
+	ConnectionActivatedDataConnectionTypeMiniOrangeSAML         ConnectionActivatedDataConnectionType = "MiniOrangeSAML"
+	ConnectionActivatedDataConnectionTypeNetIqSAML              ConnectionActivatedDataConnectionType = "NetIqSAML"
+	ConnectionActivatedDataConnectionTypeOktaOIDC               ConnectionActivatedDataConnectionType = "OktaOIDC"
+	ConnectionActivatedDataConnectionTypeOktaSAML               ConnectionActivatedDataConnectionType = "OktaSAML"
+	ConnectionActivatedDataConnectionTypeOneLoginSAML           ConnectionActivatedDataConnectionType = "OneLoginSAML"
+	ConnectionActivatedDataConnectionTypeOracleSAML             ConnectionActivatedDataConnectionType = "OracleSAML"
+	ConnectionActivatedDataConnectionTypePingFederateSAML       ConnectionActivatedDataConnectionType = "PingFederateSAML"
+	ConnectionActivatedDataConnectionTypePingOneSAML            ConnectionActivatedDataConnectionType = "PingOneSAML"
+	ConnectionActivatedDataConnectionTypeRipplingSAML           ConnectionActivatedDataConnectionType = "RipplingSAML"
+	ConnectionActivatedDataConnectionTypeSalesforceSAML         ConnectionActivatedDataConnectionType = "SalesforceSAML"
+	ConnectionActivatedDataConnectionTypeShibbolethGenericSAML  ConnectionActivatedDataConnectionType = "ShibbolethGenericSAML"
+	ConnectionActivatedDataConnectionTypeShibbolethSAML         ConnectionActivatedDataConnectionType = "ShibbolethSAML"
+	ConnectionActivatedDataConnectionTypeSimpleSAMLPhpSAML      ConnectionActivatedDataConnectionType = "SimpleSamlPhpSAML"
+	ConnectionActivatedDataConnectionTypeSalesforceOAuth        ConnectionActivatedDataConnectionType = "SalesforceOAuth"
+	ConnectionActivatedDataConnectionTypeSlackOAuth             ConnectionActivatedDataConnectionType = "SlackOAuth"
+	ConnectionActivatedDataConnectionTypeTestIdp                ConnectionActivatedDataConnectionType = "TestIdp"
+	ConnectionActivatedDataConnectionTypeVercelMarketplaceOAuth ConnectionActivatedDataConnectionType = "VercelMarketplaceOAuth"
+	ConnectionActivatedDataConnectionTypeVercelOAuth            ConnectionActivatedDataConnectionType = "VercelOAuth"
+	ConnectionActivatedDataConnectionTypeVMwareSAML             ConnectionActivatedDataConnectionType = "VMwareSAML"
+	ConnectionActivatedDataConnectionTypeXeroOAuth              ConnectionActivatedDataConnectionType = "XeroOAuth"
+)
+
+// ConnectionActivatedDataStatus represents connection activated data status values.
+type ConnectionActivatedDataStatus string
+
+const (
+	ConnectionActivatedDataStatusLinked   ConnectionActivatedDataStatus = "linked"
+	ConnectionActivatedDataStatusUnlinked ConnectionActivatedDataStatus = "unlinked"
+)
+
+// ConnectionActivatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type ConnectionActivatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// ConnectionDeactivatedDataState is an alias for ConnectionActivatedDataState.
+type ConnectionDeactivatedDataState = ConnectionActivatedDataState
+
+// ConnectionDeactivatedDataConnectionType is an alias for ConnectionActivatedDataConnectionType.
+type ConnectionDeactivatedDataConnectionType = ConnectionActivatedDataConnectionType
+
+// ConnectionDeactivatedDataStatus is an alias for ConnectionActivatedDataStatus.
+type ConnectionDeactivatedDataStatus = ConnectionActivatedDataStatus
+
+// ConnectionDeactivatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type ConnectionDeactivatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// ConnectionDeletedDataState is an alias for ConnectionActivatedDataState.
+type ConnectionDeletedDataState = ConnectionActivatedDataState
+
+// ConnectionDeletedDataConnectionType is an alias for ConnectionActivatedDataConnectionType.
+type ConnectionDeletedDataConnectionType = ConnectionActivatedDataConnectionType
+
+// ConnectionDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type ConnectionDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType represents connection saml certificate renewal required data certificate certificate type values.
+type ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType string
+
+const (
+	ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateTypeResponseSigning    ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType = "ResponseSigning"
+	ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateTypeRequestSigning     ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType = "RequestSigning"
+	ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateTypeResponseEncryption ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType = "ResponseEncryption"
+)
+
+// ConnectionSAMLCertificateRenewalRequiredContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type ConnectionSAMLCertificateRenewalRequiredContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// ConnectionSAMLCertificateRenewedDataCertificateCertificateType is an alias for ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType.
+type ConnectionSAMLCertificateRenewedDataCertificateCertificateType = ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType
+
+// ConnectionSAMLCertificateRenewedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type ConnectionSAMLCertificateRenewedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncActivatedDataType represents dsync activated data type values.
+type DsyncActivatedDataType string
+
+const (
+	DsyncActivatedDataTypeAzureSCIMV20        DsyncActivatedDataType = "azure scim v2.0"
+	DsyncActivatedDataTypeBamboohr            DsyncActivatedDataType = "bamboohr"
+	DsyncActivatedDataTypeBreatheHr           DsyncActivatedDataType = "breathe hr"
+	DsyncActivatedDataTypeCezanneHr           DsyncActivatedDataType = "cezanne hr"
+	DsyncActivatedDataTypeCyberarkSCIMV20     DsyncActivatedDataType = "cyberark scim v2.0"
+	DsyncActivatedDataTypeFourthHr            DsyncActivatedDataType = "fourth hr"
+	DsyncActivatedDataTypeGenericSCIMV20      DsyncActivatedDataType = "generic scim v2.0"
+	DsyncActivatedDataTypeGsuiteDirectory     DsyncActivatedDataType = "gsuite directory"
+	DsyncActivatedDataTypeGusto               DsyncActivatedDataType = "gusto"
+	DsyncActivatedDataTypeHibob               DsyncActivatedDataType = "hibob"
+	DsyncActivatedDataTypeJumpCloudSCIMV20    DsyncActivatedDataType = "jump cloud scim v2.0"
+	DsyncActivatedDataTypeOktaSCIMV20         DsyncActivatedDataType = "okta scim v2.0"
+	DsyncActivatedDataTypeOneloginSCIMV20     DsyncActivatedDataType = "onelogin scim v2.0"
+	DsyncActivatedDataTypePeopleHr            DsyncActivatedDataType = "people hr"
+	DsyncActivatedDataTypePersonio            DsyncActivatedDataType = "personio"
+	DsyncActivatedDataTypePingfederateSCIMV20 DsyncActivatedDataType = "pingfederate scim v2.0"
+	DsyncActivatedDataTypeRipplingSCIMV20     DsyncActivatedDataType = "rippling scim v2.0"
+	DsyncActivatedDataTypeRippling            DsyncActivatedDataType = "rippling"
+	DsyncActivatedDataTypeSailpointSCIMV20    DsyncActivatedDataType = "sailpoint scim v2.0"
+	DsyncActivatedDataTypeS3                  DsyncActivatedDataType = "s3"
+	DsyncActivatedDataTypeSftp                DsyncActivatedDataType = "sftp"
+	DsyncActivatedDataTypeSftpWorkday         DsyncActivatedDataType = "sftp workday"
+	DsyncActivatedDataTypeWorkday             DsyncActivatedDataType = "workday"
+)
+
+// DsyncActivatedDataState represents dsync activated data state values.
+type DsyncActivatedDataState string
+
+const (
+	DsyncActivatedDataStateActive             DsyncActivatedDataState = "active"
+	DsyncActivatedDataStateValidating         DsyncActivatedDataState = "validating"
+	DsyncActivatedDataStateInvalidCredentials DsyncActivatedDataState = "invalid_credentials"
+	DsyncActivatedDataStateInactive           DsyncActivatedDataState = "inactive"
+	DsyncActivatedDataStateDeleting           DsyncActivatedDataState = "deleting"
+)
+
+// DsyncActivatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncActivatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncDeactivatedDataType is an alias for DsyncActivatedDataType.
+type DsyncDeactivatedDataType = DsyncActivatedDataType
+
+// DsyncDeactivatedDataState is an alias for DsyncActivatedDataState.
+type DsyncDeactivatedDataState = DsyncActivatedDataState
+
+// DsyncDeactivatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncDeactivatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncDeletedDataType is an alias for DsyncActivatedDataType.
+type DsyncDeletedDataType = DsyncActivatedDataType
+
+// DsyncDeletedDataState is an alias for DsyncActivatedDataState.
+type DsyncDeletedDataState = DsyncActivatedDataState
+
+// DsyncDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncGroupCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncGroupCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncGroupDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncGroupDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncGroupUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncGroupUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncGroupUserAddedDataUserState is an alias for DirectoryUserWithGroupsState.
+type DsyncGroupUserAddedDataUserState = DirectoryUserWithGroupsState
+
+// DsyncGroupUserAddedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncGroupUserAddedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncUserCreatedDataState is an alias for DirectoryUserWithGroupsState.
+type DsyncUserCreatedDataState = DirectoryUserWithGroupsState
+
+// DsyncUserCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncUserCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncUserDeletedDataState is an alias for DirectoryUserWithGroupsState.
+type DsyncUserDeletedDataState = DirectoryUserWithGroupsState
+
+// DsyncUserDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncUserDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncGroupUserRemovedDataUserState is an alias for DirectoryUserWithGroupsState.
+type DsyncGroupUserRemovedDataUserState = DirectoryUserWithGroupsState
+
+// DsyncGroupUserRemovedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncGroupUserRemovedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// DsyncUserUpdatedDataState is an alias for DirectoryUserWithGroupsState.
+type DsyncUserUpdatedDataState = DirectoryUserWithGroupsState
+
+// DsyncUserUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type DsyncUserUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// EmailVerificationCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type EmailVerificationCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// FlagCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type FlagCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// FlagDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type FlagDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// FlagRuleUpdatedContextAccessType represents flag rule updated context access type values.
+type FlagRuleUpdatedContextAccessType string
+
+const (
+	FlagRuleUpdatedContextAccessTypeNone FlagRuleUpdatedContextAccessType = "none"
+	FlagRuleUpdatedContextAccessTypeSome FlagRuleUpdatedContextAccessType = "some"
+	FlagRuleUpdatedContextAccessTypeAll  FlagRuleUpdatedContextAccessType = "all"
+)
+
+// FlagRuleUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type FlagRuleUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// FlagRuleUpdatedContextPreviousAttributeContextAccessType is an alias for FlagRuleUpdatedContextAccessType.
+type FlagRuleUpdatedContextPreviousAttributeContextAccessType = FlagRuleUpdatedContextAccessType
+
+// FlagUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type FlagUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// InvitationAcceptedDataState represents invitation accepted data state values.
+type InvitationAcceptedDataState string
+
+const (
+	InvitationAcceptedDataStatePending  InvitationAcceptedDataState = "pending"
+	InvitationAcceptedDataStateAccepted InvitationAcceptedDataState = "accepted"
+	InvitationAcceptedDataStateExpired  InvitationAcceptedDataState = "expired"
+	InvitationAcceptedDataStateRevoked  InvitationAcceptedDataState = "revoked"
+)
+
+// InvitationAcceptedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type InvitationAcceptedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// InvitationCreatedDataState is an alias for InvitationAcceptedDataState.
+type InvitationCreatedDataState = InvitationAcceptedDataState
+
+// InvitationCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type InvitationCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// InvitationResentDataState is an alias for InvitationAcceptedDataState.
+type InvitationResentDataState = InvitationAcceptedDataState
+
+// InvitationResentContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type InvitationResentContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// InvitationRevokedDataState is an alias for InvitationAcceptedDataState.
+type InvitationRevokedDataState = InvitationAcceptedDataState
+
+// InvitationRevokedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type InvitationRevokedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// MagicAuthCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type MagicAuthCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationCreatedDataDomainState represents organization created data domain state values.
+type OrganizationCreatedDataDomainState string
+
+const (
+	OrganizationCreatedDataDomainStateFailed         OrganizationCreatedDataDomainState = "failed"
+	OrganizationCreatedDataDomainStateLegacyVerified OrganizationCreatedDataDomainState = "legacy_verified"
+	OrganizationCreatedDataDomainStatePending        OrganizationCreatedDataDomainState = "pending"
+	OrganizationCreatedDataDomainStateUnverified     OrganizationCreatedDataDomainState = "unverified"
+	OrganizationCreatedDataDomainStateVerified       OrganizationCreatedDataDomainState = "verified"
+)
+
+// OrganizationCreatedDataDomainVerificationStrategy represents organization created data domain verification strategy values.
+type OrganizationCreatedDataDomainVerificationStrategy string
+
+const (
+	OrganizationCreatedDataDomainVerificationStrategyDns    OrganizationCreatedDataDomainVerificationStrategy = "dns"
+	OrganizationCreatedDataDomainVerificationStrategyManual OrganizationCreatedDataDomainVerificationStrategy = "manual"
+)
+
+// OrganizationCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDeletedDataDomainState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDeletedDataDomainState = OrganizationCreatedDataDomainState
+
+// OrganizationDeletedDataDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDeletedDataDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDomainCreatedDataState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainCreatedDataState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainCreatedDataVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainCreatedDataVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationDomainCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationDomainCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDomainDeletedDataState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainDeletedDataState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainDeletedDataVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainDeletedDataVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationDomainDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationDomainDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDomainUpdatedDataState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainUpdatedDataState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainUpdatedDataVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainUpdatedDataVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationDomainUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationDomainUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDomainVerificationFailedDataReason represents organization domain verification failed data reason values.
+type OrganizationDomainVerificationFailedDataReason string
+
+const (
+	OrganizationDomainVerificationFailedDataReasonDomainVerificationPeriodExpired   OrganizationDomainVerificationFailedDataReason = "domain_verification_period_expired"
+	OrganizationDomainVerificationFailedDataReasonDomainVerifiedByOtherOrganization OrganizationDomainVerificationFailedDataReason = "domain_verified_by_other_organization"
+)
+
+// OrganizationDomainVerificationFailedDataOrganizationDomainState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainVerificationFailedDataOrganizationDomainState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainVerificationFailedDataOrganizationDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainVerificationFailedDataOrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationDomainVerificationFailedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationDomainVerificationFailedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDomainVerifiedDataState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainVerifiedDataState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainVerifiedDataVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainVerifiedDataVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationDomainVerifiedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationDomainVerifiedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationMembershipCreatedDataStatus represents organization membership created data status values.
+type OrganizationMembershipCreatedDataStatus string
+
+const (
+	OrganizationMembershipCreatedDataStatusActive   OrganizationMembershipCreatedDataStatus = "active"
+	OrganizationMembershipCreatedDataStatusInactive OrganizationMembershipCreatedDataStatus = "inactive"
+	OrganizationMembershipCreatedDataStatusPending  OrganizationMembershipCreatedDataStatus = "pending"
+)
+
+// OrganizationMembershipCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationMembershipCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationMembershipDeletedDataStatus is an alias for OrganizationMembershipCreatedDataStatus.
+type OrganizationMembershipDeletedDataStatus = OrganizationMembershipCreatedDataStatus
+
+// OrganizationMembershipDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationMembershipDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationMembershipUpdatedDataStatus is an alias for OrganizationMembershipCreatedDataStatus.
+type OrganizationMembershipUpdatedDataStatus = OrganizationMembershipCreatedDataStatus
+
+// OrganizationMembershipUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationMembershipUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationRoleCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationRoleCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationRoleDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationRoleDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationRoleUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationRoleUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationUpdatedDataDomainState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationUpdatedDataDomainState = OrganizationCreatedDataDomainState
+
+// OrganizationUpdatedDataDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationUpdatedDataDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
+// OrganizationUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type OrganizationUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// PasswordResetCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type PasswordResetCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// PasswordResetSucceededContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type PasswordResetSucceededContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// PermissionCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type PermissionCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// PermissionDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type PermissionDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// PermissionUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type PermissionUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// RoleCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type RoleCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// RoleDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type RoleDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// RoleUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type RoleUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// SessionCreatedDataAuthMethod represents session created data auth method values.
+type SessionCreatedDataAuthMethod string
+
+const (
+	SessionCreatedDataAuthMethodCrossAppAuth    SessionCreatedDataAuthMethod = "cross_app_auth"
+	SessionCreatedDataAuthMethodExternalAuth    SessionCreatedDataAuthMethod = "external_auth"
+	SessionCreatedDataAuthMethodImpersonation   SessionCreatedDataAuthMethod = "impersonation"
+	SessionCreatedDataAuthMethodMagicCode       SessionCreatedDataAuthMethod = "magic_code"
+	SessionCreatedDataAuthMethodMigratedSession SessionCreatedDataAuthMethod = "migrated_session"
+	SessionCreatedDataAuthMethodOAuth           SessionCreatedDataAuthMethod = "oauth"
+	SessionCreatedDataAuthMethodPasskey         SessionCreatedDataAuthMethod = "passkey"
+	SessionCreatedDataAuthMethodPassword        SessionCreatedDataAuthMethod = "password"
+	SessionCreatedDataAuthMethodSSO             SessionCreatedDataAuthMethod = "sso"
+	SessionCreatedDataAuthMethodUnknown         SessionCreatedDataAuthMethod = "unknown"
+)
+
+// SessionCreatedDataStatus represents session created data status values.
+type SessionCreatedDataStatus string
+
+const (
+	SessionCreatedDataStatusActive  SessionCreatedDataStatus = "active"
+	SessionCreatedDataStatusExpired SessionCreatedDataStatus = "expired"
+	SessionCreatedDataStatusRevoked SessionCreatedDataStatus = "revoked"
+)
+
+// SessionCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type SessionCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// SessionRevokedDataAuthMethod is an alias for SessionCreatedDataAuthMethod.
+type SessionRevokedDataAuthMethod = SessionCreatedDataAuthMethod
+
+// SessionRevokedDataStatus is an alias for SessionCreatedDataStatus.
+type SessionRevokedDataStatus = SessionCreatedDataStatus
+
+// SessionRevokedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type SessionRevokedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// UserCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type UserCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// UserDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type UserDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// UserUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type UserUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultByokKeyVerificationCompletedDataKeyProvider represents vault byok key verification completed data key provider values.
+type VaultByokKeyVerificationCompletedDataKeyProvider string
+
+const (
+	VaultByokKeyVerificationCompletedDataKeyProviderAwsKms        VaultByokKeyVerificationCompletedDataKeyProvider = "AWS_KMS"
+	VaultByokKeyVerificationCompletedDataKeyProviderGcpKms        VaultByokKeyVerificationCompletedDataKeyProvider = "GCP_KMS"
+	VaultByokKeyVerificationCompletedDataKeyProviderAzureKeyVault VaultByokKeyVerificationCompletedDataKeyProvider = "AZURE_KEY_VAULT"
+)
+
+// VaultByokKeyVerificationCompletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultByokKeyVerificationCompletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultDataCreatedDataActorSource represents vault data created data actor source values.
+type VaultDataCreatedDataActorSource string
+
+const (
+	VaultDataCreatedDataActorSourceAPI       VaultDataCreatedDataActorSource = "api"
+	VaultDataCreatedDataActorSourceDashboard VaultDataCreatedDataActorSource = "dashboard"
+)
+
+// VaultDataCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultDataCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultDataDeletedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultDataDeletedDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultDataDeletedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultDataDeletedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultDataReadDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultDataReadDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultDataReadContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultDataReadContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultDataUpdatedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultDataUpdatedDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultDataUpdatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultDataUpdatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultDekDecryptedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultDekDecryptedDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultDekDecryptedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultDekDecryptedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultDekReadDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultDekReadDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultDekReadContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultDekReadContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultKekCreatedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultKekCreatedDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultKekCreatedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultKekCreatedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultMetadataReadDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultMetadataReadDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultMetadataReadContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultMetadataReadContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// VaultNamesListedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultNamesListedDataActorSource = VaultDataCreatedDataActorSource
+
+// VaultNamesListedContextActorSource is an alias for ActionAuthenticationDeniedContextActorSource.
+type VaultNamesListedContextActorSource = ActionAuthenticationDeniedContextActorSource
+
+// OrganizationDomainStandAloneState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainStandAloneState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainStandAloneVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainStandAloneVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
 
 // AuditLogConfigurationState represents audit log configuration state values.
 type AuditLogConfigurationState string
@@ -463,11 +1063,11 @@ const (
 	RadarStandaloneResponseBlocklistTypeCountry           RadarStandaloneResponseBlocklistType = "country"
 )
 
-// UserInviteState is an alias for InvitationState.
-type UserInviteState = InvitationState
+// UserInviteState is an alias for InvitationAcceptedDataState.
+type UserInviteState = InvitationAcceptedDataState
 
-// UserOrganizationMembershipStatus is an alias for OrganizationMembershipStatus.
-type UserOrganizationMembershipStatus = OrganizationMembershipStatus
+// UserOrganizationMembershipStatus is an alias for OrganizationMembershipCreatedDataStatus.
+type UserOrganizationMembershipStatus = OrganizationMembershipCreatedDataStatus
 
 // AuthenticateResponseAuthenticationMethod represents authenticate response authentication method values.
 type AuthenticateResponseAuthenticationMethod string
@@ -533,14 +1133,14 @@ const (
 	AuditLogConfigurationLogStreamStateInvalid  AuditLogConfigurationLogStreamState = "invalid"
 )
 
-// OrganizationDomainState is an alias for OrganizationDomainStandAloneState.
-type OrganizationDomainState = OrganizationDomainStandAloneState
+// OrganizationDomainState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainState = OrganizationCreatedDataDomainState
 
-// OrganizationDomainVerificationStrategy is an alias for OrganizationDomainStandAloneVerificationStrategy.
-type OrganizationDomainVerificationStrategy = OrganizationDomainStandAloneVerificationStrategy
+// OrganizationDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
 
-// UserOrganizationMembershipBaseListDataStatus is an alias for OrganizationMembershipStatus.
-type UserOrganizationMembershipBaseListDataStatus = OrganizationMembershipStatus
+// UserOrganizationMembershipBaseListDataStatus is an alias for OrganizationMembershipCreatedDataStatus.
+type UserOrganizationMembershipBaseListDataStatus = OrganizationMembershipCreatedDataStatus
 
 // AuthenticationFactorsCreateRequestType represents authentication factors create request type values.
 type AuthenticationFactorsCreateRequestType string
@@ -587,24 +1187,11 @@ const (
 	RadarStandaloneAssessRequestActionSignUp3 RadarStandaloneAssessRequestAction = "sign up"
 )
 
-// InvitationState represents invitation state values.
-type InvitationState string
+// InvitationState is an alias for InvitationAcceptedDataState.
+type InvitationState = InvitationAcceptedDataState
 
-const (
-	InvitationStatePending  InvitationState = "pending"
-	InvitationStateAccepted InvitationState = "accepted"
-	InvitationStateExpired  InvitationState = "expired"
-	InvitationStateRevoked  InvitationState = "revoked"
-)
-
-// OrganizationMembershipStatus represents organization membership status values.
-type OrganizationMembershipStatus string
-
-const (
-	OrganizationMembershipStatusActive   OrganizationMembershipStatus = "active"
-	OrganizationMembershipStatusInactive OrganizationMembershipStatus = "inactive"
-	OrganizationMembershipStatusPending  OrganizationMembershipStatus = "pending"
-)
+// OrganizationMembershipStatus is an alias for OrganizationMembershipCreatedDataStatus.
+type OrganizationMembershipStatus = OrganizationMembershipCreatedDataStatus
 
 // UserIdentitiesGetItemProvider represents user identities get item provider values.
 type UserIdentitiesGetItemProvider string
@@ -626,30 +1213,11 @@ const (
 	UserIdentitiesGetItemProviderXeroOAuth              UserIdentitiesGetItemProvider = "XeroOAuth"
 )
 
-// UserSessionsAuthMethod represents user sessions auth method values.
-type UserSessionsAuthMethod string
+// UserSessionsAuthMethod is an alias for SessionCreatedDataAuthMethod.
+type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 
-const (
-	UserSessionsAuthMethodCrossAppAuth    UserSessionsAuthMethod = "cross_app_auth"
-	UserSessionsAuthMethodExternalAuth    UserSessionsAuthMethod = "external_auth"
-	UserSessionsAuthMethodImpersonation   UserSessionsAuthMethod = "impersonation"
-	UserSessionsAuthMethodMagicCode       UserSessionsAuthMethod = "magic_code"
-	UserSessionsAuthMethodMigratedSession UserSessionsAuthMethod = "migrated_session"
-	UserSessionsAuthMethodOAuth           UserSessionsAuthMethod = "oauth"
-	UserSessionsAuthMethodPasskey         UserSessionsAuthMethod = "passkey"
-	UserSessionsAuthMethodPassword        UserSessionsAuthMethod = "password"
-	UserSessionsAuthMethodSSO             UserSessionsAuthMethod = "sso"
-	UserSessionsAuthMethodUnknown         UserSessionsAuthMethod = "unknown"
-)
-
-// UserSessionsStatus represents user sessions status values.
-type UserSessionsStatus string
-
-const (
-	UserSessionsStatusActive  UserSessionsStatus = "active"
-	UserSessionsStatusExpired UserSessionsStatus = "expired"
-	UserSessionsStatusRevoked UserSessionsStatus = "revoked"
-)
+// UserSessionsStatus is an alias for SessionCreatedDataStatus.
+type UserSessionsStatus = SessionCreatedDataStatus
 
 // DataIntegrationsListResponseDataConnectedAccountState is an alias for ConnectedAccountState.
 type DataIntegrationsListResponseDataConnectedAccountState = ConnectedAccountState
@@ -807,8 +1375,8 @@ type UserManagementInvitationsOrder = ApplicationsOrder
 // UserManagementOrganizationMembershipOrder is an alias for ApplicationsOrder.
 type UserManagementOrganizationMembershipOrder = ApplicationsOrder
 
-// UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipStatus.
-type UserManagementOrganizationMembershipStatuses = OrganizationMembershipStatus
+// UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
+type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
 
 // UserManagementUsersFeatureFlagsOrder is an alias for ApplicationsOrder.
 type UserManagementUsersFeatureFlagsOrder = ApplicationsOrder

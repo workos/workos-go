@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // userManagementService handles UserManagement operations.
@@ -12,7 +13,7 @@ type userManagementService struct {
 	client *Client
 }
 
-// GetJWKS getJWKS
+// GetJWKS get JWKS
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
 func (s *userManagementService) GetJWKS(ctx context.Context, clientID string, opts ...RequestOption) (*JWKSResponse, error) {
 	var result JWKSResponse
@@ -304,6 +305,7 @@ type UserManagementGetAuthorizationURLParams struct {
 	// InvitationToken is a token representing a user invitation to redeem during authentication.
 	InvitationToken *string `url:"invitation_token,omitempty" json:"-"`
 	// ScreenHint is used to specify which screen to display when the provider is `authkit`.
+	// Defaults to "sign-in".
 	ScreenHint *UserManagementAuthenticationScreenHint `url:"screen_hint,omitempty" json:"-"`
 	// LoginHint is a hint to the authorization server about the login identifier the user might use.
 	LoginHint *string `url:"login_hint,omitempty" json:"-"`
@@ -315,18 +317,59 @@ type UserManagementGetAuthorizationURLParams struct {
 	State *string `url:"state,omitempty" json:"-"`
 	// OrganizationID is the ID of the organization to authenticate the user against.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
-	// ResponseType is the response type of the application.
-	ResponseType string `url:"response_type" json:"-"`
 	// RedirectURI is the callback URI where the authorization code will be sent after authentication.
 	RedirectURI string `url:"redirect_uri" json:"-"`
-	// ClientID is the unique identifier of the WorkOS environment client.
-	ClientID string `url:"client_id" json:"-"`
 }
 
-// GetAuthorizationURL getAnAuthorizationURL
+// GetAuthorizationURL get an authorization URL
 // Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
 func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params *UserManagementGetAuthorizationURLParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "GET", "/user_management/authorize", params, nil, nil, opts)
+	query := url.Values{}
+	query.Set("response_type", "code")
+	if s.client.clientID != "" {
+		query.Set("client_id", s.client.clientID)
+	}
+	if params.CodeChallengeMethod != nil {
+		query.Set("code_challenge_method", fmt.Sprintf("%v", *params.CodeChallengeMethod))
+	}
+	if params.CodeChallenge != nil {
+		query.Set("code_challenge", *params.CodeChallenge)
+	}
+	if params.DomainHint != nil {
+		query.Set("domain_hint", *params.DomainHint)
+	}
+	if params.ConnectionID != nil {
+		query.Set("connection_id", *params.ConnectionID)
+	}
+	if params.ProviderQueryParams != nil {
+		query.Set("provider_query_params", fmt.Sprintf("%v", params.ProviderQueryParams))
+	}
+	if params.ProviderScopes != nil {
+		query.Set("provider_scopes", fmt.Sprintf("%v", params.ProviderScopes))
+	}
+	if params.InvitationToken != nil {
+		query.Set("invitation_token", *params.InvitationToken)
+	}
+	if params.ScreenHint != nil {
+		query.Set("screen_hint", fmt.Sprintf("%v", *params.ScreenHint))
+	}
+	if params.LoginHint != nil {
+		query.Set("login_hint", *params.LoginHint)
+	}
+	if params.Provider != nil {
+		query.Set("provider", fmt.Sprintf("%v", *params.Provider))
+	}
+	if params.Prompt != nil {
+		query.Set("prompt", *params.Prompt)
+	}
+	if params.State != nil {
+		query.Set("state", *params.State)
+	}
+	if params.OrganizationID != nil {
+		query.Set("organization_id", *params.OrganizationID)
+	}
+	query.Set("redirect_uri", params.RedirectURI)
+	_, err := s.client.request(ctx, "GET", "/user_management/authorize", query, nil, nil, opts)
 	return err
 }
 
@@ -336,7 +379,7 @@ type UserManagementCreateDeviceParams struct {
 	ClientID string `json:"client_id"`
 }
 
-// CreateDevice getDeviceAuthorizationURL
+// CreateDevice get device authorization URL
 // Initiates the CLI Auth flow by requesting a device code and verification URLs. This endpoint implements the OAuth 2.0 Device Authorization Flow ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)) and is designed for command-line applications or other devices with limited input capabilities.
 func (s *userManagementService) CreateDevice(ctx context.Context, params *UserManagementCreateDeviceParams, opts ...RequestOption) (*DeviceAuthorizationResponse, error) {
 	var result DeviceAuthorizationResponse
@@ -370,7 +413,7 @@ type UserManagementRevokeSessionParams struct {
 	ReturnTo *string `json:"return_to,omitempty"`
 }
 
-// RevokeSession revokeSession
+// RevokeSession revoke Session
 // Revoke a [user session](https://workos.com/docs/reference/authkit/session).
 func (s *userManagementService) RevokeSession(ctx context.Context, params *UserManagementRevokeSessionParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", "/user_management/sessions/revoke", nil, params, nil, opts)
@@ -383,7 +426,7 @@ type UserManagementCreateCORSOriginsParams struct {
 	Origin string `json:"origin"`
 }
 
-// CreateCORSOrigins createACORSOrigin
+// CreateCORSOrigins create a CORS origin
 // Creates a new CORS origin for the current environment. CORS origins allow browser-based applications to make requests to the WorkOS API.
 func (s *userManagementService) CreateCORSOrigins(ctx context.Context, params *UserManagementCreateCORSOriginsParams, opts ...RequestOption) (*CORSOriginResponse, error) {
 	var result CORSOriginResponse
@@ -394,7 +437,7 @@ func (s *userManagementService) CreateCORSOrigins(ctx context.Context, params *U
 	return &result, nil
 }
 
-// GetEmailVerification getAnEmailVerificationCode
+// GetEmailVerification get an email verification code
 // Get the details of an existing email verification code that can be used to send an email to a user for verification.
 func (s *userManagementService) GetEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*EmailVerification, error) {
 	var result EmailVerification
@@ -411,7 +454,7 @@ type UserManagementCreatePasswordResetParams struct {
 	Email string `json:"email"`
 }
 
-// CreatePasswordReset createAPasswordResetToken
+// CreatePasswordReset create a password reset token
 // Creates a one-time token that can be used to reset a user's password.
 func (s *userManagementService) CreatePasswordReset(ctx context.Context, params *UserManagementCreatePasswordResetParams, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
@@ -430,7 +473,7 @@ type UserManagementConfirmPasswordResetParams struct {
 	NewPassword string `json:"new_password"`
 }
 
-// ConfirmPasswordReset resetThePassword
+// ConfirmPasswordReset reset the password
 // Sets a new password using the `token` query parameter from the link that the user received. Successfully resetting the password will verify a user's email, if it hasn't been verified yet.
 func (s *userManagementService) ConfirmPasswordReset(ctx context.Context, params *UserManagementConfirmPasswordResetParams, opts ...RequestOption) (*ResetPasswordResponse, error) {
 	var result ResetPasswordResponse
@@ -441,7 +484,7 @@ func (s *userManagementService) ConfirmPasswordReset(ctx context.Context, params
 	return &result, nil
 }
 
-// GetPasswordReset getAPasswordResetToken
+// GetPasswordReset get a password reset token
 // Get the details of an existing password reset token that can be used to reset a user's password.
 func (s *userManagementService) GetPasswordReset(ctx context.Context, id string, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
@@ -459,8 +502,10 @@ type UserManagementListParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
 	// Organization is filter users by the organization they are a member of. Deprecated in favor of `organization_id`.
 	//
@@ -472,7 +517,7 @@ type UserManagementListParams struct {
 	Email *string `url:"email,omitempty" json:"-"`
 }
 
-// List listUsers
+// List list users
 // Get a list of all of your existing users matching the criteria specified.
 func (s *userManagementService) List(ctx context.Context, params *UserManagementListParams, opts ...RequestOption) *Iterator[User] {
 	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "after", "data", opts)
@@ -500,7 +545,7 @@ type UserManagementCreateParams struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// Create createAUser
+// Create create a user
 // Create a new user in the current environment.
 func (s *userManagementService) Create(ctx context.Context, params *UserManagementCreateParams, opts ...RequestOption) (*User, error) {
 	var result User
@@ -511,7 +556,7 @@ func (s *userManagementService) Create(ctx context.Context, params *UserManageme
 	return &result, nil
 }
 
-// GetByExternalID getAUserByExternalID
+// GetByExternalID get a user by external ID
 // Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
 func (s *userManagementService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*User, error) {
 	var result User
@@ -522,7 +567,7 @@ func (s *userManagementService) GetByExternalID(ctx context.Context, externalID 
 	return &result, nil
 }
 
-// Get getAUser
+// Get get a user
 // Get the details of an existing user.
 func (s *userManagementService) Get(ctx context.Context, id string, opts ...RequestOption) (*User, error) {
 	var result User
@@ -557,7 +602,7 @@ type UserManagementUpdateParams struct {
 	Locale *string `json:"locale,omitempty"`
 }
 
-// Update updateAUser
+// Update update a user
 // Updates properties of a user. The omitted properties will be left unchanged.
 func (s *userManagementService) Update(ctx context.Context, id string, params *UserManagementUpdateParams, opts ...RequestOption) (*User, error) {
 	var result User
@@ -568,7 +613,7 @@ func (s *userManagementService) Update(ctx context.Context, id string, params *U
 	return &result, nil
 }
 
-// Delete deleteAUser
+// Delete delete a user
 // Permanently deletes a user in the current environment. It cannot be undone.
 func (s *userManagementService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", id), nil, nil, nil, opts)
@@ -581,7 +626,7 @@ type UserManagementConfirmEmailChangeParams struct {
 	Code string `json:"code"`
 }
 
-// ConfirmEmailChange confirmEmailChange
+// ConfirmEmailChange confirm email change
 // Confirms an email change using the one-time code received by the user.
 func (s *userManagementService) ConfirmEmailChange(ctx context.Context, id string, params *UserManagementConfirmEmailChangeParams, opts ...RequestOption) (*EmailChangeConfirmation, error) {
 	var result EmailChangeConfirmation
@@ -598,7 +643,7 @@ type UserManagementSendEmailChangeParams struct {
 	NewEmail string `json:"new_email"`
 }
 
-// SendEmailChange sendEmailChangeCode
+// SendEmailChange send email change code
 // Sends an email that contains a one-time code used to change a user's email address.
 func (s *userManagementService) SendEmailChange(ctx context.Context, id string, params *UserManagementSendEmailChangeParams, opts ...RequestOption) (*EmailChange, error) {
 	var result EmailChange
@@ -615,7 +660,7 @@ type UserManagementConfirmEmailVerificationParams struct {
 	Code string `json:"code"`
 }
 
-// ConfirmEmailVerification verifyEmail
+// ConfirmEmailVerification verify email
 // Verifies an email address using the one-time code received by the user.
 func (s *userManagementService) ConfirmEmailVerification(ctx context.Context, id string, params *UserManagementConfirmEmailVerificationParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
 	var result VerifyEmailResponse
@@ -626,7 +671,7 @@ func (s *userManagementService) ConfirmEmailVerification(ctx context.Context, id
 	return &result, nil
 }
 
-// SendEmailVerification sendVerificationEmail
+// SendEmailVerification send verification email
 // Sends an email that contains a one-time code used to verify a user’s email address.
 func (s *userManagementService) SendEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
@@ -637,7 +682,7 @@ func (s *userManagementService) SendEmailVerification(ctx context.Context, id st
 	return &result, nil
 }
 
-// ListIdentities getUserIdentities
+// ListIdentities get user identities
 // Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
 func (s *userManagementService) ListIdentities(ctx context.Context, id string, opts ...RequestOption) ([]UserIdentitiesGetItem, error) {
 	var result []UserIdentitiesGetItem
@@ -655,12 +700,14 @@ type UserManagementListSessionsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *UserManagementUsersOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListSessions listSessions
+// ListSessions list sessions
 // Get a list of all active sessions for a specific user.
 func (s *userManagementService) ListSessions(ctx context.Context, id string, params *UserManagementListSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
 	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", id), params, "after", "data", opts)
@@ -673,8 +720,10 @@ type UserManagementListInvitationsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *UserManagementInvitationsOrder `url:"order,omitempty" json:"-"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
@@ -682,7 +731,7 @@ type UserManagementListInvitationsParams struct {
 	Email *string `url:"email,omitempty" json:"-"`
 }
 
-// ListInvitations listInvitations
+// ListInvitations list invitations
 // Get a list of all of invitations matching the criteria specified.
 func (s *userManagementService) ListInvitations(ctx context.Context, params *UserManagementListInvitationsParams, opts ...RequestOption) *Iterator[UserInvite] {
 	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts)
@@ -704,7 +753,7 @@ type UserManagementCreateInvitationsParams struct {
 	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
-// CreateInvitations sendAnInvitation
+// CreateInvitations send an invitation
 // Sends an invitation email to the recipient.
 func (s *userManagementService) CreateInvitations(ctx context.Context, params *UserManagementCreateInvitationsParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
@@ -715,7 +764,7 @@ func (s *userManagementService) CreateInvitations(ctx context.Context, params *U
 	return &result, nil
 }
 
-// GetByToken findAnInvitationByToken
+// GetByToken find an invitation by token
 // Retrieve an existing invitation using the token.
 func (s *userManagementService) GetByToken(ctx context.Context, token string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
@@ -726,7 +775,7 @@ func (s *userManagementService) GetByToken(ctx context.Context, token string, op
 	return &result, nil
 }
 
-// GetInvitation getAnInvitation
+// GetInvitation get an invitation
 // Get the details of an existing invitation.
 func (s *userManagementService) GetInvitation(ctx context.Context, id string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
@@ -737,7 +786,7 @@ func (s *userManagementService) GetInvitation(ctx context.Context, id string, op
 	return &result, nil
 }
 
-// AcceptInvitation acceptAnInvitation
+// AcceptInvitation accept an invitation
 // Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
 func (s *userManagementService) AcceptInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
@@ -754,7 +803,7 @@ type UserManagementResendInvitationParams struct {
 	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
-// ResendInvitation resendAnInvitation
+// ResendInvitation resend an invitation
 // Resends an invitation email to the recipient. The invitation must be in a pending state.
 func (s *userManagementService) ResendInvitation(ctx context.Context, id string, params *UserManagementResendInvitationParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
@@ -765,7 +814,7 @@ func (s *userManagementService) ResendInvitation(ctx context.Context, id string,
 	return &result, nil
 }
 
-// RevokeInvitation revokeAnInvitation
+// RevokeInvitation revoke an invitation
 // Revokes an existing invitation.
 func (s *userManagementService) RevokeInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
@@ -782,7 +831,7 @@ type UserManagementUpdateJWTTemplateParams struct {
 	Content string `json:"content"`
 }
 
-// UpdateJWTTemplate updateJWTTemplate
+// UpdateJWTTemplate update JWT template
 // Update the JWT template for the current environment.
 func (s *userManagementService) UpdateJWTTemplate(ctx context.Context, params *UserManagementUpdateJWTTemplateParams, opts ...RequestOption) (*JWTTemplateResponse, error) {
 	var result JWTTemplateResponse
@@ -801,7 +850,7 @@ type UserManagementCreateMagicAuthParams struct {
 	InvitationToken *string `json:"invitation_token,omitempty"`
 }
 
-// CreateMagicAuth createAMagicAuthCode
+// CreateMagicAuth create a Magic Auth code
 // Creates a one-time authentication code that can be sent to the user's email address. The code expires in 10 minutes. To verify the code, [authenticate the user with Magic Auth](https://workos.com/docs/reference/authkit/authentication/magic-auth).
 func (s *userManagementService) CreateMagicAuth(ctx context.Context, params *UserManagementCreateMagicAuthParams, opts ...RequestOption) (*MagicAuth, error) {
 	var result MagicAuth
@@ -812,7 +861,7 @@ func (s *userManagementService) CreateMagicAuth(ctx context.Context, params *Use
 	return &result, nil
 }
 
-// GetMagicAuth getMagicAuthCodeDetails
+// GetMagicAuth get Magic Auth code details
 // Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
 func (s *userManagementService) GetMagicAuth(ctx context.Context, id string, opts ...RequestOption) (*MagicAuth, error) {
 	var result MagicAuth
@@ -830,8 +879,10 @@ type UserManagementListOrganizationMembershipsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *UserManagementOrganizationMembershipOrder `url:"order,omitempty" json:"-"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
@@ -841,7 +892,7 @@ type UserManagementListOrganizationMembershipsParams struct {
 	UserID *string `url:"user_id,omitempty" json:"-"`
 }
 
-// ListOrganizationMemberships listOrganizationMemberships
+// ListOrganizationMemberships list organization memberships
 // Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
 func (s *userManagementService) ListOrganizationMemberships(ctx context.Context, params *UserManagementListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembership] {
 	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts)
@@ -859,7 +910,7 @@ type UserManagementCreateOrganizationMembershipsParams struct {
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
-// CreateOrganizationMemberships createAnOrganizationMembership
+// CreateOrganizationMemberships create an organization membership
 // Creates a new `active` organization membership for the given organization and user.
 // Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
 func (s *userManagementService) CreateOrganizationMemberships(ctx context.Context, params *UserManagementCreateOrganizationMembershipsParams, opts ...RequestOption) (*OrganizationMembership, error) {
@@ -871,7 +922,7 @@ func (s *userManagementService) CreateOrganizationMemberships(ctx context.Contex
 	return &result, nil
 }
 
-// GetOrganizationMembership getAnOrganizationMembership
+// GetOrganizationMembership get an organization membership
 // Get the details of an existing organization membership.
 func (s *userManagementService) GetOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
@@ -890,7 +941,7 @@ type UserManagementUpdateOrganizationMembershipParams struct {
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
-// UpdateOrganizationMembership updateAnOrganizationMembership
+// UpdateOrganizationMembership update an organization membership
 // Update the details of an existing organization membership.
 func (s *userManagementService) UpdateOrganizationMembership(ctx context.Context, id string, params *UserManagementUpdateOrganizationMembershipParams, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
@@ -901,14 +952,14 @@ func (s *userManagementService) UpdateOrganizationMembership(ctx context.Context
 	return &result, nil
 }
 
-// DeleteOrganizationMembership deleteAnOrganizationMembership
+// DeleteOrganizationMembership delete an organization membership
 // Permanently deletes an existing organization membership. It cannot be undone.
 func (s *userManagementService) DeleteOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// DeactivateOrganizationMembership deactivateAnOrganizationMembership
+// DeactivateOrganizationMembership deactivate an organization membership
 // Deactivates an `active` organization membership. Emits an [organization_membership.updated](https://workos.com/docs/events/organization-membership) event upon successful deactivation.
 // - Deactivating an `inactive` membership is a no-op and does not emit an event.
 // - Deactivating a `pending` membership returns an error. This membership should be [deleted](https://workos.com/docs/reference/authkit/organization-membership/delete) instead.
@@ -922,7 +973,7 @@ func (s *userManagementService) DeactivateOrganizationMembership(ctx context.Con
 	return &result, nil
 }
 
-// ReactivateOrganizationMembership reactivateAnOrganizationMembership
+// ReactivateOrganizationMembership reactivate an organization membership
 // Reactivates an `inactive` organization membership, retaining the pre-existing role(s). Emits an [organization_membership.updated](https://workos.com/docs/events/organization-membership) event upon successful reactivation.
 // - Reactivating an `active` membership is a no-op and does not emit an event.
 // - Reactivating a `pending` membership returns an error. The user needs to [accept the invitation](https://workos.com/docs/authkit/invitations) instead.
@@ -942,7 +993,7 @@ type UserManagementCreateRedirectURIsParams struct {
 	URI string `json:"uri"`
 }
 
-// CreateRedirectURIs createARedirectURI
+// CreateRedirectURIs create a redirect URI
 // Creates a new redirect URI for an environment.
 func (s *userManagementService) CreateRedirectURIs(ctx context.Context, params *UserManagementCreateRedirectURIsParams, opts ...RequestOption) (*RedirectURI, error) {
 	var result RedirectURI
@@ -960,18 +1011,20 @@ type UserManagementListAuthorizedApplicationsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *UserManagementUsersAuthorizedApplicationsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListAuthorizedApplications listAuthorizedApplications
+// ListAuthorizedApplications list authorized applications
 // Get a list of all Connect applications that the user has authorized.
 func (s *userManagementService) ListAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
 	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", userID), params, "after", "data", opts)
 }
 
-// DeleteAuthorizedApplication deleteAnAuthorizedApplication
+// DeleteAuthorizedApplication delete an authorized application
 // Delete an existing Authorized Connect Application.
 func (s *userManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", userID, applicationID), nil, nil, nil, opts)

@@ -12,7 +12,7 @@ type auditLogService struct {
 	client *Client
 }
 
-// ListOrganizationAuditLogsRetention getRetention
+// ListOrganizationAuditLogsRetention get Retention
 // Get the configured event retention period for the given Organization.
 func (s *auditLogService) ListOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
@@ -29,7 +29,7 @@ type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
 	RetentionPeriodInDays int `json:"retention_period_in_days"`
 }
 
-// UpdateOrganizationAuditLogsRetention setRetention
+// UpdateOrganizationAuditLogsRetention set Retention
 // Set the event retention period for the given Organization.
 func (s *auditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Context, id string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
@@ -47,12 +47,14 @@ type AuditLogsListActionsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time.
+	// Defaults to "desc".
 	Order *AuditLogsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListActions listActions
+// ListActions list Actions
 // Get a list of all Audit Log actions in the current environment.
 func (s *auditLogService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogActionJSON] {
 	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts)
@@ -65,12 +67,14 @@ type AuditLogsListActionSchemasParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time.
+	// Defaults to "desc".
 	Order *AuditLogsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListActionSchemas listSchemas
+// ListActionSchemas list Schemas
 // Get a list of all schemas for the Audit Logs action identified by `:name`.
 func (s *auditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
 	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), params, "after", "data", opts)
@@ -86,7 +90,7 @@ type AuditLogsCreateActionSchemasParams struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// CreateActionSchemas createSchema
+// CreateActionSchemas create Schema
 // Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
 func (s *auditLogService) CreateActionSchemas(ctx context.Context, actionName string, params *AuditLogsCreateActionSchemasParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
 	var result AuditLogSchemaJSON
@@ -105,7 +109,7 @@ type AuditLogsCreateEventsParams struct {
 	Event *AuditLogEvent `json:"event"`
 }
 
-// CreateEvents createEvent
+// CreateEvents create Event
 // Create an Audit Log Event.
 // This API supports idempotency which guarantees that performing the same operation multiple times will have the same result as if the operation were performed only once. This is handy in situations where you may need to retry a request due to a failure or prevent accidental duplicate requests from creating more than one resource.
 // To achieve idempotency, you can add `Idempotency-Key` request header to a Create Event request with a unique string as the value. Each subsequent request matching this unique string will return the same response. We suggest using [v4 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) for idempotency keys to avoid collisions.
@@ -123,9 +127,9 @@ func (s *auditLogService) CreateEvents(ctx context.Context, params *AuditLogsCre
 type AuditLogsCreateExportsParams struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id"`
-	// RangeStart is iSO-8601 value for start of the export range.
+	// RangeStart is iso-8601 value for start of the export range.
 	RangeStart string `json:"range_start"`
-	// RangeEnd is iSO-8601 value for end of the export range.
+	// RangeEnd is iso-8601 value for end of the export range.
 	RangeEnd string `json:"range_end"`
 	// Actions is list of actions to filter against.
 	Actions []string `json:"actions,omitempty"`
@@ -135,13 +139,13 @@ type AuditLogsCreateExportsParams struct {
 	Actors []string `json:"actors,omitempty"`
 	// ActorNames is list of actor names to filter against.
 	ActorNames []string `json:"actor_names,omitempty"`
-	// ActorIds is list of actor IDs to filter against.
-	ActorIds []string `json:"actor_ids,omitempty"`
+	// ActorIDs is list of actor IDs to filter against.
+	ActorIDs []string `json:"actor_ids,omitempty"`
 	// Targets is list of target types to filter against.
 	Targets []string `json:"targets,omitempty"`
 }
 
-// CreateExports createExport
+// CreateExports create Export
 // Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
 func (s *auditLogService) CreateExports(ctx context.Context, params *AuditLogsCreateExportsParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
@@ -152,7 +156,7 @@ func (s *auditLogService) CreateExports(ctx context.Context, params *AuditLogsCr
 	return &result, nil
 }
 
-// GetExport getExport
+// GetExport get Export
 // Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
 func (s *auditLogService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON

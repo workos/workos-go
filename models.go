@@ -44,8 +44,8 @@ type ValidateAPIKey struct {
 	Value string `json:"value"`
 }
 
-// RedirectURIDto represents a redirect uri dto.
-type RedirectURIDto struct {
+// RedirectURIInput represents a redirect uri input.
+type RedirectURIInput struct {
 	// URI is the redirect URI.
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
@@ -63,7 +63,7 @@ type CreateOAuthApplication struct {
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
 	// RedirectURIs is redirect URIs for the application.
-	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
+	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -95,7 +95,7 @@ type UpdateOAuthApplication struct {
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
-	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
+	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
 }
 
 // CreateApplicationSecret represents a create application secret.
@@ -119,7 +119,7 @@ type AuditLogEventTarget = AuditLogEventActor
 
 // AuditLogEventContext represents a audit log event context.
 type AuditLogEventContext struct {
-	// Location is iP Address or some other geolocation identifier.
+	// Location is ip Address or some other geolocation identifier.
 	Location string `json:"location"`
 	// UserAgent is user agent string.
 	UserAgent *string `json:"user_agent,omitempty"`
@@ -129,7 +129,7 @@ type AuditLogEventContext struct {
 type AuditLogEvent struct {
 	// Action is identifier of what happened.
 	Action string `json:"action"`
-	// OccurredAt is iSO-8601 value of when the action occurred.
+	// OccurredAt is iso-8601 value of when the action occurred.
 	OccurredAt string `json:"occurred_at"`
 	// Actor is the entity that performed the action.
 	Actor *AuditLogEventActor `json:"actor"`
@@ -155,9 +155,9 @@ type AuditLogEventIngestion struct {
 type AuditLogExportCreation struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id"`
-	// RangeStart is iSO-8601 value for start of the export range.
+	// RangeStart is iso-8601 value for start of the export range.
 	RangeStart string `json:"range_start"`
-	// RangeEnd is iSO-8601 value for end of the export range.
+	// RangeEnd is iso-8601 value for end of the export range.
 	RangeEnd string `json:"range_end"`
 	// Actions is list of actions to filter against.
 	Actions []string `json:"actions,omitempty"`
@@ -167,8 +167,8 @@ type AuditLogExportCreation struct {
 	Actors []string `json:"actors,omitempty"`
 	// ActorNames is list of actor names to filter against.
 	ActorNames []string `json:"actor_names,omitempty"`
-	// ActorIds is list of actor IDs to filter against.
-	ActorIds []string `json:"actor_ids,omitempty"`
+	// ActorIDs is list of actor IDs to filter against.
+	ActorIDs []string `json:"actor_ids,omitempty"`
 	// Targets is list of target types to filter against.
 	Targets []string `json:"targets,omitempty"`
 }
@@ -181,7 +181,7 @@ type UpdateAuditLogsRetention struct {
 
 // AuditLogSchemaActor represents a audit log schema actor.
 type AuditLogSchemaActor struct {
-	// Metadata is jSON schema for actor metadata.
+	// Metadata is json schema for actor metadata.
 	Metadata map[string]interface{} `json:"metadata"`
 }
 
@@ -352,8 +352,8 @@ type OrganizationDomainData struct {
 	State OrganizationDomainDataState `json:"state"`
 }
 
-// OrganizationDto represents a organization dto.
-type OrganizationDto struct {
+// OrganizationInput represents a organization input.
+type OrganizationInput struct {
 	// Name is the name of the organization.
 	Name string `json:"name"`
 	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
@@ -398,7 +398,7 @@ type SSOIntentOptions struct {
 
 // IntentOptions represents a intent options.
 type IntentOptions struct {
-	// SSO is sSO-specific options for the Admin Portal.
+	// SSO is sso-specific options for the Admin Portal.
 	SSO *SSOIntentOptions `json:"sso"`
 }
 
@@ -613,7 +613,7 @@ type TokenQuery struct {
 
 // ExternalAuthCompleteResponse represents a external auth complete response.
 type ExternalAuthCompleteResponse struct {
-	// RedirectURI is uRI to redirect the user back to AuthKit to complete the OAuth flow.
+	// RedirectURI is uri to redirect the user back to AuthKit to complete the OAuth flow.
 	RedirectURI string `json:"redirect_uri"`
 }
 
@@ -776,9 +776,9 @@ type AuthenticationFactorEnrolled struct {
 	Type AuthenticationFactorEnrolledType `json:"type"`
 	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
 	UserID *string `json:"user_id,omitempty"`
-	// Sms is sMS-based authentication factor details.
+	// Sms is sms-based authentication factor details.
 	Sms *AuthenticationFactorEnrolledSms `json:"sms,omitempty"`
-	// TOTP is tOTP-based authentication factor details. Includes enrollment secrets only available at creation time.
+	// TOTP is totp-based authentication factor details. Includes enrollment secrets only available at creation time.
 	TOTP *AuthenticationFactorEnrolledTOTP `json:"totp,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
@@ -796,9 +796,9 @@ type AuthenticationFactor struct {
 	Type AuthenticationFactorType `json:"type"`
 	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
 	UserID *string `json:"user_id,omitempty"`
-	// Sms is sMS-based authentication factor details.
+	// Sms is sms-based authentication factor details.
 	Sms *AuthenticationFactorSms `json:"sms,omitempty"`
-	// TOTP is tOTP-based authentication factor details.
+	// TOTP is totp-based authentication factor details.
 	TOTP *AuthenticationFactorTOTP `json:"totp,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
@@ -1017,14 +1017,22 @@ type DirectoryUserWithGroups struct {
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
 	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
 	Emails []*DirectoryUserWithGroupsEmail `json:"emails,omitempty"`
 	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
 	JobTitle *string `json:"job_title,omitempty"`
 	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
 	Username *string `json:"username,omitempty"`
 	// State is the state of the user.
 	State DirectoryUserWithGroupsState `json:"state"`
 	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
 	RawAttributes map[string]interface{} `json:"raw_attributes"`
 	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
 	CustomAttributes map[string]interface{} `json:"custom_attributes"`
@@ -1055,6 +1063,5607 @@ type EventSchema struct {
 	Context map[string]interface{} `json:"context,omitempty"`
 }
 
+// ActionAuthenticationDenied represents a action authentication denied.
+type ActionAuthenticationDenied struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ActionAuthenticationDeniedData `json:"data"`
+	// Context is additional context about the event.
+	Context *ActionAuthenticationDeniedContext `json:"context,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ActionAuthenticationDeniedData the event payload.
+type ActionAuthenticationDeniedData struct {
+	// ActionEndpointID is the ID of the action endpoint.
+	ActionEndpointID string `json:"action_endpoint_id"`
+	// ActionExecutionID is the ID of the action execution.
+	ActionExecutionID string `json:"action_execution_id"`
+	// Type is the type of action that was denied.
+	Type string `json:"type"`
+	// Verdict is the verdict of the action.
+	Verdict string `json:"verdict"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the organization.
+	OrganizationID *string `json:"organization_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+}
+
+// ActionAuthenticationDeniedContext additional context about the event.
+type ActionAuthenticationDeniedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ActionAuthenticationDeniedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ActionAuthenticationDeniedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ActionAuthenticationDeniedContextGoogleAnalyticsSession represents a action authentication denied context google analytics session.
+type ActionAuthenticationDeniedContextGoogleAnalyticsSession struct {
+	// ContainerID is the Google Analytics container ID.
+	ContainerID string `json:"containerId"`
+	// SessionID is the Google Analytics session ID.
+	SessionID *string `json:"sessionId,omitempty"`
+	// SessionNumber is the Google Analytics session number.
+	SessionNumber *string `json:"sessionNumber,omitempty"`
+}
+
+// ActionAuthenticationDeniedContextActor the actor who performed the action.
+type ActionAuthenticationDeniedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ActionAuthenticationDeniedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// ActionUserRegistrationDenied represents a action user registration denied.
+type ActionUserRegistrationDenied struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ActionUserRegistrationDeniedData `json:"data"`
+	// Context is additional context about the event.
+	Context *ActionUserRegistrationDeniedContext `json:"context,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ActionUserRegistrationDeniedData the event payload.
+type ActionUserRegistrationDeniedData struct {
+	// ActionEndpointID is the ID of the action endpoint.
+	ActionEndpointID string `json:"action_endpoint_id"`
+	// ActionExecutionID is the ID of the action execution.
+	ActionExecutionID string `json:"action_execution_id"`
+	// Type is the type of action that was denied.
+	Type string `json:"type"`
+	// Verdict is the verdict of the action.
+	Verdict string `json:"verdict"`
+	// OrganizationID is the ID of the organization.
+	OrganizationID *string `json:"organization_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+}
+
+// ActionUserRegistrationDeniedContext additional context about the event.
+type ActionUserRegistrationDeniedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ActionUserRegistrationDeniedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ActionUserRegistrationDeniedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ActionUserRegistrationDeniedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type ActionUserRegistrationDeniedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// ActionUserRegistrationDeniedContextActor the actor who performed the action.
+type ActionUserRegistrationDeniedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ActionUserRegistrationDeniedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// APIKeyCreated represents a api key created.
+type APIKeyCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *APIKeyCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *APIKeyCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// APIKeyCreatedData the event payload.
+type APIKeyCreatedData struct {
+	// Object is distinguishes the API key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API key.
+	ID string `json:"id"`
+	// Owner is the owner of the API key.
+	Owner *APIKeyCreatedDataOwner `json:"owner"`
+	// Name is the name of the API key.
+	Name string `json:"name"`
+	// ObfuscatedValue is the obfuscated value of the API key.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is the timestamp when the API key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permissions granted to the API key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is the timestamp when the API key was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the API key was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// APIKeyCreatedDataOwner the owner of the API key.
+type APIKeyCreatedDataOwner struct {
+	// Type is the type of the API key owner.
+	Type string `json:"type"`
+	// ID is the unique identifier of the API key owner.
+	ID string `json:"id"`
+}
+
+// APIKeyCreatedContext additional context about the event.
+type APIKeyCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*APIKeyCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *APIKeyCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// APIKeyCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type APIKeyCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// APIKeyCreatedContextActor the actor who performed the action.
+type APIKeyCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source APIKeyCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// APIKeyRevoked represents a api key revoked.
+type APIKeyRevoked struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *APIKeyRevokedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *APIKeyRevokedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// APIKeyRevokedData the event payload.
+type APIKeyRevokedData struct {
+	// Object is distinguishes the API key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API key.
+	ID string `json:"id"`
+	// Owner is the owner of the API key.
+	Owner *APIKeyRevokedDataOwner `json:"owner"`
+	// Name is the name of the API key.
+	Name string `json:"name"`
+	// ObfuscatedValue is the obfuscated value of the API key.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is the timestamp when the API key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permissions granted to the API key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is the timestamp when the API key was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the API key was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// APIKeyRevokedDataOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyRevokedDataOwner = APIKeyCreatedDataOwner
+
+// APIKeyRevokedContext additional context about the event.
+type APIKeyRevokedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*APIKeyRevokedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *APIKeyRevokedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// APIKeyRevokedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type APIKeyRevokedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// APIKeyRevokedContextActor the actor who performed the action.
+type APIKeyRevokedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source APIKeyRevokedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationEmailVerificationFailed represents a authentication email verification failed.
+type AuthenticationEmailVerificationFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationEmailVerificationFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationEmailVerificationFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationEmailVerificationFailedData the event payload.
+type AuthenticationEmailVerificationFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// Error is details about the authentication error.
+	Error *AuthenticationEmailVerificationFailedDataError `json:"error"`
+}
+
+// AuthenticationEmailVerificationFailedDataError details about the authentication error.
+type AuthenticationEmailVerificationFailedDataError struct {
+	// Code is the error code.
+	Code string `json:"code"`
+	// Message is a human-readable error message.
+	Message string `json:"message"`
+}
+
+// AuthenticationEmailVerificationFailedContext additional context about the event.
+type AuthenticationEmailVerificationFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationEmailVerificationFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationEmailVerificationFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationEmailVerificationFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationEmailVerificationFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationEmailVerificationFailedContextActor the actor who performed the action.
+type AuthenticationEmailVerificationFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationEmailVerificationFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationEmailVerificationSucceeded represents a authentication email verification succeeded.
+type AuthenticationEmailVerificationSucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationEmailVerificationSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationEmailVerificationSucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationEmailVerificationSucceededData the event payload.
+type AuthenticationEmailVerificationSucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationEmailVerificationSucceededContext additional context about the event.
+type AuthenticationEmailVerificationSucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationEmailVerificationSucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationEmailVerificationSucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationEmailVerificationSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationEmailVerificationSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationEmailVerificationSucceededContextActor the actor who performed the action.
+type AuthenticationEmailVerificationSucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationEmailVerificationSucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationMagicAuthFailed represents a authentication magic auth failed.
+type AuthenticationMagicAuthFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationMagicAuthFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationMagicAuthFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationMagicAuthFailedData the event payload.
+type AuthenticationMagicAuthFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// Error is details about the authentication error.
+	Error *AuthenticationMagicAuthFailedDataError `json:"error"`
+}
+
+// AuthenticationMagicAuthFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationMagicAuthFailedContext additional context about the event.
+type AuthenticationMagicAuthFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationMagicAuthFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationMagicAuthFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationMagicAuthFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationMagicAuthFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationMagicAuthFailedContextActor the actor who performed the action.
+type AuthenticationMagicAuthFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationMagicAuthFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationMagicAuthSucceeded represents a authentication magic auth succeeded.
+type AuthenticationMagicAuthSucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationMagicAuthSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationMagicAuthSucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationMagicAuthSucceededData the event payload.
+type AuthenticationMagicAuthSucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationMagicAuthSucceededContext additional context about the event.
+type AuthenticationMagicAuthSucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationMagicAuthSucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationMagicAuthSucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationMagicAuthSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationMagicAuthSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationMagicAuthSucceededContextActor the actor who performed the action.
+type AuthenticationMagicAuthSucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationMagicAuthSucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationMFAFailed represents a authentication mfa failed.
+type AuthenticationMFAFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationMFAFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationMFAFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationMFAFailedData the event payload.
+type AuthenticationMFAFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// Error is details about the authentication error.
+	Error *AuthenticationMFAFailedDataError `json:"error"`
+}
+
+// AuthenticationMFAFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationMFAFailedDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationMFAFailedContext additional context about the event.
+type AuthenticationMFAFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationMFAFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationMFAFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationMFAFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationMFAFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationMFAFailedContextActor the actor who performed the action.
+type AuthenticationMFAFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationMFAFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationMFASucceeded represents a authentication mfa succeeded.
+type AuthenticationMFASucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationMFASucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationMFASucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationMFASucceededData the event payload.
+type AuthenticationMFASucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationMFASucceededContext additional context about the event.
+type AuthenticationMFASucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationMFASucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationMFASucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationMFASucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationMFASucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationMFASucceededContextActor the actor who performed the action.
+type AuthenticationMFASucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationMFASucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationOAuthFailed represents a authentication o auth failed.
+type AuthenticationOAuthFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationOAuthFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationOAuthFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationOAuthFailedData the event payload.
+type AuthenticationOAuthFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// Error is details about the authentication error.
+	Error *AuthenticationOAuthFailedDataError `json:"error"`
+}
+
+// AuthenticationOAuthFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationOAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationOAuthFailedContext additional context about the event.
+type AuthenticationOAuthFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationOAuthFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationOAuthFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationOAuthFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationOAuthFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationOAuthFailedContextActor the actor who performed the action.
+type AuthenticationOAuthFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationOAuthFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationOAuthSucceeded represents a authentication o auth succeeded.
+type AuthenticationOAuthSucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationOAuthSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationOAuthSucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationOAuthSucceededData the event payload.
+type AuthenticationOAuthSucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationOAuthSucceededContext additional context about the event.
+type AuthenticationOAuthSucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationOAuthSucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationOAuthSucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationOAuthSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationOAuthSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationOAuthSucceededContextActor the actor who performed the action.
+type AuthenticationOAuthSucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationOAuthSucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationPasskeyFailed represents a authentication passkey failed.
+type AuthenticationPasskeyFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationPasskeyFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationPasskeyFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationPasskeyFailedData the event payload.
+type AuthenticationPasskeyFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// Error is details about the authentication error.
+	Error *AuthenticationPasskeyFailedDataError `json:"error"`
+}
+
+// AuthenticationPasskeyFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationPasskeyFailedDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationPasskeyFailedContext additional context about the event.
+type AuthenticationPasskeyFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationPasskeyFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationPasskeyFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationPasskeyFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationPasskeyFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationPasskeyFailedContextActor the actor who performed the action.
+type AuthenticationPasskeyFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationPasskeyFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationPasskeySucceeded represents a authentication passkey succeeded.
+type AuthenticationPasskeySucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationPasskeySucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationPasskeySucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationPasskeySucceededData the event payload.
+type AuthenticationPasskeySucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationPasskeySucceededContext additional context about the event.
+type AuthenticationPasskeySucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationPasskeySucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationPasskeySucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationPasskeySucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationPasskeySucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationPasskeySucceededContextActor the actor who performed the action.
+type AuthenticationPasskeySucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationPasskeySucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationPasswordFailed represents a authentication password failed.
+type AuthenticationPasswordFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationPasswordFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationPasswordFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationPasswordFailedData the event payload.
+type AuthenticationPasswordFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// Error is details about the authentication error.
+	Error *AuthenticationPasswordFailedDataError `json:"error"`
+}
+
+// AuthenticationPasswordFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationPasswordFailedDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationPasswordFailedContext additional context about the event.
+type AuthenticationPasswordFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationPasswordFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationPasswordFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationPasswordFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationPasswordFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationPasswordFailedContextActor the actor who performed the action.
+type AuthenticationPasswordFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationPasswordFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationPasswordSucceeded represents a authentication password succeeded.
+type AuthenticationPasswordSucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationPasswordSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationPasswordSucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationPasswordSucceededData the event payload.
+type AuthenticationPasswordSucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationPasswordSucceededContext additional context about the event.
+type AuthenticationPasswordSucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationPasswordSucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationPasswordSucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationPasswordSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationPasswordSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationPasswordSucceededContextActor the actor who performed the action.
+type AuthenticationPasswordSucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationPasswordSucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationRadarRiskDetected represents a authentication radar risk detected.
+type AuthenticationRadarRiskDetected struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationRadarRiskDetectedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationRadarRiskDetectedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationRadarRiskDetectedData the event payload.
+type AuthenticationRadarRiskDetectedData struct {
+	// AuthMethod is the authentication method used.
+	AuthMethod string                                    `json:"auth_method"`
+	Action     AuthenticationRadarRiskDetectedDataAction `json:"action"`
+	// Control is the control action taken for the detected risk.
+	Control *string `json:"control"`
+	// BlocklistType is the type of blocklist that triggered the risk detection.
+	BlocklistType *string `json:"blocklist_type"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationRadarRiskDetectedContext additional context about the event.
+type AuthenticationRadarRiskDetectedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationRadarRiskDetectedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationRadarRiskDetectedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationRadarRiskDetectedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationRadarRiskDetectedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationRadarRiskDetectedContextActor the actor who performed the action.
+type AuthenticationRadarRiskDetectedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationRadarRiskDetectedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationSSOFailed represents a authentication sso failed.
+type AuthenticationSSOFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationSSOFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationSSOFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationSSOFailedData the event payload.
+type AuthenticationSSOFailedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// SSO is sso connection details.
+	SSO *AuthenticationSSOFailedDataSSO `json:"sso"`
+	// Error is details about the authentication error.
+	Error *AuthenticationSSOFailedDataError `json:"error"`
+}
+
+// AuthenticationSSOFailedDataSSO sso connection details.
+type AuthenticationSSOFailedDataSSO struct {
+	// OrganizationID is the ID of the organization.
+	OrganizationID *string `json:"organization_id"`
+	// ConnectionID is the ID of the SSO connection.
+	ConnectionID *string `json:"connection_id"`
+	// SessionID is the ID of the SSO session.
+	SessionID *string `json:"session_id"`
+}
+
+// AuthenticationSSOFailedDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationSSOFailedDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationSSOFailedContext additional context about the event.
+type AuthenticationSSOFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationSSOFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationSSOFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationSSOFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationSSOFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationSSOFailedContextActor the actor who performed the action.
+type AuthenticationSSOFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationSSOFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationSSOStarted represents a authentication sso started.
+type AuthenticationSSOStarted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationSSOStartedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationSSOStartedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationSSOStartedData the event payload.
+type AuthenticationSSOStartedData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// SSO is sso connection details.
+	SSO *AuthenticationSSOStartedDataSSO `json:"sso"`
+}
+
+// AuthenticationSSOStartedDataSSO is an alias for AuthenticationSSOFailedDataSSO.
+type AuthenticationSSOStartedDataSSO = AuthenticationSSOFailedDataSSO
+
+// AuthenticationSSOStartedContext additional context about the event.
+type AuthenticationSSOStartedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationSSOStartedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationSSOStartedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationSSOStartedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationSSOStartedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationSSOStartedContextActor the actor who performed the action.
+type AuthenticationSSOStartedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationSSOStartedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationSSOSucceeded represents a authentication sso succeeded.
+type AuthenticationSSOSucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationSSOSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationSSOSucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationSSOSucceededData the event payload.
+type AuthenticationSSOSucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// SSO is sso connection details.
+	SSO *AuthenticationSSOSucceededDataSSO `json:"sso"`
+}
+
+// AuthenticationSSOSucceededDataSSO is an alias for AuthenticationSSOFailedDataSSO.
+type AuthenticationSSOSucceededDataSSO = AuthenticationSSOFailedDataSSO
+
+// AuthenticationSSOSucceededContext additional context about the event.
+type AuthenticationSSOSucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationSSOSucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationSSOSucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationSSOSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationSSOSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationSSOSucceededContextActor the actor who performed the action.
+type AuthenticationSSOSucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationSSOSucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// AuthenticationSSOTimedOut represents a authentication sso timed out.
+type AuthenticationSSOTimedOut struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationSSOTimedOutData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *AuthenticationSSOTimedOutContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// AuthenticationSSOTimedOutData the event payload.
+type AuthenticationSSOTimedOutData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID *string `json:"user_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// SSO is sso connection details.
+	SSO *AuthenticationSSOTimedOutDataSSO `json:"sso"`
+	// Error is details about the authentication error.
+	Error *AuthenticationSSOTimedOutDataError `json:"error"`
+}
+
+// AuthenticationSSOTimedOutDataSSO is an alias for AuthenticationSSOFailedDataSSO.
+type AuthenticationSSOTimedOutDataSSO = AuthenticationSSOFailedDataSSO
+
+// AuthenticationSSOTimedOutDataError is an alias for AuthenticationEmailVerificationFailedDataError.
+type AuthenticationSSOTimedOutDataError = AuthenticationEmailVerificationFailedDataError
+
+// AuthenticationSSOTimedOutContext additional context about the event.
+type AuthenticationSSOTimedOutContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*AuthenticationSSOTimedOutContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *AuthenticationSSOTimedOutContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// AuthenticationSSOTimedOutContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type AuthenticationSSOTimedOutContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// AuthenticationSSOTimedOutContextActor the actor who performed the action.
+type AuthenticationSSOTimedOutContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source AuthenticationSSOTimedOutContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// ConnectionActivated represents a connection activated.
+type ConnectionActivated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ConnectionActivatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *ConnectionActivatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ConnectionActivatedData the event payload.
+type ConnectionActivatedData struct {
+	// Object is distinguishes the connection object.
+	Object string `json:"object"`
+	// ID is unique identifier of the connection.
+	ID string `json:"id"`
+	// State is the current state of the connection.
+	State ConnectionActivatedDataState `json:"state"`
+	// Name is the name of the connection.
+	Name string `json:"name"`
+	// ConnectionType is the type of the connection.
+	ConnectionType ConnectionActivatedDataConnectionType `json:"connection_type"`
+	// OrganizationID is the ID of the organization the connection belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// ExternalKey is the external key of the connection.
+	ExternalKey string `json:"external_key"`
+	// Status is deprecated. Use state instead.
+	Status ConnectionActivatedDataStatus `json:"status"`
+	// Domains is the domains associated with the connection.
+	Domains []*ConnectionActivatedDataDomain `json:"domains"`
+}
+
+// ConnectionActivatedDataDomain represents a connection activated data domain.
+type ConnectionActivatedDataDomain struct {
+	// Object is distinguishes the connection domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the connection domain.
+	ID string `json:"id"`
+	// Domain is the domain value.
+	Domain string `json:"domain"`
+}
+
+// ConnectionActivatedContext additional context about the event.
+type ConnectionActivatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ConnectionActivatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ConnectionActivatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ConnectionActivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type ConnectionActivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// ConnectionActivatedContextActor the actor who performed the action.
+type ConnectionActivatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ConnectionActivatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// ConnectionDeactivated represents a connection deactivated.
+type ConnectionDeactivated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ConnectionDeactivatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *ConnectionDeactivatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ConnectionDeactivatedData the event payload.
+type ConnectionDeactivatedData struct {
+	// Object is distinguishes the connection object.
+	Object string `json:"object"`
+	// ID is unique identifier of the connection.
+	ID string `json:"id"`
+	// State is the current state of the connection.
+	State ConnectionDeactivatedDataState `json:"state"`
+	// Name is the name of the connection.
+	Name string `json:"name"`
+	// ConnectionType is the type of the connection.
+	ConnectionType ConnectionDeactivatedDataConnectionType `json:"connection_type"`
+	// OrganizationID is the ID of the organization the connection belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// ExternalKey is the external key of the connection.
+	ExternalKey string `json:"external_key"`
+	// Status is deprecated. Use state instead.
+	Status ConnectionDeactivatedDataStatus `json:"status"`
+	// Domains is the domains associated with the connection.
+	Domains []*ConnectionDeactivatedDataDomain `json:"domains"`
+}
+
+// ConnectionDeactivatedDataDomain is an alias for ConnectionActivatedDataDomain.
+type ConnectionDeactivatedDataDomain = ConnectionActivatedDataDomain
+
+// ConnectionDeactivatedContext additional context about the event.
+type ConnectionDeactivatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ConnectionDeactivatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ConnectionDeactivatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ConnectionDeactivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type ConnectionDeactivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// ConnectionDeactivatedContextActor the actor who performed the action.
+type ConnectionDeactivatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ConnectionDeactivatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// ConnectionDeleted represents a connection deleted.
+type ConnectionDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ConnectionDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *ConnectionDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ConnectionDeletedData the event payload.
+type ConnectionDeletedData struct {
+	// Object is distinguishes the connection object.
+	Object string `json:"object"`
+	// ID is unique identifier of the connection.
+	ID string `json:"id"`
+	// State is the current state of the connection.
+	State ConnectionDeletedDataState `json:"state"`
+	// Name is the name of the connection.
+	Name string `json:"name"`
+	// ConnectionType is the type of the connection.
+	ConnectionType ConnectionDeletedDataConnectionType `json:"connection_type"`
+	// OrganizationID is the ID of the organization the connection belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// ConnectionDeletedContext additional context about the event.
+type ConnectionDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ConnectionDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ConnectionDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ConnectionDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type ConnectionDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// ConnectionDeletedContextActor the actor who performed the action.
+type ConnectionDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ConnectionDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// ConnectionSAMLCertificateRenewalRequired represents a connection saml certificate renewal required.
+type ConnectionSAMLCertificateRenewalRequired struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ConnectionSAMLCertificateRenewalRequiredData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *ConnectionSAMLCertificateRenewalRequiredContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ConnectionSAMLCertificateRenewalRequiredData the event payload.
+type ConnectionSAMLCertificateRenewalRequiredData struct {
+	// Connection is the connection with the expiring certificate.
+	Connection *ConnectionSAMLCertificateRenewalRequiredDataConnection `json:"connection"`
+	// Certificate is the SAML certificate details.
+	Certificate *ConnectionSAMLCertificateRenewalRequiredDataCertificate `json:"certificate"`
+	// DaysUntilExpiry is the number of days until the certificate expires.
+	DaysUntilExpiry int `json:"days_until_expiry"`
+}
+
+// ConnectionSAMLCertificateRenewalRequiredDataConnection the connection with the expiring certificate.
+type ConnectionSAMLCertificateRenewalRequiredDataConnection struct {
+	// ID is unique identifier of the connection.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the organization the connection belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+}
+
+// ConnectionSAMLCertificateRenewalRequiredDataCertificate the SAML certificate details.
+type ConnectionSAMLCertificateRenewalRequiredDataCertificate struct {
+	// CertificateType is the type of the SAML certificate.
+	CertificateType ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType `json:"certificate_type"`
+	// ExpiryDate is an ISO 8601 timestamp.
+	ExpiryDate string `json:"expiry_date"`
+	// IsExpired is whether the certificate has already expired.
+	IsExpired bool `json:"is_expired"`
+}
+
+// ConnectionSAMLCertificateRenewalRequiredContext additional context about the event.
+type ConnectionSAMLCertificateRenewalRequiredContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ConnectionSAMLCertificateRenewalRequiredContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ConnectionSAMLCertificateRenewalRequiredContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ConnectionSAMLCertificateRenewalRequiredContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type ConnectionSAMLCertificateRenewalRequiredContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// ConnectionSAMLCertificateRenewalRequiredContextActor the actor who performed the action.
+type ConnectionSAMLCertificateRenewalRequiredContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ConnectionSAMLCertificateRenewalRequiredContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// ConnectionSAMLCertificateRenewed represents a connection saml certificate renewed.
+type ConnectionSAMLCertificateRenewed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ConnectionSAMLCertificateRenewedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *ConnectionSAMLCertificateRenewedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// ConnectionSAMLCertificateRenewedData the event payload.
+type ConnectionSAMLCertificateRenewedData struct {
+	// Connection is the connection with the renewed certificate.
+	Connection *ConnectionSAMLCertificateRenewedDataConnection `json:"connection"`
+	// Certificate is the renewed SAML certificate details.
+	Certificate *ConnectionSAMLCertificateRenewedDataCertificate `json:"certificate"`
+	// RenewedAt is an ISO 8601 timestamp.
+	RenewedAt string `json:"renewed_at"`
+}
+
+// ConnectionSAMLCertificateRenewedDataConnection is an alias for ConnectionSAMLCertificateRenewalRequiredDataConnection.
+type ConnectionSAMLCertificateRenewedDataConnection = ConnectionSAMLCertificateRenewalRequiredDataConnection
+
+// ConnectionSAMLCertificateRenewedDataCertificate the renewed SAML certificate details.
+type ConnectionSAMLCertificateRenewedDataCertificate struct {
+	// CertificateType is the type of the SAML certificate.
+	CertificateType ConnectionSAMLCertificateRenewedDataCertificateCertificateType `json:"certificate_type"`
+	// ExpiryDate is an ISO 8601 timestamp.
+	ExpiryDate string `json:"expiry_date"`
+}
+
+// ConnectionSAMLCertificateRenewedContext additional context about the event.
+type ConnectionSAMLCertificateRenewedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*ConnectionSAMLCertificateRenewedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *ConnectionSAMLCertificateRenewedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// ConnectionSAMLCertificateRenewedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type ConnectionSAMLCertificateRenewedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// ConnectionSAMLCertificateRenewedContextActor the actor who performed the action.
+type ConnectionSAMLCertificateRenewedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source ConnectionSAMLCertificateRenewedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncActivated represents a dsync activated.
+type DsyncActivated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncActivatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncActivatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncActivatedData the event payload.
+type DsyncActivatedData struct {
+	// Object is distinguishes the directory object.
+	Object string `json:"object"`
+	// ID is unique identifier of the directory.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the organization the directory belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// Type is the type of the directory.
+	Type DsyncActivatedDataType `json:"type"`
+	// State is the current state of the directory.
+	State DsyncActivatedDataState `json:"state"`
+	// Name is the name of the directory.
+	Name string `json:"name"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// ExternalKey is the external key of the directory.
+	ExternalKey string `json:"external_key"`
+	// Domains is the domains associated with the directory.
+	Domains []*DsyncActivatedDataDomain `json:"domains"`
+}
+
+// DsyncActivatedDataDomain represents a dsync activated data domain.
+type DsyncActivatedDataDomain struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// Domain is the domain value.
+	Domain string `json:"domain"`
+}
+
+// DsyncActivatedContext additional context about the event.
+type DsyncActivatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncActivatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncActivatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncActivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncActivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncActivatedContextActor the actor who performed the action.
+type DsyncActivatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncActivatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncDeactivated represents a dsync deactivated.
+type DsyncDeactivated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncDeactivatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncDeactivatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncDeactivatedData the event payload.
+type DsyncDeactivatedData struct {
+	// Object is distinguishes the directory object.
+	Object string `json:"object"`
+	// ID is unique identifier of the directory.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the organization the directory belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// Type is the type of the directory.
+	Type DsyncDeactivatedDataType `json:"type"`
+	// State is the current state of the directory.
+	State DsyncDeactivatedDataState `json:"state"`
+	// Name is the name of the directory.
+	Name string `json:"name"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// ExternalKey is the external key of the directory.
+	ExternalKey string `json:"external_key"`
+	// Domains is the domains associated with the directory.
+	Domains []*DsyncDeactivatedDataDomain `json:"domains"`
+}
+
+// DsyncDeactivatedDataDomain is an alias for DsyncActivatedDataDomain.
+type DsyncDeactivatedDataDomain = DsyncActivatedDataDomain
+
+// DsyncDeactivatedContext additional context about the event.
+type DsyncDeactivatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncDeactivatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncDeactivatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncDeactivatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncDeactivatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncDeactivatedContextActor the actor who performed the action.
+type DsyncDeactivatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncDeactivatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncDeleted represents a dsync deleted.
+type DsyncDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncDeletedData the event payload.
+type DsyncDeletedData struct {
+	// Object is distinguishes the directory object.
+	Object string `json:"object"`
+	// ID is unique identifier of the directory.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the organization the directory belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// Type is the type of the directory.
+	Type DsyncDeletedDataType `json:"type"`
+	// State is the current state of the directory.
+	State DsyncDeletedDataState `json:"state"`
+	// Name is the name of the directory.
+	Name string `json:"name"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// DsyncDeletedContext additional context about the event.
+type DsyncDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncDeletedContextActor the actor who performed the action.
+type DsyncDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncGroupCreated represents a dsync group created.
+type DsyncGroupCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncGroupCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncGroupCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncGroupCreatedData is an alias for DirectoryGroup.
+type DsyncGroupCreatedData = DirectoryGroup
+
+// DsyncGroupCreatedContext additional context about the event.
+type DsyncGroupCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncGroupCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncGroupCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncGroupCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncGroupCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncGroupCreatedContextActor the actor who performed the action.
+type DsyncGroupCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncGroupCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncGroupDeleted represents a dsync group deleted.
+type DsyncGroupDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncGroupDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncGroupDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncGroupDeletedData is an alias for DirectoryGroup.
+type DsyncGroupDeletedData = DirectoryGroup
+
+// DsyncGroupDeletedContext additional context about the event.
+type DsyncGroupDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncGroupDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncGroupDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncGroupDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncGroupDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncGroupDeletedContextActor the actor who performed the action.
+type DsyncGroupDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncGroupDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncGroupUpdated represents a dsync group updated.
+type DsyncGroupUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncGroupUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncGroupUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncGroupUpdatedData the event payload.
+type DsyncGroupUpdatedData struct {
+	// Object is distinguishes the Directory Group object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory Group.
+	ID string `json:"id"`
+	// IdpID is unique identifier for the group, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// DirectoryID is the identifier of the Directory the Directory Group belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// Name is the name of the Directory Group.
+	Name string `json:"name"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	RawAttributes map[string]interface{} `json:"raw_attributes,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt          string                 `json:"updated_at"`
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncGroupUpdatedContext additional context about the event.
+type DsyncGroupUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncGroupUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncGroupUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncGroupUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncGroupUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncGroupUpdatedContextActor the actor who performed the action.
+type DsyncGroupUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncGroupUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncGroupUserAdded represents a dsync group user added.
+type DsyncGroupUserAdded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncGroupUserAddedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncGroupUserAddedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncGroupUserAddedData the event payload.
+type DsyncGroupUserAddedData struct {
+	// DirectoryID is the ID of the directory.
+	DirectoryID string `json:"directory_id"`
+	// User is the directory user added to the group.
+	User *DsyncGroupUserAddedDataUser `json:"user"`
+	// Group is the directory group the user was added to.
+	Group *DsyncGroupUserAddedDataGroup `json:"group"`
+}
+
+// DsyncGroupUserAddedDataUser the directory user added to the group.
+type DsyncGroupUserAddedDataUser struct {
+	// Object is distinguishes the Directory User object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory User.
+	ID string `json:"id"`
+	// DirectoryID is the identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
+	Emails []*DsyncGroupUserAddedDataUserEmail `json:"emails,omitempty"`
+	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
+	JobTitle *string `json:"job_title,omitempty"`
+	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
+	Username *string `json:"username,omitempty"`
+	// State is the state of the user.
+	State DsyncGroupUserAddedDataUserState `json:"state"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
+	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// Role is the primary role assigned to the user.
+	Role *DsyncGroupUserAddedDataUserRole `json:"role,omitempty"`
+	// Roles is all roles assigned to the user.
+	Roles []*DsyncGroupUserAddedDataUserRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// DsyncGroupUserAddedDataUserEmail is an alias for DirectoryUserWithGroupsEmail.
+type DsyncGroupUserAddedDataUserEmail = DirectoryUserWithGroupsEmail
+
+// DsyncGroupUserAddedDataUserRole is an alias for AddRolePermission.
+type DsyncGroupUserAddedDataUserRole = AddRolePermission
+
+// DsyncGroupUserAddedDataGroup is an alias for DirectoryGroup.
+type DsyncGroupUserAddedDataGroup = DirectoryGroup
+
+// DsyncGroupUserAddedContext additional context about the event.
+type DsyncGroupUserAddedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncGroupUserAddedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncGroupUserAddedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncGroupUserAddedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncGroupUserAddedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncGroupUserAddedContextActor the actor who performed the action.
+type DsyncGroupUserAddedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncGroupUserAddedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncUserCreated represents a dsync user created.
+type DsyncUserCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncUserCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncUserCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncUserCreatedData the event payload.
+type DsyncUserCreatedData struct {
+	// Object is distinguishes the Directory User object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory User.
+	ID string `json:"id"`
+	// DirectoryID is the identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
+	Emails []*DsyncUserCreatedDataEmail `json:"emails,omitempty"`
+	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
+	JobTitle *string `json:"job_title,omitempty"`
+	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
+	Username *string `json:"username,omitempty"`
+	// State is the state of the user.
+	State DsyncUserCreatedDataState `json:"state"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
+	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// Role is the primary role assigned to the user.
+	Role *DsyncUserCreatedDataRole `json:"role,omitempty"`
+	// Roles is all roles assigned to the user.
+	Roles []*DsyncUserCreatedDataRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// DsyncUserCreatedDataEmail is an alias for DirectoryUserWithGroupsEmail.
+type DsyncUserCreatedDataEmail = DirectoryUserWithGroupsEmail
+
+// DsyncUserCreatedDataRole is an alias for AddRolePermission.
+type DsyncUserCreatedDataRole = AddRolePermission
+
+// DsyncUserCreatedContext additional context about the event.
+type DsyncUserCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncUserCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncUserCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncUserCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncUserCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncUserCreatedContextActor the actor who performed the action.
+type DsyncUserCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncUserCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncUserDeleted represents a dsync user deleted.
+type DsyncUserDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncUserDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncUserDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncUserDeletedData the event payload.
+type DsyncUserDeletedData struct {
+	// Object is distinguishes the Directory User object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory User.
+	ID string `json:"id"`
+	// DirectoryID is the identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
+	Emails []*DsyncUserDeletedDataEmail `json:"emails,omitempty"`
+	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
+	JobTitle *string `json:"job_title,omitempty"`
+	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
+	Username *string `json:"username,omitempty"`
+	// State is the state of the user.
+	State DsyncUserDeletedDataState `json:"state"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
+	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// Role is the primary role assigned to the user.
+	Role *DsyncUserDeletedDataRole `json:"role,omitempty"`
+	// Roles is all roles assigned to the user.
+	Roles []*DsyncUserDeletedDataRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// DsyncUserDeletedDataEmail is an alias for DirectoryUserWithGroupsEmail.
+type DsyncUserDeletedDataEmail = DirectoryUserWithGroupsEmail
+
+// DsyncUserDeletedDataRole is an alias for AddRolePermission.
+type DsyncUserDeletedDataRole = AddRolePermission
+
+// DsyncUserDeletedContext additional context about the event.
+type DsyncUserDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncUserDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncUserDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncUserDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncUserDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncUserDeletedContextActor the actor who performed the action.
+type DsyncUserDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncUserDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncGroupUserRemoved represents a dsync group user removed.
+type DsyncGroupUserRemoved struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncGroupUserRemovedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncGroupUserRemovedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncGroupUserRemovedData the event payload.
+type DsyncGroupUserRemovedData struct {
+	// DirectoryID is the ID of the directory.
+	DirectoryID string `json:"directory_id"`
+	// User is the directory user removed from the group.
+	User *DsyncGroupUserRemovedDataUser `json:"user"`
+	// Group is the directory group the user was removed from.
+	Group *DsyncGroupUserRemovedDataGroup `json:"group"`
+}
+
+// DsyncGroupUserRemovedDataUser the directory user removed from the group.
+type DsyncGroupUserRemovedDataUser struct {
+	// Object is distinguishes the Directory User object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory User.
+	ID string `json:"id"`
+	// DirectoryID is the identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
+	Emails []*DsyncGroupUserRemovedDataUserEmail `json:"emails,omitempty"`
+	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
+	JobTitle *string `json:"job_title,omitempty"`
+	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
+	Username *string `json:"username,omitempty"`
+	// State is the state of the user.
+	State DsyncGroupUserRemovedDataUserState `json:"state"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
+	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// Role is the primary role assigned to the user.
+	Role *DsyncGroupUserRemovedDataUserRole `json:"role,omitempty"`
+	// Roles is all roles assigned to the user.
+	Roles []*DsyncGroupUserRemovedDataUserRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// DsyncGroupUserRemovedDataUserEmail is an alias for DirectoryUserWithGroupsEmail.
+type DsyncGroupUserRemovedDataUserEmail = DirectoryUserWithGroupsEmail
+
+// DsyncGroupUserRemovedDataUserRole is an alias for AddRolePermission.
+type DsyncGroupUserRemovedDataUserRole = AddRolePermission
+
+// DsyncGroupUserRemovedDataGroup is an alias for DirectoryGroup.
+type DsyncGroupUserRemovedDataGroup = DirectoryGroup
+
+// DsyncGroupUserRemovedContext additional context about the event.
+type DsyncGroupUserRemovedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncGroupUserRemovedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncGroupUserRemovedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncGroupUserRemovedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncGroupUserRemovedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncGroupUserRemovedContextActor the actor who performed the action.
+type DsyncGroupUserRemovedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncGroupUserRemovedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// DsyncUserUpdated represents a dsync user updated.
+type DsyncUserUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncUserUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *DsyncUserUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncUserUpdatedData the event payload.
+type DsyncUserUpdatedData struct {
+	// Object is distinguishes the Directory User object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory User.
+	ID string `json:"id"`
+	// DirectoryID is the identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
+	Emails []*DsyncUserUpdatedDataEmail `json:"emails,omitempty"`
+	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
+	JobTitle *string `json:"job_title,omitempty"`
+	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
+	Username *string `json:"username,omitempty"`
+	// State is the state of the user.
+	State DsyncUserUpdatedDataState `json:"state"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
+	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// Role is the primary role assigned to the user.
+	Role *DsyncUserUpdatedDataRole `json:"role,omitempty"`
+	// Roles is all roles assigned to the user.
+	Roles []*DsyncUserUpdatedDataRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt          string                 `json:"updated_at"`
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncUserUpdatedDataEmail is an alias for DirectoryUserWithGroupsEmail.
+type DsyncUserUpdatedDataEmail = DirectoryUserWithGroupsEmail
+
+// DsyncUserUpdatedDataRole is an alias for AddRolePermission.
+type DsyncUserUpdatedDataRole = AddRolePermission
+
+// DsyncUserUpdatedContext additional context about the event.
+type DsyncUserUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*DsyncUserUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *DsyncUserUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// DsyncUserUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type DsyncUserUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// DsyncUserUpdatedContextActor the actor who performed the action.
+type DsyncUserUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source DsyncUserUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// EmailVerificationCreated represents a email verification created.
+type EmailVerificationCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *EmailVerificationCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *EmailVerificationCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// EmailVerificationCreatedData the event payload.
+type EmailVerificationCreatedData struct {
+	// Object is distinguishes the email verification object.
+	Object string `json:"object"`
+	// ID is the unique ID of the email verification code.
+	ID string `json:"id"`
+	// UserID is the unique ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// ExpiresAt is the timestamp when the email verification code expires.
+	ExpiresAt string `json:"expires_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// EmailVerificationCreatedContext additional context about the event.
+type EmailVerificationCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*EmailVerificationCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *EmailVerificationCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// EmailVerificationCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type EmailVerificationCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// EmailVerificationCreatedContextActor the actor who performed the action.
+type EmailVerificationCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source EmailVerificationCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FlagCreated represents a flag created.
+type FlagCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FlagCreatedContext `json:"context"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// FlagCreatedData the event payload.
+type FlagCreatedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FlagCreatedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FlagCreatedDataOwner is an alias for FeatureFlagOwner.
+type FlagCreatedDataOwner = FeatureFlagOwner
+
+// FlagCreatedContext additional context about the event.
+type FlagCreatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FlagCreatedContextActor `json:"actor"`
+}
+
+// FlagCreatedContextActor the actor who performed the action.
+type FlagCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FlagCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FlagDeleted represents a flag deleted.
+type FlagDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FlagDeletedContext `json:"context"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// FlagDeletedData the event payload.
+type FlagDeletedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FlagDeletedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FlagDeletedDataOwner is an alias for FeatureFlagOwner.
+type FlagDeletedDataOwner = FeatureFlagOwner
+
+// FlagDeletedContext additional context about the event.
+type FlagDeletedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FlagDeletedContextActor `json:"actor"`
+}
+
+// FlagDeletedContextActor the actor who performed the action.
+type FlagDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FlagDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FlagRuleUpdated represents a flag rule updated.
+type FlagRuleUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagRuleUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FlagRuleUpdatedContext `json:"context"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// FlagRuleUpdatedData the event payload.
+type FlagRuleUpdatedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FlagRuleUpdatedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FlagRuleUpdatedDataOwner is an alias for FeatureFlagOwner.
+type FlagRuleUpdatedDataOwner = FeatureFlagOwner
+
+// FlagRuleUpdatedContext additional context about the event.
+type FlagRuleUpdatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FlagRuleUpdatedContextActor `json:"actor"`
+	// AccessType is the access type of the flag rule.
+	AccessType FlagRuleUpdatedContextAccessType `json:"access_type"`
+	// ConfiguredTargets is the configured targets for the flag rule.
+	ConfiguredTargets *FlagRuleUpdatedContextConfiguredTarget `json:"configured_targets"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes *FlagRuleUpdatedContextPreviousAttribute `json:"previous_attributes"`
+}
+
+// FlagRuleUpdatedContextActor the actor who performed the action.
+type FlagRuleUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID     string                            `json:"id"`
+	Source FlagRuleUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FlagRuleUpdatedContextConfiguredTarget the configured targets for the flag rule.
+type FlagRuleUpdatedContextConfiguredTarget struct {
+	// Organizations is the organizations targeted by the flag rule.
+	Organizations []*FlagRuleUpdatedContextConfiguredTargetOrganization `json:"organizations"`
+	// Users is the users targeted by the flag rule.
+	Users []*FlagRuleUpdatedContextConfiguredTargetUser `json:"users"`
+}
+
+// FlagRuleUpdatedContextConfiguredTargetOrganization represents a flag rule updated context configured target organization.
+type FlagRuleUpdatedContextConfiguredTargetOrganization struct {
+	// ID is the ID of the organization.
+	ID string `json:"id"`
+	// Name is the name of the organization.
+	Name string `json:"name"`
+}
+
+// FlagRuleUpdatedContextConfiguredTargetUser represents a flag rule updated context configured target user.
+type FlagRuleUpdatedContextConfiguredTargetUser struct {
+	// ID is the ID of the user.
+	ID string `json:"id"`
+	// Email is the email of the user.
+	Email string `json:"email"`
+}
+
+// FlagRuleUpdatedContextPreviousAttribute attributes that changed from their previous values.
+type FlagRuleUpdatedContextPreviousAttribute struct {
+	// Data is the previous data attributes of the flag.
+	Data *FlagRuleUpdatedContextPreviousAttributeData `json:"data,omitempty"`
+	// Context is the previous context attributes of the flag rule.
+	Context *FlagRuleUpdatedContextPreviousAttributeContext `json:"context,omitempty"`
+}
+
+// FlagRuleUpdatedContextPreviousAttributeData the previous data attributes of the flag.
+type FlagRuleUpdatedContextPreviousAttributeData struct {
+	// Enabled is whether the flag was previously enabled.
+	Enabled *bool `json:"enabled,omitempty"`
+	// DefaultValue is the previous default value of the flag.
+	DefaultValue *bool `json:"default_value,omitempty"`
+}
+
+// FlagRuleUpdatedContextPreviousAttributeContext the previous context attributes of the flag rule.
+type FlagRuleUpdatedContextPreviousAttributeContext struct {
+	// AccessType is the previous access type of the flag rule.
+	AccessType *FlagRuleUpdatedContextPreviousAttributeContextAccessType `json:"access_type,omitempty"`
+	// ConfiguredTargets is the previous configured targets for the flag rule.
+	ConfiguredTargets *FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget `json:"configured_targets,omitempty"`
+}
+
+// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget the previous configured targets for the flag rule.
+type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget struct {
+	// Organizations is the organizations targeted by the flag rule.
+	Organizations []*FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization `json:"organizations"`
+	// Users is the users targeted by the flag rule.
+	Users []*FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser `json:"users"`
+}
+
+// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for FlagRuleUpdatedContextConfiguredTargetOrganization.
+type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = FlagRuleUpdatedContextConfiguredTargetOrganization
+
+// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser is an alias for FlagRuleUpdatedContextConfiguredTargetUser.
+type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser = FlagRuleUpdatedContextConfiguredTargetUser
+
+// FlagUpdated represents a flag updated.
+type FlagUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FlagUpdatedContext `json:"context"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// FlagUpdatedData the event payload.
+type FlagUpdatedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FlagUpdatedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled is specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FlagUpdatedDataOwner is an alias for FeatureFlagOwner.
+type FlagUpdatedDataOwner = FeatureFlagOwner
+
+// FlagUpdatedContext additional context about the event.
+type FlagUpdatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FlagUpdatedContextActor `json:"actor"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes *FlagUpdatedContextPreviousAttribute `json:"previous_attributes,omitempty"`
+}
+
+// FlagUpdatedContextActor the actor who performed the action.
+type FlagUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FlagUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FlagUpdatedContextPreviousAttribute attributes that changed from their previous values.
+type FlagUpdatedContextPreviousAttribute struct {
+	// Data is the previous data attributes of the flag.
+	Data *FlagUpdatedContextPreviousAttributeData `json:"data,omitempty"`
+}
+
+// FlagUpdatedContextPreviousAttributeData the previous data attributes of the flag.
+type FlagUpdatedContextPreviousAttributeData struct {
+	// Name is the previous name of the flag.
+	Name *string `json:"name,omitempty"`
+	// Description is the previous description of the flag.
+	Description *string `json:"description,omitempty"`
+	// Tags is the previous tags of the flag.
+	Tags []string `json:"tags,omitempty"`
+	// Enabled is whether the flag was previously enabled.
+	Enabled *bool `json:"enabled,omitempty"`
+	// DefaultValue is the previous default value of the flag.
+	DefaultValue *bool `json:"default_value,omitempty"`
+}
+
+// InvitationAccepted represents a invitation accepted.
+type InvitationAccepted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *InvitationAcceptedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *InvitationAcceptedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// InvitationAcceptedData the event payload.
+type InvitationAcceptedData struct {
+	// Object is distinguishes the invitation object.
+	Object string `json:"object"`
+	// ID is the unique ID of the invitation.
+	ID string `json:"id"`
+	// Email is the email address of the recipient.
+	Email string `json:"email"`
+	// State is the state of the invitation.
+	State InvitationAcceptedDataState `json:"state"`
+	// AcceptedAt is the timestamp when the invitation was accepted, or null if not yet accepted.
+	AcceptedAt *string `json:"accepted_at"`
+	// RevokedAt is the timestamp when the invitation was revoked, or null if not revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// ExpiresAt is the timestamp when the invitation expires.
+	ExpiresAt string `json:"expires_at"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
+	OrganizationID *string `json:"organization_id"`
+	// InviterUserID is the ID of the user who invited the recipient, if provided.
+	InviterUserID *string `json:"inviter_user_id"`
+	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
+	AcceptedUserID *string `json:"accepted_user_id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// InvitationAcceptedContext additional context about the event.
+type InvitationAcceptedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*InvitationAcceptedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *InvitationAcceptedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// InvitationAcceptedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type InvitationAcceptedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// InvitationAcceptedContextActor the actor who performed the action.
+type InvitationAcceptedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source InvitationAcceptedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// InvitationCreated represents a invitation created.
+type InvitationCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *InvitationCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *InvitationCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// InvitationCreatedData the event payload.
+type InvitationCreatedData struct {
+	// Object is distinguishes the invitation object.
+	Object string `json:"object"`
+	// ID is the unique ID of the invitation.
+	ID string `json:"id"`
+	// Email is the email address of the recipient.
+	Email string `json:"email"`
+	// State is the state of the invitation.
+	State InvitationCreatedDataState `json:"state"`
+	// AcceptedAt is the timestamp when the invitation was accepted, or null if not yet accepted.
+	AcceptedAt *string `json:"accepted_at"`
+	// RevokedAt is the timestamp when the invitation was revoked, or null if not revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// ExpiresAt is the timestamp when the invitation expires.
+	ExpiresAt string `json:"expires_at"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
+	OrganizationID *string `json:"organization_id"`
+	// InviterUserID is the ID of the user who invited the recipient, if provided.
+	InviterUserID *string `json:"inviter_user_id"`
+	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
+	AcceptedUserID *string `json:"accepted_user_id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// InvitationCreatedContext additional context about the event.
+type InvitationCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*InvitationCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *InvitationCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// InvitationCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type InvitationCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// InvitationCreatedContextActor the actor who performed the action.
+type InvitationCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source InvitationCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// InvitationResent represents a invitation resent.
+type InvitationResent struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *InvitationResentData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *InvitationResentContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// InvitationResentData the event payload.
+type InvitationResentData struct {
+	// Object is distinguishes the invitation object.
+	Object string `json:"object"`
+	// ID is the unique ID of the invitation.
+	ID string `json:"id"`
+	// Email is the email address of the recipient.
+	Email string `json:"email"`
+	// State is the state of the invitation.
+	State InvitationResentDataState `json:"state"`
+	// AcceptedAt is the timestamp when the invitation was accepted, or null if not yet accepted.
+	AcceptedAt *string `json:"accepted_at"`
+	// RevokedAt is the timestamp when the invitation was revoked, or null if not revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// ExpiresAt is the timestamp when the invitation expires.
+	ExpiresAt string `json:"expires_at"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
+	OrganizationID *string `json:"organization_id"`
+	// InviterUserID is the ID of the user who invited the recipient, if provided.
+	InviterUserID *string `json:"inviter_user_id"`
+	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
+	AcceptedUserID *string `json:"accepted_user_id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// InvitationResentContext additional context about the event.
+type InvitationResentContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*InvitationResentContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *InvitationResentContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// InvitationResentContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type InvitationResentContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// InvitationResentContextActor the actor who performed the action.
+type InvitationResentContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source InvitationResentContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// InvitationRevoked represents a invitation revoked.
+type InvitationRevoked struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *InvitationRevokedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *InvitationRevokedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// InvitationRevokedData the event payload.
+type InvitationRevokedData struct {
+	// Object is distinguishes the invitation object.
+	Object string `json:"object"`
+	// ID is the unique ID of the invitation.
+	ID string `json:"id"`
+	// Email is the email address of the recipient.
+	Email string `json:"email"`
+	// State is the state of the invitation.
+	State InvitationRevokedDataState `json:"state"`
+	// AcceptedAt is the timestamp when the invitation was accepted, or null if not yet accepted.
+	AcceptedAt *string `json:"accepted_at"`
+	// RevokedAt is the timestamp when the invitation was revoked, or null if not revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// ExpiresAt is the timestamp when the invitation expires.
+	ExpiresAt string `json:"expires_at"`
+	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
+	OrganizationID *string `json:"organization_id"`
+	// InviterUserID is the ID of the user who invited the recipient, if provided.
+	InviterUserID *string `json:"inviter_user_id"`
+	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
+	AcceptedUserID *string `json:"accepted_user_id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// InvitationRevokedContext additional context about the event.
+type InvitationRevokedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*InvitationRevokedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *InvitationRevokedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// InvitationRevokedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type InvitationRevokedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// InvitationRevokedContextActor the actor who performed the action.
+type InvitationRevokedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source InvitationRevokedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// MagicAuthCreated represents a magic auth created.
+type MagicAuthCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *MagicAuthCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *MagicAuthCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// MagicAuthCreatedData the event payload.
+type MagicAuthCreatedData struct {
+	// Object is distinguishes the Magic Auth object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Magic Auth code.
+	ID string `json:"id"`
+	// UserID is the unique ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// ExpiresAt is the timestamp when the Magic Auth code expires.
+	ExpiresAt string `json:"expires_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// MagicAuthCreatedContext additional context about the event.
+type MagicAuthCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*MagicAuthCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *MagicAuthCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// MagicAuthCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type MagicAuthCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// MagicAuthCreatedContextActor the actor who performed the action.
+type MagicAuthCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source MagicAuthCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationCreated represents a organization created.
+type OrganizationCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationCreatedData the event payload.
+type OrganizationCreatedData struct {
+	// Object is distinguishes the Organization object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Organization.
+	ID string `json:"id"`
+	// Name is a descriptive name for the Organization. This field does not need to be unique.
+	Name string `json:"name"`
+	// Domains is list of Organization Domains.
+	Domains []*OrganizationCreatedDataDomain `json:"domains"`
+	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
+	Metadata map[string]string `json:"metadata"`
+	// ExternalID is the external ID of the Organization.
+	ExternalID *string `json:"external_id"`
+	// StripeCustomerID is the Stripe customer ID of the Organization.
+	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationCreatedDataDomain represents a organization created data domain.
+type OrganizationCreatedDataDomain struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationCreatedDataDomainState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationCreatedDataDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationCreatedContext additional context about the event.
+type OrganizationCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationCreatedContextActor the actor who performed the action.
+type OrganizationCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationDeleted represents a organization deleted.
+type OrganizationDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationDeletedData the event payload.
+type OrganizationDeletedData struct {
+	// Object is distinguishes the Organization object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Organization.
+	ID string `json:"id"`
+	// Name is a descriptive name for the Organization. This field does not need to be unique.
+	Name string `json:"name"`
+	// Domains is list of Organization Domains.
+	Domains []*OrganizationDeletedDataDomain `json:"domains"`
+	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
+	Metadata map[string]string `json:"metadata"`
+	// ExternalID is the external ID of the Organization.
+	ExternalID *string `json:"external_id"`
+	// StripeCustomerID is the Stripe customer ID of the Organization.
+	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDeletedDataDomain represents a organization deleted data domain.
+type OrganizationDeletedDataDomain struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDeletedDataDomainState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDeletedDataDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDeletedContext additional context about the event.
+type OrganizationDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationDeletedContextActor the actor who performed the action.
+type OrganizationDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationDomainCreated represents a organization domain created.
+type OrganizationDomainCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationDomainCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationDomainCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationDomainCreatedData the event payload.
+type OrganizationDomainCreatedData struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainCreatedDataState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainCreatedDataVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDomainCreatedContext additional context about the event.
+type OrganizationDomainCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationDomainCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationDomainCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationDomainCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationDomainCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationDomainCreatedContextActor the actor who performed the action.
+type OrganizationDomainCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationDomainCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationDomainDeleted represents a organization domain deleted.
+type OrganizationDomainDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationDomainDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationDomainDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationDomainDeletedData the event payload.
+type OrganizationDomainDeletedData struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainDeletedDataState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainDeletedDataVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDomainDeletedContext additional context about the event.
+type OrganizationDomainDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationDomainDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationDomainDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationDomainDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationDomainDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationDomainDeletedContextActor the actor who performed the action.
+type OrganizationDomainDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationDomainDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationDomainUpdated represents a organization domain updated.
+type OrganizationDomainUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationDomainUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationDomainUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationDomainUpdatedData the event payload.
+type OrganizationDomainUpdatedData struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainUpdatedDataState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainUpdatedDataVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDomainUpdatedContext additional context about the event.
+type OrganizationDomainUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationDomainUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationDomainUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationDomainUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationDomainUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationDomainUpdatedContextActor the actor who performed the action.
+type OrganizationDomainUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationDomainUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationDomainVerificationFailed represents a organization domain verification failed.
+type OrganizationDomainVerificationFailed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationDomainVerificationFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationDomainVerificationFailedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationDomainVerificationFailedData the event payload.
+type OrganizationDomainVerificationFailedData struct {
+	// Reason is the reason the domain verification failed.
+	Reason OrganizationDomainVerificationFailedDataReason `json:"reason"`
+	// OrganizationDomain is the organization domain that failed verification.
+	OrganizationDomain *OrganizationDomainVerificationFailedDataOrganizationDomain `json:"organization_domain"`
+}
+
+// OrganizationDomainVerificationFailedDataOrganizationDomain the organization domain that failed verification.
+type OrganizationDomainVerificationFailedDataOrganizationDomain struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainVerificationFailedDataOrganizationDomainState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainVerificationFailedDataOrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDomainVerificationFailedContext additional context about the event.
+type OrganizationDomainVerificationFailedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationDomainVerificationFailedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationDomainVerificationFailedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationDomainVerificationFailedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationDomainVerificationFailedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationDomainVerificationFailedContextActor the actor who performed the action.
+type OrganizationDomainVerificationFailedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationDomainVerificationFailedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationDomainVerified represents a organization domain verified.
+type OrganizationDomainVerified struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationDomainVerifiedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationDomainVerifiedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationDomainVerifiedData the event payload.
+type OrganizationDomainVerifiedData struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainVerifiedDataState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainVerifiedDataVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationDomainVerifiedContext additional context about the event.
+type OrganizationDomainVerifiedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationDomainVerifiedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationDomainVerifiedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationDomainVerifiedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationDomainVerifiedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationDomainVerifiedContextActor the actor who performed the action.
+type OrganizationDomainVerifiedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationDomainVerifiedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationMembershipCreated represents a organization membership created.
+type OrganizationMembershipCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationMembershipCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationMembershipCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationMembershipCreatedData the event payload.
+type OrganizationMembershipCreatedData struct {
+	// Object is distinguishes the organization membership object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization membership.
+	ID string `json:"id"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the organization.
+	OrganizationID string `json:"organization_id"`
+	// Status is the status of the organization membership.
+	Status OrganizationMembershipCreatedDataStatus `json:"status"`
+	// Role is the role associated with the membership.
+	Role map[string]interface{} `json:"role"`
+	// Roles is the roles associated with the membership.
+	Roles []map[string]interface{} `json:"roles,omitempty"`
+	// CustomAttributes is custom attributes associated with the membership.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// DirectoryManaged is whether the membership is managed by a directory sync provider.
+	DirectoryManaged bool `json:"directory_managed"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationMembershipCreatedContext additional context about the event.
+type OrganizationMembershipCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationMembershipCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationMembershipCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationMembershipCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationMembershipCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationMembershipCreatedContextActor the actor who performed the action.
+type OrganizationMembershipCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationMembershipCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationMembershipDeleted represents a organization membership deleted.
+type OrganizationMembershipDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationMembershipDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationMembershipDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationMembershipDeletedData the event payload.
+type OrganizationMembershipDeletedData struct {
+	// Object is distinguishes the organization membership object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization membership.
+	ID string `json:"id"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the organization.
+	OrganizationID string `json:"organization_id"`
+	// Status is the status of the organization membership.
+	Status OrganizationMembershipDeletedDataStatus `json:"status"`
+	// Role is the role associated with the membership.
+	Role map[string]interface{} `json:"role"`
+	// Roles is the roles associated with the membership.
+	Roles []map[string]interface{} `json:"roles,omitempty"`
+	// CustomAttributes is custom attributes associated with the membership.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// DirectoryManaged is whether the membership is managed by a directory sync provider.
+	DirectoryManaged bool `json:"directory_managed"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationMembershipDeletedContext additional context about the event.
+type OrganizationMembershipDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationMembershipDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationMembershipDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationMembershipDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationMembershipDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationMembershipDeletedContextActor the actor who performed the action.
+type OrganizationMembershipDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationMembershipDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationMembershipUpdated represents a organization membership updated.
+type OrganizationMembershipUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationMembershipUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationMembershipUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationMembershipUpdatedData the event payload.
+type OrganizationMembershipUpdatedData struct {
+	// Object is distinguishes the organization membership object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization membership.
+	ID string `json:"id"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the organization.
+	OrganizationID string `json:"organization_id"`
+	// Status is the status of the organization membership.
+	Status OrganizationMembershipUpdatedDataStatus `json:"status"`
+	// Role is the role associated with the membership.
+	Role map[string]interface{} `json:"role"`
+	// Roles is the roles associated with the membership.
+	Roles []map[string]interface{} `json:"roles,omitempty"`
+	// CustomAttributes is custom attributes associated with the membership.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	// DirectoryManaged is whether the membership is managed by a directory sync provider.
+	DirectoryManaged bool `json:"directory_managed"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationMembershipUpdatedContext additional context about the event.
+type OrganizationMembershipUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationMembershipUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationMembershipUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationMembershipUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationMembershipUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationMembershipUpdatedContextActor the actor who performed the action.
+type OrganizationMembershipUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationMembershipUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationRoleCreated represents a organization role created.
+type OrganizationRoleCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationRoleCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationRoleCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationRoleCreatedData the event payload.
+type OrganizationRoleCreatedData struct {
+	// Object is distinguishes the organization role object.
+	Object string `json:"object"`
+	// OrganizationID is the ID of the organization the role belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Slug is the slug identifier of the role.
+	Slug string `json:"slug"`
+	// Name is the name of the role.
+	Name string `json:"name"`
+	// Description is a description of the role.
+	Description *string `json:"description"`
+	// ResourceTypeSlug is the slug of the resource type the role applies to.
+	ResourceTypeSlug string `json:"resource_type_slug"`
+	// Permissions is the permissions granted by the role.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationRoleCreatedContext additional context about the event.
+type OrganizationRoleCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationRoleCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationRoleCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationRoleCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationRoleCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationRoleCreatedContextActor the actor who performed the action.
+type OrganizationRoleCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationRoleCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationRoleDeleted represents a organization role deleted.
+type OrganizationRoleDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationRoleDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationRoleDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationRoleDeletedData is an alias for OrganizationRoleCreatedData.
+type OrganizationRoleDeletedData = OrganizationRoleCreatedData
+
+// OrganizationRoleDeletedContext additional context about the event.
+type OrganizationRoleDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationRoleDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationRoleDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationRoleDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationRoleDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationRoleDeletedContextActor the actor who performed the action.
+type OrganizationRoleDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationRoleDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationRoleUpdated represents a organization role updated.
+type OrganizationRoleUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationRoleUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationRoleUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationRoleUpdatedData is an alias for OrganizationRoleCreatedData.
+type OrganizationRoleUpdatedData = OrganizationRoleCreatedData
+
+// OrganizationRoleUpdatedContext additional context about the event.
+type OrganizationRoleUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationRoleUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationRoleUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationRoleUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationRoleUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationRoleUpdatedContextActor the actor who performed the action.
+type OrganizationRoleUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationRoleUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// OrganizationUpdated represents a organization updated.
+type OrganizationUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *OrganizationUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *OrganizationUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// OrganizationUpdatedData the event payload.
+type OrganizationUpdatedData struct {
+	// Object is distinguishes the Organization object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Organization.
+	ID string `json:"id"`
+	// Name is a descriptive name for the Organization. This field does not need to be unique.
+	Name string `json:"name"`
+	// Domains is list of Organization Domains.
+	Domains []*OrganizationUpdatedDataDomain `json:"domains"`
+	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
+	Metadata map[string]string `json:"metadata"`
+	// ExternalID is the external ID of the Organization.
+	ExternalID *string `json:"external_id"`
+	// StripeCustomerID is the Stripe customer ID of the Organization.
+	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationUpdatedDataDomain represents a organization updated data domain.
+type OrganizationUpdatedDataDomain struct {
+	// Object is distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationUpdatedDataDomainState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationUpdatedDataDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationUpdatedContext additional context about the event.
+type OrganizationUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*OrganizationUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *OrganizationUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// OrganizationUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type OrganizationUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// OrganizationUpdatedContextActor the actor who performed the action.
+type OrganizationUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source OrganizationUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// PasswordResetCreated represents a password reset created.
+type PasswordResetCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PasswordResetCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *PasswordResetCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PasswordResetCreatedData the event payload.
+type PasswordResetCreatedData struct {
+	// Object is distinguishes the password reset object.
+	Object string `json:"object"`
+	// ID is the unique ID of the password reset object.
+	ID string `json:"id"`
+	// UserID is the unique ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// ExpiresAt is the timestamp when the password reset token expires.
+	ExpiresAt string `json:"expires_at"`
+	// CreatedAt is the timestamp when the password reset token was created.
+	CreatedAt string `json:"created_at"`
+}
+
+// PasswordResetCreatedContext additional context about the event.
+type PasswordResetCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*PasswordResetCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *PasswordResetCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// PasswordResetCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type PasswordResetCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// PasswordResetCreatedContextActor the actor who performed the action.
+type PasswordResetCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source PasswordResetCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// PasswordResetSucceeded represents a password reset succeeded.
+type PasswordResetSucceeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PasswordResetSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *PasswordResetSucceededContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PasswordResetSucceededData is an alias for PasswordResetCreatedData.
+type PasswordResetSucceededData = PasswordResetCreatedData
+
+// PasswordResetSucceededContext additional context about the event.
+type PasswordResetSucceededContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*PasswordResetSucceededContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *PasswordResetSucceededContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// PasswordResetSucceededContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type PasswordResetSucceededContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// PasswordResetSucceededContextActor the actor who performed the action.
+type PasswordResetSucceededContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source PasswordResetSucceededContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// PermissionCreated represents a permission created.
+type PermissionCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PermissionCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *PermissionCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PermissionCreatedData the event payload.
+type PermissionCreatedData struct {
+	// Object is distinguishes the permission object.
+	Object string `json:"object"`
+	// ID is unique identifier of the permission.
+	ID string `json:"id"`
+	// Slug is the slug identifier of the permission.
+	Slug string `json:"slug"`
+	// Name is the name of the permission.
+	Name string `json:"name"`
+	// Description is a description of the permission.
+	Description *string `json:"description"`
+	// System is whether the permission is a system permission.
+	System bool `json:"system"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// PermissionCreatedContext additional context about the event.
+type PermissionCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*PermissionCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *PermissionCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// PermissionCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type PermissionCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// PermissionCreatedContextActor the actor who performed the action.
+type PermissionCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source PermissionCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// PermissionDeleted represents a permission deleted.
+type PermissionDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PermissionDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *PermissionDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PermissionDeletedData is an alias for PermissionCreatedData.
+type PermissionDeletedData = PermissionCreatedData
+
+// PermissionDeletedContext additional context about the event.
+type PermissionDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*PermissionDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *PermissionDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// PermissionDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type PermissionDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// PermissionDeletedContextActor the actor who performed the action.
+type PermissionDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source PermissionDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// PermissionUpdated represents a permission updated.
+type PermissionUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PermissionUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *PermissionUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PermissionUpdatedData is an alias for PermissionCreatedData.
+type PermissionUpdatedData = PermissionCreatedData
+
+// PermissionUpdatedContext additional context about the event.
+type PermissionUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*PermissionUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *PermissionUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// PermissionUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type PermissionUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// PermissionUpdatedContextActor the actor who performed the action.
+type PermissionUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source PermissionUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// RoleCreated represents a role created.
+type RoleCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *RoleCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *RoleCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// RoleCreatedData the event payload.
+type RoleCreatedData struct {
+	// Object is distinguishes the role object.
+	Object string `json:"object"`
+	// Slug is the slug identifier of the role.
+	Slug string `json:"slug"`
+	// ResourceTypeSlug is the slug of the resource type the role applies to.
+	ResourceTypeSlug string `json:"resource_type_slug"`
+	// Permissions is the permissions granted by the role.
+	Permissions []string `json:"permissions,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// RoleCreatedContext additional context about the event.
+type RoleCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*RoleCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *RoleCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// RoleCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type RoleCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// RoleCreatedContextActor the actor who performed the action.
+type RoleCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source RoleCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// RoleDeleted represents a role deleted.
+type RoleDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *RoleDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *RoleDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// RoleDeletedData is an alias for RoleCreatedData.
+type RoleDeletedData = RoleCreatedData
+
+// RoleDeletedContext additional context about the event.
+type RoleDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*RoleDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *RoleDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// RoleDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type RoleDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// RoleDeletedContextActor the actor who performed the action.
+type RoleDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source RoleDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// RoleUpdated represents a role updated.
+type RoleUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *RoleUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *RoleUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// RoleUpdatedData is an alias for RoleCreatedData.
+type RoleUpdatedData = RoleCreatedData
+
+// RoleUpdatedContext additional context about the event.
+type RoleUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*RoleUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *RoleUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// RoleUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type RoleUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// RoleUpdatedContextActor the actor who performed the action.
+type RoleUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source RoleUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// SessionCreated represents a session created.
+type SessionCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *SessionCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *SessionCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// SessionCreatedData the event payload.
+type SessionCreatedData struct {
+	// Object is distinguishes the session object.
+	Object string `json:"object"`
+	// ID is the unique ID of the session.
+	ID string `json:"id"`
+	// Impersonator is information about the impersonator if this session was created via impersonation.
+	Impersonator *SessionCreatedDataImpersonator `json:"impersonator,omitempty"`
+	// IPAddress is the IP address from which the session was created.
+	IPAddress *string `json:"ip_address"`
+	// OrganizationID is the ID of the organization this session is associated with.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// UserAgent is the user agent string from the device that created the session.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user this session belongs to.
+	UserID string `json:"user_id"`
+	// AuthMethod is the authentication method used to create this session.
+	AuthMethod SessionCreatedDataAuthMethod `json:"auth_method"`
+	// Status is the current status of the session.
+	Status SessionCreatedDataStatus `json:"status"`
+	// ExpiresAt is the timestamp when the session expires.
+	ExpiresAt string `json:"expires_at"`
+	// EndedAt is the timestamp when the session ended.
+	EndedAt *string `json:"ended_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// SessionCreatedDataImpersonator is an alias for AuthenticateResponseImpersonator.
+type SessionCreatedDataImpersonator = AuthenticateResponseImpersonator
+
+// SessionCreatedContext additional context about the event.
+type SessionCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*SessionCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *SessionCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// SessionCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type SessionCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// SessionCreatedContextActor the actor who performed the action.
+type SessionCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source SessionCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// SessionRevoked represents a session revoked.
+type SessionRevoked struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *SessionRevokedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *SessionRevokedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// SessionRevokedData the event payload.
+type SessionRevokedData struct {
+	// Object is distinguishes the session object.
+	Object string `json:"object"`
+	// ID is the unique ID of the session.
+	ID string `json:"id"`
+	// Impersonator is information about the impersonator if this session was created via impersonation.
+	Impersonator *SessionRevokedDataImpersonator `json:"impersonator,omitempty"`
+	// IPAddress is the IP address from which the session was created.
+	IPAddress *string `json:"ip_address"`
+	// OrganizationID is the ID of the organization this session is associated with.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// UserAgent is the user agent string from the device that created the session.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user this session belongs to.
+	UserID string `json:"user_id"`
+	// AuthMethod is the authentication method used to create this session.
+	AuthMethod SessionRevokedDataAuthMethod `json:"auth_method"`
+	// Status is the current status of the session.
+	Status SessionRevokedDataStatus `json:"status"`
+	// ExpiresAt is the timestamp when the session expires.
+	ExpiresAt string `json:"expires_at"`
+	// EndedAt is the timestamp when the session ended.
+	EndedAt *string `json:"ended_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// SessionRevokedDataImpersonator is an alias for AuthenticateResponseImpersonator.
+type SessionRevokedDataImpersonator = AuthenticateResponseImpersonator
+
+// SessionRevokedContext additional context about the event.
+type SessionRevokedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*SessionRevokedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *SessionRevokedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// SessionRevokedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type SessionRevokedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// SessionRevokedContextActor the actor who performed the action.
+type SessionRevokedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source SessionRevokedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// UserCreated represents a user created.
+type UserCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *UserCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *UserCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// UserCreatedData is an alias for EmailChangeConfirmationUser.
+type UserCreatedData = EmailChangeConfirmationUser
+
+// UserCreatedContext additional context about the event.
+type UserCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*UserCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *UserCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// UserCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type UserCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// UserCreatedContextActor the actor who performed the action.
+type UserCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source UserCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// UserDeleted represents a user deleted.
+type UserDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *UserDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *UserDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// UserDeletedData is an alias for EmailChangeConfirmationUser.
+type UserDeletedData = EmailChangeConfirmationUser
+
+// UserDeletedContext additional context about the event.
+type UserDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*UserDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *UserDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// UserDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type UserDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// UserDeletedContextActor the actor who performed the action.
+type UserDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source UserDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// UserUpdated represents a user updated.
+type UserUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *UserUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *UserUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// UserUpdatedData is an alias for EmailChangeConfirmationUser.
+type UserUpdatedData = EmailChangeConfirmationUser
+
+// UserUpdatedContext additional context about the event.
+type UserUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*UserUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *UserUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// UserUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type UserUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// UserUpdatedContextActor the actor who performed the action.
+type UserUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source UserUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultByokKeyVerificationCompleted represents a vault byok key verification completed.
+type VaultByokKeyVerificationCompleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultByokKeyVerificationCompletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultByokKeyVerificationCompletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultByokKeyVerificationCompletedData the event payload.
+type VaultByokKeyVerificationCompletedData struct {
+	// OrganizationID is the unique identifier of the organization.
+	OrganizationID string `json:"organization_id"`
+	// KeyProvider is the external key provider used for BYOK.
+	KeyProvider VaultByokKeyVerificationCompletedDataKeyProvider `json:"key_provider"`
+	// Verified is whether the BYOK key verification completed successfully.
+	Verified bool `json:"verified"`
+}
+
+// VaultByokKeyVerificationCompletedContext additional context about the event.
+type VaultByokKeyVerificationCompletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultByokKeyVerificationCompletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultByokKeyVerificationCompletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultByokKeyVerificationCompletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultByokKeyVerificationCompletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultByokKeyVerificationCompletedContextActor the actor who performed the action.
+type VaultByokKeyVerificationCompletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultByokKeyVerificationCompletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultDataCreated represents a vault data created.
+type VaultDataCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDataCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultDataCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultDataCreatedData the event payload.
+type VaultDataCreatedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                          `json:"actor_id"`
+	ActorSource VaultDataCreatedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KvName is the name of the key-value store.
+	KvName string `json:"kv_name"`
+	// KeyID is the unique identifier of the encryption key.
+	KeyID      string            `json:"key_id"`
+	KeyContext map[string]string `json:"key_context"`
+}
+
+// VaultDataCreatedContext additional context about the event.
+type VaultDataCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultDataCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultDataCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultDataCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultDataCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultDataCreatedContextActor the actor who performed the action.
+type VaultDataCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultDataCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultDataDeleted represents a vault data deleted.
+type VaultDataDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDataDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultDataDeletedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultDataDeletedData the event payload.
+type VaultDataDeletedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                          `json:"actor_id"`
+	ActorSource VaultDataDeletedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KvName is the name of the key-value store.
+	KvName string `json:"kv_name"`
+}
+
+// VaultDataDeletedContext additional context about the event.
+type VaultDataDeletedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultDataDeletedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultDataDeletedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultDataDeletedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultDataDeletedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultDataDeletedContextActor the actor who performed the action.
+type VaultDataDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultDataDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultDataRead represents a vault data read.
+type VaultDataRead struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDataReadData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultDataReadContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultDataReadData the event payload.
+type VaultDataReadData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                       `json:"actor_id"`
+	ActorSource VaultDataReadDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KvName is the name of the key-value store.
+	KvName string `json:"kv_name"`
+	// KeyID is the unique identifier of the encryption key.
+	KeyID string `json:"key_id"`
+}
+
+// VaultDataReadContext additional context about the event.
+type VaultDataReadContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultDataReadContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultDataReadContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultDataReadContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultDataReadContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultDataReadContextActor the actor who performed the action.
+type VaultDataReadContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultDataReadContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultDataUpdated represents a vault data updated.
+type VaultDataUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDataUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultDataUpdatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultDataUpdatedData the event payload.
+type VaultDataUpdatedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                          `json:"actor_id"`
+	ActorSource VaultDataUpdatedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KvName is the name of the key-value store.
+	KvName string `json:"kv_name"`
+	// KeyID is the unique identifier of the encryption key.
+	KeyID      string            `json:"key_id"`
+	KeyContext map[string]string `json:"key_context"`
+}
+
+// VaultDataUpdatedContext additional context about the event.
+type VaultDataUpdatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultDataUpdatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultDataUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultDataUpdatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultDataUpdatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultDataUpdatedContextActor the actor who performed the action.
+type VaultDataUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultDataUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultDekDecrypted represents a vault dek decrypted.
+type VaultDekDecrypted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDekDecryptedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultDekDecryptedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultDekDecryptedData the event payload.
+type VaultDekDecryptedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                           `json:"actor_id"`
+	ActorSource VaultDekDecryptedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KeyID is the unique identifier of the data encryption key.
+	KeyID string `json:"key_id"`
+}
+
+// VaultDekDecryptedContext additional context about the event.
+type VaultDekDecryptedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultDekDecryptedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultDekDecryptedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultDekDecryptedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultDekDecryptedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultDekDecryptedContextActor the actor who performed the action.
+type VaultDekDecryptedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultDekDecryptedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultDekRead represents a vault dek read.
+type VaultDekRead struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDekReadData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultDekReadContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultDekReadData the event payload.
+type VaultDekReadData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                      `json:"actor_id"`
+	ActorSource VaultDekReadDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KeyIDs is the unique identifiers of the data encryption keys.
+	KeyIDs     []string          `json:"key_ids"`
+	KeyContext map[string]string `json:"key_context"`
+}
+
+// VaultDekReadContext additional context about the event.
+type VaultDekReadContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultDekReadContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultDekReadContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultDekReadContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultDekReadContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultDekReadContextActor the actor who performed the action.
+type VaultDekReadContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultDekReadContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultKekCreated represents a vault kek created.
+type VaultKekCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultKekCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultKekCreatedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultKekCreatedData the event payload.
+type VaultKekCreatedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                         `json:"actor_id"`
+	ActorSource VaultKekCreatedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KeyName is the name of the key encryption key.
+	KeyName string `json:"key_name"`
+	// KeyID is the unique identifier of the key encryption key.
+	KeyID string `json:"key_id"`
+}
+
+// VaultKekCreatedContext additional context about the event.
+type VaultKekCreatedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultKekCreatedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultKekCreatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultKekCreatedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultKekCreatedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultKekCreatedContextActor the actor who performed the action.
+type VaultKekCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultKekCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultMetadataRead represents a vault metadata read.
+type VaultMetadataRead struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultMetadataReadData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultMetadataReadContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultMetadataReadData the event payload.
+type VaultMetadataReadData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                           `json:"actor_id"`
+	ActorSource VaultMetadataReadDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KvName is the name of the key-value store.
+	KvName string `json:"kv_name"`
+}
+
+// VaultMetadataReadContext additional context about the event.
+type VaultMetadataReadContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultMetadataReadContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultMetadataReadContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultMetadataReadContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultMetadataReadContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultMetadataReadContextActor the actor who performed the action.
+type VaultMetadataReadContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultMetadataReadContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// VaultNamesListed represents a vault names listed.
+type VaultNamesListed struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultNamesListedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *VaultNamesListedContext `json:"context,omitempty"`
+	// Object is distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultNamesListedData the event payload.
+type VaultNamesListedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                          `json:"actor_id"`
+	ActorSource VaultNamesListedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+}
+
+// VaultNamesListedContext additional context about the event.
+type VaultNamesListedContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*VaultNamesListedContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string `json:"client_id,omitempty"`
+	// Actor is the actor who performed the action.
+	Actor *VaultNamesListedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
+}
+
+// VaultNamesListedContextGoogleAnalyticsSession is an alias for ActionAuthenticationDeniedContextGoogleAnalyticsSession.
+type VaultNamesListedContextGoogleAnalyticsSession = ActionAuthenticationDeniedContextGoogleAnalyticsSession
+
+// VaultNamesListedContextActor the actor who performed the action.
+type VaultNamesListedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source VaultNamesListedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
 // JWTTemplateResponse represents a jwt template response.
 type JWTTemplateResponse struct {
 	// Object is the object type.
@@ -1073,7 +6682,7 @@ type OrganizationDomainStandAlone struct {
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
-	// OrganizationID is iD of the parent Organization.
+	// OrganizationID is id of the parent Organization.
 	OrganizationID string `json:"organization_id"`
 	// Domain is domain for the organization domain.
 	Domain string `json:"domain"`
@@ -1162,6 +6771,8 @@ type Organization struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 	// AllowProfilesOutsideOrganization is whether the Organization allows profiles outside of its managed domains.
+	//
+	// Deprecated: this field is deprecated.
 	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
 }
 
@@ -1552,9 +7163,9 @@ type JWKSResponseKeys struct {
 	Use string `json:"use"`
 	// X5C is x.509 certificate chain.
 	X5C []string `json:"x5c"`
-	// N is rSA modulus.
+	// N is rsa modulus.
 	N string `json:"n"`
-	// E is rSA exponent.
+	// E is rsa exponent.
 	E string `json:"e"`
 	// Kid is key ID.
 	Kid string `json:"kid"`
@@ -1623,7 +7234,7 @@ type AuditLogConfigurationLogStream struct {
 	Type AuditLogConfigurationLogStreamType `json:"type"`
 	// State is the current state of the Audit Log Stream.
 	State AuditLogConfigurationLogStreamState `json:"state"`
-	// LastSyncedAt is iSO-8601 timestamp of when the last event was successfully synced, or null if no events have been synced.
+	// LastSyncedAt is iso-8601 timestamp of when the last event was successfully synced, or null if no events have been synced.
 	LastSyncedAt *string `json:"last_synced_at"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
@@ -1635,7 +7246,7 @@ type OrganizationDomain struct {
 	Object string `json:"object"`
 	// ID is unique identifier of the organization domain.
 	ID string `json:"id"`
-	// OrganizationID is iD of the parent Organization.
+	// OrganizationID is id of the parent Organization.
 	OrganizationID string `json:"organization_id"`
 	// Domain is domain for the organization domain.
 	Domain string `json:"domain"`
@@ -1653,11 +7264,17 @@ type OrganizationDomain struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyWithValueOwner is an alias for APIKeyOwner.
-type APIKeyWithValueOwner = APIKeyOwner
+// APIKeyWithValueOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyWithValueOwner = APIKeyCreatedDataOwner
 
 // FlagOwner is an alias for FeatureFlagOwner.
 type FlagOwner = FeatureFlagOwner
+
+// EventListListMetadata pagination cursor for navigating to the next page of results.
+type EventListListMetadata struct {
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `json:"after"`
+}
 
 // DirectoryUserWithGroupsEmail represents a directory user with groups email.
 type DirectoryUserWithGroupsEmail struct {
@@ -1677,15 +7294,8 @@ type DirectoryMetadata struct {
 	Groups int `json:"groups"`
 }
 
-// ConnectionDomain represents a connection domain.
-type ConnectionDomain struct {
-	// ID is unique identifier for the Connection Domain.
-	ID string `json:"id"`
-	// Object is distinguishes the Connection Domain object.
-	Object string `json:"object"`
-	// Domain is the domain value.
-	Domain string `json:"domain"`
-}
+// ConnectionDomain is an alias for ConnectionActivatedDataDomain.
+type ConnectionDomain = ConnectionActivatedDataDomain
 
 // ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
 type ConnectionOption struct {
@@ -1730,7 +7340,7 @@ type RoleAssignmentResource struct {
 // AuthenticationFactorSms is an alias for AuthenticationFactorEnrolledSms.
 type AuthenticationFactorSms = AuthenticationFactorEnrolledSms
 
-// AuthenticationFactorTOTP tOTP-based authentication factor details.
+// AuthenticationFactorTOTP totp-based authentication factor details.
 type AuthenticationFactorTOTP struct {
 	// Issuer is your application or company name displayed in the user's authenticator app. Defaults to your WorkOS team name.
 	Issuer string `json:"issuer"`
@@ -1738,19 +7348,19 @@ type AuthenticationFactorTOTP struct {
 	User string `json:"user"`
 }
 
-// AuthenticationFactorEnrolledSms sMS-based authentication factor details.
+// AuthenticationFactorEnrolledSms sms-based authentication factor details.
 type AuthenticationFactorEnrolledSms struct {
 	// PhoneNumber is the user's phone number for SMS-based authentication.
 	PhoneNumber string `json:"phone_number"`
 }
 
-// AuthenticationFactorEnrolledTOTP tOTP-based authentication factor details. Includes enrollment secrets only available at creation time.
+// AuthenticationFactorEnrolledTOTP totp-based authentication factor details. Includes enrollment secrets only available at creation time.
 type AuthenticationFactorEnrolledTOTP struct {
 	// Issuer is your application or company name displayed in the user's authenticator app. Defaults to your WorkOS team name.
 	Issuer string `json:"issuer"`
 	// User is the user's account name displayed in their authenticator app. Defaults to the user's email.
 	User string `json:"user"`
-	// Secret is tOTP secret that can be manually entered into some authenticator apps in place of scanning a QR code.
+	// Secret is totp secret that can be manually entered into some authenticator apps in place of scanning a QR code.
 	Secret string `json:"secret"`
 	// QrCode is base64 encoded image containing scannable QR code.
 	QrCode string `json:"qr_code"`
@@ -1780,13 +7390,8 @@ type AuthorizedConnectApplicationListData struct {
 	Application   *ConnectApplication `json:"application"`
 }
 
-// APIKeyOwner the entity that owns the API Key.
-type APIKeyOwner struct {
-	// Type is the type of the API Key owner.
-	Type string `json:"type"`
-	// ID is unique identifier of the API Key owner.
-	ID string `json:"id"`
-}
+// APIKeyOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyOwner = APIKeyCreatedDataOwner
 
 // UserConsentOptionChoice represents a user consent option choice.
 type UserConsentOptionChoice struct {
@@ -2018,8 +7623,8 @@ type RefreshTokenSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// UrnWorkOSOAuthGrantTypeMagicAuthCodeSessionAuthenticateRequest represents a urn workos o auth grant type magic auth code session authenticate request.
-type UrnWorkOSOAuthGrantTypeMagicAuthCodeSessionAuthenticateRequest struct {
+// MagicAuthCodeSessionAuthenticateRequest represents a urn workos o auth grant type magic auth code session authenticate request.
+type MagicAuthCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
@@ -2039,8 +7644,8 @@ type UrnWorkOSOAuthGrantTypeMagicAuthCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// UrnWorkOSOAuthGrantTypeEmailVerificationCodeSessionAuthenticateRequest represents a urn workos o auth grant type email verification code session authenticate request.
-type UrnWorkOSOAuthGrantTypeEmailVerificationCodeSessionAuthenticateRequest struct {
+// EmailVerificationCodeSessionAuthenticateRequest represents a urn workos o auth grant type email verification code session authenticate request.
+type EmailVerificationCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
@@ -2058,8 +7663,8 @@ type UrnWorkOSOAuthGrantTypeEmailVerificationCodeSessionAuthenticateRequest stru
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// UrnWorkOSOAuthGrantTypeMFATOTPSessionAuthenticateRequest represents a urn workos o auth grant type mfa totp session authenticate request.
-type UrnWorkOSOAuthGrantTypeMFATOTPSessionAuthenticateRequest struct {
+// MFATOTPSessionAuthenticateRequest represents a urn workos o auth grant type mfa totp session authenticate request.
+type MFATOTPSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
@@ -2079,8 +7684,8 @@ type UrnWorkOSOAuthGrantTypeMFATOTPSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// UrnWorkOSOAuthGrantTypeOrganizationSelectionSessionAuthenticateRequest represents a urn workos o auth grant type organization selection session authenticate request.
-type UrnWorkOSOAuthGrantTypeOrganizationSelectionSessionAuthenticateRequest struct {
+// OrganizationSelectionSessionAuthenticateRequest represents a urn workos o auth grant type organization selection session authenticate request.
+type OrganizationSelectionSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
 	// ClientSecret is the client secret of the application.
@@ -2098,8 +7703,8 @@ type UrnWorkOSOAuthGrantTypeOrganizationSelectionSessionAuthenticateRequest stru
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// UrnIetfParamsOAuthGrantTypeDeviceCodeSessionAuthenticateRequest represents a urn ietf params o auth grant type device code session authenticate request.
-type UrnIetfParamsOAuthGrantTypeDeviceCodeSessionAuthenticateRequest struct {
+// DeviceCodeSessionAuthenticateRequest represents a urn ietf params o auth grant type device code session authenticate request.
+type DeviceCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID  string `json:"client_id"`
 	GrantType string `json:"grant_type"`

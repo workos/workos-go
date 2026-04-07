@@ -22,7 +22,7 @@ type ConnectCompleteOAuth2Params struct {
 	UserConsentOptions []*UserConsentOption `json:"user_consent_options,omitempty"`
 }
 
-// CompleteOAuth2 completeExternalAuthentication
+// CompleteOAuth2 complete external authentication
 // Completes an external authentication flow and returns control to AuthKit. This endpoint is used with [Standalone Connect](https://workos.com/docs/authkit/connect/standalone) to bridge your existing authentication system with the Connect OAuth API infrastructure.
 // After successfully authenticating a user in your application, calling this endpoint will:
 // - Create or update the user in AuthKit, using the given `id` as its `external_id`.
@@ -45,14 +45,16 @@ type ConnectListApplicationsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *ApplicationsOrder `url:"order,omitempty" json:"-"`
 	// OrganizationID is filter Connect Applications by organization ID.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
 
-// ListApplications listConnectApplications
+// ListApplications list Connect Applications
 // List all Connect Applications in the current environment with optional filtering.
 func (s *connectService) ListApplications(ctx context.Context, params *ConnectListApplicationsParams, opts ...RequestOption) *Iterator[ConnectApplication] {
 	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts)
@@ -63,7 +65,7 @@ type ConnectCreateApplicationsParams struct {
 	Body interface{} `json:"-"`
 }
 
-// CreateApplications createAConnectApplication
+// CreateApplications create a Connect Application
 // Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
 func (s *connectService) CreateApplications(ctx context.Context, params *ConnectCreateApplicationsParams, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
@@ -76,12 +78,19 @@ func (s *connectService) CreateApplications(ctx context.Context, params *Connect
 
 // CreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
 type CreateOAuthApplicationParams struct {
-	Name           *string `json:"name,omitempty"`
-	IsFirstParty   *string `json:"is_first_party,omitempty"`
-	Description    *string `json:"description,omitempty"`
-	Scopes         *string `json:"scopes,omitempty"`
-	RedirectURIs   *string `json:"redirect_uris,omitempty"`
-	UsesPKCE       *string `json:"uses_pkce,omitempty"`
+	// Name is the name of the application.
+	Name string `json:"name"`
+	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
+	IsFirstParty bool `json:"is_first_party"`
+	// Description is a description for the application.
+	Description *string `json:"description,omitempty"`
+	// Scopes is the OAuth scopes granted to the application.
+	Scopes *[]string `json:"scopes,omitempty"`
+	// RedirectURIs is redirect URIs for the application.
+	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
+	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
+	UsesPKCE *bool `json:"uses_pkce,omitempty"`
+	// OrganizationID is the organization ID this application belongs to. Required when is_first_party is false.
 	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
@@ -89,12 +98,8 @@ type CreateOAuthApplicationParams struct {
 func (s *connectService) CreateOAuthApplication(ctx context.Context, params *CreateOAuthApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	body := map[string]interface{}{
 		"application_type": "oauth",
-	}
-	if params.Name != nil {
-		body["name"] = *params.Name
-	}
-	if params.IsFirstParty != nil {
-		body["is_first_party"] = *params.IsFirstParty
+		"name":             params.Name,
+		"is_first_party":   params.IsFirstParty,
 	}
 	if params.Description != nil {
 		body["description"] = *params.Description
@@ -121,22 +126,22 @@ func (s *connectService) CreateOAuthApplication(ctx context.Context, params *Cre
 
 // CreateM2MApplicationParams contains the parameters for CreateM2MApplication.
 type CreateM2MApplicationParams struct {
-	Name           *string `json:"name,omitempty"`
-	OrganizationID *string `json:"organization_id,omitempty"`
-	Description    *string `json:"description,omitempty"`
-	Scopes         *string `json:"scopes,omitempty"`
+	// Name is the name of the application.
+	Name string `json:"name"`
+	// OrganizationID is the organization ID this application belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Description is a description for the application.
+	Description *string `json:"description,omitempty"`
+	// Scopes is the OAuth scopes granted to the application.
+	Scopes *[]string `json:"scopes,omitempty"`
 }
 
 // CreateM2MApplication Create m2m application.
 func (s *connectService) CreateM2MApplication(ctx context.Context, params *CreateM2MApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	body := map[string]interface{}{
 		"application_type": "m2m",
-	}
-	if params.Name != nil {
-		body["name"] = *params.Name
-	}
-	if params.OrganizationID != nil {
-		body["organization_id"] = *params.OrganizationID
+		"name":             params.Name,
+		"organization_id":  params.OrganizationID,
 	}
 	if params.Description != nil {
 		body["description"] = *params.Description
@@ -152,7 +157,7 @@ func (s *connectService) CreateM2MApplication(ctx context.Context, params *Creat
 	return &result, nil
 }
 
-// GetApplication getAConnectApplication
+// GetApplication get a Connect Application
 // Retrieve details for a specific Connect Application by ID or client ID.
 func (s *connectService) GetApplication(ctx context.Context, id string, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
@@ -172,10 +177,10 @@ type ConnectUpdateApplicationParams struct {
 	// Scopes is the OAuth scopes granted to the application.
 	Scopes *[]string `json:"scopes,omitempty"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
-	RedirectURIs *[]*RedirectURIDto `json:"redirect_uris,omitempty"`
+	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
 }
 
-// UpdateApplication updateAConnectApplication
+// UpdateApplication update a Connect Application
 // Update an existing Connect Application. For OAuth applications, you can update redirect URIs. For all applications, you can update the name, description, and scopes.
 func (s *connectService) UpdateApplication(ctx context.Context, id string, params *ConnectUpdateApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
@@ -186,14 +191,14 @@ func (s *connectService) UpdateApplication(ctx context.Context, id string, param
 	return &result, nil
 }
 
-// DeleteApplication deleteAConnectApplication
+// DeleteApplication delete a Connect Application
 // Delete an existing Connect Application.
 func (s *connectService) DeleteApplication(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/applications/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// ListApplicationClientSecrets listClientSecretsForAConnectApplication
+// ListApplicationClientSecrets list Client Secrets for a Connect Application
 // List all client secrets associated with a Connect Application.
 func (s *connectService) ListApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) ([]ApplicationCredentialsListItem, error) {
 	var result []ApplicationCredentialsListItem
@@ -204,22 +209,18 @@ func (s *connectService) ListApplicationClientSecrets(ctx context.Context, id st
 	return result, nil
 }
 
-// ConnectCreateApplicationClientSecretsParams contains the parameters for CreateApplicationClientSecrets.
-type ConnectCreateApplicationClientSecretsParams struct {
-}
-
-// CreateApplicationClientSecrets createANewClientSecretForAConnectApplication
+// CreateApplicationClientSecrets create a new client secret for a Connect Application
 // Create new secrets for a Connect Application.
-func (s *connectService) CreateApplicationClientSecrets(ctx context.Context, id string, params *ConnectCreateApplicationClientSecretsParams, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
+func (s *connectService) CreateApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
 	var result NewConnectApplicationSecret
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", id), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteClientSecret deleteAClientSecret
+// DeleteClientSecret delete a Client Secret
 // Delete (revoke) an existing client secret.
 func (s *connectService) DeleteClientSecret(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/client_secrets/%s", id), nil, nil, nil, opts)

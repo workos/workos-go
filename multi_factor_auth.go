@@ -18,7 +18,7 @@ type MultiFactorAuthVerifyChallengeParams struct {
 	Code string `json:"code"`
 }
 
-// VerifyChallenge verifyChallenge
+// VerifyChallenge verify Challenge
 // Verifies an Authentication Challenge.
 func (s *multiFactorAuthService) VerifyChallenge(ctx context.Context, id string, params *MultiFactorAuthVerifyChallengeParams, opts ...RequestOption) (*AuthenticationChallengeVerifyResponse, error) {
 	var result AuthenticationChallengeVerifyResponse
@@ -43,7 +43,7 @@ type MultiFactorAuthEnrollFactorParams struct {
 	UserID *string `json:"user_id,omitempty"`
 }
 
-// EnrollFactor enrollFactor
+// EnrollFactor enroll Factor
 // Enrolls an Authentication Factor to be used as an additional factor of authentication. The returned ID should be used to create an authentication Challenge.
 func (s *multiFactorAuthService) EnrollFactor(ctx context.Context, params *MultiFactorAuthEnrollFactorParams, opts ...RequestOption) (*AuthenticationFactorEnrolled, error) {
 	var result AuthenticationFactorEnrolled
@@ -54,7 +54,7 @@ func (s *multiFactorAuthService) EnrollFactor(ctx context.Context, params *Multi
 	return &result, nil
 }
 
-// GetFactor getFactor
+// GetFactor get Factor
 // Gets an Authentication Factor.
 func (s *multiFactorAuthService) GetFactor(ctx context.Context, id string, opts ...RequestOption) (*AuthenticationFactor, error) {
 	var result AuthenticationFactor
@@ -65,7 +65,7 @@ func (s *multiFactorAuthService) GetFactor(ctx context.Context, id string, opts 
 	return &result, nil
 }
 
-// DeleteFactor deleteFactor
+// DeleteFactor delete Factor
 // Permanently deletes an Authentication Factor. It cannot be undone.
 func (s *multiFactorAuthService) DeleteFactor(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/auth/factors/%s", id), nil, nil, nil, opts)
@@ -78,7 +78,7 @@ type MultiFactorAuthChallengeFactorParams struct {
 	SmsTemplate *string `json:"sms_template,omitempty"`
 }
 
-// ChallengeFactor challengeFactor
+// ChallengeFactor challenge Factor
 // Creates a Challenge for an Authentication Factor.
 func (s *multiFactorAuthService) ChallengeFactor(ctx context.Context, id string, params *MultiFactorAuthChallengeFactorParams, opts ...RequestOption) (*AuthenticationChallenge, error) {
 	var result AuthenticationChallenge
@@ -96,12 +96,14 @@ type MultiFactorAuthListUserAuthFactorsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time.
+	// Defaults to "desc".
 	Order *UserManagementMultiFactorAuthenticationOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListUserAuthFactors listAuthenticationFactors
+// ListUserAuthFactors list authentication factors
 // Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
 func (s *multiFactorAuthService) ListUserAuthFactors(ctx context.Context, userlandUserID string, params *MultiFactorAuthListUserAuthFactorsParams, opts ...RequestOption) *Iterator[AuthenticationFactor] {
 	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", userlandUserID), params, "after", "data", opts)
@@ -119,7 +121,7 @@ type MultiFactorAuthCreateUserAuthFactorsParams struct {
 	TOTPSecret *string `json:"totp_secret,omitempty"`
 }
 
-// CreateUserAuthFactors enrollAnAuthenticationFactor
+// CreateUserAuthFactors enroll an authentication factor
 // Enrolls a user in a new [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor).
 func (s *multiFactorAuthService) CreateUserAuthFactors(ctx context.Context, userlandUserID string, params *MultiFactorAuthCreateUserAuthFactorsParams, opts ...RequestOption) (*UserAuthenticationFactorEnrollResponse, error) {
 	var result UserAuthenticationFactorEnrollResponse

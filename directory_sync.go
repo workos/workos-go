@@ -19,24 +19,28 @@ type DirectorySyncListParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time.
+	// Defaults to "desc".
 	Order *DirectoriesOrder `url:"order,omitempty" json:"-"`
 	// OrganizationID is filter Directories by their associated organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// Search is searchable text to match against Directory names.
 	Search *string `url:"search,omitempty" json:"-"`
 	// Domain is filter Directories by their associated domain.
+	//
+	// Deprecated: this parameter is deprecated.
 	Domain *string `url:"domain,omitempty" json:"-"`
 }
 
-// List listDirectories
+// List list Directories
 // Get a list of all of your existing directories matching the criteria specified.
 func (s *directorySyncService) List(ctx context.Context, params *DirectorySyncListParams, opts ...RequestOption) *Iterator[Directory] {
 	return newIterator[Directory](ctx, s.client, "GET", "/directories", params, "after", "data", opts)
 }
 
-// Get getADirectory
+// Get get a Directory
 // Get the details of an existing directory.
 func (s *directorySyncService) Get(ctx context.Context, id string, opts ...RequestOption) (*Directory, error) {
 	var result Directory
@@ -47,7 +51,7 @@ func (s *directorySyncService) Get(ctx context.Context, id string, opts ...Reque
 	return &result, nil
 }
 
-// Delete deleteADirectory
+// Delete delete a Directory
 // Permanently deletes an existing directory. It cannot be undone.
 func (s *directorySyncService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/directories/%s", id), nil, nil, nil, opts)
@@ -61,8 +65,10 @@ type DirectorySyncListGroupsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *DirectoryGroupsOrder `url:"order,omitempty" json:"-"`
 	// Directory is unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
 	Directory *string `url:"directory,omitempty" json:"-"`
@@ -70,13 +76,13 @@ type DirectorySyncListGroupsParams struct {
 	User *string `url:"user,omitempty" json:"-"`
 }
 
-// ListGroups listDirectoryGroups
+// ListGroups list Directory Groups
 // Get a list of all of existing directory groups matching the criteria specified.
 func (s *directorySyncService) ListGroups(ctx context.Context, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
 	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "after", "data", opts)
 }
 
-// GetGroup getADirectoryGroup
+// GetGroup get a Directory Group
 // Get the details of an existing Directory Group.
 func (s *directorySyncService) GetGroup(ctx context.Context, id string, opts ...RequestOption) (*DirectoryGroup, error) {
 	var result DirectoryGroup
@@ -94,8 +100,10 @@ type DirectorySyncListUsersParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *DirectoryUsersOrder `url:"order,omitempty" json:"-"`
 	// Directory is unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
 	Directory *string `url:"directory,omitempty" json:"-"`
@@ -103,13 +111,13 @@ type DirectorySyncListUsersParams struct {
 	Group *string `url:"group,omitempty" json:"-"`
 }
 
-// ListUsers listDirectoryUsers
+// ListUsers list Directory Users
 // Get a list of all of existing Directory Users matching the criteria specified.
 func (s *directorySyncService) ListUsers(ctx context.Context, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
 	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "after", "data", opts)
 }
 
-// GetUser getADirectoryUser
+// GetUser get a Directory User
 // Get the details of an existing Directory User.
 func (s *directorySyncService) GetUser(ctx context.Context, id string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
 	var result DirectoryUserWithGroups

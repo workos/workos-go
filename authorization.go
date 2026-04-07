@@ -24,7 +24,7 @@ type AuthorizationCheckOrganizationMembershipParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CheckOrganizationMembership checkAuthorization
+// CheckOrganizationMembership check authorization
 // Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
 func (s *authorizationService) CheckOrganizationMembership(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckOrganizationMembershipParams, opts ...RequestOption) (*AuthorizationCheck, error) {
 	var result AuthorizationCheck
@@ -42,8 +42,10 @@ type AuthorizationListOrganizationMembershipResourcesParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
 	// PermissionSlug is the permission slug to filter by. Only child resources where the organization membership has this permission are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
@@ -55,7 +57,7 @@ type AuthorizationListOrganizationMembershipResourcesParams struct {
 	ParentResourceExternalID *string `url:"parent_resource_external_id,omitempty" json:"-"`
 }
 
-// ListOrganizationMembershipResources listResourcesForOrganizationMembership
+// ListOrganizationMembershipResources list resources for organization membership
 // Returns all child resources of a parent resource where the organization membership has a specific permission. This is useful for resource discovery—answering "What projects can this user access in this workspace?"
 // You must provide either `parent_resource_id` or both `parent_resource_external_id` and `parent_resource_type_slug` to identify the parent resource.
 func (s *authorizationService) ListOrganizationMembershipResources(ctx context.Context, organizationMembershipID string, params *AuthorizationListOrganizationMembershipResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
@@ -69,12 +71,14 @@ type AuthorizationListOrganizationMembershipRoleAssignmentsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListOrganizationMembershipRoleAssignments listRoleAssignments
+// ListOrganizationMembershipRoleAssignments list role assignments
 // List all role assignments for an organization membership. This returns all roles that have been assigned to the user on resources, including organization-level and sub-resource roles.
 func (s *authorizationService) ListOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationListOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) *Iterator[RoleAssignment] {
 	return newIterator[RoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), params, "after", "data", opts)
@@ -92,7 +96,7 @@ type AuthorizationCreateOrganizationMembershipRoleAssignmentsParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreateOrganizationMembershipRoleAssignments assignARole
+// CreateOrganizationMembershipRoleAssignments assign a role
 // Assign a role to an organization membership on a specific resource.
 func (s *authorizationService) CreateOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationCreateOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) (*RoleAssignment, error) {
 	var result RoleAssignment
@@ -115,21 +119,21 @@ type AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// DeleteOrganizationMembershipRoleAssignments removeARoleAssignment
+// DeleteOrganizationMembershipRoleAssignments remove a role assignment
 // Remove a role assignment by role slug and resource.
 func (s *authorizationService) DeleteOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), nil, params, nil, opts)
 	return err
 }
 
-// DeleteOrganizationMembershipRoleAssignment removeARoleAssignmentByID
+// DeleteOrganizationMembershipRoleAssignment remove a role assignment by ID
 // Remove a role assignment using its ID.
 func (s *authorizationService) DeleteOrganizationMembershipRoleAssignment(ctx context.Context, organizationMembershipID string, roleAssignmentID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments/%s", organizationMembershipID, roleAssignmentID), nil, nil, nil, opts)
 	return err
 }
 
-// ListOrganizationRoles listOrganizationRoles
+// ListOrganizationRoles list organization roles
 // Get a list of all roles that apply to an organization. This includes both environment roles and organization-specific roles, returned in priority order.
 func (s *authorizationService) ListOrganizationRoles(ctx context.Context, organizationID string, opts ...RequestOption) (*List, error) {
 	var result List
@@ -150,7 +154,7 @@ type AuthorizationCreateOrganizationRolesParams struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// CreateOrganizationRoles createACustomOrganizationRole
+// CreateOrganizationRoles create a custom organization role
 // Create a new custom organization role. When slug is omitted, it is auto-generated from the role name.
 func (s *authorizationService) CreateOrganizationRoles(ctx context.Context, organizationID string, params *AuthorizationCreateOrganizationRolesParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -161,7 +165,7 @@ func (s *authorizationService) CreateOrganizationRoles(ctx context.Context, orga
 	return &result, nil
 }
 
-// GetOrganizationRole getAnOrganizationRole
+// GetOrganizationRole get an organization role
 // Retrieve a role that applies to an organization by its slug. This can return either an environment role or an organization-specific role.
 func (s *authorizationService) GetOrganizationRole(ctx context.Context, organizationID string, slug string, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -180,7 +184,7 @@ type AuthorizationUpdateOrganizationRoleParams struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// UpdateOrganizationRole updateAnOrganizationRole
+// UpdateOrganizationRole update an organization role
 // Update an existing custom organization role. Only the fields provided in the request body will be updated.
 func (s *authorizationService) UpdateOrganizationRole(ctx context.Context, organizationID string, slug string, params *AuthorizationUpdateOrganizationRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -191,7 +195,7 @@ func (s *authorizationService) UpdateOrganizationRole(ctx context.Context, organ
 	return &result, nil
 }
 
-// DeleteOrganizationRole deleteACustomOrganizationRole
+// DeleteOrganizationRole delete a custom organization role
 // Delete an existing custom organization role.
 func (s *authorizationService) DeleteOrganizationRole(ctx context.Context, organizationID string, slug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organizations/%s/roles/%s", organizationID, slug), nil, nil, nil, opts)
@@ -204,7 +208,7 @@ type AuthorizationCreateRolePermissionsParams struct {
 	Slug string `json:"slug"`
 }
 
-// CreateRolePermissions addAPermissionToAnOrganizationRole
+// CreateRolePermissions add a permission to an organization role
 // Add a single permission to an organization role. If the permission is already assigned to the role, this operation has no effect.
 func (s *authorizationService) CreateRolePermissions(ctx context.Context, organizationID string, slug string, params *AuthorizationCreateRolePermissionsParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -221,7 +225,7 @@ type AuthorizationUpdateRolePermissionsParams struct {
 	Permissions []string `json:"permissions"`
 }
 
-// UpdateRolePermissions setPermissionsForARole
+// UpdateRolePermissions set permissions for a role
 // Replace all permissions on a role with the provided list.
 func (s *authorizationService) UpdateRolePermissions(ctx context.Context, organizationID string, slug string, params *AuthorizationUpdateRolePermissionsParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -232,14 +236,14 @@ func (s *authorizationService) UpdateRolePermissions(ctx context.Context, organi
 	return &result, nil
 }
 
-// DeleteRolePermission removeAPermissionFromAnOrganizationRole
+// DeleteRolePermission remove a permission from an organization role
 // Remove a single permission from an organization role by its slug.
 func (s *authorizationService) DeleteRolePermission(ctx context.Context, organizationID string, slug string, permissionSlug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organizations/%s/roles/%s/permissions/%s", organizationID, slug, permissionSlug), nil, nil, nil, opts)
 	return err
 }
 
-// GetOrganizationResource getAResourceByExternalID
+// GetOrganizationResource get a resource by external ID
 // Retrieve the details of an authorization resource by its external ID, organization, and resource type. This is useful when you only have the external ID from your system and need to fetch the full resource details.
 func (s *authorizationService) GetOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
@@ -264,7 +268,7 @@ type AuthorizationUpdateOrganizationResourceParams struct {
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
-// UpdateOrganizationResource updateAResourceByExternalID
+// UpdateOrganizationResource update a resource by external ID
 // Update an existing authorization resource using its external ID.
 func (s *authorizationService) UpdateOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationUpdateOrganizationResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
@@ -278,10 +282,11 @@ func (s *authorizationService) UpdateOrganizationResource(ctx context.Context, o
 // AuthorizationDeleteOrganizationResourceParams contains the parameters for DeleteOrganizationResource.
 type AuthorizationDeleteOrganizationResourceParams struct {
 	// CascadeDelete is if true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
+	// Defaults to false.
 	CascadeDelete *bool `url:"cascade_delete,omitempty" json:"-"`
 }
 
-// DeleteOrganizationResource deleteAnAuthorizationResourceByExternalID
+// DeleteOrganizationResource delete an authorization resource by external ID
 // Delete an authorization resource by organization, resource type, and external ID. This also deletes all descendant resources.
 func (s *authorizationService) DeleteOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationDeleteOrganizationResourceParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s", organizationID, resourceTypeSlug, externalID), params, nil, nil, opts)
@@ -295,8 +300,10 @@ type AuthorizationListResourceOrganizationMembershipsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
 	// PermissionSlug is the permission slug to filter by. Only users with this permission on the resource are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
@@ -304,7 +311,7 @@ type AuthorizationListResourceOrganizationMembershipsParams struct {
 	Assignment *AuthorizationAssignment `url:"assignment,omitempty" json:"-"`
 }
 
-// ListResourceOrganizationMemberships listMembershipsForAResourceByExternalID
+// ListResourceOrganizationMemberships list memberships for a resource by external ID
 // Returns all organization memberships that have a specific permission on a resource, using the resource's external ID. This is useful for answering "Who can access this resource?" when you only have the external ID.
 func (s *authorizationService) ListResourceOrganizationMemberships(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListResourceOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
 	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/organization_memberships", organizationID, resourceTypeSlug, externalID), params, "after", "data", opts)
@@ -317,8 +324,10 @@ type AuthorizationListResourcesParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
 	// OrganizationID is filter resources by organization ID.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
@@ -334,7 +343,7 @@ type AuthorizationListResourcesParams struct {
 	Search *string `url:"search,omitempty" json:"-"`
 }
 
-// ListResources listResources
+// ListResources list resources
 // Get a paginated list of authorization resources.
 func (s *authorizationService) ListResources(ctx context.Context, params *AuthorizationListResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
 	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", params, "after", "data", opts)
@@ -360,7 +369,7 @@ type AuthorizationCreateResourcesParams struct {
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
-// CreateResources createAnAuthorizationResource
+// CreateResources create an authorization resource
 // Create a new authorization resource.
 func (s *authorizationService) CreateResources(ctx context.Context, params *AuthorizationCreateResourcesParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
@@ -371,7 +380,7 @@ func (s *authorizationService) CreateResources(ctx context.Context, params *Auth
 	return &result, nil
 }
 
-// GetResource getAResource
+// GetResource get a resource
 // Retrieve the details of an authorization resource by its ID.
 func (s *authorizationService) GetResource(ctx context.Context, resourceID string, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
@@ -396,7 +405,7 @@ type AuthorizationUpdateResourceParams struct {
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
-// UpdateResource updateAResource
+// UpdateResource update a resource
 // Update an existing authorization resource.
 func (s *authorizationService) UpdateResource(ctx context.Context, resourceID string, params *AuthorizationUpdateResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
@@ -410,10 +419,11 @@ func (s *authorizationService) UpdateResource(ctx context.Context, resourceID st
 // AuthorizationDeleteResourceParams contains the parameters for DeleteResource.
 type AuthorizationDeleteResourceParams struct {
 	// CascadeDelete is if true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
+	// Defaults to false.
 	CascadeDelete *bool `url:"cascade_delete,omitempty" json:"-"`
 }
 
-// DeleteResource deleteAnAuthorizationResource
+// DeleteResource delete an authorization resource
 // Delete an authorization resource and all its descendants.
 func (s *authorizationService) DeleteResource(ctx context.Context, resourceID string, params *AuthorizationDeleteResourceParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/resources/%s", resourceID), params, nil, nil, opts)
@@ -427,8 +437,10 @@ type AuthorizationListMembershipsForResourceParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *AuthorizationOrder `url:"order,omitempty" json:"-"`
 	// PermissionSlug is the permission slug to filter by. Only users with this permission on the resource are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
@@ -436,13 +448,13 @@ type AuthorizationListMembershipsForResourceParams struct {
 	Assignment *AuthorizationAssignment `url:"assignment,omitempty" json:"-"`
 }
 
-// ListMembershipsForResource listOrganizationMembershipsForResource
+// ListMembershipsForResource list organization memberships for resource
 // Returns all organization memberships that have a specific permission on a resource instance. This is useful for answering "Who can access this resource?".
 func (s *authorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
 	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", resourceID), params, "after", "data", opts)
 }
 
-// ListRoles listEnvironmentRoles
+// ListRoles list environment roles
 // List all environment roles in priority order.
 func (s *authorizationService) ListRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
 	var result RoleList
@@ -465,7 +477,7 @@ type AuthorizationCreateRolesParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreateRoles createAnEnvironmentRole
+// CreateRoles create an environment role
 // Create a new environment role.
 func (s *authorizationService) CreateRoles(ctx context.Context, params *AuthorizationCreateRolesParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -476,7 +488,7 @@ func (s *authorizationService) CreateRoles(ctx context.Context, params *Authoriz
 	return &result, nil
 }
 
-// GetRole getAnEnvironmentRole
+// GetRole get an environment role
 // Get an environment role by its slug.
 func (s *authorizationService) GetRole(ctx context.Context, slug string, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -495,7 +507,7 @@ type AuthorizationUpdateRoleParams struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// UpdateRole updateAnEnvironmentRole
+// UpdateRole update an environment role
 // Update an existing environment role.
 func (s *authorizationService) UpdateRole(ctx context.Context, slug string, params *AuthorizationUpdateRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -512,7 +524,7 @@ type AuthorizationAddRolePermissionParams struct {
 	Slug string `json:"slug"`
 }
 
-// AddRolePermission addAPermissionToAnEnvironmentRole
+// AddRolePermission add a permission to an environment role
 // Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
 func (s *authorizationService) AddRolePermission(ctx context.Context, slug string, params *AuthorizationAddRolePermissionParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -529,7 +541,7 @@ type AuthorizationSetRolePermissionsParams struct {
 	Permissions []string `json:"permissions"`
 }
 
-// SetRolePermissions setPermissionsForAnEnvironmentRole
+// SetRolePermissions set permissions for an environment role
 // Replace all permissions on an environment role with the provided list.
 func (s *authorizationService) SetRolePermissions(ctx context.Context, slug string, params *AuthorizationSetRolePermissionsParams, opts ...RequestOption) (*Role, error) {
 	var result Role
@@ -547,12 +559,14 @@ type AuthorizationListPermissionsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *PermissionsOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListPermissions listPermissions
+// ListPermissions list permissions
 // Get a list of all permissions in your WorkOS environment.
 func (s *authorizationService) ListPermissions(ctx context.Context, params *AuthorizationListPermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
 	return newIterator[AuthorizationPermission](ctx, s.client, "GET", "/authorization/permissions", params, "after", "data", opts)
@@ -570,7 +584,7 @@ type AuthorizationCreatePermissionsParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreatePermissions createAPermission
+// CreatePermissions create a permission
 // Create a new permission in your WorkOS environment. The permission can then be assigned to environment roles and organization roles.
 func (s *authorizationService) CreatePermissions(ctx context.Context, params *AuthorizationCreatePermissionsParams, opts ...RequestOption) (*Permission, error) {
 	var result Permission
@@ -581,7 +595,7 @@ func (s *authorizationService) CreatePermissions(ctx context.Context, params *Au
 	return &result, nil
 }
 
-// GetPermission getAPermission
+// GetPermission get a permission
 // Retrieve a permission by its unique slug.
 func (s *authorizationService) GetPermission(ctx context.Context, slug string, opts ...RequestOption) (*AuthorizationPermission, error) {
 	var result AuthorizationPermission
@@ -600,7 +614,7 @@ type AuthorizationUpdatePermissionParams struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// UpdatePermission updateAPermission
+// UpdatePermission update a permission
 // Update an existing permission. Only the fields provided in the request body will be updated.
 func (s *authorizationService) UpdatePermission(ctx context.Context, slug string, params *AuthorizationUpdatePermissionParams, opts ...RequestOption) (*AuthorizationPermission, error) {
 	var result AuthorizationPermission
@@ -611,7 +625,7 @@ func (s *authorizationService) UpdatePermission(ctx context.Context, slug string
 	return &result, nil
 }
 
-// DeletePermission deleteAPermission
+// DeletePermission delete a permission
 // Delete an existing permission. System permissions cannot be deleted.
 func (s *authorizationService) DeletePermission(ctx context.Context, slug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/permissions/%s", slug), nil, nil, nil, opts)

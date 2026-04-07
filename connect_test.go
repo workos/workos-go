@@ -182,7 +182,7 @@ func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id", &workos.ConnectCreateApplicationClientSecretsParams{})
+	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.NotEmpty(t, result.ID)

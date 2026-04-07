@@ -20,7 +20,7 @@ type OrganizationDomainsCreateParams struct {
 	OrganizationID string `json:"organization_id"`
 }
 
-// Create createAnOrganizationDomain
+// Create create an Organization Domain
 // Creates a new Organization Domain.
 func (s *organizationDomainService) Create(ctx context.Context, params *OrganizationDomainsCreateParams, opts ...RequestOption) (*OrganizationDomain, error) {
 	var result OrganizationDomain
@@ -31,7 +31,7 @@ func (s *organizationDomainService) Create(ctx context.Context, params *Organiza
 	return &result, nil
 }
 
-// Get getAnOrganizationDomain
+// Get get an Organization Domain
 // Get the details of an existing organization domain.
 func (s *organizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
@@ -42,14 +42,14 @@ func (s *organizationDomainService) Get(ctx context.Context, id string, opts ...
 	return &result, nil
 }
 
-// Delete deleteAnOrganizationDomain
+// Delete delete an Organization Domain
 // Permanently deletes an organization domain. It cannot be undone.
 func (s *organizationDomainService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organization_domains/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// Verify verifyAnOrganizationDomain
+// Verify verify an Organization Domain
 // Initiates verification process for an Organization Domain.
 func (s *organizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone

@@ -19,12 +19,14 @@ type WebhooksListEndpointsParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *WebhooksOrder `url:"order,omitempty" json:"-"`
 }
 
-// ListEndpoints listWebhookEndpoints
+// ListEndpoints list Webhook Endpoints
 // Get a list of all of your existing webhook endpoints.
 func (s *webhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
 	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts)
@@ -38,7 +40,7 @@ type WebhooksCreateEndpointsParams struct {
 	Events []CreateWebhookEndpointEvents `json:"events"`
 }
 
-// CreateEndpoints createAWebhookEndpoint
+// CreateEndpoints create a Webhook Endpoint
 // Create a new webhook endpoint to receive event notifications.
 func (s *webhookService) CreateEndpoints(ctx context.Context, params *WebhooksCreateEndpointsParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
 	var result WebhookEndpointJSON
@@ -59,7 +61,7 @@ type WebhooksUpdateEndpointParams struct {
 	Events []UpdateWebhookEndpointEvents `json:"events,omitempty"`
 }
 
-// UpdateEndpoint updateAWebhookEndpoint
+// UpdateEndpoint update a Webhook Endpoint
 // Update the properties of an existing webhook endpoint.
 func (s *webhookService) UpdateEndpoint(ctx context.Context, id string, params *WebhooksUpdateEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
 	var result WebhookEndpointJSON
@@ -70,7 +72,7 @@ func (s *webhookService) UpdateEndpoint(ctx context.Context, id string, params *
 	return &result, nil
 }
 
-// DeleteEndpoint deleteAWebhookEndpoint
+// DeleteEndpoint delete a Webhook Endpoint
 // Delete an existing webhook endpoint.
 func (s *webhookService) DeleteEndpoint(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/webhook_endpoints/%s", id), nil, nil, nil, opts)

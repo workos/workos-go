@@ -19,8 +19,10 @@ type OrganizationsListParams struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is upper limit on the number of objects to return, between `1` and `100`.
+	// Defaults to 10.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+	// Defaults to "desc".
 	Order *OrganizationsOrder `url:"order,omitempty" json:"-"`
 	// Domains is the domains of an Organization. Any Organization with a matching domain will be returned.
 	Domains []string `url:"domains,omitempty" json:"-"`
@@ -28,7 +30,7 @@ type OrganizationsListParams struct {
 	Search *string `url:"search,omitempty" json:"-"`
 }
 
-// List listOrganizations
+// List list Organizations
 // Get a list of all of your existing organizations matching the criteria specified.
 func (s *organizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
 	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts)
@@ -50,7 +52,7 @@ type OrganizationsCreateParams struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// Create createAnOrganization
+// Create create an Organization
 // Creates a new organization in the current environment.
 func (s *organizationService) Create(ctx context.Context, params *OrganizationsCreateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
@@ -61,7 +63,7 @@ func (s *organizationService) Create(ctx context.Context, params *OrganizationsC
 	return &result, nil
 }
 
-// GetByExternalID getAnOrganizationByExternalID
+// GetByExternalID get an Organization by External ID
 // Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
 func (s *organizationService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
@@ -72,7 +74,7 @@ func (s *organizationService) GetByExternalID(ctx context.Context, externalID st
 	return &result, nil
 }
 
-// Get getAnOrganization
+// Get get an Organization
 // Get the details of an existing organization.
 func (s *organizationService) Get(ctx context.Context, id string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
@@ -103,7 +105,7 @@ type OrganizationsUpdateParams struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// Update updateAnOrganization
+// Update update an Organization
 // Updates an organization in the current environment.
 func (s *organizationService) Update(ctx context.Context, id string, params *OrganizationsUpdateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
@@ -114,14 +116,14 @@ func (s *organizationService) Update(ctx context.Context, id string, params *Org
 	return &result, nil
 }
 
-// Delete deleteAnOrganization
+// Delete delete an Organization
 // Permanently deletes an organization in the current environment. It cannot be undone.
 func (s *organizationService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", id), nil, nil, nil, opts)
 	return err
 }
 
-// ListAuditLogConfiguration getAuditLogConfiguration
+// ListAuditLogConfiguration get Audit Log Configuration
 // Get the unified view of audit log trail and stream configuration for an organization.
 func (s *organizationService) ListAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration

@@ -21,7 +21,7 @@ type WidgetsCreateTokenParams struct {
 	Scopes []WidgetSessionTokenScopes `json:"scopes,omitempty"`
 }
 
-// CreateToken generateAWidgetToken
+// CreateToken generate a widget token
 // Generate a widget token scoped to an organization and user with the specified scopes.
 func (s *widgetService) CreateToken(ctx context.Context, params *WidgetsCreateTokenParams, opts ...RequestOption) (*WidgetSessionTokenResponse, error) {
 	var result WidgetSessionTokenResponse
