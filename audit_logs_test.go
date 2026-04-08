@@ -134,7 +134,7 @@ func TestAuditLogs_ListActionSchemas_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestAuditLogs_CreateActionSchemas(t *testing.T) {
+func TestAuditLogs_CreateSchema(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/audit_logs/actions/test_actionName/schemas", r.URL.Path)
@@ -152,13 +152,13 @@ func TestAuditLogs_CreateActionSchemas(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().CreateActionSchemas(context.Background(), "test_actionName", &workos.AuditLogsCreateActionSchemasParams{})
+	result, err := client.AuditLogs().CreateSchema(context.Background(), "test_actionName", &workos.AuditLogsCreateSchemaParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
-func TestAuditLogs_CreateEvents(t *testing.T) {
+func TestAuditLogs_CreateEvent(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/audit_logs/events", r.URL.Path)
@@ -176,12 +176,12 @@ func TestAuditLogs_CreateEvents(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().CreateEvents(context.Background(), &workos.AuditLogsCreateEventsParams{})
+	result, err := client.AuditLogs().CreateEvent(context.Background(), &workos.AuditLogsCreateEventParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestAuditLogs_CreateExports(t *testing.T) {
+func TestAuditLogs_CreateExport(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/audit_logs/exports", r.URL.Path)
@@ -199,7 +199,7 @@ func TestAuditLogs_CreateExports(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().CreateExports(context.Background(), &workos.AuditLogsCreateExportsParams{})
+	result, err := client.AuditLogs().CreateExport(context.Background(), &workos.AuditLogsCreateExportParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V", result.ID)

@@ -15,7 +15,7 @@ import (
 	"github.com/workos/workos-go/v6"
 )
 
-func TestAuthorization_CheckOrganizationMembership(t *testing.T) {
+func TestAuthorization_Check(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/check", r.URL.Path)
@@ -33,7 +33,7 @@ func TestAuthorization_CheckOrganizationMembership(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
+	result, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -114,7 +114,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testin
 	require.NoError(t, iter.Err())
 }
 
-func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T) {
+func TestAuthorization_AssignRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
@@ -132,7 +132,7 @@ func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T)
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationCreateOrganizationMembershipRoleAssignmentsParams{})
+	result, err := client.Authorization().AssignRole(context.Background(), "test_organization_membership_id", &workos.AuthorizationAssignRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_assignment_01HXYZ123456789ABCDEFGH", result.ID)
@@ -140,7 +140,7 @@ func TestAuthorization_CreateOrganizationMembershipRoleAssignments(t *testing.T)
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
-func TestAuthorization_DeleteOrganizationMembershipRoleAssignments(t *testing.T) {
+func TestAuthorization_RemoveRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
@@ -149,7 +149,7 @@ func TestAuthorization_DeleteOrganizationMembershipRoleAssignments(t *testing.T)
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams{})
+	err := client.Authorization().RemoveRole(context.Background(), "test_organization_membership_id", &workos.AuthorizationRemoveRoleParams{})
 	require.NoError(t, err)
 }
 
@@ -186,7 +186,7 @@ func TestAuthorization_ListOrganizationRoles(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
+func TestAuthorization_CreateOrganizationRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles", r.URL.Path)
@@ -204,7 +204,7 @@ func TestAuthorization_CreateOrganizationRoles(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateOrganizationRoles(context.Background(), "test_organizationId", &workos.AuthorizationCreateOrganizationRolesParams{})
+	result, err := client.Authorization().CreateOrganizationRole(context.Background(), "test_organizationId", &workos.AuthorizationCreateOrganizationRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -477,7 +477,7 @@ func TestAuthorization_ListResources_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestAuthorization_CreateResources(t *testing.T) {
+func TestAuthorization_CreateResource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/resources", r.URL.Path)
@@ -495,7 +495,7 @@ func TestAuthorization_CreateResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateResources(context.Background(), &workos.AuthorizationCreateResourcesParams{})
+	result, err := client.Authorization().CreateResource(context.Background(), &workos.AuthorizationCreateResourceParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
@@ -603,7 +603,7 @@ func TestAuthorization_ListMembershipsForResource_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestAuthorization_ListRoles(t *testing.T) {
+func TestAuthorization_ListEnvironmentRoles(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/roles", r.URL.Path)
@@ -618,12 +618,12 @@ func TestAuthorization_ListRoles(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().ListRoles(context.Background())
+	result, err := client.Authorization().ListEnvironmentRoles(context.Background())
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestAuthorization_CreateRoles(t *testing.T) {
+func TestAuthorization_CreateEnvironmentRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/roles", r.URL.Path)
@@ -641,7 +641,7 @@ func TestAuthorization_CreateRoles(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateRoles(context.Background(), &workos.AuthorizationCreateRolesParams{})
+	result, err := client.Authorization().CreateEnvironmentRole(context.Background(), &workos.AuthorizationCreateEnvironmentRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -649,7 +649,7 @@ func TestAuthorization_CreateRoles(t *testing.T) {
 	require.Equal(t, "Admin", result.Name)
 }
 
-func TestAuthorization_GetRole(t *testing.T) {
+func TestAuthorization_GetEnvironmentRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug", r.URL.Path)
@@ -664,7 +664,7 @@ func TestAuthorization_GetRole(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().GetRole(context.Background(), "test_slug")
+	result, err := client.Authorization().GetEnvironmentRole(context.Background(), "test_slug")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -672,7 +672,7 @@ func TestAuthorization_GetRole(t *testing.T) {
 	require.Equal(t, "Admin", result.Name)
 }
 
-func TestAuthorization_UpdateRole(t *testing.T) {
+func TestAuthorization_UpdateEnvironmentRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug", r.URL.Path)
@@ -690,7 +690,7 @@ func TestAuthorization_UpdateRole(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateRole(context.Background(), "test_slug", &workos.AuthorizationUpdateRoleParams{})
+	result, err := client.Authorization().UpdateEnvironmentRole(context.Background(), "test_slug", &workos.AuthorizationUpdateEnvironmentRoleParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -698,7 +698,7 @@ func TestAuthorization_UpdateRole(t *testing.T) {
 	require.Equal(t, "Admin", result.Name)
 }
 
-func TestAuthorization_AddRolePermission(t *testing.T) {
+func TestAuthorization_AddEnvironmentRolePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug/permissions", r.URL.Path)
@@ -716,7 +716,7 @@ func TestAuthorization_AddRolePermission(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().AddRolePermission(context.Background(), "test_slug", &workos.AuthorizationAddRolePermissionParams{})
+	result, err := client.Authorization().AddEnvironmentRolePermission(context.Background(), "test_slug", &workos.AuthorizationAddEnvironmentRolePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -724,7 +724,7 @@ func TestAuthorization_AddRolePermission(t *testing.T) {
 	require.Equal(t, "Admin", result.Name)
 }
 
-func TestAuthorization_SetRolePermissions(t *testing.T) {
+func TestAuthorization_SetEnvironmentRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/authorization/roles/test_slug/permissions", r.URL.Path)
@@ -742,7 +742,7 @@ func TestAuthorization_SetRolePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().SetRolePermissions(context.Background(), "test_slug", &workos.AuthorizationSetRolePermissionsParams{})
+	result, err := client.Authorization().SetEnvironmentRolePermissions(context.Background(), "test_slug", &workos.AuthorizationSetEnvironmentRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -788,7 +788,7 @@ func TestAuthorization_ListPermissions_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestAuthorization_CreatePermissions(t *testing.T) {
+func TestAuthorization_CreatePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/permissions", r.URL.Path)
@@ -806,7 +806,7 @@ func TestAuthorization_CreatePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreatePermissions(context.Background(), &workos.AuthorizationCreatePermissionsParams{})
+	result, err := client.Authorization().CreatePermission(context.Background(), &workos.AuthorizationCreatePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "perm_01HXYZ123456789ABCDEFGHIJ", result.ID)
@@ -885,7 +885,7 @@ func TestAuthorization_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
+	_, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }
 
@@ -898,7 +898,7 @@ func TestAuthorization_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
+	_, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
 	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
@@ -911,6 +911,6 @@ func TestAuthorization_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().CheckOrganizationMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckOrganizationMembershipParams{})
+	_, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
 	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

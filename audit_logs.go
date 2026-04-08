@@ -62,8 +62,8 @@ func (s *auditLogService) ListActionSchemas(ctx context.Context, actionName stri
 	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), params, "after", "data", opts)
 }
 
-// AuditLogsCreateActionSchemasParams contains the parameters for CreateActionSchemas.
-type AuditLogsCreateActionSchemasParams struct {
+// AuditLogsCreateSchemaParams contains the parameters for CreateSchema.
+type AuditLogsCreateSchemaParams struct {
 	// Actor is the metadata schema for the actor.
 	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
 	// Targets is the list of targets for the schema.
@@ -72,9 +72,9 @@ type AuditLogsCreateActionSchemasParams struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// CreateActionSchemas create Schema
+// CreateSchema create Schema
 // Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
-func (s *auditLogService) CreateActionSchemas(ctx context.Context, actionName string, params *AuditLogsCreateActionSchemasParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
+func (s *auditLogService) CreateSchema(ctx context.Context, actionName string, params *AuditLogsCreateSchemaParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
 	var result AuditLogSchemaJSON
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), nil, params, &result, opts)
 	if err != nil {
@@ -83,20 +83,20 @@ func (s *auditLogService) CreateActionSchemas(ctx context.Context, actionName st
 	return &result, nil
 }
 
-// AuditLogsCreateEventsParams contains the parameters for CreateEvents.
-type AuditLogsCreateEventsParams struct {
+// AuditLogsCreateEventParams contains the parameters for CreateEvent.
+type AuditLogsCreateEventParams struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id"`
 	// Event is the audit log event to create.
 	Event *AuditLogEvent `json:"event"`
 }
 
-// CreateEvents create Event
+// CreateEvent create Event
 // Create an Audit Log Event.
 // This API supports idempotency which guarantees that performing the same operation multiple times will have the same result as if the operation were performed only once. This is handy in situations where you may need to retry a request due to a failure or prevent accidental duplicate requests from creating more than one resource.
 // To achieve idempotency, you can add `Idempotency-Key` request header to a Create Event request with a unique string as the value. Each subsequent request matching this unique string will return the same response. We suggest using [v4 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) for idempotency keys to avoid collisions.
 // Idempotency keys expire after 24 hours. The API will generate a new response if you submit a request with an expired key.
-func (s *auditLogService) CreateEvents(ctx context.Context, params *AuditLogsCreateEventsParams, opts ...RequestOption) (*AuditLogEventCreateResponse, error) {
+func (s *auditLogService) CreateEvent(ctx context.Context, params *AuditLogsCreateEventParams, opts ...RequestOption) (*AuditLogEventCreateResponse, error) {
 	var result AuditLogEventCreateResponse
 	_, err := s.client.request(ctx, "POST", "/audit_logs/events", nil, params, &result, opts)
 	if err != nil {
@@ -105,8 +105,8 @@ func (s *auditLogService) CreateEvents(ctx context.Context, params *AuditLogsCre
 	return &result, nil
 }
 
-// AuditLogsCreateExportsParams contains the parameters for CreateExports.
-type AuditLogsCreateExportsParams struct {
+// AuditLogsCreateExportParams contains the parameters for CreateExport.
+type AuditLogsCreateExportParams struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id"`
 	// RangeStart is iso-8601 value for start of the export range.
@@ -127,9 +127,9 @@ type AuditLogsCreateExportsParams struct {
 	Targets []string `json:"targets,omitempty"`
 }
 
-// CreateExports create Export
+// CreateExport create Export
 // Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
-func (s *auditLogService) CreateExports(ctx context.Context, params *AuditLogsCreateExportsParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
+func (s *auditLogService) CreateExport(ctx context.Context, params *AuditLogsCreateExportParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
 	_, err := s.client.request(ctx, "POST", "/audit_logs/exports", nil, params, &result, opts)
 	if err != nil {

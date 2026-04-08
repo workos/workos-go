@@ -5,8 +5,6 @@ package workos
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"strings"
 )
 
 // userManagementService handles UserManagement operations.
@@ -318,61 +316,18 @@ type UserManagementGetAuthorizationURLParams struct {
 	State *string `url:"state,omitempty" json:"-"`
 	// OrganizationID is the ID of the organization to authenticate the user against.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// ResponseType is the response type of the application.
+	ResponseType string `url:"response_type" json:"-"`
 	// RedirectURI is the callback URI where the authorization code will be sent after authentication.
 	RedirectURI string `url:"redirect_uri" json:"-"`
+	// ClientID is the unique identifier of the WorkOS environment client.
+	ClientID string `url:"client_id" json:"-"`
 }
 
 // GetAuthorizationURL get an authorization URL
 // Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
 func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params *UserManagementGetAuthorizationURLParams, opts ...RequestOption) error {
-	query := url.Values{}
-	query.Set("response_type", "code")
-	if s.client.clientID != "" {
-		query.Set("client_id", s.client.clientID)
-	}
-	if params.CodeChallengeMethod != nil {
-		query.Set("code_challenge_method", fmt.Sprintf("%v", *params.CodeChallengeMethod))
-	}
-	if params.CodeChallenge != nil {
-		query.Set("code_challenge", *params.CodeChallenge)
-	}
-	if params.DomainHint != nil {
-		query.Set("domain_hint", *params.DomainHint)
-	}
-	if params.ConnectionID != nil {
-		query.Set("connection_id", *params.ConnectionID)
-	}
-	if params.ProviderQueryParams != nil {
-		for k, v := range params.ProviderQueryParams {
-			query.Set(fmt.Sprintf("provider_query_params[%s]", k), fmt.Sprintf("%v", v))
-		}
-	}
-	if params.ProviderScopes != nil {
-		query.Set("provider_scopes", strings.Join(params.ProviderScopes, ","))
-	}
-	if params.InvitationToken != nil {
-		query.Set("invitation_token", *params.InvitationToken)
-	}
-	if params.ScreenHint != nil {
-		query.Set("screen_hint", fmt.Sprintf("%v", *params.ScreenHint))
-	}
-	if params.LoginHint != nil {
-		query.Set("login_hint", *params.LoginHint)
-	}
-	if params.Provider != nil {
-		query.Set("provider", fmt.Sprintf("%v", *params.Provider))
-	}
-	if params.Prompt != nil {
-		query.Set("prompt", *params.Prompt)
-	}
-	if params.State != nil {
-		query.Set("state", *params.State)
-	}
-	if params.OrganizationID != nil {
-		query.Set("organization_id", *params.OrganizationID)
-	}
-	query.Set("redirect_uri", params.RedirectURI)
-	_, err := s.client.request(ctx, "GET", "/user_management/authorize", query, nil, nil, opts)
+	_, err := s.client.request(ctx, "GET", "/user_management/authorize", params, nil, nil, opts)
 	return err
 }
 
@@ -423,15 +378,15 @@ func (s *userManagementService) RevokeSession(ctx context.Context, params *UserM
 	return err
 }
 
-// UserManagementCreateCORSOriginsParams contains the parameters for CreateCORSOrigins.
-type UserManagementCreateCORSOriginsParams struct {
+// UserManagementCreateCORSOriginParams contains the parameters for CreateCORSOrigin.
+type UserManagementCreateCORSOriginParams struct {
 	// Origin is the origin URL to allow for CORS requests.
 	Origin string `json:"origin"`
 }
 
-// CreateCORSOrigins create a CORS origin
+// CreateCORSOrigin create a CORS origin
 // Creates a new CORS origin for the current environment. CORS origins allow browser-based applications to make requests to the WorkOS API.
-func (s *userManagementService) CreateCORSOrigins(ctx context.Context, params *UserManagementCreateCORSOriginsParams, opts ...RequestOption) (*CORSOriginResponse, error) {
+func (s *userManagementService) CreateCORSOrigin(ctx context.Context, params *UserManagementCreateCORSOriginParams, opts ...RequestOption) (*CORSOriginResponse, error) {
 	var result CORSOriginResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/cors_origins", nil, params, &result, opts)
 	if err != nil {
@@ -451,15 +406,15 @@ func (s *userManagementService) GetEmailVerification(ctx context.Context, id str
 	return &result, nil
 }
 
-// UserManagementCreatePasswordResetParams contains the parameters for CreatePasswordReset.
-type UserManagementCreatePasswordResetParams struct {
+// UserManagementResetPasswordParams contains the parameters for ResetPassword.
+type UserManagementResetPasswordParams struct {
 	// Email is the email address of the user requesting a password reset.
 	Email string `json:"email"`
 }
 
-// CreatePasswordReset create a password reset token
+// ResetPassword create a password reset token
 // Creates a one-time token that can be used to reset a user's password.
-func (s *userManagementService) CreatePasswordReset(ctx context.Context, params *UserManagementCreatePasswordResetParams, opts ...RequestOption) (*PasswordReset, error) {
+func (s *userManagementService) ResetPassword(ctx context.Context, params *UserManagementResetPasswordParams, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
 	_, err := s.client.request(ctx, "POST", "/user_management/password_reset", nil, params, &result, opts)
 	if err != nil {
@@ -648,15 +603,15 @@ func (s *userManagementService) SendEmailChange(ctx context.Context, id string, 
 	return &result, nil
 }
 
-// UserManagementConfirmEmailVerificationParams contains the parameters for ConfirmEmailVerification.
-type UserManagementConfirmEmailVerificationParams struct {
+// UserManagementVerifyEmailParams contains the parameters for VerifyEmail.
+type UserManagementVerifyEmailParams struct {
 	// Code is the one-time email verification code.
 	Code string `json:"code"`
 }
 
-// ConfirmEmailVerification verify email
+// VerifyEmail verify email
 // Verifies an email address using the one-time code received by the user.
-func (s *userManagementService) ConfirmEmailVerification(ctx context.Context, id string, params *UserManagementConfirmEmailVerificationParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
+func (s *userManagementService) VerifyEmail(ctx context.Context, id string, params *UserManagementVerifyEmailParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
 	var result VerifyEmailResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", id), nil, params, &result, opts)
 	if err != nil {
@@ -665,9 +620,9 @@ func (s *userManagementService) ConfirmEmailVerification(ctx context.Context, id
 	return &result, nil
 }
 
-// SendEmailVerification send verification email
+// SendVerificationEmail send verification email
 // Sends an email that contains a one-time code used to verify a user’s email address.
-func (s *userManagementService) SendEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
+func (s *userManagementService) SendVerificationEmail(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", id), nil, nil, &result, opts)
 	if err != nil {
@@ -676,9 +631,9 @@ func (s *userManagementService) SendEmailVerification(ctx context.Context, id st
 	return &result, nil
 }
 
-// ListIdentities get user identities
+// GetIdentities get user identities
 // Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
-func (s *userManagementService) ListIdentities(ctx context.Context, id string, opts ...RequestOption) ([]UserIdentitiesGetItem, error) {
+func (s *userManagementService) GetIdentities(ctx context.Context, id string, opts ...RequestOption) ([]UserIdentitiesGetItem, error) {
 	var result []UserIdentitiesGetItem
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", id), nil, nil, &result, opts)
 	if err != nil {
@@ -713,8 +668,8 @@ func (s *userManagementService) ListInvitations(ctx context.Context, params *Use
 	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts)
 }
 
-// UserManagementCreateInvitationsParams contains the parameters for CreateInvitations.
-type UserManagementCreateInvitationsParams struct {
+// UserManagementSendInvitationParams contains the parameters for SendInvitation.
+type UserManagementSendInvitationParams struct {
 	// Email is the email address of the recipient.
 	Email string `json:"email"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
@@ -729,9 +684,9 @@ type UserManagementCreateInvitationsParams struct {
 	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
 }
 
-// CreateInvitations send an invitation
+// SendInvitation send an invitation
 // Sends an invitation email to the recipient.
-func (s *userManagementService) CreateInvitations(ctx context.Context, params *UserManagementCreateInvitationsParams, opts ...RequestOption) (*UserInvite, error) {
+func (s *userManagementService) SendInvitation(ctx context.Context, params *UserManagementSendInvitationParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
 	_, err := s.client.request(ctx, "POST", "/user_management/invitations", nil, params, &result, opts)
 	if err != nil {
@@ -740,9 +695,9 @@ func (s *userManagementService) CreateInvitations(ctx context.Context, params *U
 	return &result, nil
 }
 
-// GetByToken find an invitation by token
+// FindInvitationByToken find an invitation by token
 // Retrieve an existing invitation using the token.
-func (s *userManagementService) GetByToken(ctx context.Context, token string, opts ...RequestOption) (*UserInvite, error) {
+func (s *userManagementService) FindInvitationByToken(ctx context.Context, token string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", token), nil, nil, &result, opts)
 	if err != nil {
@@ -865,8 +820,8 @@ func (s *userManagementService) ListOrganizationMemberships(ctx context.Context,
 	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts)
 }
 
-// UserManagementCreateOrganizationMembershipsParams contains the parameters for CreateOrganizationMemberships.
-type UserManagementCreateOrganizationMembershipsParams struct {
+// UserManagementCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
+type UserManagementCreateOrganizationMembershipParams struct {
 	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
 	UserID string `json:"user_id"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
@@ -877,10 +832,10 @@ type UserManagementCreateOrganizationMembershipsParams struct {
 	RoleSlugs []string `json:"role_slugs,omitempty"`
 }
 
-// CreateOrganizationMemberships create an organization membership
+// CreateOrganizationMembership create an organization membership
 // Creates a new `active` organization membership for the given organization and user.
 // Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
-func (s *userManagementService) CreateOrganizationMemberships(ctx context.Context, params *UserManagementCreateOrganizationMembershipsParams, opts ...RequestOption) (*OrganizationMembership, error) {
+func (s *userManagementService) CreateOrganizationMembership(ctx context.Context, params *UserManagementCreateOrganizationMembershipParams, opts ...RequestOption) (*OrganizationMembership, error) {
 	var result OrganizationMembership
 	_, err := s.client.request(ctx, "POST", "/user_management/organization_memberships", nil, params, &result, opts)
 	if err != nil {
@@ -954,15 +909,15 @@ func (s *userManagementService) ReactivateOrganizationMembership(ctx context.Con
 	return &result, nil
 }
 
-// UserManagementCreateRedirectURIsParams contains the parameters for CreateRedirectURIs.
-type UserManagementCreateRedirectURIsParams struct {
+// UserManagementCreateRedirectURIParams contains the parameters for CreateRedirectURI.
+type UserManagementCreateRedirectURIParams struct {
 	// URI is the redirect URI to create.
 	URI string `json:"uri"`
 }
 
-// CreateRedirectURIs create a redirect URI
+// CreateRedirectURI create a redirect URI
 // Creates a new redirect URI for an environment.
-func (s *userManagementService) CreateRedirectURIs(ctx context.Context, params *UserManagementCreateRedirectURIsParams, opts ...RequestOption) (*RedirectURI, error) {
+func (s *userManagementService) CreateRedirectURI(ctx context.Context, params *UserManagementCreateRedirectURIParams, opts ...RequestOption) (*RedirectURI, error) {
 	var result RedirectURI
 	_, err := s.client.request(ctx, "POST", "/user_management/redirect_uris", nil, params, &result, opts)
 	if err != nil {

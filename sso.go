@@ -5,8 +5,6 @@ package workos
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"strings"
 )
 
 // ssoService handles SSO operations.
@@ -57,6 +55,8 @@ type SSOGetAuthorizationURLParams struct {
 	ProviderScopes []string `url:"provider_scopes,omitempty" json:"-"`
 	// ProviderQueryParams is key/value pairs of query parameters to pass to the OAuth provider. Only applicable when using OAuth connections.
 	ProviderQueryParams map[string]string `url:"provider_query_params,omitempty" json:"-"`
+	// ClientID is the unique identifier of the WorkOS environment client.
+	ClientID string `url:"client_id" json:"-"`
 	// Domain is deprecated. Use `connection` or `organization` instead. Used to initiate SSO for a connection by domain. The domain must be associated with a connection in your WorkOS environment.
 	//
 	// Deprecated: this parameter is deprecated.
@@ -65,6 +65,9 @@ type SSOGetAuthorizationURLParams struct {
 	Provider *SSOProvider `url:"provider,omitempty" json:"-"`
 	// RedirectURI is where to redirect the user after they complete the authentication process. You must use one of the redirect URIs configured via the [Redirects](https://dashboard.workos.com/redirects) page on the dashboard.
 	RedirectURI string `url:"redirect_uri" json:"-"`
+	// ResponseType is the only valid option for the response type parameter is `"code"`.
+	// The `"code"` parameter value initiates an [authorization code grant type](https://tools.ietf.org/html/rfc6749#section-4.1). This grant type allows you to exchange an authorization code for an access token during the redirect that takes place after a user has authenticated with an identity provider.
+	ResponseType string `url:"response_type" json:"-"`
 	// State is an optional parameter that can be used to encode arbitrary information to help restore application state between redirects. If included, the redirect URI received from WorkOS will contain the exact `state` that was passed.
 	State *string `url:"state,omitempty" json:"-"`
 	// Connection is used to initiate SSO for a connection. The value should be a WorkOS connection ID.
@@ -84,46 +87,8 @@ type SSOGetAuthorizationURLParams struct {
 // GetAuthorizationURL initiate SSO
 // Initiates the single sign-on flow.
 func (s *ssoService) GetAuthorizationURL(ctx context.Context, params *SSOGetAuthorizationURLParams, opts ...RequestOption) (*SSOAuthorizeURLResponse, error) {
-	query := url.Values{}
-	query.Set("response_type", "code")
-	if s.client.clientID != "" {
-		query.Set("client_id", s.client.clientID)
-	}
-	if params.ProviderScopes != nil {
-		query.Set("provider_scopes", strings.Join(params.ProviderScopes, ","))
-	}
-	if params.ProviderQueryParams != nil {
-		for k, v := range params.ProviderQueryParams {
-			query.Set(fmt.Sprintf("provider_query_params[%s]", k), fmt.Sprintf("%v", v))
-		}
-	}
-	if params.Domain != nil {
-		query.Set("domain", *params.Domain)
-	}
-	if params.Provider != nil {
-		query.Set("provider", fmt.Sprintf("%v", *params.Provider))
-	}
-	query.Set("redirect_uri", params.RedirectURI)
-	if params.State != nil {
-		query.Set("state", *params.State)
-	}
-	if params.Connection != nil {
-		query.Set("connection", *params.Connection)
-	}
-	if params.Organization != nil {
-		query.Set("organization", *params.Organization)
-	}
-	if params.DomainHint != nil {
-		query.Set("domain_hint", *params.DomainHint)
-	}
-	if params.LoginHint != nil {
-		query.Set("login_hint", *params.LoginHint)
-	}
-	if params.Nonce != nil {
-		query.Set("nonce", *params.Nonce)
-	}
 	var result SSOAuthorizeURLResponse
-	_, err := s.client.request(ctx, "GET", "/sso/authorize", query, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", "/sso/authorize", params, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

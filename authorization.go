@@ -12,8 +12,8 @@ type authorizationService struct {
 	client *Client
 }
 
-// AuthorizationCheckOrganizationMembershipParams contains the parameters for CheckOrganizationMembership.
-type AuthorizationCheckOrganizationMembershipParams struct {
+// AuthorizationCheckParams contains the parameters for Check.
+type AuthorizationCheckParams struct {
 	// PermissionSlug is the slug of the permission to check.
 	PermissionSlug string `json:"permission_slug"`
 	// ResourceID is the ID of the resource.
@@ -24,9 +24,9 @@ type AuthorizationCheckOrganizationMembershipParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CheckOrganizationMembership check authorization
+// Check check authorization
 // Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
-func (s *authorizationService) CheckOrganizationMembership(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckOrganizationMembershipParams, opts ...RequestOption) (*AuthorizationCheck, error) {
+func (s *authorizationService) Check(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckParams, opts ...RequestOption) (*AuthorizationCheck, error) {
 	var result AuthorizationCheck
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/check", organizationMembershipID), nil, params, &result, opts)
 	if err != nil {
@@ -66,8 +66,8 @@ func (s *authorizationService) ListOrganizationMembershipRoleAssignments(ctx con
 	return newIterator[RoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), params, "after", "data", opts)
 }
 
-// AuthorizationCreateOrganizationMembershipRoleAssignmentsParams contains the parameters for CreateOrganizationMembershipRoleAssignments.
-type AuthorizationCreateOrganizationMembershipRoleAssignmentsParams struct {
+// AuthorizationAssignRoleParams contains the parameters for AssignRole.
+type AuthorizationAssignRoleParams struct {
 	// RoleSlug is the slug of the role to assign.
 	RoleSlug string `json:"role_slug"`
 	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
@@ -78,9 +78,9 @@ type AuthorizationCreateOrganizationMembershipRoleAssignmentsParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreateOrganizationMembershipRoleAssignments assign a role
+// AssignRole assign a role
 // Assign a role to an organization membership on a specific resource.
-func (s *authorizationService) CreateOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationCreateOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) (*RoleAssignment, error) {
+func (s *authorizationService) AssignRole(ctx context.Context, organizationMembershipID string, params *AuthorizationAssignRoleParams, opts ...RequestOption) (*RoleAssignment, error) {
 	var result RoleAssignment
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), nil, params, &result, opts)
 	if err != nil {
@@ -89,8 +89,8 @@ func (s *authorizationService) CreateOrganizationMembershipRoleAssignments(ctx c
 	return &result, nil
 }
 
-// AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams contains the parameters for DeleteOrganizationMembershipRoleAssignments.
-type AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams struct {
+// AuthorizationRemoveRoleParams contains the parameters for RemoveRole.
+type AuthorizationRemoveRoleParams struct {
 	// RoleSlug is the slug of the role to remove.
 	RoleSlug string `json:"role_slug"`
 	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
@@ -101,9 +101,9 @@ type AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// DeleteOrganizationMembershipRoleAssignments remove a role assignment
+// RemoveRole remove a role assignment
 // Remove a role assignment by role slug and resource.
-func (s *authorizationService) DeleteOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationDeleteOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) error {
+func (s *authorizationService) RemoveRole(ctx context.Context, organizationMembershipID string, params *AuthorizationRemoveRoleParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), nil, params, nil, opts)
 	return err
 }
@@ -126,8 +126,8 @@ func (s *authorizationService) ListOrganizationRoles(ctx context.Context, organi
 	return &result, nil
 }
 
-// AuthorizationCreateOrganizationRolesParams contains the parameters for CreateOrganizationRoles.
-type AuthorizationCreateOrganizationRolesParams struct {
+// AuthorizationCreateOrganizationRoleParams contains the parameters for CreateOrganizationRole.
+type AuthorizationCreateOrganizationRoleParams struct {
 	// Slug is a unique identifier for the role within the organization. When provided, must begin with 'org-' and contain only lowercase letters, numbers, hyphens, and underscores. When omitted, a slug is auto-generated from the role name and a random suffix.
 	Slug *string `json:"slug,omitempty"`
 	// Name is a descriptive name for the role.
@@ -138,9 +138,9 @@ type AuthorizationCreateOrganizationRolesParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreateOrganizationRoles create a custom organization role
+// CreateOrganizationRole create a custom organization role
 // Create a new custom organization role. When slug is omitted, it is auto-generated from the role name.
-func (s *authorizationService) CreateOrganizationRoles(ctx context.Context, organizationID string, params *AuthorizationCreateOrganizationRolesParams, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) CreateOrganizationRole(ctx context.Context, organizationID string, params *AuthorizationCreateOrganizationRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organizations/%s/roles", organizationID), nil, params, &result, opts)
 	if err != nil {
@@ -315,8 +315,8 @@ func (s *authorizationService) ListResources(ctx context.Context, params *Author
 	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", params, "after", "data", opts)
 }
 
-// AuthorizationCreateResourcesParams contains the parameters for CreateResources.
-type AuthorizationCreateResourcesParams struct {
+// AuthorizationCreateResourceParams contains the parameters for CreateResource.
+type AuthorizationCreateResourceParams struct {
 	// ExternalID is an external identifier for the resource.
 	ExternalID string `json:"external_id"`
 	// Name is a display name for the resource.
@@ -335,9 +335,9 @@ type AuthorizationCreateResourcesParams struct {
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
-// CreateResources create an authorization resource
+// CreateResource create an authorization resource
 // Create a new authorization resource.
-func (s *authorizationService) CreateResources(ctx context.Context, params *AuthorizationCreateResourcesParams, opts ...RequestOption) (*AuthorizationResource, error) {
+func (s *authorizationService) CreateResource(ctx context.Context, params *AuthorizationCreateResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
 	_, err := s.client.request(ctx, "POST", "/authorization/resources", nil, params, &result, opts)
 	if err != nil {
@@ -411,9 +411,9 @@ func (s *authorizationService) ListMembershipsForResource(ctx context.Context, r
 	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", resourceID), params, "after", "data", opts)
 }
 
-// ListRoles list environment roles
+// ListEnvironmentRoles list environment roles
 // List all environment roles in priority order.
-func (s *authorizationService) ListRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
+func (s *authorizationService) ListEnvironmentRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
 	var result RoleList
 	_, err := s.client.request(ctx, "GET", "/authorization/roles", nil, nil, &result, opts)
 	if err != nil {
@@ -422,8 +422,8 @@ func (s *authorizationService) ListRoles(ctx context.Context, opts ...RequestOpt
 	return &result, nil
 }
 
-// AuthorizationCreateRolesParams contains the parameters for CreateRoles.
-type AuthorizationCreateRolesParams struct {
+// AuthorizationCreateEnvironmentRoleParams contains the parameters for CreateEnvironmentRole.
+type AuthorizationCreateEnvironmentRoleParams struct {
 	// Slug is a unique slug for the role.
 	Slug string `json:"slug"`
 	// Name is a descriptive name for the role.
@@ -434,9 +434,9 @@ type AuthorizationCreateRolesParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreateRoles create an environment role
+// CreateEnvironmentRole create an environment role
 // Create a new environment role.
-func (s *authorizationService) CreateRoles(ctx context.Context, params *AuthorizationCreateRolesParams, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) CreateEnvironmentRole(ctx context.Context, params *AuthorizationCreateEnvironmentRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", "/authorization/roles", nil, params, &result, opts)
 	if err != nil {
@@ -445,9 +445,9 @@ func (s *authorizationService) CreateRoles(ctx context.Context, params *Authoriz
 	return &result, nil
 }
 
-// GetRole get an environment role
+// GetEnvironmentRole get an environment role
 // Get an environment role by its slug.
-func (s *authorizationService) GetRole(ctx context.Context, slug string, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) GetEnvironmentRole(ctx context.Context, slug string, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/roles/%s", slug), nil, nil, &result, opts)
 	if err != nil {
@@ -456,17 +456,17 @@ func (s *authorizationService) GetRole(ctx context.Context, slug string, opts ..
 	return &result, nil
 }
 
-// AuthorizationUpdateRoleParams contains the parameters for UpdateRole.
-type AuthorizationUpdateRoleParams struct {
+// AuthorizationUpdateEnvironmentRoleParams contains the parameters for UpdateEnvironmentRole.
+type AuthorizationUpdateEnvironmentRoleParams struct {
 	// Name is a descriptive name for the role.
 	Name *string `json:"name,omitempty"`
 	// Description is an optional description of the role.
 	Description *string `json:"description,omitempty"`
 }
 
-// UpdateRole update an environment role
+// UpdateEnvironmentRole update an environment role
 // Update an existing environment role.
-func (s *authorizationService) UpdateRole(ctx context.Context, slug string, params *AuthorizationUpdateRoleParams, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) UpdateEnvironmentRole(ctx context.Context, slug string, params *AuthorizationUpdateEnvironmentRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/roles/%s", slug), nil, params, &result, opts)
 	if err != nil {
@@ -475,15 +475,15 @@ func (s *authorizationService) UpdateRole(ctx context.Context, slug string, para
 	return &result, nil
 }
 
-// AuthorizationAddRolePermissionParams contains the parameters for AddRolePermission.
-type AuthorizationAddRolePermissionParams struct {
+// AuthorizationAddEnvironmentRolePermissionParams contains the parameters for AddEnvironmentRolePermission.
+type AuthorizationAddEnvironmentRolePermissionParams struct {
 	// Slug is the slug of the permission to add to the role.
 	Slug string `json:"slug"`
 }
 
-// AddRolePermission add a permission to an environment role
+// AddEnvironmentRolePermission add a permission to an environment role
 // Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
-func (s *authorizationService) AddRolePermission(ctx context.Context, slug string, params *AuthorizationAddRolePermissionParams, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) AddEnvironmentRolePermission(ctx context.Context, slug string, params *AuthorizationAddEnvironmentRolePermissionParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/roles/%s/permissions", slug), nil, params, &result, opts)
 	if err != nil {
@@ -492,15 +492,15 @@ func (s *authorizationService) AddRolePermission(ctx context.Context, slug strin
 	return &result, nil
 }
 
-// AuthorizationSetRolePermissionsParams contains the parameters for SetRolePermissions.
-type AuthorizationSetRolePermissionsParams struct {
+// AuthorizationSetEnvironmentRolePermissionsParams contains the parameters for SetEnvironmentRolePermissions.
+type AuthorizationSetEnvironmentRolePermissionsParams struct {
 	// Permissions is the permission slugs to assign to the role.
 	Permissions []string `json:"permissions"`
 }
 
-// SetRolePermissions set permissions for an environment role
+// SetEnvironmentRolePermissions set permissions for an environment role
 // Replace all permissions on an environment role with the provided list.
-func (s *authorizationService) SetRolePermissions(ctx context.Context, slug string, params *AuthorizationSetRolePermissionsParams, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) SetEnvironmentRolePermissions(ctx context.Context, slug string, params *AuthorizationSetEnvironmentRolePermissionsParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/authorization/roles/%s/permissions", slug), nil, params, &result, opts)
 	if err != nil {
@@ -520,8 +520,8 @@ func (s *authorizationService) ListPermissions(ctx context.Context, params *Auth
 	return newIterator[AuthorizationPermission](ctx, s.client, "GET", "/authorization/permissions", params, "after", "data", opts)
 }
 
-// AuthorizationCreatePermissionsParams contains the parameters for CreatePermissions.
-type AuthorizationCreatePermissionsParams struct {
+// AuthorizationCreatePermissionParams contains the parameters for CreatePermission.
+type AuthorizationCreatePermissionParams struct {
 	// Slug is a unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
 	Slug string `json:"slug"`
 	// Name is a descriptive name for the Permission.
@@ -532,9 +532,9 @@ type AuthorizationCreatePermissionsParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreatePermissions create a permission
+// CreatePermission create a permission
 // Create a new permission in your WorkOS environment. The permission can then be assigned to environment roles and organization roles.
-func (s *authorizationService) CreatePermissions(ctx context.Context, params *AuthorizationCreatePermissionsParams, opts ...RequestOption) (*Permission, error) {
+func (s *authorizationService) CreatePermission(ctx context.Context, params *AuthorizationCreatePermissionParams, opts ...RequestOption) (*Permission, error) {
 	var result Permission
 	_, err := s.client.request(ctx, "POST", "/authorization/permissions", nil, params, &result, opts)
 	if err != nil {

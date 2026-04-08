@@ -120,7 +120,7 @@ func TestFeatureFlags_Enable(t *testing.T) {
 	require.Equal(t, "Advanced Analytics", result.Name)
 }
 
-func TestFeatureFlags_CreateTarget(t *testing.T) {
+func TestFeatureFlags_AddFlagTarget(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/feature-flags/test_slug/targets/test_resourceId", r.URL.Path)
@@ -129,11 +129,11 @@ func TestFeatureFlags_CreateTarget(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.FeatureFlags().CreateTarget(context.Background(), "test_slug", "test_resourceId")
+	err := client.FeatureFlags().AddFlagTarget(context.Background(), "test_slug", "test_resourceId")
 	require.NoError(t, err)
 }
 
-func TestFeatureFlags_DeleteTarget(t *testing.T) {
+func TestFeatureFlags_RemoveFlagTarget(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		require.Equal(t, "/feature-flags/test_slug/targets/test_resourceId", r.URL.Path)
@@ -142,7 +142,7 @@ func TestFeatureFlags_DeleteTarget(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.FeatureFlags().DeleteTarget(context.Background(), "test_slug", "test_resourceId")
+	err := client.FeatureFlags().RemoveFlagTarget(context.Background(), "test_slug", "test_resourceId")
 	require.NoError(t, err)
 }
 

@@ -121,7 +121,7 @@ func TestUserManagement_RevokeSession(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestUserManagement_CreateCORSOrigins(t *testing.T) {
+func TestUserManagement_CreateCORSOrigin(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/cors_origins", r.URL.Path)
@@ -139,7 +139,7 @@ func TestUserManagement_CreateCORSOrigins(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateCORSOrigins(context.Background(), &workos.UserManagementCreateCORSOriginsParams{})
+	result, err := client.UserManagement().CreateCORSOrigin(context.Background(), &workos.UserManagementCreateCORSOriginParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "cors_origin_01HXYZ123456789ABCDEFGHIJ", result.ID)
@@ -170,7 +170,7 @@ func TestUserManagement_GetEmailVerification(t *testing.T) {
 	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
-func TestUserManagement_CreatePasswordReset(t *testing.T) {
+func TestUserManagement_ResetPassword(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/password_reset", r.URL.Path)
@@ -188,7 +188,7 @@ func TestUserManagement_CreatePasswordReset(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreatePasswordReset(context.Background(), &workos.UserManagementCreatePasswordResetParams{})
+	result, err := client.UserManagement().ResetPassword(context.Background(), &workos.UserManagementResetPasswordParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "password_reset_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
@@ -439,7 +439,7 @@ func TestUserManagement_SendEmailChange(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
-func TestUserManagement_ConfirmEmailVerification(t *testing.T) {
+func TestUserManagement_VerifyEmail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_id/email_verification/confirm", r.URL.Path)
@@ -457,12 +457,12 @@ func TestUserManagement_ConfirmEmailVerification(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ConfirmEmailVerification(context.Background(), "test_id", &workos.UserManagementConfirmEmailVerificationParams{})
+	result, err := client.UserManagement().VerifyEmail(context.Background(), "test_id", &workos.UserManagementVerifyEmailParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_SendEmailVerification(t *testing.T) {
+func TestUserManagement_SendVerificationEmail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_id/email_verification/send", r.URL.Path)
@@ -477,12 +477,12 @@ func TestUserManagement_SendEmailVerification(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().SendEmailVerification(context.Background(), "test_id")
+	result, err := client.UserManagement().SendVerificationEmail(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_ListIdentities(t *testing.T) {
+func TestUserManagement_GetIdentities(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/users/test_id/identities", r.URL.Path)
@@ -497,7 +497,7 @@ func TestUserManagement_ListIdentities(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().ListIdentities(context.Background(), "test_id")
+	result, err := client.UserManagement().GetIdentities(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotEmpty(t, result)
 }
@@ -578,7 +578,7 @@ func TestUserManagement_ListInvitations_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestUserManagement_CreateInvitations(t *testing.T) {
+func TestUserManagement_SendInvitation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/invitations", r.URL.Path)
@@ -596,7 +596,7 @@ func TestUserManagement_CreateInvitations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateInvitations(context.Background(), &workos.UserManagementCreateInvitationsParams{})
+	result, err := client.UserManagement().SendInvitation(context.Background(), &workos.UserManagementSendInvitationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
@@ -604,7 +604,7 @@ func TestUserManagement_CreateInvitations(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
-func TestUserManagement_GetByToken(t *testing.T) {
+func TestUserManagement_FindInvitationByToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/user_management/invitations/by_token/test_token", r.URL.Path)
@@ -619,7 +619,7 @@ func TestUserManagement_GetByToken(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().GetByToken(context.Background(), "test_token")
+	result, err := client.UserManagement().FindInvitationByToken(context.Background(), "test_token")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "invitation_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
@@ -834,7 +834,7 @@ func TestUserManagement_ListOrganizationMemberships_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
+func TestUserManagement_CreateOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/organization_memberships", r.URL.Path)
@@ -852,7 +852,7 @@ func TestUserManagement_CreateOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateOrganizationMemberships(context.Background(), &workos.UserManagementCreateOrganizationMembershipsParams{})
+	result, err := client.UserManagement().CreateOrganizationMembership(context.Background(), &workos.UserManagementCreateOrganizationMembershipParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
@@ -968,7 +968,7 @@ func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
-func TestUserManagement_CreateRedirectURIs(t *testing.T) {
+func TestUserManagement_CreateRedirectURI(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/redirect_uris", r.URL.Path)
@@ -986,7 +986,7 @@ func TestUserManagement_CreateRedirectURIs(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateRedirectURIs(context.Background(), &workos.UserManagementCreateRedirectURIsParams{})
+	result, err := client.UserManagement().CreateRedirectURI(context.Background(), &workos.UserManagementCreateRedirectURIParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "ruri_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
