@@ -172,7 +172,7 @@ func TestAuthorization_ListOrganizationRoles(t *testing.T) {
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list.json")
+		fixture, err := os.ReadFile("testdata/role_list.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

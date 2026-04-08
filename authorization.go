@@ -117,8 +117,8 @@ func (s *authorizationService) DeleteOrganizationMembershipRoleAssignment(ctx co
 
 // ListOrganizationRoles list organization roles
 // Get a list of all roles that apply to an organization. This includes both environment roles and organization-specific roles, returned in priority order.
-func (s *authorizationService) ListOrganizationRoles(ctx context.Context, organizationID string, opts ...RequestOption) (*List, error) {
-	var result List
+func (s *authorizationService) ListOrganizationRoles(ctx context.Context, organizationID string, opts ...RequestOption) (*RoleList, error) {
+	var result RoleList
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/organizations/%s/roles", organizationID), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
@@ -134,6 +134,8 @@ type AuthorizationCreateOrganizationRolesParams struct {
 	Name string `json:"name"`
 	// Description is an optional description of the role's purpose.
 	Description *string `json:"description,omitempty"`
+	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // CreateOrganizationRoles create a custom organization role
