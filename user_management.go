@@ -5,6 +5,8 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strings"
 )
 
 // userManagementService handles UserManagement operations.
@@ -316,18 +318,61 @@ type UserManagementGetAuthorizationURLParams struct {
 	State *string `url:"state,omitempty" json:"-"`
 	// OrganizationID is the ID of the organization to authenticate the user against.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
-	// ResponseType is the response type of the application.
-	ResponseType string `url:"response_type" json:"-"`
 	// RedirectURI is the callback URI where the authorization code will be sent after authentication.
 	RedirectURI string `url:"redirect_uri" json:"-"`
-	// ClientID is the unique identifier of the WorkOS environment client.
-	ClientID string `url:"client_id" json:"-"`
 }
 
 // GetAuthorizationURL get an authorization URL
 // Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
 func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params *UserManagementGetAuthorizationURLParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "GET", "/user_management/authorize", params, nil, nil, opts)
+	query := url.Values{}
+	query.Set("response_type", "code")
+	if s.client.clientID != "" {
+		query.Set("client_id", s.client.clientID)
+	}
+	if params.CodeChallengeMethod != nil {
+		query.Set("code_challenge_method", fmt.Sprintf("%v", *params.CodeChallengeMethod))
+	}
+	if params.CodeChallenge != nil {
+		query.Set("code_challenge", *params.CodeChallenge)
+	}
+	if params.DomainHint != nil {
+		query.Set("domain_hint", *params.DomainHint)
+	}
+	if params.ConnectionID != nil {
+		query.Set("connection_id", *params.ConnectionID)
+	}
+	if params.ProviderQueryParams != nil {
+		for k, v := range params.ProviderQueryParams {
+			query.Set(fmt.Sprintf("provider_query_params[%s]", k), fmt.Sprintf("%v", v))
+		}
+	}
+	if params.ProviderScopes != nil {
+		query.Set("provider_scopes", strings.Join(params.ProviderScopes, ","))
+	}
+	if params.InvitationToken != nil {
+		query.Set("invitation_token", *params.InvitationToken)
+	}
+	if params.ScreenHint != nil {
+		query.Set("screen_hint", fmt.Sprintf("%v", *params.ScreenHint))
+	}
+	if params.LoginHint != nil {
+		query.Set("login_hint", *params.LoginHint)
+	}
+	if params.Provider != nil {
+		query.Set("provider", fmt.Sprintf("%v", *params.Provider))
+	}
+	if params.Prompt != nil {
+		query.Set("prompt", *params.Prompt)
+	}
+	if params.State != nil {
+		query.Set("state", *params.State)
+	}
+	if params.OrganizationID != nil {
+		query.Set("organization_id", *params.OrganizationID)
+	}
+	query.Set("redirect_uri", params.RedirectURI)
+	_, err := s.client.request(ctx, "GET", "/user_management/authorize", query, nil, nil, opts)
 	return err
 }
 

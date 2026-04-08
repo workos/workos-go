@@ -423,6 +423,8 @@ type GenerateLink struct {
 	Intent *GenerateLinkIntent `json:"intent,omitempty"`
 	// IntentOptions is options to configure the Admin Portal based on the intent.
 	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
+	// AdminEmails is the email addresses of the IT admins to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
+	AdminEmails []string `json:"admin_emails,omitempty"`
 }
 
 // CreateRedirectURI represents a create redirect uri.
