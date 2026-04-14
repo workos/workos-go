@@ -14,6 +14,21 @@ import (
 	"github.com/workos/workos-go/v6"
 )
 
+func TestClient_UserAgentIncludesVersion(t *testing.T) {
+	var capturedUserAgent string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUserAgent = r.Header.Get("User-Agent")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"id":"org_01","name":"Test Org"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	_, err := client.Organizations().Get(context.Background(), "org_01")
+	require.NoError(t, err)
+	require.Equal(t, "workos-go/"+workos.Version, capturedUserAgent)
+}
+
 func TestClient_Retry429ThenSuccess(t *testing.T) {
 	var attempt atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
