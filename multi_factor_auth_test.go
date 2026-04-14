@@ -164,7 +164,7 @@ func TestMultiFactorAuth_ListUserAuthFactors_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestMultiFactorAuth_CreateUserAuthFactors(t *testing.T) {
+func TestMultiFactorAuth_CreateUserAuthFactor(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_userlandUserId/auth_factors", r.URL.Path)
@@ -182,7 +182,7 @@ func TestMultiFactorAuth_CreateUserAuthFactors(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.MultiFactorAuth().CreateUserAuthFactors(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthCreateUserAuthFactorsParams{})
+	result, err := client.MultiFactorAuth().CreateUserAuthFactor(context.Background(), "test_userlandUserId", &workos.MultiFactorAuthCreateUserAuthFactorParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }

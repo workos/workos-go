@@ -114,9 +114,9 @@ func (s *organizationService) Delete(ctx context.Context, id string, opts ...Req
 	return err
 }
 
-// ListAuditLogConfiguration get Audit Log Configuration
+// GetAuditLogConfiguration get Audit Log Configuration
 // Get the unified view of audit log trail and stream configuration for an organization.
-func (s *organizationService) ListAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
+func (s *organizationService) GetAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", id), nil, nil, &result, opts)
 	if err != nil {

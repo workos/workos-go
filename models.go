@@ -669,7 +669,7 @@ type ConnectApplication struct {
 	// ApplicationType is the type of the application.
 	ApplicationType *string `json:"application_type,omitempty"`
 	// RedirectURIs is the redirect URIs configured for this application.
-	RedirectURIs []interface{} `json:"redirect_uris,omitempty"`
+	RedirectURIs []*ConnectApplicationRedirectURI `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether the application is a first-party application.
@@ -4222,10 +4222,10 @@ type DataIntegrationAccessTokenResponse struct {
 	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
 	Active *bool `json:"active,omitempty"`
 	// AccessToken is the [access token](/reference/pipes/access-token) object, present when `active` is `true`.
-	AccessToken *interface{} `json:"access_token,omitempty"`
+	AccessToken *DataIntegrationAccessTokenResponseAccessToken `json:"access_token,omitempty"`
 	// Error is - `"not_installed"`: The user does not have the integration installed.
 	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
-	Error *string `json:"error,omitempty"`
+	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
 }
 
 // ConnectedAccount represents a connected account.
@@ -5302,6 +5302,49 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	//
 	// Deprecated: Use `user_id` instead.
 	UserlandUserID *string `json:"userlandUserId"`
+}
+
+// ConnectApplicationRedirectURI represents a connect application_redirect_uri.
+type ConnectApplicationRedirectURI struct {
+	// URI is the redirect URI for the application.
+	URI string `json:"uri"`
+	// Default is whether this is the default redirect URI.
+	Default bool `json:"default"`
+}
+
+// EventSchemaData is an alias for ActionAuthenticationDeniedData.
+type EventSchemaData = ActionAuthenticationDeniedData
+
+// EventSchemaContextActor the actor who performed the action.
+type EventSchemaContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source EventSchemaContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// EventSchemaContext additional context about the event.
+type EventSchemaContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *EventSchemaContextActor `json:"actor"`
+}
+
+// DataIntegrationAccessTokenResponseAccessToken the [access token](/reference/pipes/access-token) object, present when `active` is `true`.
+type DataIntegrationAccessTokenResponseAccessToken struct {
+	// Object distinguishes the access token object.
+	Object string `json:"object"`
+	// AccessToken is the OAuth access token for the connected integration.
+	AccessToken string `json:"access_token"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the access token expires.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
+	MissingScopes []string `json:"missing_scopes"`
 }
 
 // PaginationParams contains common pagination parameters for list operations.

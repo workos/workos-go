@@ -15,7 +15,7 @@ import (
 	"github.com/workos/workos-go/v6"
 )
 
-func TestAuditLogs_ListOrganizationAuditLogsRetention(t *testing.T) {
+func TestAuditLogs_GetOrganizationAuditLogsRetention(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/organizations/test_id/audit_logs_retention", r.URL.Path)
@@ -30,7 +30,7 @@ func TestAuditLogs_ListOrganizationAuditLogsRetention(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
+	result, err := client.AuditLogs().GetOrganizationAuditLogsRetention(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -239,7 +239,7 @@ func TestAuditLogs_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
+	_, err := client.AuditLogs().GetOrganizationAuditLogsRetention(context.Background(), "test_id")
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }
 
@@ -252,7 +252,7 @@ func TestAuditLogs_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
+	_, err := client.AuditLogs().GetOrganizationAuditLogsRetention(context.Background(), "test_id")
 	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
@@ -265,6 +265,6 @@ func TestAuditLogs_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.AuditLogs().ListOrganizationAuditLogsRetention(context.Background(), "test_id")
+	_, err := client.AuditLogs().GetOrganizationAuditLogsRetention(context.Background(), "test_id")
 	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

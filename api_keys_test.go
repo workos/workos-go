@@ -15,7 +15,7 @@ import (
 	"github.com/workos/workos-go/v6"
 )
 
-func TestAPIKeys_CreateValidations(t *testing.T) {
+func TestAPIKeys_CreateValidation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/api_keys/validations", r.URL.Path)
@@ -33,7 +33,7 @@ func TestAPIKeys_CreateValidations(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	result, err := client.APIKeys().CreateValidation(context.Background(), &workos.APIKeysCreateValidationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -89,7 +89,7 @@ func TestAPIKeys_ListOrganizationAPIKeys_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestAPIKeys_CreateOrganizationAPIKeys(t *testing.T) {
+func TestAPIKeys_CreateOrganizationAPIKey(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/organizations/test_organizationId/api_keys", r.URL.Path)
@@ -107,7 +107,7 @@ func TestAPIKeys_CreateOrganizationAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.APIKeys().CreateOrganizationAPIKeys(context.Background(), "test_organizationId", &workos.APIKeysCreateOrganizationAPIKeysParams{})
+	result, err := client.APIKeys().CreateOrganizationAPIKey(context.Background(), "test_organizationId", &workos.APIKeysCreateOrganizationAPIKeyParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "api_key_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
@@ -124,7 +124,7 @@ func TestAPIKeys_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	_, err := client.APIKeys().CreateValidation(context.Background(), &workos.APIKeysCreateValidationParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }
 
@@ -137,7 +137,7 @@ func TestAPIKeys_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	_, err := client.APIKeys().CreateValidation(context.Background(), &workos.APIKeysCreateValidationParams{})
 	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
@@ -150,6 +150,6 @@ func TestAPIKeys_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.APIKeys().CreateValidations(context.Background(), &workos.APIKeysCreateValidationsParams{})
+	_, err := client.APIKeys().CreateValidation(context.Background(), &workos.APIKeysCreateValidationParams{})
 	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

@@ -23,17 +23,17 @@ func (s *webhookService) ListEndpoints(ctx context.Context, params *WebhooksList
 	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts)
 }
 
-// WebhooksCreateEndpointsParams contains the parameters for CreateEndpoints.
-type WebhooksCreateEndpointsParams struct {
+// WebhooksCreateEndpointParams contains the parameters for CreateEndpoint.
+type WebhooksCreateEndpointParams struct {
 	// EndpointURL is the HTTPS URL where webhooks will be sent.
 	EndpointURL string `json:"endpoint_url"`
 	// Events is the events that the Webhook Endpoint is subscribed to.
 	Events []CreateWebhookEndpointEvents `json:"events"`
 }
 
-// CreateEndpoints create a Webhook Endpoint
+// CreateEndpoint create a Webhook Endpoint
 // Create a new webhook endpoint to receive event notifications.
-func (s *webhookService) CreateEndpoints(ctx context.Context, params *WebhooksCreateEndpointsParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
+func (s *webhookService) CreateEndpoint(ctx context.Context, params *WebhooksCreateEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
 	var result WebhookEndpointJSON
 	_, err := s.client.request(ctx, "POST", "/webhook_endpoints", nil, params, &result, opts)
 	if err != nil {

@@ -100,8 +100,8 @@ func (s *multiFactorAuthService) ListUserAuthFactors(ctx context.Context, userla
 	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", userlandUserID), params, "after", "data", opts)
 }
 
-// MultiFactorAuthCreateUserAuthFactorsParams contains the parameters for CreateUserAuthFactors.
-type MultiFactorAuthCreateUserAuthFactorsParams struct {
+// MultiFactorAuthCreateUserAuthFactorParams contains the parameters for CreateUserAuthFactor.
+type MultiFactorAuthCreateUserAuthFactorParams struct {
 	// Type is the type of the factor to enroll.
 	Type string `json:"type"`
 	// TOTPIssuer is your application or company name displayed in the user's authenticator app.
@@ -112,9 +112,9 @@ type MultiFactorAuthCreateUserAuthFactorsParams struct {
 	TOTPSecret *string `json:"totp_secret,omitempty"`
 }
 
-// CreateUserAuthFactors enroll an authentication factor
+// CreateUserAuthFactor enroll an authentication factor
 // Enrolls a user in a new [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor).
-func (s *multiFactorAuthService) CreateUserAuthFactors(ctx context.Context, userlandUserID string, params *MultiFactorAuthCreateUserAuthFactorsParams, opts ...RequestOption) (*UserAuthenticationFactorEnrollResponse, error) {
+func (s *multiFactorAuthService) CreateUserAuthFactor(ctx context.Context, userlandUserID string, params *MultiFactorAuthCreateUserAuthFactorParams, opts ...RequestOption) (*UserAuthenticationFactorEnrollResponse, error) {
 	var result UserAuthenticationFactorEnrollResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/auth_factors", userlandUserID), nil, params, &result, opts)
 	if err != nil {

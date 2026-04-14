@@ -186,15 +186,15 @@ func (s *authorizationService) DeleteOrganizationRole(ctx context.Context, organ
 	return err
 }
 
-// AuthorizationCreateRolePermissionsParams contains the parameters for CreateRolePermissions.
-type AuthorizationCreateRolePermissionsParams struct {
+// AuthorizationCreateRolePermissionParams contains the parameters for CreateRolePermission.
+type AuthorizationCreateRolePermissionParams struct {
 	// Slug is the slug of the permission to add to the role.
 	Slug string `json:"slug"`
 }
 
-// CreateRolePermissions add a permission to an organization role
+// CreateRolePermission add a permission to an organization role
 // Add a single permission to an organization role. If the permission is already assigned to the role, this operation has no effect.
-func (s *authorizationService) CreateRolePermissions(ctx context.Context, organizationID string, slug string, params *AuthorizationCreateRolePermissionsParams, opts ...RequestOption) (*Role, error) {
+func (s *authorizationService) CreateRolePermission(ctx context.Context, organizationID string, slug string, params *AuthorizationCreateRolePermissionParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organizations/%s/roles/%s/permissions", organizationID, slug), nil, params, &result, opts)
 	if err != nil {

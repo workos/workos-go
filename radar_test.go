@@ -15,7 +15,7 @@ import (
 	"github.com/workos/workos-go/v6"
 )
 
-func TestRadar_CreateAttempts(t *testing.T) {
+func TestRadar_CreateAttempt(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/radar/attempts", r.URL.Path)
@@ -33,7 +33,7 @@ func TestRadar_CreateAttempts(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
+	result, err := client.Radar().CreateAttempt(context.Background(), &workos.RadarCreateAttemptParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "Detected enabled Radar control", result.Reason)
@@ -99,7 +99,7 @@ func TestRadar_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
+	_, err := client.Radar().CreateAttempt(context.Background(), &workos.RadarCreateAttemptParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }
 
@@ -112,7 +112,7 @@ func TestRadar_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
+	_, err := client.Radar().CreateAttempt(context.Background(), &workos.RadarCreateAttemptParams{})
 	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
@@ -125,6 +125,6 @@ func TestRadar_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Radar().CreateAttempts(context.Background(), &workos.RadarCreateAttemptsParams{})
+	_, err := client.Radar().CreateAttempt(context.Background(), &workos.RadarCreateAttemptParams{})
 	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

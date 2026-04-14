@@ -51,14 +51,14 @@ func (s *connectService) ListApplications(ctx context.Context, params *ConnectLi
 	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts)
 }
 
-// ConnectCreateApplicationsParams contains the parameters for CreateApplications.
-type ConnectCreateApplicationsParams struct {
+// ConnectCreateApplicationParams contains the parameters for CreateApplication.
+type ConnectCreateApplicationParams struct {
 	Body interface{} `json:"-"`
 }
 
-// CreateApplications create a Connect Application
+// CreateApplication create a Connect Application
 // Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
-func (s *connectService) CreateApplications(ctx context.Context, params *ConnectCreateApplicationsParams, opts ...RequestOption) (*ConnectApplication, error) {
+func (s *connectService) CreateApplication(ctx context.Context, params *ConnectCreateApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
 	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, params.Body, &result, opts)
 	if err != nil {
@@ -200,9 +200,9 @@ func (s *connectService) ListApplicationClientSecrets(ctx context.Context, id st
 	return result, nil
 }
 
-// CreateApplicationClientSecrets create a new client secret for a Connect Application
+// CreateApplicationClientSecret create a new client secret for a Connect Application
 // Create new secrets for a Connect Application.
-func (s *connectService) CreateApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
+func (s *connectService) CreateApplicationClientSecret(ctx context.Context, id string, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
 	var result NewConnectApplicationSecret
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", id), nil, nil, &result, opts)
 	if err != nil {

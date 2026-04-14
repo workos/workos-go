@@ -1143,3 +1143,14 @@ type WebhooksOrder = ApplicationsOrder
 
 // AuditLogsOrder is an alias for ApplicationsOrder.
 type AuditLogsOrder = ApplicationsOrder
+
+// EventSchemaContextActorSource is an alias for EventContextActorSource.
+type EventSchemaContextActorSource = EventContextActorSource
+
+// DataIntegrationAccessTokenResponseError represents data integration access token response_error values.
+type DataIntegrationAccessTokenResponseError string
+
+const (
+	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
+	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
+)

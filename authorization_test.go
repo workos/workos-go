@@ -274,7 +274,7 @@ func TestAuthorization_DeleteOrganizationRole(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestAuthorization_CreateRolePermissions(t *testing.T) {
+func TestAuthorization_CreateRolePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
@@ -292,7 +292,7 @@ func TestAuthorization_CreateRolePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationCreateRolePermissionsParams{})
+	result, err := client.Authorization().CreateRolePermission(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationCreateRolePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)

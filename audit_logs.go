@@ -12,9 +12,9 @@ type auditLogService struct {
 	client *Client
 }
 
-// ListOrganizationAuditLogsRetention get Retention
+// GetOrganizationAuditLogsRetention get Retention
 // Get the configured event retention period for the given Organization.
-func (s *auditLogService) ListOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
+func (s *auditLogService) GetOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", id), nil, nil, &result, opts)
 	if err != nil {

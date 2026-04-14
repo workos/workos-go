@@ -53,7 +53,7 @@ func TestWebhooks_ListEndpoints_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestWebhooks_CreateEndpoints(t *testing.T) {
+func TestWebhooks_CreateEndpoint(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/webhook_endpoints", r.URL.Path)
@@ -71,7 +71,7 @@ func TestWebhooks_CreateEndpoints(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Webhooks().CreateEndpoints(context.Background(), &workos.WebhooksCreateEndpointsParams{})
+	result, err := client.Webhooks().CreateEndpoint(context.Background(), &workos.WebhooksCreateEndpointParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "we_0123456789", result.ID)

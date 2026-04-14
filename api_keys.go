@@ -12,15 +12,15 @@ type apiKeyService struct {
 	client *Client
 }
 
-// APIKeysCreateValidationsParams contains the parameters for CreateValidations.
-type APIKeysCreateValidationsParams struct {
+// APIKeysCreateValidationParams contains the parameters for CreateValidation.
+type APIKeysCreateValidationParams struct {
 	// Value is the value for an API key.
 	Value string `json:"value"`
 }
 
-// CreateValidations validate API key
+// CreateValidation validate API key
 // Validate an API key value and return the API key object if valid.
-func (s *apiKeyService) CreateValidations(ctx context.Context, params *APIKeysCreateValidationsParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
+func (s *apiKeyService) CreateValidation(ctx context.Context, params *APIKeysCreateValidationParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
 	var result APIKeyValidationResponse
 	_, err := s.client.request(ctx, "POST", "/api_keys/validations", nil, params, &result, opts)
 	if err != nil {
@@ -47,17 +47,17 @@ func (s *apiKeyService) ListOrganizationAPIKeys(ctx context.Context, organizatio
 	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, "after", "data", opts)
 }
 
-// APIKeysCreateOrganizationAPIKeysParams contains the parameters for CreateOrganizationAPIKeys.
-type APIKeysCreateOrganizationAPIKeysParams struct {
+// APIKeysCreateOrganizationAPIKeyParams contains the parameters for CreateOrganizationAPIKey.
+type APIKeysCreateOrganizationAPIKeyParams struct {
 	// Name is the name for the API key.
 	Name string `json:"name"`
 	// Permissions is the permission slugs to assign to the API key.
 	Permissions []string `json:"permissions,omitempty"`
 }
 
-// CreateOrganizationAPIKeys create an API key for an organization
+// CreateOrganizationAPIKey create an API key for an organization
 // Create a new API key for an organization.
-func (s *apiKeyService) CreateOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeysParams, opts ...RequestOption) (*APIKeyWithValue, error) {
+func (s *apiKeyService) CreateOrganizationAPIKey(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeyParams, opts ...RequestOption) (*APIKeyWithValue, error) {
 	var result APIKeyWithValue
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", organizationID), nil, params, &result, opts)
 	if err != nil {

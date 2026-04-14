@@ -77,7 +77,7 @@ func TestConnect_ListApplications_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestConnect_CreateApplications(t *testing.T) {
+func TestConnect_CreateApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/connect/applications", r.URL.Path)
@@ -92,7 +92,7 @@ func TestConnect_CreateApplications(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateApplications(context.Background(), &workos.ConnectCreateApplicationsParams{})
+	result, err := client.Connect().CreateApplication(context.Background(), &workos.ConnectCreateApplicationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "conn_app_01HXYZ123456789ABCDEFGHIJ", result.ID)
@@ -182,7 +182,7 @@ func TestConnect_ListApplicationClientSecrets(t *testing.T) {
 	require.NotEmpty(t, result)
 }
 
-func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
+func TestConnect_CreateApplicationClientSecret(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/connect/applications/test_id/client_secrets", r.URL.Path)
@@ -197,7 +197,7 @@ func TestConnect_CreateApplicationClientSecrets(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateApplicationClientSecrets(context.Background(), "test_id")
+	result, err := client.Connect().CreateApplicationClientSecret(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q", result.ID)

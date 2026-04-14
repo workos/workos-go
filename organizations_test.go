@@ -164,7 +164,7 @@ func TestOrganizations_Delete(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestOrganizations_ListAuditLogConfiguration(t *testing.T) {
+func TestOrganizations_GetAuditLogConfiguration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/organizations/test_id/audit_log_configuration", r.URL.Path)
@@ -179,7 +179,7 @@ func TestOrganizations_ListAuditLogConfiguration(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Organizations().ListAuditLogConfiguration(context.Background(), "test_id")
+	result, err := client.Organizations().GetAuditLogConfiguration(context.Background(), "test_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)

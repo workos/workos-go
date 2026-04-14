@@ -184,7 +184,7 @@ func (c *Client) AuthKitPollDeviceCode(ctx context.Context, deviceCode string, i
 			return nil, ctx.Err()
 		case <-ticker.C:
 			resp, err := c.UserManagement().AuthenticateWithDeviceCode(ctx, &AuthenticateWithDeviceCodeParams{
-				DeviceCode: &deviceCode,
+				DeviceCode: deviceCode,
 			}, opts...)
 			if err != nil {
 				// Check if this is an "authorization_pending" error; if so, keep polling.

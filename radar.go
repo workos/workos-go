@@ -12,8 +12,8 @@ type radarService struct {
 	client *Client
 }
 
-// RadarCreateAttemptsParams contains the parameters for CreateAttempts.
-type RadarCreateAttemptsParams struct {
+// RadarCreateAttemptParams contains the parameters for CreateAttempt.
+type RadarCreateAttemptParams struct {
 	// IPAddress is the IP address of the request to assess.
 	IPAddress string `json:"ip_address"`
 	// UserAgent is the user agent string of the request to assess.
@@ -30,9 +30,9 @@ type RadarCreateAttemptsParams struct {
 	BotScore *string `json:"bot_score,omitempty"`
 }
 
-// CreateAttempts create an attempt
+// CreateAttempt create an attempt
 // Assess a request for risk using the Radar engine and receive a verdict.
-func (s *radarService) CreateAttempts(ctx context.Context, params *RadarCreateAttemptsParams, opts ...RequestOption) (*RadarStandaloneResponse, error) {
+func (s *radarService) CreateAttempt(ctx context.Context, params *RadarCreateAttemptParams, opts ...RequestOption) (*RadarStandaloneResponse, error) {
 	var result RadarStandaloneResponse
 	_, err := s.client.request(ctx, "POST", "/radar/attempts", nil, params, &result, opts)
 	if err != nil {
