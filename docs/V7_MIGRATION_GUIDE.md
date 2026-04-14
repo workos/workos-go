@@ -1,7 +1,5 @@
 # V7 Migration Guide
 
-This branch introduces v7 breaking changes while the module path still says `github.com/workos/workos-go/v6`. Treat the changes below as the migration work required for the v7 release.
-
 ## Table Of Contents
 
 - [V7 Migration Guide](#v7-migration-guide)
@@ -34,7 +32,6 @@ This branch introduces v7 breaking changes while the module path still says `git
     - [After](#after-4)
   - [9. What Stayed The Same](#9-what-stayed-the-same)
   - [10. Recommended Migration Order](#10-recommended-migration-order)
-  - [Known Gaps In This Branch](#known-gaps-in-this-branch)
 
 ## Summary
 
@@ -526,12 +523,3 @@ Important Vault model changes:
 5. Replace `pkg/workos_errors` error matching with `errors.As` against new root error types
 6. Update webhook verification and any custom webhook test fixtures
 7. Audit Vault call sites for renamed fields and model shape changes
-
-## Known Gaps In This Branch
-
-These are real migration risks to account for before release:
-
-- No compatibility layer for `pkg/*` import paths
-- No drop-in replacement for callers that depended on `ListMetadata`
-- No drop-in replacement for callers that depended on structured auth-specific error payloads from `pkg/workos_errors`
-- The maintained helper for AuthKit logout is now session-based (`Session.GetLogoutURL`) rather than a simple standalone URL builder
