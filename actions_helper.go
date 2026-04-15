@@ -79,22 +79,32 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 	return nil
 }
 
-// ConstructAction verifies and deserializes an Actions request.
-func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (map[string]interface{}, error) {
+// ActionSignedResponse is the result of signing an action response.
+// Send Payload and Sig back to WorkOS as the action webhook response body.
+type ActionSignedResponse struct {
+	// Payload is the base64-encoded JSON response body.
+	Payload string `json:"payload"`
+	// Sig is the signature header in the form "t=<timestamp>,v1=<hex>".
+	Sig string `json:"sig"`
+}
+
+// ConstructAction verifies and deserializes an Actions request into the
+// standard WorkOS event envelope. Callers can inspect Event/Data to
+// dispatch on action type.
+func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*EventSchema, error) {
 	if err := a.VerifyHeader(payload, sigHeader, secret); err != nil {
 		return nil, err
 	}
 
-	var action map[string]interface{}
+	var action EventSchema
 	if err := json.Unmarshal([]byte(payload), &action); err != nil {
 		return nil, fmt.Errorf("workos: failed to parse action payload: %w", err)
 	}
-	return action, nil
+	return &action, nil
 }
 
 // SignResponse signs an action response with the given secret.
-// Returns a map with "payload" (base64 JSON) and "sig" (HMAC signature header).
-func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (map[string]interface{}, error) {
+func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionSignedResponse, error) {
 	responsePayload := map[string]interface{}{
 		"type":          string(actionType),
 		"verdict":       string(verdict),
@@ -113,9 +123,9 @@ func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdic
 
 	sig := computeActionSignature(secret, timestamp, b64Payload)
 
-	return map[string]interface{}{
-		"payload": b64Payload,
-		"sig":     fmt.Sprintf("t=%s,v1=%s", timestamp, sig),
+	return &ActionSignedResponse{
+		Payload: b64Payload,
+		Sig:     fmt.Sprintf("t=%s,v1=%s", timestamp, sig),
 	}, nil
 }
 

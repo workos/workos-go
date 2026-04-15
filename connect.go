@@ -51,22 +51,6 @@ func (s *connectService) ListApplications(ctx context.Context, params *ConnectLi
 	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts)
 }
 
-// ConnectCreateApplicationParams contains the parameters for CreateApplication.
-type ConnectCreateApplicationParams struct {
-	Body interface{} `json:"-"`
-}
-
-// CreateApplication create a Connect Application
-// Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
-func (s *connectService) CreateApplication(ctx context.Context, params *ConnectCreateApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
-	var result ConnectApplication
-	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, params.Body, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
 // CreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
 type CreateOAuthApplicationParams struct {
 	// Name is the name of the application.
@@ -76,37 +60,39 @@ type CreateOAuthApplicationParams struct {
 	// Description is a description for the application.
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes *[]string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
 	// RedirectURIs is redirect URIs for the application.
-	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
+	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// OrganizationID is the organization ID this application belongs to. Required when is_first_party is false.
 	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
+// createOAuthApplicationBody is the JSON request body for CreateOAuthApplication.
+type createOAuthApplicationBody struct {
+	ApplicationType string              `json:"application_type"`
+	Name            string              `json:"name"`
+	IsFirstParty    bool                `json:"is_first_party"`
+	Description     *string             `json:"description,omitempty"`
+	Scopes          []string            `json:"scopes,omitempty"`
+	RedirectURIs    []*RedirectURIInput `json:"redirect_uris,omitempty"`
+	UsesPKCE        *bool               `json:"uses_pkce,omitempty"`
+	OrganizationID  *string             `json:"organization_id,omitempty"`
+}
+
 // CreateOAuthApplication Create oauth application.
 func (s *connectService) CreateOAuthApplication(ctx context.Context, params *CreateOAuthApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
-	body := map[string]interface{}{
-		"application_type": "oauth",
-		"name":             params.Name,
-		"is_first_party":   params.IsFirstParty,
+	body := createOAuthApplicationBody{
+		ApplicationType: "oauth",
+		Name:            params.Name,
+		IsFirstParty:    params.IsFirstParty,
 	}
-	if params.Description != nil {
-		body["description"] = *params.Description
-	}
-	if params.Scopes != nil {
-		body["scopes"] = *params.Scopes
-	}
-	if params.RedirectURIs != nil {
-		body["redirect_uris"] = *params.RedirectURIs
-	}
-	if params.UsesPKCE != nil {
-		body["uses_pkce"] = *params.UsesPKCE
-	}
-	if params.OrganizationID != nil {
-		body["organization_id"] = *params.OrganizationID
-	}
+	body.Description = params.Description
+	body.Scopes = params.Scopes
+	body.RedirectURIs = params.RedirectURIs
+	body.UsesPKCE = params.UsesPKCE
+	body.OrganizationID = params.OrganizationID
 	var result ConnectApplication
 	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, body, &result, opts)
 	if err != nil {
@@ -124,22 +110,27 @@ type CreateM2MApplicationParams struct {
 	// Description is a description for the application.
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes *[]string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
+}
+
+// createM2MApplicationBody is the JSON request body for CreateM2MApplication.
+type createM2MApplicationBody struct {
+	ApplicationType string   `json:"application_type"`
+	Name            string   `json:"name"`
+	OrganizationID  string   `json:"organization_id"`
+	Description     *string  `json:"description,omitempty"`
+	Scopes          []string `json:"scopes,omitempty"`
 }
 
 // CreateM2MApplication Create m2m application.
 func (s *connectService) CreateM2MApplication(ctx context.Context, params *CreateM2MApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
-	body := map[string]interface{}{
-		"application_type": "m2m",
-		"name":             params.Name,
-		"organization_id":  params.OrganizationID,
+	body := createM2MApplicationBody{
+		ApplicationType: "m2m",
+		Name:            params.Name,
+		OrganizationID:  params.OrganizationID,
 	}
-	if params.Description != nil {
-		body["description"] = *params.Description
-	}
-	if params.Scopes != nil {
-		body["scopes"] = *params.Scopes
-	}
+	body.Description = params.Description
+	body.Scopes = params.Scopes
 	var result ConnectApplication
 	_, err := s.client.request(ctx, "POST", "/connect/applications", nil, body, &result, opts)
 	if err != nil {
@@ -166,9 +157,9 @@ type ConnectUpdateApplicationParams struct {
 	// Description is a description for the application.
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes *[]string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
-	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
+	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
 }
 
 // UpdateApplication update a Connect Application

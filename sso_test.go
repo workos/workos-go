@@ -90,37 +90,17 @@ func TestSSO_DeleteConnection(t *testing.T) {
 }
 
 func TestSSO_GetAuthorizationURL(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "GET", r.Method)
-		require.Equal(t, "/sso/authorize", r.URL.Path)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/sso_authorize_url_response.json")
-		if err != nil {
-			t.Fatalf("failed to read fixture: %v", err)
-		}
-		w.Write(fixture)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.SSO().GetAuthorizationURL(context.Background(), &workos.SSOGetAuthorizationURLParams{})
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	require.Equal(t, "https://accounts.google.com/o/oauth2/v2/auth?client_id=example&redirect_uri=https%3A%2F%2Fapi.workos.com%2Fsso%2Fcallback&response_type=code&scope=openid%20profile%20email", result.URL)
+	client := workos.NewClient("sk_test", workos.WithClientID("client_test"))
+	url := client.SSO().GetAuthorizationURL(&workos.SSOGetAuthorizationURLParams{})
+	require.NotEmpty(t, url)
+	require.Contains(t, url, "/sso/authorize")
 }
 
 func TestSSO_GetLogoutURL(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "GET", r.Method)
-		require.Equal(t, "/sso/logout", r.URL.Path)
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.SSO().GetLogoutURL(context.Background(), &workos.SSOGetLogoutURLParams{})
-	require.NoError(t, err)
+	client := workos.NewClient("sk_test", workos.WithClientID("client_test"))
+	url := client.SSO().GetLogoutURL(&workos.SSOGetLogoutURLParams{})
+	require.NotEmpty(t, url)
+	require.Contains(t, url, "/sso/logout")
 }
 
 func TestSSO_AuthorizeLogout(t *testing.T) {

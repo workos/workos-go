@@ -38,7 +38,7 @@ type OrganizationsCreateParams struct {
 	// DomainData is the domains associated with the organization, including verification state.
 	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
 	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is an external identifier for the Organization.
 	ExternalID *string `json:"external_id,omitempty"`
 }
@@ -91,7 +91,7 @@ type OrganizationsUpdateParams struct {
 	// StripeCustomerID is the Stripe customer ID associated with the organization.
 	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
 	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is an external identifier for the Organization.
 	ExternalID *string `json:"external_id,omitempty"`
 }

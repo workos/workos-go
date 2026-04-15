@@ -77,29 +77,6 @@ func TestConnect_ListApplications_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
-func TestConnect_CreateApplication(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "POST", r.Method)
-		require.Equal(t, "/connect/applications", r.URL.Path)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connect_application.json")
-		if err != nil {
-			t.Fatalf("failed to read fixture: %v", err)
-		}
-		w.Write(fixture)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateApplication(context.Background(), &workos.ConnectCreateApplicationParams{})
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	require.Equal(t, "conn_app_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "client_01HXYZ123456789ABCDEFGHIJ", result.ClientID)
-	require.Equal(t, "My Application", result.Name)
-}
-
 func TestConnect_GetApplication(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)

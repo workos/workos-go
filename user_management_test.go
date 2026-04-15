@@ -35,39 +35,11 @@ func TestUserManagement_GetJWKS(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestUserManagement_CreateAuthenticate(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "POST", r.Method)
-		require.Equal(t, "/user_management/authenticate", r.URL.Path)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/authenticate_response.json")
-		if err != nil {
-			t.Fatalf("failed to read fixture: %v", err)
-		}
-		w.Write(fixture)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().CreateAuthenticate(context.Background(), &workos.UserManagementCreateAuthenticateParams{})
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	require.Equal(t, "eyJhb.nNzb19vaWRjX2tleV9.lc5Uk4yWVk5In0", result.AccessToken)
-	require.Equal(t, "yAjhKk123NLIjdrBdGZPf8pLIDvK", result.RefreshToken)
-}
-
 func TestUserManagement_GetAuthorizationURL(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "GET", r.Method)
-		require.Equal(t, "/user_management/authorize", r.URL.Path)
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.UserManagement().GetAuthorizationURL(context.Background(), &workos.UserManagementGetAuthorizationURLParams{})
-	require.NoError(t, err)
+	client := workos.NewClient("sk_test", workos.WithClientID("client_test"))
+	url := client.UserManagement().GetAuthorizationURL(&workos.UserManagementGetAuthorizationURLParams{})
+	require.NotEmpty(t, url)
+	require.Contains(t, url, "/user_management/authorize")
 }
 
 func TestUserManagement_CreateDevice(t *testing.T) {
@@ -96,16 +68,10 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 }
 
 func TestUserManagement_GetLogoutURL(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "GET", r.Method)
-		require.Equal(t, "/user_management/sessions/logout", r.URL.Path)
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.UserManagement().GetLogoutURL(context.Background(), &workos.UserManagementGetLogoutURLParams{})
-	require.NoError(t, err)
+	client := workos.NewClient("sk_test", workos.WithClientID("client_test"))
+	url := client.UserManagement().GetLogoutURL(&workos.UserManagementGetLogoutURLParams{})
+	require.NotEmpty(t, url)
+	require.Contains(t, url, "/user_management/sessions/logout")
 }
 
 func TestUserManagement_RevokeSession(t *testing.T) {

@@ -73,7 +73,7 @@ func TestVerifyPayload_MalformedHeader(t *testing.T) {
 }
 
 func TestConstructEvent_ValidPayload(t *testing.T) {
-	body := `{"event":"user.created","data":{"id":"user_123"}}`
+	body := `{"id":"event_01","object":"event","event":"user.created","created_at":"2024-01-01T00:00:00Z","data":{"id":"user_123"}}`
 	now := time.Now()
 	sigHeader := buildWebhookSigHeader(testWebhookSecret, body, now)
 
@@ -82,11 +82,10 @@ func TestConstructEvent_ValidPayload(t *testing.T) {
 
 	event, err := verifier.ConstructEvent(sigHeader, body)
 	require.NoError(t, err)
-	require.Equal(t, "user.created", event["event"])
-
-	data, ok := event["data"].(map[string]interface{})
-	require.True(t, ok)
-	require.Equal(t, "user_123", data["id"])
+	require.Equal(t, "event_01", event.ID)
+	require.Equal(t, "event", event.Object)
+	require.Equal(t, "user.created", event.Event)
+	require.Equal(t, "user_123", event.Data["id"])
 }
 
 func TestComputeWebhookSignature(t *testing.T) {

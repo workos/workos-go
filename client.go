@@ -157,6 +157,26 @@ func (c *Client) request(
 	return nil, lastErr
 }
 
+// buildURL composes a fully-qualified URL without making an HTTP request.
+// Used by OAuth redirect endpoints (e.g. /sso/authorize, /user_management/sessions/logout)
+// that need to hand a URL back to the caller for browser redirection.
+// Honors WithRequestBaseURL from opts for parity with request().
+func (c *Client) buildURL(path string, query url.Values, opts []RequestOption) string {
+	cfg := &requestConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	baseURL := c.baseURL
+	if cfg.baseURL != "" {
+		baseURL = cfg.baseURL
+	}
+	u := strings.TrimRight(baseURL, "/") + path
+	if encoded := query.Encode(); encoded != "" {
+		u += "?" + encoded
+	}
+	return u
+}
+
 func encodeQuery(params interface{}) (url.Values, error) {
 	if params == nil {
 		return nil, nil

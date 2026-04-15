@@ -83,7 +83,7 @@ type SSOGetAuthorizationURLParams struct {
 
 // GetAuthorizationURL initiate SSO
 // Initiates the single sign-on flow.
-func (s *ssoService) GetAuthorizationURL(ctx context.Context, params *SSOGetAuthorizationURLParams, opts ...RequestOption) (*SSOAuthorizeURLResponse, error) {
+func (s *ssoService) GetAuthorizationURL(params *SSOGetAuthorizationURLParams, opts ...RequestOption) string {
 	query := url.Values{}
 	query.Set("response_type", "code")
 	if s.client.clientID != "" {
@@ -122,12 +122,7 @@ func (s *ssoService) GetAuthorizationURL(ctx context.Context, params *SSOGetAuth
 	if params.Nonce != nil {
 		query.Set("nonce", *params.Nonce)
 	}
-	var result SSOAuthorizeURLResponse
-	_, err := s.client.request(ctx, "GET", "/sso/authorize", query, nil, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+	return s.client.buildURL("/sso/authorize", query, opts)
 }
 
 // SSOGetLogoutURLParams contains the parameters for GetLogoutURL.
@@ -139,9 +134,10 @@ type SSOGetLogoutURLParams struct {
 // GetLogoutURL logout Redirect
 // Logout allows to sign out a user from your application by triggering the identity provider sign out flow. This `GET` endpoint should be a redirection, since the identity provider user will be identified in the browser session.
 // Before redirecting to this endpoint, you need to generate a short-lived logout token using the [Logout Authorize](https://workos.com/docs/reference/sso/logout/authorize) endpoint.
-func (s *ssoService) GetLogoutURL(ctx context.Context, params *SSOGetLogoutURLParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "GET", "/sso/logout", params, nil, nil, opts)
-	return err
+func (s *ssoService) GetLogoutURL(params *SSOGetLogoutURLParams, opts ...RequestOption) string {
+	query := url.Values{}
+	query.Set("token", params.Token)
+	return s.client.buildURL("/sso/logout", query, opts)
 }
 
 // SSOAuthorizeLogoutParams contains the parameters for AuthorizeLogout.

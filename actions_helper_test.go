@@ -74,17 +74,20 @@ func TestActionsHelper_VerifyHeader_ExpiredTimestamp(t *testing.T) {
 }
 
 func TestActionsHelper_ConstructAction(t *testing.T) {
-	payload := `{"type":"authentication","action_id":"action_123","user":{"email":"test@example.com"}}`
+	payload := `{"id":"action_01","event":"authentication_action.created","object":"event","created_at":"2024-01-01T00:00:00Z","data":{"type":"authentication","action_id":"action_123","user":{"email":"test@example.com"}}}`
 	now := time.Now()
 	sigHeader := buildActionSigHeader(testActionSecret, payload, now)
 
 	helper := workos.NewActionsHelper()
 	action, err := helper.ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
-	require.Equal(t, "authentication", action["type"])
-	require.Equal(t, "action_123", action["action_id"])
+	require.Equal(t, "action_01", action.ID)
+	require.Equal(t, "authentication_action.created", action.Event)
+	require.Equal(t, "event", action.Object)
+	require.Equal(t, "authentication", action.Data["type"])
+	require.Equal(t, "action_123", action.Data["action_id"])
 
-	user, ok := action["user"].(map[string]interface{})
+	user, ok := action.Data["user"].(map[string]interface{})
 	require.True(t, ok)
 	require.Equal(t, "test@example.com", user["email"])
 }
@@ -110,20 +113,13 @@ func TestActionsHelper_SignResponse(t *testing.T) {
 		testActionSecret,
 	)
 	require.NoError(t, err)
-
-	// Check that the result has "payload" and "sig" keys.
-	payloadB64, ok := result["payload"].(string)
-	require.True(t, ok)
-	require.NotEmpty(t, payloadB64)
-
-	sig, ok := result["sig"].(string)
-	require.True(t, ok)
-	require.NotEmpty(t, sig)
-	require.Contains(t, sig, "t=")
-	require.Contains(t, sig, "v1=")
+	require.NotEmpty(t, result.Payload)
+	require.NotEmpty(t, result.Sig)
+	require.Contains(t, result.Sig, "t=")
+	require.Contains(t, result.Sig, "v1=")
 
 	// Decode the payload and verify its contents.
-	decoded, err := base64.StdEncoding.DecodeString(payloadB64)
+	decoded, err := base64.StdEncoding.DecodeString(result.Payload)
 	require.NoError(t, err)
 
 	var body map[string]interface{}
@@ -145,10 +141,7 @@ func TestActionsHelper_SignResponse_Deny(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	payloadB64, ok := result["payload"].(string)
-	require.True(t, ok)
-
-	decoded, err := base64.StdEncoding.DecodeString(payloadB64)
+	decoded, err := base64.StdEncoding.DecodeString(result.Payload)
 	require.NoError(t, err)
 
 	var body map[string]interface{}
@@ -170,10 +163,7 @@ func TestActionsHelper_SignResponse_SignatureIsVerifiable(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	payloadB64 := result["payload"].(string)
-	sigHeader := result["sig"].(string)
-
 	// The signature produced by SignResponse should be verifiable by VerifyHeader.
-	err = helper.VerifyHeader(payloadB64, sigHeader, testActionSecret)
+	err = helper.VerifyHeader(result.Payload, result.Sig, testActionSecret)
 	require.NoError(t, err)
 }

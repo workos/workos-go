@@ -25,22 +25,6 @@ func (s *userManagementService) GetJWKS(ctx context.Context, clientID string, op
 	return &result, nil
 }
 
-// UserManagementCreateAuthenticateParams contains the parameters for CreateAuthenticate.
-type UserManagementCreateAuthenticateParams struct {
-	Body interface{} `json:"-"`
-}
-
-// CreateAuthenticate authenticate
-// Authenticate a user with a specified [authentication method](https://workos.com/docs/reference/authkit/authentication).
-func (s *userManagementService) CreateAuthenticate(ctx context.Context, params *UserManagementCreateAuthenticateParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	var result AuthenticateResponse
-	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, params.Body, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
 // AuthenticateWithPasswordParams contains the parameters for AuthenticateWithPassword.
 type AuthenticateWithPasswordParams struct {
 	// Email is the user's email address.
@@ -57,31 +41,32 @@ type AuthenticateWithPasswordParams struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithPasswordBody is the JSON request body for AuthenticateWithPassword.
+type authenticateWithPasswordBody struct {
+	GrantType       string  `json:"grant_type"`
+	Email           string  `json:"email"`
+	Password        string  `json:"password"`
+	ClientID        string  `json:"client_id,omitempty"`
+	ClientSecret    string  `json:"client_secret,omitempty"`
+	InvitationToken *string `json:"invitation_token,omitempty"`
+	IPAddress       *string `json:"ip_address,omitempty"`
+	DeviceID        *string `json:"device_id,omitempty"`
+	UserAgent       *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithPassword Authenticate with password.
 func (s *userManagementService) AuthenticateWithPassword(ctx context.Context, params *AuthenticateWithPasswordParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type": "password",
-		"email":      params.Email,
-		"password":   params.Password,
+	body := authenticateWithPasswordBody{
+		GrantType: "password",
+		Email:     params.Email,
+		Password:  params.Password,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.InvitationToken != nil {
-		body["invitation_token"] = *params.InvitationToken
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.InvitationToken = params.InvitationToken
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -98,27 +83,28 @@ type AuthenticateWithCodeParams struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithCodeBody is the JSON request body for AuthenticateWithCode.
+type authenticateWithCodeBody struct {
+	GrantType    string  `json:"grant_type"`
+	Code         string  `json:"code"`
+	ClientID     string  `json:"client_id,omitempty"`
+	ClientSecret string  `json:"client_secret,omitempty"`
+	IPAddress    *string `json:"ip_address,omitempty"`
+	DeviceID     *string `json:"device_id,omitempty"`
+	UserAgent    *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithCode Authenticate with code.
 func (s *userManagementService) AuthenticateWithCode(ctx context.Context, params *AuthenticateWithCodeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type": "authorization_code",
-		"code":       params.Code,
+	body := authenticateWithCodeBody{
+		GrantType: "authorization_code",
+		Code:      params.Code,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -141,30 +127,30 @@ type AuthenticateWithRefreshTokenParams struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithRefreshTokenBody is the JSON request body for AuthenticateWithRefreshToken.
+type authenticateWithRefreshTokenBody struct {
+	GrantType      string  `json:"grant_type"`
+	RefreshToken   string  `json:"refresh_token"`
+	ClientID       string  `json:"client_id,omitempty"`
+	ClientSecret   string  `json:"client_secret,omitempty"`
+	OrganizationID *string `json:"organization_id,omitempty"`
+	IPAddress      *string `json:"ip_address,omitempty"`
+	DeviceID       *string `json:"device_id,omitempty"`
+	UserAgent      *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithRefreshToken Authenticate with refresh token.
 func (s *userManagementService) AuthenticateWithRefreshToken(ctx context.Context, params *AuthenticateWithRefreshTokenParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type":    "refresh_token",
-		"refresh_token": params.RefreshToken,
+	body := authenticateWithRefreshTokenBody{
+		GrantType:    "refresh_token",
+		RefreshToken: params.RefreshToken,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.OrganizationID != nil {
-		body["organization_id"] = *params.OrganizationID
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.OrganizationID = params.OrganizationID
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -183,31 +169,32 @@ type AuthenticateWithMagicAuthParams struct {
 	UserAgent       *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithMagicAuthBody is the JSON request body for AuthenticateWithMagicAuth.
+type authenticateWithMagicAuthBody struct {
+	GrantType       string  `json:"grant_type"`
+	Code            string  `json:"code"`
+	Email           string  `json:"email"`
+	ClientID        string  `json:"client_id,omitempty"`
+	ClientSecret    string  `json:"client_secret,omitempty"`
+	InvitationToken *string `json:"invitation_token,omitempty"`
+	IPAddress       *string `json:"ip_address,omitempty"`
+	DeviceID        *string `json:"device_id,omitempty"`
+	UserAgent       *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithMagicAuth Authenticate with magic auth.
 func (s *userManagementService) AuthenticateWithMagicAuth(ctx context.Context, params *AuthenticateWithMagicAuthParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type": "urn:workos:oauth:grant-type:magic-auth:code",
-		"code":       params.Code,
-		"email":      params.Email,
+	body := authenticateWithMagicAuthBody{
+		GrantType: "urn:workos:oauth:grant-type:magic-auth:code",
+		Code:      params.Code,
+		Email:     params.Email,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.InvitationToken != nil {
-		body["invitation_token"] = *params.InvitationToken
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.InvitationToken = params.InvitationToken
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -225,30 +212,30 @@ type AuthenticateWithEmailVerificationParams struct {
 	UserAgent                  *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithEmailVerificationBody is the JSON request body for AuthenticateWithEmailVerification.
+type authenticateWithEmailVerificationBody struct {
+	GrantType                  string  `json:"grant_type"`
+	Code                       string  `json:"code"`
+	ClientID                   string  `json:"client_id,omitempty"`
+	ClientSecret               string  `json:"client_secret,omitempty"`
+	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithEmailVerification Authenticate with email verification.
 func (s *userManagementService) AuthenticateWithEmailVerification(ctx context.Context, params *AuthenticateWithEmailVerificationParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type": "urn:workos:oauth:grant-type:email-verification:code",
-		"code":       params.Code,
+	body := authenticateWithEmailVerificationBody{
+		GrantType: "urn:workos:oauth:grant-type:email-verification:code",
+		Code:      params.Code,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.PendingAuthenticationToken != nil {
-		body["pending_authentication_token"] = *params.PendingAuthenticationToken
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.PendingAuthenticationToken = params.PendingAuthenticationToken
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -267,29 +254,32 @@ type AuthenticateWithTOTPParams struct {
 	UserAgent                  *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithTOTPBody is the JSON request body for AuthenticateWithTOTP.
+type authenticateWithTOTPBody struct {
+	GrantType                  string  `json:"grant_type"`
+	Code                       string  `json:"code"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	AuthenticationChallengeID  string  `json:"authentication_challenge_id"`
+	ClientID                   string  `json:"client_id,omitempty"`
+	ClientSecret               string  `json:"client_secret,omitempty"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithTOTP Authenticate with totp.
 func (s *userManagementService) AuthenticateWithTOTP(ctx context.Context, params *AuthenticateWithTOTPParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type":                   "urn:workos:oauth:grant-type:mfa-totp",
-		"code":                         params.Code,
-		"pending_authentication_token": params.PendingAuthenticationToken,
-		"authentication_challenge_id":  params.AuthenticationChallengeID,
+	body := authenticateWithTOTPBody{
+		GrantType:                  "urn:workos:oauth:grant-type:mfa-totp",
+		Code:                       params.Code,
+		PendingAuthenticationToken: params.PendingAuthenticationToken,
+		AuthenticationChallengeID:  params.AuthenticationChallengeID,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -307,28 +297,30 @@ type AuthenticateWithOrganizationSelectionParams struct {
 	UserAgent                  *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithOrganizationSelectionBody is the JSON request body for AuthenticateWithOrganizationSelection.
+type authenticateWithOrganizationSelectionBody struct {
+	GrantType                  string  `json:"grant_type"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	OrganizationID             string  `json:"organization_id"`
+	ClientID                   string  `json:"client_id,omitempty"`
+	ClientSecret               string  `json:"client_secret,omitempty"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithOrganizationSelection Authenticate with organization selection.
 func (s *userManagementService) AuthenticateWithOrganizationSelection(ctx context.Context, params *AuthenticateWithOrganizationSelectionParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type":                   "urn:workos:oauth:grant-type:organization-selection",
-		"pending_authentication_token": params.PendingAuthenticationToken,
-		"organization_id":              params.OrganizationID,
+	body := authenticateWithOrganizationSelectionBody{
+		GrantType:                  "urn:workos:oauth:grant-type:organization-selection",
+		PendingAuthenticationToken: params.PendingAuthenticationToken,
+		OrganizationID:             params.OrganizationID,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -345,24 +337,26 @@ type AuthenticateWithDeviceCodeParams struct {
 	UserAgent  *string `json:"user_agent,omitempty"`
 }
 
+// authenticateWithDeviceCodeBody is the JSON request body for AuthenticateWithDeviceCode.
+type authenticateWithDeviceCodeBody struct {
+	GrantType  string  `json:"grant_type"`
+	DeviceCode string  `json:"device_code"`
+	ClientID   string  `json:"client_id,omitempty"`
+	IPAddress  *string `json:"ip_address,omitempty"`
+	DeviceID   *string `json:"device_id,omitempty"`
+	UserAgent  *string `json:"user_agent,omitempty"`
+}
+
 // AuthenticateWithDeviceCode Authenticate with device code.
 func (s *userManagementService) AuthenticateWithDeviceCode(ctx context.Context, params *AuthenticateWithDeviceCodeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	body := map[string]interface{}{
-		"grant_type":  "urn:ietf:params:oauth:grant-type:device_code",
-		"device_code": params.DeviceCode,
+	body := authenticateWithDeviceCodeBody{
+		GrantType:  "urn:ietf:params:oauth:grant-type:device_code",
+		DeviceCode: params.DeviceCode,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if params.IPAddress != nil {
-		body["ip_address"] = *params.IPAddress
-	}
-	if params.DeviceID != nil {
-		body["device_id"] = *params.DeviceID
-	}
-	if params.UserAgent != nil {
-		body["user_agent"] = *params.UserAgent
-	}
+	body.ClientID = s.client.clientID
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -406,7 +400,7 @@ type UserManagementGetAuthorizationURLParams struct {
 
 // GetAuthorizationURL get an authorization URL
 // Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
-func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params *UserManagementGetAuthorizationURLParams, opts ...RequestOption) error {
+func (s *userManagementService) GetAuthorizationURL(params *UserManagementGetAuthorizationURLParams, opts ...RequestOption) string {
 	query := url.Values{}
 	query.Set("response_type", "code")
 	if s.client.clientID != "" {
@@ -454,8 +448,7 @@ func (s *userManagementService) GetAuthorizationURL(ctx context.Context, params 
 		query.Set("organization_id", *params.OrganizationID)
 	}
 	query.Set("redirect_uri", params.RedirectURI)
-	_, err := s.client.request(ctx, "GET", "/user_management/authorize", query, nil, nil, opts)
-	return err
+	return s.client.buildURL("/user_management/authorize", query, opts)
 }
 
 // UserManagementCreateDeviceParams contains the parameters for CreateDevice.
@@ -485,9 +478,13 @@ type UserManagementGetLogoutURLParams struct {
 
 // GetLogoutURL logout
 // Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
-func (s *userManagementService) GetLogoutURL(ctx context.Context, params *UserManagementGetLogoutURLParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "GET", "/user_management/sessions/logout", params, nil, nil, opts)
-	return err
+func (s *userManagementService) GetLogoutURL(params *UserManagementGetLogoutURLParams, opts ...RequestOption) string {
+	query := url.Values{}
+	query.Set("session_id", params.SessionID)
+	if params.ReturnTo != nil {
+		query.Set("return_to", *params.ReturnTo)
+	}
+	return s.client.buildURL("/user_management/sessions/logout", query, opts)
 }
 
 // UserManagementRevokeSessionParams contains the parameters for RevokeSession.
@@ -616,7 +613,7 @@ type UserManagementCreateParams struct {
 	// EmailVerified is whether the user's email has been verified.
 	EmailVerified *bool `json:"email_verified,omitempty"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
 }
@@ -671,7 +668,7 @@ type UserManagementUpdateParams struct {
 	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`.
 	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
 	// Locale is the user's preferred locale.

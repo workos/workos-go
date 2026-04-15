@@ -81,17 +81,19 @@ func (w *WebhookVerifier) VerifyPayload(sigHeader string, body string) (string, 
 }
 
 // ConstructEvent verifies the webhook and returns the deserialized event.
-func (w *WebhookVerifier) ConstructEvent(sigHeader string, body string) (map[string]interface{}, error) {
+// The returned EventSchema carries the standard envelope fields; callers
+// can inspect Event/Data to dispatch on event type.
+func (w *WebhookVerifier) ConstructEvent(sigHeader string, body string) (*EventSchema, error) {
 	verified, err := w.VerifyPayload(sigHeader, body)
 	if err != nil {
 		return nil, err
 	}
 
-	var event map[string]interface{}
+	var event EventSchema
 	if err := json.Unmarshal([]byte(verified), &event); err != nil {
 		return nil, fmt.Errorf("workos: failed to parse webhook body: %w", err)
 	}
-	return event, nil
+	return &event, nil
 }
 
 // ComputeWebhookSignature computes the HMAC-SHA256 signature for a webhook payload.

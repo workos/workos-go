@@ -2,7 +2,7 @@
 
 package workos
 
-// UserObject represents an user object.
+// UserObject represents a user object.
 type UserObject struct {
 	// ID is your application's user identifier, which will be stored as an [`external_id`](https://workos.com/docs/authkit/metadata/external-identifiers). Used for upserting and deduplication.
 	ID string `json:"id"`
@@ -16,7 +16,7 @@ type UserObject struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// UserConsentOption represents an user consent option.
+// UserConsentOption represents a user consent option.
 type UserConsentOption struct {
 	// Claim is the claim name for this consent option.
 	Claim string `json:"claim"`
@@ -28,7 +28,7 @@ type UserConsentOption struct {
 	Choices []*UserConsentOptionChoice `json:"choices"`
 }
 
-// UserManagementLoginRequest represents an user management login request.
+// UserManagementLoginRequest represents a user management login request.
 type UserManagementLoginRequest struct {
 	// ExternalAuthID is identifier provided when AuthKit redirected to your login page.
 	ExternalAuthID string `json:"external_auth_id"`
@@ -61,9 +61,9 @@ type CreateOAuthApplication struct {
 	// Description is a description for the application.
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes *[]string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
 	// RedirectURIs is redirect URIs for the application.
-	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
+	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -81,7 +81,7 @@ type CreateM2MApplication struct {
 	// Description is a description for the application.
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes *[]string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
 	// OrganizationID is the organization ID this application belongs to.
 	OrganizationID string `json:"organization_id"`
 }
@@ -93,9 +93,9 @@ type UpdateOAuthApplication struct {
 	// Description is a description for the application.
 	Description *string `json:"description,omitempty"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes *[]string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
-	RedirectURIs *[]*RedirectURIInput `json:"redirect_uris,omitempty"`
+	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
 }
 
 // CreateApplicationSecret represents a create application secret.
@@ -365,7 +365,7 @@ type OrganizationInput struct {
 	// DomainData is the domains associated with the organization, including verification state.
 	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
 	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is an external identifier for the Organization.
 	ExternalID *string `json:"external_id,omitempty"`
 }
@@ -385,7 +385,7 @@ type UpdateOrganization struct {
 	// StripeCustomerID is the Stripe customer ID associated with the organization.
 	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
 	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is an external identifier for the Organization.
 	ExternalID *string `json:"external_id,omitempty"`
 }
@@ -512,7 +512,7 @@ type CreateUser struct {
 	// EmailVerified is whether the user's email has been verified.
 	EmailVerified *bool `json:"email_verified,omitempty"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
 }
@@ -534,7 +534,7 @@ type UpdateUser struct {
 	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`.
 	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata *map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
 	// Locale is the user's preferred locale.
@@ -3787,7 +3787,7 @@ type SessionRevokedData struct {
 // SessionRevokedDataImpersonator is an alias for AuthenticateResponseImpersonator.
 type SessionRevokedDataImpersonator = AuthenticateResponseImpersonator
 
-// UserCreated represents an user created.
+// UserCreated represents a user created.
 type UserCreated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -3801,7 +3801,7 @@ type UserCreated struct {
 	Object string `json:"object"`
 }
 
-// UserDeleted represents an user deleted.
+// UserDeleted represents a user deleted.
 type UserDeleted struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -3815,7 +3815,7 @@ type UserDeleted struct {
 	Object string `json:"object"`
 }
 
-// UserUpdated represents an user updated.
+// UserUpdated represents a user updated.
 type UserUpdated struct {
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
@@ -4301,7 +4301,7 @@ type RedirectURI struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// UserAuthenticationFactorEnrollResponse represents an user authentication factor enroll response.
+// UserAuthenticationFactorEnrollResponse represents a user authentication factor enroll response.
 type UserAuthenticationFactorEnrollResponse struct {
 	// AuthenticationFactor is the [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor) object that represents the additional authentication method used on top of the existing authentication strategy.
 	AuthenticationFactor *AuthenticationFactorEnrolled `json:"authentication_factor"`
@@ -4329,7 +4329,7 @@ type MagicAuth struct {
 	Code string `json:"code"`
 }
 
-// UserInvite represents an user invite.
+// UserInvite represents a user invite.
 type UserInvite struct {
 	// Object distinguishes the invitation object.
 	Object string `json:"object"`
@@ -4361,7 +4361,7 @@ type UserInvite struct {
 	AcceptInvitationURL string `json:"accept_invitation_url"`
 }
 
-// UserOrganizationMembership represents an user organization membership.
+// UserOrganizationMembership represents a user organization membership.
 type UserOrganizationMembership struct {
 	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
@@ -4543,7 +4543,7 @@ type Profile struct {
 	// Role is the role assigned to the user within the organization, if applicable.
 	Role *SlimRole `json:"role,omitempty"`
 	// Roles is the roles assigned to the user within the organization, if applicable.
-	Roles *[]*SlimRole `json:"roles,omitempty"`
+	Roles []*SlimRole `json:"roles,omitempty"`
 	// Groups is the groups the user belongs to, as returned by the identity provider.
 	Groups []string `json:"groups,omitempty"`
 	// CustomAttributes is custom attribute mappings defined for the connection, returned as key-value pairs.
@@ -4642,7 +4642,7 @@ type DataIntegrationsListResponseData struct {
 	// CredentialsType is the type of credentials used by the provider (e.g., `oauth2`).
 	CredentialsType string `json:"credentials_type"`
 	// Scopes is the OAuth scopes configured for this provider, or `null` if none are configured.
-	Scopes *[]string `json:"scopes"`
+	Scopes []string `json:"scopes"`
 	// Ownership is whether the provider is owned by a user or organization.
 	Ownership DataIntegrationsListResponseDataOwnership `json:"ownership"`
 	// CreatedAt is the timestamp when the provider was created.
@@ -4740,7 +4740,7 @@ type ConnectionOption struct {
 	SigningCert *string `json:"signing_cert"`
 }
 
-// UserOrganizationMembershipBaseListData represents an user organization membership base list data.
+// UserOrganizationMembershipBaseListData represents a user organization membership base list data.
 type UserOrganizationMembershipBaseListData struct {
 	// Object distinguishes the organization membership object.
 	Object string `json:"object"`
@@ -4830,7 +4830,7 @@ type AuthorizedConnectApplicationListData struct {
 // APIKeyOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyOwner = APIKeyCreatedDataOwner
 
-// UserConsentOptionChoice represents an user consent option choice.
+// UserConsentOptionChoice represents a user consent option choice.
 type UserConsentOptionChoice struct {
 	// Value is the value of this choice.
 	Value *string `json:"value,omitempty"`
@@ -5226,7 +5226,7 @@ type EmailChangeConfirmationUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// UserIdentitiesGetItem represents an user identities get item.
+// UserIdentitiesGetItem represents a user identities get item.
 type UserIdentitiesGetItem struct {
 	// IdpID is the unique ID of the user in the external identity provider.
 	IdpID string `json:"idp_id"`
@@ -5236,7 +5236,7 @@ type UserIdentitiesGetItem struct {
 	Provider UserIdentitiesGetItemProvider `json:"provider"`
 }
 
-// UserSessionsListItem represents an user sessions list item.
+// UserSessionsListItem represents a user sessions list item.
 type UserSessionsListItem struct {
 	// Object distinguishes the session object.
 	Object string `json:"object"`
