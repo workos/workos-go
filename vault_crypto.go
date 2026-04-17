@@ -24,7 +24,7 @@ type VaultEncryptResult struct {
 }
 
 // Encrypt generates a data key and encrypts data locally using AES-256-GCM.
-func (s *vaultService) Encrypt(ctx context.Context, data string, keyContext KeyContext, associatedData string, opts ...RequestOption) (*VaultEncryptResult, error) {
+func (s *VaultService) Encrypt(ctx context.Context, data string, keyContext KeyContext, associatedData string, opts ...RequestOption) (*VaultEncryptResult, error) {
 	keyPair, err := s.CreateDataKey(ctx, &VaultCreateDataKeyParams{
 		Context: keyContext,
 	}, opts...)
@@ -45,7 +45,7 @@ func (s *vaultService) Encrypt(ctx context.Context, data string, keyContext KeyC
 }
 
 // Decrypt decrypts locally encrypted data by first decrypting the data key via the API.
-func (s *vaultService) Decrypt(ctx context.Context, encryptedData string, associatedData string, opts ...RequestOption) (string, error) {
+func (s *VaultService) Decrypt(ctx context.Context, encryptedData string, associatedData string, opts ...RequestOption) (string, error) {
 	// Parse the encrypted data to extract the encrypted keys and context.
 	raw, err := base64.StdEncoding.DecodeString(encryptedData)
 	if err != nil {

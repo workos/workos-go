@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -13,27 +14,32 @@ type AuthorizationService struct {
 	client *Client
 }
 
-// AuthorizationCheckParams contains the parameters for Check.
-type AuthorizationCheckParams struct {
-	// PermissionSlug is the slug of the permission to check.
-	PermissionSlug string `json:"permission_slug"`
-	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
-	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
-	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
+// AuthorizationResourceTarget is one of:
+//   - AuthorizationResourceTargetByID
+//   - AuthorizationResourceTargetByExternalID
+type AuthorizationResourceTarget interface {
+	isAuthorizationResourceTarget()
+	applyToBody(map[string]any)
 }
 
-// Check check authorization
-// Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
-func (s *AuthorizationService) Check(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckParams, opts ...RequestOption) (*AuthorizationCheck, error) {
-	var result AuthorizationCheck
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/check", organizationMembershipID), nil, params, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type AuthorizationResourceTargetByID struct {
+	ResourceID string
+}
+
+func (p AuthorizationResourceTargetByID) isAuthorizationResourceTarget() {}
+func (p AuthorizationResourceTargetByID) applyToBody(m map[string]any) {
+	m["resource_id"] = p.ResourceID
+}
+
+type AuthorizationResourceTargetByExternalID struct {
+	ResourceExternalID string
+	ResourceTypeSlug   string
+}
+
+func (p AuthorizationResourceTargetByExternalID) isAuthorizationResourceTarget() {}
+func (p AuthorizationResourceTargetByExternalID) applyToBody(m map[string]any) {
+	m["resource_external_id"] = p.ResourceExternalID
+	m["resource_type_slug"] = p.ResourceTypeSlug
 }
 
 // AuthorizationParentResource is one of:
@@ -42,6 +48,7 @@ func (s *AuthorizationService) Check(ctx context.Context, organizationMembership
 type AuthorizationParentResource interface {
 	isAuthorizationParentResource()
 	applyToQuery(url.Values)
+	applyToBody(map[string]any)
 }
 
 type AuthorizationParentResourceByID struct {
@@ -51,6 +58,9 @@ type AuthorizationParentResourceByID struct {
 func (p AuthorizationParentResourceByID) isAuthorizationParentResource() {}
 func (p AuthorizationParentResourceByID) applyToQuery(v url.Values) {
 	v.Set("parent_resource_id", p.ID)
+}
+func (p AuthorizationParentResourceByID) applyToBody(m map[string]any) {
+	m["parent_resource_id"] = p.ID
 }
 
 type AuthorizationParentResourceByExternalID struct {
@@ -62,6 +72,77 @@ func (p AuthorizationParentResourceByExternalID) isAuthorizationParentResource()
 func (p AuthorizationParentResourceByExternalID) applyToQuery(v url.Values) {
 	v.Set("parent_resource_type_slug", p.TypeSlug)
 	v.Set("parent_resource_external_id", p.ExternalID)
+}
+func (p AuthorizationParentResourceByExternalID) applyToBody(m map[string]any) {
+	m["parent_resource_type_slug"] = p.TypeSlug
+	m["parent_resource_external_id"] = p.ExternalID
+}
+
+// AuthorizationParent is one of:
+//   - AuthorizationParentByID
+//   - AuthorizationParentByExternalID
+type AuthorizationParent interface {
+	isAuthorizationParent()
+	applyToQuery(url.Values)
+}
+
+type AuthorizationParentByID struct {
+	ResourceID string
+}
+
+func (p AuthorizationParentByID) isAuthorizationParent() {}
+func (p AuthorizationParentByID) applyToQuery(v url.Values) {
+	v.Set("parent_resource_id", p.ResourceID)
+}
+
+type AuthorizationParentByExternalID struct {
+	ResourceTypeSlug string
+	ExternalID       string
+}
+
+func (p AuthorizationParentByExternalID) isAuthorizationParent() {}
+func (p AuthorizationParentByExternalID) applyToQuery(v url.Values) {
+	v.Set("parent_resource_type_slug", p.ResourceTypeSlug)
+	v.Set("parent_external_id", p.ExternalID)
+}
+
+// AuthorizationCheckParams contains the parameters for Check.
+type AuthorizationCheckParams struct {
+	// PermissionSlug is the slug of the permission to check.
+	PermissionSlug string `json:"permission_slug"`
+	// ResourceTarget identifies the resource target (required).
+	ResourceTarget AuthorizationResourceTarget `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationCheckParams.
+func (p AuthorizationCheckParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationCheckParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget != nil {
+		p.ResourceTarget.applyToBody(m)
+	}
+	return json.Marshal(m)
+}
+
+// Check check authorization
+// Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
+func (s *AuthorizationService) Check(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckParams, opts ...RequestOption) (*AuthorizationCheck, error) {
+	var result AuthorizationCheck
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/check", organizationMembershipID), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 // AuthorizationListOrganizationMembershipResourcesParams contains the parameters for ListOrganizationMembershipResources.
@@ -134,12 +215,28 @@ func (s *AuthorizationService) ListOrganizationMembershipRoleAssignments(ctx con
 type AuthorizationAssignRoleParams struct {
 	// RoleSlug is the slug of the role to assign.
 	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
-	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
-	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
+	// ResourceTarget identifies the resource target (required).
+	ResourceTarget AuthorizationResourceTarget `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationAssignRoleParams.
+func (p AuthorizationAssignRoleParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationAssignRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget != nil {
+		p.ResourceTarget.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // AssignRole assign a role
@@ -157,12 +254,28 @@ func (s *AuthorizationService) AssignRole(ctx context.Context, organizationMembe
 type AuthorizationRemoveRoleParams struct {
 	// RoleSlug is the slug of the role to remove.
 	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
-	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
-	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
+	// ResourceTarget identifies the resource target (required).
+	ResourceTarget AuthorizationResourceTarget `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationRemoveRoleParams.
+func (p AuthorizationRemoveRoleParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationRemoveRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget != nil {
+		p.ResourceTarget.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // RemoveRole remove a role assignment
@@ -308,12 +421,28 @@ type AuthorizationUpdateOrganizationResourceParams struct {
 	Name *string `json:"name,omitempty"`
 	// Description is an optional description of the resource.
 	Description *string `json:"description,omitempty"`
-	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
-	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
+	// ParentResource optionally identifies the parent resource.
+	ParentResource AuthorizationParentResource `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationUpdateOrganizationResourceParams.
+func (p AuthorizationUpdateOrganizationResourceParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationUpdateOrganizationResourceParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ParentResource == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ParentResource != nil {
+		p.ParentResource.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // UpdateOrganizationResource update a resource by external ID
@@ -363,20 +492,41 @@ type AuthorizationListResourcesParams struct {
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// ResourceTypeSlug is filter resources by resource type slug.
 	ResourceTypeSlug *string `url:"resource_type_slug,omitempty" json:"-"`
-	// ParentResourceID is filter resources by parent resource ID.
-	ParentResourceID *string `url:"parent_resource_id,omitempty" json:"-"`
-	// ParentResourceTypeSlug is filter resources by parent resource type slug.
-	ParentResourceTypeSlug *string `url:"parent_resource_type_slug,omitempty" json:"-"`
-	// ParentExternalID is filter resources by parent external ID.
-	ParentExternalID *string `url:"parent_external_id,omitempty" json:"-"`
 	// Search is search resources by name.
 	Search *string `url:"search,omitempty" json:"-"`
+	// Parent optionally identifies the parent.
+	Parent AuthorizationParent `url:"-" json:"-"`
 }
 
 // ListResources list resources
 // Get a paginated list of authorization resources.
 func (s *AuthorizationService) ListResources(ctx context.Context, params *AuthorizationListResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
-	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", params, "after", "data", opts)
+	query := url.Values{}
+	if params.Before != nil {
+		query.Set("before", *params.Before)
+	}
+	if params.After != nil {
+		query.Set("after", *params.After)
+	}
+	if params.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%v", *params.Limit))
+	}
+	if params.Order != nil {
+		query.Set("order", fmt.Sprintf("%v", *params.Order))
+	}
+	if params.OrganizationID != nil {
+		query.Set("organization_id", *params.OrganizationID)
+	}
+	if params.ResourceTypeSlug != nil {
+		query.Set("resource_type_slug", *params.ResourceTypeSlug)
+	}
+	if params.Search != nil {
+		query.Set("search", *params.Search)
+	}
+	if params.Parent != nil {
+		params.Parent.applyToQuery(query)
+	}
+	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", query, "after", "data", opts)
 }
 
 // AuthorizationCreateResourceParams contains the parameters for CreateResource.
@@ -391,12 +541,28 @@ type AuthorizationCreateResourceParams struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 	// OrganizationID is the ID of the organization this resource belongs to.
 	OrganizationID string `json:"organization_id"`
-	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
-	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
+	// ParentResource optionally identifies the parent resource.
+	ParentResource AuthorizationParentResource `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationCreateResourceParams.
+func (p AuthorizationCreateResourceParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationCreateResourceParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ParentResource == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ParentResource != nil {
+		p.ParentResource.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // CreateResource create an authorization resource
@@ -427,12 +593,28 @@ type AuthorizationUpdateResourceParams struct {
 	Name *string `json:"name,omitempty"`
 	// Description is an optional description of the resource.
 	Description *string `json:"description,omitempty"`
-	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
-	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
+	// ParentResource optionally identifies the parent resource.
+	ParentResource AuthorizationParentResource `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationUpdateResourceParams.
+func (p AuthorizationUpdateResourceParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationUpdateResourceParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ParentResource == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ParentResource != nil {
+		p.ParentResource.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // UpdateResource update a resource

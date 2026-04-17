@@ -7,14 +7,9 @@ import (
 	"fmt"
 )
 
-// vaultService handles Vault operations.
-type vaultService struct {
+// VaultService handles Vault operations.
+type VaultService struct {
 	client *Client
-}
-
-// Vault returns the Vault service.
-func (c *Client) Vault() *vaultService {
-	return &vaultService{client: c}
 }
 
 // KeyContext describes the encryption context for a vault key.
@@ -94,7 +89,7 @@ type VaultListObjectsResponse struct {
 }
 
 // ListObjects lists vault objects (GET /vault/v1/kv).
-func (s *vaultService) ListObjects(ctx context.Context, params *VaultListObjectsParams, opts ...RequestOption) (*VaultListObjectsResponse, error) {
+func (s *VaultService) ListObjects(ctx context.Context, params *VaultListObjectsParams, opts ...RequestOption) (*VaultListObjectsResponse, error) {
 	var result VaultListObjectsResponse
 	_, err := s.client.request(ctx, "GET", "/vault/v1/kv", params, nil, &result, opts)
 	if err != nil {
@@ -112,7 +107,7 @@ type VaultCreateObjectParams struct {
 }
 
 // CreateObject creates a new vault object (POST /vault/v1/kv).
-func (s *vaultService) CreateObject(ctx context.Context, params *VaultCreateObjectParams, opts ...RequestOption) (*ObjectMetadata, error) {
+func (s *VaultService) CreateObject(ctx context.Context, params *VaultCreateObjectParams, opts ...RequestOption) (*ObjectMetadata, error) {
 	var result ObjectMetadata
 	_, err := s.client.request(ctx, "POST", "/vault/v1/kv", nil, params, &result, opts)
 	if err != nil {
@@ -122,7 +117,7 @@ func (s *vaultService) CreateObject(ctx context.Context, params *VaultCreateObje
 }
 
 // ReadObject reads a vault object by ID (GET /vault/v1/kv/{id}).
-func (s *vaultService) ReadObject(ctx context.Context, objectID string, opts ...RequestOption) (*VaultObject, error) {
+func (s *VaultService) ReadObject(ctx context.Context, objectID string, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s", objectID), nil, nil, &result, opts)
 	if err != nil {
@@ -132,7 +127,7 @@ func (s *vaultService) ReadObject(ctx context.Context, objectID string, opts ...
 }
 
 // ReadObjectByName reads a vault object by name (GET /vault/v1/kv/name/{name}).
-func (s *vaultService) ReadObjectByName(ctx context.Context, name string, opts ...RequestOption) (*VaultObject, error) {
+func (s *VaultService) ReadObjectByName(ctx context.Context, name string, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/name/%s", name), nil, nil, &result, opts)
 	if err != nil {
@@ -142,7 +137,7 @@ func (s *vaultService) ReadObjectByName(ctx context.Context, name string, opts .
 }
 
 // DescribeObject retrieves metadata for a vault object (GET /vault/v1/kv/{id}/metadata).
-func (s *vaultService) DescribeObject(ctx context.Context, objectID string, opts ...RequestOption) (*VaultObject, error) {
+func (s *VaultService) DescribeObject(ctx context.Context, objectID string, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s/metadata", objectID), nil, nil, &result, opts)
 	if err != nil {
@@ -159,7 +154,7 @@ type VaultUpdateObjectParams struct {
 }
 
 // UpdateObject updates a vault object (PUT /vault/v1/kv/{id}).
-func (s *vaultService) UpdateObject(ctx context.Context, objectID string, params *VaultUpdateObjectParams, opts ...RequestOption) (*VaultObject, error) {
+func (s *VaultService) UpdateObject(ctx context.Context, objectID string, params *VaultUpdateObjectParams, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/vault/v1/kv/%s", objectID), nil, params, &result, opts)
 	if err != nil {
@@ -169,7 +164,7 @@ func (s *vaultService) UpdateObject(ctx context.Context, objectID string, params
 }
 
 // DeleteObject deletes a vault object (DELETE /vault/v1/kv/{id}).
-func (s *vaultService) DeleteObject(ctx context.Context, objectID string, opts ...RequestOption) error {
+func (s *VaultService) DeleteObject(ctx context.Context, objectID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/vault/v1/kv/%s", objectID), nil, nil, nil, opts)
 	return err
 }
@@ -180,7 +175,7 @@ type VaultListObjectVersionsResponse struct {
 }
 
 // ListObjectVersions lists versions of a vault object (GET /vault/v1/kv/{id}/versions).
-func (s *vaultService) ListObjectVersions(ctx context.Context, objectID string, opts ...RequestOption) ([]VaultObjectVersion, error) {
+func (s *VaultService) ListObjectVersions(ctx context.Context, objectID string, opts ...RequestOption) ([]VaultObjectVersion, error) {
 	var result VaultListObjectVersionsResponse
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s/versions", objectID), nil, nil, &result, opts)
 	if err != nil {
@@ -195,7 +190,7 @@ type VaultCreateDataKeyParams struct {
 }
 
 // CreateDataKey creates a new data key pair (POST /vault/v1/keys/data-key).
-func (s *vaultService) CreateDataKey(ctx context.Context, params *VaultCreateDataKeyParams, opts ...RequestOption) (*DataKeyPair, error) {
+func (s *VaultService) CreateDataKey(ctx context.Context, params *VaultCreateDataKeyParams, opts ...RequestOption) (*DataKeyPair, error) {
 	var result DataKeyPair
 	_, err := s.client.request(ctx, "POST", "/vault/v1/keys/data-key", nil, params, &result, opts)
 	if err != nil {
@@ -211,7 +206,7 @@ type VaultDecryptDataKeyParams struct {
 }
 
 // DecryptDataKey decrypts a data key (POST /vault/v1/keys/decrypt).
-func (s *vaultService) DecryptDataKey(ctx context.Context, params *VaultDecryptDataKeyParams, opts ...RequestOption) (*DataKey, error) {
+func (s *VaultService) DecryptDataKey(ctx context.Context, params *VaultDecryptDataKeyParams, opts ...RequestOption) (*DataKey, error) {
 	var result DataKey
 	_, err := s.client.request(ctx, "POST", "/vault/v1/keys/decrypt", nil, params, &result, opts)
 	if err != nil {

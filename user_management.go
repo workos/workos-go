@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -12,6 +13,60 @@ import (
 // UserManagementService handles UserManagement operations.
 type UserManagementService struct {
 	client *Client
+}
+
+// UserManagementPassword is one of:
+//   - UserManagementPasswordPlaintext
+//   - UserManagementPasswordHashed
+type UserManagementPassword interface {
+	isUserManagementPassword()
+	applyToBody(map[string]any)
+}
+
+type UserManagementPasswordPlaintext struct {
+	Password string
+}
+
+func (p UserManagementPasswordPlaintext) isUserManagementPassword() {}
+func (p UserManagementPasswordPlaintext) applyToBody(m map[string]any) {
+	m["password"] = p.Password
+}
+
+type UserManagementPasswordHashed struct {
+	Hash     string
+	HashType string
+}
+
+func (p UserManagementPasswordHashed) isUserManagementPassword() {}
+func (p UserManagementPasswordHashed) applyToBody(m map[string]any) {
+	m["password_hash"] = p.Hash
+	m["password_hash_type"] = p.HashType
+}
+
+// UserManagementRole is one of:
+//   - UserManagementRoleSingle
+//   - UserManagementRoleMultiple
+type UserManagementRole interface {
+	isUserManagementRole()
+	applyToBody(map[string]any)
+}
+
+type UserManagementRoleSingle struct {
+	Slug string
+}
+
+func (p UserManagementRoleSingle) isUserManagementRole() {}
+func (p UserManagementRoleSingle) applyToBody(m map[string]any) {
+	m["role_slug"] = p.Slug
+}
+
+type UserManagementRoleMultiple struct {
+	Slugs string
+}
+
+func (p UserManagementRoleMultiple) isUserManagementRole() {}
+func (p UserManagementRoleMultiple) applyToBody(m map[string]any) {
+	m["role_slugs"] = p.Slugs
 }
 
 // GetJWKS get JWKS
@@ -77,12 +132,18 @@ func (s *UserManagementService) AuthenticateWithPassword(ctx context.Context, pa
 
 // AuthenticateWithCodeParams contains the parameters for AuthenticateWithCode.
 type AuthenticateWithCodeParams struct {
-	Code            string  `json:"code"`
-	CodeVerifier    *string `json:"code_verifier,omitempty"`
+	// Code is the authorization code received from the redirect.
+	Code string `json:"code"`
+	// CodeVerifier is the PKCE code verifier used to derive the code challenge passed to the authorization URL.
+	CodeVerifier *string `json:"code_verifier,omitempty"`
+	// InvitationToken is an invitation token to accept during authentication.
 	InvitationToken *string `json:"invitation_token,omitempty"`
-	IPAddress       *string `json:"ip_address,omitempty"`
-	DeviceID        *string `json:"device_id,omitempty"`
-	UserAgent       *string `json:"user_agent,omitempty"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
 }
 
 // authenticateWithCodeBody is the JSON request body for AuthenticateWithCode.
@@ -616,12 +677,28 @@ type UserManagementCreateParams struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
-	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
-	Password *string `json:"password,omitempty"`
-	// PasswordHash is the hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
-	PasswordHash *string `json:"password_hash,omitempty"`
-	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
-	PasswordHashType *CreateUserPasswordHashType `json:"password_hash_type,omitempty"`
+	// Password optionally identifies the password.
+	Password UserManagementPassword `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for UserManagementCreateParams.
+func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
+	type Alias UserManagementCreateParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Password == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.Password != nil {
+		p.Password.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // Create create a user
@@ -673,12 +750,28 @@ type UserManagementUpdateParams struct {
 	ExternalID *string `json:"external_id,omitempty"`
 	// Locale is the user's preferred locale.
 	Locale *string `json:"locale,omitempty"`
-	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
-	Password *string `json:"password,omitempty"`
-	// PasswordHash is the hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
-	PasswordHash *string `json:"password_hash,omitempty"`
-	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
-	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
+	// Password optionally identifies the password.
+	Password UserManagementPassword `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for UserManagementUpdateParams.
+func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
+	type Alias UserManagementUpdateParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Password == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.Password != nil {
+		p.Password.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // Update update a user
@@ -956,10 +1049,28 @@ type UserManagementCreateOrganizationMembershipParams struct {
 	UserID string `json:"user_id"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
 	OrganizationID string `json:"organization_id"`
-	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
-	RoleSlug *string `json:"role_slug,omitempty"`
-	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
-	RoleSlugs []string `json:"role_slugs,omitempty"`
+	// Role optionally identifies the role.
+	Role UserManagementRole `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for UserManagementCreateOrganizationMembershipParams.
+func (p UserManagementCreateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
+	type Alias UserManagementCreateOrganizationMembershipParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Role == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.Role != nil {
+		p.Role.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // CreateOrganizationMembership create an organization membership
@@ -987,10 +1098,28 @@ func (s *UserManagementService) GetOrganizationMembership(ctx context.Context, i
 
 // UserManagementUpdateOrganizationMembershipParams contains the parameters for UpdateOrganizationMembership.
 type UserManagementUpdateOrganizationMembershipParams struct {
-	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
-	RoleSlug *string `json:"role_slug,omitempty"`
-	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
-	RoleSlugs []string `json:"role_slugs,omitempty"`
+	// Role optionally identifies the role.
+	Role UserManagementRole `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for UserManagementUpdateOrganizationMembershipParams.
+func (p UserManagementUpdateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
+	type Alias UserManagementUpdateOrganizationMembershipParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Role == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.Role != nil {
+		p.Role.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // UpdateOrganizationMembership update an organization membership

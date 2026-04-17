@@ -7,14 +7,9 @@ import (
 	"fmt"
 )
 
-// passwordlessService handles Passwordless session operations.
-type passwordlessService struct {
+// PasswordlessService handles Passwordless session operations.
+type PasswordlessService struct {
 	client *Client
-}
-
-// Passwordless returns the Passwordless service for magic-link sessions.
-func (c *Client) Passwordless() *passwordlessService {
-	return &passwordlessService{client: c}
 }
 
 // PasswordlessSession represents a passwordless session.
@@ -42,7 +37,7 @@ type PasswordlessCreateSessionParams struct {
 }
 
 // CreateSession creates a new passwordless session (POST /passwordless/sessions).
-func (s *passwordlessService) CreateSession(ctx context.Context, params *PasswordlessCreateSessionParams, opts ...RequestOption) (*PasswordlessSession, error) {
+func (s *PasswordlessService) CreateSession(ctx context.Context, params *PasswordlessCreateSessionParams, opts ...RequestOption) (*PasswordlessSession, error) {
 	var result PasswordlessSession
 	_, err := s.client.request(ctx, "POST", "/passwordless/sessions", nil, params, &result, opts)
 	if err != nil {
@@ -52,7 +47,7 @@ func (s *passwordlessService) CreateSession(ctx context.Context, params *Passwor
 }
 
 // SendSession sends the magic-link email for a session (POST /passwordless/sessions/{id}/send).
-func (s *passwordlessService) SendSession(ctx context.Context, sessionID string, opts ...RequestOption) error {
+func (s *PasswordlessService) SendSession(ctx context.Context, sessionID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/passwordless/sessions/%s/send", sessionID), nil, nil, nil, opts)
 	return err
 }
