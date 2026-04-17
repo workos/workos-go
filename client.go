@@ -220,6 +220,7 @@ func parseAPIError(resp *http.Response) error {
 	apiErr := &APIError{
 		StatusCode: resp.StatusCode,
 		RequestID:  resp.Header.Get("X-Request-Id"),
+		RawBody:    string(body),
 	}
 
 	if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
@@ -229,6 +230,11 @@ func parseAPIError(resp *http.Response) error {
 	}
 
 	_ = json.Unmarshal(body, apiErr)
+
+	// Try to return a structured authentication error for known codes.
+	if authErr := parseAuthenticationError(apiErr, body); authErr != nil {
+		return authErr
+	}
 
 	switch resp.StatusCode {
 	case 401:
@@ -245,4 +251,56 @@ func parseAPIError(resp *http.Response) error {
 		}
 		return apiErr
 	}
+}
+
+// parseAuthenticationError checks for known authentication error codes and
+// returns a structured error type. Returns nil if the error is not a
+// recognized authentication error.
+func parseAuthenticationError(apiErr *APIError, body []byte) error {
+	// Check code/message format (email_verification_required, mfa_*, organization_selection_required)
+	if apiErr.Code != "" {
+		switch apiErr.Code {
+		case EmailVerificationRequiredCode:
+			e := &EmailVerificationRequiredError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			return e
+		case MFAEnrollmentCode:
+			e := &MFAEnrollmentError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			if e.User.ID == "" {
+				return nil // incomplete payload, fall back to generic
+			}
+			return e
+		case MFAChallengeCode:
+			e := &MFAChallengeError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			if e.User.ID == "" {
+				return nil
+			}
+			return e
+		case OrganizationSelectionRequiredCode:
+			e := &OrganizationSelectionRequiredError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			if e.User.ID == "" {
+				return nil
+			}
+			return e
+		}
+	}
+
+	// Check error/error_description format (sso_required, organization_authentication_methods_required)
+	if apiErr.ErrorCode != "" {
+		switch apiErr.ErrorCode {
+		case SSORequiredCode:
+			e := &SSORequiredError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			return e
+		case OrganizationAuthenticationMethodsRequiredCode:
+			e := &OrganizationAuthenticationMethodsRequiredError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			return e
+		}
+	}
+
+	return nil
 }
