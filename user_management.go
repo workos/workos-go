@@ -73,7 +73,7 @@ func (p UserManagementRoleMultiple) applyToBody(m map[string]any) {
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
 func (s *UserManagementService) GetJWKS(ctx context.Context, clientID string, opts ...RequestOption) (*JWKSResponse, error) {
 	var result JWKSResponse
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", clientID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", url.PathEscape(string(clientID))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -590,7 +590,7 @@ func (s *UserManagementService) CreateCORSOrigin(ctx context.Context, params *Us
 // Get the details of an existing email verification code that can be used to send an email to a user for verification.
 func (s *UserManagementService) GetEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*EmailVerification, error) {
 	var result EmailVerification
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/email_verification/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/email_verification/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -637,7 +637,7 @@ func (s *UserManagementService) ConfirmPasswordReset(ctx context.Context, params
 // Get the details of an existing password reset token that can be used to reset a user's password.
 func (s *UserManagementService) GetPasswordReset(ctx context.Context, id string, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/password_reset/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/password_reset/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -716,7 +716,7 @@ func (s *UserManagementService) Create(ctx context.Context, params *UserManageme
 // Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
 func (s *UserManagementService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/external_id/%s", externalID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/external_id/%s", url.PathEscape(string(externalID))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -727,7 +727,7 @@ func (s *UserManagementService) GetByExternalID(ctx context.Context, externalID 
 // Get the details of an existing user.
 func (s *UserManagementService) Get(ctx context.Context, id string, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -778,7 +778,7 @@ func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
 // Updates properties of a user. The omitted properties will be left unchanged.
 func (s *UserManagementService) Update(ctx context.Context, id string, params *UserManagementUpdateParams, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -788,7 +788,7 @@ func (s *UserManagementService) Update(ctx context.Context, id string, params *U
 // Delete delete a user
 // Permanently deletes a user in the current environment. It cannot be undone.
 func (s *UserManagementService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", id), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
 	return err
 }
 
@@ -802,7 +802,7 @@ type UserManagementConfirmEmailChangeParams struct {
 // Confirms an email change using the one-time code received by the user.
 func (s *UserManagementService) ConfirmEmailChange(ctx context.Context, id string, params *UserManagementConfirmEmailChangeParams, opts ...RequestOption) (*EmailChangeConfirmation, error) {
 	var result EmailChangeConfirmation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/confirm", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/confirm", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -819,7 +819,7 @@ type UserManagementSendEmailChangeParams struct {
 // Sends an email that contains a one-time code used to change a user's email address.
 func (s *UserManagementService) SendEmailChange(ctx context.Context, id string, params *UserManagementSendEmailChangeParams, opts ...RequestOption) (*EmailChange, error) {
 	var result EmailChange
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/send", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/send", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -836,7 +836,7 @@ type UserManagementVerifyEmailParams struct {
 // Verifies an email address using the one-time code received by the user.
 func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, params *UserManagementVerifyEmailParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
 	var result VerifyEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -847,7 +847,7 @@ func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, para
 // Sends an email that contains a one-time code used to verify a user’s email address.
 func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -858,7 +858,7 @@ func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id st
 // Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
 func (s *UserManagementService) GetIdentities(ctx context.Context, id string, opts ...RequestOption) ([]UserIdentitiesGetItem, error) {
 	var result []UserIdentitiesGetItem
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -873,7 +873,7 @@ type UserManagementListSessionsParams struct {
 // ListSessions list sessions
 // Get a list of all active sessions for a specific user.
 func (s *UserManagementService) ListSessions(ctx context.Context, id string, params *UserManagementListSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
-	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", id), params, "after", "data", opts)
+	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", url.PathEscape(string(id))), params, "after", "data", opts)
 }
 
 // UserManagementListInvitationsParams contains the parameters for ListInvitations.
@@ -922,7 +922,7 @@ func (s *UserManagementService) SendInvitation(ctx context.Context, params *User
 // Retrieve an existing invitation using the token.
 func (s *UserManagementService) FindInvitationByToken(ctx context.Context, token string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", token), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", url.PathEscape(string(token))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -933,7 +933,7 @@ func (s *UserManagementService) FindInvitationByToken(ctx context.Context, token
 // Get the details of an existing invitation.
 func (s *UserManagementService) GetInvitation(ctx context.Context, id string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -944,7 +944,7 @@ func (s *UserManagementService) GetInvitation(ctx context.Context, id string, op
 // Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
 func (s *UserManagementService) AcceptInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/accept", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/accept", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -961,7 +961,7 @@ type UserManagementResendInvitationParams struct {
 // Resends an invitation email to the recipient. The invitation must be in a pending state.
 func (s *UserManagementService) ResendInvitation(ctx context.Context, id string, params *UserManagementResendInvitationParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/resend", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/resend", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -972,7 +972,7 @@ func (s *UserManagementService) ResendInvitation(ctx context.Context, id string,
 // Revokes an existing invitation.
 func (s *UserManagementService) RevokeInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/revoke", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/revoke", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1019,7 +1019,7 @@ func (s *UserManagementService) CreateMagicAuth(ctx context.Context, params *Use
 // Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
 func (s *UserManagementService) GetMagicAuth(ctx context.Context, id string, opts ...RequestOption) (*MagicAuth, error) {
 	var result MagicAuth
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/magic_auth/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/magic_auth/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1089,7 +1089,7 @@ func (s *UserManagementService) CreateOrganizationMembership(ctx context.Context
 // Get the details of an existing organization membership.
 func (s *UserManagementService) GetOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1126,7 +1126,7 @@ func (p UserManagementUpdateOrganizationMembershipParams) MarshalJSON() ([]byte,
 // Update the details of an existing organization membership.
 func (s *UserManagementService) UpdateOrganizationMembership(ctx context.Context, id string, params *UserManagementUpdateOrganizationMembershipParams, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1136,7 +1136,7 @@ func (s *UserManagementService) UpdateOrganizationMembership(ctx context.Context
 // DeleteOrganizationMembership delete an organization membership
 // Permanently deletes an existing organization membership. It cannot be undone.
 func (s *UserManagementService) DeleteOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", id), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
 	return err
 }
 
@@ -1147,7 +1147,7 @@ func (s *UserManagementService) DeleteOrganizationMembership(ctx context.Context
 // See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
 func (s *UserManagementService) DeactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*OrganizationMembership, error) {
 	var result OrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1161,7 +1161,7 @@ func (s *UserManagementService) DeactivateOrganizationMembership(ctx context.Con
 // See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
 func (s *UserManagementService) ReactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1193,12 +1193,12 @@ type UserManagementListAuthorizedApplicationsParams struct {
 // ListAuthorizedApplications list authorized applications
 // Get a list of all Connect applications that the user has authorized.
 func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
-	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", userID), params, "after", "data", opts)
+	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", url.PathEscape(string(userID))), params, "after", "data", opts)
 }
 
 // DeleteAuthorizedApplication delete an authorized application
 // Delete an existing Authorized Connect Application.
 func (s *UserManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", userID, applicationID), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", url.PathEscape(string(userID)), url.PathEscape(string(applicationID))), nil, nil, nil, opts)
 	return err
 }

@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // OrganizationService handles Organizations operations.
@@ -58,7 +59,7 @@ func (s *OrganizationService) Create(ctx context.Context, params *OrganizationsC
 // Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
 func (s *OrganizationService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", externalID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", url.PathEscape(string(externalID))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +70,7 @@ func (s *OrganizationService) GetByExternalID(ctx context.Context, externalID st
 // Get the details of an existing organization.
 func (s *OrganizationService) Get(ctx context.Context, id string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +101,7 @@ type OrganizationsUpdateParams struct {
 // Updates an organization in the current environment.
 func (s *OrganizationService) Update(ctx context.Context, id string, params *OrganizationsUpdateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +111,7 @@ func (s *OrganizationService) Update(ctx context.Context, id string, params *Org
 // Delete delete an Organization
 // Permanently deletes an organization in the current environment. It cannot be undone.
 func (s *OrganizationService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", id), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
 	return err
 }
 
@@ -118,7 +119,7 @@ func (s *OrganizationService) Delete(ctx context.Context, id string, opts ...Req
 // Get the unified view of audit log trail and stream configuration for an organization.
 func (s *OrganizationService) GetAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

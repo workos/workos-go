@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // AuditLogService handles AuditLogs operations.
@@ -16,7 +17,7 @@ type AuditLogService struct {
 // Get the configured event retention period for the given Organization.
 func (s *AuditLogService) GetOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +34,7 @@ type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
 // Set the event retention period for the given Organization.
 func (s *AuditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Context, id string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", id), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(string(id))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +60,7 @@ type AuditLogsListActionSchemasParams struct {
 // ListActionSchemas list Schemas
 // Get a list of all schemas for the Audit Logs action identified by `:name`.
 func (s *AuditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
-	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), params, "after", "data", opts)
+	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(string(actionName))), params, "after", "data", opts)
 }
 
 // AuditLogsCreateSchemaParams contains the parameters for CreateSchema.
@@ -76,7 +77,7 @@ type AuditLogsCreateSchemaParams struct {
 // Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
 func (s *AuditLogService) CreateSchema(ctx context.Context, actionName string, params *AuditLogsCreateSchemaParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
 	var result AuditLogSchemaJSON
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", actionName), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(string(actionName))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func (s *AuditLogService) CreateExport(ctx context.Context, params *AuditLogsCre
 // Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
 func (s *AuditLogService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", auditLogExportID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", url.PathEscape(string(auditLogExportID))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

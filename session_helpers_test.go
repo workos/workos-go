@@ -22,9 +22,9 @@ func buildFakeJWT() string {
 func TestSealSessionFromAuthResponse_SealAndUnseal(t *testing.T) {
 	fakeJWT := buildFakeJWT()
 
-	user := map[string]interface{}{
-		"id":    "user_123",
-		"email": "test@example.com",
+	user := &workos.User{
+		ID:    "user_123",
+		Email: "test@example.com",
 	}
 
 	sealed, err := workos.SealSessionFromAuthResponse(
@@ -52,10 +52,10 @@ func TestSealSessionFromAuthResponse_SealAndUnseal(t *testing.T) {
 func TestSealSessionFromAuthResponse_WithImpersonator(t *testing.T) {
 	fakeJWT := buildFakeJWT()
 
-	user := map[string]interface{}{"id": "user_123"}
-	impersonator := map[string]interface{}{
-		"email":  "admin@example.com",
-		"reason": "debugging",
+	user := &workos.User{ID: "user_123"}
+	impersonator := &workos.AuthenticateResponseImpersonator{
+		Email:  "admin@example.com",
+		Reason: ptrString("debugging"),
 	}
 
 	sealed, err := workos.SealSessionFromAuthResponse(
@@ -83,7 +83,7 @@ func TestAuthenticateSession_ValidSession(t *testing.T) {
 	sealed, err := workos.SealSessionFromAuthResponse(
 		fakeJWT,
 		"refresh_tok_abc",
-		map[string]interface{}{"id": "user_123", "email": "test@example.com"},
+		&workos.User{ID: "user_123", Email: "test@example.com"},
 		nil,
 		testCookiePassword,
 	)
@@ -100,7 +100,7 @@ func TestAuthenticateSession_ValidSession(t *testing.T) {
 
 	// User data should be populated
 	require.NotNil(t, result.User)
-	require.Equal(t, "user_123", result.User["id"])
+	require.Equal(t, "user_123", result.User.ID)
 }
 
 func TestAuthenticateSession_EmptySession(t *testing.T) {
@@ -144,7 +144,7 @@ func TestNewSession_Authenticate(t *testing.T) {
 	sealed, err := workos.SealSessionFromAuthResponse(
 		fakeJWT,
 		"refresh_tok_abc",
-		map[string]interface{}{"id": "user_789"},
+		&workos.User{ID: "user_789"},
 		nil,
 		testCookiePassword,
 	)
@@ -162,7 +162,7 @@ func TestNewSession_Authenticate(t *testing.T) {
 	require.Equal(t, "admin", result.Role)
 	require.Equal(t, []string{"read", "write"}, result.Permissions)
 	require.NotNil(t, result.User)
-	require.Equal(t, "user_789", result.User["id"])
+	require.Equal(t, "user_789", result.User.ID)
 }
 
 func TestNewSession_Authenticate_EmptySession(t *testing.T) {

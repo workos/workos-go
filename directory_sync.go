@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // DirectorySyncService handles DirectorySync operations.
@@ -35,7 +36,7 @@ func (s *DirectorySyncService) List(ctx context.Context, params *DirectorySyncLi
 // Get the details of an existing directory.
 func (s *DirectorySyncService) Get(ctx context.Context, id string, opts ...RequestOption) (*Directory, error) {
 	var result Directory
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,7 @@ func (s *DirectorySyncService) Get(ctx context.Context, id string, opts ...Reque
 // Delete delete a Directory
 // Permanently deletes an existing directory. It cannot be undone.
 func (s *DirectorySyncService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/directories/%s", id), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/directories/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
 	return err
 }
 
@@ -68,7 +69,7 @@ func (s *DirectorySyncService) ListGroups(ctx context.Context, params *Directory
 // Get the details of an existing Directory Group.
 func (s *DirectorySyncService) GetGroup(ctx context.Context, id string, opts ...RequestOption) (*DirectoryGroup, error) {
 	var result DirectoryGroup
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_groups/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_groups/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +95,7 @@ func (s *DirectorySyncService) ListUsers(ctx context.Context, params *DirectoryS
 // Get the details of an existing Directory User.
 func (s *DirectorySyncService) GetUser(ctx context.Context, id string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
 	var result DirectoryUserWithGroups
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_users/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_users/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

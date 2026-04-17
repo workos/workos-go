@@ -3,15 +3,11 @@
 package workos
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -51,7 +47,7 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 		return ErrWebhookNotSigned
 	}
 
-	timestamp, signature, err := parseActionSignatureHeader(sigHeader)
+	timestamp, signature, err := ParseWebhookSignatureHeader(sigHeader)
 	if err != nil {
 		return err
 	}
@@ -69,7 +65,7 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 	}
 
 	// Compute the expected signature.
-	expected := computeActionSignature(secret, timestamp, payload)
+	expected := ComputeWebhookSignature(secret, timestamp, payload)
 
 	// Constant-time comparison.
 	if subtle.ConstantTimeCompare([]byte(expected), []byte(signature)) != 1 {
@@ -121,44 +117,10 @@ func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdic
 	now := a.now()
 	timestamp := strconv.FormatInt(now.Unix(), 10)
 
-	sig := computeActionSignature(secret, timestamp, b64Payload)
+	sig := ComputeWebhookSignature(secret, timestamp, b64Payload)
 
 	return &ActionSignedResponse{
 		Payload: b64Payload,
 		Sig:     fmt.Sprintf("t=%s,v1=%s", timestamp, sig),
 	}, nil
-}
-
-// computeActionSignature computes the HMAC-SHA256 signature for an action payload.
-func computeActionSignature(secret string, timestamp string, payload string) string {
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(timestamp))
-	mac.Write([]byte("."))
-	mac.Write([]byte(payload))
-	return hex.EncodeToString(mac.Sum(nil))
-}
-
-// parseActionSignatureHeader parses the "t=..., v1=..." or "t=...,v1=..." header.
-func parseActionSignatureHeader(header string) (timestamp string, signature string, err error) {
-	parts := strings.Split(header, ",")
-	for _, part := range parts {
-		kv := strings.SplitN(strings.TrimSpace(part), "=", 2)
-		if len(kv) != 2 {
-			return "", "", ErrWebhookInvalidHeader
-		}
-		key := strings.TrimSpace(kv[0])
-		value := strings.TrimSpace(kv[1])
-		switch key {
-		case "t":
-			timestamp = value
-		case "v1":
-			signature = value
-		}
-	}
-
-	if timestamp == "" || signature == "" {
-		return "", "", ErrWebhookInvalidHeader
-	}
-
-	return timestamp, signature, nil
 }

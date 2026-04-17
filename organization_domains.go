@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // OrganizationDomainService handles OrganizationDomains operations.
@@ -35,7 +36,7 @@ func (s *OrganizationDomainService) Create(ctx context.Context, params *Organiza
 // Get the details of an existing organization domain.
 func (s *OrganizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organization_domains/%s", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organization_domains/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,7 @@ func (s *OrganizationDomainService) Get(ctx context.Context, id string, opts ...
 // Delete delete an Organization Domain
 // Permanently deletes an organization domain. It cannot be undone.
 func (s *OrganizationDomainService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organization_domains/%s", id), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organization_domains/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
 	return err
 }
 
@@ -53,7 +54,7 @@ func (s *OrganizationDomainService) Delete(ctx context.Context, id string, opts 
 // Initiates verification process for an Organization Domain.
 func (s *OrganizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organization_domains/%s/verify", id), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organization_domains/%s/verify", url.PathEscape(string(id))), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

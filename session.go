@@ -13,16 +13,9 @@ import (
 	"fmt"
 )
 
-// SealData encrypts data using AES-256-GCM with the provided password.
-// The password should be a hex-encoded 32-byte key. If the password is not
-// valid hex or not the right length, it is hashed with SHA-256 to derive a key.
+// sealBytes encrypts plaintext bytes using AES-256-GCM with the provided password.
 // Returns a base64-encoded sealed string.
-func SealData(data map[string]interface{}, password string) (string, error) {
-	plaintext, err := json.Marshal(data)
-	if err != nil {
-		return "", fmt.Errorf("workos: failed to marshal data: %w", err)
-	}
-
+func sealBytes(plaintext []byte, password string) (string, error) {
 	key, err := deriveKey(password)
 	if err != nil {
 		return "", err
@@ -49,8 +42,8 @@ func SealData(data map[string]interface{}, password string) (string, error) {
 	return base64.StdEncoding.EncodeToString(sealed), nil
 }
 
-// UnsealData decrypts a sealed string back to the original data.
-func UnsealData(sealed string, password string) (map[string]interface{}, error) {
+// unsealToBytes decrypts a sealed string back to raw plaintext bytes.
+func unsealToBytes(sealed string, password string) ([]byte, error) {
 	ciphertext, err := base64.StdEncoding.DecodeString(sealed)
 	if err != nil {
 		return nil, fmt.Errorf("workos: failed to decode sealed data: %w", err)
@@ -84,11 +77,57 @@ func UnsealData(sealed string, password string) (map[string]interface{}, error) 
 		return nil, fmt.Errorf("workos: failed to decrypt data: %w", err)
 	}
 
+	return plaintext, nil
+}
+
+// SealData encrypts data using AES-256-GCM with the provided password.
+// The password should be a hex-encoded 32-byte key. If the password is not
+// valid hex or not the right length, it is hashed with SHA-256 to derive a key.
+// Returns a base64-encoded sealed string.
+func SealData(data map[string]interface{}, password string) (string, error) {
+	plaintext, err := json.Marshal(data)
+	if err != nil {
+		return "", fmt.Errorf("workos: failed to marshal data: %w", err)
+	}
+	return sealBytes(plaintext, password)
+}
+
+// UnsealData decrypts a sealed string back to the original data.
+func UnsealData(sealed string, password string) (map[string]interface{}, error) {
+	plaintext, err := unsealToBytes(sealed, password)
+	if err != nil {
+		return nil, err
+	}
+
 	var result map[string]interface{}
 	if err := json.Unmarshal(plaintext, &result); err != nil {
 		return nil, fmt.Errorf("workos: failed to unmarshal decrypted data: %w", err)
 	}
 	return result, nil
+}
+
+// SealSession encrypts a SessionData struct using AES-256-GCM.
+// Returns a base64-encoded sealed string suitable for use as a session cookie.
+func SealSession(data *SessionData, password string) (string, error) {
+	plaintext, err := json.Marshal(data)
+	if err != nil {
+		return "", fmt.Errorf("workos: failed to marshal session data: %w", err)
+	}
+	return sealBytes(plaintext, password)
+}
+
+// unsealSession decrypts a sealed string directly into a SessionData struct.
+func unsealSession(sealed string, password string) (*SessionData, error) {
+	plaintext, err := unsealToBytes(sealed, password)
+	if err != nil {
+		return nil, err
+	}
+
+	var session SessionData
+	if err := json.Unmarshal(plaintext, &session); err != nil {
+		return nil, fmt.Errorf("workos: failed to unmarshal session data: %w", err)
+	}
+	return &session, nil
 }
 
 // deriveKey derives a 32-byte AES key from the password.

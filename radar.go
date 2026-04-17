@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // RadarService handles Radar operations.
@@ -52,7 +53,7 @@ type RadarUpdateAttemptParams struct {
 // UpdateAttempt update a Radar attempt
 // You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
 func (s *RadarService) UpdateAttempt(ctx context.Context, id string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", id), nil, params, nil, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", url.PathEscape(string(id))), nil, params, nil, opts)
 	return err
 }
 
@@ -66,7 +67,7 @@ type RadarAddListEntryParams struct {
 // Add an entry to a Radar list.
 func (s *RadarService) AddListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
 	var result RadarListEntryAlreadyPresentResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/radar/lists/%s/%s", url.PathEscape(string(typeParam)), url.PathEscape(string(action))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -82,6 +83,6 @@ type RadarRemoveListEntryParams struct {
 // RemoveListEntry remove an entry from a Radar list
 // Remove an entry from a Radar list.
 func (s *RadarService) RemoveListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", url.PathEscape(string(typeParam)), url.PathEscape(string(action))), nil, params, nil, opts)
 	return err
 }

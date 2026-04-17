@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // APIKeyService handles ApiKeys operations.
@@ -32,7 +33,7 @@ func (s *APIKeyService) CreateValidation(ctx context.Context, params *APIKeysCre
 // Delete delete an API key
 // Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
 func (s *APIKeyService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", id), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
 	return err
 }
 
@@ -44,7 +45,7 @@ type APIKeysListOrganizationAPIKeysParams struct {
 // ListOrganizationAPIKeys list API keys for an organization
 // Get a list of all API keys for an organization.
 func (s *APIKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
-	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, "after", "data", opts)
+	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(string(organizationID))), params, "after", "data", opts)
 }
 
 // APIKeysCreateOrganizationAPIKeyParams contains the parameters for CreateOrganizationAPIKey.
@@ -59,7 +60,7 @@ type APIKeysCreateOrganizationAPIKeyParams struct {
 // Create a new API key for an organization.
 func (s *APIKeyService) CreateOrganizationAPIKey(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeyParams, opts ...RequestOption) (*APIKeyWithValue, error) {
 	var result APIKeyWithValue
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", organizationID), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(string(organizationID))), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
