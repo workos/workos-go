@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// organizationDomainService handles OrganizationDomains operations.
-type organizationDomainService struct {
+// OrganizationDomainService handles OrganizationDomains operations.
+type OrganizationDomainService struct {
 	client *Client
 }
 
@@ -22,7 +22,7 @@ type OrganizationDomainsCreateParams struct {
 
 // Create create an Organization Domain
 // Creates a new Organization Domain.
-func (s *organizationDomainService) Create(ctx context.Context, params *OrganizationDomainsCreateParams, opts ...RequestOption) (*OrganizationDomain, error) {
+func (s *OrganizationDomainService) Create(ctx context.Context, params *OrganizationDomainsCreateParams, opts ...RequestOption) (*OrganizationDomain, error) {
 	var result OrganizationDomain
 	_, err := s.client.request(ctx, "POST", "/organization_domains", nil, params, &result, opts)
 	if err != nil {
@@ -33,7 +33,7 @@ func (s *organizationDomainService) Create(ctx context.Context, params *Organiza
 
 // Get get an Organization Domain
 // Get the details of an existing organization domain.
-func (s *organizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
+func (s *OrganizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organization_domains/%s", id), nil, nil, &result, opts)
 	if err != nil {
@@ -44,14 +44,14 @@ func (s *organizationDomainService) Get(ctx context.Context, id string, opts ...
 
 // Delete delete an Organization Domain
 // Permanently deletes an organization domain. It cannot be undone.
-func (s *organizationDomainService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+func (s *OrganizationDomainService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organization_domains/%s", id), nil, nil, nil, opts)
 	return err
 }
 
 // Verify verify an Organization Domain
 // Initiates verification process for an Organization Domain.
-func (s *organizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
+func (s *OrganizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organization_domains/%s/verify", id), nil, nil, &result, opts)
 	if err != nil {

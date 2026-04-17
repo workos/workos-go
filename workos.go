@@ -12,23 +12,23 @@ type Client struct {
 	httpClient *http.Client
 	maxRetries int
 
-	apiKeys             *apiKeyService
-	multiFactorAuth     *multiFactorAuthService
-	connect             *connectService
-	authorization       *authorizationService
-	sso                 *ssoService
-	pipes               *pipeService
-	directorySync       *directorySyncService
-	events              *eventService
-	featureFlags        *featureFlagService
-	organizationDomains *organizationDomainService
-	organizations       *organizationService
-	adminPortal         *adminPortalService
-	radar               *radarService
-	userManagement      *userManagementService
-	webhooks            *webhookService
-	widgets             *widgetService
-	auditLogs           *auditLogService
+	apiKeys             *APIKeyService
+	multiFactorAuth     *MultiFactorAuthService
+	connect             *ConnectService
+	authorization       *AuthorizationService
+	sso                 *SSOService
+	pipes               *PipeService
+	directorySync       *DirectorySyncService
+	events              *EventService
+	featureFlags        *FeatureFlagService
+	organizationDomains *OrganizationDomainService
+	organizations       *OrganizationService
+	adminPortal         *AdminPortalService
+	radar               *RadarService
+	userManagement      *UserManagementService
+	webhooks            *WebhookService
+	widgets             *WidgetService
+	auditLogs           *AuditLogService
 }
 
 // NewClient creates a new WorkOS API client.
@@ -42,107 +42,107 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
-	c.apiKeys = &apiKeyService{client: c}
-	c.multiFactorAuth = &multiFactorAuthService{client: c}
-	c.connect = &connectService{client: c}
-	c.authorization = &authorizationService{client: c}
-	c.sso = &ssoService{client: c}
-	c.pipes = &pipeService{client: c}
-	c.directorySync = &directorySyncService{client: c}
-	c.events = &eventService{client: c}
-	c.featureFlags = &featureFlagService{client: c}
-	c.organizationDomains = &organizationDomainService{client: c}
-	c.organizations = &organizationService{client: c}
-	c.adminPortal = &adminPortalService{client: c}
-	c.radar = &radarService{client: c}
-	c.userManagement = &userManagementService{client: c}
-	c.webhooks = &webhookService{client: c}
-	c.widgets = &widgetService{client: c}
-	c.auditLogs = &auditLogService{client: c}
+	c.apiKeys = &APIKeyService{client: c}
+	c.multiFactorAuth = &MultiFactorAuthService{client: c}
+	c.connect = &ConnectService{client: c}
+	c.authorization = &AuthorizationService{client: c}
+	c.sso = &SSOService{client: c}
+	c.pipes = &PipeService{client: c}
+	c.directorySync = &DirectorySyncService{client: c}
+	c.events = &EventService{client: c}
+	c.featureFlags = &FeatureFlagService{client: c}
+	c.organizationDomains = &OrganizationDomainService{client: c}
+	c.organizations = &OrganizationService{client: c}
+	c.adminPortal = &AdminPortalService{client: c}
+	c.radar = &RadarService{client: c}
+	c.userManagement = &UserManagementService{client: c}
+	c.webhooks = &WebhookService{client: c}
+	c.widgets = &WidgetService{client: c}
+	c.auditLogs = &AuditLogService{client: c}
 	return c
 }
 
 // APIKeys returns the APIKeys service.
-func (c *Client) APIKeys() *apiKeyService {
+func (c *Client) APIKeys() *APIKeyService {
 	return c.apiKeys
 }
 
 // MultiFactorAuth returns the MultiFactorAuth service.
-func (c *Client) MultiFactorAuth() *multiFactorAuthService {
+func (c *Client) MultiFactorAuth() *MultiFactorAuthService {
 	return c.multiFactorAuth
 }
 
 // Connect returns the Connect service.
-func (c *Client) Connect() *connectService {
+func (c *Client) Connect() *ConnectService {
 	return c.connect
 }
 
 // Authorization returns the Authorization service.
-func (c *Client) Authorization() *authorizationService {
+func (c *Client) Authorization() *AuthorizationService {
 	return c.authorization
 }
 
 // SSO returns the SSO service.
-func (c *Client) SSO() *ssoService {
+func (c *Client) SSO() *SSOService {
 	return c.sso
 }
 
 // Pipes returns the Pipes service.
-func (c *Client) Pipes() *pipeService {
+func (c *Client) Pipes() *PipeService {
 	return c.pipes
 }
 
 // DirectorySync returns the DirectorySync service.
-func (c *Client) DirectorySync() *directorySyncService {
+func (c *Client) DirectorySync() *DirectorySyncService {
 	return c.directorySync
 }
 
 // Events returns the Events service.
-func (c *Client) Events() *eventService {
+func (c *Client) Events() *EventService {
 	return c.events
 }
 
 // FeatureFlags returns the FeatureFlags service.
-func (c *Client) FeatureFlags() *featureFlagService {
+func (c *Client) FeatureFlags() *FeatureFlagService {
 	return c.featureFlags
 }
 
 // OrganizationDomains returns the OrganizationDomains service.
-func (c *Client) OrganizationDomains() *organizationDomainService {
+func (c *Client) OrganizationDomains() *OrganizationDomainService {
 	return c.organizationDomains
 }
 
 // Organizations returns the Organizations service.
-func (c *Client) Organizations() *organizationService {
+func (c *Client) Organizations() *OrganizationService {
 	return c.organizations
 }
 
 // AdminPortal returns the AdminPortal service.
-func (c *Client) AdminPortal() *adminPortalService {
+func (c *Client) AdminPortal() *AdminPortalService {
 	return c.adminPortal
 }
 
 // Radar returns the Radar service.
-func (c *Client) Radar() *radarService {
+func (c *Client) Radar() *RadarService {
 	return c.radar
 }
 
 // UserManagement returns the UserManagement service.
-func (c *Client) UserManagement() *userManagementService {
+func (c *Client) UserManagement() *UserManagementService {
 	return c.userManagement
 }
 
 // Webhooks returns the Webhooks service.
-func (c *Client) Webhooks() *webhookService {
+func (c *Client) Webhooks() *WebhookService {
 	return c.webhooks
 }
 
 // Widgets returns the Widgets service.
-func (c *Client) Widgets() *widgetService {
+func (c *Client) Widgets() *WidgetService {
 	return c.widgets
 }
 
 // AuditLogs returns the AuditLogs service.
-func (c *Client) AuditLogs() *auditLogService {
+func (c *Client) AuditLogs() *AuditLogService {
 	return c.auditLogs
 }

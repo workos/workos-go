@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// organizationService handles Organizations operations.
-type organizationService struct {
+// OrganizationService handles Organizations operations.
+type OrganizationService struct {
 	client *Client
 }
 
@@ -23,7 +23,7 @@ type OrganizationsListParams struct {
 
 // List list Organizations
 // Get a list of all of your existing organizations matching the criteria specified.
-func (s *organizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
+func (s *OrganizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
 	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts)
 }
 
@@ -45,7 +45,7 @@ type OrganizationsCreateParams struct {
 
 // Create create an Organization
 // Creates a new organization in the current environment.
-func (s *organizationService) Create(ctx context.Context, params *OrganizationsCreateParams, opts ...RequestOption) (*Organization, error) {
+func (s *OrganizationService) Create(ctx context.Context, params *OrganizationsCreateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
 	_, err := s.client.request(ctx, "POST", "/organizations", nil, params, &result, opts)
 	if err != nil {
@@ -56,7 +56,7 @@ func (s *organizationService) Create(ctx context.Context, params *OrganizationsC
 
 // GetByExternalID get an Organization by External ID
 // Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
-func (s *organizationService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
+func (s *OrganizationService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", externalID), nil, nil, &result, opts)
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *organizationService) GetByExternalID(ctx context.Context, externalID st
 
 // Get get an Organization
 // Get the details of an existing organization.
-func (s *organizationService) Get(ctx context.Context, id string, opts ...RequestOption) (*Organization, error) {
+func (s *OrganizationService) Get(ctx context.Context, id string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", id), nil, nil, &result, opts)
 	if err != nil {
@@ -98,7 +98,7 @@ type OrganizationsUpdateParams struct {
 
 // Update update an Organization
 // Updates an organization in the current environment.
-func (s *organizationService) Update(ctx context.Context, id string, params *OrganizationsUpdateParams, opts ...RequestOption) (*Organization, error) {
+func (s *OrganizationService) Update(ctx context.Context, id string, params *OrganizationsUpdateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", id), nil, params, &result, opts)
 	if err != nil {
@@ -109,14 +109,14 @@ func (s *organizationService) Update(ctx context.Context, id string, params *Org
 
 // Delete delete an Organization
 // Permanently deletes an organization in the current environment. It cannot be undone.
-func (s *organizationService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+func (s *OrganizationService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", id), nil, nil, nil, opts)
 	return err
 }
 
 // GetAuditLogConfiguration get Audit Log Configuration
 // Get the unified view of audit log trail and stream configuration for an organization.
-func (s *organizationService) GetAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
+func (s *OrganizationService) GetAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", id), nil, nil, &result, opts)
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// radarService handles Radar operations.
-type radarService struct {
+// RadarService handles Radar operations.
+type RadarService struct {
 	client *Client
 }
 
@@ -32,7 +32,7 @@ type RadarCreateAttemptParams struct {
 
 // CreateAttempt create an attempt
 // Assess a request for risk using the Radar engine and receive a verdict.
-func (s *radarService) CreateAttempt(ctx context.Context, params *RadarCreateAttemptParams, opts ...RequestOption) (*RadarStandaloneResponse, error) {
+func (s *RadarService) CreateAttempt(ctx context.Context, params *RadarCreateAttemptParams, opts ...RequestOption) (*RadarStandaloneResponse, error) {
 	var result RadarStandaloneResponse
 	_, err := s.client.request(ctx, "POST", "/radar/attempts", nil, params, &result, opts)
 	if err != nil {
@@ -51,7 +51,7 @@ type RadarUpdateAttemptParams struct {
 
 // UpdateAttempt update a Radar attempt
 // You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
-func (s *radarService) UpdateAttempt(ctx context.Context, id string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
+func (s *RadarService) UpdateAttempt(ctx context.Context, id string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", id), nil, params, nil, opts)
 	return err
 }
@@ -64,7 +64,7 @@ type RadarAddListEntryParams struct {
 
 // AddListEntry add an entry to a Radar list
 // Add an entry to a Radar list.
-func (s *radarService) AddListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
+func (s *RadarService) AddListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
 	var result RadarListEntryAlreadyPresentResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, &result, opts)
 	if err != nil {
@@ -81,7 +81,7 @@ type RadarRemoveListEntryParams struct {
 
 // RemoveListEntry remove an entry from a Radar list
 // Remove an entry from a Radar list.
-func (s *radarService) RemoveListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
+func (s *RadarService) RemoveListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", typeParam, action), nil, params, nil, opts)
 	return err
 }

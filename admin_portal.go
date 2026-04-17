@@ -6,8 +6,8 @@ import (
 	"context"
 )
 
-// adminPortalService handles AdminPortal operations.
-type adminPortalService struct {
+// AdminPortalService handles AdminPortal operations.
+type AdminPortalService struct {
 	client *Client
 }
 
@@ -36,7 +36,7 @@ type AdminPortalGenerateLinkParams struct {
 
 // GenerateLink generate a Portal Link
 // Generate a Portal Link scoped to an Organization.
-func (s *adminPortalService) GenerateLink(ctx context.Context, params *AdminPortalGenerateLinkParams, opts ...RequestOption) (*PortalLinkResponse, error) {
+func (s *AdminPortalService) GenerateLink(ctx context.Context, params *AdminPortalGenerateLinkParams, opts ...RequestOption) (*PortalLinkResponse, error) {
 	var result PortalLinkResponse
 	_, err := s.client.request(ctx, "POST", "/portal/generate_link", nil, params, &result, opts)
 	if err != nil {

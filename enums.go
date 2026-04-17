@@ -174,6 +174,11 @@ const (
 	CreateWebhookEndpointEventsDsyncUserDeleted                         CreateWebhookEndpointEvents = "dsync.user.deleted"
 	CreateWebhookEndpointEventsDsyncUserUpdated                         CreateWebhookEndpointEvents = "dsync.user.updated"
 	CreateWebhookEndpointEventsEmailVerificationCreated                 CreateWebhookEndpointEvents = "email_verification.created"
+	CreateWebhookEndpointEventsGroupCreated                             CreateWebhookEndpointEvents = "group.created"
+	CreateWebhookEndpointEventsGroupDeleted                             CreateWebhookEndpointEvents = "group.deleted"
+	CreateWebhookEndpointEventsGroupMemberAdded                         CreateWebhookEndpointEvents = "group.member_added"
+	CreateWebhookEndpointEventsGroupMemberRemoved                       CreateWebhookEndpointEvents = "group.member_removed"
+	CreateWebhookEndpointEventsGroupUpdated                             CreateWebhookEndpointEvents = "group.updated"
 	CreateWebhookEndpointEventsFlagCreated                              CreateWebhookEndpointEvents = "flag.created"
 	CreateWebhookEndpointEventsFlagDeleted                              CreateWebhookEndpointEvents = "flag.deleted"
 	CreateWebhookEndpointEventsFlagUpdated                              CreateWebhookEndpointEvents = "flag.updated"
@@ -775,6 +780,14 @@ const (
 	AuditLogConfigurationStateDisabled AuditLogConfigurationState = "disabled"
 )
 
+// DataIntegrationAccessTokenResponseError represents data integration access token response error values.
+type DataIntegrationAccessTokenResponseError string
+
+const (
+	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
+	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
+)
+
 // ConnectedAccountState represents connected account state values.
 type ConnectedAccountState string
 
@@ -1146,11 +1159,3 @@ type AuditLogsOrder = ApplicationsOrder
 
 // EventSchemaContextActorSource is an alias for EventContextActorSource.
 type EventSchemaContextActorSource = EventContextActorSource
-
-// DataIntegrationAccessTokenResponseError represents data integration access token response_error values.
-type DataIntegrationAccessTokenResponseError string
-
-const (
-	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
-	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
-)

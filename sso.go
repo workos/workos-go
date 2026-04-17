@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-// ssoService handles SSO operations.
-type ssoService struct {
+// SSOService handles SSO operations.
+type SSOService struct {
 	client *Client
 }
 
@@ -29,13 +29,13 @@ type SSOListConnectionsParams struct {
 
 // ListConnections list Connections
 // Get a list of all of your existing connections matching the criteria specified.
-func (s *ssoService) ListConnections(ctx context.Context, params *SSOListConnectionsParams, opts ...RequestOption) *Iterator[Connection] {
+func (s *SSOService) ListConnections(ctx context.Context, params *SSOListConnectionsParams, opts ...RequestOption) *Iterator[Connection] {
 	return newIterator[Connection](ctx, s.client, "GET", "/connections", params, "after", "data", opts)
 }
 
 // GetConnection get a Connection
 // Get the details of an existing connection.
-func (s *ssoService) GetConnection(ctx context.Context, id string, opts ...RequestOption) (*Connection, error) {
+func (s *SSOService) GetConnection(ctx context.Context, id string, opts ...RequestOption) (*Connection, error) {
 	var result Connection
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s", id), nil, nil, &result, opts)
 	if err != nil {
@@ -46,14 +46,14 @@ func (s *ssoService) GetConnection(ctx context.Context, id string, opts ...Reque
 
 // DeleteConnection delete a Connection
 // Permanently deletes an existing connection. It cannot be undone.
-func (s *ssoService) DeleteConnection(ctx context.Context, id string, opts ...RequestOption) error {
+func (s *SSOService) DeleteConnection(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connections/%s", id), nil, nil, nil, opts)
 	return err
 }
 
 // SSOGetAuthorizationURLParams contains the parameters for GetAuthorizationURL.
 type SSOGetAuthorizationURLParams struct {
-	// ProviderScopes is additional OAuth scopes to request from the identity provider. Only applicable when using OAuth connections.
+	// ProviderScopes is additional scopes to request from the identity provider. Applicable when using OAuth or OpenID Connect connections.
 	ProviderScopes []string `url:"provider_scopes,omitempty" json:"-"`
 	// ProviderQueryParams is key/value pairs of query parameters to pass to the OAuth provider. Only applicable when using OAuth connections.
 	ProviderQueryParams map[string]string `url:"provider_query_params,omitempty" json:"-"`
@@ -83,7 +83,7 @@ type SSOGetAuthorizationURLParams struct {
 
 // GetAuthorizationURL initiate SSO
 // Initiates the single sign-on flow.
-func (s *ssoService) GetAuthorizationURL(params *SSOGetAuthorizationURLParams, opts ...RequestOption) string {
+func (s *SSOService) GetAuthorizationURL(params *SSOGetAuthorizationURLParams, opts ...RequestOption) string {
 	query := url.Values{}
 	query.Set("response_type", "code")
 	if s.client.clientID != "" {
@@ -134,7 +134,7 @@ type SSOGetLogoutURLParams struct {
 // GetLogoutURL logout Redirect
 // Logout allows to sign out a user from your application by triggering the identity provider sign out flow. This `GET` endpoint should be a redirection, since the identity provider user will be identified in the browser session.
 // Before redirecting to this endpoint, you need to generate a short-lived logout token using the [Logout Authorize](https://workos.com/docs/reference/sso/logout/authorize) endpoint.
-func (s *ssoService) GetLogoutURL(params *SSOGetLogoutURLParams, opts ...RequestOption) string {
+func (s *SSOService) GetLogoutURL(params *SSOGetLogoutURLParams, opts ...RequestOption) string {
 	query := url.Values{}
 	query.Set("token", params.Token)
 	return s.client.buildURL("/sso/logout", query, opts)
@@ -148,7 +148,7 @@ type SSOAuthorizeLogoutParams struct {
 
 // AuthorizeLogout logout Authorize
 // You should call this endpoint from your server to generate a logout token which is required for the [Logout Redirect](https://workos.com/docs/reference/sso/logout) endpoint.
-func (s *ssoService) AuthorizeLogout(ctx context.Context, params *SSOAuthorizeLogoutParams, opts ...RequestOption) (*SSOLogoutAuthorizeResponse, error) {
+func (s *SSOService) AuthorizeLogout(ctx context.Context, params *SSOAuthorizeLogoutParams, opts ...RequestOption) (*SSOLogoutAuthorizeResponse, error) {
 	var result SSOLogoutAuthorizeResponse
 	_, err := s.client.request(ctx, "POST", "/sso/logout/authorize", nil, params, &result, opts)
 	if err != nil {
@@ -159,7 +159,7 @@ func (s *ssoService) AuthorizeLogout(ctx context.Context, params *SSOAuthorizeLo
 
 // GetProfile get a User Profile
 // Exchange an access token for a user's [Profile](https://workos.com/docs/reference/sso/profile). Because this profile is returned in the [Get a Profile and Token endpoint](https://workos.com/docs/reference/sso/profile/get-profile-and-token) your application usually does not need to call this endpoint. It is available for any authentication flows that require an additional endpoint to retrieve a user's profile.
-func (s *ssoService) GetProfile(ctx context.Context, opts ...RequestOption) (*Profile, error) {
+func (s *SSOService) GetProfile(ctx context.Context, opts ...RequestOption) (*Profile, error) {
 	var result Profile
 	_, err := s.client.request(ctx, "GET", "/sso/profile", nil, nil, &result, opts)
 	if err != nil {
@@ -174,19 +174,23 @@ type SSOGetProfileAndTokenParams struct {
 	Code string `json:"code" url:"code"`
 }
 
+// getProfileAndTokenBody is the JSON request body for GetProfileAndToken.
+type getProfileAndTokenBody struct {
+	GrantType    string `json:"grant_type"`
+	Code         string `json:"code"`
+	ClientID     string `json:"client_id,omitempty"`
+	ClientSecret string `json:"client_secret,omitempty"`
+}
+
 // GetProfileAndToken get a Profile and Token
 // Get an access token along with the user [Profile](https://workos.com/docs/reference/sso/profile) using the code passed to your [Redirect URI](https://workos.com/docs/reference/sso/get-authorization-url/redirect-uri).
-func (s *ssoService) GetProfileAndToken(ctx context.Context, params *SSOGetProfileAndTokenParams, opts ...RequestOption) (*SSOTokenResponse, error) {
-	body := map[string]interface{}{
-		"grant_type": "authorization_code",
+func (s *SSOService) GetProfileAndToken(ctx context.Context, params *SSOGetProfileAndTokenParams, opts ...RequestOption) (*SSOTokenResponse, error) {
+	body := getProfileAndTokenBody{
+		GrantType: "authorization_code",
+		Code:      params.Code,
 	}
-	if s.client.clientID != "" {
-		body["client_id"] = s.client.clientID
-	}
-	if s.client.apiKey != "" {
-		body["client_secret"] = s.client.apiKey
-	}
-	body["code"] = params.Code
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
 	var result SSOTokenResponse
 	_, err := s.client.request(ctx, "POST", "/sso/token", params, body, &result, opts)
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// apiKeyService handles ApiKeys operations.
-type apiKeyService struct {
+// APIKeyService handles ApiKeys operations.
+type APIKeyService struct {
 	client *Client
 }
 
@@ -20,7 +20,7 @@ type APIKeysCreateValidationParams struct {
 
 // CreateValidation validate API key
 // Validate an API key value and return the API key object if valid.
-func (s *apiKeyService) CreateValidation(ctx context.Context, params *APIKeysCreateValidationParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
+func (s *APIKeyService) CreateValidation(ctx context.Context, params *APIKeysCreateValidationParams, opts ...RequestOption) (*APIKeyValidationResponse, error) {
 	var result APIKeyValidationResponse
 	_, err := s.client.request(ctx, "POST", "/api_keys/validations", nil, params, &result, opts)
 	if err != nil {
@@ -31,7 +31,7 @@ func (s *apiKeyService) CreateValidation(ctx context.Context, params *APIKeysCre
 
 // Delete delete an API key
 // Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
-func (s *apiKeyService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+func (s *APIKeyService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", id), nil, nil, nil, opts)
 	return err
 }
@@ -43,7 +43,7 @@ type APIKeysListOrganizationAPIKeysParams struct {
 
 // ListOrganizationAPIKeys list API keys for an organization
 // Get a list of all API keys for an organization.
-func (s *apiKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
+func (s *APIKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
 	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", organizationID), params, "after", "data", opts)
 }
 
@@ -57,7 +57,7 @@ type APIKeysCreateOrganizationAPIKeyParams struct {
 
 // CreateOrganizationAPIKey create an API key for an organization
 // Create a new API key for an organization.
-func (s *apiKeyService) CreateOrganizationAPIKey(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeyParams, opts ...RequestOption) (*APIKeyWithValue, error) {
+func (s *APIKeyService) CreateOrganizationAPIKey(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeyParams, opts ...RequestOption) (*APIKeyWithValue, error) {
 	var result APIKeyWithValue
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", organizationID), nil, params, &result, opts)
 	if err != nil {

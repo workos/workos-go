@@ -6,8 +6,8 @@ import (
 	"context"
 )
 
-// eventService handles Events operations.
-type eventService struct {
+// EventService handles Events operations.
+type EventService struct {
 	client *Client
 }
 
@@ -26,6 +26,6 @@ type EventsListParams struct {
 
 // List list events
 // List events for the current environment.
-func (s *eventService) List(ctx context.Context, params *EventsListParams, opts ...RequestOption) *Iterator[EventSchema] {
+func (s *EventService) List(ctx context.Context, params *EventsListParams, opts ...RequestOption) *Iterator[EventSchema] {
 	return newIterator[EventSchema](ctx, s.client, "GET", "/events", params, "after", "data", opts)
 }

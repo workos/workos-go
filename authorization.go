@@ -5,10 +5,11 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
-// authorizationService handles Authorization operations.
-type authorizationService struct {
+// AuthorizationService handles Authorization operations.
+type AuthorizationService struct {
 	client *Client
 }
 
@@ -16,17 +17,17 @@ type authorizationService struct {
 type AuthorizationCheckParams struct {
 	// PermissionSlug is the slug of the permission to check.
 	PermissionSlug string `json:"permission_slug"`
-	// ResourceID is the ID of the resource.
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
 	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource.
+	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type.
+	// ResourceTypeSlug is the slug of the resource type. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // Check check authorization
 // Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
-func (s *authorizationService) Check(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckParams, opts ...RequestOption) (*AuthorizationCheck, error) {
+func (s *AuthorizationService) Check(ctx context.Context, organizationMembershipID string, params *AuthorizationCheckParams, opts ...RequestOption) (*AuthorizationCheck, error) {
 	var result AuthorizationCheck
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/check", organizationMembershipID), nil, params, &result, opts)
 	if err != nil {
@@ -35,24 +36,87 @@ func (s *authorizationService) Check(ctx context.Context, organizationMembership
 	return &result, nil
 }
 
+// AuthorizationParentResource is one of:
+//   - AuthorizationParentResourceByID
+//   - AuthorizationParentResourceByExternalID
+type AuthorizationParentResource interface {
+	isAuthorizationParentResource()
+	applyToQuery(url.Values)
+}
+
+type AuthorizationParentResourceByID struct {
+	ID string
+}
+
+func (p AuthorizationParentResourceByID) isAuthorizationParentResource() {}
+func (p AuthorizationParentResourceByID) applyToQuery(v url.Values) {
+	v.Set("parent_resource_id", p.ID)
+}
+
+type AuthorizationParentResourceByExternalID struct {
+	TypeSlug   string
+	ExternalID string
+}
+
+func (p AuthorizationParentResourceByExternalID) isAuthorizationParentResource() {}
+func (p AuthorizationParentResourceByExternalID) applyToQuery(v url.Values) {
+	v.Set("parent_resource_type_slug", p.TypeSlug)
+	v.Set("parent_resource_external_id", p.ExternalID)
+}
+
 // AuthorizationListOrganizationMembershipResourcesParams contains the parameters for ListOrganizationMembershipResources.
 type AuthorizationListOrganizationMembershipResourcesParams struct {
 	PaginationParams
 	// PermissionSlug is the permission slug to filter by. Only child resources where the organization membership has this permission are returned.
 	PermissionSlug string `url:"permission_slug" json:"-"`
-	// ParentResourceID is the WorkOS ID of the parent resource. Provide this or both `parent_resource_external_id` and `parent_resource_type_slug`, but not both.
-	ParentResourceID *string `url:"parent_resource_id,omitempty" json:"-"`
-	// ParentResourceTypeSlug is the slug of the parent resource type. Must be provided together with `parent_resource_external_id`.
-	ParentResourceTypeSlug *string `url:"parent_resource_type_slug,omitempty" json:"-"`
-	// ParentResourceExternalID is the application-specific external identifier of the parent resource. Must be provided together with `parent_resource_type_slug`.
-	ParentResourceExternalID *string `url:"parent_resource_external_id,omitempty" json:"-"`
+	// ParentResource identifies the parent resource (required).
+	ParentResource AuthorizationParentResource `url:"-" json:"-"`
 }
 
 // ListOrganizationMembershipResources list resources for organization membership
 // Returns all child resources of a parent resource where the organization membership has a specific permission. This is useful for resource discovery—answering "What projects can this user access in this workspace?"
 // You must provide either `parent_resource_id` or both `parent_resource_external_id` and `parent_resource_type_slug` to identify the parent resource.
-func (s *authorizationService) ListOrganizationMembershipResources(ctx context.Context, organizationMembershipID string, params *AuthorizationListOrganizationMembershipResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
-	return newIterator[AuthorizationResource](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources", organizationMembershipID), params, "after", "data", opts)
+func (s *AuthorizationService) ListOrganizationMembershipResources(ctx context.Context, organizationMembershipID string, params *AuthorizationListOrganizationMembershipResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
+	query := url.Values{}
+	if params.Before != nil {
+		query.Set("before", *params.Before)
+	}
+	if params.After != nil {
+		query.Set("after", *params.After)
+	}
+	if params.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%v", *params.Limit))
+	}
+	if params.Order != nil {
+		query.Set("order", fmt.Sprintf("%v", *params.Order))
+	}
+	query.Set("permission_slug", params.PermissionSlug)
+	if params.ParentResource != nil {
+		params.ParentResource.applyToQuery(query)
+	}
+	return newIterator[AuthorizationResource](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources", organizationMembershipID), query, "after", "data", opts)
+}
+
+// AuthorizationListResourcePermissionsParams contains the parameters for ListResourcePermissions.
+type AuthorizationListResourcePermissionsParams struct {
+	PaginationParams
+}
+
+// ListResourcePermissions list effective permissions for an organization membership on a resource
+// Returns all permissions the organization membership effectively has on a resource, including permissions inherited through roles assigned to ancestor resources.
+func (s *AuthorizationService) ListResourcePermissions(ctx context.Context, organizationMembershipID string, resourceID string, params *AuthorizationListResourcePermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
+	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/permissions", organizationMembershipID, resourceID), params, "after", "data", opts)
+}
+
+// AuthorizationListEffectivePermissionsByExternalIDParams contains the parameters for ListEffectivePermissionsByExternalID.
+type AuthorizationListEffectivePermissionsByExternalIDParams struct {
+	PaginationParams
+}
+
+// ListEffectivePermissionsByExternalID list effective permissions for an organization membership on a resource by external ID
+// Returns all permissions the organization membership effectively has on a resource identified by its external ID, including permissions inherited through roles assigned to ancestor resources.
+func (s *AuthorizationService) ListEffectivePermissionsByExternalID(ctx context.Context, organizationMembershipID string, resourceTypeSlug string, externalID string, params *AuthorizationListEffectivePermissionsByExternalIDParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
+	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/%s/permissions", organizationMembershipID, resourceTypeSlug, externalID), params, "after", "data", opts)
 }
 
 // AuthorizationListOrganizationMembershipRoleAssignmentsParams contains the parameters for ListOrganizationMembershipRoleAssignments.
@@ -62,7 +126,7 @@ type AuthorizationListOrganizationMembershipRoleAssignmentsParams struct {
 
 // ListOrganizationMembershipRoleAssignments list role assignments
 // List all role assignments for an organization membership. This returns all roles that have been assigned to the user on resources, including organization-level and sub-resource roles.
-func (s *authorizationService) ListOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationListOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) *Iterator[RoleAssignment] {
+func (s *AuthorizationService) ListOrganizationMembershipRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationListOrganizationMembershipRoleAssignmentsParams, opts ...RequestOption) *Iterator[RoleAssignment] {
 	return newIterator[RoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), params, "after", "data", opts)
 }
 
@@ -70,17 +134,17 @@ func (s *authorizationService) ListOrganizationMembershipRoleAssignments(ctx con
 type AuthorizationAssignRoleParams struct {
 	// RoleSlug is the slug of the role to assign.
 	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
 	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Requires `resource_type_slug`.
+	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`.
+	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // AssignRole assign a role
 // Assign a role to an organization membership on a specific resource.
-func (s *authorizationService) AssignRole(ctx context.Context, organizationMembershipID string, params *AuthorizationAssignRoleParams, opts ...RequestOption) (*RoleAssignment, error) {
+func (s *AuthorizationService) AssignRole(ctx context.Context, organizationMembershipID string, params *AuthorizationAssignRoleParams, opts ...RequestOption) (*RoleAssignment, error) {
 	var result RoleAssignment
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), nil, params, &result, opts)
 	if err != nil {
@@ -93,31 +157,31 @@ func (s *authorizationService) AssignRole(ctx context.Context, organizationMembe
 type AuthorizationRemoveRoleParams struct {
 	// RoleSlug is the slug of the role to remove.
 	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
 	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Requires `resource_type_slug`.
+	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`.
+	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
 // RemoveRole remove a role assignment
 // Remove a role assignment by role slug and resource.
-func (s *authorizationService) RemoveRole(ctx context.Context, organizationMembershipID string, params *AuthorizationRemoveRoleParams, opts ...RequestOption) error {
+func (s *AuthorizationService) RemoveRole(ctx context.Context, organizationMembershipID string, params *AuthorizationRemoveRoleParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", organizationMembershipID), nil, params, nil, opts)
 	return err
 }
 
 // DeleteOrganizationMembershipRoleAssignment remove a role assignment by ID
 // Remove a role assignment using its ID.
-func (s *authorizationService) DeleteOrganizationMembershipRoleAssignment(ctx context.Context, organizationMembershipID string, roleAssignmentID string, opts ...RequestOption) error {
+func (s *AuthorizationService) DeleteOrganizationMembershipRoleAssignment(ctx context.Context, organizationMembershipID string, roleAssignmentID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments/%s", organizationMembershipID, roleAssignmentID), nil, nil, nil, opts)
 	return err
 }
 
-// ListOrganizationRoles list organization roles
-// Get a list of all roles that apply to an organization. This includes both environment roles and organization-specific roles, returned in priority order.
-func (s *authorizationService) ListOrganizationRoles(ctx context.Context, organizationID string, opts ...RequestOption) (*RoleList, error) {
+// ListOrganizationRoles list custom roles
+// Get a list of all roles that apply to an organization. This includes both environment roles and custom roles, returned in priority order.
+func (s *AuthorizationService) ListOrganizationRoles(ctx context.Context, organizationID string, opts ...RequestOption) (*RoleList, error) {
 	var result RoleList
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/organizations/%s/roles", organizationID), nil, nil, &result, opts)
 	if err != nil {
@@ -138,9 +202,9 @@ type AuthorizationCreateOrganizationRoleParams struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// CreateOrganizationRole create a custom organization role
-// Create a new custom organization role. When slug is omitted, it is auto-generated from the role name.
-func (s *authorizationService) CreateOrganizationRole(ctx context.Context, organizationID string, params *AuthorizationCreateOrganizationRoleParams, opts ...RequestOption) (*Role, error) {
+// CreateOrganizationRole create a custom role
+// Create a new custom role for this organization.
+func (s *AuthorizationService) CreateOrganizationRole(ctx context.Context, organizationID string, params *AuthorizationCreateOrganizationRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organizations/%s/roles", organizationID), nil, params, &result, opts)
 	if err != nil {
@@ -149,9 +213,9 @@ func (s *authorizationService) CreateOrganizationRole(ctx context.Context, organ
 	return &result, nil
 }
 
-// GetOrganizationRole get an organization role
-// Retrieve a role that applies to an organization by its slug. This can return either an environment role or an organization-specific role.
-func (s *authorizationService) GetOrganizationRole(ctx context.Context, organizationID string, slug string, opts ...RequestOption) (*Role, error) {
+// GetOrganizationRole get a custom role
+// Retrieve a role that applies to an organization by its slug. This can return either an environment role or a custom role.
+func (s *AuthorizationService) GetOrganizationRole(ctx context.Context, organizationID string, slug string, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/organizations/%s/roles/%s", organizationID, slug), nil, nil, &result, opts)
 	if err != nil {
@@ -168,9 +232,9 @@ type AuthorizationUpdateOrganizationRoleParams struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// UpdateOrganizationRole update an organization role
-// Update an existing custom organization role. Only the fields provided in the request body will be updated.
-func (s *authorizationService) UpdateOrganizationRole(ctx context.Context, organizationID string, slug string, params *AuthorizationUpdateOrganizationRoleParams, opts ...RequestOption) (*Role, error) {
+// UpdateOrganizationRole update a custom role
+// Update an existing custom role. Only the fields provided in the request body will be updated.
+func (s *AuthorizationService) UpdateOrganizationRole(ctx context.Context, organizationID string, slug string, params *AuthorizationUpdateOrganizationRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/organizations/%s/roles/%s", organizationID, slug), nil, params, &result, opts)
 	if err != nil {
@@ -179,9 +243,9 @@ func (s *authorizationService) UpdateOrganizationRole(ctx context.Context, organ
 	return &result, nil
 }
 
-// DeleteOrganizationRole delete a custom organization role
-// Delete an existing custom organization role.
-func (s *authorizationService) DeleteOrganizationRole(ctx context.Context, organizationID string, slug string, opts ...RequestOption) error {
+// DeleteOrganizationRole delete a custom role
+// Delete an existing custom role.
+func (s *AuthorizationService) DeleteOrganizationRole(ctx context.Context, organizationID string, slug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organizations/%s/roles/%s", organizationID, slug), nil, nil, nil, opts)
 	return err
 }
@@ -192,9 +256,9 @@ type AuthorizationCreateRolePermissionParams struct {
 	Slug string `json:"slug"`
 }
 
-// CreateRolePermission add a permission to an organization role
-// Add a single permission to an organization role. If the permission is already assigned to the role, this operation has no effect.
-func (s *authorizationService) CreateRolePermission(ctx context.Context, organizationID string, slug string, params *AuthorizationCreateRolePermissionParams, opts ...RequestOption) (*Role, error) {
+// CreateRolePermission add a permission to a custom role
+// Add a single permission to a custom role. If the permission is already assigned to the role, this operation has no effect.
+func (s *AuthorizationService) CreateRolePermission(ctx context.Context, organizationID string, slug string, params *AuthorizationCreateRolePermissionParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organizations/%s/roles/%s/permissions", organizationID, slug), nil, params, &result, opts)
 	if err != nil {
@@ -209,9 +273,9 @@ type AuthorizationUpdateRolePermissionsParams struct {
 	Permissions []string `json:"permissions"`
 }
 
-// UpdateRolePermissions set permissions for a role
-// Replace all permissions on a role with the provided list.
-func (s *authorizationService) UpdateRolePermissions(ctx context.Context, organizationID string, slug string, params *AuthorizationUpdateRolePermissionsParams, opts ...RequestOption) (*Role, error) {
+// UpdateRolePermissions set permissions for a custom role
+// Replace all permissions on a custom role with the provided list.
+func (s *AuthorizationService) UpdateRolePermissions(ctx context.Context, organizationID string, slug string, params *AuthorizationUpdateRolePermissionsParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/authorization/organizations/%s/roles/%s/permissions", organizationID, slug), nil, params, &result, opts)
 	if err != nil {
@@ -220,16 +284,16 @@ func (s *authorizationService) UpdateRolePermissions(ctx context.Context, organi
 	return &result, nil
 }
 
-// DeleteRolePermission remove a permission from an organization role
-// Remove a single permission from an organization role by its slug.
-func (s *authorizationService) DeleteRolePermission(ctx context.Context, organizationID string, slug string, permissionSlug string, opts ...RequestOption) error {
+// DeleteRolePermission remove a permission from a custom role
+// Remove a single permission from a custom role by its slug.
+func (s *AuthorizationService) DeleteRolePermission(ctx context.Context, organizationID string, slug string, permissionSlug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organizations/%s/roles/%s/permissions/%s", organizationID, slug, permissionSlug), nil, nil, nil, opts)
 	return err
 }
 
 // GetOrganizationResource get a resource by external ID
 // Retrieve the details of an authorization resource by its external ID, organization, and resource type. This is useful when you only have the external ID from your system and need to fetch the full resource details.
-func (s *authorizationService) GetOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, opts ...RequestOption) (*AuthorizationResource, error) {
+func (s *AuthorizationService) GetOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s", organizationID, resourceTypeSlug, externalID), nil, nil, &result, opts)
 	if err != nil {
@@ -244,17 +308,17 @@ type AuthorizationUpdateOrganizationResourceParams struct {
 	Name *string `json:"name,omitempty"`
 	// Description is an optional description of the resource.
 	Description *string `json:"description,omitempty"`
-	// ParentResourceID is the ID of the parent resource.
+	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
 	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource.
+	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
 // UpdateOrganizationResource update a resource by external ID
 // Update an existing authorization resource using its external ID.
-func (s *authorizationService) UpdateOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationUpdateOrganizationResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
+func (s *AuthorizationService) UpdateOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationUpdateOrganizationResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s", organizationID, resourceTypeSlug, externalID), nil, params, &result, opts)
 	if err != nil {
@@ -272,7 +336,7 @@ type AuthorizationDeleteOrganizationResourceParams struct {
 
 // DeleteOrganizationResource delete an authorization resource by external ID
 // Delete an authorization resource by organization, resource type, and external ID. This also deletes all descendant resources.
-func (s *authorizationService) DeleteOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationDeleteOrganizationResourceParams, opts ...RequestOption) error {
+func (s *AuthorizationService) DeleteOrganizationResource(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationDeleteOrganizationResourceParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s", organizationID, resourceTypeSlug, externalID), params, nil, nil, opts)
 	return err
 }
@@ -288,7 +352,7 @@ type AuthorizationListResourceOrganizationMembershipsParams struct {
 
 // ListResourceOrganizationMemberships list memberships for a resource by external ID
 // Returns all organization memberships that have a specific permission on a resource, using the resource's external ID. This is useful for answering "Who can access this resource?" when you only have the external ID.
-func (s *authorizationService) ListResourceOrganizationMemberships(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListResourceOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
+func (s *AuthorizationService) ListResourceOrganizationMemberships(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListResourceOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
 	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/organization_memberships", organizationID, resourceTypeSlug, externalID), params, "after", "data", opts)
 }
 
@@ -311,7 +375,7 @@ type AuthorizationListResourcesParams struct {
 
 // ListResources list resources
 // Get a paginated list of authorization resources.
-func (s *authorizationService) ListResources(ctx context.Context, params *AuthorizationListResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
+func (s *AuthorizationService) ListResources(ctx context.Context, params *AuthorizationListResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
 	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", params, "after", "data", opts)
 }
 
@@ -327,17 +391,17 @@ type AuthorizationCreateResourceParams struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 	// OrganizationID is the ID of the organization this resource belongs to.
 	OrganizationID string `json:"organization_id"`
-	// ParentResourceID is the ID of the parent resource.
+	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
 	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource.
+	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
 // CreateResource create an authorization resource
 // Create a new authorization resource.
-func (s *authorizationService) CreateResource(ctx context.Context, params *AuthorizationCreateResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
+func (s *AuthorizationService) CreateResource(ctx context.Context, params *AuthorizationCreateResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
 	_, err := s.client.request(ctx, "POST", "/authorization/resources", nil, params, &result, opts)
 	if err != nil {
@@ -348,7 +412,7 @@ func (s *authorizationService) CreateResource(ctx context.Context, params *Autho
 
 // GetResource get a resource
 // Retrieve the details of an authorization resource by its ID.
-func (s *authorizationService) GetResource(ctx context.Context, resourceID string, opts ...RequestOption) (*AuthorizationResource, error) {
+func (s *AuthorizationService) GetResource(ctx context.Context, resourceID string, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/resources/%s", resourceID), nil, nil, &result, opts)
 	if err != nil {
@@ -363,17 +427,17 @@ type AuthorizationUpdateResourceParams struct {
 	Name *string `json:"name,omitempty"`
 	// Description is an optional description of the resource.
 	Description *string `json:"description,omitempty"`
-	// ParentResourceID is the ID of the parent resource.
+	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
 	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource.
+	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
 // UpdateResource update a resource
 // Update an existing authorization resource.
-func (s *authorizationService) UpdateResource(ctx context.Context, resourceID string, params *AuthorizationUpdateResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
+func (s *AuthorizationService) UpdateResource(ctx context.Context, resourceID string, params *AuthorizationUpdateResourceParams, opts ...RequestOption) (*AuthorizationResource, error) {
 	var result AuthorizationResource
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/resources/%s", resourceID), nil, params, &result, opts)
 	if err != nil {
@@ -391,7 +455,7 @@ type AuthorizationDeleteResourceParams struct {
 
 // DeleteResource delete an authorization resource
 // Delete an authorization resource and all its descendants.
-func (s *authorizationService) DeleteResource(ctx context.Context, resourceID string, params *AuthorizationDeleteResourceParams, opts ...RequestOption) error {
+func (s *AuthorizationService) DeleteResource(ctx context.Context, resourceID string, params *AuthorizationDeleteResourceParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/resources/%s", resourceID), params, nil, nil, opts)
 	return err
 }
@@ -407,13 +471,13 @@ type AuthorizationListMembershipsForResourceParams struct {
 
 // ListMembershipsForResource list organization memberships for resource
 // Returns all organization memberships that have a specific permission on a resource instance. This is useful for answering "Who can access this resource?".
-func (s *authorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
+func (s *AuthorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
 	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", resourceID), params, "after", "data", opts)
 }
 
 // ListEnvironmentRoles list environment roles
 // List all environment roles in priority order.
-func (s *authorizationService) ListEnvironmentRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
+func (s *AuthorizationService) ListEnvironmentRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
 	var result RoleList
 	_, err := s.client.request(ctx, "GET", "/authorization/roles", nil, nil, &result, opts)
 	if err != nil {
@@ -436,7 +500,7 @@ type AuthorizationCreateEnvironmentRoleParams struct {
 
 // CreateEnvironmentRole create an environment role
 // Create a new environment role.
-func (s *authorizationService) CreateEnvironmentRole(ctx context.Context, params *AuthorizationCreateEnvironmentRoleParams, opts ...RequestOption) (*Role, error) {
+func (s *AuthorizationService) CreateEnvironmentRole(ctx context.Context, params *AuthorizationCreateEnvironmentRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", "/authorization/roles", nil, params, &result, opts)
 	if err != nil {
@@ -447,7 +511,7 @@ func (s *authorizationService) CreateEnvironmentRole(ctx context.Context, params
 
 // GetEnvironmentRole get an environment role
 // Get an environment role by its slug.
-func (s *authorizationService) GetEnvironmentRole(ctx context.Context, slug string, opts ...RequestOption) (*Role, error) {
+func (s *AuthorizationService) GetEnvironmentRole(ctx context.Context, slug string, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/roles/%s", slug), nil, nil, &result, opts)
 	if err != nil {
@@ -466,7 +530,7 @@ type AuthorizationUpdateEnvironmentRoleParams struct {
 
 // UpdateEnvironmentRole update an environment role
 // Update an existing environment role.
-func (s *authorizationService) UpdateEnvironmentRole(ctx context.Context, slug string, params *AuthorizationUpdateEnvironmentRoleParams, opts ...RequestOption) (*Role, error) {
+func (s *AuthorizationService) UpdateEnvironmentRole(ctx context.Context, slug string, params *AuthorizationUpdateEnvironmentRoleParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/roles/%s", slug), nil, params, &result, opts)
 	if err != nil {
@@ -483,7 +547,7 @@ type AuthorizationAddEnvironmentRolePermissionParams struct {
 
 // AddEnvironmentRolePermission add a permission to an environment role
 // Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
-func (s *authorizationService) AddEnvironmentRolePermission(ctx context.Context, slug string, params *AuthorizationAddEnvironmentRolePermissionParams, opts ...RequestOption) (*Role, error) {
+func (s *AuthorizationService) AddEnvironmentRolePermission(ctx context.Context, slug string, params *AuthorizationAddEnvironmentRolePermissionParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/roles/%s/permissions", slug), nil, params, &result, opts)
 	if err != nil {
@@ -500,7 +564,7 @@ type AuthorizationSetEnvironmentRolePermissionsParams struct {
 
 // SetEnvironmentRolePermissions set permissions for an environment role
 // Replace all permissions on an environment role with the provided list.
-func (s *authorizationService) SetEnvironmentRolePermissions(ctx context.Context, slug string, params *AuthorizationSetEnvironmentRolePermissionsParams, opts ...RequestOption) (*Role, error) {
+func (s *AuthorizationService) SetEnvironmentRolePermissions(ctx context.Context, slug string, params *AuthorizationSetEnvironmentRolePermissionsParams, opts ...RequestOption) (*Role, error) {
 	var result Role
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/authorization/roles/%s/permissions", slug), nil, params, &result, opts)
 	if err != nil {
@@ -516,7 +580,7 @@ type AuthorizationListPermissionsParams struct {
 
 // ListPermissions list permissions
 // Get a list of all permissions in your WorkOS environment.
-func (s *authorizationService) ListPermissions(ctx context.Context, params *AuthorizationListPermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
+func (s *AuthorizationService) ListPermissions(ctx context.Context, params *AuthorizationListPermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
 	return newIterator[AuthorizationPermission](ctx, s.client, "GET", "/authorization/permissions", params, "after", "data", opts)
 }
 
@@ -533,8 +597,8 @@ type AuthorizationCreatePermissionParams struct {
 }
 
 // CreatePermission create a permission
-// Create a new permission in your WorkOS environment. The permission can then be assigned to environment roles and organization roles.
-func (s *authorizationService) CreatePermission(ctx context.Context, params *AuthorizationCreatePermissionParams, opts ...RequestOption) (*Permission, error) {
+// Create a new permission in your WorkOS environment. The permission can then be assigned to environment roles and custom roles.
+func (s *AuthorizationService) CreatePermission(ctx context.Context, params *AuthorizationCreatePermissionParams, opts ...RequestOption) (*Permission, error) {
 	var result Permission
 	_, err := s.client.request(ctx, "POST", "/authorization/permissions", nil, params, &result, opts)
 	if err != nil {
@@ -545,7 +609,7 @@ func (s *authorizationService) CreatePermission(ctx context.Context, params *Aut
 
 // GetPermission get a permission
 // Retrieve a permission by its unique slug.
-func (s *authorizationService) GetPermission(ctx context.Context, slug string, opts ...RequestOption) (*AuthorizationPermission, error) {
+func (s *AuthorizationService) GetPermission(ctx context.Context, slug string, opts ...RequestOption) (*AuthorizationPermission, error) {
 	var result AuthorizationPermission
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/permissions/%s", slug), nil, nil, &result, opts)
 	if err != nil {
@@ -564,7 +628,7 @@ type AuthorizationUpdatePermissionParams struct {
 
 // UpdatePermission update a permission
 // Update an existing permission. Only the fields provided in the request body will be updated.
-func (s *authorizationService) UpdatePermission(ctx context.Context, slug string, params *AuthorizationUpdatePermissionParams, opts ...RequestOption) (*AuthorizationPermission, error) {
+func (s *AuthorizationService) UpdatePermission(ctx context.Context, slug string, params *AuthorizationUpdatePermissionParams, opts ...RequestOption) (*AuthorizationPermission, error) {
 	var result AuthorizationPermission
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/permissions/%s", slug), nil, params, &result, opts)
 	if err != nil {
@@ -575,7 +639,7 @@ func (s *authorizationService) UpdatePermission(ctx context.Context, slug string
 
 // DeletePermission delete a permission
 // Delete an existing permission. System permissions cannot be deleted.
-func (s *authorizationService) DeletePermission(ctx context.Context, slug string, opts ...RequestOption) error {
+func (s *AuthorizationService) DeletePermission(ctx context.Context, slug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/permissions/%s", slug), nil, nil, nil, opts)
 	return err
 }

@@ -76,6 +76,82 @@ func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
+func TestAuthorization_ListResourcePermissions(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/resources/test_resource_id/permissions", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_authorization_permission.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListResourcePermissions(context.Background(), "test_organization_membership_id", "test_resource_id", &workos.AuthorizationListResourcePermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAuthorization_ListResourcePermissions_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListResourcePermissions(context.Background(), "test_organization_membership_id", "test_resource_id", &workos.AuthorizationListResourcePermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestAuthorization_ListEffectivePermissionsByExternalID(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/resources/test_resource_type_slug/test_external_id/permissions", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_authorization_permission.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListEffectivePermissionsByExternalID(context.Background(), "test_organization_membership_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListEffectivePermissionsByExternalIDParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAuthorization_ListEffectivePermissionsByExternalID_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListEffectivePermissionsByExternalID(context.Background(), "test_organization_membership_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListEffectivePermissionsByExternalIDParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
 func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)

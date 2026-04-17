@@ -6,8 +6,8 @@ import (
 	"context"
 )
 
-// widgetService handles Widgets operations.
-type widgetService struct {
+// WidgetService handles Widgets operations.
+type WidgetService struct {
 	client *Client
 }
 
@@ -23,7 +23,7 @@ type WidgetsCreateTokenParams struct {
 
 // CreateToken generate a widget token
 // Generate a widget token scoped to an organization and user with the specified scopes.
-func (s *widgetService) CreateToken(ctx context.Context, params *WidgetsCreateTokenParams, opts ...RequestOption) (*WidgetSessionTokenResponse, error) {
+func (s *WidgetService) CreateToken(ctx context.Context, params *WidgetsCreateTokenParams, opts ...RequestOption) (*WidgetSessionTokenResponse, error) {
 	var result WidgetSessionTokenResponse
 	_, err := s.client.request(ctx, "POST", "/widgets/token", nil, params, &result, opts)
 	if err != nil {

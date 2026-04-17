@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// directorySyncService handles DirectorySync operations.
-type directorySyncService struct {
+// DirectorySyncService handles DirectorySync operations.
+type DirectorySyncService struct {
 	client *Client
 }
 
@@ -27,13 +27,13 @@ type DirectorySyncListParams struct {
 
 // List list Directories
 // Get a list of all of your existing directories matching the criteria specified.
-func (s *directorySyncService) List(ctx context.Context, params *DirectorySyncListParams, opts ...RequestOption) *Iterator[Directory] {
+func (s *DirectorySyncService) List(ctx context.Context, params *DirectorySyncListParams, opts ...RequestOption) *Iterator[Directory] {
 	return newIterator[Directory](ctx, s.client, "GET", "/directories", params, "after", "data", opts)
 }
 
 // Get get a Directory
 // Get the details of an existing directory.
-func (s *directorySyncService) Get(ctx context.Context, id string, opts ...RequestOption) (*Directory, error) {
+func (s *DirectorySyncService) Get(ctx context.Context, id string, opts ...RequestOption) (*Directory, error) {
 	var result Directory
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s", id), nil, nil, &result, opts)
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *directorySyncService) Get(ctx context.Context, id string, opts ...Reque
 
 // Delete delete a Directory
 // Permanently deletes an existing directory. It cannot be undone.
-func (s *directorySyncService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
+func (s *DirectorySyncService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/directories/%s", id), nil, nil, nil, opts)
 	return err
 }
@@ -60,13 +60,13 @@ type DirectorySyncListGroupsParams struct {
 
 // ListGroups list Directory Groups
 // Get a list of all of existing directory groups matching the criteria specified.
-func (s *directorySyncService) ListGroups(ctx context.Context, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
+func (s *DirectorySyncService) ListGroups(ctx context.Context, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
 	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "after", "data", opts)
 }
 
 // GetGroup get a Directory Group
 // Get the details of an existing Directory Group.
-func (s *directorySyncService) GetGroup(ctx context.Context, id string, opts ...RequestOption) (*DirectoryGroup, error) {
+func (s *DirectorySyncService) GetGroup(ctx context.Context, id string, opts ...RequestOption) (*DirectoryGroup, error) {
 	var result DirectoryGroup
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_groups/%s", id), nil, nil, &result, opts)
 	if err != nil {
@@ -86,13 +86,13 @@ type DirectorySyncListUsersParams struct {
 
 // ListUsers list Directory Users
 // Get a list of all of existing Directory Users matching the criteria specified.
-func (s *directorySyncService) ListUsers(ctx context.Context, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
+func (s *DirectorySyncService) ListUsers(ctx context.Context, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
 	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "after", "data", opts)
 }
 
 // GetUser get a Directory User
 // Get the details of an existing Directory User.
-func (s *directorySyncService) GetUser(ctx context.Context, id string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
+func (s *DirectorySyncService) GetUser(ctx context.Context, id string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
 	var result DirectoryUserWithGroups
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_users/%s", id), nil, nil, &result, opts)
 	if err != nil {

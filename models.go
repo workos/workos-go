@@ -208,11 +208,11 @@ type ChallengeAuthenticationFactor struct {
 type CheckAuthorization struct {
 	// PermissionSlug is the slug of the permission to check.
 	PermissionSlug string `json:"permission_slug"`
-	// ResourceID is the ID of the resource.
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
 	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource.
+	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type.
+	// ResourceTypeSlug is the slug of the resource type. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
@@ -220,11 +220,11 @@ type CheckAuthorization struct {
 type AssignRole struct {
 	// RoleSlug is the slug of the role to assign.
 	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Use either this or `resource_external_id` and `resource_type_slug`.
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
 	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Requires `resource_type_slug`.
+	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`.
+	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
@@ -290,11 +290,11 @@ type UpdateAuthorizationResource struct {
 	Name *string `json:"name,omitempty"`
 	// Description is an optional description of the resource.
 	Description *string `json:"description,omitempty"`
-	// ParentResourceID is the ID of the parent resource.
+	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
 	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource.
+	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
@@ -310,11 +310,11 @@ type CreateAuthorizationResource struct {
 	ResourceTypeSlug string `json:"resource_type_slug"`
 	// OrganizationID is the ID of the organization this resource belongs to.
 	OrganizationID string `json:"organization_id"`
-	// ParentResourceID is the ID of the parent resource.
+	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
 	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource.
+	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource.
+	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
 	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
 }
 
@@ -499,12 +499,6 @@ type UpdateUserOrganizationMembership struct {
 type CreateUser struct {
 	// Email is the email address of the user.
 	Email string `json:"email"`
-	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
-	Password *string `json:"password,omitempty"`
-	// PasswordHash is the hashed password to set for the user. Mutually exclusive with `password`.
-	PasswordHash *string `json:"password_hash,omitempty"`
-	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`.
-	PasswordHashType *CreateUserPasswordHashType `json:"password_hash_type,omitempty"`
 	// FirstName is the first name of the user.
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
@@ -515,6 +509,12 @@ type CreateUser struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
+	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
+	Password *string `json:"password,omitempty"`
+	// PasswordHash is the hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
+	PasswordHash *string `json:"password_hash,omitempty"`
+	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
+	PasswordHashType *CreateUserPasswordHashType `json:"password_hash_type,omitempty"`
 }
 
 // UpdateUser represents an update user.
@@ -527,18 +527,18 @@ type UpdateUser struct {
 	LastName *string `json:"last_name,omitempty"`
 	// EmailVerified is whether the user's email has been verified.
 	EmailVerified *bool `json:"email_verified,omitempty"`
-	// Password is the password to set for the user.
-	Password *string `json:"password,omitempty"`
-	// PasswordHash is the hashed password to set for the user. Mutually exclusive with `password`.
-	PasswordHash *string `json:"password_hash,omitempty"`
-	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`.
-	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
 	Metadata map[string]string `json:"metadata,omitempty"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty"`
 	// Locale is the user's preferred locale.
 	Locale *string `json:"locale,omitempty"`
+	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
+	Password *string `json:"password,omitempty"`
+	// PasswordHash is the hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
+	PasswordHash *string `json:"password_hash,omitempty"`
+	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
+	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
 }
 
 // VerifyEmailAddress is an alias for AuthenticationChallengesVerifyRequest.
@@ -668,6 +668,8 @@ type ConnectApplication struct {
 	UpdatedAt string `json:"updated_at"`
 	// ApplicationType is the type of the application.
 	ApplicationType *string `json:"application_type,omitempty"`
+	// OrganizationID is the ID of the organization the application belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
 	// RedirectURIs is the redirect URIs configured for this application.
 	RedirectURIs []*ConnectApplicationRedirectURI `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
@@ -676,8 +678,6 @@ type ConnectApplication struct {
 	IsFirstParty *bool `json:"is_first_party,omitempty"`
 	// WasDynamicallyRegistered is whether the application was dynamically registered.
 	WasDynamicallyRegistered *bool `json:"was_dynamically_registered,omitempty"`
-	// OrganizationID is the ID of the organization the application belongs to.
-	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
 // NewConnectApplicationSecret represents a new connect application secret.
@@ -852,6 +852,28 @@ type AuthorizationResource struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// AuthorizationPermission represents an authorization permission.
+type AuthorizationPermission struct {
+	// Object distinguishes the Permission object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Permission.
+	ID string `json:"id"`
+	// Slug is a unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Permission.
+	Name string `json:"name"`
+	// Description is an optional description of the Permission.
+	Description *string `json:"description"`
+	// System is whether the permission is a system permission. System permissions are managed by WorkOS and cannot be deleted.
+	System bool `json:"system"`
+	// ResourceTypeSlug is the slug of the resource type associated with the permission.
+	ResourceTypeSlug string `json:"resource_type_slug"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // SlimRole is an alias for AddRolePermission.
 type SlimRole = AddRolePermission
 
@@ -883,7 +905,7 @@ type Role struct {
 	Name string `json:"name"`
 	// Description is an optional description of the role.
 	Description *string `json:"description"`
-	// Type is whether the role is scoped to the environment or an organization.
+	// Type is whether the role is scoped to the environment or an organization (custom role).
 	Type RoleType `json:"type"`
 	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
 	ResourceTypeSlug string `json:"resource_type_slug"`
@@ -900,28 +922,6 @@ type RoleList struct {
 	Object string `json:"object"`
 	// Data is the list of records for the current page.
 	Data []*Role `json:"data"`
-}
-
-// AuthorizationPermission represents an authorization permission.
-type AuthorizationPermission struct {
-	// Object distinguishes the Permission object.
-	Object string `json:"object"`
-	// ID is unique identifier of the Permission.
-	ID string `json:"id"`
-	// Slug is a unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
-	Slug string `json:"slug"`
-	// Name is a descriptive name for the Permission.
-	Name string `json:"name"`
-	// Description is an optional description of the Permission.
-	Description *string `json:"description"`
-	// System is whether the permission is a system permission. System permissions are managed by WorkOS and cannot be deleted.
-	System bool `json:"system"`
-	// ResourceTypeSlug is the slug of the resource type associated with the permission.
-	ResourceTypeSlug string `json:"resource_type_slug"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
 }
 
 // Connection represents a connection.
@@ -1129,6 +1129,24 @@ type DirectoryUser struct {
 	Role             *SlimRole              `json:"role,omitempty"`
 	// Roles is all roles assigned to the user.
 	Roles []*SlimRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// Group represents a group.
+type Group struct {
+	// Object is the Group object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Group.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the Organization the Group belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Name is the name of the Group.
+	Name string `json:"name"`
+	// Description is an optional description of the Group.
+	Description *string `json:"description"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -2746,6 +2764,87 @@ type FlagUpdatedContextPreviousAttributeData struct {
 	DefaultValue *bool `json:"default_value,omitempty"`
 }
 
+// GroupCreated represents a group created.
+type GroupCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *Group `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// GroupDeleted represents a group deleted.
+type GroupDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *Group `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// GroupMemberAdded represents a group member added.
+type GroupMemberAdded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *GroupMemberAddedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// GroupMemberAddedData the event payload.
+type GroupMemberAddedData struct {
+	// GroupID is the ID of the Group.
+	GroupID string `json:"group_id"`
+	// OrganizationMembershipID is the ID of the OrganizationMembership.
+	OrganizationMembershipID string `json:"organization_membership_id"`
+}
+
+// GroupMemberRemoved represents a group member removed.
+type GroupMemberRemoved struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *GroupMemberRemovedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// GroupMemberRemovedData is an alias for GroupMemberAddedData.
+type GroupMemberRemovedData = GroupMemberAddedData
+
+// GroupUpdated represents a group updated.
+type GroupUpdated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *Group `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
 // InvitationAccepted represents an invitation accepted.
 type InvitationAccepted struct {
 	// ID is unique identifier for the event.
@@ -4221,7 +4320,7 @@ type DataIntegrationAuthorizeURLResponse struct {
 type DataIntegrationAccessTokenResponse struct {
 	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
 	Active *bool `json:"active,omitempty"`
-	// AccessToken is the [access token](/reference/pipes/access-token) object, present when `active` is `true`.
+	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
 	AccessToken *DataIntegrationAccessTokenResponseAccessToken `json:"access_token,omitempty"`
 	// Error is - `"not_installed"`: The user does not have the integration installed.
 	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
@@ -4653,6 +4752,20 @@ type DataIntegrationsListResponseData struct {
 	ConnectedAccount *DataIntegrationsListResponseDataConnectedAccount `json:"connected_account"`
 }
 
+// DataIntegrationAccessTokenResponseAccessToken the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
+type DataIntegrationAccessTokenResponseAccessToken struct {
+	// Object distinguishes the access token object.
+	Object string `json:"object"`
+	// AccessToken is the OAuth access token for the connected integration.
+	AccessToken string `json:"access_token"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the access token expires.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
+	MissingScopes []string `json:"missing_scopes"`
+}
+
 // AuditLogConfigurationLogStream the Audit Log Stream currently configured for the organization, if any.
 type AuditLogConfigurationLogStream struct {
 	// ID is unique identifier of the Audit Log Stream.
@@ -4823,7 +4936,9 @@ type AuthorizedConnectApplicationListData struct {
 	// ID is the unique ID of the authorized connect application.
 	ID string `json:"id"`
 	// GrantedScopes is the scopes granted by the user to the application.
-	GrantedScopes []string            `json:"granted_scopes"`
+	GrantedScopes []string `json:"granted_scopes"`
+	// OAuthResource is the OAuth resource associated with the authorized connect application, if one was requested.
+	OAuthResource *string             `json:"oauth_resource,omitempty"`
 	Application   *ConnectApplication `json:"application"`
 }
 
@@ -4981,6 +5096,10 @@ type AuthorizationCodeSessionAuthenticateRequest struct {
 	GrantType    string `json:"grant_type"`
 	// Code is the authorization code received from the redirect.
 	Code string `json:"code"`
+	// CodeVerifier is the PKCE code verifier used to derive the code challenge passed to the authorization URL.
+	CodeVerifier *string `json:"code_verifier,omitempty"`
+	// InvitationToken is an invitation token to accept during authentication.
+	InvitationToken *string `json:"invitation_token,omitempty"`
 	// IPAddress is the IP address of the user's request.
 	IPAddress *string `json:"ip_address,omitempty"`
 	// DeviceID is a unique identifier for the device.
@@ -5331,20 +5450,6 @@ type EventSchemaContext struct {
 	ClientID string `json:"client_id"`
 	// Actor is the actor who performed the action.
 	Actor *EventSchemaContextActor `json:"actor"`
-}
-
-// DataIntegrationAccessTokenResponseAccessToken the [access token](/reference/pipes/access-token) object, present when `active` is `true`.
-type DataIntegrationAccessTokenResponseAccessToken struct {
-	// Object distinguishes the access token object.
-	Object string `json:"object"`
-	// AccessToken is the OAuth access token for the connected integration.
-	AccessToken string `json:"access_token"`
-	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the access token expires.
-	ExpiresAt *string `json:"expires_at"`
-	// Scopes is the scopes granted to the access token.
-	Scopes []string `json:"scopes"`
-	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
-	MissingScopes []string `json:"missing_scopes"`
 }
 
 // PaginationParams contains common pagination parameters for list operations.

@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// pipeService handles Pipes operations.
-type pipeService struct {
+// PipeService handles Pipes operations.
+type PipeService struct {
 	client *Client
 }
 
@@ -24,7 +24,7 @@ type PipesAuthorizeDataIntegrationParams struct {
 
 // AuthorizeDataIntegration get authorization URL
 // Generates an OAuth authorization URL to initiate the connection flow for a user. Redirect the user to the returned URL to begin the OAuth flow with the third-party provider.
-func (s *pipeService) AuthorizeDataIntegration(ctx context.Context, slug string, params *PipesAuthorizeDataIntegrationParams, opts ...RequestOption) (*DataIntegrationAuthorizeURLResponse, error) {
+func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string, params *PipesAuthorizeDataIntegrationParams, opts ...RequestOption) (*DataIntegrationAuthorizeURLResponse, error) {
 	var result DataIntegrationAuthorizeURLResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/authorize", slug), nil, params, &result, opts)
 	if err != nil {
@@ -43,7 +43,7 @@ type PipesCreateDataIntegrationTokenParams struct {
 
 // CreateDataIntegrationToken get an access token for a connected account
 // Fetches a valid OAuth access token for a user's connected account. WorkOS automatically handles token refresh, ensuring you always receive a valid, non-expired token.
-func (s *pipeService) CreateDataIntegrationToken(ctx context.Context, slug string, params *PipesCreateDataIntegrationTokenParams, opts ...RequestOption) (*DataIntegrationAccessTokenResponse, error) {
+func (s *PipeService) CreateDataIntegrationToken(ctx context.Context, slug string, params *PipesCreateDataIntegrationTokenParams, opts ...RequestOption) (*DataIntegrationAccessTokenResponse, error) {
 	var result DataIntegrationAccessTokenResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/token", slug), nil, params, &result, opts)
 	if err != nil {
@@ -60,7 +60,7 @@ type PipesGetUserConnectedAccountParams struct {
 
 // GetUserConnectedAccount get a connected account
 // Retrieves a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for a specific provider.
-func (s *pipeService) GetUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesGetUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+func (s *PipeService) GetUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesGetUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", userID, slug), params, nil, &result, opts)
 	if err != nil {
@@ -77,7 +77,7 @@ type PipesDeleteUserConnectedAccountParams struct {
 
 // DeleteUserConnectedAccount delete a connected account
 // Disconnects WorkOS's account for the user, including removing any stored access and refresh tokens. The user will need to reauthorize if they want to reconnect. This does not revoke access on the provider side.
-func (s *pipeService) DeleteUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesDeleteUserConnectedAccountParams, opts ...RequestOption) error {
+func (s *PipeService) DeleteUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesDeleteUserConnectedAccountParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", userID, slug), params, nil, nil, opts)
 	return err
 }
@@ -90,7 +90,7 @@ type PipesListUserDataProvidersParams struct {
 
 // ListUserDataProviders list providers
 // Retrieves a list of available providers and the user's connection status for each. Returns all providers configured for your environment, along with the user's [connected account](https://workos.com/docs/reference/pipes/connected-account) information where applicable.
-func (s *pipeService) ListUserDataProviders(ctx context.Context, userID string, params *PipesListUserDataProvidersParams, opts ...RequestOption) (*DataIntegrationsListResponse, error) {
+func (s *PipeService) ListUserDataProviders(ctx context.Context, userID string, params *PipesListUserDataProvidersParams, opts ...RequestOption) (*DataIntegrationsListResponse, error) {
 	var result DataIntegrationsListResponse
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/data_providers", userID), params, nil, &result, opts)
 	if err != nil {
