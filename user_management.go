@@ -24,7 +24,7 @@ type UserManagementPassword interface {
 }
 
 type UserManagementPasswordPlaintext struct {
-	Password string
+	Password *string
 }
 
 func (p UserManagementPasswordPlaintext) isUserManagementPassword() {}
@@ -34,7 +34,7 @@ func (p UserManagementPasswordPlaintext) applyToBody(m map[string]any) {
 
 type UserManagementPasswordHashed struct {
 	Hash     string
-	HashType string
+	HashType CreateUserPasswordHashType
 }
 
 func (p UserManagementPasswordHashed) isUserManagementPassword() {}
@@ -61,7 +61,7 @@ func (p UserManagementRoleSingle) applyToBody(m map[string]any) {
 }
 
 type UserManagementRoleMultiple struct {
-	Slugs string
+	Slugs []string
 }
 
 func (p UserManagementRoleMultiple) isUserManagementRole() {}
