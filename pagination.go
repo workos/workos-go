@@ -9,8 +9,6 @@ import (
 	"net/url"
 )
 
-type listParams interface{}
-
 type listResponse[T any] struct {
 	Data         []T          `json:"data"`
 	ListMetadata listMetadata `json:"list_metadata"`
@@ -41,9 +39,10 @@ type Iterator[T any] struct {
 	client   *Client
 	method   string
 	path     string
-	params   listParams
+	params   any
 	cursor   string
 	dataPath string
+	defaults map[string]string
 	opts     []RequestOption
 	after    *string
 	done     bool
@@ -55,10 +54,11 @@ func newIterator[T any](
 	client *Client,
 	method string,
 	path string,
-	params listParams,
+	params any,
 	cursor string,
 	dataPath string,
 	opts []RequestOption,
+	defaults map[string]string,
 ) *Iterator[T] {
 	return &Iterator[T]{
 		ctx:      ctx,
@@ -68,6 +68,7 @@ func newIterator[T any](
 		params:   params,
 		cursor:   cursor,
 		dataPath: dataPath,
+		defaults: defaults,
 		opts:     opts,
 	}
 }
@@ -91,7 +92,7 @@ func (it *Iterator[T]) Next() bool {
 		return false
 	}
 
-	params := withCursor(it.params, it.cursor, it.after)
+	params := withCursorAndDefaults(it.params, it.cursor, it.after, it.defaults)
 
 	var rawResp json.RawMessage
 	_, err := it.client.request(it.ctx, it.method, it.path, params, nil, &rawResp, it.opts)
@@ -130,17 +131,33 @@ func (it *Iterator[T]) Err() error {
 	return it.err
 }
 
-func withCursor(params listParams, cursor string, after *string) listParams {
-	if after == nil || cursor == "" {
-		return params
-	}
+// Cursor returns the current pagination cursor, which can be used to resume
+// iteration across process restarts by passing it as the "after" parameter.
+func (it *Iterator[T]) Cursor() *string {
+	return it.after
+}
+
+func withCursorAndDefaults(params any, cursor string, after *string, defaults map[string]string) any {
 	values, err := encodeQuery(params)
 	if err != nil {
+		if after != nil && cursor != "" {
+			v := url.Values{}
+			v.Set(cursor, *after)
+			return v
+		}
 		return params
 	}
 	if values == nil {
 		values = url.Values{}
 	}
-	values.Set(cursor, *after)
+	// Apply spec-level defaults for params the caller hasn't set.
+	for k, v := range defaults {
+		if values.Get(k) == "" {
+			values.Set(k, v)
+		}
+	}
+	if after != nil && cursor != "" {
+		values.Set(cursor, *after)
+	}
 	return values
 }

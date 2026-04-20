@@ -148,7 +148,7 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		}
 	}
 
-	authResp, err := s.client.UserManagement().AuthenticateWithRefreshToken(ctx, &AuthenticateWithRefreshTokenParams{
+	authResp, err := s.client.UserManagement().AuthenticateWithRefreshToken(ctx, &UserManagementAuthenticateWithRefreshTokenParams{
 		RefreshToken:   session.RefreshToken,
 		OrganizationID: orgID,
 	}, opts...)

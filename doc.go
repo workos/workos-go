@@ -12,7 +12,7 @@
 // All API resources are accessed through service accessors on the Client.
 // For example, to list organizations:
 //
-//	iter := client.Organizations().List(ctx, &workos.OrganizationListParams{})
+//	iter := client.Organizations().List(ctx, &workos.OrganizationsListParams{})
 //	for iter.Next() {
 //		org := iter.Current()
 //		fmt.Println(org.Name)

@@ -213,7 +213,7 @@ func TestConnect_CreateOAuthApplication(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateOAuthApplication(context.Background(), &workos.CreateOAuthApplicationParams{})
+	result, err := client.Connect().CreateOAuthApplication(context.Background(), &workos.ConnectCreateOAuthApplicationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -236,7 +236,7 @@ func TestConnect_CreateM2MApplication(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Connect().CreateM2MApplication(context.Background(), &workos.CreateM2MApplicationParams{})
+	result, err := client.Connect().CreateM2MApplication(context.Background(), &workos.ConnectCreateM2MApplicationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }

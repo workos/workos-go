@@ -37,6 +37,25 @@ func WithClientID(id string) ClientOption {
 	return func(c *Client) { c.clientID = id }
 }
 
+// Logger is a minimal logging interface for HTTP request tracing.
+type Logger interface {
+	Printf(format string, args ...any)
+}
+
+// WithLogger sets a logger for HTTP request tracing (method, path, status, duration).
+func WithLogger(l Logger) ClientOption {
+	return func(c *Client) { c.logger = l }
+}
+
+// WithAppInfo sets application info that is appended to the User-Agent header.
+// This is useful for framework vendors and integration libraries to identify
+// themselves in API requests.
+func WithAppInfo(name, version, url string) ClientOption {
+	return func(c *Client) {
+		c.appInfo = appInfo{Name: name, Version: version, URL: url}
+	}
+}
+
 // RequestOption configures a single API request.
 type RequestOption func(*requestConfig)
 
@@ -71,4 +90,11 @@ func WithRequestMaxRetries(n int) RequestOption {
 // WithRequestBaseURL overrides the base URL for a single request.
 func WithRequestBaseURL(url string) RequestOption {
 	return func(r *requestConfig) { r.baseURL = url }
+}
+
+// appInfo identifies an application or framework for the User-Agent header.
+type appInfo struct {
+	Name    string
+	Version string
+	URL     string
 }

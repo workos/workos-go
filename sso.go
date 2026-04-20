@@ -27,17 +27,16 @@ type SSOListConnectionsParams struct {
 	Search *string `url:"search,omitempty" json:"-"`
 }
 
-// ListConnections list Connections
 // Get a list of all of your existing connections matching the criteria specified.
 func (s *SSOService) ListConnections(ctx context.Context, params *SSOListConnectionsParams, opts ...RequestOption) *Iterator[Connection] {
-	return newIterator[Connection](ctx, s.client, "GET", "/connections", params, "after", "data", opts)
+	return newIterator[Connection](ctx, s.client, "GET", "/connections", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // GetConnection get a Connection
 // Get the details of an existing connection.
 func (s *SSOService) GetConnection(ctx context.Context, id string, opts ...RequestOption) (*Connection, error) {
 	var result Connection
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +46,7 @@ func (s *SSOService) GetConnection(ctx context.Context, id string, opts ...Reque
 // DeleteConnection delete a Connection
 // Permanently deletes an existing connection. It cannot be undone.
 func (s *SSOService) DeleteConnection(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connections/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connections/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 

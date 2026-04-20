@@ -31,13 +31,25 @@ type WebhookVerifier struct {
 	now       func() time.Time
 }
 
+// WebhookVerifierOption configures a WebhookVerifier.
+type WebhookVerifierOption func(*WebhookVerifier)
+
+// WithWebhookTolerance sets the maximum age tolerance for webhook timestamps.
+func WithWebhookTolerance(d time.Duration) WebhookVerifierOption {
+	return func(w *WebhookVerifier) { w.tolerance = d }
+}
+
 // NewWebhookVerifier creates a new verifier with the given secret.
-func NewWebhookVerifier(secret string) *WebhookVerifier {
-	return &WebhookVerifier{
+func NewWebhookVerifier(secret string, opts ...WebhookVerifierOption) *WebhookVerifier {
+	w := &WebhookVerifier{
 		secret:    secret,
 		tolerance: 180 * time.Second,
 		now:       time.Now,
 	}
+	for _, opt := range opts {
+		opt(w)
+	}
+	return w
 }
 
 // SetTolerance sets the maximum age tolerance for webhook timestamps.

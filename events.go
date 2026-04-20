@@ -24,8 +24,8 @@ type EventsListParams struct {
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
 
-// List list events
+// List events
 // List events for the current environment.
 func (s *EventService) List(ctx context.Context, params *EventsListParams, opts ...RequestOption) *Iterator[EventSchema] {
-	return newIterator[EventSchema](ctx, s.client, "GET", "/events", params, "after", "data", opts)
+	return newIterator[EventSchema](ctx, s.client, "GET", "/events", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }

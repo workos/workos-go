@@ -17,7 +17,7 @@ type AuditLogService struct {
 // Get the configured event retention period for the given Organization.
 func (s *AuditLogService) GetOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
 // Set the event retention period for the given Organization.
 func (s *AuditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Context, id string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
 	var result AuditLogsRetentionJSON
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -46,10 +46,9 @@ type AuditLogsListActionsParams struct {
 	PaginationParams
 }
 
-// ListActions list Actions
 // Get a list of all Audit Log actions in the current environment.
 func (s *AuditLogService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogActionJSON] {
-	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts)
+	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuditLogsListActionSchemasParams contains the parameters for ListActionSchemas.
@@ -60,7 +59,7 @@ type AuditLogsListActionSchemasParams struct {
 // ListActionSchemas list Schemas
 // Get a list of all schemas for the Audit Logs action identified by `:name`.
 func (s *AuditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
-	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(string(actionName))), params, "after", "data", opts)
+	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuditLogsCreateSchemaParams contains the parameters for CreateSchema.
@@ -73,11 +72,10 @@ type AuditLogsCreateSchemaParams struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// CreateSchema create Schema
 // Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
 func (s *AuditLogService) CreateSchema(ctx context.Context, actionName string, params *AuditLogsCreateSchemaParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
 	var result AuditLogSchemaJSON
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(string(actionName))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +90,6 @@ type AuditLogsCreateEventParams struct {
 	Event *AuditLogEvent `json:"event"`
 }
 
-// CreateEvent create Event
 // Create an Audit Log Event.
 // This API supports idempotency which guarantees that performing the same operation multiple times will have the same result as if the operation were performed only once. This is handy in situations where you may need to retry a request due to a failure or prevent accidental duplicate requests from creating more than one resource.
 // To achieve idempotency, you can add `Idempotency-Key` request header to a Create Event request with a unique string as the value. Each subsequent request matching this unique string will return the same response. We suggest using [v4 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) for idempotency keys to avoid collisions.
@@ -128,7 +125,6 @@ type AuditLogsCreateExportParams struct {
 	Targets []string `json:"targets,omitempty"`
 }
 
-// CreateExport create Export
 // Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
 func (s *AuditLogService) CreateExport(ctx context.Context, params *AuditLogsCreateExportParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
@@ -139,11 +135,10 @@ func (s *AuditLogService) CreateExport(ctx context.Context, params *AuditLogsCre
 	return &result, nil
 }
 
-// GetExport get Export
 // Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
 func (s *AuditLogService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExportJSON, error) {
 	var result AuditLogExportJSON
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", url.PathEscape(string(auditLogExportID))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", url.PathEscape(auditLogExportID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

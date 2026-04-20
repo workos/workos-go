@@ -18,39 +18,39 @@ type FeatureFlagsListParams struct {
 	PaginationParams
 }
 
-// List list feature flags
+// List feature flags
 // Get a list of all of your existing feature flags matching the criteria specified.
 func (s *FeatureFlagService) List(ctx context.Context, params *FeatureFlagsListParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", "/feature-flags", params, "after", "data", opts)
+	return newIterator[Flag](ctx, s.client, "GET", "/feature-flags", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
-// Get get a feature flag
+// Get a feature flag
 // Get the details of an existing feature flag by its slug.
 func (s *FeatureFlagService) Get(ctx context.Context, slug string, opts ...RequestOption) (*Flag, error) {
 	var result Flag
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/feature-flags/%s", url.PathEscape(string(slug))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/feature-flags/%s", url.PathEscape(slug)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Disable disable a feature flag
+// Disable a feature flag
 // Disables a feature flag in the current environment.
 func (s *FeatureFlagService) Disable(ctx context.Context, slug string, opts ...RequestOption) (*FeatureFlag, error) {
 	var result FeatureFlag
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/disable", url.PathEscape(string(slug))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/disable", url.PathEscape(slug)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Enable enable a feature flag
+// Enable a feature flag
 // Enables a feature flag in the current environment.
 func (s *FeatureFlagService) Enable(ctx context.Context, slug string, opts ...RequestOption) (*FeatureFlag, error) {
 	var result FeatureFlag
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/enable", url.PathEscape(string(slug))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/feature-flags/%s/enable", url.PathEscape(slug)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -60,14 +60,14 @@ func (s *FeatureFlagService) Enable(ctx context.Context, slug string, opts ...Re
 // AddFlagTarget add a feature flag target
 // Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
 func (s *FeatureFlagService) AddFlagTarget(ctx context.Context, slug string, resourceID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/feature-flags/%s/targets/%s", url.PathEscape(string(slug)), url.PathEscape(string(resourceID))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/feature-flags/%s/targets/%s", url.PathEscape(slug), url.PathEscape(resourceID)), nil, nil, nil, opts)
 	return err
 }
 
 // RemoveFlagTarget remove a feature flag target
 // Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
 func (s *FeatureFlagService) RemoveFlagTarget(ctx context.Context, slug string, resourceID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/feature-flags/%s/targets/%s", url.PathEscape(string(slug)), url.PathEscape(string(resourceID))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/feature-flags/%s/targets/%s", url.PathEscape(slug), url.PathEscape(resourceID)), nil, nil, nil, opts)
 	return err
 }
 
@@ -79,7 +79,7 @@ type FeatureFlagsListOrganizationFeatureFlagsParams struct {
 // ListOrganizationFeatureFlags list enabled feature flags for an organization
 // Get a list of all enabled feature flags for an organization.
 func (s *FeatureFlagService) ListOrganizationFeatureFlags(ctx context.Context, organizationID string, params *FeatureFlagsListOrganizationFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/feature-flags", url.PathEscape(string(organizationID))), params, "after", "data", opts)
+	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/feature-flags", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // FeatureFlagsListUserFeatureFlagsParams contains the parameters for ListUserFeatureFlags.
@@ -90,5 +90,5 @@ type FeatureFlagsListUserFeatureFlagsParams struct {
 // ListUserFeatureFlags list enabled feature flags for a user
 // Get a list of all enabled feature flags for the provided user. This includes feature flags enabled specifically for the user as well as any organizations that the user is a member of.
 func (s *FeatureFlagService) ListUserFeatureFlags(ctx context.Context, userID string, params *FeatureFlagsListUserFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/feature-flags", url.PathEscape(string(userID))), params, "after", "data", opts)
+	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/feature-flags", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }

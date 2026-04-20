@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -21,12 +21,13 @@ import (
 	"github.com/google/uuid"
 )
 
-var retryableStatuses = map[int]bool{
-	429: true,
-	500: true,
-	502: true,
-	503: true,
-	504: true,
+func isRetryableStatus(code int) bool {
+	switch code {
+	case 429, 500, 502, 503, 504:
+		return true
+	default:
+		return false
+	}
 }
 
 // request executes an HTTP request with retry logic.
@@ -106,7 +107,14 @@ func (c *Client) request(
 
 		req.Header.Set("Authorization", "Bearer "+c.apiKey)
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("User-Agent", "workos-go/"+Version)
+		ua := "workos-go/" + Version
+		if c.appInfo.Name != "" {
+			ua += " " + c.appInfo.Name + "/" + c.appInfo.Version
+			if c.appInfo.URL != "" {
+				ua += " (" + c.appInfo.URL + ")"
+			}
+		}
+		req.Header.Set("User-Agent", ua)
 		if idempotencyKey != "" {
 			req.Header.Set("Idempotency-Key", idempotencyKey)
 		}
@@ -125,13 +133,20 @@ func (c *Client) request(
 			httpClient = &clonedClient
 		}
 
+		reqStart := time.Now()
 		resp, err := httpClient.Do(req)
 		if err != nil {
 			lastErr = &NetworkError{Err: err}
+			if c.logger != nil {
+				c.logger.Printf("workos: %s %s error=%v duration=%s", method, path, err, time.Since(reqStart))
+			}
 			continue
 		}
+		if c.logger != nil {
+			c.logger.Printf("workos: %s %s status=%d duration=%s", method, path, resp.StatusCode, time.Since(reqStart))
+		}
 
-		if retryableStatuses[resp.StatusCode] && attempt < maxRetries {
+		if isRetryableStatus(resp.StatusCode) && attempt < maxRetries {
 			lastErr = parseAPIError(resp)
 			resp.Body.Close()
 			continue
@@ -206,7 +221,7 @@ func backoff(attempt int, lastErr error) time.Duration {
 	}
 
 	wait := time.Duration(float64(base) * math.Pow(2, float64(attempt-1)))
-	jitter := time.Duration(rand.Int63n(int64(base)))
+	jitter := time.Duration(rand.Int64N(int64(base)))
 	wait += jitter
 	if wait > max {
 		wait = max

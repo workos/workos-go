@@ -93,7 +93,7 @@ if err != nil {
 List endpoints return an `Iterator[T]` for auto-pagination:
 
 ```go
-iter := client.UserManagement().ListUsers(ctx, &workos.UserManagementListParams{})
+iter := client.UserManagement().List(ctx, &workos.UserManagementListParams{})
 for iter.Next() {
 	user := iter.Current()
 	fmt.Println(user.Email)
@@ -108,12 +108,14 @@ if err := iter.Err(); err != nil {
 Verify incoming webhook payloads and construct typed events:
 
 ```go
-payload, err := client.Webhooks().VerifyPayload(rawBody, sigHeader, secret)
+v := workos.NewWebhookVerifier(secret)
+
+payload, err := v.VerifyPayload(sigHeader, rawBody)
 if err != nil {
 	log.Fatal("invalid webhook signature")
 }
 
-event, err := client.Webhooks().ConstructEvent(rawBody, sigHeader, secret)
+event, err := v.ConstructEvent(sigHeader, rawBody)
 if err != nil {
 	log.Fatal(err)
 }
@@ -163,7 +165,7 @@ Customize individual requests with functional options:
 result, err := client.Organizations().Get(ctx, "org_123",
 	workos.WithTimeout(5 * time.Second),
 	workos.WithIdempotencyKey("unique-key"),
-	workos.WithExtraHeaders(map[string]string{"X-Custom": "value"}),
+	workos.WithExtraHeaders(http.Header{"X-Custom": {"value"}}),
 )
 ```
 

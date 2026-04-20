@@ -1029,7 +1029,7 @@ func TestUserManagement_AuthenticateWithPassword(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithPassword(context.Background(), &workos.AuthenticateWithPasswordParams{})
+	result, err := client.UserManagement().AuthenticateWithPassword(context.Background(), &workos.UserManagementAuthenticateWithPasswordParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1052,7 +1052,7 @@ func TestUserManagement_AuthenticateWithCode(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithCode(context.Background(), &workos.AuthenticateWithCodeParams{})
+	result, err := client.UserManagement().AuthenticateWithCode(context.Background(), &workos.UserManagementAuthenticateWithCodeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1075,7 +1075,7 @@ func TestUserManagement_AuthenticateWithRefreshToken(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithRefreshToken(context.Background(), &workos.AuthenticateWithRefreshTokenParams{})
+	result, err := client.UserManagement().AuthenticateWithRefreshToken(context.Background(), &workos.UserManagementAuthenticateWithRefreshTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1098,7 +1098,7 @@ func TestUserManagement_AuthenticateWithMagicAuth(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithMagicAuth(context.Background(), &workos.AuthenticateWithMagicAuthParams{})
+	result, err := client.UserManagement().AuthenticateWithMagicAuth(context.Background(), &workos.UserManagementAuthenticateWithMagicAuthParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1121,7 +1121,7 @@ func TestUserManagement_AuthenticateWithEmailVerification(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithEmailVerification(context.Background(), &workos.AuthenticateWithEmailVerificationParams{})
+	result, err := client.UserManagement().AuthenticateWithEmailVerification(context.Background(), &workos.UserManagementAuthenticateWithEmailVerificationParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1144,7 +1144,7 @@ func TestUserManagement_AuthenticateWithTOTP(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithTOTP(context.Background(), &workos.AuthenticateWithTOTPParams{})
+	result, err := client.UserManagement().AuthenticateWithTOTP(context.Background(), &workos.UserManagementAuthenticateWithTOTPParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1167,7 +1167,7 @@ func TestUserManagement_AuthenticateWithOrganizationSelection(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithOrganizationSelection(context.Background(), &workos.AuthenticateWithOrganizationSelectionParams{})
+	result, err := client.UserManagement().AuthenticateWithOrganizationSelection(context.Background(), &workos.UserManagementAuthenticateWithOrganizationSelectionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1190,7 +1190,7 @@ func TestUserManagement_AuthenticateWithDeviceCode(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().AuthenticateWithDeviceCode(context.Background(), &workos.AuthenticateWithDeviceCodeParams{})
+	result, err := client.UserManagement().AuthenticateWithDeviceCode(context.Background(), &workos.UserManagementAuthenticateWithDeviceCodeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }

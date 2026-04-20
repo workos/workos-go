@@ -53,7 +53,7 @@ type RadarUpdateAttemptParams struct {
 // UpdateAttempt update a Radar attempt
 // You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
 func (s *RadarService) UpdateAttempt(ctx context.Context, id string, params *RadarUpdateAttemptParams, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", url.PathEscape(string(id))), nil, params, nil, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/radar/attempts/%s", url.PathEscape(id)), nil, params, nil, opts)
 	return err
 }
 

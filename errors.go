@@ -44,6 +44,15 @@ func (e *APIError) Error() string {
 			msg += " " + e.ErrorDescription
 		}
 	}
+	// When both Message and ErrorCode are empty (e.g., non-JSON 5xx responses),
+	// include a truncated snippet of the raw body so users can diagnose the issue.
+	if msg == "" && e.RawBody != "" {
+		body := e.RawBody
+		if len(body) > 200 {
+			body = body[:200] + "..."
+		}
+		msg = body
+	}
 	base := fmt.Sprintf("workos: %d %s: %s (request_id: %s)", e.StatusCode, e.code(), msg, e.RequestID)
 	if e.PendingAuthenticationToken != "" {
 		base += fmt.Sprintf(", pending_authentication_token: %q", e.PendingAuthenticationToken)

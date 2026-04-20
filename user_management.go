@@ -69,19 +69,18 @@ func (p UserManagementRoleMultiple) applyToBody(m map[string]any) {
 	m["role_slugs"] = p.Slugs
 }
 
-// GetJWKS get JWKS
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
 func (s *UserManagementService) GetJWKS(ctx context.Context, clientID string, opts ...RequestOption) (*JWKSResponse, error) {
 	var result JWKSResponse
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", url.PathEscape(string(clientID))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/sso/jwks/%s", url.PathEscape(clientID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// AuthenticateWithPasswordParams contains the parameters for AuthenticateWithPassword.
-type AuthenticateWithPasswordParams struct {
+// UserManagementAuthenticateWithPasswordParams contains the parameters for AuthenticateWithPassword.
+type UserManagementAuthenticateWithPasswordParams struct {
 	// Email is the user's email address.
 	Email string `json:"email"`
 	// Password is the user's password.
@@ -110,7 +109,7 @@ type authenticateWithPasswordBody struct {
 }
 
 // AuthenticateWithPassword Authenticate with password.
-func (s *UserManagementService) AuthenticateWithPassword(ctx context.Context, params *AuthenticateWithPasswordParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithPassword(ctx context.Context, params *UserManagementAuthenticateWithPasswordParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithPasswordBody{
 		GrantType: "password",
 		Email:     params.Email,
@@ -130,8 +129,8 @@ func (s *UserManagementService) AuthenticateWithPassword(ctx context.Context, pa
 	return &result, nil
 }
 
-// AuthenticateWithCodeParams contains the parameters for AuthenticateWithCode.
-type AuthenticateWithCodeParams struct {
+// UserManagementAuthenticateWithCodeParams contains the parameters for AuthenticateWithCode.
+type UserManagementAuthenticateWithCodeParams struct {
 	// Code is the authorization code received from the redirect.
 	Code string `json:"code"`
 	// CodeVerifier is the PKCE code verifier used to derive the code challenge passed to the authorization URL.
@@ -160,7 +159,7 @@ type authenticateWithCodeBody struct {
 }
 
 // AuthenticateWithCode Authenticate with code.
-func (s *UserManagementService) AuthenticateWithCode(ctx context.Context, params *AuthenticateWithCodeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithCode(ctx context.Context, params *UserManagementAuthenticateWithCodeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithCodeBody{
 		GrantType: "authorization_code",
 		Code:      params.Code,
@@ -180,8 +179,8 @@ func (s *UserManagementService) AuthenticateWithCode(ctx context.Context, params
 	return &result, nil
 }
 
-// AuthenticateWithRefreshTokenParams contains the parameters for AuthenticateWithRefreshToken.
-type AuthenticateWithRefreshTokenParams struct {
+// UserManagementAuthenticateWithRefreshTokenParams contains the parameters for AuthenticateWithRefreshToken.
+type UserManagementAuthenticateWithRefreshTokenParams struct {
 	// RefreshToken is the refresh token to exchange for new tokens.
 	RefreshToken string `json:"refresh_token"`
 	// OrganizationID is the ID of the organization to scope the session to.
@@ -207,7 +206,7 @@ type authenticateWithRefreshTokenBody struct {
 }
 
 // AuthenticateWithRefreshToken Authenticate with refresh token.
-func (s *UserManagementService) AuthenticateWithRefreshToken(ctx context.Context, params *AuthenticateWithRefreshTokenParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithRefreshToken(ctx context.Context, params *UserManagementAuthenticateWithRefreshTokenParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithRefreshTokenBody{
 		GrantType:    "refresh_token",
 		RefreshToken: params.RefreshToken,
@@ -226,8 +225,8 @@ func (s *UserManagementService) AuthenticateWithRefreshToken(ctx context.Context
 	return &result, nil
 }
 
-// AuthenticateWithMagicAuthParams contains the parameters for AuthenticateWithMagicAuth.
-type AuthenticateWithMagicAuthParams struct {
+// UserManagementAuthenticateWithMagicAuthParams contains the parameters for AuthenticateWithMagicAuth.
+type UserManagementAuthenticateWithMagicAuthParams struct {
 	Code            string  `json:"code"`
 	Email           string  `json:"email"`
 	InvitationToken *string `json:"invitation_token,omitempty"`
@@ -250,7 +249,7 @@ type authenticateWithMagicAuthBody struct {
 }
 
 // AuthenticateWithMagicAuth Authenticate with magic auth.
-func (s *UserManagementService) AuthenticateWithMagicAuth(ctx context.Context, params *AuthenticateWithMagicAuthParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithMagicAuth(ctx context.Context, params *UserManagementAuthenticateWithMagicAuthParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithMagicAuthBody{
 		GrantType: "urn:workos:oauth:grant-type:magic-auth:code",
 		Code:      params.Code,
@@ -270,8 +269,8 @@ func (s *UserManagementService) AuthenticateWithMagicAuth(ctx context.Context, p
 	return &result, nil
 }
 
-// AuthenticateWithEmailVerificationParams contains the parameters for AuthenticateWithEmailVerification.
-type AuthenticateWithEmailVerificationParams struct {
+// UserManagementAuthenticateWithEmailVerificationParams contains the parameters for AuthenticateWithEmailVerification.
+type UserManagementAuthenticateWithEmailVerificationParams struct {
 	Code                       string  `json:"code"`
 	PendingAuthenticationToken string  `json:"pending_authentication_token"`
 	IPAddress                  *string `json:"ip_address,omitempty"`
@@ -292,7 +291,7 @@ type authenticateWithEmailVerificationBody struct {
 }
 
 // AuthenticateWithEmailVerification Authenticate with email verification.
-func (s *UserManagementService) AuthenticateWithEmailVerification(ctx context.Context, params *AuthenticateWithEmailVerificationParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithEmailVerification(ctx context.Context, params *UserManagementAuthenticateWithEmailVerificationParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithEmailVerificationBody{
 		GrantType:                  "urn:workos:oauth:grant-type:email-verification:code",
 		Code:                       params.Code,
@@ -311,8 +310,8 @@ func (s *UserManagementService) AuthenticateWithEmailVerification(ctx context.Co
 	return &result, nil
 }
 
-// AuthenticateWithTOTPParams contains the parameters for AuthenticateWithTOTP.
-type AuthenticateWithTOTPParams struct {
+// UserManagementAuthenticateWithTOTPParams contains the parameters for AuthenticateWithTOTP.
+type UserManagementAuthenticateWithTOTPParams struct {
 	Code                       string  `json:"code"`
 	PendingAuthenticationToken string  `json:"pending_authentication_token"`
 	AuthenticationChallengeID  string  `json:"authentication_challenge_id"`
@@ -335,7 +334,7 @@ type authenticateWithTOTPBody struct {
 }
 
 // AuthenticateWithTOTP Authenticate with totp.
-func (s *UserManagementService) AuthenticateWithTOTP(ctx context.Context, params *AuthenticateWithTOTPParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithTOTP(ctx context.Context, params *UserManagementAuthenticateWithTOTPParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithTOTPBody{
 		GrantType:                  "urn:workos:oauth:grant-type:mfa-totp",
 		Code:                       params.Code,
@@ -355,8 +354,8 @@ func (s *UserManagementService) AuthenticateWithTOTP(ctx context.Context, params
 	return &result, nil
 }
 
-// AuthenticateWithOrganizationSelectionParams contains the parameters for AuthenticateWithOrganizationSelection.
-type AuthenticateWithOrganizationSelectionParams struct {
+// UserManagementAuthenticateWithOrganizationSelectionParams contains the parameters for AuthenticateWithOrganizationSelection.
+type UserManagementAuthenticateWithOrganizationSelectionParams struct {
 	PendingAuthenticationToken string  `json:"pending_authentication_token"`
 	OrganizationID             string  `json:"organization_id"`
 	IPAddress                  *string `json:"ip_address,omitempty"`
@@ -377,7 +376,7 @@ type authenticateWithOrganizationSelectionBody struct {
 }
 
 // AuthenticateWithOrganizationSelection Authenticate with organization selection.
-func (s *UserManagementService) AuthenticateWithOrganizationSelection(ctx context.Context, params *AuthenticateWithOrganizationSelectionParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithOrganizationSelection(ctx context.Context, params *UserManagementAuthenticateWithOrganizationSelectionParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithOrganizationSelectionBody{
 		GrantType:                  "urn:workos:oauth:grant-type:organization-selection",
 		PendingAuthenticationToken: params.PendingAuthenticationToken,
@@ -396,8 +395,8 @@ func (s *UserManagementService) AuthenticateWithOrganizationSelection(ctx contex
 	return &result, nil
 }
 
-// AuthenticateWithDeviceCodeParams contains the parameters for AuthenticateWithDeviceCode.
-type AuthenticateWithDeviceCodeParams struct {
+// UserManagementAuthenticateWithDeviceCodeParams contains the parameters for AuthenticateWithDeviceCode.
+type UserManagementAuthenticateWithDeviceCodeParams struct {
 	DeviceCode string  `json:"device_code"`
 	IPAddress  *string `json:"ip_address,omitempty"`
 	DeviceID   *string `json:"device_id,omitempty"`
@@ -415,7 +414,7 @@ type authenticateWithDeviceCodeBody struct {
 }
 
 // AuthenticateWithDeviceCode Authenticate with device code.
-func (s *UserManagementService) AuthenticateWithDeviceCode(ctx context.Context, params *AuthenticateWithDeviceCodeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+func (s *UserManagementService) AuthenticateWithDeviceCode(ctx context.Context, params *UserManagementAuthenticateWithDeviceCodeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
 	body := authenticateWithDeviceCodeBody{
 		GrantType:  "urn:ietf:params:oauth:grant-type:device_code",
 		DeviceCode: params.DeviceCode,
@@ -562,7 +561,6 @@ type UserManagementRevokeSessionParams struct {
 	ReturnTo *string `json:"return_to,omitempty"`
 }
 
-// RevokeSession revoke Session
 // Revoke a [user session](https://workos.com/docs/reference/authkit/session).
 func (s *UserManagementService) RevokeSession(ctx context.Context, params *UserManagementRevokeSessionParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", "/user_management/sessions/revoke", nil, params, nil, opts)
@@ -590,7 +588,7 @@ func (s *UserManagementService) CreateCORSOrigin(ctx context.Context, params *Us
 // Get the details of an existing email verification code that can be used to send an email to a user for verification.
 func (s *UserManagementService) GetEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*EmailVerification, error) {
 	var result EmailVerification
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/email_verification/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/email_verification/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -637,7 +635,7 @@ func (s *UserManagementService) ConfirmPasswordReset(ctx context.Context, params
 // Get the details of an existing password reset token that can be used to reset a user's password.
 func (s *UserManagementService) GetPasswordReset(ctx context.Context, id string, opts ...RequestOption) (*PasswordReset, error) {
 	var result PasswordReset
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/password_reset/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/password_reset/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -657,10 +655,10 @@ type UserManagementListParams struct {
 	Email *string `url:"email,omitempty" json:"-"`
 }
 
-// List list users
+// List users
 // Get a list of all of your existing users matching the criteria specified.
 func (s *UserManagementService) List(ctx context.Context, params *UserManagementListParams, opts ...RequestOption) *Iterator[User] {
-	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "after", "data", opts)
+	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateParams contains the parameters for Create.
@@ -683,17 +681,22 @@ type UserManagementCreateParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementCreateParams.
 func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
-	type Alias UserManagementCreateParams
-	data, err := json.Marshal(Alias(p))
-	if err != nil {
-		return nil, err
+	m := make(map[string]any)
+	m["email"] = p.Email
+	if p.FirstName != nil {
+		m["first_name"] = p.FirstName
 	}
-	if p.Password == nil {
-		return data, nil
+	if p.LastName != nil {
+		m["last_name"] = p.LastName
 	}
-	var m map[string]any
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
+	if p.EmailVerified != nil {
+		m["email_verified"] = p.EmailVerified
+	}
+	if p.Metadata != nil {
+		m["metadata"] = p.Metadata
+	}
+	if p.ExternalID != nil {
+		m["external_id"] = p.ExternalID
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
@@ -701,7 +704,7 @@ func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-// Create create a user
+// Create a user
 // Create a new user in the current environment.
 func (s *UserManagementService) Create(ctx context.Context, params *UserManagementCreateParams, opts ...RequestOption) (*User, error) {
 	var result User
@@ -716,18 +719,18 @@ func (s *UserManagementService) Create(ctx context.Context, params *UserManageme
 // Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
 func (s *UserManagementService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/external_id/%s", url.PathEscape(string(externalID))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/external_id/%s", url.PathEscape(externalID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Get get a user
+// Get a user
 // Get the details of an existing user.
 func (s *UserManagementService) Get(ctx context.Context, id string, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -756,17 +759,27 @@ type UserManagementUpdateParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementUpdateParams.
 func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
-	type Alias UserManagementUpdateParams
-	data, err := json.Marshal(Alias(p))
-	if err != nil {
-		return nil, err
+	m := make(map[string]any)
+	if p.Email != nil {
+		m["email"] = p.Email
 	}
-	if p.Password == nil {
-		return data, nil
+	if p.FirstName != nil {
+		m["first_name"] = p.FirstName
 	}
-	var m map[string]any
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
+	if p.LastName != nil {
+		m["last_name"] = p.LastName
+	}
+	if p.EmailVerified != nil {
+		m["email_verified"] = p.EmailVerified
+	}
+	if p.Metadata != nil {
+		m["metadata"] = p.Metadata
+	}
+	if p.ExternalID != nil {
+		m["external_id"] = p.ExternalID
+	}
+	if p.Locale != nil {
+		m["locale"] = p.Locale
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
@@ -774,21 +787,21 @@ func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-// Update update a user
+// Update a user
 // Updates properties of a user. The omitted properties will be left unchanged.
 func (s *UserManagementService) Update(ctx context.Context, id string, params *UserManagementUpdateParams, opts ...RequestOption) (*User, error) {
 	var result User
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Delete delete a user
+// Delete a user
 // Permanently deletes a user in the current environment. It cannot be undone.
 func (s *UserManagementService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 
@@ -798,11 +811,10 @@ type UserManagementConfirmEmailChangeParams struct {
 	Code string `json:"code"`
 }
 
-// ConfirmEmailChange confirm email change
 // Confirms an email change using the one-time code received by the user.
 func (s *UserManagementService) ConfirmEmailChange(ctx context.Context, id string, params *UserManagementConfirmEmailChangeParams, opts ...RequestOption) (*EmailChangeConfirmation, error) {
 	var result EmailChangeConfirmation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/confirm", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/confirm", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -815,11 +827,11 @@ type UserManagementSendEmailChangeParams struct {
 	NewEmail string `json:"new_email"`
 }
 
-// SendEmailChange send email change code
+// SendEmailChange code
 // Sends an email that contains a one-time code used to change a user's email address.
 func (s *UserManagementService) SendEmailChange(ctx context.Context, id string, params *UserManagementSendEmailChangeParams, opts ...RequestOption) (*EmailChange, error) {
 	var result EmailChange
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/send", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_change/send", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -832,22 +844,20 @@ type UserManagementVerifyEmailParams struct {
 	Code string `json:"code"`
 }
 
-// VerifyEmail verify email
 // Verifies an email address using the one-time code received by the user.
 func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, params *UserManagementVerifyEmailParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
 	var result VerifyEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/confirm", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// SendVerificationEmail send verification email
 // Sends an email that contains a one-time code used to verify a user’s email address.
 func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -858,7 +868,7 @@ func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id st
 // Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
 func (s *UserManagementService) GetIdentities(ctx context.Context, id string, opts ...RequestOption) ([]UserIdentitiesGetItem, error) {
 	var result []UserIdentitiesGetItem
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/identities", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -870,10 +880,9 @@ type UserManagementListSessionsParams struct {
 	PaginationParams
 }
 
-// ListSessions list sessions
 // Get a list of all active sessions for a specific user.
 func (s *UserManagementService) ListSessions(ctx context.Context, id string, params *UserManagementListSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
-	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", url.PathEscape(string(id))), params, "after", "data", opts)
+	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", url.PathEscape(id)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementListInvitationsParams contains the parameters for ListInvitations.
@@ -885,10 +894,9 @@ type UserManagementListInvitationsParams struct {
 	Email *string `url:"email,omitempty" json:"-"`
 }
 
-// ListInvitations list invitations
 // Get a list of all of invitations matching the criteria specified.
 func (s *UserManagementService) ListInvitations(ctx context.Context, params *UserManagementListInvitationsParams, opts ...RequestOption) *Iterator[UserInvite] {
-	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts)
+	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementSendInvitationParams contains the parameters for SendInvitation.
@@ -922,7 +930,7 @@ func (s *UserManagementService) SendInvitation(ctx context.Context, params *User
 // Retrieve an existing invitation using the token.
 func (s *UserManagementService) FindInvitationByToken(ctx context.Context, token string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", url.PathEscape(string(token))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/by_token/%s", url.PathEscape(token)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -933,7 +941,7 @@ func (s *UserManagementService) FindInvitationByToken(ctx context.Context, token
 // Get the details of an existing invitation.
 func (s *UserManagementService) GetInvitation(ctx context.Context, id string, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/invitations/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -944,7 +952,7 @@ func (s *UserManagementService) GetInvitation(ctx context.Context, id string, op
 // Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
 func (s *UserManagementService) AcceptInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/accept", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/accept", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -961,7 +969,7 @@ type UserManagementResendInvitationParams struct {
 // Resends an invitation email to the recipient. The invitation must be in a pending state.
 func (s *UserManagementService) ResendInvitation(ctx context.Context, id string, params *UserManagementResendInvitationParams, opts ...RequestOption) (*UserInvite, error) {
 	var result UserInvite
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/resend", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/resend", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -972,7 +980,7 @@ func (s *UserManagementService) ResendInvitation(ctx context.Context, id string,
 // Revokes an existing invitation.
 func (s *UserManagementService) RevokeInvitation(ctx context.Context, id string, opts ...RequestOption) (*Invitation, error) {
 	var result Invitation
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/revoke", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/invitations/%s/revoke", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -985,7 +993,6 @@ type UserManagementUpdateJWTTemplateParams struct {
 	Content string `json:"content"`
 }
 
-// UpdateJWTTemplate update JWT template
 // Update the JWT template for the current environment.
 func (s *UserManagementService) UpdateJWTTemplate(ctx context.Context, params *UserManagementUpdateJWTTemplateParams, opts ...RequestOption) (*JWTTemplateResponse, error) {
 	var result JWTTemplateResponse
@@ -1015,11 +1022,11 @@ func (s *UserManagementService) CreateMagicAuth(ctx context.Context, params *Use
 	return &result, nil
 }
 
-// GetMagicAuth get Magic Auth code details
+// GetMagicAuth code details
 // Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
 func (s *UserManagementService) GetMagicAuth(ctx context.Context, id string, opts ...RequestOption) (*MagicAuth, error) {
 	var result MagicAuth
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/magic_auth/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/magic_auth/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1037,10 +1044,9 @@ type UserManagementListOrganizationMembershipsParams struct {
 	UserID *string `url:"user_id,omitempty" json:"-"`
 }
 
-// ListOrganizationMemberships list organization memberships
 // Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
 func (s *UserManagementService) ListOrganizationMemberships(ctx context.Context, params *UserManagementListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembership] {
-	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts)
+	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
@@ -1055,18 +1061,9 @@ type UserManagementCreateOrganizationMembershipParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementCreateOrganizationMembershipParams.
 func (p UserManagementCreateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
-	type Alias UserManagementCreateOrganizationMembershipParams
-	data, err := json.Marshal(Alias(p))
-	if err != nil {
-		return nil, err
-	}
-	if p.Role == nil {
-		return data, nil
-	}
-	var m map[string]any
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
-	}
+	m := make(map[string]any)
+	m["user_id"] = p.UserID
+	m["organization_id"] = p.OrganizationID
 	if p.Role != nil {
 		p.Role.applyToBody(m)
 	}
@@ -1089,7 +1086,7 @@ func (s *UserManagementService) CreateOrganizationMembership(ctx context.Context
 // Get the details of an existing organization membership.
 func (s *UserManagementService) GetOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1104,18 +1101,7 @@ type UserManagementUpdateOrganizationMembershipParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementUpdateOrganizationMembershipParams.
 func (p UserManagementUpdateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
-	type Alias UserManagementUpdateOrganizationMembershipParams
-	data, err := json.Marshal(Alias(p))
-	if err != nil {
-		return nil, err
-	}
-	if p.Role == nil {
-		return data, nil
-	}
-	var m map[string]any
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
-	}
+	m := make(map[string]any)
 	if p.Role != nil {
 		p.Role.applyToBody(m)
 	}
@@ -1126,7 +1112,7 @@ func (p UserManagementUpdateOrganizationMembershipParams) MarshalJSON() ([]byte,
 // Update the details of an existing organization membership.
 func (s *UserManagementService) UpdateOrganizationMembership(ctx context.Context, id string, params *UserManagementUpdateOrganizationMembershipParams, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1136,7 +1122,7 @@ func (s *UserManagementService) UpdateOrganizationMembership(ctx context.Context
 // DeleteOrganizationMembership delete an organization membership
 // Permanently deletes an existing organization membership. It cannot be undone.
 func (s *UserManagementService) DeleteOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 
@@ -1147,7 +1133,7 @@ func (s *UserManagementService) DeleteOrganizationMembership(ctx context.Context
 // See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
 func (s *UserManagementService) DeactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*OrganizationMembership, error) {
 	var result OrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1161,7 +1147,7 @@ func (s *UserManagementService) DeactivateOrganizationMembership(ctx context.Con
 // See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
 func (s *UserManagementService) ReactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
 	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1190,15 +1176,14 @@ type UserManagementListAuthorizedApplicationsParams struct {
 	PaginationParams
 }
 
-// ListAuthorizedApplications list authorized applications
 // Get a list of all Connect applications that the user has authorized.
 func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
-	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", url.PathEscape(string(userID))), params, "after", "data", opts)
+	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // DeleteAuthorizedApplication delete an authorized application
 // Delete an existing Authorized Connect Application.
 func (s *UserManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", url.PathEscape(string(userID)), url.PathEscape(string(applicationID))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", url.PathEscape(userID), url.PathEscape(applicationID)), nil, nil, nil, opts)
 	return err
 }

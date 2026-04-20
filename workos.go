@@ -11,6 +11,8 @@ type Client struct {
 	baseURL    string
 	httpClient *http.Client
 	maxRetries int
+	logger     Logger
+	appInfo    appInfo
 
 	apiKeys             *APIKeyService
 	multiFactorAuth     *MultiFactorAuthService

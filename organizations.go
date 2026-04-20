@@ -22,10 +22,10 @@ type OrganizationsListParams struct {
 	Search *string `url:"search,omitempty" json:"-"`
 }
 
-// List list Organizations
+// List organizations
 // Get a list of all of your existing organizations matching the criteria specified.
 func (s *OrganizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
-	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts)
+	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // OrganizationsCreateParams contains the parameters for Create.
@@ -44,7 +44,7 @@ type OrganizationsCreateParams struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// Create create an Organization
+// Create an Organization
 // Creates a new organization in the current environment.
 func (s *OrganizationService) Create(ctx context.Context, params *OrganizationsCreateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
@@ -59,18 +59,18 @@ func (s *OrganizationService) Create(ctx context.Context, params *OrganizationsC
 // Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
 func (s *OrganizationService) GetByExternalID(ctx context.Context, externalID string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", url.PathEscape(string(externalID))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/external_id/%s", url.PathEscape(externalID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Get get an Organization
+// Get an Organization
 // Get the details of an existing organization.
 func (s *OrganizationService) Get(ctx context.Context, id string, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -97,29 +97,28 @@ type OrganizationsUpdateParams struct {
 	ExternalID *string `json:"external_id,omitempty"`
 }
 
-// Update update an Organization
+// Update an Organization
 // Updates an organization in the current environment.
 func (s *OrganizationService) Update(ctx context.Context, id string, params *OrganizationsUpdateParams, opts ...RequestOption) (*Organization, error) {
 	var result Organization
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Delete delete an Organization
+// Delete an Organization
 // Permanently deletes an organization in the current environment. It cannot be undone.
 func (s *OrganizationService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 
-// GetAuditLogConfiguration get Audit Log Configuration
 // Get the unified view of audit log trail and stream configuration for an organization.
 func (s *OrganizationService) GetAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_log_configuration", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

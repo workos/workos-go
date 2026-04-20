@@ -21,7 +21,7 @@ type OrganizationDomainsCreateParams struct {
 	OrganizationID string `json:"organization_id"`
 }
 
-// Create create an Organization Domain
+// Create an Organization Domain
 // Creates a new Organization Domain.
 func (s *OrganizationDomainService) Create(ctx context.Context, params *OrganizationDomainsCreateParams, opts ...RequestOption) (*OrganizationDomain, error) {
 	var result OrganizationDomain
@@ -32,29 +32,29 @@ func (s *OrganizationDomainService) Create(ctx context.Context, params *Organiza
 	return &result, nil
 }
 
-// Get get an Organization Domain
+// Get an Organization Domain
 // Get the details of an existing organization domain.
 func (s *OrganizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organization_domains/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organization_domains/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// Delete delete an Organization Domain
+// Delete an Organization Domain
 // Permanently deletes an organization domain. It cannot be undone.
 func (s *OrganizationDomainService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organization_domains/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organization_domains/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 
-// Verify verify an Organization Domain
+// Verify an Organization Domain
 // Initiates verification process for an Organization Domain.
 func (s *OrganizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
 	var result OrganizationDomainStandAlone
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organization_domains/%s/verify", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organization_domains/%s/verify", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

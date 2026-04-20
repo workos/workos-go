@@ -19,11 +19,10 @@ type MultiFactorAuthVerifyChallengeParams struct {
 	Code string `json:"code"`
 }
 
-// VerifyChallenge verify Challenge
 // Verifies an Authentication Challenge.
 func (s *MultiFactorAuthService) VerifyChallenge(ctx context.Context, id string, params *MultiFactorAuthVerifyChallengeParams, opts ...RequestOption) (*AuthenticationChallengeVerifyResponse, error) {
 	var result AuthenticationChallengeVerifyResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/auth/challenges/%s/verify", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/auth/challenges/%s/verify", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +43,6 @@ type MultiFactorAuthEnrollFactorParams struct {
 	UserID *string `json:"user_id,omitempty"`
 }
 
-// EnrollFactor enroll Factor
 // Enrolls an Authentication Factor to be used as an additional factor of authentication. The returned ID should be used to create an authentication Challenge.
 func (s *MultiFactorAuthService) EnrollFactor(ctx context.Context, params *MultiFactorAuthEnrollFactorParams, opts ...RequestOption) (*AuthenticationFactorEnrolled, error) {
 	var result AuthenticationFactorEnrolled
@@ -55,21 +53,19 @@ func (s *MultiFactorAuthService) EnrollFactor(ctx context.Context, params *Multi
 	return &result, nil
 }
 
-// GetFactor get Factor
 // Gets an Authentication Factor.
 func (s *MultiFactorAuthService) GetFactor(ctx context.Context, id string, opts ...RequestOption) (*AuthenticationFactor, error) {
 	var result AuthenticationFactor
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/auth/factors/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/auth/factors/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-// DeleteFactor delete Factor
 // Permanently deletes an Authentication Factor. It cannot be undone.
 func (s *MultiFactorAuthService) DeleteFactor(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/auth/factors/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/auth/factors/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 
@@ -79,11 +75,10 @@ type MultiFactorAuthChallengeFactorParams struct {
 	SmsTemplate *string `json:"sms_template,omitempty"`
 }
 
-// ChallengeFactor challenge Factor
 // Creates a Challenge for an Authentication Factor.
 func (s *MultiFactorAuthService) ChallengeFactor(ctx context.Context, id string, params *MultiFactorAuthChallengeFactorParams, opts ...RequestOption) (*AuthenticationChallenge, error) {
 	var result AuthenticationChallenge
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/auth/factors/%s/challenge", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/auth/factors/%s/challenge", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +93,7 @@ type MultiFactorAuthListUserAuthFactorsParams struct {
 // ListUserAuthFactors list authentication factors
 // Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
 func (s *MultiFactorAuthService) ListUserAuthFactors(ctx context.Context, userlandUserID string, params *MultiFactorAuthListUserAuthFactorsParams, opts ...RequestOption) *Iterator[AuthenticationFactor] {
-	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(string(userlandUserID))), params, "after", "data", opts)
+	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(userlandUserID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // MultiFactorAuthCreateUserAuthFactorParams contains the parameters for CreateUserAuthFactor.
@@ -117,7 +112,7 @@ type MultiFactorAuthCreateUserAuthFactorParams struct {
 // Enrolls a user in a new [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor).
 func (s *MultiFactorAuthService) CreateUserAuthFactor(ctx context.Context, userlandUserID string, params *MultiFactorAuthCreateUserAuthFactorParams, opts ...RequestOption) (*UserAuthenticationFactorEnrollResponse, error) {
 	var result UserAuthenticationFactorEnrollResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(string(userlandUserID))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(userlandUserID)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}

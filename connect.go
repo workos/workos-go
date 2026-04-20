@@ -49,11 +49,11 @@ type ConnectListApplicationsParams struct {
 // ListApplications list Connect Applications
 // List all Connect Applications in the current environment with optional filtering.
 func (s *ConnectService) ListApplications(ctx context.Context, params *ConnectListApplicationsParams, opts ...RequestOption) *Iterator[ConnectApplication] {
-	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts)
+	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
-// CreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
-type CreateOAuthApplicationParams struct {
+// ConnectCreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
+type ConnectCreateOAuthApplicationParams struct {
 	// Name is the name of the application.
 	Name string `json:"name"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -83,7 +83,7 @@ type createOAuthApplicationBody struct {
 }
 
 // CreateOAuthApplication Create oauth application.
-func (s *ConnectService) CreateOAuthApplication(ctx context.Context, params *CreateOAuthApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
+func (s *ConnectService) CreateOAuthApplication(ctx context.Context, params *ConnectCreateOAuthApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	body := createOAuthApplicationBody{
 		ApplicationType: "oauth",
 		Name:            params.Name,
@@ -102,8 +102,8 @@ func (s *ConnectService) CreateOAuthApplication(ctx context.Context, params *Cre
 	return &result, nil
 }
 
-// CreateM2MApplicationParams contains the parameters for CreateM2MApplication.
-type CreateM2MApplicationParams struct {
+// ConnectCreateM2MApplicationParams contains the parameters for CreateM2MApplication.
+type ConnectCreateM2MApplicationParams struct {
 	// Name is the name of the application.
 	Name string `json:"name"`
 	// OrganizationID is the organization ID this application belongs to.
@@ -124,7 +124,7 @@ type createM2MApplicationBody struct {
 }
 
 // CreateM2MApplication Create m2m application.
-func (s *ConnectService) CreateM2MApplication(ctx context.Context, params *CreateM2MApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
+func (s *ConnectService) CreateM2MApplication(ctx context.Context, params *ConnectCreateM2MApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	body := createM2MApplicationBody{
 		ApplicationType: "m2m",
 		Name:            params.Name,
@@ -144,7 +144,7 @@ func (s *ConnectService) CreateM2MApplication(ctx context.Context, params *Creat
 // Retrieve details for a specific Connect Application by ID or client ID.
 func (s *ConnectService) GetApplication(ctx context.Context, id string, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ type ConnectUpdateApplicationParams struct {
 // Update an existing Connect Application. For OAuth applications, you can update redirect URIs. For all applications, you can update the name, description, and scopes.
 func (s *ConnectService) UpdateApplication(ctx context.Context, id string, params *ConnectUpdateApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	var result ConnectApplication
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/connect/applications/%s", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/connect/applications/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (s *ConnectService) UpdateApplication(ctx context.Context, id string, param
 // DeleteApplication delete a Connect Application
 // Delete an existing Connect Application.
 func (s *ConnectService) DeleteApplication(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/applications/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/applications/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
 
@@ -185,7 +185,7 @@ func (s *ConnectService) DeleteApplication(ctx context.Context, id string, opts 
 // List all client secrets associated with a Connect Application.
 func (s *ConnectService) ListApplicationClientSecrets(ctx context.Context, id string, opts ...RequestOption) ([]ApplicationCredentialsListItem, error) {
 	var result []ApplicationCredentialsListItem
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s/client_secrets", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connect/applications/%s/client_secrets", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (s *ConnectService) ListApplicationClientSecrets(ctx context.Context, id st
 // Create new secrets for a Connect Application.
 func (s *ConnectService) CreateApplicationClientSecret(ctx context.Context, id string, opts ...RequestOption) (*NewConnectApplicationSecret, error) {
 	var result NewConnectApplicationSecret
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", url.PathEscape(string(id))), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connect/applications/%s/client_secrets", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -206,6 +206,6 @@ func (s *ConnectService) CreateApplicationClientSecret(ctx context.Context, id s
 // DeleteClientSecret delete a Client Secret
 // Delete (revoke) an existing client secret.
 func (s *ConnectService) DeleteClientSecret(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/client_secrets/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connect/client_secrets/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }

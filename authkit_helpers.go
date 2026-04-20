@@ -139,25 +139,10 @@ type AuthKitPKCECodeExchangeParams struct {
 // AuthKitPKCECodeExchange exchanges an authorization code with a code verifier.
 // This calls the authenticate endpoint with the code_verifier parameter.
 func (c *Client) AuthKitPKCECodeExchange(ctx context.Context, params AuthKitPKCECodeExchangeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
-	clientID := c.clientID
-	body := map[string]interface{}{
-		"grant_type":    "authorization_code",
-		"code":          params.Code,
-		"code_verifier": params.CodeVerifier,
-	}
-	if clientID != "" {
-		body["client_id"] = clientID
-	}
-	if c.apiKey != "" {
-		body["client_secret"] = c.apiKey
-	}
-
-	var result AuthenticateResponse
-	_, err := c.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+	return c.UserManagement().AuthenticateWithCode(ctx, &UserManagementAuthenticateWithCodeParams{
+		Code:         params.Code,
+		CodeVerifier: &params.CodeVerifier,
+	}, opts...)
 }
 
 // AuthKitStartDeviceAuthorization initiates a device authorization flow (part 1).
@@ -183,7 +168,7 @@ func (c *Client) AuthKitPollDeviceCode(ctx context.Context, deviceCode string, i
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-ticker.C:
-			resp, err := c.UserManagement().AuthenticateWithDeviceCode(ctx, &AuthenticateWithDeviceCodeParams{
+			resp, err := c.UserManagement().AuthenticateWithDeviceCode(ctx, &UserManagementAuthenticateWithDeviceCodeParams{
 				DeviceCode: deviceCode,
 			}, opts...)
 			if err != nil {

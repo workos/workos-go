@@ -21,7 +21,7 @@ type WebhooksListEndpointsParams struct {
 // ListEndpoints list Webhook Endpoints
 // Get a list of all of your existing webhook endpoints.
 func (s *WebhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
-	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts)
+	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // WebhooksCreateEndpointParams contains the parameters for CreateEndpoint.
@@ -57,7 +57,7 @@ type WebhooksUpdateEndpointParams struct {
 // Update the properties of an existing webhook endpoint.
 func (s *WebhookService) UpdateEndpoint(ctx context.Context, id string, params *WebhooksUpdateEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
 	var result WebhookEndpointJSON
-	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/webhook_endpoints/%s", url.PathEscape(string(id))), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/webhook_endpoints/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +67,6 @@ func (s *WebhookService) UpdateEndpoint(ctx context.Context, id string, params *
 // DeleteEndpoint delete a Webhook Endpoint
 // Delete an existing webhook endpoint.
 func (s *WebhookService) DeleteEndpoint(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/webhook_endpoints/%s", url.PathEscape(string(id))), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/webhook_endpoints/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }

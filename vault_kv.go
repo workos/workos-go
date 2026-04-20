@@ -80,7 +80,7 @@ type DataKey struct {
 
 // VaultListObjectsParams contains the parameters for ListObjects.
 type VaultListObjectsParams struct {
-	IncludeValues *string `url:"include_values,omitempty" json:"-"`
+	IncludeValues *bool `url:"include_values,omitempty" json:"-"`
 }
 
 // VaultListObjectsResponse is the response from ListObjects.
