@@ -24,7 +24,7 @@ type UserManagementPassword interface {
 }
 
 type UserManagementPasswordPlaintext struct {
-	Password *string
+	Password string
 }
 
 func (p UserManagementPasswordPlaintext) isUserManagementPassword() {}
@@ -34,7 +34,7 @@ func (p UserManagementPasswordPlaintext) applyToBody(m map[string]any) {
 
 type UserManagementPasswordHashed struct {
 	Hash     string
-	HashType CreateUserPasswordHashType
+	HashType UpdateUserPasswordHashType
 }
 
 func (p UserManagementPasswordHashed) isUserManagementPassword() {}
@@ -69,6 +69,7 @@ func (p UserManagementRoleMultiple) applyToBody(m map[string]any) {
 	m["role_slugs"] = p.Slugs
 }
 
+// GetJWKS
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
 func (s *UserManagementService) GetJWKS(ctx context.Context, clientID string, opts ...RequestOption) (*JWKSResponse, error) {
 	var result JWKSResponse
@@ -561,6 +562,7 @@ type UserManagementRevokeSessionParams struct {
 	ReturnTo *string `json:"return_to,omitempty"`
 }
 
+// RevokeSession
 // Revoke a [user session](https://workos.com/docs/reference/authkit/session).
 func (s *UserManagementService) RevokeSession(ctx context.Context, params *UserManagementRevokeSessionParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", "/user_management/sessions/revoke", nil, params, nil, opts)
@@ -681,22 +683,17 @@ type UserManagementCreateParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementCreateParams.
 func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["email"] = p.Email
-	if p.FirstName != nil {
-		m["first_name"] = p.FirstName
+	type Alias UserManagementCreateParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
 	}
-	if p.LastName != nil {
-		m["last_name"] = p.LastName
+	if p.Password == nil {
+		return data, nil
 	}
-	if p.EmailVerified != nil {
-		m["email_verified"] = p.EmailVerified
-	}
-	if p.Metadata != nil {
-		m["metadata"] = p.Metadata
-	}
-	if p.ExternalID != nil {
-		m["external_id"] = p.ExternalID
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
@@ -759,27 +756,17 @@ type UserManagementUpdateParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementUpdateParams.
 func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	if p.Email != nil {
-		m["email"] = p.Email
+	type Alias UserManagementUpdateParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
 	}
-	if p.FirstName != nil {
-		m["first_name"] = p.FirstName
+	if p.Password == nil {
+		return data, nil
 	}
-	if p.LastName != nil {
-		m["last_name"] = p.LastName
-	}
-	if p.EmailVerified != nil {
-		m["email_verified"] = p.EmailVerified
-	}
-	if p.Metadata != nil {
-		m["metadata"] = p.Metadata
-	}
-	if p.ExternalID != nil {
-		m["external_id"] = p.ExternalID
-	}
-	if p.Locale != nil {
-		m["locale"] = p.Locale
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
@@ -811,6 +798,7 @@ type UserManagementConfirmEmailChangeParams struct {
 	Code string `json:"code"`
 }
 
+// ConfirmEmailChange
 // Confirms an email change using the one-time code received by the user.
 func (s *UserManagementService) ConfirmEmailChange(ctx context.Context, id string, params *UserManagementConfirmEmailChangeParams, opts ...RequestOption) (*EmailChangeConfirmation, error) {
 	var result EmailChangeConfirmation
@@ -844,6 +832,7 @@ type UserManagementVerifyEmailParams struct {
 	Code string `json:"code"`
 }
 
+// VerifyEmail
 // Verifies an email address using the one-time code received by the user.
 func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, params *UserManagementVerifyEmailParams, opts ...RequestOption) (*VerifyEmailResponse, error) {
 	var result VerifyEmailResponse
@@ -854,6 +843,7 @@ func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, para
 	return &result, nil
 }
 
+// SendVerificationEmail
 // Sends an email that contains a one-time code used to verify a user’s email address.
 func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
@@ -880,6 +870,7 @@ type UserManagementListSessionsParams struct {
 	PaginationParams
 }
 
+// ListSessions
 // Get a list of all active sessions for a specific user.
 func (s *UserManagementService) ListSessions(ctx context.Context, id string, params *UserManagementListSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
 	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", url.PathEscape(id)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
@@ -894,6 +885,7 @@ type UserManagementListInvitationsParams struct {
 	Email *string `url:"email,omitempty" json:"-"`
 }
 
+// ListInvitations
 // Get a list of all of invitations matching the criteria specified.
 func (s *UserManagementService) ListInvitations(ctx context.Context, params *UserManagementListInvitationsParams, opts ...RequestOption) *Iterator[UserInvite] {
 	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
@@ -993,6 +985,7 @@ type UserManagementUpdateJWTTemplateParams struct {
 	Content string `json:"content"`
 }
 
+// UpdateJWTTemplate update JWT template
 // Update the JWT template for the current environment.
 func (s *UserManagementService) UpdateJWTTemplate(ctx context.Context, params *UserManagementUpdateJWTTemplateParams, opts ...RequestOption) (*JWTTemplateResponse, error) {
 	var result JWTTemplateResponse
@@ -1044,6 +1037,7 @@ type UserManagementListOrganizationMembershipsParams struct {
 	UserID *string `url:"user_id,omitempty" json:"-"`
 }
 
+// ListOrganizationMemberships
 // Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
 func (s *UserManagementService) ListOrganizationMemberships(ctx context.Context, params *UserManagementListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembership] {
 	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
@@ -1061,9 +1055,18 @@ type UserManagementCreateOrganizationMembershipParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementCreateOrganizationMembershipParams.
 func (p UserManagementCreateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["user_id"] = p.UserID
-	m["organization_id"] = p.OrganizationID
+	type Alias UserManagementCreateOrganizationMembershipParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Role == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
 	if p.Role != nil {
 		p.Role.applyToBody(m)
 	}
@@ -1101,7 +1104,18 @@ type UserManagementUpdateOrganizationMembershipParams struct {
 
 // MarshalJSON implements json.Marshaler for UserManagementUpdateOrganizationMembershipParams.
 func (p UserManagementUpdateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
+	type Alias UserManagementUpdateOrganizationMembershipParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Role == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
 	if p.Role != nil {
 		p.Role.applyToBody(m)
 	}
@@ -1176,6 +1190,7 @@ type UserManagementListAuthorizedApplicationsParams struct {
 	PaginationParams
 }
 
+// ListAuthorizedApplications
 // Get a list of all Connect applications that the user has authorized.
 func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
 	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})

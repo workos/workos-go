@@ -19,6 +19,7 @@ type MultiFactorAuthVerifyChallengeParams struct {
 	Code string `json:"code"`
 }
 
+// VerifyChallenge
 // Verifies an Authentication Challenge.
 func (s *MultiFactorAuthService) VerifyChallenge(ctx context.Context, id string, params *MultiFactorAuthVerifyChallengeParams, opts ...RequestOption) (*AuthenticationChallengeVerifyResponse, error) {
 	var result AuthenticationChallengeVerifyResponse
@@ -43,6 +44,7 @@ type MultiFactorAuthEnrollFactorParams struct {
 	UserID *string `json:"user_id,omitempty"`
 }
 
+// EnrollFactor
 // Enrolls an Authentication Factor to be used as an additional factor of authentication. The returned ID should be used to create an authentication Challenge.
 func (s *MultiFactorAuthService) EnrollFactor(ctx context.Context, params *MultiFactorAuthEnrollFactorParams, opts ...RequestOption) (*AuthenticationFactorEnrolled, error) {
 	var result AuthenticationFactorEnrolled
@@ -53,6 +55,7 @@ func (s *MultiFactorAuthService) EnrollFactor(ctx context.Context, params *Multi
 	return &result, nil
 }
 
+// GetFactor
 // Gets an Authentication Factor.
 func (s *MultiFactorAuthService) GetFactor(ctx context.Context, id string, opts ...RequestOption) (*AuthenticationFactor, error) {
 	var result AuthenticationFactor
@@ -63,6 +66,7 @@ func (s *MultiFactorAuthService) GetFactor(ctx context.Context, id string, opts 
 	return &result, nil
 }
 
+// DeleteFactor
 // Permanently deletes an Authentication Factor. It cannot be undone.
 func (s *MultiFactorAuthService) DeleteFactor(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/auth/factors/%s", url.PathEscape(id)), nil, nil, nil, opts)
@@ -75,6 +79,7 @@ type MultiFactorAuthChallengeFactorParams struct {
 	SmsTemplate *string `json:"sms_template,omitempty"`
 }
 
+// ChallengeFactor
 // Creates a Challenge for an Authentication Factor.
 func (s *MultiFactorAuthService) ChallengeFactor(ctx context.Context, id string, params *MultiFactorAuthChallengeFactorParams, opts ...RequestOption) (*AuthenticationChallenge, error) {
 	var result AuthenticationChallenge

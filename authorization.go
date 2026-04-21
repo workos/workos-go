@@ -116,8 +116,18 @@ type AuthorizationCheckParams struct {
 
 // MarshalJSON implements json.Marshaler for AuthorizationCheckParams.
 func (p AuthorizationCheckParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["permission_slug"] = p.PermissionSlug
+	type Alias AuthorizationCheckParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
 	if p.ResourceTarget != nil {
 		p.ResourceTarget.applyToBody(m)
 	}
@@ -211,8 +221,18 @@ type AuthorizationAssignRoleParams struct {
 
 // MarshalJSON implements json.Marshaler for AuthorizationAssignRoleParams.
 func (p AuthorizationAssignRoleParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["role_slug"] = p.RoleSlug
+	type Alias AuthorizationAssignRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
 	if p.ResourceTarget != nil {
 		p.ResourceTarget.applyToBody(m)
 	}
@@ -240,8 +260,18 @@ type AuthorizationRemoveRoleParams struct {
 
 // MarshalJSON implements json.Marshaler for AuthorizationRemoveRoleParams.
 func (p AuthorizationRemoveRoleParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["role_slug"] = p.RoleSlug
+	type Alias AuthorizationRemoveRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ResourceTarget == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
 	if p.ResourceTarget != nil {
 		p.ResourceTarget.applyToBody(m)
 	}
@@ -397,12 +427,17 @@ type AuthorizationUpdateOrganizationResourceParams struct {
 
 // MarshalJSON implements json.Marshaler for AuthorizationUpdateOrganizationResourceParams.
 func (p AuthorizationUpdateOrganizationResourceParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	if p.Name != nil {
-		m["name"] = p.Name
+	type Alias AuthorizationUpdateOrganizationResourceParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
 	}
-	if p.Description != nil {
-		m["description"] = p.Description
+	if p.ParentResource == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
 	}
 	if p.ParentResource != nil {
 		p.ParentResource.applyToBody(m)
@@ -463,6 +498,7 @@ type AuthorizationListResourcesParams struct {
 	Parent AuthorizationParent `url:"-" json:"-"`
 }
 
+// ListResources
 // Get a paginated list of authorization resources.
 func (s *AuthorizationService) ListResources(ctx context.Context, params *AuthorizationListResourcesParams, opts ...RequestOption) *Iterator[AuthorizationResource] {
 	query := url.Values{}
@@ -511,14 +547,18 @@ type AuthorizationCreateResourceParams struct {
 
 // MarshalJSON implements json.Marshaler for AuthorizationCreateResourceParams.
 func (p AuthorizationCreateResourceParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["external_id"] = p.ExternalID
-	m["name"] = p.Name
-	if p.Description != nil {
-		m["description"] = p.Description
+	type Alias AuthorizationCreateResourceParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
 	}
-	m["resource_type_slug"] = p.ResourceTypeSlug
-	m["organization_id"] = p.OrganizationID
+	if p.ParentResource == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
 	if p.ParentResource != nil {
 		p.ParentResource.applyToBody(m)
 	}
@@ -559,12 +599,17 @@ type AuthorizationUpdateResourceParams struct {
 
 // MarshalJSON implements json.Marshaler for AuthorizationUpdateResourceParams.
 func (p AuthorizationUpdateResourceParams) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	if p.Name != nil {
-		m["name"] = p.Name
+	type Alias AuthorizationUpdateResourceParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
 	}
-	if p.Description != nil {
-		m["description"] = p.Description
+	if p.ParentResource == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
 	}
 	if p.ParentResource != nil {
 		p.ParentResource.applyToBody(m)
@@ -612,6 +657,7 @@ func (s *AuthorizationService) ListMembershipsForResource(ctx context.Context, r
 	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
+// ListEnvironmentRoles
 // List all environment roles in priority order.
 func (s *AuthorizationService) ListEnvironmentRoles(ctx context.Context, opts ...RequestOption) (*RoleList, error) {
 	var result RoleList
@@ -714,6 +760,7 @@ type AuthorizationListPermissionsParams struct {
 	PaginationParams
 }
 
+// ListPermissions
 // Get a list of all permissions in your WorkOS environment.
 func (s *AuthorizationService) ListPermissions(ctx context.Context, params *AuthorizationListPermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
 	return newIterator[AuthorizationPermission](ctx, s.client, "GET", "/authorization/permissions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})

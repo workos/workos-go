@@ -115,6 +115,7 @@ func (s *OrganizationService) Delete(ctx context.Context, id string, opts ...Req
 	return err
 }
 
+// GetAuditLogConfiguration
 // Get the unified view of audit log trail and stream configuration for an organization.
 func (s *OrganizationService) GetAuditLogConfiguration(ctx context.Context, id string, opts ...RequestOption) (*AuditLogConfiguration, error) {
 	var result AuditLogConfiguration

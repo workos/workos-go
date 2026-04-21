@@ -27,6 +27,7 @@ type SSOListConnectionsParams struct {
 	Search *string `url:"search,omitempty" json:"-"`
 }
 
+// ListConnections
 // Get a list of all of your existing connections matching the criteria specified.
 func (s *SSOService) ListConnections(ctx context.Context, params *SSOListConnectionsParams, opts ...RequestOption) *Iterator[Connection] {
 	return newIterator[Connection](ctx, s.client, "GET", "/connections", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
