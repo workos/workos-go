@@ -8,6 +8,8 @@ The WorkOS Go library provides a flat, root-level `workos` package for applicati
 
 ## Installation
 
+Requires Go `1.23+`.
+
 ```bash
 go get github.com/workos/workos-go/v7
 ```
@@ -43,40 +45,40 @@ func main() {
 
 All API resources are accessed through service accessors on the `Client`:
 
-| Accessor | Description |
-|---|---|
-| `APIKeys()` | Organization API key management |
-| `AdminPortal()` | Admin Portal link generation |
-| `AuditLogs()` | Audit log events and retention |
-| `Authorization()` | Fine-grained authorization (FGA) and RBAC |
-| `Connect()` | Connect application management |
-| `DirectorySync()` | Directory Sync (directories, users, groups) |
-| `Events()` | Event stream |
-| `FeatureFlags()` | Feature flag management and evaluation |
-| `MultiFactorAuth()` | Multi-factor authentication challenges |
-| `OrganizationDomains()` | Organization domain verification |
-| `Organizations()` | Organization CRUD |
-| `Passwordless()` | Passwordless authentication sessions |
-| `Pipes()` | Data integration pipes |
-| `Radar()` | Radar list management |
-| `SSO()` | Single Sign-On connections and profiles |
-| `UserManagement()` | Users, invitations, auth methods |
-| `Vault()` | Key-value storage and client-side encryption |
-| `Webhooks()` | Webhook event construction and verification |
-| `Widgets()` | Widget token generation |
+| Accessor                | Description                                  |
+| ----------------------- | -------------------------------------------- |
+| `APIKeys()`             | Organization API key management              |
+| `AdminPortal()`         | Admin Portal link generation                 |
+| `AuditLogs()`           | Audit log events and retention               |
+| `Authorization()`       | Fine-grained authorization (FGA) and RBAC    |
+| `Connect()`             | Connect application management               |
+| `DirectorySync()`       | Directory Sync (directories, users, groups)  |
+| `Events()`              | Event stream                                 |
+| `FeatureFlags()`        | Feature flag management and evaluation       |
+| `MultiFactorAuth()`     | Multi-factor authentication challenges       |
+| `OrganizationDomains()` | Organization domain verification             |
+| `Organizations()`       | Organization CRUD                            |
+| `Passwordless()`        | Passwordless authentication sessions         |
+| `Pipes()`               | Data integration pipes                       |
+| `Radar()`               | Radar list management                        |
+| `SSO()`                 | Single Sign-On connections and profiles      |
+| `UserManagement()`      | Users, invitations, auth methods             |
+| `Vault()`               | Key-value storage and client-side encryption |
+| `Webhooks()`            | Webhook endpoint management                  |
+| `Widgets()`             | Widget token generation                      |
 
 ## Error Handling
 
-The SDK returns typed errors that can be inspected with `errors.Is` and `errors.As`:
+The SDK returns typed errors that can be inspected with `errors.As`, including the base `*workos.APIError`:
 
-| Type | HTTP Status | Description |
-|---|---|---|
-| `AuthenticationError` | 401 | Invalid or missing API key |
-| `NotFoundError` | 404 | Requested resource does not exist |
-| `UnprocessableEntityError` | 422 | Validation errors |
-| `RateLimitExceededError` | 429 | Rate limit exceeded (auto-retried) |
-| `ServerError` | 5xx | WorkOS server error (auto-retried) |
-| `NetworkError` | - | Connection failure |
+| Type                       | HTTP Status | Description                        |
+| -------------------------- | ----------- | ---------------------------------- |
+| `AuthenticationError`      | 401         | Invalid or missing API key         |
+| `NotFoundError`            | 404         | Requested resource does not exist  |
+| `UnprocessableEntityError` | 422         | Validation errors                  |
+| `RateLimitExceededError`   | 429         | Rate limit exceeded (auto-retried) |
+| `ServerError`              | 5xx         | WorkOS server error (auto-retried) |
+| `NetworkError`             | -           | Connection failure                 |
 
 ```go
 result, err := client.Organizations().Get(ctx, "org_123")
@@ -105,7 +107,7 @@ if err := iter.Err(); err != nil {
 
 ## Webhook Verification
 
-Verify incoming webhook payloads and construct typed events:
+Manage webhook endpoints with `client.Webhooks()`. Verify incoming webhook payloads with `workos.NewWebhookVerifier(...)`:
 
 ```go
 v := workos.NewWebhookVerifier(secret)
@@ -114,6 +116,7 @@ payload, err := v.VerifyPayload(sigHeader, rawBody)
 if err != nil {
 	log.Fatal("invalid webhook signature")
 }
+_ = payload
 
 event, err := v.ConstructEvent(sigHeader, rawBody)
 if err != nil {
@@ -130,12 +133,18 @@ Authenticate and refresh user sessions using sealed cookies:
 session := workos.NewSession(client, sealedCookie, cookiePassword)
 
 result, err := session.Authenticate()
+if err != nil {
+	log.Fatal(err)
+}
 if result.Authenticated {
 	fmt.Println("User:", result.User)
 	fmt.Println("Org:", result.OrganizationID)
 }
 
 refreshed, err := session.Refresh(ctx)
+if err != nil {
+	log.Fatal(err)
+}
 if refreshed.Authenticated {
 	// Set refreshed.SealedSession as the new cookie value
 }
@@ -171,11 +180,13 @@ result, err := client.Organizations().Get(ctx, "org_123",
 
 ## AuthKit / SSO Helpers
 
-Build authorization URLs client-side without making HTTP requests:
+Build authorization URLs without making HTTP requests. For browser or other public PKCE flows, prefer `workos.NewPublicClient(...)`:
 
 ```go
 // AuthKit with PKCE
-result, err := client.GetAuthKitPKCEAuthorizationURL(workos.AuthKitAuthorizationURLParams{
+publicClient := workos.NewPublicClient("<WORKOS_CLIENT_ID>")
+
+result, err := publicClient.GetAuthorizationURL(workos.AuthKitAuthorizationURLParams{
 	RedirectURI: "https://example.com/callback",
 })
 fmt.Println(result.URL)          // redirect the user here
@@ -190,7 +201,7 @@ url, err := client.GetSSOAuthorizationURL(workos.SSOAuthorizationURLParams{
 
 ## Package Layout
 
-This SDK is a Go library, so it uses a flat package layout at the module root rather than an application-style project layout.
+This SDK is a Go library that uses a flat package layout at the module root rather than an application-style project layout.
 
 - The public API lives in the root `workos` package.
 - Tests are colocated in `*_test.go` files, which is idiomatic for Go libraries.
