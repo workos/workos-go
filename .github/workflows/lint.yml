@@ -1,0 +1,31 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-go@7b8cf10d4e4a01d4992d18a89f4d7dc5a3e6d6f4 # v4.3.0
+        with:
+          go-version: 'stable'
+
+      - name: Check formatting
+        run: |
+          gofmt -d ./
+          git diff --exit-code
+
+      - name: Run go vet
+        run: |
+          go mod download
+          go vet ./...

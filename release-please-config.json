@@ -7,7 +7,7 @@
       "release-type": "go",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        "internal/workos/workos.go"
+        "version.go"
       ]
     }
   }

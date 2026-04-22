@@ -6,8 +6,8 @@ release: test
 ifdef VERSION
 	-git branch ${VERSION}
 	git checkout ${VERSION}
-	@perl -i -pe 's/Version = "v[0-9]+.[0-9]+.[0-9]+"/Version = "${VERSION}"/g' internal/workos/workos.go
-	git add internal/workos/workos.go
+	@perl -i -pe 's/Version = "v[0-9]+.[0-9]+.[0-9]+"/Version = "${VERSION}"/g' version.go
+	git add version.go
 	-git commit -m ${VERSION}
 	git push --set-upstream origin ${VERSION}
 	open https://github.com/workos/workos-go/compare/${VERSION}?expand=1
