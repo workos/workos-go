@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/workos/workos-go/v6"
+	"github.com/workos/workos-go/v7"
 )
 
 func ExampleNewClient() {

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v6"
+	"github.com/workos/workos-go/v7"
 )
 
 const testCookiePassword = "test-cookie-password-for-session-helpers"
