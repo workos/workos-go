@@ -1,84 +1,203 @@
+<!-- @oagen-ignore-file -->
+
 # WorkOS Go Library
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v6.svg)](https://pkg.go.dev/github.com/workos/workos-go/v6)
 
-The WorkOS library for Go provides convenient access to the WorkOS API from applications written in Go.
-
-## Documentation
-
-See the [API Reference](https://workos.com/docs/reference/client-libraries) for Go usage examples.
+The WorkOS Go library provides a flat, root-level `workos` package for applications written in Go.
 
 ## Installation
 
-Install the package with:
-
 ```bash
-go get -u github.com/workos/workos-go/v6
+go get github.com/workos/workos-go/v6
 ```
 
-## Configuration
-
-To use the library you must provide an API key, located in the WorkOS dashboard, as an environment variable `WORKOS_API_KEY`:
-
-```sh
-WORKOS_API_KEY="sk_1234"
-```
-
-Or, you can configure it programmatically before your application starts:
+## Usage
 
 ```go
+package main
+
 import (
-    "github.com/workos/workos-go/v6/pkg/sso"
-    "github.com/workos/workos-go/v6/pkg/directorysync"
+	"context"
+	"log"
+
+	"github.com/workos/workos-go/v6"
 )
 
 func main() {
-    // Configure SSO with API key and Client ID (found in WorkOS dashboard)
-    sso.Configure("<WORKOS_API_KEY>", "<CLIENT_ID>")
-    
-    // Configure Directory Sync with API key
-    directorysync.SetAPIKey("<WORKOS_API_KEY>")
+	client := workos.NewClient(
+		"<WORKOS_API_KEY>",
+		workos.WithClientID("<WORKOS_CLIENT_ID>"),
+	)
+
+	organization, err := client.Organizations().Get(context.Background(), "org_123")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_ = organization
 }
 ```
 
-## Package Structure
+## Services
 
-The WorkOS Go library is organized into focused packages. Import only what you need:
+All API resources are accessed through service accessors on the `Client`:
+
+| Accessor | Description |
+|---|---|
+| `APIKeys()` | Organization API key management |
+| `AdminPortal()` | Admin Portal link generation |
+| `AuditLogs()` | Audit log events and retention |
+| `Authorization()` | Fine-grained authorization (FGA) and RBAC |
+| `Connect()` | Connect application management |
+| `DirectorySync()` | Directory Sync (directories, users, groups) |
+| `Events()` | Event stream |
+| `FeatureFlags()` | Feature flag management and evaluation |
+| `MultiFactorAuth()` | Multi-factor authentication challenges |
+| `OrganizationDomains()` | Organization domain verification |
+| `Organizations()` | Organization CRUD |
+| `Passwordless()` | Passwordless authentication sessions |
+| `Pipes()` | Data integration pipes |
+| `Radar()` | Radar list management |
+| `SSO()` | Single Sign-On connections and profiles |
+| `UserManagement()` | Users, invitations, auth methods |
+| `Vault()` | Key-value storage and client-side encryption |
+| `Webhooks()` | Webhook event construction and verification |
+| `Widgets()` | Widget token generation |
+
+## Error Handling
+
+The SDK returns typed errors that can be inspected with `errors.Is` and `errors.As`:
+
+| Type | HTTP Status | Description |
+|---|---|---|
+| `AuthenticationError` | 401 | Invalid or missing API key |
+| `NotFoundError` | 404 | Requested resource does not exist |
+| `UnprocessableEntityError` | 422 | Validation errors |
+| `RateLimitExceededError` | 429 | Rate limit exceeded (auto-retried) |
+| `ServerError` | 5xx | WorkOS server error (auto-retried) |
+| `NetworkError` | - | Connection failure |
 
 ```go
-import (
-    "github.com/workos/workos-go/v6/pkg/sso"            // Single Sign-On
-    "github.com/workos/workos-go/v6/pkg/directorysync"  // Directory Sync (SCIM)  
-    "github.com/workos/workos-go/v6/pkg/usermanagement" // User Management
-    "github.com/workos/workos-go/v6/pkg/auditlogs"      // Audit Logs
-    "github.com/workos/workos-go/v6/pkg/organizations"  // Organizations
-    "github.com/workos/workos-go/v6/pkg/webhooks"       // Webhooks
+result, err := client.Organizations().Get(ctx, "org_123")
+if err != nil {
+	var notFound *workos.NotFoundError
+	if errors.As(err, &notFound) {
+		log.Printf("Organization not found: %s", notFound.Message)
+	}
+}
+```
+
+## Pagination
+
+List endpoints return an `Iterator[T]` for auto-pagination:
+
+```go
+iter := client.UserManagement().List(ctx, &workos.UserManagementListParams{})
+for iter.Next() {
+	user := iter.Current()
+	fmt.Println(user.Email)
+}
+if err := iter.Err(); err != nil {
+	log.Fatal(err)
+}
+```
+
+## Webhook Verification
+
+Verify incoming webhook payloads and construct typed events:
+
+```go
+v := workos.NewWebhookVerifier(secret)
+
+payload, err := v.VerifyPayload(sigHeader, rawBody)
+if err != nil {
+	log.Fatal("invalid webhook signature")
+}
+
+event, err := v.ConstructEvent(sigHeader, rawBody)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(event.Event, event.ID)
+```
+
+## Session Management
+
+Authenticate and refresh user sessions using sealed cookies:
+
+```go
+session := workos.NewSession(client, sealedCookie, cookiePassword)
+
+result, err := session.Authenticate()
+if result.Authenticated {
+	fmt.Println("User:", result.User)
+	fmt.Println("Org:", result.OrganizationID)
+}
+
+refreshed, err := session.Refresh(ctx)
+if refreshed.Authenticated {
+	// Set refreshed.SealedSession as the new cookie value
+}
+```
+
+## Vault
+
+Store and retrieve encrypted key-value data with client-side encryption:
+
+```go
+// KV operations
+obj, _ := client.Vault().CreateObject(ctx, &workos.VaultCreateObjectParams{
+	Name: "api-token", Value: "secret-value",
+})
+read, _ := client.Vault().ReadObject(ctx, obj.ID)
+
+// Client-side encryption (AES-256-GCM)
+encrypted, _ := client.Vault().Encrypt(ctx, "sensitive data", keyContext, "")
+decrypted, _ := client.Vault().Decrypt(ctx, encrypted.EncryptedData, "")
+```
+
+## Request Options
+
+Customize individual requests with functional options:
+
+```go
+result, err := client.Organizations().Get(ctx, "org_123",
+	workos.WithTimeout(5 * time.Second),
+	workos.WithIdempotencyKey("unique-key"),
+	workos.WithExtraHeaders(http.Header{"X-Custom": {"value"}}),
 )
 ```
 
-Each package provides both a default client (configured via package functions) and a `Client` struct for custom configurations.
+## AuthKit / SSO Helpers
 
-## SDK Versioning
+Build authorization URLs client-side without making HTTP requests:
 
-For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.
+```go
+// AuthKit with PKCE
+result, err := client.GetAuthKitPKCEAuthorizationURL(workos.AuthKitAuthorizationURLParams{
+	RedirectURI: "https://example.com/callback",
+})
+fmt.Println(result.URL)          // redirect the user here
+fmt.Println(result.CodeVerifier) // store securely for token exchange
 
-## Beta Releases
+// SSO authorization
+url, err := client.GetSSOAuthorizationURL(workos.SSOAuthorizationURLParams{
+	RedirectURI: "https://example.com/sso/callback",
+	ConnectionID: &connID,
+})
+```
 
-WorkOS has features in Beta that can be accessed via Beta releases. We would love for you to try these
-and share feedback with us before these features reach general availability (GA). To install a Beta version,
-please follow the [installation steps](#installation) above using the Beta release version.
+## Package Layout
 
-> Note: there can be breaking changes between Beta versions. Therefore, we recommend pinning the package version to a
-> specific version. This way you can install the same version each time without breaking changes unless you are
-> intentionally looking for the latest Beta version.
+This SDK is a Go library, so it uses a flat package layout at the module root rather than an application-style project layout.
 
-We highly recommend keeping an eye on when the Beta feature you are interested in goes from Beta to stable so that you
-can move to using the stable version.
+- The public API lives in the root `workos` package.
+- Tests are colocated in `*_test.go` files, which is idiomatic for Go libraries.
+- Request and response fixtures live in `testdata/`.
 
-## More Information
+Import the root package:
 
-- [User Management Guide](https://workos.com/docs/user-management)
-- [Single Sign-On Guide](https://workos.com/docs/sso)
-- [Directory Sync Guide](https://workos.com/docs/directory-sync)
-- [Admin Portal Guide](https://workos.com/docs/admin-portal)
-- [Magic Link Guide](https://workos.com/docs/magic-link)
+```go
+import "github.com/workos/workos-go/v6"
+```

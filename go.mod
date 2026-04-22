@@ -1,3 +1,5 @@
+// @oagen-ignore-file
+
 module github.com/workos/workos-go/v6
 
 go 1.23
