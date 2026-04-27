@@ -324,6 +324,23 @@ type CreateCORSOrigin struct {
 	Origin string `json:"origin"`
 }
 
+// CreateGroupMembership represents a create group membership.
+type CreateGroupMembership struct {
+	// OrganizationMembershipID is the ID of the Organization Membership to add to the group.
+	OrganizationMembershipID string `json:"organization_membership_id"`
+}
+
+// CreateGroup represents a create group.
+type CreateGroup struct {
+	// Name is the name of the Group.
+	Name string `json:"name"`
+	// Description is an optional description of the Group.
+	Description *string `json:"description,omitempty"`
+}
+
+// UpdateGroup is an alias for UpdateAuthorizationPermission.
+type UpdateGroup = UpdateAuthorizationPermission
+
 // UpdateJWTTemplate represents an update JWT template.
 type UpdateJWTTemplate struct {
 	// Content is the JWT template content as a Liquid template string.
@@ -398,10 +415,18 @@ type SSOIntentOptions struct {
 	ProviderType *string `json:"provider_type,omitempty"`
 }
 
+// DomainVerificationIntentOptions represents a domain verification intent options.
+type DomainVerificationIntentOptions struct {
+	// DomainName is the domain name to verify. When provided, the domain verification flow will skip the domain entry form and go directly to the verification step.
+	DomainName *string `json:"domain_name,omitempty"`
+}
+
 // IntentOptions represents an intent options.
 type IntentOptions struct {
 	// SSO is sso-specific options for the Admin Portal.
-	SSO *SSOIntentOptions `json:"sso"`
+	SSO *SSOIntentOptions `json:"sso,omitempty"`
+	// DomainVerification is domain verification-specific options for the Admin Portal.
+	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
 }
 
 // GenerateLink represents a generate link.
@@ -423,8 +448,8 @@ type GenerateLink struct {
 	Intent *GenerateLinkIntent `json:"intent,omitempty"`
 	// IntentOptions is options to configure the Admin Portal based on the intent.
 	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
-	// AdminEmails is the email addresses of the IT admins to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
-	AdminEmails []string `json:"admin_emails,omitempty"`
+	// ItContactEmails is the email addresses of the IT contacts to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
+	ItContactEmails []string `json:"it_contact_emails,omitempty"`
 }
 
 // CreateRedirectURI represents a create redirect uri.
@@ -1059,8 +1084,28 @@ type DirectoryUserWithGroups struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
-	// Groups is the directory groups the user belongs to.
+	// Groups is the directory groups the user belongs to. Use the List Directory Groups endpoint with a user filter instead.
+	//
+	// Deprecated: this field is deprecated.
 	Groups []*DirectoryGroup `json:"groups"`
+}
+
+// Group represents a group.
+type Group struct {
+	// Object is the Group object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Group.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the Organization the Group belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Name is the name of the Group.
+	Name string `json:"name"`
+	// Description is an optional description of the Group.
+	Description *string `json:"description"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // EventContextActor the actor who performed the action.
@@ -1135,26 +1180,26 @@ type DirectoryUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// Group represents a group.
-type Group struct {
-	// Object is the Group object.
+// User is an alias for EmailChangeConfirmationUser.
+type User = EmailChangeConfirmationUser
+
+// WaitlistUser represents a waitlist user.
+type WaitlistUser struct {
+	// Object distinguishes the Waitlist User object.
 	Object string `json:"object"`
-	// ID is the unique ID of the Group.
+	// ID is the unique ID of the Waitlist User.
 	ID string `json:"id"`
-	// OrganizationID is the ID of the Organization the Group belongs to.
-	OrganizationID string `json:"organization_id"`
-	// Name is the name of the Group.
-	Name string `json:"name"`
-	// Description is an optional description of the Group.
-	Description *string `json:"description"`
+	// Email is the email address of the Waitlist User.
+	Email string `json:"email"`
+	// State is the state of the Waitlist User.
+	State WaitlistUserState `json:"state"`
+	// ApprovedAt is the timestamp when the Waitlist User was approved, or null if not yet approved.
+	ApprovedAt *string `json:"approved_at"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// User is an alias for EmailChangeConfirmationUser.
-type User = EmailChangeConfirmationUser
 
 // EventSchema an event emitted by WorkOS.
 type EventSchema struct {
@@ -2881,6 +2926,8 @@ type InvitationAcceptedData struct {
 	InviterUserID *string `json:"inviter_user_id"`
 	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
 	AcceptedUserID *string `json:"accepted_user_id"`
+	// RoleSlug is slug of the role the invitee will be assigned on acceptance. Reflects the current role on the invitee's organization membership. null when the invitation has no associated organization.
+	RoleSlug *string `json:"role_slug"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -2923,6 +2970,8 @@ type InvitationCreatedData struct {
 	InviterUserID *string `json:"inviter_user_id"`
 	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
 	AcceptedUserID *string `json:"accepted_user_id"`
+	// RoleSlug is slug of the role the invitee will be assigned on acceptance. Reflects the current role on the invitee's organization membership. null when the invitation has no associated organization.
+	RoleSlug *string `json:"role_slug"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -2965,6 +3014,8 @@ type InvitationResentData struct {
 	InviterUserID *string `json:"inviter_user_id"`
 	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
 	AcceptedUserID *string `json:"accepted_user_id"`
+	// RoleSlug is slug of the role the invitee will be assigned on acceptance. Reflects the current role on the invitee's organization membership. null when the invitation has no associated organization.
+	RoleSlug *string `json:"role_slug"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -3007,6 +3058,8 @@ type InvitationRevokedData struct {
 	InviterUserID *string `json:"inviter_user_id"`
 	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
 	AcceptedUserID *string `json:"accepted_user_id"`
+	// RoleSlug is slug of the role the invitee will be assigned on acceptance. Reflects the current role on the invitee's organization membership. null when the invitation has no associated organization.
+	RoleSlug *string `json:"role_slug"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -4186,6 +4239,48 @@ type VaultNamesListedData struct {
 	ActorName string `json:"actor_name"`
 }
 
+// WaitlistUserApproved represents a waitlist user approved.
+type WaitlistUserApproved struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *WaitlistUser `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// WaitlistUserCreated represents a waitlist user created.
+type WaitlistUserCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *WaitlistUser `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// WaitlistUserDenied represents a waitlist user denied.
+type WaitlistUserDenied struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *WaitlistUser `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
 // JWTTemplateResponse represents a JWT template response.
 type JWTTemplateResponse struct {
 	// Object is the object type.
@@ -4450,6 +4545,8 @@ type UserInvite struct {
 	InviterUserID *string `json:"inviter_user_id"`
 	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
 	AcceptedUserID *string `json:"accepted_user_id"`
+	// RoleSlug is slug of the role the invitee will be assigned on acceptance. Reflects the current role on the invitee's organization membership. null when the invitation has no associated organization.
+	RoleSlug *string `json:"role_slug"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -5271,6 +5368,8 @@ type Invitation struct {
 	InviterUserID *string `json:"inviter_user_id"`
 	// AcceptedUserID is the ID of the user who accepted the invitation, once accepted.
 	AcceptedUserID *string `json:"accepted_user_id"`
+	// RoleSlug is slug of the role the invitee will be assigned on acceptance. Reflects the current role on the invitee's organization membership. null when the invitation has no associated organization.
+	RoleSlug *string `json:"role_slug"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -5429,27 +5528,6 @@ type ConnectApplicationRedirectURI struct {
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
-}
-
-// EventSchemaData is an alias for ActionAuthenticationDeniedData.
-type EventSchemaData = ActionAuthenticationDeniedData
-
-// EventSchemaContextActor the actor who performed the action.
-type EventSchemaContextActor struct {
-	// ID is unique identifier of the actor.
-	ID string `json:"id"`
-	// Source is the source of the actor that performed the action.
-	Source EventSchemaContextActorSource `json:"source"`
-	// Name is the name of the actor.
-	Name *string `json:"name"`
-}
-
-// EventSchemaContext additional context about the event.
-type EventSchemaContext struct {
-	// ClientID is the client ID associated with the flag event.
-	ClientID string `json:"client_id"`
-	// Actor is the actor who performed the action.
-	Actor *EventSchemaContextActor `json:"actor"`
 }
 
 // PaginationParams contains common pagination parameters for list operations.

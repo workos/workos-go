@@ -14,25 +14,27 @@ type Client struct {
 	logger     Logger
 	appInfo    appInfo
 
-	apiKeys             *APIKeyService
-	multiFactorAuth     *MultiFactorAuthService
-	connect             *ConnectService
-	authorization       *AuthorizationService
-	sso                 *SSOService
-	pipes               *PipeService
-	directorySync       *DirectorySyncService
-	events              *EventService
-	featureFlags        *FeatureFlagService
-	organizationDomains *OrganizationDomainService
-	organizations       *OrganizationService
-	adminPortal         *AdminPortalService
-	radar               *RadarService
-	userManagement      *UserManagementService
-	webhooks            *WebhookService
-	widgets             *WidgetService
-	auditLogs           *AuditLogService
-	passwordless        *PasswordlessService
-	vault               *VaultService
+	apiKeys                                    *APIKeyService
+	multiFactorAuth                            *MultiFactorAuthService
+	connect                                    *ConnectService
+	authorization                              *AuthorizationService
+	sso                                        *SSOService
+	pipes                                      *PipeService
+	directorySync                              *DirectorySyncService
+	events                                     *EventService
+	featureFlags                               *FeatureFlagService
+	organizationDomains                        *OrganizationDomainService
+	organizations                              *OrganizationService
+	groups                                     *GroupService
+	adminPortal                                *AdminPortalService
+	radar                                      *RadarService
+	userManagement                             *UserManagementService
+	userManagementOrganizationMembershipGroups *UserManagementOrganizationMembershipGroupService
+	webhooks                                   *WebhookService
+	widgets                                    *WidgetService
+	auditLogs                                  *AuditLogService
+	passwordless                               *PasswordlessService
+	vault                                      *VaultService
 }
 
 // NewClient creates a new WorkOS API client.
@@ -57,9 +59,11 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.featureFlags = &FeatureFlagService{client: c}
 	c.organizationDomains = &OrganizationDomainService{client: c}
 	c.organizations = &OrganizationService{client: c}
+	c.groups = &GroupService{client: c}
 	c.adminPortal = &AdminPortalService{client: c}
 	c.radar = &RadarService{client: c}
 	c.userManagement = &UserManagementService{client: c}
+	c.userManagementOrganizationMembershipGroups = &UserManagementOrganizationMembershipGroupService{client: c}
 	c.webhooks = &WebhookService{client: c}
 	c.widgets = &WidgetService{client: c}
 	c.auditLogs = &AuditLogService{client: c}
@@ -123,6 +127,11 @@ func (c *Client) Organizations() *OrganizationService {
 	return c.organizations
 }
 
+// Groups returns the Groups service.
+func (c *Client) Groups() *GroupService {
+	return c.groups
+}
+
 // AdminPortal returns the AdminPortal service.
 func (c *Client) AdminPortal() *AdminPortalService {
 	return c.adminPortal
@@ -136,6 +145,11 @@ func (c *Client) Radar() *RadarService {
 // UserManagement returns the UserManagement service.
 func (c *Client) UserManagement() *UserManagementService {
 	return c.userManagement
+}
+
+// UserManagementOrganizationMembershipGroups returns the UserManagementOrganizationMembershipGroups service.
+func (c *Client) UserManagementOrganizationMembershipGroups() *UserManagementOrganizationMembershipGroupService {
+	return c.userManagementOrganizationMembershipGroups
 }
 
 // Webhooks returns the Webhooks service.
