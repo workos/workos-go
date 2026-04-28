@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.0](https://github.com/workos/workos-go/compare/v7.0.0...v7.1.0) (2026-04-28)
+
+
+### Features
+
+* **generated:** Add Groups API and organization membership groups support ([#537](https://github.com/workos/workos-go/issues/537)) ([e9b53ed](https://github.com/workos/workos-go/commit/e9b53ed4ed537c8036cfdc7766b0e882e648f5e0))
+
 ## [7.0.0](https://github.com/workos/workos-go/compare/v6.5.0...v7.0.0) (2026-04-22)
 
 
