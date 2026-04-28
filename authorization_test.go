@@ -38,7 +38,7 @@ func TestAuthorization_Check(t *testing.T) {
 	require.NotNil(t, result)
 }
 
-func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
+func TestAuthorization_ListResourcesForMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/resources", r.URL.Path)
@@ -54,7 +54,7 @@ func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListResourcesForMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationListResourcesForMembershipParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -62,7 +62,7 @@ func TestAuthorization_ListOrganizationMembershipResources(t *testing.T) {
 	require.NotNil(t, item)
 }
 
-func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
+func TestAuthorization_ListResourcesForMembership_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -71,12 +71,12 @@ func TestAuthorization_ListOrganizationMembershipResources_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipResources(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipResourcesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListResourcesForMembership(context.Background(), "test_organization_membership_id", &workos.AuthorizationListResourcesForMembershipParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
 
-func TestAuthorization_ListResourcePermissions(t *testing.T) {
+func TestAuthorization_ListEffectivePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/resources/test_resource_id/permissions", r.URL.Path)
@@ -92,7 +92,7 @@ func TestAuthorization_ListResourcePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourcePermissions(context.Background(), "test_organization_membership_id", "test_resource_id", &workos.AuthorizationListResourcePermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListEffectivePermissions(context.Background(), "test_organization_membership_id", "test_resource_id", &workos.AuthorizationListEffectivePermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -100,7 +100,7 @@ func TestAuthorization_ListResourcePermissions(t *testing.T) {
 	require.NotNil(t, item)
 }
 
-func TestAuthorization_ListResourcePermissions_Empty(t *testing.T) {
+func TestAuthorization_ListEffectivePermissions_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -109,7 +109,7 @@ func TestAuthorization_ListResourcePermissions_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourcePermissions(context.Background(), "test_organization_membership_id", "test_resource_id", &workos.AuthorizationListResourcePermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListEffectivePermissions(context.Background(), "test_organization_membership_id", "test_resource_id", &workos.AuthorizationListEffectivePermissionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -152,7 +152,7 @@ func TestAuthorization_ListEffectivePermissionsByExternalID_Empty(t *testing.T) 
 	require.NoError(t, iter.Err())
 }
 
-func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
+func TestAuthorization_ListRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
@@ -168,7 +168,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -176,7 +176,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments(t *testing.T) {
 	require.NotNil(t, item)
 }
 
-func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testing.T) {
+func TestAuthorization_ListRoleAssignments_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -185,7 +185,7 @@ func TestAuthorization_ListOrganizationMembershipRoleAssignments_Empty(t *testin
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListOrganizationMembershipRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListOrganizationMembershipRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationListRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
@@ -229,7 +229,7 @@ func TestAuthorization_RemoveRole(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestAuthorization_DeleteOrganizationMembershipRoleAssignment(t *testing.T) {
+func TestAuthorization_RemoveRoleAssignment(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments/test_role_assignment_id", r.URL.Path)
@@ -238,7 +238,7 @@ func TestAuthorization_DeleteOrganizationMembershipRoleAssignment(t *testing.T) 
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteOrganizationMembershipRoleAssignment(context.Background(), "test_organization_membership_id", "test_role_assignment_id")
+	err := client.Authorization().RemoveRoleAssignment(context.Background(), "test_organization_membership_id", "test_role_assignment_id")
 	require.NoError(t, err)
 }
 
@@ -350,7 +350,7 @@ func TestAuthorization_DeleteOrganizationRole(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestAuthorization_CreateRolePermission(t *testing.T) {
+func TestAuthorization_AddOrganizationRolePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
@@ -368,7 +368,7 @@ func TestAuthorization_CreateRolePermission(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().CreateRolePermission(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationCreateRolePermissionParams{})
+	result, err := client.Authorization().AddOrganizationRolePermission(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationAddOrganizationRolePermissionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -376,7 +376,7 @@ func TestAuthorization_CreateRolePermission(t *testing.T) {
 	require.Equal(t, "Admin", result.Name)
 }
 
-func TestAuthorization_UpdateRolePermissions(t *testing.T) {
+func TestAuthorization_SetOrganizationRolePermissions(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions", r.URL.Path)
@@ -394,7 +394,7 @@ func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationUpdateRolePermissionsParams{})
+	result, err := client.Authorization().SetOrganizationRolePermissions(context.Background(), "test_organizationId", "test_slug", &workos.AuthorizationSetOrganizationRolePermissionsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_01EHQMYV6MBK39QC5PZXHY59C3", result.ID)
@@ -402,7 +402,7 @@ func TestAuthorization_UpdateRolePermissions(t *testing.T) {
 	require.Equal(t, "Admin", result.Name)
 }
 
-func TestAuthorization_DeleteRolePermission(t *testing.T) {
+func TestAuthorization_RemoveOrganizationRolePermission(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organizationId/roles/test_slug/permissions/test_permissionSlug", r.URL.Path)
@@ -411,11 +411,11 @@ func TestAuthorization_DeleteRolePermission(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteRolePermission(context.Background(), "test_organizationId", "test_slug", "test_permissionSlug")
+	err := client.Authorization().RemoveOrganizationRolePermission(context.Background(), "test_organizationId", "test_slug", "test_permissionSlug")
 	require.NoError(t, err)
 }
 
-func TestAuthorization_GetOrganizationResource(t *testing.T) {
+func TestAuthorization_GetResourceByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
@@ -430,7 +430,7 @@ func TestAuthorization_GetOrganizationResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().GetOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id")
+	result, err := client.Authorization().GetResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
@@ -438,7 +438,7 @@ func TestAuthorization_GetOrganizationResource(t *testing.T) {
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
-func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
+func TestAuthorization_UpdateResourceByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
@@ -456,7 +456,7 @@ func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Authorization().UpdateOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationUpdateOrganizationResourceParams{})
+	result, err := client.Authorization().UpdateResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationUpdateResourceByExternalIDParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "authz_resource_01HXYZ123456789ABCDEFGH", result.ID)
@@ -464,7 +464,7 @@ func TestAuthorization_UpdateOrganizationResource(t *testing.T) {
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
-func TestAuthorization_DeleteOrganizationResource(t *testing.T) {
+func TestAuthorization_DeleteResourceByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id", r.URL.Path)
@@ -473,11 +473,11 @@ func TestAuthorization_DeleteOrganizationResource(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.Authorization().DeleteOrganizationResource(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationDeleteOrganizationResourceParams{})
+	err := client.Authorization().DeleteResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationDeleteResourceByExternalIDParams{})
 	require.NoError(t, err)
 }
 
-func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
+func TestAuthorization_ListMembershipsForResourceByExternalID(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
 		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id/organization_memberships", r.URL.Path)
@@ -493,7 +493,7 @@ func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListMembershipsForResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListMembershipsForResourceByExternalIDParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -501,7 +501,7 @@ func TestAuthorization_ListResourceOrganizationMemberships(t *testing.T) {
 	require.NotNil(t, item)
 }
 
-func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
+func TestAuthorization_ListMembershipsForResourceByExternalID_Empty(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -510,7 +510,7 @@ func TestAuthorization_ListResourceOrganizationMemberships_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Authorization().ListResourceOrganizationMemberships(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListResourceOrganizationMembershipsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Authorization().ListMembershipsForResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListMembershipsForResourceByExternalIDParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }
