@@ -215,6 +215,9 @@ const (
 	CreateWebhookEndpointEventsPermissionUpdated                        CreateWebhookEndpointEvents = "permission.updated"
 	CreateWebhookEndpointEventsSessionCreated                           CreateWebhookEndpointEvents = "session.created"
 	CreateWebhookEndpointEventsSessionRevoked                           CreateWebhookEndpointEvents = "session.revoked"
+	CreateWebhookEndpointEventsWaitlistUserApproved                     CreateWebhookEndpointEvents = "waitlist_user.approved"
+	CreateWebhookEndpointEventsWaitlistUserCreated                      CreateWebhookEndpointEvents = "waitlist_user.created"
+	CreateWebhookEndpointEventsWaitlistUserDenied                       CreateWebhookEndpointEvents = "waitlist_user.denied"
 )
 
 // UpdateWebhookEndpointStatus represents update webhook endpoint status values.
@@ -399,6 +402,15 @@ const (
 	DirectoryUserStateActive    DirectoryUserState = "active"
 	DirectoryUserStateSuspended DirectoryUserState = "suspended"
 	DirectoryUserStateInactive  DirectoryUserState = "inactive"
+)
+
+// WaitlistUserState represents waitlist user state values.
+type WaitlistUserState string
+
+const (
+	WaitlistUserStatePending  WaitlistUserState = "pending"
+	WaitlistUserStateApproved WaitlistUserState = "approved"
+	WaitlistUserStateDenied   WaitlistUserState = "denied"
 )
 
 // AuthenticationRadarRiskDetectedDataAction represents authentication radar risk detected data action values.
@@ -1090,6 +1102,9 @@ type OrganizationsAPIKeysOrder = ApplicationsOrder
 // OrganizationsFeatureFlagsOrder is an alias for ApplicationsOrder.
 type OrganizationsFeatureFlagsOrder = ApplicationsOrder
 
+// GroupsOrder is an alias for ApplicationsOrder.
+type GroupsOrder = ApplicationsOrder
+
 // RadarType is an alias for RadarStandaloneResponseBlocklistType.
 type RadarType = RadarStandaloneResponseBlocklistType
 
@@ -1105,10 +1120,19 @@ const (
 type SSOProvider string
 
 const (
-	SSOProviderAppleOAuth     SSOProvider = "AppleOAuth"
-	SSOProviderGitHubOAuth    SSOProvider = "GitHubOAuth"
-	SSOProviderGoogleOAuth    SSOProvider = "GoogleOAuth"
-	SSOProviderMicrosoftOAuth SSOProvider = "MicrosoftOAuth"
+	SSOProviderAppleOAuth             SSOProvider = "AppleOAuth"
+	SSOProviderBitbucketOAuth         SSOProvider = "BitbucketOAuth"
+	SSOProviderGitHubOAuth            SSOProvider = "GitHubOAuth"
+	SSOProviderGitLabOAuth            SSOProvider = "GitLabOAuth"
+	SSOProviderGoogleOAuth            SSOProvider = "GoogleOAuth"
+	SSOProviderIntuitOAuth            SSOProvider = "IntuitOAuth"
+	SSOProviderLinkedInOAuth          SSOProvider = "LinkedInOAuth"
+	SSOProviderMicrosoftOAuth         SSOProvider = "MicrosoftOAuth"
+	SSOProviderSalesforceOAuth        SSOProvider = "SalesforceOAuth"
+	SSOProviderSlackOAuth             SSOProvider = "SlackOAuth"
+	SSOProviderVercelMarketplaceOAuth SSOProvider = "VercelMarketplaceOAuth"
+	SSOProviderVercelOAuth            SSOProvider = "VercelOAuth"
+	SSOProviderXeroOAuth              SSOProvider = "XeroOAuth"
 )
 
 // UserManagementAuthenticationScreenHint represents user management authentication screen hint values.
@@ -1123,11 +1147,20 @@ const (
 type UserManagementAuthenticationProvider string
 
 const (
-	UserManagementAuthenticationProviderAuthkit        UserManagementAuthenticationProvider = "authkit"
-	UserManagementAuthenticationProviderAppleOAuth     UserManagementAuthenticationProvider = "AppleOAuth"
-	UserManagementAuthenticationProviderGitHubOAuth    UserManagementAuthenticationProvider = "GitHubOAuth"
-	UserManagementAuthenticationProviderGoogleOAuth    UserManagementAuthenticationProvider = "GoogleOAuth"
-	UserManagementAuthenticationProviderMicrosoftOAuth UserManagementAuthenticationProvider = "MicrosoftOAuth"
+	UserManagementAuthenticationProviderAuthkit                UserManagementAuthenticationProvider = "authkit"
+	UserManagementAuthenticationProviderAppleOAuth             UserManagementAuthenticationProvider = "AppleOAuth"
+	UserManagementAuthenticationProviderBitbucketOAuth         UserManagementAuthenticationProvider = "BitbucketOAuth"
+	UserManagementAuthenticationProviderGitHubOAuth            UserManagementAuthenticationProvider = "GitHubOAuth"
+	UserManagementAuthenticationProviderGitLabOAuth            UserManagementAuthenticationProvider = "GitLabOAuth"
+	UserManagementAuthenticationProviderGoogleOAuth            UserManagementAuthenticationProvider = "GoogleOAuth"
+	UserManagementAuthenticationProviderIntuitOAuth            UserManagementAuthenticationProvider = "IntuitOAuth"
+	UserManagementAuthenticationProviderLinkedInOAuth          UserManagementAuthenticationProvider = "LinkedInOAuth"
+	UserManagementAuthenticationProviderMicrosoftOAuth         UserManagementAuthenticationProvider = "MicrosoftOAuth"
+	UserManagementAuthenticationProviderSalesforceOAuth        UserManagementAuthenticationProvider = "SalesforceOAuth"
+	UserManagementAuthenticationProviderSlackOAuth             UserManagementAuthenticationProvider = "SlackOAuth"
+	UserManagementAuthenticationProviderVercelMarketplaceOAuth UserManagementAuthenticationProvider = "VercelMarketplaceOAuth"
+	UserManagementAuthenticationProviderVercelOAuth            UserManagementAuthenticationProvider = "VercelOAuth"
+	UserManagementAuthenticationProviderXeroOAuth              UserManagementAuthenticationProvider = "XeroOAuth"
 )
 
 // UserManagementUsersOrder is an alias for ApplicationsOrder.
@@ -1141,6 +1174,9 @@ type UserManagementOrganizationMembershipOrder = ApplicationsOrder
 
 // UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
 type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
+
+// UserManagementOrganizationMembershipGroupsOrder is an alias for ApplicationsOrder.
+type UserManagementOrganizationMembershipGroupsOrder = ApplicationsOrder
 
 // UserManagementUsersFeatureFlagsOrder is an alias for ApplicationsOrder.
 type UserManagementUsersFeatureFlagsOrder = ApplicationsOrder
@@ -1156,6 +1192,3 @@ type WebhooksOrder = ApplicationsOrder
 
 // AuditLogsOrder is an alias for ApplicationsOrder.
 type AuditLogsOrder = ApplicationsOrder
-
-// EventSchemaContextActorSource is an alias for EventContextActorSource.
-type EventSchemaContextActorSource = EventContextActorSource
