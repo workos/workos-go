@@ -171,7 +171,7 @@ func TestUserManagement_ConfirmPasswordReset(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/reset_password_response.json")
+		fixture, err := os.ReadFile("testdata/verify_email_response.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -434,7 +434,7 @@ func TestUserManagement_SendVerificationEmail(t *testing.T) {
 		require.Equal(t, "/user_management/users/test_id/email_verification/send", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/send_verification_email_response.json")
+		fixture, err := os.ReadFile("testdata/verify_email_response.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-04-28T16:26:36.337Z",
+  "generatedAt": "2026-04-28T16:39:05.302Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",

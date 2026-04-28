@@ -255,8 +255,13 @@ type CreateOrganizationRole struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
-// UpdateOrganizationRole is an alias for UpdateAuthorizationPermission.
-type UpdateOrganizationRole = UpdateAuthorizationPermission
+// UpdateOrganizationRole represents an update organization role.
+type UpdateOrganizationRole struct {
+	// Name is a descriptive name for the role.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the role's purpose.
+	Description *string `json:"description,omitempty"`
+}
 
 // CreateAuthorizationPermission represents a create authorization permission.
 type CreateAuthorizationPermission struct {
@@ -278,11 +283,25 @@ type UpdateAuthorizationPermission struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// CreateRole is an alias for CreateAuthorizationPermission.
-type CreateRole = CreateAuthorizationPermission
+// CreateRole represents a create role.
+type CreateRole struct {
+	// Slug is a unique slug for the role.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the role.
+	Name string `json:"name"`
+	// Description is an optional description of the role.
+	Description *string `json:"description,omitempty"`
+	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
+}
 
-// UpdateRole is an alias for UpdateAuthorizationPermission.
-type UpdateRole = UpdateAuthorizationPermission
+// UpdateRole represents an update role.
+type UpdateRole struct {
+	// Name is a descriptive name for the role.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the role.
+	Description *string `json:"description,omitempty"`
+}
 
 // UpdateAuthorizationResource represents an update authorization resource.
 type UpdateAuthorizationResource struct {
@@ -338,8 +357,13 @@ type CreateGroup struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// UpdateGroup is an alias for UpdateAuthorizationPermission.
-type UpdateGroup = UpdateAuthorizationPermission
+// UpdateGroup represents an update group.
+type UpdateGroup struct {
+	// Name is the name of the Group.
+	Name *string `json:"name,omitempty"`
+	// Description is an optional description of the Group.
+	Description *string `json:"description,omitempty"`
+}
 
 // UpdateJWTTemplate represents an update JWT template.
 type UpdateJWTTemplate struct {
