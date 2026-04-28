@@ -47,7 +47,7 @@ func TestOrganizationDomains_Get(t *testing.T) {
 		require.Equal(t, "/organization_domains/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/organization_domain_stand_alone.json")
+		fixture, err := os.ReadFile("testdata/organization_domain.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -83,7 +83,7 @@ func TestOrganizationDomains_Verify(t *testing.T) {
 		require.Equal(t, "/organization_domains/test_id/verify", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/organization_domain_stand_alone.json")
+		fixture, err := os.ReadFile("testdata/organization_domain.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

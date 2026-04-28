@@ -1,7 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "language": "go",
-  "generatedAt": "2026-04-21T08:15:56.919Z",
+  "generatedAt": "2026-04-28T16:39:05.302Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -20,6 +20,8 @@
     "events_test.go",
     "feature_flags.go",
     "feature_flags_test.go",
+    "groups.go",
+    "groups_test.go",
     "helpers_test.go",
     "models.go",
     "multi_factor_auth.go",
@@ -150,6 +152,8 @@
     "testdata/create_authorization_permission.json",
     "testdata/create_authorization_resource.json",
     "testdata/create_cors_origin.json",
+    "testdata/create_group.json",
+    "testdata/create_group_membership.json",
     "testdata/create_m2m_application.json",
     "testdata/create_magic_code_and_return.json",
     "testdata/create_oauth_application.json",
@@ -181,6 +185,7 @@
     "testdata/directory_user.json",
     "testdata/directory_user_email.json",
     "testdata/directory_user_with_groups.json",
+    "testdata/domain_verification_intent_options.json",
     "testdata/dsync_activated.json",
     "testdata/dsync_activated_data.json",
     "testdata/dsync_activated_data_domain.json",
@@ -269,12 +274,12 @@
     "testdata/list_directory_group.json",
     "testdata/list_directory_user_with_groups.json",
     "testdata/list_event_schema.json",
+    "testdata/list_group.json",
     "testdata/list_organization.json",
     "testdata/list_role_assignment.json",
     "testdata/list_user.json",
     "testdata/list_user_invite.json",
     "testdata/list_user_organization_membership.json",
-    "testdata/list_user_organization_membership_base_list_data.json",
     "testdata/list_user_sessions_list_item.json",
     "testdata/list_webhook_endpoint_json.json",
     "testdata/magic_auth.json",
@@ -357,6 +362,7 @@
     "testdata/update_audit_logs_retention.json",
     "testdata/update_authorization_permission.json",
     "testdata/update_authorization_resource.json",
+    "testdata/update_group.json",
     "testdata/update_jwt_template.json",
     "testdata/update_oauth_application.json",
     "testdata/update_organization.json",
@@ -402,15 +408,691 @@
     "testdata/vault_names_listed_data.json",
     "testdata/verify_email_address.json",
     "testdata/verify_email_response.json",
+    "testdata/waitlist_user.json",
+    "testdata/waitlist_user_approved.json",
+    "testdata/waitlist_user_created.json",
+    "testdata/waitlist_user_denied.json",
     "testdata/webhook_endpoint_json.json",
     "testdata/widget_session_token.json",
     "testdata/widget_session_token_response.json",
     "user_management.go",
+    "user_management_organization_membership_groups.go",
+    "user_management_organization_membership_groups_test.go",
     "user_management_test.go",
     "webhooks.go",
     "webhooks_test.go",
     "widgets.go",
     "widgets_test.go",
     "workos.go"
-  ]
+  ],
+  "operations": {
+    "POST /api_keys/validations": {
+      "sdkMethod": "CreateValidation",
+      "service": "api_keys"
+    },
+    "DELETE /api_keys/{id}": {
+      "sdkMethod": "Delete",
+      "service": "api_keys"
+    },
+    "POST /auth/challenges/{id}/verify": {
+      "sdkMethod": "VerifyChallenge",
+      "service": "multi_factor_auth"
+    },
+    "POST /auth/factors/enroll": {
+      "sdkMethod": "EnrollFactor",
+      "service": "multi_factor_auth"
+    },
+    "GET /auth/factors/{id}": {
+      "sdkMethod": "GetFactor",
+      "service": "multi_factor_auth"
+    },
+    "DELETE /auth/factors/{id}": {
+      "sdkMethod": "DeleteFactor",
+      "service": "multi_factor_auth"
+    },
+    "POST /auth/factors/{id}/challenge": {
+      "sdkMethod": "ChallengeFactor",
+      "service": "multi_factor_auth"
+    },
+    "POST /authkit/oauth2/complete": {
+      "sdkMethod": "CompleteOAuth2",
+      "service": "connect"
+    },
+    "POST /authorization/organization_memberships/{organization_membership_id}/check": {
+      "sdkMethod": "Check",
+      "service": "authorization"
+    },
+    "GET /authorization/organization_memberships/{organization_membership_id}/resources": {
+      "sdkMethod": "ListResourcesForMembership",
+      "service": "authorization"
+    },
+    "GET /authorization/organization_memberships/{organization_membership_id}/resources/{resource_id}/permissions": {
+      "sdkMethod": "ListEffectivePermissions",
+      "service": "authorization"
+    },
+    "GET /authorization/organization_memberships/{organization_membership_id}/resources/{resource_type_slug}/{external_id}/permissions": {
+      "sdkMethod": "ListEffectivePermissionsByExternalID",
+      "service": "authorization"
+    },
+    "GET /authorization/organization_memberships/{organization_membership_id}/role_assignments": {
+      "sdkMethod": "ListRoleAssignments",
+      "service": "authorization"
+    },
+    "POST /authorization/organization_memberships/{organization_membership_id}/role_assignments": {
+      "sdkMethod": "AssignRole",
+      "service": "authorization"
+    },
+    "DELETE /authorization/organization_memberships/{organization_membership_id}/role_assignments": {
+      "sdkMethod": "RemoveRole",
+      "service": "authorization"
+    },
+    "DELETE /authorization/organization_memberships/{organization_membership_id}/role_assignments/{role_assignment_id}": {
+      "sdkMethod": "RemoveRoleAssignment",
+      "service": "authorization"
+    },
+    "GET /authorization/organizations/{organizationId}/roles": {
+      "sdkMethod": "ListOrganizationRoles",
+      "service": "authorization"
+    },
+    "POST /authorization/organizations/{organizationId}/roles": {
+      "sdkMethod": "CreateOrganizationRole",
+      "service": "authorization"
+    },
+    "GET /authorization/organizations/{organizationId}/roles/{slug}": {
+      "sdkMethod": "GetOrganizationRole",
+      "service": "authorization"
+    },
+    "PATCH /authorization/organizations/{organizationId}/roles/{slug}": {
+      "sdkMethod": "UpdateOrganizationRole",
+      "service": "authorization"
+    },
+    "DELETE /authorization/organizations/{organizationId}/roles/{slug}": {
+      "sdkMethod": "DeleteOrganizationRole",
+      "service": "authorization"
+    },
+    "POST /authorization/organizations/{organizationId}/roles/{slug}/permissions": {
+      "sdkMethod": "AddOrganizationRolePermission",
+      "service": "authorization"
+    },
+    "PUT /authorization/organizations/{organizationId}/roles/{slug}/permissions": {
+      "sdkMethod": "SetOrganizationRolePermissions",
+      "service": "authorization"
+    },
+    "DELETE /authorization/organizations/{organizationId}/roles/{slug}/permissions/{permissionSlug}": {
+      "sdkMethod": "RemoveOrganizationRolePermission",
+      "service": "authorization"
+    },
+    "GET /authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}": {
+      "sdkMethod": "GetResourceByExternalID",
+      "service": "authorization"
+    },
+    "PATCH /authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}": {
+      "sdkMethod": "UpdateResourceByExternalID",
+      "service": "authorization"
+    },
+    "DELETE /authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}": {
+      "sdkMethod": "DeleteResourceByExternalID",
+      "service": "authorization"
+    },
+    "GET /authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}/organization_memberships": {
+      "sdkMethod": "ListMembershipsForResourceByExternalID",
+      "service": "authorization"
+    },
+    "GET /authorization/resources": {
+      "sdkMethod": "ListResources",
+      "service": "authorization"
+    },
+    "POST /authorization/resources": {
+      "sdkMethod": "CreateResource",
+      "service": "authorization"
+    },
+    "GET /authorization/resources/{resource_id}": {
+      "sdkMethod": "GetResource",
+      "service": "authorization"
+    },
+    "PATCH /authorization/resources/{resource_id}": {
+      "sdkMethod": "UpdateResource",
+      "service": "authorization"
+    },
+    "DELETE /authorization/resources/{resource_id}": {
+      "sdkMethod": "DeleteResource",
+      "service": "authorization"
+    },
+    "GET /authorization/resources/{resource_id}/organization_memberships": {
+      "sdkMethod": "ListMembershipsForResource",
+      "service": "authorization"
+    },
+    "GET /authorization/roles": {
+      "sdkMethod": "ListEnvironmentRoles",
+      "service": "authorization"
+    },
+    "POST /authorization/roles": {
+      "sdkMethod": "CreateEnvironmentRole",
+      "service": "authorization"
+    },
+    "GET /authorization/roles/{slug}": {
+      "sdkMethod": "GetEnvironmentRole",
+      "service": "authorization"
+    },
+    "PATCH /authorization/roles/{slug}": {
+      "sdkMethod": "UpdateEnvironmentRole",
+      "service": "authorization"
+    },
+    "POST /authorization/roles/{slug}/permissions": {
+      "sdkMethod": "AddEnvironmentRolePermission",
+      "service": "authorization"
+    },
+    "PUT /authorization/roles/{slug}/permissions": {
+      "sdkMethod": "SetEnvironmentRolePermissions",
+      "service": "authorization"
+    },
+    "GET /authorization/permissions": {
+      "sdkMethod": "ListPermissions",
+      "service": "authorization"
+    },
+    "POST /authorization/permissions": {
+      "sdkMethod": "CreatePermission",
+      "service": "authorization"
+    },
+    "GET /authorization/permissions/{slug}": {
+      "sdkMethod": "GetPermission",
+      "service": "authorization"
+    },
+    "PATCH /authorization/permissions/{slug}": {
+      "sdkMethod": "UpdatePermission",
+      "service": "authorization"
+    },
+    "DELETE /authorization/permissions/{slug}": {
+      "sdkMethod": "DeletePermission",
+      "service": "authorization"
+    },
+    "GET /connect/applications": {
+      "sdkMethod": "ListApplications",
+      "service": "connect"
+    },
+    "POST /connect/applications": {
+      "sdkMethod": "CreateApplication",
+      "service": "connect"
+    },
+    "GET /connect/applications/{id}": {
+      "sdkMethod": "GetApplication",
+      "service": "connect"
+    },
+    "PUT /connect/applications/{id}": {
+      "sdkMethod": "UpdateApplication",
+      "service": "connect"
+    },
+    "DELETE /connect/applications/{id}": {
+      "sdkMethod": "DeleteApplication",
+      "service": "connect"
+    },
+    "GET /connect/applications/{id}/client_secrets": {
+      "sdkMethod": "ListApplicationClientSecrets",
+      "service": "connect"
+    },
+    "POST /connect/applications/{id}/client_secrets": {
+      "sdkMethod": "CreateApplicationClientSecret",
+      "service": "connect"
+    },
+    "DELETE /connect/client_secrets/{id}": {
+      "sdkMethod": "DeleteClientSecret",
+      "service": "connect"
+    },
+    "GET /connections": {
+      "sdkMethod": "ListConnections",
+      "service": "sso"
+    },
+    "GET /connections/{id}": {
+      "sdkMethod": "GetConnection",
+      "service": "sso"
+    },
+    "DELETE /connections/{id}": {
+      "sdkMethod": "DeleteConnection",
+      "service": "sso"
+    },
+    "POST /data-integrations/{slug}/authorize": {
+      "sdkMethod": "AuthorizeDataIntegration",
+      "service": "pipes"
+    },
+    "POST /data-integrations/{slug}/token": {
+      "sdkMethod": "CreateDataIntegrationToken",
+      "service": "pipes"
+    },
+    "GET /directories": {
+      "sdkMethod": "List",
+      "service": "directory_sync"
+    },
+    "GET /directories/{id}": {
+      "sdkMethod": "Get",
+      "service": "directory_sync"
+    },
+    "DELETE /directories/{id}": {
+      "sdkMethod": "Delete",
+      "service": "directory_sync"
+    },
+    "GET /directory_groups": {
+      "sdkMethod": "ListGroups",
+      "service": "directory_sync"
+    },
+    "GET /directory_groups/{id}": {
+      "sdkMethod": "GetGroup",
+      "service": "directory_sync"
+    },
+    "GET /directory_users": {
+      "sdkMethod": "ListUsers",
+      "service": "directory_sync"
+    },
+    "GET /directory_users/{id}": {
+      "sdkMethod": "GetUser",
+      "service": "directory_sync"
+    },
+    "GET /events": {
+      "sdkMethod": "List",
+      "service": "events"
+    },
+    "GET /feature-flags": {
+      "sdkMethod": "List",
+      "service": "feature_flags"
+    },
+    "GET /feature-flags/{slug}": {
+      "sdkMethod": "Get",
+      "service": "feature_flags"
+    },
+    "PUT /feature-flags/{slug}/disable": {
+      "sdkMethod": "Disable",
+      "service": "feature_flags"
+    },
+    "PUT /feature-flags/{slug}/enable": {
+      "sdkMethod": "Enable",
+      "service": "feature_flags"
+    },
+    "POST /feature-flags/{slug}/targets/{resourceId}": {
+      "sdkMethod": "AddFlagTarget",
+      "service": "feature_flags"
+    },
+    "DELETE /feature-flags/{slug}/targets/{resourceId}": {
+      "sdkMethod": "RemoveFlagTarget",
+      "service": "feature_flags"
+    },
+    "POST /organization_domains": {
+      "sdkMethod": "Create",
+      "service": "organization_domains"
+    },
+    "GET /organization_domains/{id}": {
+      "sdkMethod": "Get",
+      "service": "organization_domains"
+    },
+    "DELETE /organization_domains/{id}": {
+      "sdkMethod": "Delete",
+      "service": "organization_domains"
+    },
+    "POST /organization_domains/{id}/verify": {
+      "sdkMethod": "Verify",
+      "service": "organization_domains"
+    },
+    "GET /organizations": {
+      "sdkMethod": "List",
+      "service": "organizations"
+    },
+    "POST /organizations": {
+      "sdkMethod": "Create",
+      "service": "organizations"
+    },
+    "GET /organizations/external_id/{external_id}": {
+      "sdkMethod": "GetByExternalID",
+      "service": "organizations"
+    },
+    "GET /organizations/{id}": {
+      "sdkMethod": "Get",
+      "service": "organizations"
+    },
+    "PUT /organizations/{id}": {
+      "sdkMethod": "Update",
+      "service": "organizations"
+    },
+    "DELETE /organizations/{id}": {
+      "sdkMethod": "Delete",
+      "service": "organizations"
+    },
+    "GET /organizations/{id}/audit_log_configuration": {
+      "sdkMethod": "GetAuditLogConfiguration",
+      "service": "organizations"
+    },
+    "GET /organizations/{id}/audit_logs_retention": {
+      "sdkMethod": "GetAuditLogsRetention",
+      "service": "audit_logs"
+    },
+    "PUT /organizations/{id}/audit_logs_retention": {
+      "sdkMethod": "UpdateAuditLogsRetention",
+      "service": "audit_logs"
+    },
+    "GET /organizations/{organizationId}/api_keys": {
+      "sdkMethod": "ListOrganizationAPIKeys",
+      "service": "api_keys"
+    },
+    "POST /organizations/{organizationId}/api_keys": {
+      "sdkMethod": "CreateOrganizationAPIKey",
+      "service": "api_keys"
+    },
+    "GET /organizations/{organizationId}/feature-flags": {
+      "sdkMethod": "ListOrganizationFeatureFlags",
+      "service": "feature_flags"
+    },
+    "GET /organizations/{organizationId}/groups": {
+      "sdkMethod": "ListOrganizationGroups",
+      "service": "groups"
+    },
+    "POST /organizations/{organizationId}/groups": {
+      "sdkMethod": "CreateOrganizationGroup",
+      "service": "groups"
+    },
+    "GET /organizations/{organizationId}/groups/{groupId}": {
+      "sdkMethod": "GetOrganizationGroup",
+      "service": "groups"
+    },
+    "PATCH /organizations/{organizationId}/groups/{groupId}": {
+      "sdkMethod": "UpdateOrganizationGroup",
+      "service": "groups"
+    },
+    "DELETE /organizations/{organizationId}/groups/{groupId}": {
+      "sdkMethod": "DeleteOrganizationGroup",
+      "service": "groups"
+    },
+    "GET /organizations/{organizationId}/groups/{groupId}/organization-memberships": {
+      "sdkMethod": "ListOrganizationMemberships",
+      "service": "groups"
+    },
+    "POST /organizations/{organizationId}/groups/{groupId}/organization-memberships": {
+      "sdkMethod": "CreateOrganizationMembership",
+      "service": "groups"
+    },
+    "DELETE /organizations/{organizationId}/groups/{groupId}/organization-memberships/{omId}": {
+      "sdkMethod": "DeleteOrganizationMembership",
+      "service": "groups"
+    },
+    "POST /portal/generate_link": {
+      "sdkMethod": "GenerateLink",
+      "service": "admin_portal"
+    },
+    "POST /radar/attempts": {
+      "sdkMethod": "CreateAttempt",
+      "service": "radar"
+    },
+    "PUT /radar/attempts/{id}": {
+      "sdkMethod": "UpdateAttempt",
+      "service": "radar"
+    },
+    "POST /radar/lists/{type}/{action}": {
+      "sdkMethod": "AddListEntry",
+      "service": "radar"
+    },
+    "DELETE /radar/lists/{type}/{action}": {
+      "sdkMethod": "RemoveListEntry",
+      "service": "radar"
+    },
+    "GET /sso/authorize": {
+      "sdkMethod": "GetAuthorizationURL",
+      "service": "sso"
+    },
+    "GET /sso/logout": {
+      "sdkMethod": "GetLogoutURL",
+      "service": "sso"
+    },
+    "POST /sso/logout/authorize": {
+      "sdkMethod": "AuthorizeLogout",
+      "service": "sso"
+    },
+    "GET /sso/profile": {
+      "sdkMethod": "GetProfile",
+      "service": "sso"
+    },
+    "POST /sso/token": {
+      "sdkMethod": "GetProfileAndToken",
+      "service": "sso"
+    },
+    "GET /sso/jwks/{clientId}": {
+      "sdkMethod": "GetJWKS",
+      "service": "user_management"
+    },
+    "POST /user_management/authenticate": {
+      "sdkMethod": "CreateAuthenticate",
+      "service": "user_management"
+    },
+    "GET /user_management/authorize": {
+      "sdkMethod": "GetAuthorizationURL",
+      "service": "user_management"
+    },
+    "POST /user_management/authorize/device": {
+      "sdkMethod": "CreateDevice",
+      "service": "user_management"
+    },
+    "GET /user_management/sessions/logout": {
+      "sdkMethod": "GetLogoutURL",
+      "service": "user_management"
+    },
+    "POST /user_management/sessions/revoke": {
+      "sdkMethod": "RevokeSession",
+      "service": "user_management"
+    },
+    "POST /user_management/cors_origins": {
+      "sdkMethod": "CreateCORSOrigin",
+      "service": "user_management"
+    },
+    "GET /user_management/email_verification/{id}": {
+      "sdkMethod": "GetEmailVerification",
+      "service": "user_management"
+    },
+    "POST /user_management/password_reset": {
+      "sdkMethod": "ResetPassword",
+      "service": "user_management"
+    },
+    "POST /user_management/password_reset/confirm": {
+      "sdkMethod": "ConfirmPasswordReset",
+      "service": "user_management"
+    },
+    "GET /user_management/password_reset/{id}": {
+      "sdkMethod": "GetPasswordReset",
+      "service": "user_management"
+    },
+    "GET /user_management/users": {
+      "sdkMethod": "List",
+      "service": "user_management"
+    },
+    "POST /user_management/users": {
+      "sdkMethod": "Create",
+      "service": "user_management"
+    },
+    "GET /user_management/users/external_id/{external_id}": {
+      "sdkMethod": "GetByExternalID",
+      "service": "user_management"
+    },
+    "GET /user_management/users/{id}": {
+      "sdkMethod": "Get",
+      "service": "user_management"
+    },
+    "PUT /user_management/users/{id}": {
+      "sdkMethod": "Update",
+      "service": "user_management"
+    },
+    "DELETE /user_management/users/{id}": {
+      "sdkMethod": "Delete",
+      "service": "user_management"
+    },
+    "POST /user_management/users/{id}/email_change/confirm": {
+      "sdkMethod": "ConfirmEmailChange",
+      "service": "user_management"
+    },
+    "POST /user_management/users/{id}/email_change/send": {
+      "sdkMethod": "SendEmailChange",
+      "service": "user_management"
+    },
+    "POST /user_management/users/{id}/email_verification/confirm": {
+      "sdkMethod": "VerifyEmail",
+      "service": "user_management"
+    },
+    "POST /user_management/users/{id}/email_verification/send": {
+      "sdkMethod": "SendVerificationEmail",
+      "service": "user_management"
+    },
+    "GET /user_management/users/{id}/identities": {
+      "sdkMethod": "GetIdentities",
+      "service": "user_management"
+    },
+    "GET /user_management/users/{id}/sessions": {
+      "sdkMethod": "ListSessions",
+      "service": "user_management"
+    },
+    "GET /user_management/invitations": {
+      "sdkMethod": "ListInvitations",
+      "service": "user_management"
+    },
+    "POST /user_management/invitations": {
+      "sdkMethod": "SendInvitation",
+      "service": "user_management"
+    },
+    "GET /user_management/invitations/by_token/{token}": {
+      "sdkMethod": "FindInvitationByToken",
+      "service": "user_management"
+    },
+    "GET /user_management/invitations/{id}": {
+      "sdkMethod": "GetInvitation",
+      "service": "user_management"
+    },
+    "POST /user_management/invitations/{id}/accept": {
+      "sdkMethod": "AcceptInvitation",
+      "service": "user_management"
+    },
+    "POST /user_management/invitations/{id}/resend": {
+      "sdkMethod": "ResendInvitation",
+      "service": "user_management"
+    },
+    "POST /user_management/invitations/{id}/revoke": {
+      "sdkMethod": "RevokeInvitation",
+      "service": "user_management"
+    },
+    "PUT /user_management/jwt_template": {
+      "sdkMethod": "UpdateJWTTemplate",
+      "service": "user_management"
+    },
+    "POST /user_management/magic_auth": {
+      "sdkMethod": "CreateMagicAuth",
+      "service": "user_management"
+    },
+    "GET /user_management/magic_auth/{id}": {
+      "sdkMethod": "GetMagicAuth",
+      "service": "user_management"
+    },
+    "GET /user_management/organization_memberships": {
+      "sdkMethod": "ListOrganizationMemberships",
+      "service": "user_management"
+    },
+    "POST /user_management/organization_memberships": {
+      "sdkMethod": "CreateOrganizationMembership",
+      "service": "user_management"
+    },
+    "GET /user_management/organization_memberships/{id}": {
+      "sdkMethod": "GetOrganizationMembership",
+      "service": "user_management"
+    },
+    "PUT /user_management/organization_memberships/{id}": {
+      "sdkMethod": "UpdateOrganizationMembership",
+      "service": "user_management"
+    },
+    "DELETE /user_management/organization_memberships/{id}": {
+      "sdkMethod": "DeleteOrganizationMembership",
+      "service": "user_management"
+    },
+    "PUT /user_management/organization_memberships/{id}/deactivate": {
+      "sdkMethod": "DeactivateOrganizationMembership",
+      "service": "user_management"
+    },
+    "PUT /user_management/organization_memberships/{id}/reactivate": {
+      "sdkMethod": "ReactivateOrganizationMembership",
+      "service": "user_management"
+    },
+    "GET /user_management/organization_memberships/{omId}/groups": {
+      "sdkMethod": "ListOrganizationMembershipGroups",
+      "service": "user_management_organization_membership_groups"
+    },
+    "POST /user_management/redirect_uris": {
+      "sdkMethod": "CreateRedirectURI",
+      "service": "user_management"
+    },
+    "GET /user_management/users/{userId}/feature-flags": {
+      "sdkMethod": "ListUserFeatureFlags",
+      "service": "feature_flags"
+    },
+    "GET /user_management/users/{user_id}/authorized_applications": {
+      "sdkMethod": "ListAuthorizedApplications",
+      "service": "user_management"
+    },
+    "DELETE /user_management/users/{user_id}/authorized_applications/{application_id}": {
+      "sdkMethod": "DeleteAuthorizedApplication",
+      "service": "user_management"
+    },
+    "GET /user_management/users/{user_id}/connected_accounts/{slug}": {
+      "sdkMethod": "GetUserConnectedAccount",
+      "service": "pipes"
+    },
+    "DELETE /user_management/users/{user_id}/connected_accounts/{slug}": {
+      "sdkMethod": "DeleteUserConnectedAccount",
+      "service": "pipes"
+    },
+    "GET /user_management/users/{user_id}/data_providers": {
+      "sdkMethod": "ListUserDataProviders",
+      "service": "pipes"
+    },
+    "GET /user_management/users/{userlandUserId}/auth_factors": {
+      "sdkMethod": "ListUserAuthFactors",
+      "service": "multi_factor_auth"
+    },
+    "POST /user_management/users/{userlandUserId}/auth_factors": {
+      "sdkMethod": "CreateUserAuthFactor",
+      "service": "multi_factor_auth"
+    },
+    "GET /webhook_endpoints": {
+      "sdkMethod": "ListEndpoints",
+      "service": "webhooks"
+    },
+    "POST /webhook_endpoints": {
+      "sdkMethod": "CreateEndpoint",
+      "service": "webhooks"
+    },
+    "PATCH /webhook_endpoints/{id}": {
+      "sdkMethod": "UpdateEndpoint",
+      "service": "webhooks"
+    },
+    "DELETE /webhook_endpoints/{id}": {
+      "sdkMethod": "DeleteEndpoint",
+      "service": "webhooks"
+    },
+    "POST /widgets/token": {
+      "sdkMethod": "CreateToken",
+      "service": "widgets"
+    },
+    "GET /audit_logs/actions": {
+      "sdkMethod": "ListActions",
+      "service": "audit_logs"
+    },
+    "GET /audit_logs/actions/{actionName}/schemas": {
+      "sdkMethod": "ListActionSchemas",
+      "service": "audit_logs"
+    },
+    "POST /audit_logs/actions/{actionName}/schemas": {
+      "sdkMethod": "CreateSchema",
+      "service": "audit_logs"
+    },
+    "POST /audit_logs/events": {
+      "sdkMethod": "CreateEvent",
+      "service": "audit_logs"
+    },
+    "POST /audit_logs/exports": {
+      "sdkMethod": "CreateExport",
+      "service": "audit_logs"
+    },
+    "GET /audit_logs/exports/{auditLogExportId}": {
+      "sdkMethod": "GetExport",
+      "service": "audit_logs"
+    }
+  }
 }

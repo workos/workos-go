@@ -61,7 +61,7 @@ type SSOGetAuthorizationURLParams struct {
 	//
 	// Deprecated: this parameter is deprecated.
 	Domain *string `url:"domain,omitempty" json:"-"`
-	// Provider is used to initiate OAuth authentication with Google, Microsoft, GitHub, or Apple.
+	// Provider is used to initiate OAuth authentication with various providers.
 	Provider *SSOProvider `url:"provider,omitempty" json:"-"`
 	// RedirectURI is where to redirect the user after they complete the authentication process. You must use one of the redirect URIs configured via the [Redirects](https://dashboard.workos.com/redirects) page on the dashboard.
 	RedirectURI string `url:"redirect_uri" json:"-"`
