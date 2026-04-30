@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.1](https://github.com/workos/workos-go/compare/v7.1.0...v7.1.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* parse webhook/action signature timestamps as milliseconds ([#539](https://github.com/workos/workos-go/issues/539)) ([ed9b464](https://github.com/workos/workos-go/commit/ed9b464746db86d0b4cd32ea197b8dc7277d0b6b))
+
 ## [7.1.0](https://github.com/workos/workos-go/compare/v7.0.0...v7.1.0) (2026-04-28)
 
 
