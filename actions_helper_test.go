@@ -30,7 +30,7 @@ func computeTestActionSignature(secret, timestamp, payload string) string {
 
 // buildActionSigHeader builds a "t=...,v1=..." signature header for testing.
 func buildActionSigHeader(secret, payload string, ts time.Time) string {
-	timestamp := strconv.FormatInt(ts.Unix(), 10)
+	timestamp := strconv.FormatInt(ts.UnixMilli(), 10)
 	sig := computeTestActionSignature(secret, timestamp, payload)
 	return fmt.Sprintf("t=%s,v1=%s", timestamp, sig)
 }
@@ -48,7 +48,7 @@ func TestActionsHelper_VerifyHeader_Valid(t *testing.T) {
 func TestActionsHelper_VerifyHeader_InvalidSignature(t *testing.T) {
 	payload := `{"type":"authentication"}`
 	now := time.Now()
-	timestamp := strconv.FormatInt(now.Unix(), 10)
+	timestamp := strconv.FormatInt(now.UnixMilli(), 10)
 	sigHeader := fmt.Sprintf("t=%s,v1=%s", timestamp, "invalidsig")
 
 	helper := workos.NewActionsHelper()

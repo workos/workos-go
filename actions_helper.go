@@ -58,7 +58,7 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 		return ErrWebhookInvalidTimestamp
 	}
 
-	signedAt := time.Unix(ts, 0)
+	signedAt := time.UnixMilli(ts)
 	now := a.now()
 	if now.Sub(signedAt).Abs() > a.tolerance {
 		return ErrWebhookOutsideTolerance
@@ -115,7 +115,7 @@ func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdic
 	b64Payload := base64.StdEncoding.EncodeToString(jsonBytes)
 
 	now := a.now()
-	timestamp := strconv.FormatInt(now.Unix(), 10)
+	timestamp := strconv.FormatInt(now.UnixMilli(), 10)
 
 	sig := ComputeWebhookSignature(secret, timestamp, b64Payload)
 

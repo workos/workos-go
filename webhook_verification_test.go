@@ -16,7 +16,7 @@ const testWebhookSecret = "whsec_test_secret_key"
 
 // buildWebhookSigHeader computes a valid signature header for testing.
 func buildWebhookSigHeader(secret string, body string, ts time.Time) string {
-	timestamp := strconv.FormatInt(ts.Unix(), 10)
+	timestamp := strconv.FormatInt(ts.UnixMilli(), 10)
 	sig := workos.ComputeWebhookSignature(secret, timestamp, body)
 	return fmt.Sprintf("t=%s, v1=%s", timestamp, sig)
 }
@@ -39,7 +39,7 @@ func TestVerifyPayload_ValidSignature(t *testing.T) {
 func TestVerifyPayload_InvalidSignature(t *testing.T) {
 	body := `{"event":"user.created"}`
 	now := time.Now()
-	timestamp := strconv.FormatInt(now.Unix(), 10)
+	timestamp := strconv.FormatInt(now.UnixMilli(), 10)
 
 	sigHeader := fmt.Sprintf("t=%s, v1=%s", timestamp, "badsignaturevalue")
 
