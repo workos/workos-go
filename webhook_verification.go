@@ -75,7 +75,7 @@ func (w *WebhookVerifier) VerifyPayload(sigHeader string, body string) (string, 
 		return "", ErrWebhookInvalidTimestamp
 	}
 
-	signedAt := time.Unix(ts, 0)
+	signedAt := time.UnixMilli(ts)
 	now := w.now()
 	if now.Sub(signedAt).Abs() > w.tolerance {
 		return "", ErrWebhookOutsideTolerance

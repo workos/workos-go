@@ -395,19 +395,6 @@ Additional breaking changes:
   - `ErrNotSigned` -> `ErrWebhookNotSigned`
   - `ErrInvalidTimestamp` -> `ErrWebhookInvalidTimestamp`
   - `ErrOutsideTolerance` -> `ErrWebhookOutsideTolerance`
-- Test helpers that previously signed headers with millisecond timestamps need to switch to Unix seconds:
-
-Before:
-
-```go
-stringTime := strconv.FormatInt(now.Round(0).Unix()*1000, 10)
-```
-
-After:
-
-```go
-timestamp := strconv.FormatInt(now.Unix(), 10)
-```
 
 ## 7. Error Handling Was Flattened
 
