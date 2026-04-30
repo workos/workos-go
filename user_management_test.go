@@ -845,7 +845,7 @@ func TestUserManagement_GetOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
@@ -871,7 +871,7 @@ func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
@@ -930,7 +930,7 @@ func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 

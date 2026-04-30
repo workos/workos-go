@@ -670,31 +670,9 @@ type ExternalAuthCompleteResponse struct {
 	RedirectURI string `json:"redirect_uri"`
 }
 
-// APIKey the API Key object if the value is valid, or `null` if invalid.
-type APIKey struct {
-	// Object distinguishes the API Key object.
-	Object string `json:"object"`
-	// ID is unique identifier of the API Key.
-	ID string `json:"id"`
-	// Owner is the entity that owns the API Key.
-	Owner *APIKeyOwner `json:"owner"`
-	// Name is a descriptive name for the API Key.
-	Name string `json:"name"`
-	// ObfuscatedValue is an obfuscated representation of the API Key value.
-	ObfuscatedValue string `json:"obfuscated_value"`
-	// LastUsedAt is timestamp of when the API Key was last used.
-	LastUsedAt *string `json:"last_used_at"`
-	// Permissions is the permission slugs assigned to the API Key.
-	Permissions []string `json:"permissions"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-}
-
 // APIKeyValidationResponse represents an api key validation response.
 type APIKeyValidationResponse struct {
-	APIKey *APIKey `json:"api_key"`
+	APIKey *APIKeyValidationResponseAPIKey `json:"api_key"`
 }
 
 // ConnectApplication represents a connect application.
@@ -973,6 +951,35 @@ type RoleList struct {
 	Data []*Role `json:"data"`
 }
 
+// User is an alias for EmailChangeConfirmationUser.
+type User = EmailChangeConfirmationUser
+
+// UserOrganizationMembershipBaseWithUser represents a user organization membership base with user.
+type UserOrganizationMembershipBaseWithUser struct {
+	// Object distinguishes the organization membership object.
+	Object string `json:"object"`
+	// ID is the unique ID of the organization membership.
+	ID string `json:"id"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the organization which the user belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Status is the status of the organization membership. One of `active`, `inactive`, or `pending`.
+	Status UserOrganizationMembershipBaseWithUserStatus `json:"status"`
+	// DirectoryManaged is whether this organization membership is managed by a directory sync connection.
+	DirectoryManaged bool `json:"directory_managed"`
+	// OrganizationName is the name of the organization which the user belongs to.
+	OrganizationName *string `json:"organization_name,omitempty"`
+	// CustomAttributes is an object containing IdP-sourced attributes from the linked [Directory User](https://workos.com/docs/reference/directory-sync/directory-user) or [SSO Profile](https://workos.com/docs/reference/sso/profile). Directory User attributes take precedence when both are linked.
+	CustomAttributes map[string]interface{} `json:"custom_attributes,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// User is the user that belongs to the organization through this membership.
+	User *User `json:"user"`
+}
+
 // Connection represents a connection.
 type Connection struct {
 	// Object distinguishes the Connection object.
@@ -1081,6 +1088,8 @@ type DirectoryUserWithGroups struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
 	// Emails is a list of email addresses for the user.
 	//
 	// Deprecated: this field is deprecated.
@@ -1108,9 +1117,9 @@ type DirectoryUserWithGroups struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
-	// Groups is the directory groups the user belongs to. Use the List Directory Groups endpoint with a user filter instead.
+	// Groups is the directory groups the user belongs to. Deprecated: starting May 1, 2026, this field returns an empty array by default for newly created teams. Existing teams currently depending on this field should migrate to the new access pattern for better throughput performance — the field is unbounded by user, so users with many group memberships produce large, slow response payloads. Use the List Directory Groups endpoint with a `user` filter to fetch a user's group memberships.
 	//
-	// Deprecated: this field is deprecated.
+	// Deprecated: migrate to the new access pattern.
 	Groups []*DirectoryGroup `json:"groups"`
 }
 
@@ -1175,6 +1184,8 @@ type DirectoryUser struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
 	// Emails is a list of email addresses for the user.
 	//
 	// Deprecated: this field is deprecated.
@@ -1203,9 +1214,6 @@ type DirectoryUser struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// User is an alias for EmailChangeConfirmationUser.
-type User = EmailChangeConfirmationUser
 
 // WaitlistUser represents a waitlist user.
 type WaitlistUser struct {
@@ -1347,7 +1355,7 @@ type APIKeyCreatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyCreatedDataOwner the owner of the API key.
+// APIKeyCreatedDataOwner represents an api key created data owner.
 type APIKeyCreatedDataOwner struct {
 	// Type is the type of the API key owner.
 	Type string `json:"type"`
@@ -2329,6 +2337,55 @@ type DsyncGroupUpdatedData struct {
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
+// DsyncTokenCreated represents a dsync token created.
+type DsyncTokenCreated struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncTokenCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncTokenCreatedData the event payload.
+type DsyncTokenCreatedData struct {
+	// Object distinguishes the directory token object.
+	Object string `json:"object"`
+	// ID is unique identifier of the directory token.
+	ID string `json:"id"`
+	// DirectoryID is the ID of the directory the token authenticates to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the ID of the organization the directory belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// TokenSuffix is the trailing characters of the bearer token, for identification only. The full token value is never included in events.
+	TokenSuffix string `json:"token_suffix"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// ExpiresAt is the timestamp at which the token expires, or null for tokens without a scheduled expiration. Used during rotation to indicate the grace window for the outgoing token.
+	ExpiresAt *string `json:"expires_at"`
+}
+
+// DsyncTokenDeleted represents a dsync token deleted.
+type DsyncTokenDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncTokenDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// DsyncTokenDeletedData is an alias for DsyncTokenCreatedData.
+type DsyncTokenDeletedData = DsyncTokenCreatedData
+
 // DsyncGroupUserAdded represents a dsync group user added.
 type DsyncGroupUserAdded struct {
 	// ID is unique identifier for the event.
@@ -2430,6 +2487,8 @@ type DsyncUserUpdatedData struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
 	// Emails is a list of email addresses for the user.
 	//
 	// Deprecated: this field is deprecated.
@@ -4367,6 +4426,28 @@ type Flag struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// APIKey represents an api key.
+type APIKey struct {
+	// Object distinguishes the API Key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API Key.
+	ID string `json:"id"`
+	// Owner is the entity that owns the API Key.
+	Owner *APIKeyOwner `json:"owner"`
+	// Name is a descriptive name for the API Key.
+	Name string `json:"name"`
+	// ObfuscatedValue is an obfuscated representation of the API Key value.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is timestamp of when the API Key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permission slugs assigned to the API Key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // APIKeyWithValue represents an api key with value.
 type APIKeyWithValue struct {
 	// Object distinguishes the API Key object.
@@ -4605,6 +4686,8 @@ type UserOrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// User is the user that belongs to the organization through this membership.
+	User *User `json:"user"`
 }
 
 // EmailVerification represents an email verification.
@@ -4760,6 +4843,8 @@ type Profile struct {
 	FirstName *string `json:"first_name"`
 	// LastName is the user's last name.
 	LastName *string `json:"last_name"`
+	// Name is the user's full name.
+	Name *string `json:"name"`
 	// Role is the role assigned to the user within the organization, if applicable.
 	Role *SlimRole `json:"role,omitempty"`
 	// Roles is the roles assigned to the user within the organization, if applicable.
@@ -4928,6 +5013,9 @@ type OrganizationDomain struct {
 // APIKeyWithValueOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyWithValueOwner = APIKeyCreatedDataOwner
 
+// APIKeyOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyOwner = APIKeyCreatedDataOwner
+
 // EventListListMetadata pagination cursor for navigating to the next page of results.
 type EventListListMetadata struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
@@ -4954,26 +5042,6 @@ type EventContextGoogleAnalyticsSession struct {
 	SessionNumber *string `json:"sessionNumber,omitempty"`
 }
 
-// DirectoryUserWithGroupsEmail is an alias for DirectoryUserEmail.
-type DirectoryUserWithGroupsEmail = DirectoryUserEmail
-
-// DirectoryMetadata aggregate counts of directory users and groups synced from the provider.
-type DirectoryMetadata struct {
-	// Users is counts of active and inactive directory users.
-	Users *DirectoryMetadataUser `json:"users"`
-	// Groups is count of directory groups.
-	Groups int `json:"groups"`
-}
-
-// ConnectionDomain is an alias for ConnectionActivatedDataDomain.
-type ConnectionDomain = ConnectionActivatedDataDomain
-
-// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
-type ConnectionOption struct {
-	// SigningCert is the signing certificate of the SAML connection.
-	SigningCert *string `json:"signing_cert"`
-}
-
 // UserOrganizationMembershipBaseListData represents a user organization membership base list data.
 type UserOrganizationMembershipBaseListData struct {
 	// Object distinguishes the organization membership object.
@@ -4996,6 +5064,26 @@ type UserOrganizationMembershipBaseListData struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// DirectoryUserWithGroupsEmail is an alias for DirectoryUserEmail.
+type DirectoryUserWithGroupsEmail = DirectoryUserEmail
+
+// DirectoryMetadata aggregate counts of directory users and groups synced from the provider.
+type DirectoryMetadata struct {
+	// Users is counts of active and inactive directory users.
+	Users *DirectoryMetadataUser `json:"users"`
+	// Groups is count of directory groups.
+	Groups int `json:"groups"`
+}
+
+// ConnectionDomain is an alias for ConnectionActivatedDataDomain.
+type ConnectionDomain = ConnectionActivatedDataDomain
+
+// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
+type ConnectionOption struct {
+	// SigningCert is the signing certificate of the SAML connection.
+	SigningCert *string `json:"signing_cert"`
 }
 
 // RoleAssignmentResource the resource to which the role is assigned.
@@ -5063,8 +5151,27 @@ type AuthorizedConnectApplicationListData struct {
 	Application   *ConnectApplication `json:"application"`
 }
 
-// APIKeyOwner is an alias for APIKeyCreatedDataOwner.
-type APIKeyOwner = APIKeyCreatedDataOwner
+// APIKeyValidationResponseAPIKey represents an api key validation response api key.
+type APIKeyValidationResponseAPIKey struct {
+	// Object distinguishes the API Key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API Key.
+	ID string `json:"id"`
+	// Owner is the entity that owns the API Key.
+	Owner *APIKeyValidationResponseAPIKeyOwner `json:"owner"`
+	// Name is a descriptive name for the API Key.
+	Name string `json:"name"`
+	// ObfuscatedValue is an obfuscated representation of the API Key value.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is timestamp of when the API Key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permission slugs assigned to the API Key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
 
 // UserConsentOptionChoice represents a user consent option choice.
 type UserConsentOptionChoice struct {
@@ -5428,6 +5535,8 @@ type OrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// User is the user that belongs to the organization through this membership.
+	User *User `json:"user"`
 }
 
 // EmailChangeConfirmation represents an email change confirmation.
@@ -5510,6 +5619,9 @@ type UserSessionsListItem struct {
 
 // UserSessionsImpersonator is an alias for AuthenticateResponseImpersonator.
 type UserSessionsImpersonator = AuthenticateResponseImpersonator
+
+// APIKeyValidationResponseAPIKeyOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyValidationResponseAPIKeyOwner = APIKeyCreatedDataOwner
 
 // DirectoryMetadataUser counts of active and inactive directory users.
 type DirectoryMetadataUser struct {

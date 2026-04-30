@@ -273,6 +273,9 @@ const (
 	RoleTypeOrganizationRole RoleType = "OrganizationRole"
 )
 
+// UserOrganizationMembershipBaseWithUserStatus is an alias for OrganizationMembershipCreatedDataStatus.
+type UserOrganizationMembershipBaseWithUserStatus = OrganizationMembershipCreatedDataStatus
+
 // ConnectionType represents connection type values.
 type ConnectionType string
 
@@ -390,9 +393,10 @@ type DirectoryUserWithGroupsState = DirectoryUserState
 type EventContextActorSource string
 
 const (
-	EventContextActorSourceAPI       EventContextActorSource = "api"
-	EventContextActorSourceDashboard EventContextActorSource = "dashboard"
-	EventContextActorSourceSystem    EventContextActorSource = "system"
+	EventContextActorSourceAPI         EventContextActorSource = "api"
+	EventContextActorSourceDashboard   EventContextActorSource = "dashboard"
+	EventContextActorSourceAdminPortal EventContextActorSource = "admin_portal"
+	EventContextActorSourceSystem      EventContextActorSource = "system"
 )
 
 // DirectoryUserState represents directory user state values.

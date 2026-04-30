@@ -484,7 +484,7 @@ func TestAuthorization_ListMembershipsForResourceByExternalID(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_list_data.json")
+		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_with_user.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -648,7 +648,7 @@ func TestAuthorization_ListMembershipsForResource(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_list_data.json")
+		fixture, err := os.ReadFile("testdata/list_user_organization_membership_base_with_user.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

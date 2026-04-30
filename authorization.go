@@ -481,8 +481,8 @@ type AuthorizationListMembershipsForResourceByExternalIDParams struct {
 
 // ListMembershipsForResourceByExternalID list memberships for a resource by external ID
 // Returns all organization memberships that have a specific permission on a resource, using the resource's external ID. This is useful for answering "Who can access this resource?" when you only have the external ID.
-func (s *AuthorizationService) ListMembershipsForResourceByExternalID(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListMembershipsForResourceByExternalIDParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
-	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/organization_memberships", url.PathEscape(organizationID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+func (s *AuthorizationService) ListMembershipsForResourceByExternalID(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListMembershipsForResourceByExternalIDParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseWithUser] {
+	return newIterator[UserOrganizationMembershipBaseWithUser](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/organization_memberships", url.PathEscape(organizationID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListResourcesParams contains the parameters for ListResources.
@@ -658,8 +658,8 @@ type AuthorizationListMembershipsForResourceParams struct {
 
 // ListMembershipsForResource list organization memberships for resource
 // Returns all organization memberships that have a specific permission on a resource instance. This is useful for answering "Who can access this resource?".
-func (s *AuthorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
-	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+func (s *AuthorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseWithUser] {
+	return newIterator[UserOrganizationMembershipBaseWithUser](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // ListEnvironmentRoles
