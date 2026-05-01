@@ -107,14 +107,7 @@ func (c *Client) request(
 
 		req.Header.Set("Authorization", "Bearer "+c.apiKey)
 		req.Header.Set("Content-Type", "application/json")
-		ua := "workos-go/" + Version
-		if c.appInfo.Name != "" {
-			ua += " " + c.appInfo.Name + "/" + c.appInfo.Version
-			if c.appInfo.URL != "" {
-				ua += " (" + c.appInfo.URL + ")"
-			}
-		}
-		req.Header.Set("User-Agent", ua)
+		req.Header.Set("User-Agent", "workos-go/"+Version)
 		if idempotencyKey != "" {
 			req.Header.Set("Idempotency-Key", idempotencyKey)
 		}
