@@ -29,7 +29,8 @@
     },
     "raw_attributes": {
       "key": {}
-    }
+    },
+    "name": "Todd Rundgren"
   },
   "oauth_tokens": {
     "provider": "GoogleOAuth",

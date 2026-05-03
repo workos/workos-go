@@ -688,6 +688,28 @@ func TestUserManagement_RevokeInvitation(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.ExpiresAt)
 }
 
+func TestUserManagement_ListJWTTemplate(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/jwt_template", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/jwt_template_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().ListJWTTemplate(context.Background())
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.NotEmpty(t, result.Content)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
 func TestUserManagement_UpdateJWTTemplate(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
@@ -845,7 +867,7 @@ func TestUserManagement_GetOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
@@ -871,7 +893,7 @@ func TestUserManagement_UpdateOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
@@ -930,7 +952,7 @@ func TestUserManagement_ReactivateOrganizationMembership(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.ID)
-	require.Equal(t, "user_01EHQTV6MWP9P1F4ZXGXMC8ABB", result.UserID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
@@ -1009,6 +1031,70 @@ func TestUserManagement_DeleteAuthorizedApplication(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	err := client.UserManagement().DeleteAuthorizedApplication(context.Background(), "test_user_id", "test_application_id")
 	require.NoError(t, err)
+}
+
+func TestUserManagement_ListAPIKeys(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/users/test_userId/api_keys", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_user_api_key.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListAPIKeys(context.Background(), "test_userId", &workos.UserManagementListAPIKeysParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestUserManagement_ListAPIKeys_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListAPIKeys(context.Background(), "test_userId", &workos.UserManagementListAPIKeysParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestUserManagement_CreateAPIKey(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_userId/api_keys", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/user_api_key_with_value.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().CreateAPIKey(context.Background(), "test_userId", &workos.UserManagementCreateAPIKeyParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "api_key_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "Production API Key", result.Name)
+	require.Equal(t, "sk_...3456", result.ObfuscatedValue)
 }
 
 func TestUserManagement_AuthenticateWithPassword(t *testing.T) {

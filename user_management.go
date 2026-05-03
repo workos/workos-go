@@ -979,6 +979,17 @@ func (s *UserManagementService) RevokeInvitation(ctx context.Context, id string,
 	return &result, nil
 }
 
+// ListJWTTemplate get JWT template
+// Get the JWT template for the current environment.
+func (s *UserManagementService) ListJWTTemplate(ctx context.Context, opts ...RequestOption) (*JWTTemplateResponse, error) {
+	var result JWTTemplateResponse
+	_, err := s.client.request(ctx, "GET", "/user_management/jwt_template", nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // UserManagementUpdateJWTTemplateParams contains the parameters for UpdateJWTTemplate.
 type UserManagementUpdateJWTTemplateParams struct {
 	// Content is the JWT template content as a Liquid template string.
@@ -1201,4 +1212,38 @@ func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, 
 func (s *UserManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", url.PathEscape(userID), url.PathEscape(applicationID)), nil, nil, nil, opts)
 	return err
+}
+
+// UserManagementListAPIKeysParams contains the parameters for ListAPIKeys.
+type UserManagementListAPIKeysParams struct {
+	PaginationParams
+	// OrganizationID is the ID of the organization to filter user API keys by. When provided, only API keys created against that organization membership are returned.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+}
+
+// ListAPIKeys list API keys for a user
+// Get a list of API keys owned by a specific user.
+func (s *UserManagementService) ListAPIKeys(ctx context.Context, userID string, params *UserManagementListAPIKeysParams, opts ...RequestOption) *Iterator[UserAPIKey] {
+	return newIterator[UserAPIKey](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/api_keys", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// UserManagementCreateAPIKeyParams contains the parameters for CreateAPIKey.
+type UserManagementCreateAPIKeyParams struct {
+	// Name is a descriptive name for the API key.
+	Name string `json:"name"`
+	// OrganizationID is the ID of the organization the user API key is associated with. The user must have an active membership in this organization.
+	OrganizationID string `json:"organization_id"`
+	// Permissions is the permission slugs to assign to the API key. Each permission must be enabled for user API keys.
+	Permissions []string `json:"permissions,omitempty"`
+}
+
+// CreateAPIKey create an API key for a user
+// Create a new API key owned by a user. The user must have an active membership in the specified organization.
+func (s *UserManagementService) CreateAPIKey(ctx context.Context, userID string, params *UserManagementCreateAPIKeyParams, opts ...RequestOption) (*UserAPIKeyWithValue, error) {
+	var result UserAPIKeyWithValue
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/api_keys", url.PathEscape(userID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

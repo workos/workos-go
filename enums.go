@@ -390,9 +390,10 @@ type DirectoryUserWithGroupsState = DirectoryUserState
 type EventContextActorSource string
 
 const (
-	EventContextActorSourceAPI       EventContextActorSource = "api"
-	EventContextActorSourceDashboard EventContextActorSource = "dashboard"
-	EventContextActorSourceSystem    EventContextActorSource = "system"
+	EventContextActorSourceAPI         EventContextActorSource = "api"
+	EventContextActorSourceDashboard   EventContextActorSource = "dashboard"
+	EventContextActorSourceAdminPortal EventContextActorSource = "admin_portal"
+	EventContextActorSourceSystem      EventContextActorSource = "system"
 )
 
 // DirectoryUserState represents directory user state values.
@@ -736,14 +737,17 @@ type SessionRevokedDataAuthMethod = SessionCreatedDataAuthMethod
 // SessionRevokedDataStatus is an alias for SessionCreatedDataStatus.
 type SessionRevokedDataStatus = SessionCreatedDataStatus
 
-// VaultByokKeyVerificationCompletedDataKeyProvider represents vault byok key verification completed data key provider values.
-type VaultByokKeyVerificationCompletedDataKeyProvider string
+// VaultByokKeyDeletedDataKeyProvider represents vault byok key deleted data key provider values.
+type VaultByokKeyDeletedDataKeyProvider string
 
 const (
-	VaultByokKeyVerificationCompletedDataKeyProviderAwsKms        VaultByokKeyVerificationCompletedDataKeyProvider = "AWS_KMS"
-	VaultByokKeyVerificationCompletedDataKeyProviderGcpKms        VaultByokKeyVerificationCompletedDataKeyProvider = "GCP_KMS"
-	VaultByokKeyVerificationCompletedDataKeyProviderAzureKeyVault VaultByokKeyVerificationCompletedDataKeyProvider = "AZURE_KEY_VAULT"
+	VaultByokKeyDeletedDataKeyProviderAwsKms        VaultByokKeyDeletedDataKeyProvider = "AWS_KMS"
+	VaultByokKeyDeletedDataKeyProviderGcpKms        VaultByokKeyDeletedDataKeyProvider = "GCP_KMS"
+	VaultByokKeyDeletedDataKeyProviderAzureKeyVault VaultByokKeyDeletedDataKeyProvider = "AZURE_KEY_VAULT"
 )
+
+// VaultByokKeyVerificationCompletedDataKeyProvider is an alias for VaultByokKeyDeletedDataKeyProvider.
+type VaultByokKeyVerificationCompletedDataKeyProvider = VaultByokKeyDeletedDataKeyProvider
 
 // VaultDataCreatedDataActorSource represents vault data created data actor source values.
 type VaultDataCreatedDataActorSource string
@@ -998,8 +1002,8 @@ type UserSessionsStatus = SessionCreatedDataStatus
 // DataIntegrationsListResponseDataConnectedAccountState is an alias for ConnectedAccountState.
 type DataIntegrationsListResponseDataConnectedAccountState = ConnectedAccountState
 
-// AuthorizationOrder is an alias for ApplicationsOrder.
-type AuthorizationOrder = ApplicationsOrder
+// AuthorizationOrder is an alias for APIKeysOrder.
+type AuthorizationOrder = APIKeysOrder
 
 // AuthorizationAssignment represents authorization assignment values.
 type AuthorizationAssignment string
@@ -1009,20 +1013,14 @@ const (
 	AuthorizationAssignmentIndirect AuthorizationAssignment = "indirect"
 )
 
-// PermissionsOrder is an alias for ApplicationsOrder.
-type PermissionsOrder = ApplicationsOrder
+// PermissionsOrder is an alias for APIKeysOrder.
+type PermissionsOrder = APIKeysOrder
 
-// ApplicationsOrder represents applications order values.
-type ApplicationsOrder string
+// ApplicationsOrder is an alias for APIKeysOrder.
+type ApplicationsOrder = APIKeysOrder
 
-const (
-	ApplicationsOrderNormal ApplicationsOrder = "normal"
-	ApplicationsOrderDesc   ApplicationsOrder = "desc"
-	ApplicationsOrderAsc    ApplicationsOrder = "asc"
-)
-
-// ConnectionsOrder is an alias for ApplicationsOrder.
-type ConnectionsOrder = ApplicationsOrder
+// ConnectionsOrder is an alias for APIKeysOrder.
+type ConnectionsOrder = APIKeysOrder
 
 // ConnectionsConnectionType represents connections connection type values.
 type ConnectionsConnectionType string
@@ -1078,32 +1076,32 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
-// DirectoriesOrder is an alias for ApplicationsOrder.
-type DirectoriesOrder = ApplicationsOrder
+// DirectoriesOrder is an alias for APIKeysOrder.
+type DirectoriesOrder = APIKeysOrder
 
-// DirectoryGroupsOrder is an alias for ApplicationsOrder.
-type DirectoryGroupsOrder = ApplicationsOrder
+// DirectoryGroupsOrder is an alias for APIKeysOrder.
+type DirectoryGroupsOrder = APIKeysOrder
 
-// DirectoryUsersOrder is an alias for ApplicationsOrder.
-type DirectoryUsersOrder = ApplicationsOrder
+// DirectoryUsersOrder is an alias for APIKeysOrder.
+type DirectoryUsersOrder = APIKeysOrder
 
-// EventsOrder is an alias for ApplicationsOrder.
-type EventsOrder = ApplicationsOrder
+// EventsOrder is an alias for APIKeysOrder.
+type EventsOrder = APIKeysOrder
 
-// FeatureFlagsOrder is an alias for ApplicationsOrder.
-type FeatureFlagsOrder = ApplicationsOrder
+// FeatureFlagsOrder is an alias for APIKeysOrder.
+type FeatureFlagsOrder = APIKeysOrder
 
-// OrganizationsOrder is an alias for ApplicationsOrder.
-type OrganizationsOrder = ApplicationsOrder
+// OrganizationsOrder is an alias for APIKeysOrder.
+type OrganizationsOrder = APIKeysOrder
 
-// OrganizationsAPIKeysOrder is an alias for ApplicationsOrder.
-type OrganizationsAPIKeysOrder = ApplicationsOrder
+// OrganizationsAPIKeysOrder is an alias for APIKeysOrder.
+type OrganizationsAPIKeysOrder = APIKeysOrder
 
-// OrganizationsFeatureFlagsOrder is an alias for ApplicationsOrder.
-type OrganizationsFeatureFlagsOrder = ApplicationsOrder
+// OrganizationsFeatureFlagsOrder is an alias for APIKeysOrder.
+type OrganizationsFeatureFlagsOrder = APIKeysOrder
 
-// GroupsOrder is an alias for ApplicationsOrder.
-type GroupsOrder = ApplicationsOrder
+// GroupsOrder is an alias for APIKeysOrder.
+type GroupsOrder = APIKeysOrder
 
 // RadarType is an alias for RadarStandaloneResponseBlocklistType.
 type RadarType = RadarStandaloneResponseBlocklistType
@@ -1163,32 +1161,41 @@ const (
 	UserManagementAuthenticationProviderXeroOAuth              UserManagementAuthenticationProvider = "XeroOAuth"
 )
 
-// UserManagementUsersOrder is an alias for ApplicationsOrder.
-type UserManagementUsersOrder = ApplicationsOrder
+// UserManagementUsersOrder is an alias for APIKeysOrder.
+type UserManagementUsersOrder = APIKeysOrder
 
-// UserManagementInvitationsOrder is an alias for ApplicationsOrder.
-type UserManagementInvitationsOrder = ApplicationsOrder
+// UserManagementInvitationsOrder is an alias for APIKeysOrder.
+type UserManagementInvitationsOrder = APIKeysOrder
 
-// UserManagementOrganizationMembershipOrder is an alias for ApplicationsOrder.
-type UserManagementOrganizationMembershipOrder = ApplicationsOrder
+// UserManagementOrganizationMembershipOrder is an alias for APIKeysOrder.
+type UserManagementOrganizationMembershipOrder = APIKeysOrder
 
 // UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
 type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
 
-// UserManagementOrganizationMembershipGroupsOrder is an alias for ApplicationsOrder.
-type UserManagementOrganizationMembershipGroupsOrder = ApplicationsOrder
+// UserManagementOrganizationMembershipGroupsOrder is an alias for APIKeysOrder.
+type UserManagementOrganizationMembershipGroupsOrder = APIKeysOrder
 
-// UserManagementUsersFeatureFlagsOrder is an alias for ApplicationsOrder.
-type UserManagementUsersFeatureFlagsOrder = ApplicationsOrder
+// UserManagementUsersFeatureFlagsOrder is an alias for APIKeysOrder.
+type UserManagementUsersFeatureFlagsOrder = APIKeysOrder
 
-// UserManagementUsersAuthorizedApplicationsOrder is an alias for ApplicationsOrder.
-type UserManagementUsersAuthorizedApplicationsOrder = ApplicationsOrder
+// UserManagementUsersAuthorizedApplicationsOrder is an alias for APIKeysOrder.
+type UserManagementUsersAuthorizedApplicationsOrder = APIKeysOrder
 
-// UserManagementMultiFactorAuthenticationOrder is an alias for ApplicationsOrder.
-type UserManagementMultiFactorAuthenticationOrder = ApplicationsOrder
+// UserManagementMultiFactorAuthenticationOrder is an alias for APIKeysOrder.
+type UserManagementMultiFactorAuthenticationOrder = APIKeysOrder
 
-// WebhooksOrder is an alias for ApplicationsOrder.
-type WebhooksOrder = ApplicationsOrder
+// WebhooksOrder is an alias for APIKeysOrder.
+type WebhooksOrder = APIKeysOrder
 
-// AuditLogsOrder is an alias for ApplicationsOrder.
-type AuditLogsOrder = ApplicationsOrder
+// APIKeysOrder represents api keys order values.
+type APIKeysOrder string
+
+const (
+	APIKeysOrderNormal APIKeysOrder = "normal"
+	APIKeysOrderDesc   APIKeysOrder = "desc"
+	APIKeysOrderAsc    APIKeysOrder = "asc"
+)
+
+// AuditLogsOrder is an alias for APIKeysOrder.
+type AuditLogsOrder = APIKeysOrder
