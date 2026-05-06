@@ -21,7 +21,7 @@ type WebhooksListEndpointsParams struct {
 // ListEndpoints list Webhook Endpoints
 // Get a list of all of your existing webhook endpoints.
 func (s *WebhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
-	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // WebhooksCreateEndpointParams contains the parameters for CreateEndpoint.

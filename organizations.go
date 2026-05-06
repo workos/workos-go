@@ -25,7 +25,7 @@ type OrganizationsListParams struct {
 // List organizations
 // Get a list of all of your existing organizations matching the criteria specified.
 func (s *OrganizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
-	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // OrganizationsCreateParams contains the parameters for Create.

@@ -21,7 +21,7 @@ type APIKeysListOrganizationAPIKeysParams struct {
 // ListOrganizationAPIKeys list API keys for an organization
 // Get a list of all API keys for an organization.
 func (s *APIKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[OrganizationAPIKey] {
-	return newIterator[OrganizationAPIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[OrganizationAPIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // APIKeysCreateOrganizationAPIKeyParams contains the parameters for CreateOrganizationAPIKey.

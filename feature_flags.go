@@ -21,7 +21,7 @@ type FeatureFlagsListParams struct {
 // List feature flags
 // Get a list of all of your existing feature flags matching the criteria specified.
 func (s *FeatureFlagService) List(ctx context.Context, params *FeatureFlagsListParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", "/feature-flags", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[Flag](ctx, s.client, "GET", "/feature-flags", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // Get a feature flag
@@ -79,7 +79,7 @@ type FeatureFlagsListOrganizationFeatureFlagsParams struct {
 // ListOrganizationFeatureFlags list enabled feature flags for an organization
 // Get a list of all enabled feature flags for an organization.
 func (s *FeatureFlagService) ListOrganizationFeatureFlags(ctx context.Context, organizationID string, params *FeatureFlagsListOrganizationFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/feature-flags", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/feature-flags", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // FeatureFlagsListUserFeatureFlagsParams contains the parameters for ListUserFeatureFlags.
@@ -90,5 +90,5 @@ type FeatureFlagsListUserFeatureFlagsParams struct {
 // ListUserFeatureFlags list enabled feature flags for a user
 // Get a list of all enabled feature flags for the provided user. This includes feature flags enabled specifically for the user as well as any organizations that the user is a member of.
 func (s *FeatureFlagService) ListUserFeatureFlags(ctx context.Context, userID string, params *FeatureFlagsListUserFeatureFlagsParams, opts ...RequestOption) *Iterator[Flag] {
-	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/feature-flags", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[Flag](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/feature-flags", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }

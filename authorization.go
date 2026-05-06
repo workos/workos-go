@@ -175,7 +175,7 @@ func (s *AuthorizationService) ListResourcesForMembership(ctx context.Context, o
 	if params.ParentResource != nil {
 		params.ParentResource.applyToQuery(query)
 	}
-	return newIterator[AuthorizationResource](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources", url.PathEscape(organizationMembershipID)), query, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthorizationResource](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources", url.PathEscape(organizationMembershipID)), query, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListEffectivePermissionsParams contains the parameters for ListEffectivePermissions.
@@ -186,7 +186,7 @@ type AuthorizationListEffectivePermissionsParams struct {
 // ListEffectivePermissions for an organization membership on a resource
 // Returns all permissions the organization membership effectively has on a resource, including permissions inherited through roles assigned to ancestor resources.
 func (s *AuthorizationService) ListEffectivePermissions(ctx context.Context, organizationMembershipID string, resourceID string, params *AuthorizationListEffectivePermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
-	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/permissions", url.PathEscape(organizationMembershipID), url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/permissions", url.PathEscape(organizationMembershipID), url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListEffectivePermissionsByExternalIDParams contains the parameters for ListEffectivePermissionsByExternalID.
@@ -197,7 +197,7 @@ type AuthorizationListEffectivePermissionsByExternalIDParams struct {
 // ListEffectivePermissionsByExternalID list effective permissions for an organization membership on a resource by external ID
 // Returns all permissions the organization membership effectively has on a resource identified by its external ID, including permissions inherited through roles assigned to ancestor resources.
 func (s *AuthorizationService) ListEffectivePermissionsByExternalID(ctx context.Context, organizationMembershipID string, resourceTypeSlug string, externalID string, params *AuthorizationListEffectivePermissionsByExternalIDParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
-	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/%s/permissions", url.PathEscape(organizationMembershipID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/%s/permissions", url.PathEscape(organizationMembershipID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListRoleAssignmentsParams contains the parameters for ListRoleAssignments.
@@ -208,7 +208,7 @@ type AuthorizationListRoleAssignmentsParams struct {
 // ListRoleAssignments
 // List all role assignments for an organization membership. This returns all roles that have been assigned to the user on resources, including organization-level and sub-resource roles.
 func (s *AuthorizationService) ListRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationListRoleAssignmentsParams, opts ...RequestOption) *Iterator[UserRoleAssignment] {
-	return newIterator[UserRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", url.PathEscape(organizationMembershipID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", url.PathEscape(organizationMembershipID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationAssignRoleParams contains the parameters for AssignRole.
@@ -482,7 +482,7 @@ type AuthorizationListMembershipsForResourceByExternalIDParams struct {
 // ListMembershipsForResourceByExternalID list memberships for a resource by external ID
 // Returns all organization memberships that have a specific permission on a resource, using the resource's external ID. This is useful for answering "Who can access this resource?" when you only have the external ID.
 func (s *AuthorizationService) ListMembershipsForResourceByExternalID(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListMembershipsForResourceByExternalIDParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
-	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/organization_memberships", url.PathEscape(organizationID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/organization_memberships", url.PathEscape(organizationID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListRoleAssignmentsForResourceByExternalIDParams contains the parameters for ListRoleAssignmentsForResourceByExternalID.
@@ -493,7 +493,7 @@ type AuthorizationListRoleAssignmentsForResourceByExternalIDParams struct {
 // ListRoleAssignmentsForResourceByExternalID list role assignments for a resource by external ID
 // List all role assignments granted on a resource, identified by its external ID. Each assignment includes the organization membership it was granted to.
 func (s *AuthorizationService) ListRoleAssignmentsForResourceByExternalID(ctx context.Context, organizationID string, resourceTypeSlug string, externalID string, params *AuthorizationListRoleAssignmentsForResourceByExternalIDParams, opts ...RequestOption) *Iterator[UserRoleAssignment] {
-	return newIterator[UserRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/role_assignments", url.PathEscape(organizationID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/organizations/%s/resources/%s/%s/role_assignments", url.PathEscape(organizationID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListResourcesParams contains the parameters for ListResources.
@@ -542,7 +542,7 @@ func (s *AuthorizationService) ListResources(ctx context.Context, params *Author
 	if params.Parent != nil {
 		params.Parent.applyToQuery(query)
 	}
-	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", query, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthorizationResource](ctx, s.client, "GET", "/authorization/resources", query, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationCreateResourceParams contains the parameters for CreateResource.
@@ -670,7 +670,7 @@ type AuthorizationListMembershipsForResourceParams struct {
 // ListMembershipsForResource list organization memberships for resource
 // Returns all organization memberships that have a specific permission on a resource instance. This is useful for answering "Who can access this resource?".
 func (s *AuthorizationService) ListMembershipsForResource(ctx context.Context, resourceID string, params *AuthorizationListMembershipsForResourceParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
-	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/organization_memberships", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationListRoleAssignmentsForResourceParams contains the parameters for ListRoleAssignmentsForResource.
@@ -681,7 +681,7 @@ type AuthorizationListRoleAssignmentsForResourceParams struct {
 // ListRoleAssignmentsForResource list role assignments for a resource
 // List all role assignments granted on a specific resource instance. Each assignment includes the organization membership it was granted to.
 func (s *AuthorizationService) ListRoleAssignmentsForResource(ctx context.Context, resourceID string, params *AuthorizationListRoleAssignmentsForResourceParams, opts ...RequestOption) *Iterator[UserRoleAssignment] {
-	return newIterator[UserRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/role_assignments", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/resources/%s/role_assignments", url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // ListEnvironmentRoles
@@ -790,7 +790,7 @@ type AuthorizationListPermissionsParams struct {
 // ListPermissions
 // Get a list of all permissions in your WorkOS environment.
 func (s *AuthorizationService) ListPermissions(ctx context.Context, params *AuthorizationListPermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
-	return newIterator[AuthorizationPermission](ctx, s.client, "GET", "/authorization/permissions", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthorizationPermission](ctx, s.client, "GET", "/authorization/permissions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuthorizationCreatePermissionParams contains the parameters for CreatePermission.

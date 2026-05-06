@@ -29,7 +29,7 @@ type DirectorySyncListParams struct {
 // List directories
 // Get a list of all of your existing directories matching the criteria specified.
 func (s *DirectorySyncService) List(ctx context.Context, params *DirectorySyncListParams, opts ...RequestOption) *Iterator[Directory] {
-	return newIterator[Directory](ctx, s.client, "GET", "/directories", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[Directory](ctx, s.client, "GET", "/directories", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // Get a Directory
@@ -62,7 +62,7 @@ type DirectorySyncListGroupsParams struct {
 // ListGroups list Directory Groups
 // Get a list of all of existing directory groups matching the criteria specified.
 func (s *DirectorySyncService) ListGroups(ctx context.Context, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
-	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // GetGroup get a Directory Group
@@ -88,7 +88,7 @@ type DirectorySyncListUsersParams struct {
 // ListUsers list Directory Users
 // Get a list of all of existing Directory Users matching the criteria specified.
 func (s *DirectorySyncService) ListUsers(ctx context.Context, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
-	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // GetUser get a Directory User

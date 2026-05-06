@@ -49,7 +49,7 @@ type ConnectListApplicationsParams struct {
 // ListApplications list Connect Applications
 // List all Connect Applications in the current environment with optional filtering.
 func (s *ConnectService) ListApplications(ctx context.Context, params *ConnectListApplicationsParams, opts ...RequestOption) *Iterator[ConnectApplication] {
-	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // ConnectCreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.

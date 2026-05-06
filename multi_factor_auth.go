@@ -98,7 +98,7 @@ type MultiFactorAuthListUserAuthFactorsParams struct {
 // ListUserAuthFactors list authentication factors
 // Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
 func (s *MultiFactorAuthService) ListUserAuthFactors(ctx context.Context, userlandUserID string, params *MultiFactorAuthListUserAuthFactorsParams, opts ...RequestOption) *Iterator[AuthenticationFactor] {
-	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(userlandUserID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(userlandUserID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // MultiFactorAuthCreateUserAuthFactorParams contains the parameters for CreateUserAuthFactor.

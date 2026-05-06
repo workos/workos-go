@@ -660,7 +660,7 @@ type UserManagementListParams struct {
 // List users
 // Get a list of all of your existing users matching the criteria specified.
 func (s *UserManagementService) List(ctx context.Context, params *UserManagementListParams, opts ...RequestOption) *Iterator[User] {
-	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[User](ctx, s.client, "GET", "/user_management/users", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateParams contains the parameters for Create.
@@ -873,7 +873,7 @@ type UserManagementListSessionsParams struct {
 // ListSessions
 // Get a list of all active sessions for a specific user.
 func (s *UserManagementService) ListSessions(ctx context.Context, id string, params *UserManagementListSessionsParams, opts ...RequestOption) *Iterator[UserSessionsListItem] {
-	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", url.PathEscape(id)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserSessionsListItem](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/sessions", url.PathEscape(id)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementListInvitationsParams contains the parameters for ListInvitations.
@@ -888,7 +888,7 @@ type UserManagementListInvitationsParams struct {
 // ListInvitations
 // Get a list of all of invitations matching the criteria specified.
 func (s *UserManagementService) ListInvitations(ctx context.Context, params *UserManagementListInvitationsParams, opts ...RequestOption) *Iterator[UserInvite] {
-	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserInvite](ctx, s.client, "GET", "/user_management/invitations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementSendInvitationParams contains the parameters for SendInvitation.
@@ -1051,7 +1051,7 @@ type UserManagementListOrganizationMembershipsParams struct {
 // ListOrganizationMemberships
 // Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
 func (s *UserManagementService) ListOrganizationMemberships(ctx context.Context, params *UserManagementListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembership] {
-	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
@@ -1204,7 +1204,7 @@ type UserManagementListAuthorizedApplicationsParams struct {
 // ListAuthorizedApplications
 // Get a list of all Connect applications that the user has authorized.
 func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, userID string, params *UserManagementListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[AuthorizedConnectApplicationListData] {
-	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/authorized_applications", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // DeleteAuthorizedApplication delete an authorized application
@@ -1224,7 +1224,7 @@ type UserManagementListAPIKeysParams struct {
 // ListAPIKeys list API keys for a user
 // Get a list of API keys owned by a specific user.
 func (s *UserManagementService) ListAPIKeys(ctx context.Context, userID string, params *UserManagementListAPIKeysParams, opts ...RequestOption) *Iterator[UserAPIKey] {
-	return newIterator[UserAPIKey](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/api_keys", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserAPIKey](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/api_keys", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateAPIKeyParams contains the parameters for CreateAPIKey.

@@ -49,7 +49,7 @@ type AuditLogsListActionsParams struct {
 // ListActions
 // Get a list of all Audit Log actions in the current environment.
 func (s *AuditLogService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogActionJSON] {
-	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuditLogsListActionSchemasParams contains the parameters for ListActionSchemas.
@@ -60,7 +60,7 @@ type AuditLogsListActionSchemasParams struct {
 // ListActionSchemas list Schemas
 // Get a list of all schemas for the Audit Logs action identified by `:name`.
 func (s *AuditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
-	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuditLogsCreateSchemaParams contains the parameters for CreateSchema.

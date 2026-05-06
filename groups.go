@@ -21,7 +21,7 @@ type GroupsListOrganizationGroupsParams struct {
 // ListOrganizationGroups list groups
 // Get a paginated list of groups within an organization.
 func (s *GroupService) ListOrganizationGroups(ctx context.Context, organizationID string, params *GroupsListOrganizationGroupsParams, opts ...RequestOption) *Iterator[Group] {
-	return newIterator[Group](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[Group](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // GroupsCreateOrganizationGroupParams contains the parameters for CreateOrganizationGroup.
@@ -88,7 +88,7 @@ type GroupsListOrganizationMembershipsParams struct {
 // ListOrganizationMemberships list Group members
 // Get a list of organization memberships in a group.
 func (s *GroupService) ListOrganizationMemberships(ctx context.Context, organizationID string, groupID string, params *GroupsListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
-	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups/%s/organization-memberships", url.PathEscape(organizationID), url.PathEscape(groupID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups/%s/organization-memberships", url.PathEscape(organizationID), url.PathEscape(groupID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // GroupsCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
