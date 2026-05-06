@@ -3,7 +3,7 @@ set -eu
 cd "$(dirname "$0")/.."
 rm -rf docs/_site
 mkdir -p docs/_site
-go run go101.org/golds@latest -gen -dir=docs/_site -nouses -wdpkgs-listing=solo ./...
+go run go101.org/golds@v0.8.2 -gen -dir=docs/_site -nouses -wdpkgs-listing=solo ./...
 
 # Markdown output for AI agents
 go run github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest \
