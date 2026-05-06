@@ -1,5 +1,35 @@
 # Changelog
 
+## [8.0.0](https://github.com/workos/workos-go/compare/v7.1.2...v8.0.0) (2026-05-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* **authorization:** Change email field type in multiple models
+* **user_management:** Add user API key management endpoints
+* **user_management:** Change email field type in user management models
+* **authorization:** Rename RoleAssignment to UserRoleAssignment
+
+### Features
+
+* add API documentation site generation ([#546](https://github.com/workos/workos-go/issues/546)) ([b9701ea](https://github.com/workos/workos-go/commit/b9701eaaa2f8cb3da002c63564e10860e0aee15f))
+* **api_keys:** Add organization and user API key models ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **authorization:** Add pagination order enum and update enum handling ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **authorization:** Change email field type in multiple models ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **authorization:** Rename RoleAssignment to UserRoleAssignment ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **authorization:** Unify BYOK key provider enum ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **directory_sync:** Add name field to directory user models ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **user_management:** Add name field to Profile and SSO models ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **user_management:** Add user API key management endpoints ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **user_management:** Add user field to organization membership models ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **user_management:** Change email field type in user management models ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+
+
+### Bug Fixes
+
+* **events:** Add admin_portal source to EventContextActorSource ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+* **events:** Add vault.byok_key.deleted event type ([1b8f1d6](https://github.com/workos/workos-go/commit/1b8f1d6d3aaaf907c3c823d712e0b48f8d8a2480))
+
 ## [7.1.2](https://github.com/workos/workos-go/compare/v7.1.1...v7.1.2) (2026-05-01)
 
 
