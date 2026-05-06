@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")/.."
+if [ "${1:-}" = "--live" ]; then
+  exec go run go101.org/golds@latest -port=4000 -wdpkgs-listing=solo ./...
+fi
+if [ ! -d docs/_site ]; then
+  ./script/docs
+fi
+exec python3 -m http.server 4000 --directory docs/_site
