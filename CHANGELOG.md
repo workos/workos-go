@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.2](https://github.com/workos/workos-go/compare/v7.1.1...v7.1.2) (2026-05-01)
+
+
+### Bug Fixes
+
+* set canonical User-Agent header format ([#542](https://github.com/workos/workos-go/issues/542)) ([01d535f](https://github.com/workos/workos-go/commit/01d535fe47a0200ece0fb9d7e45f4cf04c888c0e))
+
 ## [7.1.1](https://github.com/workos/workos-go/compare/v7.1.0...v7.1.1) (2026-04-30)
 
 
