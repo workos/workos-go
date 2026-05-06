@@ -21,5 +21,5 @@ type UserManagementOrganizationMembershipGroupsListOrganizationMembershipGroupsP
 // ListOrganizationMembershipGroups list groups
 // Get a list of groups that an organization membership belongs to.
 func (s *UserManagementOrganizationMembershipGroupService) ListOrganizationMembershipGroups(ctx context.Context, omID string, params *UserManagementOrganizationMembershipGroupsListOrganizationMembershipGroupsParams, opts ...RequestOption) *Iterator[Group] {
-	return newIterator[Group](ctx, s.client, "GET", fmt.Sprintf("/user_management/organization_memberships/%s/groups", url.PathEscape(omID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[Group](ctx, s.client, "GET", fmt.Sprintf("/user_management/organization_memberships/%s/groups", url.PathEscape(omID)), params, "after", "data", opts, map[string]string{"limit": "10"})
 }

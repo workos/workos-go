@@ -25,23 +25,23 @@ type OrganizationsListParams struct {
 // List organizations
 // Get a list of all of your existing organizations matching the criteria specified.
 func (s *OrganizationService) List(ctx context.Context, params *OrganizationsListParams, opts ...RequestOption) *Iterator[Organization] {
-	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[Organization](ctx, s.client, "GET", "/organizations", params, "after", "data", opts, map[string]string{"limit": "10"})
 }
 
 // OrganizationsCreateParams contains the parameters for Create.
 type OrganizationsCreateParams struct {
 	// Name is the name of the organization.
-	Name string `json:"name"`
+	Name string `json:"name" url:"-"`
 	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
-	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
+	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty" url:"-"`
 	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
-	Domains []string `json:"domains,omitempty"`
+	Domains []string `json:"domains,omitempty" url:"-"`
 	// DomainData is the domains associated with the organization, including verification state.
-	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
+	DomainData []*OrganizationDomainData `json:"domain_data,omitempty" url:"-"`
 	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is an external identifier for the Organization.
-	ExternalID *string `json:"external_id,omitempty"`
+	ExternalID *string `json:"external_id,omitempty" url:"-"`
 }
 
 // Create an Organization
@@ -80,21 +80,21 @@ func (s *OrganizationService) Get(ctx context.Context, id string, opts ...Reques
 // OrganizationsUpdateParams contains the parameters for Update.
 type OrganizationsUpdateParams struct {
 	// Name is the name of the organization.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"-"`
 	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
-	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
+	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty" url:"-"`
 	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
 	//
 	// Deprecated: this field is deprecated.
-	Domains []string `json:"domains,omitempty"`
+	Domains []string `json:"domains,omitempty" url:"-"`
 	// DomainData is the domains associated with the organization, including verification state.
-	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
+	DomainData []*OrganizationDomainData `json:"domain_data,omitempty" url:"-"`
 	// StripeCustomerID is the Stripe customer ID associated with the organization.
-	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
+	StripeCustomerID *string `json:"stripe_customer_id,omitempty" url:"-"`
 	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is an external identifier for the Organization.
-	ExternalID *string `json:"external_id,omitempty"`
+	ExternalID *string `json:"external_id,omitempty" url:"-"`
 }
 
 // Update an Organization

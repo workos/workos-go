@@ -16,7 +16,7 @@ type MultiFactorAuthService struct {
 // MultiFactorAuthVerifyChallengeParams contains the parameters for VerifyChallenge.
 type MultiFactorAuthVerifyChallengeParams struct {
 	// Code is the one-time code to verify.
-	Code string `json:"code"`
+	Code string `json:"code" url:"-"`
 }
 
 // VerifyChallenge
@@ -33,15 +33,15 @@ func (s *MultiFactorAuthService) VerifyChallenge(ctx context.Context, id string,
 // MultiFactorAuthEnrollFactorParams contains the parameters for EnrollFactor.
 type MultiFactorAuthEnrollFactorParams struct {
 	// Type is the type of factor to enroll.
-	Type AuthenticationFactorsCreateRequestType `json:"type"`
+	Type AuthenticationFactorsCreateRequestType `json:"type" url:"-"`
 	// PhoneNumber is required when type is 'sms'.
-	PhoneNumber *string `json:"phone_number,omitempty"`
+	PhoneNumber *string `json:"phone_number,omitempty" url:"-"`
 	// TOTPIssuer is required when type is 'totp'.
-	TOTPIssuer *string `json:"totp_issuer,omitempty"`
+	TOTPIssuer *string `json:"totp_issuer,omitempty" url:"-"`
 	// TOTPUser is required when type is 'totp'.
-	TOTPUser *string `json:"totp_user,omitempty"`
+	TOTPUser *string `json:"totp_user,omitempty" url:"-"`
 	// UserID is the ID of the user to associate the factor with.
-	UserID *string `json:"user_id,omitempty"`
+	UserID *string `json:"user_id,omitempty" url:"-"`
 }
 
 // EnrollFactor
@@ -76,7 +76,7 @@ func (s *MultiFactorAuthService) DeleteFactor(ctx context.Context, id string, op
 // MultiFactorAuthChallengeFactorParams contains the parameters for ChallengeFactor.
 type MultiFactorAuthChallengeFactorParams struct {
 	// SmsTemplate is a custom template for the SMS message. Use the {{code}} placeholder to include the verification code.
-	SmsTemplate *string `json:"sms_template,omitempty"`
+	SmsTemplate *string `json:"sms_template,omitempty" url:"-"`
 }
 
 // ChallengeFactor
@@ -98,19 +98,19 @@ type MultiFactorAuthListUserAuthFactorsParams struct {
 // ListUserAuthFactors list authentication factors
 // Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
 func (s *MultiFactorAuthService) ListUserAuthFactors(ctx context.Context, userlandUserID string, params *MultiFactorAuthListUserAuthFactorsParams, opts ...RequestOption) *Iterator[AuthenticationFactor] {
-	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(userlandUserID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[AuthenticationFactor](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/auth_factors", url.PathEscape(userlandUserID)), params, "after", "data", opts, map[string]string{"limit": "10"})
 }
 
 // MultiFactorAuthCreateUserAuthFactorParams contains the parameters for CreateUserAuthFactor.
 type MultiFactorAuthCreateUserAuthFactorParams struct {
 	// Type is the type of the factor to enroll.
-	Type string `json:"type"`
+	Type string `json:"type" url:"-"`
 	// TOTPIssuer is your application or company name displayed in the user's authenticator app.
-	TOTPIssuer *string `json:"totp_issuer,omitempty"`
+	TOTPIssuer *string `json:"totp_issuer,omitempty" url:"-"`
 	// TOTPUser is the user's account name displayed in their authenticator app.
-	TOTPUser *string `json:"totp_user,omitempty"`
+	TOTPUser *string `json:"totp_user,omitempty" url:"-"`
 	// TOTPSecret is the Base32-encoded shared secret for TOTP factors. This can be provided when creating the auth factor, otherwise it will be generated. The algorithm used to derive TOTP codes is SHA-1, the code length is 6 digits, and the timestep is 30 seconds – the secret must be compatible with these parameters.
-	TOTPSecret *string `json:"totp_secret,omitempty"`
+	TOTPSecret *string `json:"totp_secret,omitempty" url:"-"`
 }
 
 // CreateUserAuthFactor enroll an authentication factor

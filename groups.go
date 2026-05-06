@@ -21,15 +21,15 @@ type GroupsListOrganizationGroupsParams struct {
 // ListOrganizationGroups list groups
 // Get a paginated list of groups within an organization.
 func (s *GroupService) ListOrganizationGroups(ctx context.Context, organizationID string, params *GroupsListOrganizationGroupsParams, opts ...RequestOption) *Iterator[Group] {
-	return newIterator[Group](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[Group](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10"})
 }
 
 // GroupsCreateOrganizationGroupParams contains the parameters for CreateOrganizationGroup.
 type GroupsCreateOrganizationGroupParams struct {
 	// Name is the name of the Group.
-	Name string `json:"name"`
+	Name string `json:"name" url:"-"`
 	// Description is an optional description of the Group.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"-"`
 }
 
 // CreateOrganizationGroup create a group
@@ -57,9 +57,9 @@ func (s *GroupService) GetOrganizationGroup(ctx context.Context, organizationID 
 // GroupsUpdateOrganizationGroupParams contains the parameters for UpdateOrganizationGroup.
 type GroupsUpdateOrganizationGroupParams struct {
 	// Name is the name of the Group.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"-"`
 	// Description is an optional description of the Group.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"-"`
 }
 
 // UpdateOrganizationGroup update a group
@@ -88,13 +88,13 @@ type GroupsListOrganizationMembershipsParams struct {
 // ListOrganizationMemberships list Group members
 // Get a list of organization memberships in a group.
 func (s *GroupService) ListOrganizationMemberships(ctx context.Context, organizationID string, groupID string, params *GroupsListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembershipBaseListData] {
-	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups/%s/organization-memberships", url.PathEscape(organizationID), url.PathEscape(groupID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[UserOrganizationMembershipBaseListData](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/groups/%s/organization-memberships", url.PathEscape(organizationID), url.PathEscape(groupID)), params, "after", "data", opts, map[string]string{"limit": "10"})
 }
 
 // GroupsCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
 type GroupsCreateOrganizationMembershipParams struct {
 	// OrganizationMembershipID is the ID of the Organization Membership to add to the group.
-	OrganizationMembershipID string `json:"organization_membership_id"`
+	OrganizationMembershipID string `json:"organization_membership_id" url:"-"`
 }
 
 // CreateOrganizationMembership add a member to a Group

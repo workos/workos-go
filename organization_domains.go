@@ -16,9 +16,9 @@ type OrganizationDomainService struct {
 // OrganizationDomainsCreateParams contains the parameters for Create.
 type OrganizationDomainsCreateParams struct {
 	// Domain is the domain to add to the organization.
-	Domain string `json:"domain"`
+	Domain string `json:"domain" url:"-"`
 	// OrganizationID is the ID of the organization to add the domain to.
-	OrganizationID string `json:"organization_id"`
+	OrganizationID string `json:"organization_id" url:"-"`
 }
 
 // Create an Organization Domain

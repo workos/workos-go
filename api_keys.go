@@ -13,10 +13,40 @@ type APIKeyService struct {
 	client *Client
 }
 
+// APIKeysListOrganizationAPIKeysParams contains the parameters for ListOrganizationAPIKeys.
+type APIKeysListOrganizationAPIKeysParams struct {
+	PaginationParams
+}
+
+// ListOrganizationAPIKeys list API keys for an organization
+// Get a list of all API keys for an organization.
+func (s *APIKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[OrganizationAPIKey] {
+	return newIterator[OrganizationAPIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10"})
+}
+
+// APIKeysCreateOrganizationAPIKeyParams contains the parameters for CreateOrganizationAPIKey.
+type APIKeysCreateOrganizationAPIKeyParams struct {
+	// Name is the name for the API key.
+	Name string `json:"name" url:"-"`
+	// Permissions is the permission slugs to assign to the API key.
+	Permissions []string `json:"permissions,omitempty" url:"-"`
+}
+
+// CreateOrganizationAPIKey create an API key for an organization
+// Create a new API key for an organization.
+func (s *APIKeyService) CreateOrganizationAPIKey(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeyParams, opts ...RequestOption) (*OrganizationAPIKeyWithValue, error) {
+	var result OrganizationAPIKeyWithValue
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(organizationID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // APIKeysCreateValidationParams contains the parameters for CreateValidation.
 type APIKeysCreateValidationParams struct {
 	// Value is the value for an API key.
-	Value string `json:"value"`
+	Value string `json:"value" url:"-"`
 }
 
 // CreateValidation validate API key
@@ -35,34 +65,4 @@ func (s *APIKeyService) CreateValidation(ctx context.Context, params *APIKeysCre
 func (s *APIKeyService) Delete(ctx context.Context, id string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
-}
-
-// APIKeysListOrganizationAPIKeysParams contains the parameters for ListOrganizationAPIKeys.
-type APIKeysListOrganizationAPIKeysParams struct {
-	PaginationParams
-}
-
-// ListOrganizationAPIKeys list API keys for an organization
-// Get a list of all API keys for an organization.
-func (s *APIKeyService) ListOrganizationAPIKeys(ctx context.Context, organizationID string, params *APIKeysListOrganizationAPIKeysParams, opts ...RequestOption) *Iterator[APIKey] {
-	return newIterator[APIKey](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
-}
-
-// APIKeysCreateOrganizationAPIKeyParams contains the parameters for CreateOrganizationAPIKey.
-type APIKeysCreateOrganizationAPIKeyParams struct {
-	// Name is the name for the API key.
-	Name string `json:"name"`
-	// Permissions is the permission slugs to assign to the API key.
-	Permissions []string `json:"permissions,omitempty"`
-}
-
-// CreateOrganizationAPIKey create an API key for an organization
-// Create a new API key for an organization.
-func (s *APIKeyService) CreateOrganizationAPIKey(ctx context.Context, organizationID string, params *APIKeysCreateOrganizationAPIKeyParams, opts ...RequestOption) (*APIKeyWithValue, error) {
-	var result APIKeyWithValue
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/api_keys", url.PathEscape(organizationID)), nil, params, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
 }

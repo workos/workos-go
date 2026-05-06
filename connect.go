@@ -16,11 +16,11 @@ type ConnectService struct {
 // ConnectCompleteOAuth2Params contains the parameters for CompleteOAuth2.
 type ConnectCompleteOAuth2Params struct {
 	// ExternalAuthID is identifier provided when AuthKit redirected to your login page.
-	ExternalAuthID string `json:"external_auth_id"`
+	ExternalAuthID string `json:"external_auth_id" url:"-"`
 	// User is the user to create or update in AuthKit.
-	User *UserObject `json:"user"`
+	User *UserObject `json:"user" url:"-"`
 	// UserConsentOptions is array of [User Consent Options](https://workos.com/docs/reference/workos-connect/standalone/user-consent-options) to store with the session.
-	UserConsentOptions []*UserConsentOption `json:"user_consent_options,omitempty"`
+	UserConsentOptions []*UserConsentOption `json:"user_consent_options,omitempty" url:"-"`
 }
 
 // CompleteOAuth2 complete external authentication
@@ -49,7 +49,7 @@ type ConnectListApplicationsParams struct {
 // ListApplications list Connect Applications
 // List all Connect Applications in the current environment with optional filtering.
 func (s *ConnectService) ListApplications(ctx context.Context, params *ConnectListApplicationsParams, opts ...RequestOption) *Iterator[ConnectApplication] {
-	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[ConnectApplication](ctx, s.client, "GET", "/connect/applications", params, "after", "data", opts, map[string]string{"limit": "10"})
 }
 
 // ConnectCreateOAuthApplicationParams contains the parameters for CreateOAuthApplication.
@@ -154,13 +154,13 @@ func (s *ConnectService) GetApplication(ctx context.Context, id string, opts ...
 // ConnectUpdateApplicationParams contains the parameters for UpdateApplication.
 type ConnectUpdateApplicationParams struct {
 	// Name is the name of the application.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"-"`
 	// Description is a description for the application.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"-"`
 	// Scopes is the OAuth scopes granted to the application.
-	Scopes []string `json:"scopes,omitempty"`
+	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
-	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
+	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty" url:"-"`
 }
 
 // UpdateApplication update a Connect Application

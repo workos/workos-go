@@ -21,15 +21,15 @@ type WebhooksListEndpointsParams struct {
 // ListEndpoints list Webhook Endpoints
 // Get a list of all of your existing webhook endpoints.
 func (s *WebhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
-	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10"})
 }
 
 // WebhooksCreateEndpointParams contains the parameters for CreateEndpoint.
 type WebhooksCreateEndpointParams struct {
 	// EndpointURL is the HTTPS URL where webhooks will be sent.
-	EndpointURL string `json:"endpoint_url"`
+	EndpointURL string `json:"endpoint_url" url:"-"`
 	// Events is the events that the Webhook Endpoint is subscribed to.
-	Events []CreateWebhookEndpointEvents `json:"events"`
+	Events []CreateWebhookEndpointEvents `json:"events" url:"-"`
 }
 
 // CreateEndpoint create a Webhook Endpoint
@@ -46,11 +46,11 @@ func (s *WebhookService) CreateEndpoint(ctx context.Context, params *WebhooksCre
 // WebhooksUpdateEndpointParams contains the parameters for UpdateEndpoint.
 type WebhooksUpdateEndpointParams struct {
 	// EndpointURL is the HTTPS URL where webhooks will be sent.
-	EndpointURL *string `json:"endpoint_url,omitempty"`
+	EndpointURL *string `json:"endpoint_url,omitempty" url:"-"`
 	// Status is whether the Webhook Endpoint is enabled or disabled.
-	Status *UpdateWebhookEndpointStatus `json:"status,omitempty"`
+	Status *UpdateWebhookEndpointStatus `json:"status,omitempty" url:"-"`
 	// Events is the events that the Webhook Endpoint is subscribed to.
-	Events []UpdateWebhookEndpointEvents `json:"events,omitempty"`
+	Events []UpdateWebhookEndpointEvents `json:"events,omitempty" url:"-"`
 }
 
 // UpdateEndpoint update a Webhook Endpoint

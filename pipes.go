@@ -16,11 +16,11 @@ type PipeService struct {
 // PipesAuthorizeDataIntegrationParams contains the parameters for AuthorizeDataIntegration.
 type PipesAuthorizeDataIntegrationParams struct {
 	// UserID is the ID of the user to authorize.
-	UserID string `json:"user_id"`
+	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an organization ID to scope the authorization to a specific organization.
-	OrganizationID *string `json:"organization_id,omitempty"`
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
+	ReturnTo *string `json:"return_to,omitempty" url:"-"`
 }
 
 // AuthorizeDataIntegration get authorization URL
@@ -37,9 +37,9 @@ func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string,
 // PipesCreateDataIntegrationTokenParams contains the parameters for CreateDataIntegrationToken.
 type PipesCreateDataIntegrationTokenParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
+	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
-	OrganizationID *string `json:"organization_id,omitempty"`
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 }
 
 // CreateDataIntegrationToken get an access token for a connected account
