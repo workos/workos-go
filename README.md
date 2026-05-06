@@ -2,7 +2,7 @@
 
 # WorkOS Go Library
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v7.svg)](https://pkg.go.dev/github.com/workos/workos-go/v7)
+[![Go Reference](https://pkg.go.dev/badge/github.com/workos/workos-go/v8.svg)](https://pkg.go.dev/github.com/workos/workos-go/v8)
 
 The WorkOS Go library provides a flat, root-level `workos` package for applications written in Go.
 
@@ -11,7 +11,7 @@ The WorkOS Go library provides a flat, root-level `workos` package for applicati
 Requires Go `1.23+`.
 
 ```bash
-go get github.com/workos/workos-go/v7
+go get github.com/workos/workos-go/v8
 ```
 
 ## Usage
@@ -23,7 +23,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/workos/workos-go/v7"
+	"github.com/workos/workos-go/v8"
 )
 
 func main() {
@@ -210,5 +210,5 @@ This SDK is a Go library that uses a flat package layout at the module root rath
 Import the root package:
 
 ```go
-import "github.com/workos/workos-go/v7"
+import "github.com/workos/workos-go/v8"
 ```

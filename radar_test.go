@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v7"
+	"github.com/workos/workos-go/v8"
 )
 
 func TestRadar_CreateAttempt(t *testing.T) {

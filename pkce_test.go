@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v7"
+	"github.com/workos/workos-go/v8"
 )
 
 func TestGenerateCodeVerifier_DefaultLength(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v7"
+	"github.com/workos/workos-go/v8"
 )
 
 func TestSealData_UnsealData_RoundTrip(t *testing.T) {
