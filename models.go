@@ -5092,6 +5092,6 @@ type PaginationParams struct {
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is the maximum number of items to return per page.
 	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is the sort order for results (asc or desc).
-	Order *string `url:"order,omitempty" json:"-"`
+	// Order is the sort order for results.
+	Order *PaginationOrder `url:"order,omitempty" json:"-"`
 }
