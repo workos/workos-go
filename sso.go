@@ -143,7 +143,7 @@ func (s *SSOService) GetLogoutURL(params *SSOGetLogoutURLParams, opts ...Request
 // SSOAuthorizeLogoutParams contains the parameters for AuthorizeLogout.
 type SSOAuthorizeLogoutParams struct {
 	// ProfileID is the unique ID of the profile to log out.
-	ProfileID string `json:"profile_id"`
+	ProfileID string `json:"profile_id" url:"-"`
 }
 
 // AuthorizeLogout logout Authorize
@@ -171,7 +171,7 @@ func (s *SSOService) GetProfile(ctx context.Context, opts ...RequestOption) (*Pr
 // SSOGetProfileAndTokenParams contains the parameters for GetProfileAndToken.
 type SSOGetProfileAndTokenParams struct {
 	// Code is the authorization code received from the authorization callback.
-	Code string `json:"code" url:"code"`
+	Code string `json:"code" url:"-"`
 }
 
 // getProfileAndTokenBody is the JSON request body for GetProfileAndToken.

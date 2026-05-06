@@ -159,7 +159,7 @@ func TestAuthorization_ListRoleAssignments(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_role_assignment.json")
+		fixture, err := os.ReadFile("testdata/list_user_role_assignment.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -199,7 +199,7 @@ func TestAuthorization_AssignRole(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/role_assignment.json")
+		fixture, err := os.ReadFile("testdata/user_role_assignment.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -212,8 +212,8 @@ func TestAuthorization_AssignRole(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "role_assignment_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "om_01HXYZ123456789ABCDEFGHIJ", result.OrganizationMembershipID)
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
-	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
 }
 
 func TestAuthorization_RemoveRole(t *testing.T) {
@@ -515,6 +515,44 @@ func TestAuthorization_ListMembershipsForResourceByExternalID_Empty(t *testing.T
 	require.NoError(t, iter.Err())
 }
 
+func TestAuthorization_ListRoleAssignmentsForResourceByExternalID(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/organizations/test_organization_id/resources/test_resource_type_slug/test_external_id/role_assignments", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_user_role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListRoleAssignmentsForResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListRoleAssignmentsForResourceByExternalIDParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAuthorization_ListRoleAssignmentsForResourceByExternalID_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListRoleAssignmentsForResourceByExternalID(context.Background(), "test_organization_id", "test_resource_type_slug", "test_external_id", &workos.AuthorizationListRoleAssignmentsForResourceByExternalIDParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
 func TestAuthorization_ListResources(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
@@ -675,6 +713,44 @@ func TestAuthorization_ListMembershipsForResource_Empty(t *testing.T) {
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	iter := client.Authorization().ListMembershipsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListMembershipsForResourceParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestAuthorization_ListRoleAssignmentsForResource(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/resources/test_resource_id/role_assignments", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_user_role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListRoleAssignmentsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListRoleAssignmentsForResourceParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAuthorization_ListRoleAssignmentsForResource_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListRoleAssignmentsForResource(context.Background(), "test_resource_id", &workos.AuthorizationListRoleAssignmentsForResourceParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }

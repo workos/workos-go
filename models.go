@@ -28,22 +28,6 @@ type UserConsentOption struct {
 	Choices []*UserConsentOptionChoice `json:"choices"`
 }
 
-// UserManagementLoginRequest represents a user management login request.
-type UserManagementLoginRequest struct {
-	// ExternalAuthID is identifier provided when AuthKit redirected to your login page.
-	ExternalAuthID string `json:"external_auth_id"`
-	// User is the user to create or update in AuthKit.
-	User *UserObject `json:"user"`
-	// UserConsentOptions is array of [User Consent Options](https://workos.com/docs/reference/workos-connect/standalone/user-consent-options) to store with the session.
-	UserConsentOptions []*UserConsentOption `json:"user_consent_options,omitempty"`
-}
-
-// ValidateAPIKey represents a validate api key.
-type ValidateAPIKey struct {
-	// Value is the value for an API key.
-	Value string `json:"value"`
-}
-
 // RedirectURIInput represents a redirect uri input.
 type RedirectURIInput struct {
 	// URI is the redirect URI.
@@ -84,22 +68,6 @@ type CreateM2MApplication struct {
 	Scopes []string `json:"scopes,omitempty"`
 	// OrganizationID is the organization ID this application belongs to.
 	OrganizationID string `json:"organization_id"`
-}
-
-// UpdateOAuthApplication represents an update OAuth application.
-type UpdateOAuthApplication struct {
-	// Name is the name of the application.
-	Name *string `json:"name,omitempty"`
-	// Description is a description for the application.
-	Description *string `json:"description,omitempty"`
-	// Scopes is the OAuth scopes granted to the application.
-	Scopes []string `json:"scopes,omitempty"`
-	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
-	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
-}
-
-// CreateApplicationSecret represents a create application secret.
-type CreateApplicationSecret struct {
 }
 
 // AuditLogEventActor represents an audit log event actor.
@@ -143,42 +111,6 @@ type AuditLogEvent struct {
 	Version *int `json:"version,omitempty"`
 }
 
-// AuditLogEventIngestion represents an audit log event ingestion.
-type AuditLogEventIngestion struct {
-	// OrganizationID is the unique ID of the Organization.
-	OrganizationID string `json:"organization_id"`
-	// Event is the audit log event to create.
-	Event *AuditLogEvent `json:"event"`
-}
-
-// AuditLogExportCreation represents an audit log export creation.
-type AuditLogExportCreation struct {
-	// OrganizationID is the unique ID of the Organization.
-	OrganizationID string `json:"organization_id"`
-	// RangeStart is iso-8601 value for start of the export range.
-	RangeStart string `json:"range_start"`
-	// RangeEnd is iso-8601 value for end of the export range.
-	RangeEnd string `json:"range_end"`
-	// Actions is list of actions to filter against.
-	Actions []string `json:"actions,omitempty"`
-	// Actors is deprecated. Use `actor_names` instead.
-	//
-	// Deprecated: Use `actor_names` instead.
-	Actors []string `json:"actors,omitempty"`
-	// ActorNames is list of actor names to filter against.
-	ActorNames []string `json:"actor_names,omitempty"`
-	// ActorIDs is list of actor IDs to filter against.
-	ActorIDs []string `json:"actor_ids,omitempty"`
-	// Targets is list of target types to filter against.
-	Targets []string `json:"targets,omitempty"`
-}
-
-// UpdateAuditLogsRetention represents an update audit logs retention.
-type UpdateAuditLogsRetention struct {
-	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` and `365`.
-	RetentionPeriodInDays int `json:"retention_period_in_days"`
-}
-
 // AuditLogSchemaActor represents an audit log schema actor.
 type AuditLogSchemaActor struct {
 	// Metadata is json schema for actor metadata.
@@ -188,247 +120,12 @@ type AuditLogSchemaActor struct {
 // AuditLogSchemaTarget is an alias for AuditLogSchemaJSONTarget.
 type AuditLogSchemaTarget = AuditLogSchemaJSONTarget
 
-// AuditLogSchema represents an audit log schema.
-type AuditLogSchema struct {
-	// Actor is the metadata schema for the actor.
-	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
-	// Targets is the list of targets for the schema.
-	Targets []*AuditLogSchemaTarget `json:"targets"`
-	// Metadata is optional JSON schema for event metadata.
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-}
-
-// ChallengeAuthenticationFactor represents a challenge authentication factor.
-type ChallengeAuthenticationFactor struct {
-	// SmsTemplate is a custom template for the SMS message. Use the {{code}} placeholder to include the verification code.
-	SmsTemplate *string `json:"sms_template,omitempty"`
-}
-
-// CheckAuthorization represents a check authorization.
-type CheckAuthorization struct {
-	// PermissionSlug is the slug of the permission to check.
-	PermissionSlug string `json:"permission_slug"`
-	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
-	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
-	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
-}
-
-// AssignRole represents an assign role.
-type AssignRole struct {
-	// RoleSlug is the slug of the role to assign.
-	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
-	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
-	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
-}
-
-// RemoveRole is an alias for AssignRole.
-type RemoveRole = AssignRole
-
-// SetRolePermissions represents a set role permissions.
-type SetRolePermissions struct {
-	// Permissions is the permission slugs to assign to the role.
-	Permissions []string `json:"permissions"`
-}
-
-// AddRolePermission represents an add role permission.
-type AddRolePermission struct {
-	// Slug is the slug of the permission to add to the role.
-	Slug string `json:"slug"`
-}
-
-// CreateOrganizationRole represents a create organization role.
-type CreateOrganizationRole struct {
-	// Slug is a unique identifier for the role within the organization. When provided, must begin with 'org-' and contain only lowercase letters, numbers, hyphens, and underscores. When omitted, a slug is auto-generated from the role name and a random suffix.
-	Slug *string `json:"slug,omitempty"`
-	// Name is a descriptive name for the role.
-	Name string `json:"name"`
-	// Description is an optional description of the role's purpose.
-	Description *string `json:"description,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
-}
-
-// UpdateOrganizationRole represents an update organization role.
-type UpdateOrganizationRole struct {
-	// Name is a descriptive name for the role.
-	Name *string `json:"name,omitempty"`
-	// Description is an optional description of the role's purpose.
-	Description *string `json:"description,omitempty"`
-}
-
-// CreateAuthorizationPermission represents a create authorization permission.
-type CreateAuthorizationPermission struct {
-	// Slug is a unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
-	Slug string `json:"slug"`
-	// Name is a descriptive name for the Permission.
-	Name string `json:"name"`
-	// Description is an optional description of the Permission.
-	Description *string `json:"description,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type this permission is scoped to.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
-}
-
-// UpdateAuthorizationPermission represents an update authorization permission.
-type UpdateAuthorizationPermission struct {
-	// Name is a descriptive name for the Permission.
-	Name *string `json:"name,omitempty"`
-	// Description is an optional description of the Permission.
-	Description *string `json:"description,omitempty"`
-}
-
-// CreateRole represents a create role.
-type CreateRole struct {
-	// Slug is a unique slug for the role.
-	Slug string `json:"slug"`
-	// Name is a descriptive name for the role.
-	Name string `json:"name"`
-	// Description is an optional description of the role.
-	Description *string `json:"description,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
-	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
-}
-
-// UpdateRole represents an update role.
-type UpdateRole struct {
-	// Name is a descriptive name for the role.
-	Name *string `json:"name,omitempty"`
-	// Description is an optional description of the role.
-	Description *string `json:"description,omitempty"`
-}
-
-// UpdateAuthorizationResource represents an update authorization resource.
-type UpdateAuthorizationResource struct {
-	// Name is a display name for the resource.
-	Name *string `json:"name,omitempty"`
-	// Description is an optional description of the resource.
-	Description *string `json:"description,omitempty"`
-	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
-	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
-}
-
-// CreateAuthorizationResource represents a create authorization resource.
-type CreateAuthorizationResource struct {
-	// ExternalID is an external identifier for the resource.
-	ExternalID string `json:"external_id"`
-	// Name is a display name for the resource.
-	Name string `json:"name"`
-	// Description is an optional description of the resource.
-	Description *string `json:"description,omitempty"`
-	// ResourceTypeSlug is the slug of the resource type.
-	ResourceTypeSlug string `json:"resource_type_slug"`
-	// OrganizationID is the ID of the organization this resource belongs to.
-	OrganizationID string `json:"organization_id"`
-	// ParentResourceID is the ID of the parent resource. Mutually exclusive with `parent_resource_external_id` and `parent_resource_type_slug`.
-	ParentResourceID *string `json:"parent_resource_id,omitempty"`
-	// ParentResourceExternalID is the external ID of the parent resource. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceExternalID *string `json:"parent_resource_external_id,omitempty"`
-	// ParentResourceTypeSlug is the resource type slug of the parent resource. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
-	ParentResourceTypeSlug *string `json:"parent_resource_type_slug,omitempty"`
-}
-
-// CreateCORSOrigin represents a create cors origin.
-type CreateCORSOrigin struct {
-	// Origin is the origin URL to allow for CORS requests.
-	Origin string `json:"origin"`
-}
-
-// CreateGroupMembership represents a create group membership.
-type CreateGroupMembership struct {
-	// OrganizationMembershipID is the ID of the Organization Membership to add to the group.
-	OrganizationMembershipID string `json:"organization_membership_id"`
-}
-
-// CreateGroup represents a create group.
-type CreateGroup struct {
-	// Name is the name of the Group.
-	Name string `json:"name"`
-	// Description is an optional description of the Group.
-	Description *string `json:"description,omitempty"`
-}
-
-// UpdateGroup represents an update group.
-type UpdateGroup struct {
-	// Name is the name of the Group.
-	Name *string `json:"name,omitempty"`
-	// Description is an optional description of the Group.
-	Description *string `json:"description,omitempty"`
-}
-
-// UpdateJWTTemplate represents an update JWT template.
-type UpdateJWTTemplate struct {
-	// Content is the JWT template content as a Liquid template string.
-	Content string `json:"content"`
-}
-
-// CreateOrganizationDomain represents a create organization domain.
-type CreateOrganizationDomain struct {
-	// Domain is the domain to add to the organization.
-	Domain string `json:"domain"`
-	// OrganizationID is the ID of the organization to add the domain to.
-	OrganizationID string `json:"organization_id"`
-}
-
-// CreateOrganizationAPIKey represents a create organization api key.
-type CreateOrganizationAPIKey struct {
-	// Name is the name for the API key.
-	Name string `json:"name"`
-	// Permissions is the permission slugs to assign to the API key.
-	Permissions []string `json:"permissions,omitempty"`
-}
-
 // OrganizationDomainData represents an organization domain data.
 type OrganizationDomainData struct {
 	// Domain is the domain value.
 	Domain string `json:"domain"`
 	// State is the verification state of the domain.
 	State OrganizationDomainDataState `json:"state"`
-}
-
-// OrganizationInput represents an organization input.
-type OrganizationInput struct {
-	// Name is the name of the organization.
-	Name string `json:"name"`
-	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
-	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
-	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
-	Domains []string `json:"domains,omitempty"`
-	// DomainData is the domains associated with the organization, including verification state.
-	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
-	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata map[string]string `json:"metadata,omitempty"`
-	// ExternalID is an external identifier for the Organization.
-	ExternalID *string `json:"external_id,omitempty"`
-}
-
-// UpdateOrganization represents an update organization.
-type UpdateOrganization struct {
-	// Name is the name of the organization.
-	Name *string `json:"name,omitempty"`
-	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
-	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty"`
-	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
-	//
-	// Deprecated: Deprecated in favor of `domain_data.
-	Domains []string `json:"domains,omitempty"`
-	// DomainData is the domains associated with the organization, including verification state.
-	DomainData []*OrganizationDomainData `json:"domain_data,omitempty"`
-	// StripeCustomerID is the Stripe customer ID associated with the organization.
-	StripeCustomerID *string `json:"stripe_customer_id,omitempty"`
-	// Metadata is object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization.
-	Metadata map[string]string `json:"metadata,omitempty"`
-	// ExternalID is an external identifier for the Organization.
-	ExternalID *string `json:"external_id,omitempty"`
 }
 
 // SSOIntentOptions represents a SSO intent options.
@@ -453,224 +150,13 @@ type IntentOptions struct {
 	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
 }
 
-// GenerateLink represents a generate link.
-type GenerateLink struct {
-	// ReturnURL is the URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
-	ReturnURL *string `json:"return_url,omitempty"`
-	// SuccessURL is the URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
-	SuccessURL *string `json:"success_url,omitempty"`
-	// Organization is an [Organization](https://workos.com/docs/reference/organization) identifier.
-	Organization string `json:"organization"`
-	// Intent is       The intent of the Admin Portal.
-	// - `sso` - Launch Admin Portal for creating SSO connections
-	// - `dsync` - Launch Admin Portal for creating Directory Sync connections
-	// - `audit_logs` - Launch Admin Portal for viewing Audit Logs
-	// - `log_streams` - Launch Admin Portal for creating Log Streams
-	// - `domain_verification` - Launch Admin Portal for Domain Verification
-	// - `certificate_renewal` - Launch Admin Portal for renewing SAML Certificates
-	// - `bring_your_own_key` - Launch Admin Portal for configuring Bring Your Own Key
-	Intent *GenerateLinkIntent `json:"intent,omitempty"`
-	// IntentOptions is options to configure the Admin Portal based on the intent.
-	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
-	// ItContactEmails is the email addresses of the IT contacts to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
-	ItContactEmails []string `json:"it_contact_emails,omitempty"`
-}
-
-// CreateRedirectURI represents a create redirect uri.
-type CreateRedirectURI struct {
-	// URI is the redirect URI to create.
-	URI string `json:"uri"`
-}
-
-// EnrollUserAuthenticationFactor represents an enroll user authentication factor.
-type EnrollUserAuthenticationFactor struct {
-	// Type is the type of the factor to enroll.
-	Type string `json:"type"`
-	// TOTPIssuer is your application or company name displayed in the user's authenticator app.
-	TOTPIssuer *string `json:"totp_issuer,omitempty"`
-	// TOTPUser is the user's account name displayed in their authenticator app.
-	TOTPUser *string `json:"totp_user,omitempty"`
-	// TOTPSecret is the Base32-encoded shared secret for TOTP factors. This can be provided when creating the auth factor, otherwise it will be generated. The algorithm used to derive TOTP codes is SHA-1, the code length is 6 digits, and the timestep is 30 seconds – the secret must be compatible with these parameters.
-	TOTPSecret *string `json:"totp_secret,omitempty"`
-}
-
-// CreateMagicCodeAndReturn represents a create magic code and return.
-type CreateMagicCodeAndReturn struct {
-	// Email is the email address to send the magic code to.
-	Email string `json:"email"`
-	// InvitationToken is the invitation token to associate with this magic code.
-	InvitationToken *string `json:"invitation_token,omitempty"`
-}
-
-// CreateUserInviteOptions represents a create user invite options.
-type CreateUserInviteOptions struct {
-	// Email is the email address of the recipient.
-	Email string `json:"email"`
-	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// RoleSlug is the [role](https://workos.com/docs/authkit/roles) that the recipient will receive when they join the organization in the invitation.
-	RoleSlug *string `json:"role_slug,omitempty"`
-	// ExpiresInDays is how many days the invitations will be valid for. Must be between 1 and 30 days. Defaults to 7 days if not specified.
-	ExpiresInDays *int `json:"expires_in_days,omitempty"`
-	// InviterUserID is the ID of the [user](https://workos.com/docs/reference/authkit/user) who invites the recipient. The invitation email will mention the name of this user.
-	InviterUserID *string `json:"inviter_user_id,omitempty"`
-	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
-	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
-}
-
-// ResendUserInviteOptions represents a resend user invite options.
-type ResendUserInviteOptions struct {
-	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
-	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty"`
-}
-
-// CreateUserOrganizationMembership represents a create user organization membership.
-type CreateUserOrganizationMembership struct {
-	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
-	UserID string `json:"user_id"`
-	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
-	OrganizationID string `json:"organization_id"`
-	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
-	RoleSlug *string `json:"role_slug,omitempty"`
-	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
-	RoleSlugs []string `json:"role_slugs,omitempty"`
-}
-
-// UpdateUserOrganizationMembership represents an update user organization membership.
-type UpdateUserOrganizationMembership struct {
-	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
-	RoleSlug *string `json:"role_slug,omitempty"`
-	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
-	RoleSlugs []string `json:"role_slugs,omitempty"`
-}
-
-// CreateUser represents a create user.
-type CreateUser struct {
-	// Email is the email address of the user.
-	Email string `json:"email"`
-	// FirstName is the first name of the user.
-	FirstName *string `json:"first_name,omitempty"`
-	// LastName is the last name of the user.
-	LastName *string `json:"last_name,omitempty"`
-	// EmailVerified is whether the user's email has been verified.
-	EmailVerified *bool `json:"email_verified,omitempty"`
-	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata map[string]string `json:"metadata,omitempty"`
-	// ExternalID is the external ID of the user.
-	ExternalID *string `json:"external_id,omitempty"`
-	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
-	Password *string `json:"password,omitempty"`
-	// PasswordHash is the hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
-	PasswordHash *string `json:"password_hash,omitempty"`
-	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
-	PasswordHashType *CreateUserPasswordHashType `json:"password_hash_type,omitempty"`
-}
-
-// UpdateUser represents an update user.
-type UpdateUser struct {
-	// Email is the email address of the user.
-	Email *string `json:"email,omitempty"`
-	// FirstName is the first name of the user.
-	FirstName *string `json:"first_name,omitempty"`
-	// LastName is the last name of the user.
-	LastName *string `json:"last_name,omitempty"`
-	// EmailVerified is whether the user's email has been verified.
-	EmailVerified *bool `json:"email_verified,omitempty"`
-	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata map[string]string `json:"metadata,omitempty"`
-	// ExternalID is the external ID of the user.
-	ExternalID *string `json:"external_id,omitempty"`
-	// Locale is the user's preferred locale.
-	Locale *string `json:"locale,omitempty"`
-	// Password is the password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
-	Password *string `json:"password,omitempty"`
-	// PasswordHash is the hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
-	PasswordHash *string `json:"password_hash,omitempty"`
-	// PasswordHashType is the algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
-	PasswordHashType *UpdateUserPasswordHashType `json:"password_hash_type,omitempty"`
-}
-
-// VerifyEmailAddress is an alias for AuthenticationChallengesVerifyRequest.
-type VerifyEmailAddress = AuthenticationChallengesVerifyRequest
-
-// CreatePasswordResetToken represents a create password reset token.
-type CreatePasswordResetToken struct {
-	// Email is the email address of the user requesting a password reset.
-	Email string `json:"email"`
-}
-
-// CreatePasswordReset represents a create password reset.
-type CreatePasswordReset struct {
-	// Token is the password reset token.
-	Token string `json:"token"`
-	// NewPassword is the new password to set for the user.
-	NewPassword string `json:"new_password"`
-}
-
-// SendEmailChange represents a send email change.
-type SendEmailChange struct {
-	// NewEmail is the new email address to change to.
-	NewEmail string `json:"new_email"`
-}
-
-// ConfirmEmailChange is an alias for AuthenticationChallengesVerifyRequest.
-type ConfirmEmailChange = AuthenticationChallengesVerifyRequest
-
-// RevokeSession represents a revoke session.
-type RevokeSession struct {
-	// SessionID is the ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
-	SessionID string `json:"session_id"`
-	// ReturnTo is the URL to redirect the user to after session revocation.
-	ReturnTo *string `json:"return_to,omitempty"`
-}
-
-// CreateWebhookEndpoint represents a create webhook endpoint.
-type CreateWebhookEndpoint struct {
-	// EndpointURL is the HTTPS URL where webhooks will be sent.
-	EndpointURL string `json:"endpoint_url"`
-	// Events is the events that the Webhook Endpoint is subscribed to.
-	Events []CreateWebhookEndpointEvents `json:"events"`
-}
-
-// UpdateWebhookEndpoint represents an update webhook endpoint.
-type UpdateWebhookEndpoint struct {
-	// EndpointURL is the HTTPS URL where webhooks will be sent.
-	EndpointURL *string `json:"endpoint_url,omitempty"`
-	// Status is whether the Webhook Endpoint is enabled or disabled.
-	Status *UpdateWebhookEndpointStatus `json:"status,omitempty"`
-	// Events is the events that the Webhook Endpoint is subscribed to.
-	Events []UpdateWebhookEndpointEvents `json:"events,omitempty"`
-}
-
-// WidgetSessionToken represents a widget session token.
-type WidgetSessionToken struct {
-	// OrganizationID is the ID of the organization to scope the widget session to.
-	OrganizationID string `json:"organization_id"`
-	// UserID is the ID of the user to issue the widget session token for.
-	UserID *string `json:"user_id,omitempty"`
-	// Scopes is the scopes to grant the widget session.
-	Scopes []WidgetSessionTokenScopes `json:"scopes,omitempty"`
-}
-
-// TokenQuery represents a token query.
-type TokenQuery struct {
-	// ClientID is the client ID of the WorkOS environment.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the client secret of the WorkOS environment.
-	ClientSecret string `json:"client_secret"`
-	// Code is the authorization code received from the authorization callback.
-	Code string `json:"code"`
-	// GrantType is the grant type for the token request.
-	GrantType string `json:"grant_type"`
-}
-
 // ExternalAuthCompleteResponse represents an external auth complete response.
 type ExternalAuthCompleteResponse struct {
 	// RedirectURI is uri to redirect the user back to AuthKit to complete the OAuth flow.
 	RedirectURI string `json:"redirect_uri"`
 }
 
-// APIKey the API Key object if the value is valid, or `null` if invalid.
+// APIKey represents an api key.
 type APIKey struct {
 	// Object distinguishes the API Key object.
 	Object string `json:"object"`
@@ -923,19 +409,24 @@ type AuthorizationPermission struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// SlimRole is an alias for AddRolePermission.
-type SlimRole = AddRolePermission
+// SlimRole the primary role assigned to the user.
+type SlimRole struct {
+	// Slug is the slug of the assigned role.
+	Slug string `json:"slug"`
+}
 
-// RoleAssignment represents a role assignment.
-type RoleAssignment struct {
+// UserRoleAssignment represents a user role assignment.
+type UserRoleAssignment struct {
 	// Object distinguishes the role assignment object.
 	Object string `json:"object"`
 	// ID is unique identifier of the role assignment.
 	ID string `json:"id"`
+	// OrganizationMembershipID is the ID of the organization membership the role is assigned to.
+	OrganizationMembershipID string `json:"organization_membership_id"`
 	// Role is the role included in the assignment.
 	Role *SlimRole `json:"role"`
-	// Resource is the resource to which the role is assigned.
-	Resource *RoleAssignmentResource `json:"resource"`
+	// Resource is the resource the role is assigned on.
+	Resource *UserRoleAssignmentResource `json:"resource"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -972,6 +463,9 @@ type RoleList struct {
 	// Data is the list of records for the current page.
 	Data []*Role `json:"data"`
 }
+
+// User is an alias for EmailChangeConfirmationUser.
+type User = EmailChangeConfirmationUser
 
 // Connection represents a connection.
 type Connection struct {
@@ -1081,6 +575,8 @@ type DirectoryUserWithGroups struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
 	// Emails is a list of email addresses for the user.
 	//
 	// Deprecated: this field is deprecated.
@@ -1108,9 +604,9 @@ type DirectoryUserWithGroups struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
-	// Groups is the directory groups the user belongs to. Use the List Directory Groups endpoint with a user filter instead.
+	// Groups is the directory groups the user belongs to. Deprecated: starting May 1, 2026, this field returns an empty array by default for newly created teams. Existing teams currently depending on this field should migrate to the new access pattern for better throughput performance — the field is unbounded by user, so users with many group memberships produce large, slow response payloads. Use the List Directory Groups endpoint with a `user` filter to fetch a user's group memberships.
 	//
-	// Deprecated: this field is deprecated.
+	// Deprecated: migrate to the new access pattern.
 	Groups []*DirectoryGroup `json:"groups"`
 }
 
@@ -1175,6 +671,8 @@ type DirectoryUser struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
 	// Emails is a list of email addresses for the user.
 	//
 	// Deprecated: this field is deprecated.
@@ -1203,9 +701,6 @@ type DirectoryUser struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// User is an alias for EmailChangeConfirmationUser.
-type User = EmailChangeConfirmationUser
 
 // WaitlistUser represents a waitlist user.
 type WaitlistUser struct {
@@ -1347,12 +842,22 @@ type APIKeyCreatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyCreatedDataOwner the owner of the API key.
+// APIKeyCreatedDataOwner represents an api key created data owner.
 type APIKeyCreatedDataOwner struct {
 	// Type is the type of the API key owner.
 	Type string `json:"type"`
 	// ID is the unique identifier of the API key owner.
 	ID string `json:"id"`
+}
+
+// UserAPIKeyCreatedDataOwner represents a user api key created data owner.
+type UserAPIKeyCreatedDataOwner struct {
+	// Type is the type of the API key owner.
+	Type string `json:"type"`
+	// ID is the unique identifier of the user who owns the API key.
+	ID string `json:"id"`
+	// OrganizationID is the unique identifier of the organization the API key belongs to.
+	OrganizationID string `json:"organization_id"`
 }
 
 // APIKeyRevoked represents an api key revoked.
@@ -1393,6 +898,9 @@ type APIKeyRevokedData struct {
 
 // APIKeyRevokedDataOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyRevokedDataOwner = APIKeyCreatedDataOwner
+
+// UserAPIKeyRevokedDataOwner is an alias for UserAPIKeyCreatedDataOwner.
+type UserAPIKeyRevokedDataOwner = UserAPIKeyCreatedDataOwner
 
 // AuthenticationEmailVerificationFailed represents an authentication email verification failed.
 type AuthenticationEmailVerificationFailed struct {
@@ -2430,6 +1938,8 @@ type DsyncUserUpdatedData struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
 	// Emails is a list of email addresses for the user.
 	//
 	// Deprecated: this field is deprecated.
@@ -4005,6 +3515,27 @@ type UserUpdated struct {
 	Object string `json:"object"`
 }
 
+// VaultByokKeyDeleted represents a vault byok key deleted.
+type VaultByokKeyDeleted struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultByokKeyDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// VaultByokKeyDeletedData the event payload.
+type VaultByokKeyDeletedData struct {
+	// OrganizationID is the unique identifier of the organization.
+	OrganizationID string               `json:"organization_id"`
+	KeyProvider    VaultByokKeyProvider `json:"key_provider"`
+}
+
 // VaultByokKeyVerificationCompleted represents a vault byok key verification completed.
 type VaultByokKeyVerificationCompleted struct {
 	// ID is unique identifier for the event.
@@ -4022,9 +3553,8 @@ type VaultByokKeyVerificationCompleted struct {
 // VaultByokKeyVerificationCompletedData the event payload.
 type VaultByokKeyVerificationCompletedData struct {
 	// OrganizationID is the unique identifier of the organization.
-	OrganizationID string `json:"organization_id"`
-	// KeyProvider is the external key provider used for BYOK.
-	KeyProvider VaultByokKeyVerificationCompletedDataKeyProvider `json:"key_provider"`
+	OrganizationID string               `json:"organization_id"`
+	KeyProvider    VaultByokKeyProvider `json:"key_provider"`
 	// Verified is whether the BYOK key verification completed successfully.
 	Verified bool `json:"verified"`
 }
@@ -4305,18 +3835,6 @@ type WaitlistUserDenied struct {
 	Object string `json:"object"`
 }
 
-// JWTTemplateResponse represents a JWT template response.
-type JWTTemplateResponse struct {
-	// Object is the object type.
-	Object string `json:"object"`
-	// Content is the JWT template content as a Liquid template string.
-	Content string `json:"content"`
-	// CreatedAt is the timestamp when the JWT template was created.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is the timestamp when the JWT template was last updated.
-	UpdatedAt string `json:"updated_at"`
-}
-
 // OrganizationDomainStandAlone represents an organization domain stand alone.
 type OrganizationDomainStandAlone struct {
 	// Object distinguishes the organization domain object.
@@ -4367,14 +3885,36 @@ type Flag struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyWithValue represents an api key with value.
-type APIKeyWithValue struct {
+// OrganizationAPIKey represents an organization api key.
+type OrganizationAPIKey struct {
 	// Object distinguishes the API Key object.
 	Object string `json:"object"`
 	// ID is unique identifier of the API Key.
 	ID string `json:"id"`
 	// Owner is the entity that owns the API Key.
-	Owner *APIKeyWithValueOwner `json:"owner"`
+	Owner *OrganizationAPIKeyOwner `json:"owner"`
+	// Name is a descriptive name for the API Key.
+	Name string `json:"name"`
+	// ObfuscatedValue is an obfuscated representation of the API Key value.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is timestamp of when the API Key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permission slugs assigned to the API Key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationAPIKeyWithValue represents an organization api key with value.
+type OrganizationAPIKeyWithValue struct {
+	// Object distinguishes the API Key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API Key.
+	ID string `json:"id"`
+	// Owner is the entity that owns the API Key.
+	Owner *OrganizationAPIKeyWithValueOwner `json:"owner"`
 	// Name is a descriptive name for the API Key.
 	Name string `json:"name"`
 	// ObfuscatedValue is an obfuscated representation of the API Key value.
@@ -4605,6 +4145,54 @@ type UserOrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// User is the user that belongs to the organization through this membership.
+	User *User `json:"user"`
+}
+
+// UserAPIKey represents a user api key.
+type UserAPIKey struct {
+	// Object distinguishes the API Key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API Key.
+	ID string `json:"id"`
+	// Owner is the entity that owns the API Key.
+	Owner *UserAPIKeyOwner `json:"owner"`
+	// Name is a descriptive name for the API Key.
+	Name string `json:"name"`
+	// ObfuscatedValue is an obfuscated representation of the API Key value.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is timestamp of when the API Key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permission slugs assigned to the API Key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// UserAPIKeyWithValue represents a user api key with value.
+type UserAPIKeyWithValue struct {
+	// Object distinguishes the API Key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API Key.
+	ID string `json:"id"`
+	// Owner is the entity that owns the API Key.
+	Owner *UserAPIKeyWithValueOwner `json:"owner"`
+	// Name is a descriptive name for the API Key.
+	Name string `json:"name"`
+	// ObfuscatedValue is an obfuscated representation of the API Key value.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is timestamp of when the API Key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// Permissions is the permission slugs assigned to the API Key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Value is the full API Key value. Only returned once at creation time.
+	Value string `json:"value"`
 }
 
 // EmailVerification represents an email verification.
@@ -4760,6 +4348,8 @@ type Profile struct {
 	FirstName *string `json:"first_name"`
 	// LastName is the user's last name.
 	LastName *string `json:"last_name"`
+	// Name is the user's full name.
+	Name *string `json:"name"`
 	// Role is the role assigned to the user within the organization, if applicable.
 	Role *SlimRole `json:"role,omitempty"`
 	// Roles is the roles assigned to the user within the organization, if applicable.
@@ -4798,6 +4388,18 @@ type SSOLogoutAuthorizeResponse struct {
 type JWKSResponse struct {
 	// Keys is the public keys used for verifying access tokens.
 	Keys []*JWKSResponseKeys `json:"keys"`
+}
+
+// JWTTemplateResponse represents a JWT template response.
+type JWTTemplateResponse struct {
+	// Object is the object type.
+	Object string `json:"object"`
+	// Content is the JWT template content as a Liquid template string.
+	Content string `json:"content"`
+	// CreatedAt is the timestamp when the JWT template was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the JWT template was last updated.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // JWKSResponseKeys represents a jwks response keys.
@@ -4844,6 +4446,12 @@ type AuthenticateResponseOAuthToken struct {
 	// Scopes is a list of OAuth scopes for which the access token is authorized.
 	Scopes []string `json:"scopes"`
 }
+
+// UserAPIKeyWithValueOwner is an alias for UserAPIKeyCreatedDataOwner.
+type UserAPIKeyWithValueOwner = UserAPIKeyCreatedDataOwner
+
+// UserAPIKeyOwner is an alias for UserAPIKeyCreatedDataOwner.
+type UserAPIKeyOwner = UserAPIKeyCreatedDataOwner
 
 // DataIntegrationsListResponseData represents a data integrations list response data.
 type DataIntegrationsListResponseData struct {
@@ -4925,8 +4533,11 @@ type OrganizationDomain struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyWithValueOwner is an alias for APIKeyCreatedDataOwner.
-type APIKeyWithValueOwner = APIKeyCreatedDataOwner
+// OrganizationAPIKeyWithValueOwner is an alias for APIKeyCreatedDataOwner.
+type OrganizationAPIKeyWithValueOwner = APIKeyCreatedDataOwner
+
+// OrganizationAPIKeyOwner is an alias for APIKeyCreatedDataOwner.
+type OrganizationAPIKeyOwner = APIKeyCreatedDataOwner
 
 // EventListListMetadata pagination cursor for navigating to the next page of results.
 type EventListListMetadata struct {
@@ -4954,26 +4565,6 @@ type EventContextGoogleAnalyticsSession struct {
 	SessionNumber *string `json:"sessionNumber,omitempty"`
 }
 
-// DirectoryUserWithGroupsEmail is an alias for DirectoryUserEmail.
-type DirectoryUserWithGroupsEmail = DirectoryUserEmail
-
-// DirectoryMetadata aggregate counts of directory users and groups synced from the provider.
-type DirectoryMetadata struct {
-	// Users is counts of active and inactive directory users.
-	Users *DirectoryMetadataUser `json:"users"`
-	// Groups is count of directory groups.
-	Groups int `json:"groups"`
-}
-
-// ConnectionDomain is an alias for ConnectionActivatedDataDomain.
-type ConnectionDomain = ConnectionActivatedDataDomain
-
-// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
-type ConnectionOption struct {
-	// SigningCert is the signing certificate of the SAML connection.
-	SigningCert *string `json:"signing_cert"`
-}
-
 // UserOrganizationMembershipBaseListData represents a user organization membership base list data.
 type UserOrganizationMembershipBaseListData struct {
 	// Object distinguishes the organization membership object.
@@ -4996,10 +4587,32 @@ type UserOrganizationMembershipBaseListData struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+	// User is the user that belongs to the organization through this membership.
+	User *User `json:"user"`
 }
 
-// RoleAssignmentResource the resource to which the role is assigned.
-type RoleAssignmentResource struct {
+// DirectoryUserWithGroupsEmail is an alias for DirectoryUserEmail.
+type DirectoryUserWithGroupsEmail = DirectoryUserEmail
+
+// DirectoryMetadata aggregate counts of directory users and groups synced from the provider.
+type DirectoryMetadata struct {
+	// Users is counts of active and inactive directory users.
+	Users *DirectoryMetadataUser `json:"users"`
+	// Groups is count of directory groups.
+	Groups int `json:"groups"`
+}
+
+// ConnectionDomain is an alias for ConnectionActivatedDataDomain.
+type ConnectionDomain = ConnectionActivatedDataDomain
+
+// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
+type ConnectionOption struct {
+	// SigningCert is the signing certificate of the SAML connection.
+	SigningCert *string `json:"signing_cert"`
+}
+
+// UserRoleAssignmentResource the resource the role is assigned on.
+type UserRoleAssignmentResource struct {
 	// ID is the unique ID of the Resource.
 	ID string `json:"id"`
 	// ExternalID is an identifier you provide to reference the resource in your system.
@@ -5074,26 +4687,6 @@ type UserConsentOptionChoice struct {
 	Label *string `json:"label,omitempty"`
 }
 
-// AuthenticationChallengesVerifyRequest represents an authentication challenges verify request.
-type AuthenticationChallengesVerifyRequest struct {
-	// Code is the one-time code to verify.
-	Code string `json:"code"`
-}
-
-// AuthenticationFactorsCreateRequest represents an authentication factors create request.
-type AuthenticationFactorsCreateRequest struct {
-	// Type is the type of factor to enroll.
-	Type AuthenticationFactorsCreateRequestType `json:"type"`
-	// PhoneNumber is required when type is 'sms'.
-	PhoneNumber *string `json:"phone_number,omitempty"`
-	// TOTPIssuer is required when type is 'totp'.
-	TOTPIssuer *string `json:"totp_issuer,omitempty"`
-	// TOTPUser is required when type is 'totp'.
-	TOTPUser *string `json:"totp_user,omitempty"`
-	// UserID is the ID of the user to associate the factor with.
-	UserID *string `json:"user_id,omitempty"`
-}
-
 // Permission is an alias for AuthorizationPermission.
 type Permission = AuthorizationPermission
 
@@ -5111,24 +4704,6 @@ type ApplicationCredentialsListItem struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
-}
-
-// DataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a data integrations get data integration authorize url request.
-type DataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// UserID is the ID of the user to authorize.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-}
-
-// DataIntegrationsGetUserTokenRequest represents a data integrations get user token request.
-type DataIntegrationsGetUserTokenRequest struct {
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
-	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
 // FeatureFlag represents a feature flag.
@@ -5165,47 +4740,6 @@ type FeatureFlagOwner struct {
 	FirstName *string `json:"first_name"`
 	// LastName is the last name of the flag owner.
 	LastName *string `json:"last_name"`
-}
-
-// RadarStandaloneAssessRequest represents a radar standalone assess request.
-type RadarStandaloneAssessRequest struct {
-	// IPAddress is the IP address of the request to assess.
-	IPAddress string `json:"ip_address"`
-	// UserAgent is the user agent string of the request to assess.
-	UserAgent string `json:"user_agent"`
-	// Email is the email address of the user making the request.
-	Email string `json:"email"`
-	// AuthMethod is the authentication method being used.
-	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method"`
-	// Action is the action being performed.
-	Action RadarStandaloneAssessRequestAction `json:"action"`
-	// DeviceFingerprint is an optional device fingerprint for the request.
-	DeviceFingerprint *string `json:"device_fingerprint,omitempty"`
-	// BotScore is an optional bot detection score for the request.
-	BotScore *string `json:"bot_score,omitempty"`
-}
-
-// RadarStandaloneUpdateRadarAttemptRequest represents a radar standalone update radar attempt request.
-type RadarStandaloneUpdateRadarAttemptRequest struct {
-	// ChallengeStatus is set to `"success"` to mark the challenge as completed.
-	ChallengeStatus *string `json:"challenge_status,omitempty"`
-	// AttemptStatus is set to `"success"` to mark the authentication attempt as successful.
-	AttemptStatus *string `json:"attempt_status,omitempty"`
-}
-
-// RadarStandaloneUpdateRadarListRequest is an alias for RadarStandaloneDeleteRadarListEntryRequest.
-type RadarStandaloneUpdateRadarListRequest = RadarStandaloneDeleteRadarListEntryRequest
-
-// RadarStandaloneDeleteRadarListEntryRequest represents a radar standalone delete radar list entry request.
-type RadarStandaloneDeleteRadarListEntryRequest struct {
-	// Entry is the value to remove from the list. Must match an existing entry.
-	Entry string `json:"entry"`
-}
-
-// SSOLogoutAuthorizeRequest represents a SSO logout authorize request.
-type SSOLogoutAuthorizeRequest struct {
-	// ProfileID is the unique ID of the profile to log out.
-	ProfileID string `json:"profile_id"`
 }
 
 // AuthorizationCodeSessionAuthenticateRequest represents an authorization code session authenticate request.
@@ -5364,12 +4898,6 @@ type DeviceCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// SSODeviceAuthorizationRequest represents a SSO device authorization request.
-type SSODeviceAuthorizationRequest struct {
-	// ClientID is the WorkOS client ID for your application.
-	ClientID string `json:"client_id"`
-}
-
 // Invitation represents an invitation.
 type Invitation struct {
 	// Object distinguishes the invitation object.
@@ -5428,6 +4956,8 @@ type OrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// User is the user that belongs to the organization through this membership.
+	User *User `json:"user"`
 }
 
 // EmailChangeConfirmation represents an email change confirmation.
@@ -5562,6 +5092,6 @@ type PaginationParams struct {
 	After *string `url:"after,omitempty" json:"-"`
 	// Limit is the maximum number of items to return per page.
 	Limit *int `url:"limit,omitempty" json:"-"`
-	// Order is the sort order for results (asc or desc).
-	Order *string `url:"order,omitempty" json:"-"`
+	// Order is the sort order for results.
+	Order *PaginationOrder `url:"order,omitempty" json:"-"`
 }

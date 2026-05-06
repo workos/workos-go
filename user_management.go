@@ -521,7 +521,7 @@ func (s *UserManagementService) GetAuthorizationURL(params *UserManagementGetAut
 // UserManagementCreateDeviceParams contains the parameters for CreateDevice.
 type UserManagementCreateDeviceParams struct {
 	// ClientID is the WorkOS client ID for your application.
-	ClientID string `json:"client_id"`
+	ClientID string `json:"client_id" url:"-"`
 }
 
 // CreateDevice get device authorization URL
@@ -557,9 +557,9 @@ func (s *UserManagementService) GetLogoutURL(params *UserManagementGetLogoutURLP
 // UserManagementRevokeSessionParams contains the parameters for RevokeSession.
 type UserManagementRevokeSessionParams struct {
 	// SessionID is the ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
-	SessionID string `json:"session_id"`
+	SessionID string `json:"session_id" url:"-"`
 	// ReturnTo is the URL to redirect the user to after session revocation.
-	ReturnTo *string `json:"return_to,omitempty"`
+	ReturnTo *string `json:"return_to,omitempty" url:"-"`
 }
 
 // RevokeSession
@@ -572,7 +572,7 @@ func (s *UserManagementService) RevokeSession(ctx context.Context, params *UserM
 // UserManagementCreateCORSOriginParams contains the parameters for CreateCORSOrigin.
 type UserManagementCreateCORSOriginParams struct {
 	// Origin is the origin URL to allow for CORS requests.
-	Origin string `json:"origin"`
+	Origin string `json:"origin" url:"-"`
 }
 
 // CreateCORSOrigin create a CORS origin
@@ -600,7 +600,7 @@ func (s *UserManagementService) GetEmailVerification(ctx context.Context, id str
 // UserManagementResetPasswordParams contains the parameters for ResetPassword.
 type UserManagementResetPasswordParams struct {
 	// Email is the email address of the user requesting a password reset.
-	Email string `json:"email"`
+	Email string `json:"email" url:"-"`
 }
 
 // ResetPassword create a password reset token
@@ -617,9 +617,9 @@ func (s *UserManagementService) ResetPassword(ctx context.Context, params *UserM
 // UserManagementConfirmPasswordResetParams contains the parameters for ConfirmPasswordReset.
 type UserManagementConfirmPasswordResetParams struct {
 	// Token is the password reset token.
-	Token string `json:"token"`
+	Token string `json:"token" url:"-"`
 	// NewPassword is the new password to set for the user.
-	NewPassword string `json:"new_password"`
+	NewPassword string `json:"new_password" url:"-"`
 }
 
 // ConfirmPasswordReset reset the password
@@ -666,17 +666,17 @@ func (s *UserManagementService) List(ctx context.Context, params *UserManagement
 // UserManagementCreateParams contains the parameters for Create.
 type UserManagementCreateParams struct {
 	// Email is the email address of the user.
-	Email string `json:"email"`
+	Email string `json:"email" url:"-"`
 	// FirstName is the first name of the user.
-	FirstName *string `json:"first_name,omitempty"`
+	FirstName *string `json:"first_name,omitempty" url:"-"`
 	// LastName is the last name of the user.
-	LastName *string `json:"last_name,omitempty"`
+	LastName *string `json:"last_name,omitempty" url:"-"`
 	// EmailVerified is whether the user's email has been verified.
-	EmailVerified *bool `json:"email_verified,omitempty"`
+	EmailVerified *bool `json:"email_verified,omitempty" url:"-"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is the external ID of the user.
-	ExternalID *string `json:"external_id,omitempty"`
+	ExternalID *string `json:"external_id,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
 }
@@ -737,19 +737,19 @@ func (s *UserManagementService) Get(ctx context.Context, id string, opts ...Requ
 // UserManagementUpdateParams contains the parameters for Update.
 type UserManagementUpdateParams struct {
 	// Email is the email address of the user.
-	Email *string `json:"email,omitempty"`
+	Email *string `json:"email,omitempty" url:"-"`
 	// FirstName is the first name of the user.
-	FirstName *string `json:"first_name,omitempty"`
+	FirstName *string `json:"first_name,omitempty" url:"-"`
 	// LastName is the last name of the user.
-	LastName *string `json:"last_name,omitempty"`
+	LastName *string `json:"last_name,omitempty" url:"-"`
 	// EmailVerified is whether the user's email has been verified.
-	EmailVerified *bool `json:"email_verified,omitempty"`
+	EmailVerified *bool `json:"email_verified,omitempty" url:"-"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is the external ID of the user.
-	ExternalID *string `json:"external_id,omitempty"`
+	ExternalID *string `json:"external_id,omitempty" url:"-"`
 	// Locale is the user's preferred locale.
-	Locale *string `json:"locale,omitempty"`
+	Locale *string `json:"locale,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
 }
@@ -795,7 +795,7 @@ func (s *UserManagementService) Delete(ctx context.Context, id string, opts ...R
 // UserManagementConfirmEmailChangeParams contains the parameters for ConfirmEmailChange.
 type UserManagementConfirmEmailChangeParams struct {
 	// Code is the one-time code used to confirm the email change.
-	Code string `json:"code"`
+	Code string `json:"code" url:"-"`
 }
 
 // ConfirmEmailChange
@@ -812,7 +812,7 @@ func (s *UserManagementService) ConfirmEmailChange(ctx context.Context, id strin
 // UserManagementSendEmailChangeParams contains the parameters for SendEmailChange.
 type UserManagementSendEmailChangeParams struct {
 	// NewEmail is the new email address to change to.
-	NewEmail string `json:"new_email"`
+	NewEmail string `json:"new_email" url:"-"`
 }
 
 // SendEmailChange code
@@ -829,7 +829,7 @@ func (s *UserManagementService) SendEmailChange(ctx context.Context, id string, 
 // UserManagementVerifyEmailParams contains the parameters for VerifyEmail.
 type UserManagementVerifyEmailParams struct {
 	// Code is the one-time email verification code.
-	Code string `json:"code"`
+	Code string `json:"code" url:"-"`
 }
 
 // VerifyEmail
@@ -894,17 +894,17 @@ func (s *UserManagementService) ListInvitations(ctx context.Context, params *Use
 // UserManagementSendInvitationParams contains the parameters for SendInvitation.
 type UserManagementSendInvitationParams struct {
 	// Email is the email address of the recipient.
-	Email string `json:"email"`
+	Email string `json:"email" url:"-"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
-	OrganizationID *string `json:"organization_id,omitempty"`
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 	// RoleSlug is the [role](https://workos.com/docs/authkit/roles) that the recipient will receive when they join the organization in the invitation.
-	RoleSlug *string `json:"role_slug,omitempty"`
+	RoleSlug *string `json:"role_slug,omitempty" url:"-"`
 	// ExpiresInDays is how many days the invitations will be valid for. Must be between 1 and 30 days. Defaults to 7 days if not specified.
-	ExpiresInDays *int `json:"expires_in_days,omitempty"`
+	ExpiresInDays *int `json:"expires_in_days,omitempty" url:"-"`
 	// InviterUserID is the ID of the [user](https://workos.com/docs/reference/authkit/user) who invites the recipient. The invitation email will mention the name of this user.
-	InviterUserID *string `json:"inviter_user_id,omitempty"`
+	InviterUserID *string `json:"inviter_user_id,omitempty" url:"-"`
 	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
-	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty"`
+	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty" url:"-"`
 }
 
 // SendInvitation send an invitation
@@ -954,7 +954,7 @@ func (s *UserManagementService) AcceptInvitation(ctx context.Context, id string,
 // UserManagementResendInvitationParams contains the parameters for ResendInvitation.
 type UserManagementResendInvitationParams struct {
 	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
-	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty"`
+	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty" url:"-"`
 }
 
 // ResendInvitation resend an invitation
@@ -979,10 +979,21 @@ func (s *UserManagementService) RevokeInvitation(ctx context.Context, id string,
 	return &result, nil
 }
 
+// ListJWTTemplate get JWT template
+// Get the JWT template for the current environment.
+func (s *UserManagementService) ListJWTTemplate(ctx context.Context, opts ...RequestOption) (*JWTTemplateResponse, error) {
+	var result JWTTemplateResponse
+	_, err := s.client.request(ctx, "GET", "/user_management/jwt_template", nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // UserManagementUpdateJWTTemplateParams contains the parameters for UpdateJWTTemplate.
 type UserManagementUpdateJWTTemplateParams struct {
 	// Content is the JWT template content as a Liquid template string.
-	Content string `json:"content"`
+	Content string `json:"content" url:"-"`
 }
 
 // UpdateJWTTemplate update JWT template
@@ -999,9 +1010,9 @@ func (s *UserManagementService) UpdateJWTTemplate(ctx context.Context, params *U
 // UserManagementCreateMagicAuthParams contains the parameters for CreateMagicAuth.
 type UserManagementCreateMagicAuthParams struct {
 	// Email is the email address to send the magic code to.
-	Email string `json:"email"`
+	Email string `json:"email" url:"-"`
 	// InvitationToken is the invitation token to associate with this magic code.
-	InvitationToken *string `json:"invitation_token,omitempty"`
+	InvitationToken *string `json:"invitation_token,omitempty" url:"-"`
 }
 
 // CreateMagicAuth create a Magic Auth code
@@ -1046,9 +1057,9 @@ func (s *UserManagementService) ListOrganizationMemberships(ctx context.Context,
 // UserManagementCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
 type UserManagementCreateOrganizationMembershipParams struct {
 	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
-	UserID string `json:"user_id"`
+	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
-	OrganizationID string `json:"organization_id"`
+	OrganizationID string `json:"organization_id" url:"-"`
 	// Role optionally identifies the role.
 	Role UserManagementRole `url:"-" json:"-"`
 }
@@ -1171,7 +1182,7 @@ func (s *UserManagementService) ReactivateOrganizationMembership(ctx context.Con
 // UserManagementCreateRedirectURIParams contains the parameters for CreateRedirectURI.
 type UserManagementCreateRedirectURIParams struct {
 	// URI is the redirect URI to create.
-	URI string `json:"uri"`
+	URI string `json:"uri" url:"-"`
 }
 
 // CreateRedirectURI create a redirect URI
@@ -1201,4 +1212,38 @@ func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, 
 func (s *UserManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", url.PathEscape(userID), url.PathEscape(applicationID)), nil, nil, nil, opts)
 	return err
+}
+
+// UserManagementListAPIKeysParams contains the parameters for ListAPIKeys.
+type UserManagementListAPIKeysParams struct {
+	PaginationParams
+	// OrganizationID is the ID of the organization to filter user API keys by. When provided, only API keys created against that organization membership are returned.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+}
+
+// ListAPIKeys list API keys for a user
+// Get a list of API keys owned by a specific user.
+func (s *UserManagementService) ListAPIKeys(ctx context.Context, userID string, params *UserManagementListAPIKeysParams, opts ...RequestOption) *Iterator[UserAPIKey] {
+	return newIterator[UserAPIKey](ctx, s.client, "GET", fmt.Sprintf("/user_management/users/%s/api_keys", url.PathEscape(userID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// UserManagementCreateAPIKeyParams contains the parameters for CreateAPIKey.
+type UserManagementCreateAPIKeyParams struct {
+	// Name is a descriptive name for the API key.
+	Name string `json:"name" url:"-"`
+	// OrganizationID is the ID of the organization the user API key is associated with. The user must have an active membership in this organization.
+	OrganizationID string `json:"organization_id" url:"-"`
+	// Permissions is the permission slugs to assign to the API key. Each permission must be enabled for user API keys.
+	Permissions []string `json:"permissions,omitempty" url:"-"`
+}
+
+// CreateAPIKey create an API key for a user
+// Create a new API key owned by a user. The user must have an active membership in the specified organization.
+func (s *UserManagementService) CreateAPIKey(ctx context.Context, userID string, params *UserManagementCreateAPIKeyParams, opts ...RequestOption) (*UserAPIKeyWithValue, error) {
+	var result UserAPIKeyWithValue
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/api_keys", url.PathEscape(userID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

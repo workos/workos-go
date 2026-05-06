@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-04-28T16:39:05.302Z",
+  "generatedAt": "2026-05-06T22:11:11.101Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -50,8 +50,6 @@
     "testdata/api_key_revoked_data.json",
     "testdata/api_key_revoked_data_owner.json",
     "testdata/api_key_validation_response.json",
-    "testdata/api_key_with_value.json",
-    "testdata/api_key_with_value_owner.json",
     "testdata/application_credentials_list_item.json",
     "testdata/assign_role.json",
     "testdata/audit_log_action_json.json",
@@ -165,6 +163,7 @@
     "testdata/create_redirect_uri.json",
     "testdata/create_role.json",
     "testdata/create_user.json",
+    "testdata/create_user_api_key.json",
     "testdata/create_user_invite_options.json",
     "testdata/create_user_organization_membership.json",
     "testdata/create_webhook_endpoint.json",
@@ -262,10 +261,10 @@
     "testdata/jwks_response.json",
     "testdata/jwks_response_keys.json",
     "testdata/jwt_template_response.json",
-    "testdata/list_api_key.json",
     "testdata/list_audit_log_action_json.json",
     "testdata/list_audit_log_schema_json.json",
     "testdata/list_authentication_factor.json",
+    "testdata/list_authorization_permission.json",
     "testdata/list_authorization_resource.json",
     "testdata/list_authorized_connect_application_list_data.json",
     "testdata/list_connect_application.json",
@@ -274,12 +273,16 @@
     "testdata/list_directory_group.json",
     "testdata/list_directory_user_with_groups.json",
     "testdata/list_event_schema.json",
+    "testdata/list_flag.json",
     "testdata/list_group.json",
     "testdata/list_organization.json",
-    "testdata/list_role_assignment.json",
+    "testdata/list_organization_api_key.json",
     "testdata/list_user.json",
+    "testdata/list_user_api_key.json",
     "testdata/list_user_invite.json",
     "testdata/list_user_organization_membership.json",
+    "testdata/list_user_organization_membership_base_list_data.json",
+    "testdata/list_user_role_assignment.json",
     "testdata/list_user_sessions_list_item.json",
     "testdata/list_webhook_endpoint_json.json",
     "testdata/magic_auth.json",
@@ -289,6 +292,8 @@
     "testdata/mfa_totp_session_authenticate_request.json",
     "testdata/new_connect_application_secret.json",
     "testdata/organization.json",
+    "testdata/organization_api_key.json",
+    "testdata/organization_api_key_with_value.json",
     "testdata/organization_created.json",
     "testdata/organization_created_data.json",
     "testdata/organization_deleted.json",
@@ -338,8 +343,6 @@
     "testdata/resend_user_invite_options.json",
     "testdata/revoke_session.json",
     "testdata/role.json",
-    "testdata/role_assignment.json",
-    "testdata/role_assignment_resource.json",
     "testdata/role_created.json",
     "testdata/role_created_data.json",
     "testdata/role_deleted.json",
@@ -372,6 +375,12 @@
     "testdata/update_user_organization_membership.json",
     "testdata/update_webhook_endpoint.json",
     "testdata/user.json",
+    "testdata/user_api_key.json",
+    "testdata/user_api_key_created_data_owner.json",
+    "testdata/user_api_key_owner.json",
+    "testdata/user_api_key_revoked_data_owner.json",
+    "testdata/user_api_key_with_value.json",
+    "testdata/user_api_key_with_value_owner.json",
     "testdata/user_authentication_factor_enroll_response.json",
     "testdata/user_consent_option.json",
     "testdata/user_consent_option_choice.json",
@@ -383,9 +392,13 @@
     "testdata/user_object.json",
     "testdata/user_organization_membership.json",
     "testdata/user_organization_membership_base_list_data.json",
+    "testdata/user_role_assignment.json",
+    "testdata/user_role_assignment_resource.json",
     "testdata/user_sessions_impersonator.json",
     "testdata/user_updated.json",
     "testdata/validate_api_key.json",
+    "testdata/vault_byok_key_deleted.json",
+    "testdata/vault_byok_key_deleted_data.json",
     "testdata/vault_byok_key_verification_completed.json",
     "testdata/vault_byok_key_verification_completed_data.json",
     "testdata/vault_data_created.json",
@@ -426,14 +439,6 @@
     "workos.go"
   ],
   "operations": {
-    "POST /api_keys/validations": {
-      "sdkMethod": "CreateValidation",
-      "service": "api_keys"
-    },
-    "DELETE /api_keys/{id}": {
-      "sdkMethod": "Delete",
-      "service": "api_keys"
-    },
     "POST /auth/challenges/{id}/verify": {
       "sdkMethod": "VerifyChallenge",
       "service": "multi_factor_auth"
@@ -538,6 +543,10 @@
       "sdkMethod": "ListMembershipsForResourceByExternalID",
       "service": "authorization"
     },
+    "GET /authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}/role_assignments": {
+      "sdkMethod": "ListRoleAssignmentsForResourceByExternalID",
+      "service": "authorization"
+    },
     "GET /authorization/resources": {
       "sdkMethod": "ListResources",
       "service": "authorization"
@@ -560,6 +569,10 @@
     },
     "GET /authorization/resources/{resource_id}/organization_memberships": {
       "sdkMethod": "ListMembershipsForResource",
+      "service": "authorization"
+    },
+    "GET /authorization/resources/{resource_id}/role_assignments": {
+      "sdkMethod": "ListRoleAssignmentsForResource",
       "service": "authorization"
     },
     "GET /authorization/roles": {
@@ -970,6 +983,10 @@
       "sdkMethod": "RevokeInvitation",
       "service": "user_management"
     },
+    "GET /user_management/jwt_template": {
+      "sdkMethod": "ListJWTTemplate",
+      "service": "user_management"
+    },
     "PUT /user_management/jwt_template": {
       "sdkMethod": "UpdateJWTTemplate",
       "service": "user_management"
@@ -1069,6 +1086,22 @@
     "POST /widgets/token": {
       "sdkMethod": "CreateToken",
       "service": "widgets"
+    },
+    "POST /api_keys/validations": {
+      "sdkMethod": "CreateValidation",
+      "service": "api_keys"
+    },
+    "DELETE /api_keys/{id}": {
+      "sdkMethod": "Delete",
+      "service": "api_keys"
+    },
+    "GET /user_management/users/{userId}/api_keys": {
+      "sdkMethod": "ListAPIKeys",
+      "service": "user_management"
+    },
+    "POST /user_management/users/{userId}/api_keys": {
+      "sdkMethod": "CreateAPIKey",
+      "service": "user_management"
     },
     "GET /audit_logs/actions": {
       "sdkMethod": "ListActions",

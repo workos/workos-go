@@ -14,7 +14,6 @@ type Client struct {
 	logger     Logger
 	appInfo    appInfo
 
-	apiKeys                                    *APIKeyService
 	multiFactorAuth                            *MultiFactorAuthService
 	connect                                    *ConnectService
 	authorization                              *AuthorizationService
@@ -25,6 +24,7 @@ type Client struct {
 	featureFlags                               *FeatureFlagService
 	organizationDomains                        *OrganizationDomainService
 	organizations                              *OrganizationService
+	apiKeys                                    *APIKeyService
 	groups                                     *GroupService
 	adminPortal                                *AdminPortalService
 	radar                                      *RadarService
@@ -48,7 +48,6 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
-	c.apiKeys = &APIKeyService{client: c}
 	c.multiFactorAuth = &MultiFactorAuthService{client: c}
 	c.connect = &ConnectService{client: c}
 	c.authorization = &AuthorizationService{client: c}
@@ -59,6 +58,7 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.featureFlags = &FeatureFlagService{client: c}
 	c.organizationDomains = &OrganizationDomainService{client: c}
 	c.organizations = &OrganizationService{client: c}
+	c.apiKeys = &APIKeyService{client: c}
 	c.groups = &GroupService{client: c}
 	c.adminPortal = &AdminPortalService{client: c}
 	c.radar = &RadarService{client: c}
@@ -70,11 +70,6 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.passwordless = &PasswordlessService{client: c}
 	c.vault = &VaultService{client: c}
 	return c
-}
-
-// APIKeys returns the APIKeys service.
-func (c *Client) APIKeys() *APIKeyService {
-	return c.apiKeys
 }
 
 // MultiFactorAuth returns the MultiFactorAuth service.
@@ -125,6 +120,11 @@ func (c *Client) OrganizationDomains() *OrganizationDomainService {
 // Organizations returns the Organizations service.
 func (c *Client) Organizations() *OrganizationService {
 	return c.organizations
+}
+
+// APIKeys returns the APIKeys service.
+func (c *Client) APIKeys() *APIKeyService {
+	return c.apiKeys
 }
 
 // Groups returns the Groups service.

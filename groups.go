@@ -27,9 +27,9 @@ func (s *GroupService) ListOrganizationGroups(ctx context.Context, organizationI
 // GroupsCreateOrganizationGroupParams contains the parameters for CreateOrganizationGroup.
 type GroupsCreateOrganizationGroupParams struct {
 	// Name is the name of the Group.
-	Name string `json:"name"`
+	Name string `json:"name" url:"-"`
 	// Description is an optional description of the Group.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"-"`
 }
 
 // CreateOrganizationGroup create a group
@@ -57,9 +57,9 @@ func (s *GroupService) GetOrganizationGroup(ctx context.Context, organizationID 
 // GroupsUpdateOrganizationGroupParams contains the parameters for UpdateOrganizationGroup.
 type GroupsUpdateOrganizationGroupParams struct {
 	// Name is the name of the Group.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"-"`
 	// Description is an optional description of the Group.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"-"`
 }
 
 // UpdateOrganizationGroup update a group
@@ -94,7 +94,7 @@ func (s *GroupService) ListOrganizationMemberships(ctx context.Context, organiza
 // GroupsCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
 type GroupsCreateOrganizationMembershipParams struct {
 	// OrganizationMembershipID is the ID of the Organization Membership to add to the group.
-	OrganizationMembershipID string `json:"organization_membership_id"`
+	OrganizationMembershipID string `json:"organization_membership_id" url:"-"`
 }
 
 // CreateOrganizationMembership add a member to a Group

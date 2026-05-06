@@ -14,11 +14,11 @@ type AdminPortalService struct {
 // AdminPortalGenerateLinkParams contains the parameters for GenerateLink.
 type AdminPortalGenerateLinkParams struct {
 	// ReturnURL is the URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
-	ReturnURL *string `json:"return_url,omitempty"`
+	ReturnURL *string `json:"return_url,omitempty" url:"-"`
 	// SuccessURL is the URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
-	SuccessURL *string `json:"success_url,omitempty"`
+	SuccessURL *string `json:"success_url,omitempty" url:"-"`
 	// Organization is an [Organization](https://workos.com/docs/reference/organization) identifier.
-	Organization string `json:"organization"`
+	Organization string `json:"organization" url:"-"`
 	// Intent is       The intent of the Admin Portal.
 	// - `sso` - Launch Admin Portal for creating SSO connections
 	// - `dsync` - Launch Admin Portal for creating Directory Sync connections
@@ -27,11 +27,11 @@ type AdminPortalGenerateLinkParams struct {
 	// - `domain_verification` - Launch Admin Portal for Domain Verification
 	// - `certificate_renewal` - Launch Admin Portal for renewing SAML Certificates
 	// - `bring_your_own_key` - Launch Admin Portal for configuring Bring Your Own Key
-	Intent *GenerateLinkIntent `json:"intent,omitempty"`
+	Intent *GenerateLinkIntent `json:"intent,omitempty" url:"-"`
 	// IntentOptions is options to configure the Admin Portal based on the intent.
-	IntentOptions *IntentOptions `json:"intent_options,omitempty"`
+	IntentOptions *IntentOptions `json:"intent_options,omitempty" url:"-"`
 	// ItContactEmails is the email addresses of the IT contacts to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
-	ItContactEmails []string `json:"it_contact_emails,omitempty"`
+	ItContactEmails []string `json:"it_contact_emails,omitempty" url:"-"`
 }
 
 // GenerateLink generate a Portal Link

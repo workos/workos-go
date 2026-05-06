@@ -27,7 +27,7 @@ func (s *AuditLogService) GetOrganizationAuditLogsRetention(ctx context.Context,
 // AuditLogsUpdateOrganizationAuditLogsRetentionParams contains the parameters for UpdateOrganizationAuditLogsRetention.
 type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
 	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` and `365`.
-	RetentionPeriodInDays int `json:"retention_period_in_days"`
+	RetentionPeriodInDays int `json:"retention_period_in_days" url:"-"`
 }
 
 // UpdateOrganizationAuditLogsRetention set Retention
@@ -66,11 +66,11 @@ func (s *AuditLogService) ListActionSchemas(ctx context.Context, actionName stri
 // AuditLogsCreateSchemaParams contains the parameters for CreateSchema.
 type AuditLogsCreateSchemaParams struct {
 	// Actor is the metadata schema for the actor.
-	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
+	Actor *AuditLogSchemaActor `json:"actor,omitempty" url:"-"`
 	// Targets is the list of targets for the schema.
-	Targets []*AuditLogSchemaTarget `json:"targets"`
+	Targets []*AuditLogSchemaTarget `json:"targets" url:"-"`
 	// Metadata is optional JSON schema for event metadata.
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty" url:"-"`
 }
 
 // CreateSchema
@@ -87,9 +87,9 @@ func (s *AuditLogService) CreateSchema(ctx context.Context, actionName string, p
 // AuditLogsCreateEventParams contains the parameters for CreateEvent.
 type AuditLogsCreateEventParams struct {
 	// OrganizationID is the unique ID of the Organization.
-	OrganizationID string `json:"organization_id"`
+	OrganizationID string `json:"organization_id" url:"-"`
 	// Event is the audit log event to create.
-	Event *AuditLogEvent `json:"event"`
+	Event *AuditLogEvent `json:"event" url:"-"`
 }
 
 // CreateEvent
@@ -109,23 +109,23 @@ func (s *AuditLogService) CreateEvent(ctx context.Context, params *AuditLogsCrea
 // AuditLogsCreateExportParams contains the parameters for CreateExport.
 type AuditLogsCreateExportParams struct {
 	// OrganizationID is the unique ID of the Organization.
-	OrganizationID string `json:"organization_id"`
+	OrganizationID string `json:"organization_id" url:"-"`
 	// RangeStart is iso-8601 value for start of the export range.
-	RangeStart string `json:"range_start"`
+	RangeStart string `json:"range_start" url:"-"`
 	// RangeEnd is iso-8601 value for end of the export range.
-	RangeEnd string `json:"range_end"`
+	RangeEnd string `json:"range_end" url:"-"`
 	// Actions is list of actions to filter against.
-	Actions []string `json:"actions,omitempty"`
+	Actions []string `json:"actions,omitempty" url:"-"`
 	// Actors is deprecated. Use `actor_names` instead.
 	//
 	// Deprecated: this field is deprecated.
-	Actors []string `json:"actors,omitempty"`
+	Actors []string `json:"actors,omitempty" url:"-"`
 	// ActorNames is list of actor names to filter against.
-	ActorNames []string `json:"actor_names,omitempty"`
+	ActorNames []string `json:"actor_names,omitempty" url:"-"`
 	// ActorIDs is list of actor IDs to filter against.
-	ActorIDs []string `json:"actor_ids,omitempty"`
+	ActorIDs []string `json:"actor_ids,omitempty" url:"-"`
 	// Targets is list of target types to filter against.
-	Targets []string `json:"targets,omitempty"`
+	Targets []string `json:"targets,omitempty" url:"-"`
 }
 
 // CreateExport

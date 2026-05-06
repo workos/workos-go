@@ -2,6 +2,24 @@
 
 package workos
 
+// PaginationOrder represents pagination order values.
+type PaginationOrder string
+
+const (
+	PaginationOrderNormal PaginationOrder = "normal"
+	PaginationOrderDesc   PaginationOrder = "desc"
+	PaginationOrderAsc    PaginationOrder = "asc"
+)
+
+// VaultByokKeyProvider represents vault byok key provider values.
+type VaultByokKeyProvider string
+
+const (
+	VaultByokKeyProviderAwsKms        VaultByokKeyProvider = "AWS_KMS"
+	VaultByokKeyProviderGcpKms        VaultByokKeyProvider = "GCP_KMS"
+	VaultByokKeyProviderAzureKeyVault VaultByokKeyProvider = "AZURE_KEY_VAULT"
+)
+
 // OrganizationDomainDataState represents organization domain data state values.
 type OrganizationDomainDataState string
 
@@ -390,9 +408,10 @@ type DirectoryUserWithGroupsState = DirectoryUserState
 type EventContextActorSource string
 
 const (
-	EventContextActorSourceAPI       EventContextActorSource = "api"
-	EventContextActorSourceDashboard EventContextActorSource = "dashboard"
-	EventContextActorSourceSystem    EventContextActorSource = "system"
+	EventContextActorSourceAPI         EventContextActorSource = "api"
+	EventContextActorSourceDashboard   EventContextActorSource = "dashboard"
+	EventContextActorSourceAdminPortal EventContextActorSource = "admin_portal"
+	EventContextActorSourceSystem      EventContextActorSource = "system"
 )
 
 // DirectoryUserState represents directory user state values.
@@ -736,15 +755,6 @@ type SessionRevokedDataAuthMethod = SessionCreatedDataAuthMethod
 // SessionRevokedDataStatus is an alias for SessionCreatedDataStatus.
 type SessionRevokedDataStatus = SessionCreatedDataStatus
 
-// VaultByokKeyVerificationCompletedDataKeyProvider represents vault byok key verification completed data key provider values.
-type VaultByokKeyVerificationCompletedDataKeyProvider string
-
-const (
-	VaultByokKeyVerificationCompletedDataKeyProviderAwsKms        VaultByokKeyVerificationCompletedDataKeyProvider = "AWS_KMS"
-	VaultByokKeyVerificationCompletedDataKeyProviderGcpKms        VaultByokKeyVerificationCompletedDataKeyProvider = "GCP_KMS"
-	VaultByokKeyVerificationCompletedDataKeyProviderAzureKeyVault VaultByokKeyVerificationCompletedDataKeyProvider = "AZURE_KEY_VAULT"
-)
-
 // VaultDataCreatedDataActorSource represents vault data created data actor source values.
 type VaultDataCreatedDataActorSource string
 
@@ -998,9 +1008,6 @@ type UserSessionsStatus = SessionCreatedDataStatus
 // DataIntegrationsListResponseDataConnectedAccountState is an alias for ConnectedAccountState.
 type DataIntegrationsListResponseDataConnectedAccountState = ConnectedAccountState
 
-// AuthorizationOrder is an alias for ApplicationsOrder.
-type AuthorizationOrder = ApplicationsOrder
-
 // AuthorizationAssignment represents authorization assignment values.
 type AuthorizationAssignment string
 
@@ -1008,21 +1015,6 @@ const (
 	AuthorizationAssignmentDirect   AuthorizationAssignment = "direct"
 	AuthorizationAssignmentIndirect AuthorizationAssignment = "indirect"
 )
-
-// PermissionsOrder is an alias for ApplicationsOrder.
-type PermissionsOrder = ApplicationsOrder
-
-// ApplicationsOrder represents applications order values.
-type ApplicationsOrder string
-
-const (
-	ApplicationsOrderNormal ApplicationsOrder = "normal"
-	ApplicationsOrderDesc   ApplicationsOrder = "desc"
-	ApplicationsOrderAsc    ApplicationsOrder = "asc"
-)
-
-// ConnectionsOrder is an alias for ApplicationsOrder.
-type ConnectionsOrder = ApplicationsOrder
 
 // ConnectionsConnectionType represents connections connection type values.
 type ConnectionsConnectionType string
@@ -1077,33 +1069,6 @@ const (
 	ConnectionsConnectionTypeVMwareSAML             ConnectionsConnectionType = "VMwareSAML"
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
-
-// DirectoriesOrder is an alias for ApplicationsOrder.
-type DirectoriesOrder = ApplicationsOrder
-
-// DirectoryGroupsOrder is an alias for ApplicationsOrder.
-type DirectoryGroupsOrder = ApplicationsOrder
-
-// DirectoryUsersOrder is an alias for ApplicationsOrder.
-type DirectoryUsersOrder = ApplicationsOrder
-
-// EventsOrder is an alias for ApplicationsOrder.
-type EventsOrder = ApplicationsOrder
-
-// FeatureFlagsOrder is an alias for ApplicationsOrder.
-type FeatureFlagsOrder = ApplicationsOrder
-
-// OrganizationsOrder is an alias for ApplicationsOrder.
-type OrganizationsOrder = ApplicationsOrder
-
-// OrganizationsAPIKeysOrder is an alias for ApplicationsOrder.
-type OrganizationsAPIKeysOrder = ApplicationsOrder
-
-// OrganizationsFeatureFlagsOrder is an alias for ApplicationsOrder.
-type OrganizationsFeatureFlagsOrder = ApplicationsOrder
-
-// GroupsOrder is an alias for ApplicationsOrder.
-type GroupsOrder = ApplicationsOrder
 
 // RadarType is an alias for RadarStandaloneResponseBlocklistType.
 type RadarType = RadarStandaloneResponseBlocklistType
@@ -1163,32 +1128,5 @@ const (
 	UserManagementAuthenticationProviderXeroOAuth              UserManagementAuthenticationProvider = "XeroOAuth"
 )
 
-// UserManagementUsersOrder is an alias for ApplicationsOrder.
-type UserManagementUsersOrder = ApplicationsOrder
-
-// UserManagementInvitationsOrder is an alias for ApplicationsOrder.
-type UserManagementInvitationsOrder = ApplicationsOrder
-
-// UserManagementOrganizationMembershipOrder is an alias for ApplicationsOrder.
-type UserManagementOrganizationMembershipOrder = ApplicationsOrder
-
 // UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
 type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
-
-// UserManagementOrganizationMembershipGroupsOrder is an alias for ApplicationsOrder.
-type UserManagementOrganizationMembershipGroupsOrder = ApplicationsOrder
-
-// UserManagementUsersFeatureFlagsOrder is an alias for ApplicationsOrder.
-type UserManagementUsersFeatureFlagsOrder = ApplicationsOrder
-
-// UserManagementUsersAuthorizedApplicationsOrder is an alias for ApplicationsOrder.
-type UserManagementUsersAuthorizedApplicationsOrder = ApplicationsOrder
-
-// UserManagementMultiFactorAuthenticationOrder is an alias for ApplicationsOrder.
-type UserManagementMultiFactorAuthenticationOrder = ApplicationsOrder
-
-// WebhooksOrder is an alias for ApplicationsOrder.
-type WebhooksOrder = ApplicationsOrder
-
-// AuditLogsOrder is an alias for ApplicationsOrder.
-type AuditLogsOrder = ApplicationsOrder

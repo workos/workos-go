@@ -16,19 +16,19 @@ type RadarService struct {
 // RadarCreateAttemptParams contains the parameters for CreateAttempt.
 type RadarCreateAttemptParams struct {
 	// IPAddress is the IP address of the request to assess.
-	IPAddress string `json:"ip_address"`
+	IPAddress string `json:"ip_address" url:"-"`
 	// UserAgent is the user agent string of the request to assess.
-	UserAgent string `json:"user_agent"`
+	UserAgent string `json:"user_agent" url:"-"`
 	// Email is the email address of the user making the request.
-	Email string `json:"email"`
+	Email string `json:"email" url:"-"`
 	// AuthMethod is the authentication method being used.
-	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method"`
+	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method" url:"-"`
 	// Action is the action being performed.
-	Action RadarStandaloneAssessRequestAction `json:"action"`
+	Action RadarStandaloneAssessRequestAction `json:"action" url:"-"`
 	// DeviceFingerprint is an optional device fingerprint for the request.
-	DeviceFingerprint *string `json:"device_fingerprint,omitempty"`
+	DeviceFingerprint *string `json:"device_fingerprint,omitempty" url:"-"`
 	// BotScore is an optional bot detection score for the request.
-	BotScore *string `json:"bot_score,omitempty"`
+	BotScore *string `json:"bot_score,omitempty" url:"-"`
 }
 
 // CreateAttempt create an attempt
@@ -45,9 +45,9 @@ func (s *RadarService) CreateAttempt(ctx context.Context, params *RadarCreateAtt
 // RadarUpdateAttemptParams contains the parameters for UpdateAttempt.
 type RadarUpdateAttemptParams struct {
 	// ChallengeStatus is set to `"success"` to mark the challenge as completed.
-	ChallengeStatus *string `json:"challenge_status,omitempty"`
+	ChallengeStatus *string `json:"challenge_status,omitempty" url:"-"`
 	// AttemptStatus is set to `"success"` to mark the authentication attempt as successful.
-	AttemptStatus *string `json:"attempt_status,omitempty"`
+	AttemptStatus *string `json:"attempt_status,omitempty" url:"-"`
 }
 
 // UpdateAttempt update a Radar attempt
@@ -60,7 +60,7 @@ func (s *RadarService) UpdateAttempt(ctx context.Context, id string, params *Rad
 // RadarAddListEntryParams contains the parameters for AddListEntry.
 type RadarAddListEntryParams struct {
 	// Entry is the value to add to the list. Must match the format of the list type (e.g. a valid IP address for `ip_address`, a valid email for `email`).
-	Entry string `json:"entry"`
+	Entry string `json:"entry" url:"-"`
 }
 
 // AddListEntry add an entry to a Radar list
@@ -77,7 +77,7 @@ func (s *RadarService) AddListEntry(ctx context.Context, typeParam RadarType, ac
 // RadarRemoveListEntryParams contains the parameters for RemoveListEntry.
 type RadarRemoveListEntryParams struct {
 	// Entry is the value to remove from the list. Must match an existing entry.
-	Entry string `json:"entry"`
+	Entry string `json:"entry" url:"-"`
 }
 
 // RemoveListEntry remove an entry from a Radar list
