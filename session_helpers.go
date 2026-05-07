@@ -179,10 +179,20 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		OrganizationID: orgID,
 	}, opts...)
 	if err != nil {
+		// Distinguish a permanently revoked / invalid refresh token (401
+		// invalid_grant) from a transient failure (5xx, network errors,
+		// rate limit). Callers can inspect the second return value via
+		// errors.As to recover the typed *APIError when they need more
+		// detail.
+		reason := "refresh_failed"
+		var apiErr *APIError
+		if errors.As(err, &apiErr) && apiErr.StatusCode == 401 && apiErr.ErrorCode == "invalid_grant" {
+			reason = "refresh_token_revoked"
+		}
 		return &RefreshSessionResult{
 			Authenticated: false,
-			Reason:        "refresh_failed",
-		}, nil
+			Reason:        reason,
+		}, err
 	}
 
 	newSession := &SessionData{
