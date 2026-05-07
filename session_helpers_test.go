@@ -10,7 +10,11 @@ import (
 	"github.com/workos/workos-go/v8"
 )
 
-const testCookiePassword = "test-cookie-password-for-session-helpers"
+// testCookiePassword is a valid 64-char hex string (decodes to 32 bytes).
+const testCookiePassword = "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+
+// wrongCookiePassword is a different valid 64-char hex string for negative tests.
+const wrongCookiePassword = "1122334455667788990011223344556677889900112233445566778899001122"
 
 // buildFakeJWT builds a fake JWT: header.payload.signature
 func buildFakeJWT() string {
@@ -132,7 +136,7 @@ func TestAuthenticateSession_WrongPassword(t *testing.T) {
 	require.NoError(t, err)
 
 	// Try to unseal with the wrong password
-	result, err := workos.AuthenticateSession(sealed, "wrong-password")
+	result, err := workos.AuthenticateSession(sealed, wrongCookiePassword)
 	require.NoError(t, err)
 	require.False(t, result.Authenticated)
 	require.Equal(t, "invalid_session_cookie", result.Reason)

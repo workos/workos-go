@@ -9,8 +9,14 @@ import (
 	"github.com/workos/workos-go/v8"
 )
 
+// testPassword is a valid 64-char hex string (decodes to 32 bytes).
+const testPassword = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+// otherPassword is a different valid 64-char hex string for negative tests.
+const otherPassword = "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+
 func TestSealData_UnsealData_RoundTrip(t *testing.T) {
-	password := "my-super-secret-password"
+	password := testPassword
 	data := map[string]interface{}{
 		"user_id": "user_123",
 		"email":   "test@example.com",
@@ -29,7 +35,7 @@ func TestSealData_UnsealData_RoundTrip(t *testing.T) {
 }
 
 func TestUnsealData_WrongPassword(t *testing.T) {
-	password := "correct-password"
+	password := testPassword
 	data := map[string]interface{}{
 		"secret": "value",
 	}
@@ -37,9 +43,25 @@ func TestUnsealData_WrongPassword(t *testing.T) {
 	sealed, err := workos.SealData(data, password)
 	require.NoError(t, err)
 
-	_, err = workos.UnsealData(sealed, "wrong-password")
+	_, err = workos.UnsealData(sealed, otherPassword)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to decrypt")
+}
+
+func TestSealData_RejectsShortPassword(t *testing.T) {
+	data := map[string]interface{}{"key": "value"}
+	_, err := workos.SealData(data, "too-short")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "64-character hex string")
+}
+
+func TestSealData_RejectsNonHexPassword(t *testing.T) {
+	data := map[string]interface{}{"key": "value"}
+	// 64 characters but not hex.
+	notHex := "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+	_, err := workos.SealData(data, notHex)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "valid hex string")
 }
 
 func TestSealData_HexKey(t *testing.T) {
@@ -58,7 +80,7 @@ func TestSealData_HexKey(t *testing.T) {
 }
 
 func TestSealData_NestedData(t *testing.T) {
-	password := "test-password"
+	password := testPassword
 	data := map[string]interface{}{
 		"user": map[string]interface{}{
 			"name":  "Alice",
@@ -87,7 +109,7 @@ func TestSealData_NestedData(t *testing.T) {
 }
 
 func TestSealData_EmptyMap(t *testing.T) {
-	password := "test-password"
+	password := testPassword
 	data := map[string]interface{}{}
 
 	sealed, err := workos.SealData(data, password)
@@ -99,7 +121,7 @@ func TestSealData_EmptyMap(t *testing.T) {
 }
 
 func TestSealData_ProducesDifferentCiphertexts(t *testing.T) {
-	password := "test-password"
+	password := testPassword
 	data := map[string]interface{}{"key": "value"}
 
 	sealed1, err := workos.SealData(data, password)
@@ -120,13 +142,13 @@ func TestSealData_ProducesDifferentCiphertexts(t *testing.T) {
 }
 
 func TestUnsealData_InvalidBase64(t *testing.T) {
-	_, err := workos.UnsealData("not-valid-base64!!!", "password")
+	_, err := workos.UnsealData("not-valid-base64!!!", testPassword)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to decode")
 }
 
 func TestUnsealData_TruncatedCiphertext(t *testing.T) {
 	// Very short base64 that decodes to fewer bytes than a GCM nonce.
-	_, err := workos.UnsealData("AQID", "password")
+	_, err := workos.UnsealData("AQID", testPassword)
 	require.Error(t, err)
 }
