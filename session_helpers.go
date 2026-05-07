@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // SessionData represents the unsealed session cookie data.
@@ -30,7 +31,12 @@ type AuthenticateSessionResult struct {
 	Entitlements   []string
 	User           *User
 	Impersonator   *AuthenticateResponseImpersonator
-	Reason         string // populated on failure: "no_session_cookie_provided", "invalid_session_cookie", "invalid_jwt", etc.
+	// NeedsRefresh is true when the session cookie was structurally valid
+	// but the access-token JWT has expired. Callers should refresh the
+	// session (e.g. via Session.Refresh) before treating the user as
+	// unauthenticated.
+	NeedsRefresh bool
+	Reason       string // populated on failure: "no_session_cookie_provided", "invalid_session_cookie", "invalid_jwt", "session_expired", etc.
 }
 
 // JWTClaims represents the claims extracted from a session JWT payload.
@@ -40,6 +46,9 @@ type JWTClaims struct {
 	Role           string   `json:"role"`
 	Permissions    []string `json:"permissions"`
 	Entitlements   []string `json:"entitlements"`
+	// Exp is the JWT expiration claim (seconds since the Unix epoch). Zero
+	// when the token did not include an `exp` claim.
+	Exp int64 `json:"exp"`
 }
 
 // RefreshSessionResult holds the result of refreshing a session.
@@ -97,6 +106,23 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 		return &AuthenticateSessionResult{
 			Authenticated: false,
 			Reason:        "invalid_jwt",
+		}, nil
+	}
+
+	// Enforce JWT expiration. Treat tokens whose `exp` claim is in the past
+	// as expired and signal that the caller should refresh the session.
+	if claims.Exp != 0 && time.Now().Unix() > claims.Exp {
+		return &AuthenticateSessionResult{
+			Authenticated:  false,
+			NeedsRefresh:   true,
+			SessionID:      claims.SessionID,
+			OrganizationID: claims.OrganizationID,
+			Role:           claims.Role,
+			Permissions:    claims.Permissions,
+			Entitlements:   claims.Entitlements,
+			User:           session.User,
+			Impersonator:   session.Impersonator,
+			Reason:         "session_expired",
 		}, nil
 	}
 
