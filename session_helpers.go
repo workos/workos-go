@@ -235,7 +235,7 @@ func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...Req
 		baseURL = s.client.baseURL
 	}
 
-	logoutURL := fmt.Sprintf("%s/user_management/sessions/logout?session_id=%s", baseURL, result.SessionID)
+	logoutURL := fmt.Sprintf("%s/user_management/sessions/logout?session_id=%s", baseURL, url.QueryEscape(result.SessionID))
 	if returnTo != "" {
 		logoutURL += "&return_to=" + url.QueryEscape(returnTo)
 	}
