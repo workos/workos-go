@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // PasswordlessService handles Passwordless session operations.
@@ -48,6 +49,6 @@ func (s *PasswordlessService) CreateSession(ctx context.Context, params *Passwor
 
 // SendSession sends the magic-link email for a session (POST /passwordless/sessions/{id}/send).
 func (s *PasswordlessService) SendSession(ctx context.Context, sessionID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/passwordless/sessions/%s/send", sessionID), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/passwordless/sessions/%s/send", url.PathEscape(sessionID)), nil, nil, nil, opts)
 	return err
 }
