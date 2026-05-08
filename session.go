@@ -162,8 +162,5 @@ func deriveKey(password string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("workos: cookie password must be a valid hex string: %w", err)
 	}
-	if len(decoded) != 32 {
-		return nil, fmt.Errorf("workos: cookie password must decode to exactly 32 bytes; got %d", len(decoded))
-	}
 	return decoded, nil
 }
