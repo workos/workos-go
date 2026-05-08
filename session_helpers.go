@@ -221,13 +221,17 @@ func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...Req
 		return "", errors.New("workos: no session data provided")
 	}
 
-	// Authenticate to extract the session ID.
+	// Extract the session ID from the cookie. We deliberately do not require
+	// result.Authenticated here: an expired access token (Authenticated=false,
+	// Reason=session_expired) still has a valid SessionID, and logging out
+	// after expiry is the common case. The WorkOS logout endpoint accepts the
+	// session ID regardless of access-token freshness.
 	result, err := s.Authenticate()
 	if err != nil {
 		return "", fmt.Errorf("workos: failed to authenticate session: %w", err)
 	}
-	if !result.Authenticated || result.SessionID == "" {
-		return "", errors.New("workos: session is not authenticated or has no session ID")
+	if result.SessionID == "" {
+		return "", errors.New("workos: session has no session ID")
 	}
 
 	baseURL := defaultBaseURL
