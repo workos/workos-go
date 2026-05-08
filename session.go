@@ -6,6 +6,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -80,9 +81,8 @@ func unsealToBytes(sealed string, password string) ([]byte, error) {
 }
 
 // Seal encrypts data of any JSON-serializable type using AES-256-GCM.
-// The password MUST be a 64-character hex string that decodes to exactly
-// 32 bytes (256 bits). Anything else returns an error. Generate a suitable
-// value with `openssl rand -hex 32` and store it as a secret.
+// The password should be a hex-encoded 32-byte key. If the password is not
+// valid hex or not the right length, it is hashed with SHA-256 to derive a key.
 // Returns a base64-encoded sealed string.
 func Seal[T any](data T, password string) (string, error) {
 	plaintext, err := json.Marshal(data)
@@ -143,24 +143,19 @@ func unsealSession(sealed string, password string) (*SessionData, error) {
 }
 
 // deriveKey derives a 32-byte AES key from the password.
-//
-// The password MUST be a 64-character lowercase or uppercase hex string that
-// decodes to exactly 32 bytes (256 bits) of high-entropy key material.
-// Anything else is rejected with an error. Generate a suitable value with
-// `openssl rand -hex 32` (or any cryptographically secure equivalent) and
-// store it as a secret.
-//
-// Note: this is a strict-mode change. Earlier versions silently accepted any
-// password by hashing it with SHA-256, which gave a misleading sense of
-// security for short or low-entropy values. Short passwords now error at
-// SDK init / first call rather than producing a weak key.
+// If the password is a valid hex-encoded 32-byte string (64 hex chars), it is decoded directly.
+// Otherwise, the password is hashed with SHA-256.
+// deriveKey derives a 32-byte AES key from the password.
+// If the password is a valid hex-encoded 32-byte string (64 hex chars), it is
+// decoded directly. Otherwise, the password is hashed with SHA-256 to derive
+// a key. Note: non-hex passwords of any length are silently accepted and
+// hashed rather than rejected.
 func deriveKey(password string) ([]byte, error) {
-	if len(password) != 64 {
-		return nil, fmt.Errorf("workos: cookie password must be a 64-character hex string (32 bytes); got length %d", len(password))
-	}
 	decoded, err := hex.DecodeString(password)
-	if err != nil {
-		return nil, fmt.Errorf("workos: cookie password must be a valid hex string: %w", err)
+	if err == nil && len(decoded) == 32 {
+		return decoded, nil
 	}
-	return decoded, nil
+
+	hash := sha256.Sum256([]byte(password))
+	return hash[:], nil
 }

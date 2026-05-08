@@ -127,15 +127,9 @@ fmt.Println(event.Event, event.ID)
 
 ## Session Management
 
-Authenticate and refresh user sessions using sealed cookies.
-
-The `cookiePassword` MUST be a 64-character hex string that decodes to
-exactly 32 bytes (256 bits) of high-entropy key material. Anything else
-returns an error. Generate one with `openssl rand -hex 32` (or any
-cryptographically secure equivalent) and load it from a secret store.
+Authenticate and refresh user sessions using sealed cookies:
 
 ```go
-// cookiePassword: 64-char hex string, e.g. from `openssl rand -hex 32`
 session := workos.NewSession(client, sealedCookie, cookiePassword)
 
 result, err := session.Authenticate()
