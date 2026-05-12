@@ -57,6 +57,13 @@ type RefreshSessionResult struct {
 	SealedSession string
 	Session       *SessionData
 	Reason        string
+	// Err is the underlying error that produced an authentication-level
+	// failure (e.g. a *APIError from AuthenticateWithRefreshToken). It is
+	// populated alongside Reason on the "refresh_token_revoked" and
+	// "refresh_failed" paths so callers can recover status code, error
+	// code, and request ID via errors.As — without changing Refresh's
+	// `(result, nil)` return contract.
+	Err error
 }
 
 // Session provides session cookie management.
@@ -181,9 +188,10 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 	if err != nil {
 		// Distinguish a permanently revoked / invalid refresh token (401
 		// invalid_grant) from a transient failure (5xx, network errors,
-		// rate limit). Callers can inspect the second return value via
-		// errors.As to recover the typed *APIError when they need more
-		// detail.
+		// rate limit). The underlying error is exposed on result.Err so
+		// callers can recover the typed *APIError via errors.As without
+		// changing Refresh's `(result, nil)` return contract for
+		// authentication-level failures.
 		reason := "refresh_failed"
 		var apiErr *APIError
 		if errors.As(err, &apiErr) && apiErr.StatusCode == 401 && apiErr.ErrorCode == "invalid_grant" {
@@ -192,7 +200,8 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		return &RefreshSessionResult{
 			Authenticated: false,
 			Reason:        reason,
-		}, err
+			Err:           err,
+		}, nil
 	}
 
 	newSession := &SessionData{
