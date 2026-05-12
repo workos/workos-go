@@ -111,7 +111,7 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 
 	// Enforce JWT expiration. Treat tokens whose `exp` claim is in the past
 	// as expired and signal that the caller should refresh the session.
-	if claims.Exp != 0 && time.Now().Unix() > claims.Exp {
+	if claims.Exp != 0 && time.Now().Unix() >= claims.Exp {
 		return &AuthenticateSessionResult{
 			Authenticated:  false,
 			NeedsRefresh:   true,
