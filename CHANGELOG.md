@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.0.1](https://github.com/workos/workos-go/compare/v8.0.0...v8.0.1) (2026-05-13)
+
+
+### Bug Fixes
+
+* add URL escaping, JWT exp, and refresh errors ([#548](https://github.com/workos/workos-go/issues/548)) ([d6ba223](https://github.com/workos/workos-go/commit/d6ba223172fdd60c13cdbfdd7cf6c4319b876599))
+
 ## [8.0.0](https://github.com/workos/workos-go/compare/v7.1.2...v8.0.0) (2026-05-06)
 
 
