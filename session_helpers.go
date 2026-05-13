@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // SessionData represents the unsealed session cookie data.
@@ -30,7 +31,12 @@ type AuthenticateSessionResult struct {
 	Entitlements   []string
 	User           *User
 	Impersonator   *AuthenticateResponseImpersonator
-	Reason         string // populated on failure: "no_session_cookie_provided", "invalid_session_cookie", "invalid_jwt", etc.
+	// NeedsRefresh is true when the session cookie was structurally valid
+	// but the access-token JWT has expired. Callers should refresh the
+	// session (e.g. via Session.Refresh) before treating the user as
+	// unauthenticated.
+	NeedsRefresh bool
+	Reason       string // populated on failure: "no_session_cookie_provided", "invalid_session_cookie", "invalid_jwt", "session_expired", etc.
 }
 
 // JWTClaims represents the claims extracted from a session JWT payload.
@@ -40,6 +46,9 @@ type JWTClaims struct {
 	Role           string   `json:"role"`
 	Permissions    []string `json:"permissions"`
 	Entitlements   []string `json:"entitlements"`
+	// Exp is the JWT expiration claim (seconds since the Unix epoch). Zero
+	// when the token did not include an `exp` claim.
+	Exp int64 `json:"exp"`
 }
 
 // RefreshSessionResult holds the result of refreshing a session.
@@ -48,6 +57,13 @@ type RefreshSessionResult struct {
 	SealedSession string
 	Session       *SessionData
 	Reason        string
+	// Err is the underlying error that produced an authentication-level
+	// failure (e.g. a *APIError from AuthenticateWithRefreshToken). It is
+	// populated alongside Reason on the "refresh_token_revoked" and
+	// "refresh_failed" paths so callers can recover status code, error
+	// code, and request ID via errors.As — without changing Refresh's
+	// `(result, nil)` return contract.
+	Err error
 }
 
 // Session provides session cookie management.
@@ -97,6 +113,23 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 		return &AuthenticateSessionResult{
 			Authenticated: false,
 			Reason:        "invalid_jwt",
+		}, nil
+	}
+
+	// Enforce JWT expiration. Treat tokens whose `exp` claim is in the past
+	// as expired and signal that the caller should refresh the session.
+	if claims.Exp != 0 && time.Now().Unix() >= claims.Exp {
+		return &AuthenticateSessionResult{
+			Authenticated:  false,
+			NeedsRefresh:   true,
+			SessionID:      claims.SessionID,
+			OrganizationID: claims.OrganizationID,
+			Role:           claims.Role,
+			Permissions:    claims.Permissions,
+			Entitlements:   claims.Entitlements,
+			User:           session.User,
+			Impersonator:   session.Impersonator,
+			Reason:         "session_expired",
 		}, nil
 	}
 
@@ -153,9 +186,21 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		OrganizationID: orgID,
 	}, opts...)
 	if err != nil {
+		// Distinguish a permanently revoked / invalid refresh token (401
+		// invalid_grant) from a transient failure (5xx, network errors,
+		// rate limit). The underlying error is exposed on result.Err so
+		// callers can recover the typed *APIError via errors.As without
+		// changing Refresh's `(result, nil)` return contract for
+		// authentication-level failures.
+		reason := "refresh_failed"
+		var apiErr *APIError
+		if errors.As(err, &apiErr) && apiErr.StatusCode == 401 && apiErr.ErrorCode == "invalid_grant" {
+			reason = "refresh_token_revoked"
+		}
 		return &RefreshSessionResult{
 			Authenticated: false,
-			Reason:        "refresh_failed",
+			Reason:        reason,
+			Err:           err,
 		}, nil
 	}
 
@@ -185,13 +230,17 @@ func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...Req
 		return "", errors.New("workos: no session data provided")
 	}
 
-	// Authenticate to extract the session ID.
+	// Extract the session ID from the cookie. We deliberately do not require
+	// result.Authenticated here: an expired access token (Authenticated=false,
+	// Reason=session_expired) still has a valid SessionID, and logging out
+	// after expiry is the common case. The WorkOS logout endpoint accepts the
+	// session ID regardless of access-token freshness.
 	result, err := s.Authenticate()
 	if err != nil {
 		return "", fmt.Errorf("workos: failed to authenticate session: %w", err)
 	}
-	if !result.Authenticated || result.SessionID == "" {
-		return "", errors.New("workos: session is not authenticated or has no session ID")
+	if result.SessionID == "" {
+		return "", errors.New("workos: session has no session ID")
 	}
 
 	baseURL := defaultBaseURL
@@ -199,7 +248,7 @@ func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...Req
 		baseURL = s.client.baseURL
 	}
 
-	logoutURL := fmt.Sprintf("%s/user_management/sessions/logout?session_id=%s", baseURL, result.SessionID)
+	logoutURL := fmt.Sprintf("%s/user_management/sessions/logout?session_id=%s", baseURL, url.QueryEscape(result.SessionID))
 	if returnTo != "" {
 		logoutURL += "&return_to=" + url.QueryEscape(returnTo)
 	}

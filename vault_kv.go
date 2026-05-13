@@ -5,6 +5,7 @@ package workos
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // VaultService handles Vault operations.
@@ -119,7 +120,7 @@ func (s *VaultService) CreateObject(ctx context.Context, params *VaultCreateObje
 // ReadObject reads a vault object by ID (GET /vault/v1/kv/{id}).
 func (s *VaultService) ReadObject(ctx context.Context, objectID string, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s", objectID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s", url.PathEscape(objectID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +130,7 @@ func (s *VaultService) ReadObject(ctx context.Context, objectID string, opts ...
 // ReadObjectByName reads a vault object by name (GET /vault/v1/kv/name/{name}).
 func (s *VaultService) ReadObjectByName(ctx context.Context, name string, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/name/%s", name), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/name/%s", url.PathEscape(name)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,7 @@ func (s *VaultService) ReadObjectByName(ctx context.Context, name string, opts .
 // DescribeObject retrieves metadata for a vault object (GET /vault/v1/kv/{id}/metadata).
 func (s *VaultService) DescribeObject(ctx context.Context, objectID string, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s/metadata", objectID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s/metadata", url.PathEscape(objectID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +157,7 @@ type VaultUpdateObjectParams struct {
 // UpdateObject updates a vault object (PUT /vault/v1/kv/{id}).
 func (s *VaultService) UpdateObject(ctx context.Context, objectID string, params *VaultUpdateObjectParams, opts ...RequestOption) (*VaultObject, error) {
 	var result VaultObject
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/vault/v1/kv/%s", objectID), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/vault/v1/kv/%s", url.PathEscape(objectID)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +166,7 @@ func (s *VaultService) UpdateObject(ctx context.Context, objectID string, params
 
 // DeleteObject deletes a vault object (DELETE /vault/v1/kv/{id}).
 func (s *VaultService) DeleteObject(ctx context.Context, objectID string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/vault/v1/kv/%s", objectID), nil, nil, nil, opts)
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/vault/v1/kv/%s", url.PathEscape(objectID)), nil, nil, nil, opts)
 	return err
 }
 
@@ -177,7 +178,7 @@ type VaultListObjectVersionsResponse struct {
 // ListObjectVersions lists versions of a vault object (GET /vault/v1/kv/{id}/versions).
 func (s *VaultService) ListObjectVersions(ctx context.Context, objectID string, opts ...RequestOption) ([]VaultObjectVersion, error) {
 	var result VaultListObjectVersionsResponse
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s/versions", objectID), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s/versions", url.PathEscape(objectID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,9 @@
 package workos_test
 
 import (
+	"context"
 	"encoding/base64"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -171,6 +173,32 @@ func TestNewSession_Authenticate_EmptySession(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, result.Authenticated)
 	require.Equal(t, "no_session_cookie_provided", result.Reason)
+}
+
+// GetLogoutURL must succeed for a session whose access token has expired:
+// the JWT exp check makes Authenticate return Authenticated=false with
+// SessionID populated, and the logout endpoint accepts that session ID
+// regardless of access-token freshness.
+func TestSession_GetLogoutURL_ExpiredJWT(t *testing.T) {
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256"}`))
+	payload := base64.RawURLEncoding.EncodeToString(
+		fmt.Appendf(nil, `{"sid":"sess_expired","exp":%d}`, 1),
+	)
+	expiredJWT := header + "." + payload + ".fakesig"
+
+	sealed, err := workos.SealSessionFromAuthResponse(
+		expiredJWT,
+		"refresh_tok_abc",
+		&workos.User{ID: "user_123"},
+		nil,
+		testCookiePassword,
+	)
+	require.NoError(t, err)
+
+	session := workos.NewSession(nil, sealed, testCookiePassword)
+	logoutURL, err := session.GetLogoutURL(context.Background(), "")
+	require.NoError(t, err)
+	require.Contains(t, logoutURL, "session_id=sess_expired")
 }
 
 func TestAuthenticateSession_NoAccessToken(t *testing.T) {
