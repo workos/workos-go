@@ -22,7 +22,7 @@ func TestWebhooks_ListEndpoints(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_webhook_endpoint_json.json")
+		fixture, err := os.ReadFile("testdata/list_webhook_endpoint.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -62,7 +62,7 @@ func TestWebhooks_CreateEndpoint(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/webhook_endpoint_json.json")
+		fixture, err := os.ReadFile("testdata/webhook_endpoint.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -88,7 +88,7 @@ func TestWebhooks_UpdateEndpoint(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/webhook_endpoint_json.json")
+		fixture, err := os.ReadFile("testdata/webhook_endpoint.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
