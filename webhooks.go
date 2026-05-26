@@ -20,8 +20,8 @@ type WebhooksListEndpointsParams struct {
 
 // ListEndpoints list Webhook Endpoints
 // Get a list of all of your existing webhook endpoints.
-func (s *WebhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpointJSON] {
-	return newIterator[WebhookEndpointJSON](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+func (s *WebhookService) ListEndpoints(ctx context.Context, params *WebhooksListEndpointsParams, opts ...RequestOption) *Iterator[WebhookEndpoint] {
+	return newIterator[WebhookEndpoint](ctx, s.client, "GET", "/webhook_endpoints", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // WebhooksCreateEndpointParams contains the parameters for CreateEndpoint.
@@ -34,8 +34,8 @@ type WebhooksCreateEndpointParams struct {
 
 // CreateEndpoint create a Webhook Endpoint
 // Create a new webhook endpoint to receive event notifications.
-func (s *WebhookService) CreateEndpoint(ctx context.Context, params *WebhooksCreateEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
-	var result WebhookEndpointJSON
+func (s *WebhookService) CreateEndpoint(ctx context.Context, params *WebhooksCreateEndpointParams, opts ...RequestOption) (*WebhookEndpoint, error) {
+	var result WebhookEndpoint
 	_, err := s.client.request(ctx, "POST", "/webhook_endpoints", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -55,8 +55,8 @@ type WebhooksUpdateEndpointParams struct {
 
 // UpdateEndpoint update a Webhook Endpoint
 // Update the properties of an existing webhook endpoint.
-func (s *WebhookService) UpdateEndpoint(ctx context.Context, id string, params *WebhooksUpdateEndpointParams, opts ...RequestOption) (*WebhookEndpointJSON, error) {
-	var result WebhookEndpointJSON
+func (s *WebhookService) UpdateEndpoint(ctx context.Context, id string, params *WebhooksUpdateEndpointParams, opts ...RequestOption) (*WebhookEndpoint, error) {
+	var result WebhookEndpoint
 	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/webhook_endpoints/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err

@@ -25,10 +25,6 @@ type RadarCreateAttemptParams struct {
 	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method" url:"-"`
 	// Action is the action being performed.
 	Action RadarStandaloneAssessRequestAction `json:"action" url:"-"`
-	// DeviceFingerprint is an optional device fingerprint for the request.
-	DeviceFingerprint *string `json:"device_fingerprint,omitempty" url:"-"`
-	// BotScore is an optional bot detection score for the request.
-	BotScore *string `json:"bot_score,omitempty" url:"-"`
 }
 
 // CreateAttempt create an attempt
@@ -65,7 +61,7 @@ type RadarAddListEntryParams struct {
 
 // AddListEntry add an entry to a Radar list
 // Add an entry to a Radar list.
-func (s *RadarService) AddListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
+func (s *RadarService) AddListEntry(ctx context.Context, typeParam RadarListType, action RadarListAction, params *RadarAddListEntryParams, opts ...RequestOption) (*RadarListEntryAlreadyPresentResponse, error) {
 	var result RadarListEntryAlreadyPresentResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/radar/lists/%s/%s", url.PathEscape(string(typeParam)), url.PathEscape(string(action))), nil, params, &result, opts)
 	if err != nil {
@@ -82,7 +78,7 @@ type RadarRemoveListEntryParams struct {
 
 // RemoveListEntry remove an entry from a Radar list
 // Remove an entry from a Radar list.
-func (s *RadarService) RemoveListEntry(ctx context.Context, typeParam RadarType, action RadarAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
+func (s *RadarService) RemoveListEntry(ctx context.Context, typeParam RadarListType, action RadarListAction, params *RadarRemoveListEntryParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/radar/lists/%s/%s", url.PathEscape(string(typeParam)), url.PathEscape(string(action))), nil, params, nil, opts)
 	return err
 }

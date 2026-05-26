@@ -21,7 +21,7 @@ func TestAuditLogs_GetOrganizationAuditLogsRetention(t *testing.T) {
 		require.Equal(t, "/organizations/test_id/audit_logs_retention", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/audit_logs_retention_json.json")
+		fixture, err := os.ReadFile("testdata/audit_logs_retention.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -44,7 +44,7 @@ func TestAuditLogs_UpdateOrganizationAuditLogsRetention(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/audit_logs_retention_json.json")
+		fixture, err := os.ReadFile("testdata/audit_logs_retention.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -65,7 +65,7 @@ func TestAuditLogs_ListActions(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_audit_log_action_json.json")
+		fixture, err := os.ReadFile("testdata/list_audit_log_action.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -103,7 +103,7 @@ func TestAuditLogs_ListActionSchemas(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_audit_log_schema_json.json")
+		fixture, err := os.ReadFile("testdata/list_audit_log_schema.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -143,7 +143,7 @@ func TestAuditLogs_CreateSchema(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/audit_log_schema_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_schema.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -190,7 +190,7 @@ func TestAuditLogs_CreateExport(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/audit_log_export_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_export.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -213,7 +213,7 @@ func TestAuditLogs_GetExport(t *testing.T) {
 		require.Equal(t, "/audit_logs/exports/test_auditLogExportId", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/audit_log_export_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_export.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

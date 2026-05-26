@@ -111,14 +111,11 @@ type AuditLogEvent struct {
 	Version *int `json:"version,omitempty"`
 }
 
-// AuditLogSchemaActor represents an audit log schema actor.
-type AuditLogSchemaActor struct {
-	// Metadata is json schema for actor metadata.
-	Metadata map[string]interface{} `json:"metadata"`
-}
+// AuditLogSchemaActorInput is an alias for AuditLogSchemaActor.
+type AuditLogSchemaActorInput = AuditLogSchemaActor
 
-// AuditLogSchemaTarget is an alias for AuditLogSchemaJSONTarget.
-type AuditLogSchemaTarget = AuditLogSchemaJSONTarget
+// AuditLogSchemaTargetInput is an alias for AuditLogSchemaTarget.
+type AuditLogSchemaTargetInput = AuditLogSchemaTarget
 
 // OrganizationDomainData represents an organization domain data.
 type OrganizationDomainData struct {
@@ -150,6 +147,124 @@ type IntentOptions struct {
 	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
 }
 
+// Actor the user or API key that performed an action.
+type Actor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Name is display name of the actor.
+	Name string `json:"name"`
+}
+
+// CreateDataKeyResponse represents a create data key response.
+type CreateDataKeyResponse struct {
+	// Context is map of values used to determine the encryption key.
+	Context map[string]string `json:"context"`
+	// DataKey is base64-encoded data encryption key.
+	DataKey string `json:"data_key"`
+	// EncryptedKeys is base64-encoded encrypted data key blob.
+	EncryptedKeys string `json:"encrypted_keys"`
+	// ID is unique identifier for the generated data key.
+	ID string `json:"id"`
+}
+
+// DecryptResponse represents a decrypt response.
+type DecryptResponse struct {
+	// DataKey is base64-encoded decrypted data key.
+	DataKey string `json:"data_key"`
+	// ID is unique identifier of the decrypted data key.
+	ID string `json:"id"`
+}
+
+// DeleteObjectResponse represents a delete object response.
+type DeleteObjectResponse struct {
+	// Name is name of the deleted object.
+	Name string `json:"name"`
+	// Success is whether the deletion succeeded.
+	Success bool `json:"success"`
+}
+
+// ErrorResponse error response body.
+type ErrorResponse struct {
+	// Error is a human-readable description of the error.
+	Error string `json:"error"`
+}
+
+// ListMetadata cursor-based pagination metadata.
+type ListMetadata struct {
+	// After is cursor for the next page of results.
+	After *string `json:"after,omitempty"`
+	// Before is cursor for the previous page of results.
+	Before *string `json:"before,omitempty"`
+}
+
+// Object an encrypted object with its decrypted value and metadata.
+type Object struct {
+	// ID is unique identifier of the object.
+	ID       string          `json:"id"`
+	Metadata *ObjectMetadata `json:"metadata"`
+	// Name is unique name of the object.
+	Name string `json:"name"`
+	// Value is decrypted plaintext value.
+	Value string `json:"value"`
+}
+
+// ObjectMetadata metadata for a stored encrypted object.
+type ObjectMetadata struct {
+	// Context is map of values used to determine the encryption key.
+	Context map[string]string `json:"context"`
+	// EnvironmentID is environment the object belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// ID is unique identifier of the object.
+	ID string `json:"id"`
+	// KeyID is encryption key identifier.
+	KeyID string `json:"key_id"`
+	// UpdatedAt is timestamp of the last update.
+	UpdatedAt string `json:"updated_at"`
+	UpdatedBy *Actor `json:"updated_by"`
+	// VersionID is current version identifier of the object.
+	VersionID *string `json:"version_id,omitempty"`
+}
+
+// ObjectSummary summary of an encrypted object returned in list responses.
+type ObjectSummary struct {
+	// ID is unique identifier of the object.
+	ID string `json:"id"`
+	// Name is unique name of the object.
+	Name string `json:"name"`
+	// UpdatedAt is timestamp of the last update.
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+// ObjectVersion a static snapshot of an encrypted object.
+type ObjectVersion struct {
+	// CreatedAt is timestamp when the version was created.
+	CreatedAt string `json:"created_at"`
+	// CurrentVersion is whether this is the active version.
+	CurrentVersion bool `json:"current_version"`
+	// Etag is hash of the object value.
+	Etag string `json:"etag"`
+	// ID is unique identifier of the version.
+	ID string `json:"id"`
+	// Size is number of bytes of stored data.
+	Size int `json:"size"`
+}
+
+// ObjectWithoutValue an encrypted object's metadata (value excluded).
+type ObjectWithoutValue struct {
+	// ID is unique identifier of the object.
+	ID       string          `json:"id"`
+	Metadata *ObjectMetadata `json:"metadata"`
+	// Name is unique name of the object.
+	Name string `json:"name"`
+}
+
+// VersionListResponse represents a version list response.
+type VersionListResponse struct {
+	// Data is list of object versions.
+	Data         []*ObjectVersion `json:"data"`
+	ListMetadata *ListMetadata    `json:"list_metadata"`
+}
+
 // ExternalAuthCompleteResponse represents an external auth complete response.
 type ExternalAuthCompleteResponse struct {
 	// RedirectURI is uri to redirect the user back to AuthKit to complete the OAuth flow.
@@ -170,6 +285,8 @@ type APIKey struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -203,8 +320,6 @@ type ConnectApplication struct {
 	UpdatedAt string `json:"updated_at"`
 	// ApplicationType is the type of the application.
 	ApplicationType *string `json:"application_type,omitempty"`
-	// OrganizationID is the ID of the organization the application belongs to.
-	OrganizationID *string `json:"organization_id,omitempty"`
 	// RedirectURIs is the redirect URIs configured for this application.
 	RedirectURIs []*ConnectApplicationRedirectURI `json:"redirect_uris,omitempty"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
@@ -213,6 +328,72 @@ type ConnectApplication struct {
 	IsFirstParty *bool `json:"is_first_party,omitempty"`
 	// WasDynamicallyRegistered is whether the application was dynamically registered.
 	WasDynamicallyRegistered *bool `json:"was_dynamically_registered,omitempty"`
+	// OrganizationID is the ID of the organization the application belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+}
+
+// ConnectApplicationOAuth represents a connect application OAuth.
+type ConnectApplicationOAuth struct {
+	// Object distinguishes the connect application object.
+	Object string `json:"object"`
+	// ID is the unique ID of the connect application.
+	ID string `json:"id"`
+	// ClientID is the client ID of the connect application.
+	ClientID string `json:"client_id"`
+	// Description is a description of the connect application.
+	Description *string `json:"description"`
+	// Name is the name of the connect application.
+	Name string `json:"name"`
+	// Scopes is the scopes available for this application.
+	Scopes []string `json:"scopes"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// ApplicationType is the type of the application.
+	ApplicationType string `json:"application_type"`
+	// RedirectURIs is the redirect URIs configured for this application.
+	RedirectURIs []*ConnectApplicationOAuthRedirectURIs `json:"redirect_uris"`
+	// UsesPKCE is whether the application uses PKCE for authorization.
+	UsesPKCE bool `json:"uses_pkce"`
+	// IsFirstParty is whether the application is a first-party application.
+	IsFirstParty bool `json:"is_first_party"`
+	// WasDynamicallyRegistered is whether the application was dynamically registered.
+	WasDynamicallyRegistered *bool `json:"was_dynamically_registered,omitempty"`
+	// OrganizationID is the ID of the organization the application belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+}
+
+// ConnectApplicationOAuthRedirectURIs represents a connect application OAuth redirect uris.
+type ConnectApplicationOAuthRedirectURIs struct {
+	// URI is the redirect URI for the application.
+	URI string `json:"uri"`
+	// Default is whether this is the default redirect URI.
+	Default bool `json:"default"`
+}
+
+// ConnectApplicationM2M represents a connect application m2m.
+type ConnectApplicationM2M struct {
+	// Object distinguishes the connect application object.
+	Object string `json:"object"`
+	// ID is the unique ID of the connect application.
+	ID string `json:"id"`
+	// ClientID is the client ID of the connect application.
+	ClientID string `json:"client_id"`
+	// Description is a description of the connect application.
+	Description *string `json:"description"`
+	// Name is the name of the connect application.
+	Name string `json:"name"`
+	// Scopes is the scopes available for this application.
+	Scopes []string `json:"scopes"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// ApplicationType is the type of the application.
+	ApplicationType string `json:"application_type"`
+	// OrganizationID is the ID of the organization the application belongs to.
+	OrganizationID string `json:"organization_id"`
 }
 
 // NewConnectApplicationSecret represents a new connect application secret.
@@ -239,14 +420,14 @@ type AuditLogEventCreateResponse struct {
 	Success bool `json:"success"`
 }
 
-// AuditLogExportJSON represents an audit log export json.
-type AuditLogExportJSON struct {
+// AuditLogExport represents an audit log export.
+type AuditLogExport struct {
 	// Object distinguishes the Audit Log Export object.
 	Object string `json:"object"`
 	// ID is the unique ID of the Audit Log Export.
 	ID string `json:"id"`
 	// State is the state of the export. Possible values: pending, ready, error.
-	State AuditLogExportJSONState `json:"state"`
+	State AuditLogExportState `json:"state"`
 	// URL is a URL to the CSV file. Only defined when the Audit Log Export is ready.
 	URL *string `json:"url,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -255,36 +436,36 @@ type AuditLogExportJSON struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuditLogsRetentionJSON represents an audit logs retention json.
-type AuditLogsRetentionJSON struct {
+// AuditLogsRetention represents an audit logs retention.
+type AuditLogsRetention struct {
 	// RetentionPeriodInDays is the number of days Audit Log events will be retained before being permanently deleted. Valid values are 30 and 365.
 	RetentionPeriodInDays *int `json:"retention_period_in_days"`
 }
 
-// AuditLogSchemaJSON represents an audit log schema json.
-type AuditLogSchemaJSON struct {
+// AuditLogSchema represents an audit log schema.
+type AuditLogSchema struct {
 	// Object distinguishes the Audit Log Schema object.
 	Object string `json:"object"`
 	// Version is the version of the schema.
 	Version int `json:"version"`
 	// Actor is the metadata schema for the actor.
-	Actor *AuditLogSchemaJSONActor `json:"actor,omitempty"`
+	Actor *AuditLogSchemaActor `json:"actor,omitempty"`
 	// Targets is the list of targets for the schema.
-	Targets []*AuditLogSchemaJSONTarget `json:"targets"`
+	Targets []*AuditLogSchemaTarget `json:"targets"`
 	// Metadata is additional data associated with the event or entity.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// CreatedAt is the timestamp when the Audit Log Schema was created.
 	CreatedAt string `json:"created_at"`
 }
 
-// AuditLogActionJSON represents an audit log action json.
-type AuditLogActionJSON struct {
+// AuditLogAction represents an audit log action.
+type AuditLogAction struct {
 	// Object distinguishes the Audit Log Action object.
 	Object string `json:"object"`
 	// Name is identifier of what action was taken.
 	Name string `json:"name"`
 	// Schema is the schema associated with the action.
-	Schema *AuditLogSchemaJSON `json:"schema"`
+	Schema *AuditLogSchema `json:"schema"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -702,6 +883,30 @@ type DirectoryUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// PipeConnectedAccount represents a pipe connected account.
+type PipeConnectedAccount struct {
+	// Object is the connected account object.
+	Object string `json:"object"`
+	// ID is the unique ID of the connected account.
+	ID string `json:"id"`
+	// DataIntegrationID is the unique ID of the data integration.
+	DataIntegrationID string `json:"data_integration_id"`
+	// ProviderSlug is the provider slug for this connected account.
+	ProviderSlug string `json:"provider_slug"`
+	// UserID is the ID of the User the connected account belongs to.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the ID of the Organization the connected account belongs to.
+	OrganizationID *string `json:"organization_id"`
+	// Scopes is the OAuth scopes granted for this connected account.
+	Scopes []string `json:"scopes"`
+	// State is the state of the connected account.
+	State PipeConnectedAccountState `json:"state"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // WaitlistUser represents a waitlist user.
 type WaitlistUser struct {
 	// Object distinguishes the Waitlist User object.
@@ -738,16 +943,16 @@ type EventSchema struct {
 
 // ActionAuthenticationDenied represents an action authentication denied.
 type ActionAuthenticationDenied struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
 	// Data is the event payload.
-	Data    *ActionAuthenticationDeniedData `json:"data"`
-	Context *EventContext                   `json:"context,omitempty"`
+	Data *ActionAuthenticationDeniedData `json:"data"`
 	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
 }
 
 // ActionAuthenticationDeniedData the event payload.
@@ -774,16 +979,16 @@ type ActionAuthenticationDeniedData struct {
 
 // ActionUserRegistrationDenied represents an action user registration denied.
 type ActionUserRegistrationDenied struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
 	// Data is the event payload.
-	Data    *ActionUserRegistrationDeniedData `json:"data"`
-	Context *EventContext                     `json:"context,omitempty"`
+	Data *ActionUserRegistrationDeniedData `json:"data"`
 	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
 }
 
 // ActionUserRegistrationDeniedData the event payload.
@@ -808,6 +1013,8 @@ type ActionUserRegistrationDeniedData struct {
 
 // APIKeyCreated represents an api key created.
 type APIKeyCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -816,8 +1023,6 @@ type APIKeyCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // APIKeyCreatedData the event payload.
@@ -834,6 +1039,8 @@ type APIKeyCreatedData struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is the timestamp when the API key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at,omitempty"`
 	// Permissions is the permissions granted to the API key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is the timestamp when the API key was created.
@@ -862,6 +1069,8 @@ type UserAPIKeyCreatedDataOwner struct {
 
 // APIKeyRevoked represents an api key revoked.
 type APIKeyRevoked struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -870,8 +1079,6 @@ type APIKeyRevoked struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // APIKeyRevokedData the event payload.
@@ -888,6 +1095,8 @@ type APIKeyRevokedData struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is the timestamp when the API key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at,omitempty"`
 	// Permissions is the permissions granted to the API key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is the timestamp when the API key was created.
@@ -904,6 +1113,8 @@ type UserAPIKeyRevokedDataOwner = UserAPIKeyCreatedDataOwner
 
 // AuthenticationEmailVerificationFailed represents an authentication email verification failed.
 type AuthenticationEmailVerificationFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -912,8 +1123,6 @@ type AuthenticationEmailVerificationFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationEmailVerificationFailedData the event payload.
@@ -942,6 +1151,8 @@ type AuthenticationEmailVerificationFailedDataError struct {
 
 // AuthenticationEmailVerificationSucceeded represents an authentication email verification succeeded.
 type AuthenticationEmailVerificationSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -950,8 +1161,6 @@ type AuthenticationEmailVerificationSucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationEmailVerificationSucceededData the event payload.
@@ -970,6 +1179,8 @@ type AuthenticationEmailVerificationSucceededData struct {
 
 // AuthenticationMagicAuthFailed represents an authentication magic auth failed.
 type AuthenticationMagicAuthFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -978,8 +1189,6 @@ type AuthenticationMagicAuthFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationMagicAuthFailedData the event payload.
@@ -1011,6 +1220,8 @@ type (
 
 // AuthenticationMagicAuthSucceeded represents an authentication magic auth succeeded.
 type AuthenticationMagicAuthSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1019,8 +1230,6 @@ type AuthenticationMagicAuthSucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationMagicAuthSucceededData the event payload.
@@ -1039,6 +1248,8 @@ type AuthenticationMagicAuthSucceededData struct {
 
 // AuthenticationMFAFailed represents an authentication mfa failed.
 type AuthenticationMFAFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1047,8 +1258,6 @@ type AuthenticationMFAFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationMFAFailedData the event payload.
@@ -1069,6 +1278,8 @@ type AuthenticationMFAFailedData struct {
 
 // AuthenticationMFASucceeded represents an authentication mfa succeeded.
 type AuthenticationMFASucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1077,8 +1288,6 @@ type AuthenticationMFASucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationMFASucceededData the event payload.
@@ -1097,6 +1306,8 @@ type AuthenticationMFASucceededData struct {
 
 // AuthenticationOAuthFailed represents an authentication OAuth failed.
 type AuthenticationOAuthFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1105,8 +1316,6 @@ type AuthenticationOAuthFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationOAuthFailedData the event payload.
@@ -1127,6 +1336,8 @@ type AuthenticationOAuthFailedData struct {
 
 // AuthenticationOAuthSucceeded represents an authentication OAuth succeeded.
 type AuthenticationOAuthSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1135,8 +1346,6 @@ type AuthenticationOAuthSucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationOAuthSucceededData the event payload.
@@ -1155,6 +1364,8 @@ type AuthenticationOAuthSucceededData struct {
 
 // AuthenticationPasskeyFailed represents an authentication passkey failed.
 type AuthenticationPasskeyFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1163,8 +1374,6 @@ type AuthenticationPasskeyFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationPasskeyFailedData the event payload.
@@ -1185,6 +1394,8 @@ type AuthenticationPasskeyFailedData struct {
 
 // AuthenticationPasskeySucceeded represents an authentication passkey succeeded.
 type AuthenticationPasskeySucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1193,8 +1404,6 @@ type AuthenticationPasskeySucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationPasskeySucceededData the event payload.
@@ -1213,6 +1422,8 @@ type AuthenticationPasskeySucceededData struct {
 
 // AuthenticationPasswordFailed represents an authentication password failed.
 type AuthenticationPasswordFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1221,8 +1432,6 @@ type AuthenticationPasswordFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationPasswordFailedData the event payload.
@@ -1243,6 +1452,8 @@ type AuthenticationPasswordFailedData struct {
 
 // AuthenticationPasswordSucceeded represents an authentication password succeeded.
 type AuthenticationPasswordSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1251,8 +1462,6 @@ type AuthenticationPasswordSucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationPasswordSucceededData the event payload.
@@ -1271,6 +1480,8 @@ type AuthenticationPasswordSucceededData struct {
 
 // AuthenticationRadarRiskDetected represents an authentication radar risk detected.
 type AuthenticationRadarRiskDetected struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1279,8 +1490,6 @@ type AuthenticationRadarRiskDetected struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationRadarRiskDetectedData the event payload.
@@ -1304,6 +1513,8 @@ type AuthenticationRadarRiskDetectedData struct {
 
 // AuthenticationSSOFailed represents an authentication SSO failed.
 type AuthenticationSSOFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1312,8 +1523,6 @@ type AuthenticationSSOFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationSSOFailedData the event payload.
@@ -1346,6 +1555,8 @@ type AuthenticationSSOFailedDataSSO struct {
 
 // AuthenticationSSOStarted represents an authentication SSO started.
 type AuthenticationSSOStarted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1354,8 +1565,6 @@ type AuthenticationSSOStarted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationSSOStartedData the event payload.
@@ -1379,6 +1588,8 @@ type AuthenticationSSOStartedDataSSO = AuthenticationSSOFailedDataSSO
 
 // AuthenticationSSOSucceeded represents an authentication SSO succeeded.
 type AuthenticationSSOSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1387,8 +1598,6 @@ type AuthenticationSSOSucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationSSOSucceededData the event payload.
@@ -1412,6 +1621,8 @@ type AuthenticationSSOSucceededDataSSO = AuthenticationSSOFailedDataSSO
 
 // AuthenticationSSOTimedOut represents an authentication SSO timed out.
 type AuthenticationSSOTimedOut struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1420,8 +1631,6 @@ type AuthenticationSSOTimedOut struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // AuthenticationSSOTimedOutData the event payload.
@@ -1447,6 +1656,8 @@ type AuthenticationSSOTimedOutDataSSO = AuthenticationSSOFailedDataSSO
 
 // ConnectionActivated represents a connection activated.
 type ConnectionActivated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1455,8 +1666,6 @@ type ConnectionActivated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // ConnectionActivatedData the event payload.
@@ -1497,6 +1706,8 @@ type ConnectionActivatedDataDomain struct {
 
 // ConnectionDeactivated represents a connection deactivated.
 type ConnectionDeactivated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1505,8 +1716,6 @@ type ConnectionDeactivated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // ConnectionDeactivatedData the event payload.
@@ -1540,6 +1749,8 @@ type ConnectionDeactivatedDataDomain = ConnectionActivatedDataDomain
 
 // ConnectionDeleted represents a connection deleted.
 type ConnectionDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1548,8 +1759,6 @@ type ConnectionDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // ConnectionDeletedData the event payload.
@@ -1574,6 +1783,8 @@ type ConnectionDeletedData struct {
 
 // ConnectionSAMLCertificateRenewalRequired represents a connection SAML certificate renewal required.
 type ConnectionSAMLCertificateRenewalRequired struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1582,8 +1793,6 @@ type ConnectionSAMLCertificateRenewalRequired struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // ConnectionSAMLCertificateRenewalRequiredData the event payload.
@@ -1616,6 +1825,8 @@ type ConnectionSAMLCertificateRenewalRequiredDataCertificate struct {
 
 // ConnectionSAMLCertificateRenewed represents a connection SAML certificate renewed.
 type ConnectionSAMLCertificateRenewed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1624,8 +1835,6 @@ type ConnectionSAMLCertificateRenewed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // ConnectionSAMLCertificateRenewedData the event payload.
@@ -1651,6 +1860,8 @@ type ConnectionSAMLCertificateRenewedDataCertificate struct {
 
 // DsyncActivated represents a dsync activated.
 type DsyncActivated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1659,8 +1870,6 @@ type DsyncActivated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncActivatedData the event payload.
@@ -1699,6 +1908,8 @@ type DsyncActivatedDataDomain struct {
 
 // DsyncDeactivated represents a dsync deactivated.
 type DsyncDeactivated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1707,8 +1918,6 @@ type DsyncDeactivated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncDeactivatedData the event payload.
@@ -1740,6 +1949,8 @@ type DsyncDeactivatedDataDomain = DsyncActivatedDataDomain
 
 // DsyncDeleted represents a dsync deleted.
 type DsyncDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1748,8 +1959,6 @@ type DsyncDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncDeletedData the event payload.
@@ -1774,6 +1983,8 @@ type DsyncDeletedData struct {
 
 // DsyncGroupCreated represents a dsync group created.
 type DsyncGroupCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1782,12 +1993,12 @@ type DsyncGroupCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncGroupDeleted represents a dsync group deleted.
 type DsyncGroupDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1796,12 +2007,12 @@ type DsyncGroupDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncGroupUpdated represents a dsync group updated.
 type DsyncGroupUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1810,8 +2021,6 @@ type DsyncGroupUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncGroupUpdatedData the event payload.
@@ -1839,6 +2048,8 @@ type DsyncGroupUpdatedData struct {
 
 // DsyncGroupUserAdded represents a dsync group user added.
 type DsyncGroupUserAdded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1847,8 +2058,6 @@ type DsyncGroupUserAdded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncGroupUserAddedData the event payload.
@@ -1863,6 +2072,8 @@ type DsyncGroupUserAddedData struct {
 
 // DsyncUserCreated represents a dsync user created.
 type DsyncUserCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1871,12 +2082,12 @@ type DsyncUserCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncUserDeleted represents a dsync user deleted.
 type DsyncUserDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1885,12 +2096,12 @@ type DsyncUserDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncGroupUserRemoved represents a dsync group user removed.
 type DsyncGroupUserRemoved struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1899,8 +2110,6 @@ type DsyncGroupUserRemoved struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncGroupUserRemovedData is an alias for DsyncGroupUserAddedData.
@@ -1908,6 +2117,8 @@ type DsyncGroupUserRemovedData = DsyncGroupUserAddedData
 
 // DsyncUserUpdated represents a dsync user updated.
 type DsyncUserUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1916,8 +2127,6 @@ type DsyncUserUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // DsyncUserUpdatedData the event payload.
@@ -1975,6 +2184,8 @@ type DsyncUserUpdatedDataEmail = DirectoryUserEmail
 
 // EmailVerificationCreated represents an email verification created.
 type EmailVerificationCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -1983,8 +2194,6 @@ type EmailVerificationCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // EmailVerificationCreatedData the event payload.
@@ -2007,6 +2216,8 @@ type EmailVerificationCreatedData struct {
 
 // FlagCreated represents a flag created.
 type FlagCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2016,8 +2227,6 @@ type FlagCreated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagCreatedContext `json:"context"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // FlagCreatedData the event payload.
@@ -2076,6 +2285,8 @@ type FlagCreatedContextActor struct {
 
 // FlagDeleted represents a flag deleted.
 type FlagDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2085,8 +2296,6 @@ type FlagDeleted struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagDeletedContext `json:"context"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // FlagDeletedData the event payload.
@@ -2136,6 +2345,8 @@ type FlagDeletedContextActor struct {
 
 // FlagRuleUpdated represents a flag rule updated.
 type FlagRuleUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2145,8 +2356,6 @@ type FlagRuleUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagRuleUpdatedContext `json:"context"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // FlagRuleUpdatedData the event payload.
@@ -2207,13 +2416,8 @@ type FlagRuleUpdatedContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextConfiguredTargetOrganization represents a flag rule updated context configured target organization.
-type FlagRuleUpdatedContextConfiguredTargetOrganization struct {
-	// ID is the ID of the organization.
-	ID string `json:"id"`
-	// Name is the name of the organization.
-	Name string `json:"name"`
-}
+// FlagRuleUpdatedContextConfiguredTargetOrganization is an alias for Actor.
+type FlagRuleUpdatedContextConfiguredTargetOrganization = Actor
 
 // FlagRuleUpdatedContextConfiguredTargetUser represents a flag rule updated context configured target user.
 type FlagRuleUpdatedContextConfiguredTargetUser struct {
@@ -2255,14 +2459,16 @@ type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for FlagRuleUpdatedContextConfiguredTargetOrganization.
-type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = FlagRuleUpdatedContextConfiguredTargetOrganization
+// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for Actor.
+type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = Actor
 
 // FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser is an alias for FlagRuleUpdatedContextConfiguredTargetUser.
 type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser = FlagRuleUpdatedContextConfiguredTargetUser
 
 // FlagUpdated represents a flag updated.
 type FlagUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2272,8 +2478,6 @@ type FlagUpdated struct {
 	CreatedAt string `json:"created_at"`
 	// Context is additional context about the event.
 	Context *FlagUpdatedContext `json:"context"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // FlagUpdatedData the event payload.
@@ -2345,6 +2549,8 @@ type FlagUpdatedContextPreviousAttributeData struct {
 
 // GroupCreated represents a group created.
 type GroupCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2353,12 +2559,12 @@ type GroupCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // GroupDeleted represents a group deleted.
 type GroupDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2367,12 +2573,12 @@ type GroupDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // GroupMemberAdded represents a group member added.
 type GroupMemberAdded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2381,8 +2587,6 @@ type GroupMemberAdded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // GroupMemberAddedData the event payload.
@@ -2395,6 +2599,8 @@ type GroupMemberAddedData struct {
 
 // GroupMemberRemoved represents a group member removed.
 type GroupMemberRemoved struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2403,8 +2609,6 @@ type GroupMemberRemoved struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // GroupMemberRemovedData is an alias for GroupMemberAddedData.
@@ -2412,6 +2616,8 @@ type GroupMemberRemovedData = GroupMemberAddedData
 
 // GroupUpdated represents a group updated.
 type GroupUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2420,12 +2626,12 @@ type GroupUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // InvitationAccepted represents an invitation accepted.
 type InvitationAccepted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2434,8 +2640,6 @@ type InvitationAccepted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // InvitationAcceptedData the event payload.
@@ -2470,6 +2674,8 @@ type InvitationAcceptedData struct {
 
 // InvitationCreated represents an invitation created.
 type InvitationCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2478,8 +2684,6 @@ type InvitationCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // InvitationCreatedData the event payload.
@@ -2514,6 +2718,8 @@ type InvitationCreatedData struct {
 
 // InvitationResent represents an invitation resent.
 type InvitationResent struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2522,8 +2728,6 @@ type InvitationResent struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // InvitationResentData the event payload.
@@ -2558,6 +2762,8 @@ type InvitationResentData struct {
 
 // InvitationRevoked represents an invitation revoked.
 type InvitationRevoked struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2566,8 +2772,6 @@ type InvitationRevoked struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // InvitationRevokedData the event payload.
@@ -2602,6 +2806,8 @@ type InvitationRevokedData struct {
 
 // MagicAuthCreated represents a magic auth created.
 type MagicAuthCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2610,8 +2816,6 @@ type MagicAuthCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // MagicAuthCreatedData the event payload.
@@ -2634,6 +2838,8 @@ type MagicAuthCreatedData struct {
 
 // OrganizationCreated represents an organization created.
 type OrganizationCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2642,8 +2848,6 @@ type OrganizationCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationCreatedData the event payload.
@@ -2694,6 +2898,8 @@ type OrganizationCreatedDataDomain struct {
 
 // OrganizationDeleted represents an organization deleted.
 type OrganizationDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2702,8 +2908,6 @@ type OrganizationDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDeletedData the event payload.
@@ -2754,6 +2958,8 @@ type OrganizationDeletedDataDomain struct {
 
 // OrganizationDomainCreated represents an organization domain created.
 type OrganizationDomainCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2762,8 +2968,6 @@ type OrganizationDomainCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDomainCreatedData the event payload.
@@ -2792,6 +2996,8 @@ type OrganizationDomainCreatedData struct {
 
 // OrganizationDomainDeleted represents an organization domain deleted.
 type OrganizationDomainDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2800,8 +3006,6 @@ type OrganizationDomainDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDomainDeletedData the event payload.
@@ -2830,6 +3034,8 @@ type OrganizationDomainDeletedData struct {
 
 // OrganizationDomainUpdated represents an organization domain updated.
 type OrganizationDomainUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2838,8 +3044,6 @@ type OrganizationDomainUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDomainUpdatedData the event payload.
@@ -2868,6 +3072,8 @@ type OrganizationDomainUpdatedData struct {
 
 // OrganizationDomainVerificationFailed represents an organization domain verification failed.
 type OrganizationDomainVerificationFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2876,8 +3082,6 @@ type OrganizationDomainVerificationFailed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDomainVerificationFailedData the event payload.
@@ -2914,6 +3118,8 @@ type OrganizationDomainVerificationFailedDataOrganizationDomain struct {
 
 // OrganizationDomainVerified represents an organization domain verified.
 type OrganizationDomainVerified struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2922,8 +3128,6 @@ type OrganizationDomainVerified struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDomainVerifiedData the event payload.
@@ -2952,6 +3156,8 @@ type OrganizationDomainVerifiedData struct {
 
 // OrganizationMembershipCreated represents an organization membership created.
 type OrganizationMembershipCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -2960,8 +3166,6 @@ type OrganizationMembershipCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationMembershipCreatedData the event payload.
@@ -2992,6 +3196,8 @@ type OrganizationMembershipCreatedData struct {
 
 // OrganizationMembershipDeleted represents an organization membership deleted.
 type OrganizationMembershipDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3000,8 +3206,6 @@ type OrganizationMembershipDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationMembershipDeletedData the event payload.
@@ -3032,6 +3236,8 @@ type OrganizationMembershipDeletedData struct {
 
 // OrganizationMembershipUpdated represents an organization membership updated.
 type OrganizationMembershipUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3040,8 +3246,6 @@ type OrganizationMembershipUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationMembershipUpdatedData the event payload.
@@ -3072,6 +3276,8 @@ type OrganizationMembershipUpdatedData struct {
 
 // OrganizationRoleCreated represents an organization role created.
 type OrganizationRoleCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3080,8 +3286,6 @@ type OrganizationRoleCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationRoleCreatedData the event payload.
@@ -3108,6 +3312,8 @@ type OrganizationRoleCreatedData struct {
 
 // OrganizationRoleDeleted represents an organization role deleted.
 type OrganizationRoleDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3116,8 +3322,6 @@ type OrganizationRoleDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationRoleDeletedData is an alias for OrganizationRoleCreatedData.
@@ -3125,6 +3329,8 @@ type OrganizationRoleDeletedData = OrganizationRoleCreatedData
 
 // OrganizationRoleUpdated represents an organization role updated.
 type OrganizationRoleUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3133,8 +3339,6 @@ type OrganizationRoleUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationRoleUpdatedData is an alias for OrganizationRoleCreatedData.
@@ -3142,6 +3346,8 @@ type OrganizationRoleUpdatedData = OrganizationRoleCreatedData
 
 // OrganizationUpdated represents an organization updated.
 type OrganizationUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3150,8 +3356,6 @@ type OrganizationUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationUpdatedData the event payload.
@@ -3202,6 +3406,8 @@ type OrganizationUpdatedDataDomain struct {
 
 // PasswordResetCreated represents a password reset created.
 type PasswordResetCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3210,8 +3416,6 @@ type PasswordResetCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // PasswordResetCreatedData the event payload.
@@ -3232,6 +3436,8 @@ type PasswordResetCreatedData struct {
 
 // PasswordResetSucceeded represents a password reset succeeded.
 type PasswordResetSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3240,8 +3446,6 @@ type PasswordResetSucceeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // PasswordResetSucceededData is an alias for PasswordResetCreatedData.
@@ -3249,6 +3453,8 @@ type PasswordResetSucceededData = PasswordResetCreatedData
 
 // PermissionCreated represents a permission created.
 type PermissionCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3257,8 +3463,6 @@ type PermissionCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // PermissionCreatedData the event payload.
@@ -3283,6 +3487,8 @@ type PermissionCreatedData struct {
 
 // PermissionDeleted represents a permission deleted.
 type PermissionDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3291,8 +3497,6 @@ type PermissionDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // PermissionDeletedData is an alias for PermissionCreatedData.
@@ -3300,6 +3504,8 @@ type PermissionDeletedData = PermissionCreatedData
 
 // PermissionUpdated represents a permission updated.
 type PermissionUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3308,15 +3514,57 @@ type PermissionUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // PermissionUpdatedData is an alias for PermissionCreatedData.
 type PermissionUpdatedData = PermissionCreatedData
 
+// PipesConnectedAccountConnected represents a pipes connected account connected.
+type PipesConnectedAccountConnected struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesConnectedAccountDisconnected represents a pipes connected account disconnected.
+type PipesConnectedAccountDisconnected struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesConnectedAccountReauthorizationNeeded represents a pipes connected account reauthorization needed.
+type PipesConnectedAccountReauthorizationNeeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
 // RoleCreated represents a role created.
 type RoleCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3325,8 +3573,6 @@ type RoleCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // RoleCreatedData the event payload.
@@ -3347,6 +3593,8 @@ type RoleCreatedData struct {
 
 // RoleDeleted represents a role deleted.
 type RoleDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3355,8 +3603,6 @@ type RoleDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // RoleDeletedData is an alias for RoleCreatedData.
@@ -3364,6 +3610,8 @@ type RoleDeletedData = RoleCreatedData
 
 // RoleUpdated represents a role updated.
 type RoleUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3372,8 +3620,6 @@ type RoleUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // RoleUpdatedData is an alias for RoleCreatedData.
@@ -3381,6 +3627,8 @@ type RoleUpdatedData = RoleCreatedData
 
 // SessionCreated represents a session created.
 type SessionCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3389,8 +3637,6 @@ type SessionCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // SessionCreatedData the event payload.
@@ -3428,6 +3674,8 @@ type SessionCreatedDataImpersonator = AuthenticateResponseImpersonator
 
 // SessionRevoked represents a session revoked.
 type SessionRevoked struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3436,8 +3684,6 @@ type SessionRevoked struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // SessionRevokedData the event payload.
@@ -3475,6 +3721,8 @@ type SessionRevokedDataImpersonator = AuthenticateResponseImpersonator
 
 // UserCreated represents a user created.
 type UserCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3483,12 +3731,12 @@ type UserCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // UserDeleted represents a user deleted.
 type UserDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3497,12 +3745,12 @@ type UserDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // UserUpdated represents a user updated.
 type UserUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3511,12 +3759,12 @@ type UserUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultByokKeyDeleted represents a vault byok key deleted.
 type VaultByokKeyDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3525,8 +3773,6 @@ type VaultByokKeyDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultByokKeyDeletedData the event payload.
@@ -3538,6 +3784,8 @@ type VaultByokKeyDeletedData struct {
 
 // VaultByokKeyVerificationCompleted represents a vault byok key verification completed.
 type VaultByokKeyVerificationCompleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3546,8 +3794,6 @@ type VaultByokKeyVerificationCompleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultByokKeyVerificationCompletedData the event payload.
@@ -3561,6 +3807,8 @@ type VaultByokKeyVerificationCompletedData struct {
 
 // VaultDataCreated represents a vault data created.
 type VaultDataCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3569,8 +3817,6 @@ type VaultDataCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultDataCreatedData the event payload.
@@ -3589,6 +3835,8 @@ type VaultDataCreatedData struct {
 
 // VaultDataDeleted represents a vault data deleted.
 type VaultDataDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3597,8 +3845,6 @@ type VaultDataDeleted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultDataDeletedData the event payload.
@@ -3614,6 +3860,8 @@ type VaultDataDeletedData struct {
 
 // VaultDataRead represents a vault data read.
 type VaultDataRead struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3622,8 +3870,6 @@ type VaultDataRead struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultDataReadData the event payload.
@@ -3641,6 +3887,8 @@ type VaultDataReadData struct {
 
 // VaultDataUpdated represents a vault data updated.
 type VaultDataUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3649,8 +3897,6 @@ type VaultDataUpdated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultDataUpdatedData the event payload.
@@ -3669,6 +3915,8 @@ type VaultDataUpdatedData struct {
 
 // VaultDekDecrypted represents a vault dek decrypted.
 type VaultDekDecrypted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3677,8 +3925,6 @@ type VaultDekDecrypted struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultDekDecryptedData the event payload.
@@ -3694,6 +3940,8 @@ type VaultDekDecryptedData struct {
 
 // VaultDekRead represents a vault dek read.
 type VaultDekRead struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3702,8 +3950,6 @@ type VaultDekRead struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultDekReadData the event payload.
@@ -3720,6 +3966,8 @@ type VaultDekReadData struct {
 
 // VaultKekCreated represents a vault kek created.
 type VaultKekCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3728,8 +3976,6 @@ type VaultKekCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultKekCreatedData the event payload.
@@ -3747,6 +3993,8 @@ type VaultKekCreatedData struct {
 
 // VaultMetadataRead represents a vault metadata read.
 type VaultMetadataRead struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3755,8 +4003,6 @@ type VaultMetadataRead struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultMetadataReadData the event payload.
@@ -3772,6 +4018,8 @@ type VaultMetadataReadData struct {
 
 // VaultNamesListed represents a vault names listed.
 type VaultNamesListed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3780,8 +4028,6 @@ type VaultNamesListed struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // VaultNamesListedData the event payload.
@@ -3795,6 +4041,8 @@ type VaultNamesListedData struct {
 
 // WaitlistUserApproved represents a waitlist user approved.
 type WaitlistUserApproved struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3803,12 +4051,12 @@ type WaitlistUserApproved struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // WaitlistUserCreated represents a waitlist user created.
 type WaitlistUserCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3817,12 +4065,12 @@ type WaitlistUserCreated struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // WaitlistUserDenied represents a waitlist user denied.
 type WaitlistUserDenied struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
 	// ID is unique identifier for the event.
 	ID    string `json:"id"`
 	Event string `json:"event"`
@@ -3831,8 +4079,6 @@ type WaitlistUserDenied struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
 }
 
 // OrganizationDomainStandAlone represents an organization domain stand alone.
@@ -3899,6 +4145,8 @@ type OrganizationAPIKey struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -3921,6 +4169,8 @@ type OrganizationAPIKeyWithValue struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4163,6 +4413,8 @@ type UserAPIKey struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4185,6 +4437,8 @@ type UserAPIKeyWithValue struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4296,8 +4550,8 @@ type DeviceAuthorizationResponse struct {
 	Interval *float64 `json:"interval,omitempty"`
 }
 
-// WebhookEndpointJSON represents a webhook endpoint json.
-type WebhookEndpointJSON struct {
+// WebhookEndpoint represents a webhook endpoint.
+type WebhookEndpoint struct {
 	// Object distinguishes the Webhook Endpoint object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Webhook Endpoint.
@@ -4307,7 +4561,7 @@ type WebhookEndpointJSON struct {
 	// Secret is the secret used to sign webhook payloads.
 	Secret string `json:"secret"`
 	// Status is whether the Webhook Endpoint is enabled or disabled.
-	Status WebhookEndpointJSONStatus `json:"status"`
+	Status WebhookEndpointStatus `json:"status"`
 	// Events is the events that the Webhook Endpoint is subscribed to.
 	Events []string `json:"events"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4652,11 +4906,14 @@ type AuthenticationFactorEnrolledTOTP struct {
 	URI string `json:"uri"`
 }
 
-// AuditLogSchemaJSONActor is an alias for AuditLogSchemaActor.
-type AuditLogSchemaJSONActor = AuditLogSchemaActor
+// AuditLogSchemaActor the metadata schema for the actor.
+type AuditLogSchemaActor struct {
+	// Metadata is the JSON Schema definition for actor metadata.
+	Metadata map[string]interface{} `json:"metadata"`
+}
 
-// AuditLogSchemaJSONTarget represents an audit log schema json target.
-type AuditLogSchemaJSONTarget struct {
+// AuditLogSchemaTarget represents an audit log schema target.
+type AuditLogSchemaTarget struct {
 	// Type is the type of the target resource.
 	Type string `json:"type"`
 	// Metadata is additional data associated with the event or entity.
@@ -5093,5 +5350,5 @@ type PaginationParams struct {
 	// Limit is the maximum number of items to return per page.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is the sort order for results.
-	Order *PaginationOrder `url:"order,omitempty" json:"-"`
+	Order *string `url:"order,omitempty" json:"-"`
 }

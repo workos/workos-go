@@ -14,27 +14,27 @@ type Client struct {
 	logger     Logger
 	appInfo    appInfo
 
-	multiFactorAuth                            *MultiFactorAuthService
-	connect                                    *ConnectService
-	authorization                              *AuthorizationService
-	sso                                        *SSOService
-	pipes                                      *PipeService
-	directorySync                              *DirectorySyncService
-	events                                     *EventService
-	featureFlags                               *FeatureFlagService
-	organizationDomains                        *OrganizationDomainService
-	organizations                              *OrganizationService
-	apiKeys                                    *APIKeyService
-	groups                                     *GroupService
-	adminPortal                                *AdminPortalService
-	radar                                      *RadarService
-	userManagement                             *UserManagementService
-	userManagementOrganizationMembershipGroups *UserManagementOrganizationMembershipGroupService
-	webhooks                                   *WebhookService
-	widgets                                    *WidgetService
-	auditLogs                                  *AuditLogService
-	passwordless                               *PasswordlessService
-	vault                                      *VaultService
+	multiFactorAuth        *MultiFactorAuthService
+	connect                *ConnectService
+	authorization          *AuthorizationService
+	sso                    *SSOService
+	pipes                  *PipeService
+	directorySync          *DirectorySyncService
+	events                 *EventService
+	featureFlags           *FeatureFlagService
+	organizationDomains    *OrganizationDomainService
+	organizations          *OrganizationService
+	apiKeys                *APIKeyService
+	groups                 *GroupService
+	adminPortal            *AdminPortalService
+	radar                  *RadarService
+	userManagement         *UserManagementService
+	organizationMembership *OrganizationMembershipService
+	vault                  *VaultService
+	webhooks               *WebhookService
+	widgets                *WidgetService
+	auditLogs              *AuditLogService
+	passwordless           *PasswordlessService
 }
 
 // NewClient creates a new WorkOS API client.
@@ -63,12 +63,12 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.adminPortal = &AdminPortalService{client: c}
 	c.radar = &RadarService{client: c}
 	c.userManagement = &UserManagementService{client: c}
-	c.userManagementOrganizationMembershipGroups = &UserManagementOrganizationMembershipGroupService{client: c}
+	c.organizationMembership = &OrganizationMembershipService{client: c}
+	c.vault = &VaultService{client: c}
 	c.webhooks = &WebhookService{client: c}
 	c.widgets = &WidgetService{client: c}
 	c.auditLogs = &AuditLogService{client: c}
 	c.passwordless = &PasswordlessService{client: c}
-	c.vault = &VaultService{client: c}
 	return c
 }
 
@@ -147,9 +147,14 @@ func (c *Client) UserManagement() *UserManagementService {
 	return c.userManagement
 }
 
-// UserManagementOrganizationMembershipGroups returns the UserManagementOrganizationMembershipGroups service.
-func (c *Client) UserManagementOrganizationMembershipGroups() *UserManagementOrganizationMembershipGroupService {
-	return c.userManagementOrganizationMembershipGroups
+// OrganizationMembership returns the OrganizationMembership service.
+func (c *Client) OrganizationMembership() *OrganizationMembershipService {
+	return c.organizationMembership
+}
+
+// Vault returns the Vault service.
+func (c *Client) Vault() *VaultService {
+	return c.vault
 }
 
 // Webhooks returns the Webhooks service.
@@ -170,9 +175,4 @@ func (c *Client) AuditLogs() *AuditLogService {
 // Passwordless returns the Passwordless service.
 func (c *Client) Passwordless() *PasswordlessService {
 	return c.passwordless
-}
-
-// Vault returns the Vault service.
-func (c *Client) Vault() *VaultService {
-	return c.vault
 }

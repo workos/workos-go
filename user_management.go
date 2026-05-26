@@ -43,32 +43,6 @@ func (p UserManagementPasswordHashed) applyToBody(m map[string]any) {
 	m["password_hash_type"] = p.HashType
 }
 
-// UserManagementRole is one of:
-//   - UserManagementRoleSingle
-//   - UserManagementRoleMultiple
-type UserManagementRole interface {
-	isUserManagementRole()
-	applyToBody(map[string]any)
-}
-
-type UserManagementRoleSingle struct {
-	Slug string
-}
-
-func (p UserManagementRoleSingle) isUserManagementRole() {}
-func (p UserManagementRoleSingle) applyToBody(m map[string]any) {
-	m["role_slug"] = p.Slug
-}
-
-type UserManagementRoleMultiple struct {
-	Slugs []string
-}
-
-func (p UserManagementRoleMultiple) isUserManagementRole() {}
-func (p UserManagementRoleMultiple) applyToBody(m map[string]any) {
-	m["role_slugs"] = p.Slugs
-}
-
 // GetJWKS
 // Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
 func (s *UserManagementService) GetJWKS(ctx context.Context, clientID string, opts ...RequestOption) (*JWKSResponse, error) {
@@ -1037,148 +1011,6 @@ func (s *UserManagementService) GetMagicAuth(ctx context.Context, id string, opt
 	return &result, nil
 }
 
-// UserManagementListOrganizationMembershipsParams contains the parameters for ListOrganizationMemberships.
-type UserManagementListOrganizationMembershipsParams struct {
-	PaginationParams
-	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
-	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
-	// Statuses is filter by the status of the organization membership. Array including any of `active`, `inactive`, or `pending`.
-	Statuses []UserManagementOrganizationMembershipStatuses `url:"statuses,omitempty" json:"-"`
-	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
-	UserID *string `url:"user_id,omitempty" json:"-"`
-}
-
-// ListOrganizationMemberships
-// Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
-func (s *UserManagementService) ListOrganizationMemberships(ctx context.Context, params *UserManagementListOrganizationMembershipsParams, opts ...RequestOption) *Iterator[UserOrganizationMembership] {
-	return newIterator[UserOrganizationMembership](ctx, s.client, "GET", "/user_management/organization_memberships", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
-}
-
-// UserManagementCreateOrganizationMembershipParams contains the parameters for CreateOrganizationMembership.
-type UserManagementCreateOrganizationMembershipParams struct {
-	// UserID is the ID of the [user](https://workos.com/docs/reference/authkit/user).
-	UserID string `json:"user_id" url:"-"`
-	// OrganizationID is the ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
-	OrganizationID string `json:"organization_id" url:"-"`
-	// Role optionally identifies the role.
-	Role UserManagementRole `url:"-" json:"-"`
-}
-
-// MarshalJSON implements json.Marshaler for UserManagementCreateOrganizationMembershipParams.
-func (p UserManagementCreateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
-	type Alias UserManagementCreateOrganizationMembershipParams
-	data, err := json.Marshal(Alias(p))
-	if err != nil {
-		return nil, err
-	}
-	if p.Role == nil {
-		return data, nil
-	}
-	var m map[string]any
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
-	}
-	if p.Role != nil {
-		p.Role.applyToBody(m)
-	}
-	return json.Marshal(m)
-}
-
-// CreateOrganizationMembership create an organization membership
-// Creates a new `active` organization membership for the given organization and user.
-// Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
-func (s *UserManagementService) CreateOrganizationMembership(ctx context.Context, params *UserManagementCreateOrganizationMembershipParams, opts ...RequestOption) (*OrganizationMembership, error) {
-	var result OrganizationMembership
-	_, err := s.client.request(ctx, "POST", "/user_management/organization_memberships", nil, params, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-// GetOrganizationMembership get an organization membership
-// Get the details of an existing organization membership.
-func (s *UserManagementService) GetOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
-	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(id)), nil, nil, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-// UserManagementUpdateOrganizationMembershipParams contains the parameters for UpdateOrganizationMembership.
-type UserManagementUpdateOrganizationMembershipParams struct {
-	// Role optionally identifies the role.
-	Role UserManagementRole `url:"-" json:"-"`
-}
-
-// MarshalJSON implements json.Marshaler for UserManagementUpdateOrganizationMembershipParams.
-func (p UserManagementUpdateOrganizationMembershipParams) MarshalJSON() ([]byte, error) {
-	type Alias UserManagementUpdateOrganizationMembershipParams
-	data, err := json.Marshal(Alias(p))
-	if err != nil {
-		return nil, err
-	}
-	if p.Role == nil {
-		return data, nil
-	}
-	var m map[string]any
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
-	}
-	if p.Role != nil {
-		p.Role.applyToBody(m)
-	}
-	return json.Marshal(m)
-}
-
-// UpdateOrganizationMembership update an organization membership
-// Update the details of an existing organization membership.
-func (s *UserManagementService) UpdateOrganizationMembership(ctx context.Context, id string, params *UserManagementUpdateOrganizationMembershipParams, opts ...RequestOption) (*UserOrganizationMembership, error) {
-	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(id)), nil, params, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-// DeleteOrganizationMembership delete an organization membership
-// Permanently deletes an existing organization membership. It cannot be undone.
-func (s *UserManagementService) DeleteOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) error {
-	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/organization_memberships/%s", url.PathEscape(id)), nil, nil, nil, opts)
-	return err
-}
-
-// DeactivateOrganizationMembership deactivate an organization membership
-// Deactivates an `active` organization membership. Emits an [organization_membership.updated](https://workos.com/docs/events/organization-membership) event upon successful deactivation.
-// - Deactivating an `inactive` membership is a no-op and does not emit an event.
-// - Deactivating a `pending` membership returns an error. This membership should be [deleted](https://workos.com/docs/reference/authkit/organization-membership/delete) instead.
-// See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-func (s *UserManagementService) DeactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*OrganizationMembership, error) {
-	var result OrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/deactivate", url.PathEscape(id)), nil, nil, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-// ReactivateOrganizationMembership reactivate an organization membership
-// Reactivates an `inactive` organization membership, retaining the pre-existing role(s). Emits an [organization_membership.updated](https://workos.com/docs/events/organization-membership) event upon successful reactivation.
-// - Reactivating an `active` membership is a no-op and does not emit an event.
-// - Reactivating a `pending` membership returns an error. The user needs to [accept the invitation](https://workos.com/docs/authkit/invitations) instead.
-// See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-func (s *UserManagementService) ReactivateOrganizationMembership(ctx context.Context, id string, opts ...RequestOption) (*UserOrganizationMembership, error) {
-	var result UserOrganizationMembership
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/organization_memberships/%s/reactivate", url.PathEscape(id)), nil, nil, &result, opts)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
 // UserManagementCreateRedirectURIParams contains the parameters for CreateRedirectURI.
 type UserManagementCreateRedirectURIParams struct {
 	// URI is the redirect URI to create.
@@ -1235,6 +1067,8 @@ type UserManagementCreateAPIKeyParams struct {
 	OrganizationID string `json:"organization_id" url:"-"`
 	// Permissions is the permission slugs to assign to the API key. Each permission must be enabled for user API keys.
 	Permissions []string `json:"permissions,omitempty" url:"-"`
+	// ExpiresAt is the timestamp when the API key should expire. Must be a future timestamp. If omitted, the key does not expire.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
 }
 
 // CreateAPIKey create an API key for a user

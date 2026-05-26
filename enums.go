@@ -159,83 +159,86 @@ type UpdateUserPasswordHashType = CreateUserPasswordHashType
 type CreateWebhookEndpointEvents string
 
 const (
-	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
-	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed            CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
-	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded         CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
-	CreateWebhookEndpointEventsAuthenticationMFASucceeded               CreateWebhookEndpointEvents = "authentication.mfa_succeeded"
-	CreateWebhookEndpointEventsAuthenticationOAuthFailed                CreateWebhookEndpointEvents = "authentication.oauth_failed"
-	CreateWebhookEndpointEventsAuthenticationOAuthSucceeded             CreateWebhookEndpointEvents = "authentication.oauth_succeeded"
-	CreateWebhookEndpointEventsAuthenticationPasswordFailed             CreateWebhookEndpointEvents = "authentication.password_failed"
-	CreateWebhookEndpointEventsAuthenticationPasswordSucceeded          CreateWebhookEndpointEvents = "authentication.password_succeeded"
-	CreateWebhookEndpointEventsAuthenticationPasskeyFailed              CreateWebhookEndpointEvents = "authentication.passkey_failed"
-	CreateWebhookEndpointEventsAuthenticationPasskeySucceeded           CreateWebhookEndpointEvents = "authentication.passkey_succeeded"
-	CreateWebhookEndpointEventsAuthenticationSSOFailed                  CreateWebhookEndpointEvents = "authentication.sso_failed"
-	CreateWebhookEndpointEventsAuthenticationSSOStarted                 CreateWebhookEndpointEvents = "authentication.sso_started"
-	CreateWebhookEndpointEventsAuthenticationSSOSucceeded               CreateWebhookEndpointEvents = "authentication.sso_succeeded"
-	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                CreateWebhookEndpointEvents = "authentication.sso_timed_out"
-	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected          CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
-	CreateWebhookEndpointEventsAPIKeyCreated                            CreateWebhookEndpointEvents = "api_key.created"
-	CreateWebhookEndpointEventsAPIKeyRevoked                            CreateWebhookEndpointEvents = "api_key.revoked"
-	CreateWebhookEndpointEventsConnectionActivated                      CreateWebhookEndpointEvents = "connection.activated"
-	CreateWebhookEndpointEventsConnectionDeactivated                    CreateWebhookEndpointEvents = "connection.deactivated"
-	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
-	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed         CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
-	CreateWebhookEndpointEventsConnectionDeleted                        CreateWebhookEndpointEvents = "connection.deleted"
-	CreateWebhookEndpointEventsDsyncActivated                           CreateWebhookEndpointEvents = "dsync.activated"
-	CreateWebhookEndpointEventsDsyncDeleted                             CreateWebhookEndpointEvents = "dsync.deleted"
-	CreateWebhookEndpointEventsDsyncGroupCreated                        CreateWebhookEndpointEvents = "dsync.group.created"
-	CreateWebhookEndpointEventsDsyncGroupDeleted                        CreateWebhookEndpointEvents = "dsync.group.deleted"
-	CreateWebhookEndpointEventsDsyncGroupUpdated                        CreateWebhookEndpointEvents = "dsync.group.updated"
-	CreateWebhookEndpointEventsDsyncGroupUserAdded                      CreateWebhookEndpointEvents = "dsync.group.user_added"
-	CreateWebhookEndpointEventsDsyncGroupUserRemoved                    CreateWebhookEndpointEvents = "dsync.group.user_removed"
-	CreateWebhookEndpointEventsDsyncUserCreated                         CreateWebhookEndpointEvents = "dsync.user.created"
-	CreateWebhookEndpointEventsDsyncUserDeleted                         CreateWebhookEndpointEvents = "dsync.user.deleted"
-	CreateWebhookEndpointEventsDsyncUserUpdated                         CreateWebhookEndpointEvents = "dsync.user.updated"
-	CreateWebhookEndpointEventsEmailVerificationCreated                 CreateWebhookEndpointEvents = "email_verification.created"
-	CreateWebhookEndpointEventsGroupCreated                             CreateWebhookEndpointEvents = "group.created"
-	CreateWebhookEndpointEventsGroupDeleted                             CreateWebhookEndpointEvents = "group.deleted"
-	CreateWebhookEndpointEventsGroupMemberAdded                         CreateWebhookEndpointEvents = "group.member_added"
-	CreateWebhookEndpointEventsGroupMemberRemoved                       CreateWebhookEndpointEvents = "group.member_removed"
-	CreateWebhookEndpointEventsGroupUpdated                             CreateWebhookEndpointEvents = "group.updated"
-	CreateWebhookEndpointEventsFlagCreated                              CreateWebhookEndpointEvents = "flag.created"
-	CreateWebhookEndpointEventsFlagDeleted                              CreateWebhookEndpointEvents = "flag.deleted"
-	CreateWebhookEndpointEventsFlagUpdated                              CreateWebhookEndpointEvents = "flag.updated"
-	CreateWebhookEndpointEventsFlagRuleUpdated                          CreateWebhookEndpointEvents = "flag.rule_updated"
-	CreateWebhookEndpointEventsInvitationAccepted                       CreateWebhookEndpointEvents = "invitation.accepted"
-	CreateWebhookEndpointEventsInvitationCreated                        CreateWebhookEndpointEvents = "invitation.created"
-	CreateWebhookEndpointEventsInvitationResent                         CreateWebhookEndpointEvents = "invitation.resent"
-	CreateWebhookEndpointEventsInvitationRevoked                        CreateWebhookEndpointEvents = "invitation.revoked"
-	CreateWebhookEndpointEventsMagicAuthCreated                         CreateWebhookEndpointEvents = "magic_auth.created"
-	CreateWebhookEndpointEventsOrganizationCreated                      CreateWebhookEndpointEvents = "organization.created"
-	CreateWebhookEndpointEventsOrganizationDeleted                      CreateWebhookEndpointEvents = "organization.deleted"
-	CreateWebhookEndpointEventsOrganizationUpdated                      CreateWebhookEndpointEvents = "organization.updated"
-	CreateWebhookEndpointEventsOrganizationDomainCreated                CreateWebhookEndpointEvents = "organization_domain.created"
-	CreateWebhookEndpointEventsOrganizationDomainDeleted                CreateWebhookEndpointEvents = "organization_domain.deleted"
-	CreateWebhookEndpointEventsOrganizationDomainUpdated                CreateWebhookEndpointEvents = "organization_domain.updated"
-	CreateWebhookEndpointEventsOrganizationDomainVerified               CreateWebhookEndpointEvents = "organization_domain.verified"
-	CreateWebhookEndpointEventsOrganizationDomainVerificationFailed     CreateWebhookEndpointEvents = "organization_domain.verification_failed"
-	CreateWebhookEndpointEventsPasswordResetCreated                     CreateWebhookEndpointEvents = "password_reset.created"
-	CreateWebhookEndpointEventsPasswordResetSucceeded                   CreateWebhookEndpointEvents = "password_reset.succeeded"
-	CreateWebhookEndpointEventsUserCreated                              CreateWebhookEndpointEvents = "user.created"
-	CreateWebhookEndpointEventsUserUpdated                              CreateWebhookEndpointEvents = "user.updated"
-	CreateWebhookEndpointEventsUserDeleted                              CreateWebhookEndpointEvents = "user.deleted"
-	CreateWebhookEndpointEventsOrganizationMembershipCreated            CreateWebhookEndpointEvents = "organization_membership.created"
-	CreateWebhookEndpointEventsOrganizationMembershipDeleted            CreateWebhookEndpointEvents = "organization_membership.deleted"
-	CreateWebhookEndpointEventsOrganizationMembershipUpdated            CreateWebhookEndpointEvents = "organization_membership.updated"
-	CreateWebhookEndpointEventsRoleCreated                              CreateWebhookEndpointEvents = "role.created"
-	CreateWebhookEndpointEventsRoleDeleted                              CreateWebhookEndpointEvents = "role.deleted"
-	CreateWebhookEndpointEventsRoleUpdated                              CreateWebhookEndpointEvents = "role.updated"
-	CreateWebhookEndpointEventsOrganizationRoleCreated                  CreateWebhookEndpointEvents = "organization_role.created"
-	CreateWebhookEndpointEventsOrganizationRoleDeleted                  CreateWebhookEndpointEvents = "organization_role.deleted"
-	CreateWebhookEndpointEventsOrganizationRoleUpdated                  CreateWebhookEndpointEvents = "organization_role.updated"
-	CreateWebhookEndpointEventsPermissionCreated                        CreateWebhookEndpointEvents = "permission.created"
-	CreateWebhookEndpointEventsPermissionDeleted                        CreateWebhookEndpointEvents = "permission.deleted"
-	CreateWebhookEndpointEventsPermissionUpdated                        CreateWebhookEndpointEvents = "permission.updated"
-	CreateWebhookEndpointEventsSessionCreated                           CreateWebhookEndpointEvents = "session.created"
-	CreateWebhookEndpointEventsSessionRevoked                           CreateWebhookEndpointEvents = "session.revoked"
-	CreateWebhookEndpointEventsWaitlistUserApproved                     CreateWebhookEndpointEvents = "waitlist_user.approved"
-	CreateWebhookEndpointEventsWaitlistUserCreated                      CreateWebhookEndpointEvents = "waitlist_user.created"
-	CreateWebhookEndpointEventsWaitlistUserDenied                       CreateWebhookEndpointEvents = "waitlist_user.denied"
+	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded   CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
+	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed              CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
+	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded           CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
+	CreateWebhookEndpointEventsAuthenticationMFASucceeded                 CreateWebhookEndpointEvents = "authentication.mfa_succeeded"
+	CreateWebhookEndpointEventsAuthenticationOAuthFailed                  CreateWebhookEndpointEvents = "authentication.oauth_failed"
+	CreateWebhookEndpointEventsAuthenticationOAuthSucceeded               CreateWebhookEndpointEvents = "authentication.oauth_succeeded"
+	CreateWebhookEndpointEventsAuthenticationPasswordFailed               CreateWebhookEndpointEvents = "authentication.password_failed"
+	CreateWebhookEndpointEventsAuthenticationPasswordSucceeded            CreateWebhookEndpointEvents = "authentication.password_succeeded"
+	CreateWebhookEndpointEventsAuthenticationPasskeyFailed                CreateWebhookEndpointEvents = "authentication.passkey_failed"
+	CreateWebhookEndpointEventsAuthenticationPasskeySucceeded             CreateWebhookEndpointEvents = "authentication.passkey_succeeded"
+	CreateWebhookEndpointEventsAuthenticationSSOFailed                    CreateWebhookEndpointEvents = "authentication.sso_failed"
+	CreateWebhookEndpointEventsAuthenticationSSOStarted                   CreateWebhookEndpointEvents = "authentication.sso_started"
+	CreateWebhookEndpointEventsAuthenticationSSOSucceeded                 CreateWebhookEndpointEvents = "authentication.sso_succeeded"
+	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                  CreateWebhookEndpointEvents = "authentication.sso_timed_out"
+	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected            CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
+	CreateWebhookEndpointEventsAPIKeyCreated                              CreateWebhookEndpointEvents = "api_key.created"
+	CreateWebhookEndpointEventsAPIKeyRevoked                              CreateWebhookEndpointEvents = "api_key.revoked"
+	CreateWebhookEndpointEventsConnectionActivated                        CreateWebhookEndpointEvents = "connection.activated"
+	CreateWebhookEndpointEventsConnectionDeactivated                      CreateWebhookEndpointEvents = "connection.deactivated"
+	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired   CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
+	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed           CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
+	CreateWebhookEndpointEventsConnectionDeleted                          CreateWebhookEndpointEvents = "connection.deleted"
+	CreateWebhookEndpointEventsDsyncActivated                             CreateWebhookEndpointEvents = "dsync.activated"
+	CreateWebhookEndpointEventsDsyncDeleted                               CreateWebhookEndpointEvents = "dsync.deleted"
+	CreateWebhookEndpointEventsDsyncGroupCreated                          CreateWebhookEndpointEvents = "dsync.group.created"
+	CreateWebhookEndpointEventsDsyncGroupDeleted                          CreateWebhookEndpointEvents = "dsync.group.deleted"
+	CreateWebhookEndpointEventsDsyncGroupUpdated                          CreateWebhookEndpointEvents = "dsync.group.updated"
+	CreateWebhookEndpointEventsDsyncGroupUserAdded                        CreateWebhookEndpointEvents = "dsync.group.user_added"
+	CreateWebhookEndpointEventsDsyncGroupUserRemoved                      CreateWebhookEndpointEvents = "dsync.group.user_removed"
+	CreateWebhookEndpointEventsDsyncUserCreated                           CreateWebhookEndpointEvents = "dsync.user.created"
+	CreateWebhookEndpointEventsDsyncUserDeleted                           CreateWebhookEndpointEvents = "dsync.user.deleted"
+	CreateWebhookEndpointEventsDsyncUserUpdated                           CreateWebhookEndpointEvents = "dsync.user.updated"
+	CreateWebhookEndpointEventsEmailVerificationCreated                   CreateWebhookEndpointEvents = "email_verification.created"
+	CreateWebhookEndpointEventsGroupCreated                               CreateWebhookEndpointEvents = "group.created"
+	CreateWebhookEndpointEventsGroupDeleted                               CreateWebhookEndpointEvents = "group.deleted"
+	CreateWebhookEndpointEventsGroupMemberAdded                           CreateWebhookEndpointEvents = "group.member_added"
+	CreateWebhookEndpointEventsGroupMemberRemoved                         CreateWebhookEndpointEvents = "group.member_removed"
+	CreateWebhookEndpointEventsGroupUpdated                               CreateWebhookEndpointEvents = "group.updated"
+	CreateWebhookEndpointEventsFlagCreated                                CreateWebhookEndpointEvents = "flag.created"
+	CreateWebhookEndpointEventsFlagDeleted                                CreateWebhookEndpointEvents = "flag.deleted"
+	CreateWebhookEndpointEventsFlagUpdated                                CreateWebhookEndpointEvents = "flag.updated"
+	CreateWebhookEndpointEventsFlagRuleUpdated                            CreateWebhookEndpointEvents = "flag.rule_updated"
+	CreateWebhookEndpointEventsInvitationAccepted                         CreateWebhookEndpointEvents = "invitation.accepted"
+	CreateWebhookEndpointEventsInvitationCreated                          CreateWebhookEndpointEvents = "invitation.created"
+	CreateWebhookEndpointEventsInvitationResent                           CreateWebhookEndpointEvents = "invitation.resent"
+	CreateWebhookEndpointEventsInvitationRevoked                          CreateWebhookEndpointEvents = "invitation.revoked"
+	CreateWebhookEndpointEventsMagicAuthCreated                           CreateWebhookEndpointEvents = "magic_auth.created"
+	CreateWebhookEndpointEventsOrganizationCreated                        CreateWebhookEndpointEvents = "organization.created"
+	CreateWebhookEndpointEventsOrganizationDeleted                        CreateWebhookEndpointEvents = "organization.deleted"
+	CreateWebhookEndpointEventsOrganizationUpdated                        CreateWebhookEndpointEvents = "organization.updated"
+	CreateWebhookEndpointEventsOrganizationDomainCreated                  CreateWebhookEndpointEvents = "organization_domain.created"
+	CreateWebhookEndpointEventsOrganizationDomainDeleted                  CreateWebhookEndpointEvents = "organization_domain.deleted"
+	CreateWebhookEndpointEventsOrganizationDomainUpdated                  CreateWebhookEndpointEvents = "organization_domain.updated"
+	CreateWebhookEndpointEventsOrganizationDomainVerified                 CreateWebhookEndpointEvents = "organization_domain.verified"
+	CreateWebhookEndpointEventsOrganizationDomainVerificationFailed       CreateWebhookEndpointEvents = "organization_domain.verification_failed"
+	CreateWebhookEndpointEventsPasswordResetCreated                       CreateWebhookEndpointEvents = "password_reset.created"
+	CreateWebhookEndpointEventsPasswordResetSucceeded                     CreateWebhookEndpointEvents = "password_reset.succeeded"
+	CreateWebhookEndpointEventsUserCreated                                CreateWebhookEndpointEvents = "user.created"
+	CreateWebhookEndpointEventsUserUpdated                                CreateWebhookEndpointEvents = "user.updated"
+	CreateWebhookEndpointEventsUserDeleted                                CreateWebhookEndpointEvents = "user.deleted"
+	CreateWebhookEndpointEventsOrganizationMembershipCreated              CreateWebhookEndpointEvents = "organization_membership.created"
+	CreateWebhookEndpointEventsOrganizationMembershipDeleted              CreateWebhookEndpointEvents = "organization_membership.deleted"
+	CreateWebhookEndpointEventsOrganizationMembershipUpdated              CreateWebhookEndpointEvents = "organization_membership.updated"
+	CreateWebhookEndpointEventsRoleCreated                                CreateWebhookEndpointEvents = "role.created"
+	CreateWebhookEndpointEventsRoleDeleted                                CreateWebhookEndpointEvents = "role.deleted"
+	CreateWebhookEndpointEventsRoleUpdated                                CreateWebhookEndpointEvents = "role.updated"
+	CreateWebhookEndpointEventsOrganizationRoleCreated                    CreateWebhookEndpointEvents = "organization_role.created"
+	CreateWebhookEndpointEventsOrganizationRoleDeleted                    CreateWebhookEndpointEvents = "organization_role.deleted"
+	CreateWebhookEndpointEventsOrganizationRoleUpdated                    CreateWebhookEndpointEvents = "organization_role.updated"
+	CreateWebhookEndpointEventsPermissionCreated                          CreateWebhookEndpointEvents = "permission.created"
+	CreateWebhookEndpointEventsPermissionDeleted                          CreateWebhookEndpointEvents = "permission.deleted"
+	CreateWebhookEndpointEventsPermissionUpdated                          CreateWebhookEndpointEvents = "permission.updated"
+	CreateWebhookEndpointEventsPipesConnectedAccountConnected             CreateWebhookEndpointEvents = "pipes.connected_account.connected"
+	CreateWebhookEndpointEventsPipesConnectedAccountDisconnected          CreateWebhookEndpointEvents = "pipes.connected_account.disconnected"
+	CreateWebhookEndpointEventsPipesConnectedAccountReauthorizationNeeded CreateWebhookEndpointEvents = "pipes.connected_account.reauthorization_needed"
+	CreateWebhookEndpointEventsSessionCreated                             CreateWebhookEndpointEvents = "session.created"
+	CreateWebhookEndpointEventsSessionRevoked                             CreateWebhookEndpointEvents = "session.revoked"
+	CreateWebhookEndpointEventsWaitlistUserApproved                       CreateWebhookEndpointEvents = "waitlist_user.approved"
+	CreateWebhookEndpointEventsWaitlistUserCreated                        CreateWebhookEndpointEvents = "waitlist_user.created"
+	CreateWebhookEndpointEventsWaitlistUserDenied                         CreateWebhookEndpointEvents = "waitlist_user.denied"
 )
 
 // UpdateWebhookEndpointStatus represents update webhook endpoint status values.
@@ -261,13 +264,13 @@ const (
 	WidgetSessionTokenScopesWidgetsAuditLogStreamingManage  WidgetSessionTokenScopes = "widgets:audit-log-streaming:manage"
 )
 
-// AuditLogExportJSONState represents audit log export json state values.
-type AuditLogExportJSONState string
+// AuditLogExportState represents audit log export state values.
+type AuditLogExportState string
 
 const (
-	AuditLogExportJSONStatePending AuditLogExportJSONState = "pending"
-	AuditLogExportJSONStateReady   AuditLogExportJSONState = "ready"
-	AuditLogExportJSONStateError   AuditLogExportJSONState = "error"
+	AuditLogExportStatePending AuditLogExportState = "pending"
+	AuditLogExportStateReady   AuditLogExportState = "ready"
+	AuditLogExportStateError   AuditLogExportState = "error"
 )
 
 // AuthenticationFactorEnrolledType represents authentication factor enrolled type values.
@@ -421,6 +424,14 @@ const (
 	DirectoryUserStateActive    DirectoryUserState = "active"
 	DirectoryUserStateSuspended DirectoryUserState = "suspended"
 	DirectoryUserStateInactive  DirectoryUserState = "inactive"
+)
+
+// PipeConnectedAccountState represents pipe connected account state values.
+type PipeConnectedAccountState string
+
+const (
+	PipeConnectedAccountStateConnected            PipeConnectedAccountState = "connected"
+	PipeConnectedAccountStateNeedsReauthorization PipeConnectedAccountState = "needs_reauthorization"
 )
 
 // WaitlistUserState represents waitlist user state values.
@@ -834,9 +845,7 @@ type RadarStandaloneResponseControl string
 const (
 	RadarStandaloneResponseControlBotDetection          RadarStandaloneResponseControl = "bot_detection"
 	RadarStandaloneResponseControlBruteForceAttack      RadarStandaloneResponseControl = "brute_force_attack"
-	RadarStandaloneResponseControlCredentialStuffing    RadarStandaloneResponseControl = "credential_stuffing"
 	RadarStandaloneResponseControlDomainSignUpRateLimit RadarStandaloneResponseControl = "domain_sign_up_rate_limit"
-	RadarStandaloneResponseControlIPSignUpRateLimit     RadarStandaloneResponseControl = "ip_sign_up_rate_limit"
 	RadarStandaloneResponseControlImpossibleTravel      RadarStandaloneResponseControl = "impossible_travel"
 	RadarStandaloneResponseControlRepeatSignUp          RadarStandaloneResponseControl = "repeat_sign_up"
 	RadarStandaloneResponseControlStaleAccount          RadarStandaloneResponseControl = "stale_account"
@@ -844,18 +853,8 @@ const (
 	RadarStandaloneResponseControlRestriction           RadarStandaloneResponseControl = "restriction"
 )
 
-// RadarStandaloneResponseBlocklistType represents radar standalone response blocklist type values.
-type RadarStandaloneResponseBlocklistType string
-
-const (
-	RadarStandaloneResponseBlocklistTypeIPAddress         RadarStandaloneResponseBlocklistType = "ip_address"
-	RadarStandaloneResponseBlocklistTypeDomain            RadarStandaloneResponseBlocklistType = "domain"
-	RadarStandaloneResponseBlocklistTypeEmail             RadarStandaloneResponseBlocklistType = "email"
-	RadarStandaloneResponseBlocklistTypeDevice            RadarStandaloneResponseBlocklistType = "device"
-	RadarStandaloneResponseBlocklistTypeUserAgent         RadarStandaloneResponseBlocklistType = "user_agent"
-	RadarStandaloneResponseBlocklistTypeDeviceFingerprint RadarStandaloneResponseBlocklistType = "device_fingerprint"
-	RadarStandaloneResponseBlocklistTypeCountry           RadarStandaloneResponseBlocklistType = "country"
-)
+// RadarStandaloneResponseBlocklistType is an alias for RadarListType.
+type RadarStandaloneResponseBlocklistType = RadarListType
 
 // UserInviteState is an alias for InvitationAcceptedDataState.
 type UserInviteState = InvitationAcceptedDataState
@@ -891,8 +890,8 @@ const (
 	AuthenticateResponseAuthenticationMethodMigratedSession        AuthenticateResponseAuthenticationMethod = "MigratedSession"
 )
 
-// WebhookEndpointJSONStatus is an alias for UpdateWebhookEndpointStatus.
-type WebhookEndpointJSONStatus = UpdateWebhookEndpointStatus
+// WebhookEndpointStatus is an alias for UpdateWebhookEndpointStatus.
+type WebhookEndpointStatus = UpdateWebhookEndpointStatus
 
 // ProfileConnectionType is an alias for ConnectionType.
 type ProfileConnectionType = ConnectionType
@@ -963,14 +962,8 @@ const (
 type RadarStandaloneAssessRequestAction string
 
 const (
-	RadarStandaloneAssessRequestActionLogin   RadarStandaloneAssessRequestAction = "login"
-	RadarStandaloneAssessRequestActionSignup  RadarStandaloneAssessRequestAction = "signup"
-	RadarStandaloneAssessRequestActionSignUp  RadarStandaloneAssessRequestAction = "sign-up"
-	RadarStandaloneAssessRequestActionSignIn  RadarStandaloneAssessRequestAction = "sign-in"
-	RadarStandaloneAssessRequestActionSignUp2 RadarStandaloneAssessRequestAction = "sign_up"
-	RadarStandaloneAssessRequestActionSignIn2 RadarStandaloneAssessRequestAction = "sign_in"
-	RadarStandaloneAssessRequestActionSignIn3 RadarStandaloneAssessRequestAction = "sign in"
-	RadarStandaloneAssessRequestActionSignUp3 RadarStandaloneAssessRequestAction = "sign up"
+	RadarStandaloneAssessRequestActionSignUp RadarStandaloneAssessRequestAction = "sign-up"
+	RadarStandaloneAssessRequestActionSignIn RadarStandaloneAssessRequestAction = "sign-in"
 )
 
 // InvitationState is an alias for InvitationAcceptedDataState.
@@ -1070,15 +1063,25 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
-// RadarType is an alias for RadarStandaloneResponseBlocklistType.
-type RadarType = RadarStandaloneResponseBlocklistType
-
-// RadarAction represents radar action values.
-type RadarAction string
+// RadarListType represents radar list type values.
+type RadarListType string
 
 const (
-	RadarActionBlock RadarAction = "block"
-	RadarActionAllow RadarAction = "allow"
+	RadarListTypeIPAddress         RadarListType = "ip_address"
+	RadarListTypeDomain            RadarListType = "domain"
+	RadarListTypeEmail             RadarListType = "email"
+	RadarListTypeDevice            RadarListType = "device"
+	RadarListTypeUserAgent         RadarListType = "user_agent"
+	RadarListTypeDeviceFingerprint RadarListType = "device_fingerprint"
+	RadarListTypeCountry           RadarListType = "country"
+)
+
+// RadarListAction represents radar list action values.
+type RadarListAction string
+
+const (
+	RadarListActionBlock RadarListAction = "block"
+	RadarListActionAllow RadarListAction = "allow"
 )
 
 // SSOProvider represents SSO provider values.
@@ -1100,13 +1103,8 @@ const (
 	SSOProviderXeroOAuth              SSOProvider = "XeroOAuth"
 )
 
-// UserManagementAuthenticationScreenHint represents user management authentication screen hint values.
-type UserManagementAuthenticationScreenHint string
-
-const (
-	UserManagementAuthenticationScreenHintSignUp UserManagementAuthenticationScreenHint = "sign-up"
-	UserManagementAuthenticationScreenHintSignIn UserManagementAuthenticationScreenHint = "sign-in"
-)
+// UserManagementAuthenticationScreenHint is an alias for RadarStandaloneAssessRequestAction.
+type UserManagementAuthenticationScreenHint = RadarStandaloneAssessRequestAction
 
 // UserManagementAuthenticationProvider represents user management authentication provider values.
 type UserManagementAuthenticationProvider string
@@ -1130,3 +1128,11 @@ const (
 
 // UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
 type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
+
+// VaultOrder represents vault order values.
+type VaultOrder string
+
+const (
+	VaultOrderAsc  VaultOrder = "asc"
+	VaultOrderDesc VaultOrder = "desc"
+)

@@ -18,13 +18,13 @@ type VaultEncryptResult struct {
 	// EncryptedData is the base64-encoded ciphertext (LEB128 header + encrypted keys + nonce + AES-GCM output).
 	EncryptedData string
 	// KeyContext is the encryption key context used for this operation.
-	KeyContext KeyContext
+	KeyContext map[string]string
 	// EncryptedKeys is the base64-encoded encrypted key blob for later decryption via the API.
 	EncryptedKeys string
 }
 
 // Encrypt generates a data key and encrypts data locally using AES-256-GCM.
-func (s *VaultService) Encrypt(ctx context.Context, data string, keyContext KeyContext, associatedData string, opts ...RequestOption) (*VaultEncryptResult, error) {
+func (s *VaultService) Encrypt(ctx context.Context, data string, keyContext map[string]string, associatedData string, opts ...RequestOption) (*VaultEncryptResult, error) {
 	keyPair, err := s.CreateDataKey(ctx, &VaultCreateDataKeyParams{
 		Context: keyContext,
 	}, opts...)
@@ -46,7 +46,6 @@ func (s *VaultService) Encrypt(ctx context.Context, data string, keyContext KeyC
 
 // Decrypt decrypts locally encrypted data by first decrypting the data key via the API.
 func (s *VaultService) Decrypt(ctx context.Context, encryptedData string, associatedData string, opts ...RequestOption) (string, error) {
-	// Parse the encrypted data to extract the encrypted keys and context.
 	raw, err := base64.StdEncoding.DecodeString(encryptedData)
 	if err != nil {
 		return "", fmt.Errorf("workos: vault decrypt: failed to base64-decode encrypted data: %w", err)
@@ -64,10 +63,8 @@ func (s *VaultService) Decrypt(ctx context.Context, encryptedData string, associ
 	encryptedKeysBytes := raw[bytesRead : bytesRead+int(keysLen)]
 	encryptedKeysB64 := base64.StdEncoding.EncodeToString(encryptedKeysBytes)
 
-	// Decrypt the data key via the API. We pass an empty KeyContext here;
-	// the server will derive the context from the encrypted keys blob.
-	dataKey, err := s.DecryptDataKey(ctx, &VaultDecryptDataKeyParams{
-		EncryptedKeys: encryptedKeysB64,
+	dataKey, err := s.CreateDecrypt(ctx, &VaultCreateDecryptParams{
+		Keys: encryptedKeysB64,
 	}, opts...)
 	if err != nil {
 		return "", fmt.Errorf("workos: vault decrypt: failed to decrypt data key: %w", err)
@@ -84,20 +81,17 @@ func (s *VaultService) Decrypt(ctx context.Context, encryptedData string, associ
 // LocalEncrypt encrypts data with AES-256-GCM using a pre-fetched data key pair.
 //
 // Wire format (before base64): LEB128(len(encryptedKeys)) || encryptedKeys || nonce(12) || ciphertext+tag
-func LocalEncrypt(data string, keyPair DataKeyPair, associatedData string) (string, error) {
-	// Decode the raw AES key.
-	rawKey, err := base64.StdEncoding.DecodeString(keyPair.DataKey.Key)
+func LocalEncrypt(data string, keyPair CreateDataKeyResponse, associatedData string) (string, error) {
+	rawKey, err := base64.StdEncoding.DecodeString(keyPair.DataKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode data key: %w", err)
 	}
 
-	// Decode the encrypted keys blob.
 	encryptedKeys, err := base64.StdEncoding.DecodeString(keyPair.EncryptedKeys)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode encrypted keys: %w", err)
 	}
 
-	// Create AES-GCM cipher.
 	block, err := aes.NewCipher(rawKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to create AES cipher: %w", err)
@@ -108,16 +102,13 @@ func LocalEncrypt(data string, keyPair DataKeyPair, associatedData string) (stri
 		return "", fmt.Errorf("failed to create GCM: %w", err)
 	}
 
-	// Generate random nonce.
 	nonce := make([]byte, gcm.NonceSize()) // 12 bytes
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		return "", fmt.Errorf("failed to generate nonce: %w", err)
 	}
 
-	// Encrypt.
 	ciphertext := gcm.Seal(nil, nonce, []byte(data), []byte(associatedData))
 
-	// Build output: LEB128(len(encryptedKeys)) || encryptedKeys || nonce || ciphertext+tag
 	prefix := encodeLEB128(uint32(len(encryptedKeys)))
 	buf := make([]byte, 0, len(prefix)+len(encryptedKeys)+len(nonce)+len(ciphertext))
 	buf = append(buf, prefix...)
@@ -129,13 +120,12 @@ func LocalEncrypt(data string, keyPair DataKeyPair, associatedData string) (stri
 }
 
 // LocalDecrypt decrypts data with AES-256-GCM using a pre-fetched data key.
-func LocalDecrypt(encryptedData string, dataKey DataKey, associatedData string) (string, error) {
+func LocalDecrypt(encryptedData string, dataKey DecryptResponse, associatedData string) (string, error) {
 	raw, err := base64.StdEncoding.DecodeString(encryptedData)
 	if err != nil {
 		return "", fmt.Errorf("failed to base64-decode encrypted data: %w", err)
 	}
 
-	// Parse LEB128 length prefix to skip the encrypted keys.
 	keysLen, bytesRead, err := decodeLEB128(raw)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode LEB128 prefix: %w", err)
@@ -146,7 +136,6 @@ func LocalDecrypt(encryptedData string, dataKey DataKey, associatedData string) 
 		return "", errors.New("encrypted data too short: missing nonce")
 	}
 
-	// Extract nonce (12 bytes) and ciphertext+tag (remainder).
 	nonce := raw[offset : offset+12]
 	ciphertext := raw[offset+12:]
 
@@ -154,13 +143,11 @@ func LocalDecrypt(encryptedData string, dataKey DataKey, associatedData string) 
 		return "", errors.New("encrypted data too short: missing ciphertext")
 	}
 
-	// Decode the raw AES key.
-	rawKey, err := base64.StdEncoding.DecodeString(dataKey.Key)
+	rawKey, err := base64.StdEncoding.DecodeString(dataKey.DataKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode data key: %w", err)
 	}
 
-	// AES-GCM decrypt.
 	block, err := aes.NewCipher(rawKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to create AES cipher: %w", err)
