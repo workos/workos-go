@@ -15,8 +15,8 @@ type AuditLogService struct {
 
 // GetOrganizationAuditLogsRetention get Retention
 // Get the configured event retention period for the given Organization.
-func (s *AuditLogService) GetOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
-	var result AuditLogsRetentionJSON
+func (s *AuditLogService) GetOrganizationAuditLogsRetention(ctx context.Context, id string, opts ...RequestOption) (*AuditLogsRetention, error) {
+	var result AuditLogsRetention
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
@@ -32,8 +32,8 @@ type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
 
 // UpdateOrganizationAuditLogsRetention set Retention
 // Set the event retention period for the given Organization.
-func (s *AuditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Context, id string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetentionJSON, error) {
-	var result AuditLogsRetentionJSON
+func (s *AuditLogService) UpdateOrganizationAuditLogsRetention(ctx context.Context, id string, params *AuditLogsUpdateOrganizationAuditLogsRetentionParams, opts ...RequestOption) (*AuditLogsRetention, error) {
+	var result AuditLogsRetention
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/audit_logs_retention", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ type AuditLogsListActionsParams struct {
 
 // ListActions
 // Get a list of all Audit Log actions in the current environment.
-func (s *AuditLogService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogActionJSON] {
-	return newIterator[AuditLogActionJSON](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+func (s *AuditLogService) ListActions(ctx context.Context, params *AuditLogsListActionsParams, opts ...RequestOption) *Iterator[AuditLogAction] {
+	return newIterator[AuditLogAction](ctx, s.client, "GET", "/audit_logs/actions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuditLogsListActionSchemasParams contains the parameters for ListActionSchemas.
@@ -130,8 +130,8 @@ type AuditLogsCreateExportParams struct {
 
 // CreateExport
 // Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
-func (s *AuditLogService) CreateExport(ctx context.Context, params *AuditLogsCreateExportParams, opts ...RequestOption) (*AuditLogExportJSON, error) {
-	var result AuditLogExportJSON
+func (s *AuditLogService) CreateExport(ctx context.Context, params *AuditLogsCreateExportParams, opts ...RequestOption) (*AuditLogExport, error) {
+	var result AuditLogExport
 	_, err := s.client.request(ctx, "POST", "/audit_logs/exports", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -141,8 +141,8 @@ func (s *AuditLogService) CreateExport(ctx context.Context, params *AuditLogsCre
 
 // GetExport
 // Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
-func (s *AuditLogService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExportJSON, error) {
-	var result AuditLogExportJSON
+func (s *AuditLogService) GetExport(ctx context.Context, auditLogExportID string, opts ...RequestOption) (*AuditLogExport, error) {
+	var result AuditLogExport
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/audit_logs/exports/%s", url.PathEscape(auditLogExportID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err

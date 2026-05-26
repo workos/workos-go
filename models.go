@@ -150,6 +150,109 @@ type IntentOptions struct {
 	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
 }
 
+// Actor the user or API key that performed an action.
+type Actor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Name is display name of the actor.
+	Name string `json:"name"`
+}
+
+// CreateDataKeyResponse represents a create data key response.
+type CreateDataKeyResponse struct {
+	// Context is map of values used to determine the encryption key.
+	Context map[string]string `json:"context"`
+	// DataKey is base64-encoded data encryption key.
+	DataKey string `json:"data_key"`
+	// EncryptedKeys is base64-encoded encrypted data key blob.
+	EncryptedKeys string `json:"encrypted_keys"`
+	// ID is unique identifier for the generated data key.
+	ID string `json:"id"`
+}
+
+// DecryptResponse represents a decrypt response.
+type DecryptResponse struct {
+	// DataKey is base64-encoded decrypted data key.
+	DataKey string `json:"data_key"`
+	// ID is unique identifier of the decrypted data key.
+	ID string `json:"id"`
+}
+
+// DeleteObjectResponse represents a delete object response.
+type DeleteObjectResponse struct {
+	// Name is name of the deleted object.
+	Name string `json:"name"`
+	// Success is whether the deletion succeeded.
+	Success bool `json:"success"`
+}
+
+// Error error response body.
+type Error struct {
+	// Error is a human-readable description of the error.
+	Error string `json:"error"`
+}
+
+// Object an encrypted object with its decrypted value and metadata.
+type Object struct {
+	// ID is unique identifier of the object.
+	ID       string          `json:"id"`
+	Metadata *ObjectMetadata `json:"metadata"`
+	// Name is unique name of the object.
+	Name string `json:"name"`
+	// Value is decrypted plaintext value.
+	Value string `json:"value"`
+}
+
+// ObjectMetadata metadata for a stored encrypted object.
+type ObjectMetadata struct {
+	// Context is map of values used to determine the encryption key.
+	Context map[string]string `json:"context"`
+	// EnvironmentID is environment the object belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// ID is unique identifier of the object.
+	ID string `json:"id"`
+	// KeyID is encryption key identifier.
+	KeyID string `json:"key_id"`
+	// UpdatedAt is timestamp of the last update.
+	UpdatedAt string `json:"updated_at"`
+	UpdatedBy *Actor `json:"updated_by"`
+	// VersionID is current version identifier of the object.
+	VersionID *string `json:"version_id,omitempty"`
+}
+
+// ObjectSummary summary of an encrypted object returned in list responses.
+type ObjectSummary struct {
+	// ID is unique identifier of the object.
+	ID string `json:"id"`
+	// Name is unique name of the object.
+	Name string `json:"name"`
+	// UpdatedAt is timestamp of the last update.
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+// ObjectVersion a static snapshot of an encrypted object.
+type ObjectVersion struct {
+	// CreatedAt is timestamp when the version was created.
+	CreatedAt string `json:"created_at"`
+	// CurrentVersion is whether this is the active version.
+	CurrentVersion bool `json:"current_version"`
+	// Etag is hash of the object value.
+	Etag string `json:"etag"`
+	// ID is unique identifier of the version.
+	ID string `json:"id"`
+	// Size is number of bytes of stored data.
+	Size int `json:"size"`
+}
+
+// ObjectWithoutValue an encrypted object's metadata (value excluded).
+type ObjectWithoutValue struct {
+	// ID is unique identifier of the object.
+	ID       string          `json:"id"`
+	Metadata *ObjectMetadata `json:"metadata"`
+	// Name is unique name of the object.
+	Name string `json:"name"`
+}
+
 // ExternalAuthCompleteResponse represents an external auth complete response.
 type ExternalAuthCompleteResponse struct {
 	// RedirectURI is uri to redirect the user back to AuthKit to complete the OAuth flow.
@@ -170,6 +273,8 @@ type APIKey struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -239,14 +344,14 @@ type AuditLogEventCreateResponse struct {
 	Success bool `json:"success"`
 }
 
-// AuditLogExportJSON represents an audit log export json.
-type AuditLogExportJSON struct {
+// AuditLogExport represents an audit log export.
+type AuditLogExport struct {
 	// Object distinguishes the Audit Log Export object.
 	Object string `json:"object"`
 	// ID is the unique ID of the Audit Log Export.
 	ID string `json:"id"`
 	// State is the state of the export. Possible values: pending, ready, error.
-	State AuditLogExportJSONState `json:"state"`
+	State AuditLogExportState `json:"state"`
 	// URL is a URL to the CSV file. Only defined when the Audit Log Export is ready.
 	URL *string `json:"url,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -255,8 +360,8 @@ type AuditLogExportJSON struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AuditLogsRetentionJSON represents an audit logs retention json.
-type AuditLogsRetentionJSON struct {
+// AuditLogsRetention represents an audit logs retention.
+type AuditLogsRetention struct {
 	// RetentionPeriodInDays is the number of days Audit Log events will be retained before being permanently deleted. Valid values are 30 and 365.
 	RetentionPeriodInDays *int `json:"retention_period_in_days"`
 }
@@ -277,8 +382,8 @@ type AuditLogSchemaJSON struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// AuditLogActionJSON represents an audit log action json.
-type AuditLogActionJSON struct {
+// AuditLogAction represents an audit log action.
+type AuditLogAction struct {
 	// Object distinguishes the Audit Log Action object.
 	Object string `json:"object"`
 	// Name is identifier of what action was taken.
@@ -702,6 +807,30 @@ type DirectoryUser struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// PipeConnectedAccount represents a pipe connected account.
+type PipeConnectedAccount struct {
+	// Object is the connected account object.
+	Object string `json:"object"`
+	// ID is the unique ID of the connected account.
+	ID string `json:"id"`
+	// DataIntegrationID is the unique ID of the data integration.
+	DataIntegrationID string `json:"data_integration_id"`
+	// ProviderSlug is the provider slug for this connected account.
+	ProviderSlug string `json:"provider_slug"`
+	// UserID is the ID of the User the connected account belongs to.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the ID of the Organization the connected account belongs to.
+	OrganizationID *string `json:"organization_id"`
+	// Scopes is the OAuth scopes granted for this connected account.
+	Scopes []string `json:"scopes"`
+	// State is the state of the connected account.
+	State PipeConnectedAccountState `json:"state"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // WaitlistUser represents a waitlist user.
 type WaitlistUser struct {
 	// Object distinguishes the Waitlist User object.
@@ -834,6 +963,8 @@ type APIKeyCreatedData struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is the timestamp when the API key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at,omitempty"`
 	// Permissions is the permissions granted to the API key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is the timestamp when the API key was created.
@@ -888,6 +1019,8 @@ type APIKeyRevokedData struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is the timestamp when the API key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at,omitempty"`
 	// Permissions is the permissions granted to the API key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is the timestamp when the API key was created.
@@ -2207,13 +2340,8 @@ type FlagRuleUpdatedContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextConfiguredTargetOrganization represents a flag rule updated context configured target organization.
-type FlagRuleUpdatedContextConfiguredTargetOrganization struct {
-	// ID is the ID of the organization.
-	ID string `json:"id"`
-	// Name is the name of the organization.
-	Name string `json:"name"`
-}
+// FlagRuleUpdatedContextConfiguredTargetOrganization is an alias for Actor.
+type FlagRuleUpdatedContextConfiguredTargetOrganization = Actor
 
 // FlagRuleUpdatedContextConfiguredTargetUser represents a flag rule updated context configured target user.
 type FlagRuleUpdatedContextConfiguredTargetUser struct {
@@ -2255,8 +2383,8 @@ type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for FlagRuleUpdatedContextConfiguredTargetOrganization.
-type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = FlagRuleUpdatedContextConfiguredTargetOrganization
+// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for Actor.
+type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = Actor
 
 // FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser is an alias for FlagRuleUpdatedContextConfiguredTargetUser.
 type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser = FlagRuleUpdatedContextConfiguredTargetUser
@@ -3315,6 +3443,48 @@ type PermissionUpdated struct {
 // PermissionUpdatedData is an alias for PermissionCreatedData.
 type PermissionUpdatedData = PermissionCreatedData
 
+// PipesConnectedAccountConnected represents a pipes connected account connected.
+type PipesConnectedAccountConnected struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PipesConnectedAccountDisconnected represents a pipes connected account disconnected.
+type PipesConnectedAccountDisconnected struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
+// PipesConnectedAccountReauthorizationNeeded represents a pipes connected account reauthorization needed.
+type PipesConnectedAccountReauthorizationNeeded struct {
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+}
+
 // RoleCreated represents a role created.
 type RoleCreated struct {
 	// ID is unique identifier for the event.
@@ -3899,6 +4069,8 @@ type OrganizationAPIKey struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -3921,6 +4093,8 @@ type OrganizationAPIKeyWithValue struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4163,6 +4337,8 @@ type UserAPIKey struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4185,6 +4361,8 @@ type UserAPIKeyWithValue struct {
 	ObfuscatedValue string `json:"obfuscated_value"`
 	// LastUsedAt is timestamp of when the API Key was last used.
 	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permission slugs assigned to the API Key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4296,8 +4474,8 @@ type DeviceAuthorizationResponse struct {
 	Interval *float64 `json:"interval,omitempty"`
 }
 
-// WebhookEndpointJSON represents a webhook endpoint json.
-type WebhookEndpointJSON struct {
+// WebhookEndpoint represents a webhook endpoint.
+type WebhookEndpoint struct {
 	// Object distinguishes the Webhook Endpoint object.
 	Object string `json:"object"`
 	// ID is unique identifier of the Webhook Endpoint.
@@ -4307,7 +4485,7 @@ type WebhookEndpointJSON struct {
 	// Secret is the secret used to sign webhook payloads.
 	Secret string `json:"secret"`
 	// Status is whether the Webhook Endpoint is enabled or disabled.
-	Status WebhookEndpointJSONStatus `json:"status"`
+	Status WebhookEndpointStatus `json:"status"`
 	// Events is the events that the Webhook Endpoint is subscribed to.
 	Events []string `json:"events"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -5093,5 +5271,5 @@ type PaginationParams struct {
 	// Limit is the maximum number of items to return per page.
 	Limit *int `url:"limit,omitempty" json:"-"`
 	// Order is the sort order for results.
-	Order *PaginationOrder `url:"order,omitempty" json:"-"`
+	Order *string `url:"order,omitempty" json:"-"`
 }
