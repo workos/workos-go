@@ -57,13 +57,6 @@ type RefreshSessionResult struct {
 	SealedSession string
 	Session       *SessionData
 	Reason        string
-	// Err is the underlying error that produced an authentication-level
-	// failure (e.g. a *APIError from AuthenticateWithRefreshToken). It is
-	// populated alongside Reason on the "refresh_token_revoked" and
-	// "refresh_failed" paths so callers can recover status code, error
-	// code, and request ID via errors.As — without changing Refresh's
-	// `(result, nil)` return contract.
-	Err error
 }
 
 // Session provides session cookie management.
@@ -146,6 +139,12 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 }
 
 // Refresh refreshes the session using the refresh token.
+//
+// On authentication-level failures (revoked refresh token, transient upstream
+// errors) the returned error is non-nil and the result carries
+// Authenticated=false with a Reason of "refresh_token_revoked" or
+// "refresh_failed". Callers should check result.Authenticated (not err == nil)
+// as the success signal.
 func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshSessionResult, error) {
 	if s.sessionData == "" {
 		return &RefreshSessionResult{
@@ -186,12 +185,6 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		OrganizationID: orgID,
 	}, opts...)
 	if err != nil {
-		// Distinguish a permanently revoked / invalid refresh token (401
-		// invalid_grant) from a transient failure (5xx, network errors,
-		// rate limit). The underlying error is exposed on result.Err so
-		// callers can recover the typed *APIError via errors.As without
-		// changing Refresh's `(result, nil)` return contract for
-		// authentication-level failures.
 		reason := "refresh_failed"
 		var apiErr *APIError
 		if errors.As(err, &apiErr) && apiErr.StatusCode == 401 && apiErr.ErrorCode == "invalid_grant" {
@@ -200,8 +193,7 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		return &RefreshSessionResult{
 			Authenticated: false,
 			Reason:        reason,
-			Err:           err,
-		}, nil
+		}, err
 	}
 
 	newSession := &SessionData{
