@@ -103,7 +103,7 @@ func TestAuditLogs_ListActionSchemas(t *testing.T) {
 		require.Equal(t, "10", r.URL.Query().Get("limit"))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_audit_log_schema_json.json")
+		fixture, err := os.ReadFile("testdata/list_audit_log_schema.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -143,7 +143,7 @@ func TestAuditLogs_CreateSchema(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/audit_log_schema_json.json")
+		fixture, err := os.ReadFile("testdata/audit_log_schema.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

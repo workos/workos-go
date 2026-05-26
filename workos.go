@@ -35,7 +35,6 @@ type Client struct {
 	widgets                *WidgetService
 	auditLogs              *AuditLogService
 	passwordless           *PasswordlessService
-	vault                  *VaultService
 }
 
 // NewClient creates a new WorkOS API client.
@@ -70,7 +69,6 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.widgets = &WidgetService{client: c}
 	c.auditLogs = &AuditLogService{client: c}
 	c.passwordless = &PasswordlessService{client: c}
-	c.vault = &VaultService{client: c}
 	return c
 }
 
@@ -177,9 +175,4 @@ func (c *Client) AuditLogs() *AuditLogService {
 // Passwordless returns the Passwordless service.
 func (c *Client) Passwordless() *PasswordlessService {
 	return c.passwordless
-}
-
-// Vault returns the Vault service.
-func (c *Client) Vault() *VaultService {
-	return c.vault
 }

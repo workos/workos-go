@@ -59,24 +59,24 @@ type AuditLogsListActionSchemasParams struct {
 
 // ListActionSchemas list Schemas
 // Get a list of all schemas for the Audit Logs action identified by `:name`.
-func (s *AuditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchemaJSON] {
-	return newIterator[AuditLogSchemaJSON](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+func (s *AuditLogService) ListActionSchemas(ctx context.Context, actionName string, params *AuditLogsListActionSchemasParams, opts ...RequestOption) *Iterator[AuditLogSchema] {
+	return newIterator[AuditLogSchema](ctx, s.client, "GET", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // AuditLogsCreateSchemaParams contains the parameters for CreateSchema.
 type AuditLogsCreateSchemaParams struct {
 	// Actor is the metadata schema for the actor.
-	Actor *AuditLogSchemaActor `json:"actor,omitempty" url:"-"`
+	Actor *AuditLogSchemaActorInput `json:"actor,omitempty" url:"-"`
 	// Targets is the list of targets for the schema.
-	Targets []*AuditLogSchemaTarget `json:"targets" url:"-"`
+	Targets []*AuditLogSchemaTargetInput `json:"targets" url:"-"`
 	// Metadata is optional JSON schema for event metadata.
 	Metadata map[string]interface{} `json:"metadata,omitempty" url:"-"`
 }
 
 // CreateSchema
 // Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
-func (s *AuditLogService) CreateSchema(ctx context.Context, actionName string, params *AuditLogsCreateSchemaParams, opts ...RequestOption) (*AuditLogSchemaJSON, error) {
-	var result AuditLogSchemaJSON
+func (s *AuditLogService) CreateSchema(ctx context.Context, actionName string, params *AuditLogsCreateSchemaParams, opts ...RequestOption) (*AuditLogSchema, error) {
+	var result AuditLogSchema
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err

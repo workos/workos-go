@@ -5,7 +5,6 @@
       "role": {
         "type": "string"
       }
-    },
-    "key": {}
+    }
   }
 }

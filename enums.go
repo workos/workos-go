@@ -853,18 +853,8 @@ const (
 	RadarStandaloneResponseControlRestriction           RadarStandaloneResponseControl = "restriction"
 )
 
-// RadarStandaloneResponseBlocklistType represents radar standalone response blocklist type values.
-type RadarStandaloneResponseBlocklistType string
-
-const (
-	RadarStandaloneResponseBlocklistTypeIPAddress         RadarStandaloneResponseBlocklistType = "ip_address"
-	RadarStandaloneResponseBlocklistTypeDomain            RadarStandaloneResponseBlocklistType = "domain"
-	RadarStandaloneResponseBlocklistTypeEmail             RadarStandaloneResponseBlocklistType = "email"
-	RadarStandaloneResponseBlocklistTypeDevice            RadarStandaloneResponseBlocklistType = "device"
-	RadarStandaloneResponseBlocklistTypeUserAgent         RadarStandaloneResponseBlocklistType = "user_agent"
-	RadarStandaloneResponseBlocklistTypeDeviceFingerprint RadarStandaloneResponseBlocklistType = "device_fingerprint"
-	RadarStandaloneResponseBlocklistTypeCountry           RadarStandaloneResponseBlocklistType = "country"
-)
+// RadarStandaloneResponseBlocklistType is an alias for RadarListType.
+type RadarStandaloneResponseBlocklistType = RadarListType
 
 // UserInviteState is an alias for InvitationAcceptedDataState.
 type UserInviteState = InvitationAcceptedDataState
@@ -1073,15 +1063,25 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
-// RadarType is an alias for RadarStandaloneResponseBlocklistType.
-type RadarType = RadarStandaloneResponseBlocklistType
-
-// RadarAction represents radar action values.
-type RadarAction string
+// RadarListType represents radar list type values.
+type RadarListType string
 
 const (
-	RadarActionBlock RadarAction = "block"
-	RadarActionAllow RadarAction = "allow"
+	RadarListTypeIPAddress         RadarListType = "ip_address"
+	RadarListTypeDomain            RadarListType = "domain"
+	RadarListTypeEmail             RadarListType = "email"
+	RadarListTypeDevice            RadarListType = "device"
+	RadarListTypeUserAgent         RadarListType = "user_agent"
+	RadarListTypeDeviceFingerprint RadarListType = "device_fingerprint"
+	RadarListTypeCountry           RadarListType = "country"
+)
+
+// RadarListAction represents radar list action values.
+type RadarListAction string
+
+const (
+	RadarListActionBlock RadarListAction = "block"
+	RadarListActionAllow RadarListAction = "allow"
 )
 
 // SSOProvider represents SSO provider values.
