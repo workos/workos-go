@@ -1,5 +1,33 @@
 # Changelog
 
+## [9.0.0](https://github.com/workos/workos-go/compare/v8.0.1...v9.0.0) (2026-05-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* return error from Session.Refresh on auth failures ([#549](https://github.com/workos/workos-go/issues/549))
+* **audit_logs:** Rename audit log model types (breaking) ([#554](https://github.com/workos/workos-go/issues/554))
+* **radar:** Remove device_fingerprint and bot_score parameters ([#554](https://github.com/workos/workos-go/issues/554))
+* **user_management:** Refactor organization membership to dedicated service ([#554](https://github.com/workos/workos-go/issues/554))
+
+### Features
+
+* **api_keys:** Add expires_at field to API key models ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **audit_logs:** Rename audit log model types (breaking) ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **authorization:** Add filter parameters to role/resource assignment list ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **generated:** Add new vault-related model types ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **organization_membership:** Add new organization membership service ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **pipes:** Add pipes connected account event models ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **radar:** Remove device_fingerprint and bot_score parameters ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **user_management:** Refactor organization membership to dedicated service ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **vault:** Add new vault service for encryption key management ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+* **webhooks:** Rename webhook endpoint model type ([#554](https://github.com/workos/workos-go/issues/554)) ([0add116](https://github.com/workos/workos-go/commit/0add1169ca3254c962d312700208b1972dfd380d))
+
+
+### Bug Fixes
+
+* return error from Session.Refresh on auth failures ([#549](https://github.com/workos/workos-go/issues/549)) ([239fc22](https://github.com/workos/workos-go/commit/239fc227c6bd0675f2b23b3ae2e883fcaddcb462))
+
 ## [8.0.1](https://github.com/workos/workos-go/compare/v8.0.0...v8.0.1) (2026-05-13)
 
 
