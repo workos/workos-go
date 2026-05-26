@@ -60,7 +60,7 @@ jobs:
             exit 0
           fi
 
-          VERSION=$(echo "$PR_JSON" | jq -r '.version')
+          VERSION=$(echo "$PR_JSON" | jq -r '.title' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           export VERSION
 
           python3 - <<'PY'
