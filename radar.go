@@ -25,10 +25,6 @@ type RadarCreateAttemptParams struct {
 	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method" url:"-"`
 	// Action is the action being performed.
 	Action RadarStandaloneAssessRequestAction `json:"action" url:"-"`
-	// DeviceFingerprint is an optional device fingerprint for the request.
-	DeviceFingerprint *string `json:"device_fingerprint,omitempty" url:"-"`
-	// BotScore is an optional bot detection score for the request.
-	BotScore *string `json:"bot_score,omitempty" url:"-"`
 }
 
 // CreateAttempt create an attempt
