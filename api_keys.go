@@ -30,6 +30,8 @@ type APIKeysCreateOrganizationAPIKeyParams struct {
 	Name string `json:"name" url:"-"`
 	// Permissions is the permission slugs to assign to the API key.
 	Permissions []string `json:"permissions,omitempty" url:"-"`
+	// ExpiresAt is the timestamp when the API key should expire. Must be a future timestamp. If omitted, the key does not expire.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
 }
 
 // CreateOrganizationAPIKey create an API key for an organization
