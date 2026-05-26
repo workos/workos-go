@@ -203,6 +203,12 @@ func (s *AuthorizationService) ListEffectivePermissionsByExternalID(ctx context.
 // AuthorizationListRoleAssignmentsParams contains the parameters for ListRoleAssignments.
 type AuthorizationListRoleAssignmentsParams struct {
 	PaginationParams
+	// ResourceID is filter assignments by the ID of the resource.
+	ResourceID *string `url:"resource_id,omitempty" json:"-"`
+	// ResourceExternalID is filter assignments by the external ID of the resource.
+	ResourceExternalID *string `url:"resource_external_id,omitempty" json:"-"`
+	// ResourceTypeSlug is filter assignments by the slug of the resource type.
+	ResourceTypeSlug *string `url:"resource_type_slug,omitempty" json:"-"`
 }
 
 // ListRoleAssignments
@@ -488,6 +494,8 @@ func (s *AuthorizationService) ListMembershipsForResourceByExternalID(ctx contex
 // AuthorizationListRoleAssignmentsForResourceByExternalIDParams contains the parameters for ListRoleAssignmentsForResourceByExternalID.
 type AuthorizationListRoleAssignmentsForResourceByExternalIDParams struct {
 	PaginationParams
+	// RoleSlug is filter assignments by the slug of the role.
+	RoleSlug *string `url:"role_slug,omitempty" json:"-"`
 }
 
 // ListRoleAssignmentsForResourceByExternalID list role assignments for a resource by external ID
@@ -505,8 +513,6 @@ type AuthorizationListResourcesParams struct {
 	ResourceTypeSlug *string `url:"resource_type_slug,omitempty" json:"-"`
 	// ResourceExternalID is filter resources by external ID.
 	ResourceExternalID *string `url:"resource_external_id,omitempty" json:"-"`
-	// Search is search resources by name.
-	Search *string `url:"search,omitempty" json:"-"`
 	// Parent optionally identifies the parent.
 	Parent AuthorizationParent `url:"-" json:"-"`
 }
@@ -535,9 +541,6 @@ func (s *AuthorizationService) ListResources(ctx context.Context, params *Author
 	}
 	if params.ResourceExternalID != nil {
 		query.Set("resource_external_id", *params.ResourceExternalID)
-	}
-	if params.Search != nil {
-		query.Set("search", *params.Search)
 	}
 	if params.Parent != nil {
 		params.Parent.applyToQuery(query)
@@ -676,6 +679,8 @@ func (s *AuthorizationService) ListMembershipsForResource(ctx context.Context, r
 // AuthorizationListRoleAssignmentsForResourceParams contains the parameters for ListRoleAssignmentsForResource.
 type AuthorizationListRoleAssignmentsForResourceParams struct {
 	PaginationParams
+	// RoleSlug is filter assignments by the slug of the role.
+	RoleSlug *string `url:"role_slug,omitempty" json:"-"`
 }
 
 // ListRoleAssignmentsForResource list role assignments for a resource
