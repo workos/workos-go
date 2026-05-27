@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v8"
+	"github.com/workos/workos-go/v9"
 )
 
 func TestGetSSOAuthorizationURL_BuildsCorrectURL(t *testing.T) {

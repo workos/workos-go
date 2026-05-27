@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v8"
+	"github.com/workos/workos-go/v9"
 )
 
 func TestPasswordless_CreateSession(t *testing.T) {

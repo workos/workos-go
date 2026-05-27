@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v8"
+	"github.com/workos/workos-go/v9"
 )
 
 func TestAuditLogs_GetOrganizationAuditLogsRetention(t *testing.T) {
