@@ -1,5 +1,105 @@
 # Changelog
 
+## [9.1.0](https://github.com/workos/workos-go/compare/v9.0.0...v9.1.0) (2026-05-27)
+
+### Features
+
+* add generated events constants package ([#560](https://github.com/workos/workos-go/issues/560)) ([4a57b0d](https://github.com/workos/workos-go/commit/4a57b0de2653001bd1c7abe7c8806626cada35e8))
+
+
+### Bug Fixes
+
+* v9 module path release workflow ([#559](https://github.com/workos/workos-go/issues/559)) ([b89d38d](https://github.com/workos/workos-go/commit/b89d38d5fe3959a23a6f348424582513ca4bccbc))
+
+* [#554](https://github.com/workos/workos-go/pull/554) feat(generated)!: regenerate from spec (11 changes)
+
+  **⚠️ Breaking**
+  * **audit_logs:** Rename audit log model types (breaking)
+    * Rename `AuditLogExportJSON` to `AuditLogExport`
+    * Rename `AuditLogsRetentionJSON` to `AuditLogsRetention`
+    * Rename `AuditLogActionJSON` to `AuditLogAction`
+    * Rename `AuditLogExportJSONState` to `AuditLogExportState`
+    * Update method signatures to use new type names
+  * **authorization:** Remove `Search` parameter from `AuthorizationListResourcesParams`
+  * **radar:** Remove device_fingerprint and bot_score parameters
+    * Remove `DeviceFingerprint` field from `RadarCreateAttemptParams`
+    * Remove `BotScore` field from `RadarCreateAttemptParams`
+    * Remove enum values `CREDENTIAL_STUFFING` and `IP_SIGN_UP_RATE_LIMIT` from `RadarStandaloneResponseControl`
+    * Remove and update enum values in `RadarStandaloneAssessRequestAction` (keep only `SignUp` and `SignIn` with updated values)
+  * **user_management:** Refactor organization membership to dedicated service
+    * Move organization membership operations from `UserManagementService` to new `OrganizationMembershipService`
+    * Remove `ListOrganizationMemberships`, `CreateOrganizationMembership`, `GetOrganizationMembership`, `UpdateOrganizationMembership`, `DeleteOrganizationMembership`, `DeactivateOrganizationMembership`, `ReactivateOrganizationMembership` methods from user management
+    * Remove role helper types (`UserManagementRole`, `UserManagementRoleSingle`, `UserManagementRoleMultiple`) from user management (now in organization_membership)
+    * Add `ExpiresAt` field to `UserManagementCreateAPIKeyParams`
+    * Remove `UserManagementOrganizationMembershipGroups()` client accessor (replaced by `OrganizationMembership()`)
+    * Remove `UserManagementOrganizationMembershipGroupService` type and `ListOrganizationMembershipGroups` method
+  * **vault:** Rewrite vault service with breaking API changes
+    * Remove `KeyContext` struct (replaced by `map[string]string`)
+    * Remove `DataKeyPair` struct (replaced by `CreateDataKeyResponse`)
+    * Remove `DataKey` struct (replaced by `DecryptResponse`)
+    * Remove hand-written types: `VaultObject`, `VaultObjectDigest`, `VaultObjectVersion`, `VaultListObjectsParams`, `VaultListObjectsResponse`, `VaultCreateObjectParams`, `VaultUpdateObjectParams`, `VaultDecryptDataKeyParams`
+    * Rename methods: `ListObjects`→`ListKv`, `CreateObject`→`CreateKv`, `ReadObject`→`GetKv`, `ReadObjectByName`→`GetName`, `UpdateObject`→`UpdateKv`, `DeleteObject`→`DeleteKv`, `ListObjectVersions`→`ListKvVersions`, `DescribeObject`→`ListKvMetadata`, `DecryptDataKey`→`CreateDecrypt`
+    * Change `LocalEncrypt` signature: second param from `DataKeyPair` to `CreateDataKeyResponse`
+    * Change `LocalDecrypt` signature: second param from `DataKey` to `DecryptResponse`
+    * Change `Encrypt` method: `KeyContext` param type to `map[string]string`
+    * Change `VaultEncryptResult.KeyContext` field type from `KeyContext` to `map[string]string`
+
+  **Features**
+  * **api_keys:** Add expires_at field to API key models
+    * Add optional `expires_at` field to `APIKeysCreateOrganizationAPIKeyParams`
+    * Add optional `expires_at` field to `UserManagementCreateAPIKeyParams`
+    * Add optional `expires_at` field to `APIKey`, `APIKeyCreatedData`, `APIKeyRevokedData`, `OrganizationAPIKey`, `OrganizationAPIKeyWithValue`, `UserAPIKey`, and `UserAPIKeyWithValue` models
+  * **authorization:** Add filter parameters to role/resource assignment list
+    * Add `ResourceID`, `ResourceExternalID`, `ResourceTypeSlug` parameters to `AuthorizationListRoleAssignmentsParams`
+    * Add `RoleSlug` parameter to `AuthorizationListRoleAssignmentsForResourceByExternalIDParams` and `AuthorizationListRoleAssignmentsForResourceParams`
+  * **organization_membership:** Add new organization membership service
+    * Add new `OrganizationMembershipService` with methods: `List`, `Create`, `Get`, `Update`, `Delete`, `Deactivate`, `Reactivate`, `ListGroups`
+    * Define `OrganizationMembershipRole` interface with single and multiple variants for flexible role assignment
+    * Add corresponding parameter types for all service methods
+  * **vault:** Add new generated vault methods
+    * Add `CreateRekey` method for re-encrypting data keys under a new context
+    * Add `ListKvMetadata` method for retrieving object metadata
+    * Add object CRUD operations via generated service: `CreateKv`, `GetKv`, `GetName`, `UpdateKv`, `DeleteKv`, `ListKv`, `ListKvVersions`
+  * **webhooks:** Rename webhook endpoint model type
+    * Rename `WebhookEndpointJSON` to `WebhookEndpoint`
+    * Rename `WebhookEndpointJSONStatus` to `WebhookEndpointStatus`
+    * Update method signatures and return types accordingly
+  * **pipes:** Add pipes connected account event models
+    * Add `PipeConnectedAccount` model with state tracking
+    * Add `PipesConnectedAccountConnected`, `PipesConnectedAccountDisconnected`, `PipesConnectedAccountReauthorizationNeeded` event models
+    * Add `PipeConnectedAccountState` enum with `connected` and `needs_reauthorization` values
+    * Add webhook event types for pipes integration events
+  * **generated:** Add new vault-related model types
+    * Add `Actor` model for audit log actor representation
+    * Add vault encryption models: `CreateDataKeyResponse`, `DecryptResponse`, `DeleteObjectResponse`
+    * Add vault object models: `Object`, `ObjectMetadata`, `ObjectSummary`, `ObjectVersion`, `ObjectWithoutValue`
+    * Add vault request models: `CreateDataKeyRequest`, `DecryptRequest`, `RekeyRequest`, `CreateObjectRequest`, `UpdateObjectRequest`
+    * Add error and metadata models: `Error`, `ListMetadata`, `VersionListResponse`
+
+* **session:** `Session.Refresh` now returns a non-nil error alongside the result on authentication-level failures (`refresh_token_revoked`, `refresh_failed`). The `RefreshSessionResult.Err` field has been removed — use the second return value instead. Callers should check `result.Authenticated` (not `err == nil`) as the success signal.
+
+  **Migration:** replace `result.Err` with the `err` return value from `Refresh`:
+
+  ```go
+  // Before (v8)
+  result, _ := session.Refresh(ctx)
+  if !result.Authenticated {
+      if result.Err != nil {
+          var apiErr *workos.APIError
+          errors.As(result.Err, &apiErr)
+      }
+  }
+
+  // After (v9)
+  result, err := session.Refresh(ctx)
+  if !result.Authenticated {
+      if err != nil {
+          var apiErr *workos.APIError
+          errors.As(err, &apiErr)
+      }
+  }
+  ```
+
 ## [9.0.0](https://github.com/workos/workos-go/compare/v8.0.1...v9.0.0) (2026-05-26)
 
 
