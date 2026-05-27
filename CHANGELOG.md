@@ -1,5 +1,17 @@
 # Changelog
 
+## [9.1.0](https://github.com/workos/workos-go/compare/v9.0.0...v9.1.0) (2026-05-27)
+
+
+### Features
+
+* add generated events constants package ([#560](https://github.com/workos/workos-go/issues/560)) ([4a57b0d](https://github.com/workos/workos-go/commit/4a57b0de2653001bd1c7abe7c8806626cada35e8))
+
+
+### Bug Fixes
+
+* v9 module path release workflow ([#559](https://github.com/workos/workos-go/issues/559)) ([b89d38d](https://github.com/workos/workos-go/commit/b89d38d5fe3959a23a6f348424582513ca4bccbc))
+
 ## [9.0.0](https://github.com/workos/workos-go/compare/v8.0.1...v9.0.0) (2026-05-26)
 
 
