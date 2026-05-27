@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-05-26T17:47:05.944Z",
+  "generatedAt": "2026-05-27T13:38:14.277Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -306,7 +306,6 @@
     "testdata/magic_auth_created_data.json",
     "testdata/mfa_totp_session_authenticate_request.json",
     "testdata/new_connect_application_secret.json",
-    "testdata/object.json",
     "testdata/object_metadata.json",
     "testdata/object_summary.json",
     "testdata/object_version.json",
@@ -445,6 +444,7 @@
     "testdata/vault_metadata_read_data.json",
     "testdata/vault_names_listed.json",
     "testdata/vault_names_listed_data.json",
+    "testdata/vault_object.json",
     "testdata/verify_email_address.json",
     "testdata/verify_email_response.json",
     "testdata/version_list_response.json",

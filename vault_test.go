@@ -162,7 +162,7 @@ func TestVault_GetName(t *testing.T) {
 		require.Equal(t, "/vault/v1/kv/name/test_name", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/object.json")
+		fixture, err := os.ReadFile("testdata/vault_object.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -185,7 +185,7 @@ func TestVault_GetKv(t *testing.T) {
 		require.Equal(t, "/vault/v1/kv/test_id", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/object.json")
+		fixture, err := os.ReadFile("testdata/vault_object.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}

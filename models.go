@@ -197,8 +197,8 @@ type ListMetadata struct {
 	Before *string `json:"before,omitempty"`
 }
 
-// Object an encrypted object with its decrypted value and metadata.
-type Object struct {
+// VaultObject an encrypted object with its decrypted value and metadata.
+type VaultObject struct {
 	// ID is unique identifier of the object.
 	ID       string          `json:"id"`
 	Metadata *ObjectMetadata `json:"metadata"`

@@ -104,8 +104,8 @@ func (s *VaultService) CreateKv(ctx context.Context, params *VaultCreateKvParams
 
 // GetName read an object by name
 // Fetch and decrypt an object by its unique name.
-func (s *VaultService) GetName(ctx context.Context, name string, opts ...RequestOption) (*Object, error) {
-	var result Object
+func (s *VaultService) GetName(ctx context.Context, name string, opts ...RequestOption) (*VaultObject, error) {
+	var result VaultObject
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/name/%s", url.PathEscape(name)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
@@ -115,8 +115,8 @@ func (s *VaultService) GetName(ctx context.Context, name string, opts ...Request
 
 // GetKv read an object by ID
 // Fetch and decrypt an object by its unique identifier.
-func (s *VaultService) GetKv(ctx context.Context, id string, opts ...RequestOption) (*Object, error) {
-	var result Object
+func (s *VaultService) GetKv(ctx context.Context, id string, opts ...RequestOption) (*VaultObject, error) {
+	var result VaultObject
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/vault/v1/kv/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
