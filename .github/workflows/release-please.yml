@@ -40,6 +40,40 @@ jobs:
           ref: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
           token: ${{ steps.app-token.outputs.token }}
 
+      # Go modules require the module path and all import statements to
+      # include the major version (e.g. /v7). release-please doesn't handle
+      # this, so when a release PR bumps the major version we automatically
+      # rewrite go.mod, imports, and READMEs on the release PR branch.
+      - name: Migrate Go module path for major version bump
+        if: steps.release.outputs.pr
+        run: |
+          CURRENT_MAJOR=$(grep -oP 'module github\.com/workos/workos-go/v\K[0-9]+' go.mod)
+          NEW_VERSION=$(jq -r '."."' .release-please-manifest.json)
+          NEW_MAJOR="${NEW_VERSION%%.*}"
+
+          if [ "$CURRENT_MAJOR" = "$NEW_MAJOR" ]; then
+            echo "No major version change ($CURRENT_MAJOR → $NEW_MAJOR), skipping"
+            exit 0
+          fi
+
+          echo "Major version bump detected: v$CURRENT_MAJOR → v$NEW_MAJOR"
+
+          sed -i "s|module github.com/workos/workos-go/v${CURRENT_MAJOR}|module github.com/workos/workos-go/v${NEW_MAJOR}|" go.mod
+          find . -name '*.go' -not -path './.git/*' -type f \
+            -exec sed -i "s|github.com/workos/workos-go/v${CURRENT_MAJOR}|github.com/workos/workos-go/v${NEW_MAJOR}|g" {} +
+          find . -name 'README.md' -not -path './.git/*' -type f \
+            -exec sed -i "s|workos-go/v${CURRENT_MAJOR}|workos-go/v${NEW_MAJOR}|g" {} +
+
+          git config user.name "workos-sdk-automation[bot]"
+          git config user.email "255426317+workos-sdk-automation[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update go.mod and import paths for v${NEW_MAJOR}"
+            git push
+          fi
+
       # Inline pending changelog fragments under the version heading
       # release-please just wrote in CHANGELOG.md. For PRs that have a
       # fragment (the autogen flow always writes one), drop the line
@@ -128,40 +162,6 @@ jobs:
           git add CHANGELOG.md
           git commit -m "chore: inline release notes from .changelog-pending"
           git push
-
-      # Go modules require the module path and all import statements to
-      # include the major version (e.g. /v7). release-please doesn't handle
-      # this, so when a release PR bumps the major version we automatically
-      # rewrite go.mod, imports, and READMEs on the release PR branch.
-      - name: Migrate Go module path for major version bump
-        if: steps.release.outputs.pr
-        run: |
-          CURRENT_MAJOR=$(grep -oP 'module github\.com/workos/workos-go/v\K[0-9]+' go.mod)
-          NEW_VERSION=$(jq -r '."."' .release-please-manifest.json)
-          NEW_MAJOR="${NEW_VERSION%%.*}"
-
-          if [ "$CURRENT_MAJOR" = "$NEW_MAJOR" ]; then
-            echo "No major version change ($CURRENT_MAJOR → $NEW_MAJOR), skipping"
-            exit 0
-          fi
-
-          echo "Major version bump detected: v$CURRENT_MAJOR → v$NEW_MAJOR"
-
-          sed -i "s|module github.com/workos/workos-go/v${CURRENT_MAJOR}|module github.com/workos/workos-go/v${NEW_MAJOR}|" go.mod
-          find . -name '*.go' -not -path './.git/*' -type f \
-            -exec sed -i "s|github.com/workos/workos-go/v${CURRENT_MAJOR}|github.com/workos/workos-go/v${NEW_MAJOR}|g" {} +
-          find . -name 'README.md' -not -path './.git/*' -type f \
-            -exec sed -i "s|workos-go/v${CURRENT_MAJOR}|workos-go/v${NEW_MAJOR}|g" {} +
-
-          git config user.name "workos-sdk-automation[bot]"
-          git config user.email "255426317+workos-sdk-automation[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update go.mod and import paths for v${NEW_MAJOR}"
-            git push
-          fi
 
   # Detect when a release-please release PR has merged, then tag and
   # create the GitHub Release whose body is extracted from CHANGELOG.md
