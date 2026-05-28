@@ -5,12 +5,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
   release-please:
+    needs: publish-release
+    if: needs.publish-release.outputs.is-release != 'true'
     runs-on: ubuntu-latest
     outputs:
       pr: ${{ steps.release.outputs.pr }}
@@ -172,6 +178,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      is-release: ${{ steps.detect.outputs.is-release }}
+      version: ${{ steps.detect.outputs.version }}
     steps:
       - name: Generate token
         id: generate-token
