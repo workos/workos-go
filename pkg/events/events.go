@@ -23,6 +23,7 @@ const (
 	AuthenticationRadarRiskDetected            = "authentication.radar_risk_detected"
 	APIKeyCreated                              = "api_key.created"
 	APIKeyRevoked                              = "api_key.revoked"
+	APIKeyUpdated                              = "api_key.updated"
 	ConnectionActivated                        = "connection.activated"
 	ConnectionDeactivated                      = "connection.deactivated"
 	ConnectionSAMLCertificateRenewalRequired   = "connection.saml_certificate_renewal_required"

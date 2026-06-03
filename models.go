@@ -12,6 +12,8 @@ type UserObject struct {
 	FirstName *string `json:"first_name,omitempty"`
 	// LastName is the user's last name.
 	LastName *string `json:"last_name,omitempty"`
+	// Name is the user's full name.
+	Name *string `json:"name,omitempty"`
 	// Metadata is a set of key-value pairs to attach to the user.
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
@@ -1040,7 +1042,7 @@ type APIKeyCreatedData struct {
 	// LastUsedAt is the timestamp when the API key was last used.
 	LastUsedAt *string `json:"last_used_at"`
 	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
-	ExpiresAt *string `json:"expires_at,omitempty"`
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permissions granted to the API key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is the timestamp when the API key was created.
@@ -1096,7 +1098,7 @@ type APIKeyRevokedData struct {
 	// LastUsedAt is the timestamp when the API key was last used.
 	LastUsedAt *string `json:"last_used_at"`
 	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
-	ExpiresAt *string `json:"expires_at,omitempty"`
+	ExpiresAt *string `json:"expires_at"`
 	// Permissions is the permissions granted to the API key.
 	Permissions []string `json:"permissions"`
 	// CreatedAt is the timestamp when the API key was created.
@@ -1105,11 +1107,66 @@ type APIKeyRevokedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// APIKeyRevokedDataOwner is an alias for APIKeyCreatedDataOwner.
-type APIKeyRevokedDataOwner = APIKeyCreatedDataOwner
+// The following types are structurally identical to APIKeyCreatedDataOwner.
+type (
+	APIKeyRevokedDataOwner           = APIKeyCreatedDataOwner
+	APIKeyUpdatedDataOwner           = APIKeyCreatedDataOwner
+	OrganizationAPIKeyWithValueOwner = APIKeyCreatedDataOwner
+	OrganizationAPIKeyOwner          = APIKeyCreatedDataOwner
+	APIKeyOwner                      = APIKeyCreatedDataOwner
+)
 
 // UserAPIKeyRevokedDataOwner is an alias for UserAPIKeyCreatedDataOwner.
 type UserAPIKeyRevokedDataOwner = UserAPIKeyCreatedDataOwner
+
+// APIKeyUpdated represents an api key updated.
+type APIKeyUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *APIKeyUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// APIKeyUpdatedData the event payload.
+type APIKeyUpdatedData struct {
+	// Object distinguishes the API key object.
+	Object string `json:"object"`
+	// ID is unique identifier of the API key.
+	ID string `json:"id"`
+	// Owner is the owner of the API key.
+	Owner *APIKeyUpdatedDataOwner `json:"owner"`
+	// Name is the name of the API key.
+	Name string `json:"name"`
+	// ObfuscatedValue is the obfuscated value of the API key.
+	ObfuscatedValue string `json:"obfuscated_value"`
+	// LastUsedAt is the timestamp when the API key was last used.
+	LastUsedAt *string `json:"last_used_at"`
+	// ExpiresAt is timestamp when the API Key expires. Null means the key does not expire.
+	ExpiresAt *string `json:"expires_at"`
+	// Permissions is the permissions granted to the API key.
+	Permissions []string `json:"permissions"`
+	// CreatedAt is the timestamp when the API key was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the API key was last updated.
+	UpdatedAt string `json:"updated_at"`
+	// PreviousAttributes is previous API key attributes before the update.
+	PreviousAttributes *APIKeyUpdatedDataPreviousAttribute `json:"previous_attributes"`
+}
+
+// UserAPIKeyUpdatedDataOwner is an alias for UserAPIKeyCreatedDataOwner.
+type UserAPIKeyUpdatedDataOwner = UserAPIKeyCreatedDataOwner
+
+// APIKeyUpdatedDataPreviousAttribute previous API key attributes before the update.
+type APIKeyUpdatedDataPreviousAttribute struct {
+	// ExpiresAt is the previous timestamp when the API Key expired. Null means the key did not expire.
+	ExpiresAt *string `json:"expires_at"`
+}
 
 // AuthenticationEmailVerificationFailed represents an authentication email verification failed.
 type AuthenticationEmailVerificationFailed struct {
@@ -1906,47 +1963,6 @@ type DsyncActivatedDataDomain struct {
 	Domain string `json:"domain"`
 }
 
-// DsyncDeactivated represents a dsync deactivated.
-type DsyncDeactivated struct {
-	// Object distinguishes the Event object.
-	Object string `json:"object"`
-	// ID is unique identifier for the event.
-	ID    string `json:"id"`
-	Event string `json:"event"`
-	// Data is the event payload.
-	Data *DsyncDeactivatedData `json:"data"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string        `json:"created_at"`
-	Context   *EventContext `json:"context,omitempty"`
-}
-
-// DsyncDeactivatedData the event payload.
-type DsyncDeactivatedData struct {
-	// Object distinguishes the directory object.
-	Object string `json:"object"`
-	// ID is unique identifier of the directory.
-	ID string `json:"id"`
-	// OrganizationID is the ID of the organization the directory belongs to.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// Type is the type of the directory.
-	Type DsyncDeactivatedDataType `json:"type"`
-	// State is the current state of the directory.
-	State DsyncDeactivatedDataState `json:"state"`
-	// Name is the name of the directory.
-	Name string `json:"name"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-	// ExternalKey is the external key of the directory.
-	ExternalKey string `json:"external_key"`
-	// Domains is the domains associated with the directory.
-	Domains []*DsyncDeactivatedDataDomain `json:"domains"`
-}
-
-// DsyncDeactivatedDataDomain is an alias for DsyncActivatedDataDomain.
-type DsyncDeactivatedDataDomain = DsyncActivatedDataDomain
-
 // DsyncDeleted represents a dsync deleted.
 type DsyncDeleted struct {
 	// Object distinguishes the Event object.
@@ -2045,6 +2061,53 @@ type DsyncGroupUpdatedData struct {
 	UpdatedAt          string                 `json:"updated_at"`
 	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
+
+// DsyncTokenCreated represents a dsync token created.
+type DsyncTokenCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncTokenCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// DsyncTokenCreatedData the event payload.
+type DsyncTokenCreatedData struct {
+	// Object distinguishes the directory token object.
+	Object string `json:"object"`
+	// ID is unique identifier of the directory token.
+	ID string `json:"id"`
+	// DirectoryID is the ID of the directory the token authenticates to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the ID of the organization the directory belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// TokenSuffix is the trailing characters of the bearer token, for identification only. The full token value is never included in events.
+	TokenSuffix string `json:"token_suffix"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+}
+
+// DsyncTokenRevoked represents a dsync token revoked.
+type DsyncTokenRevoked struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *DsyncTokenRevokedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// DsyncTokenRevokedData is an alias for DsyncTokenCreatedData.
+type DsyncTokenRevokedData = DsyncTokenCreatedData
 
 // DsyncGroupUserAdded represents a dsync group user added.
 type DsyncGroupUserAdded struct {
@@ -4787,12 +4850,6 @@ type OrganizationDomain struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// OrganizationAPIKeyWithValueOwner is an alias for APIKeyCreatedDataOwner.
-type OrganizationAPIKeyWithValueOwner = APIKeyCreatedDataOwner
-
-// OrganizationAPIKeyOwner is an alias for APIKeyCreatedDataOwner.
-type OrganizationAPIKeyOwner = APIKeyCreatedDataOwner
-
 // EventListListMetadata pagination cursor for navigating to the next page of results.
 type EventListListMetadata struct {
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
@@ -4932,9 +4989,6 @@ type AuthorizedConnectApplicationListData struct {
 	OAuthResource *string             `json:"oauth_resource,omitempty"`
 	Application   *ConnectApplication `json:"application"`
 }
-
-// APIKeyOwner is an alias for APIKeyCreatedDataOwner.
-type APIKeyOwner = APIKeyCreatedDataOwner
 
 // UserConsentOptionChoice represents a user consent option choice.
 type UserConsentOptionChoice struct {
@@ -5235,6 +5289,8 @@ type EmailChangeConfirmationUser struct {
 	FirstName *string `json:"first_name"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name"`
+	// Name is the user's full name.
+	Name *string `json:"name,omitempty"`
 	// ProfilePictureURL is a URL reference to an image representing the user.
 	ProfilePictureURL *string `json:"profile_picture_url"`
 	// Email is the email address of the user.
