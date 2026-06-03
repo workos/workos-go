@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-05-27T13:38:14.277Z",
+  "generatedAt": "2026-06-03T19:19:57.720Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -52,7 +52,9 @@
     "testdata/api_key_owner.json",
     "testdata/api_key_revoked.json",
     "testdata/api_key_revoked_data.json",
-    "testdata/api_key_revoked_data_owner.json",
+    "testdata/api_key_updated.json",
+    "testdata/api_key_updated_data.json",
+    "testdata/api_key_updated_data_previous_attribute.json",
     "testdata/api_key_validation_response.json",
     "testdata/application_credentials_list_item.json",
     "testdata/assign_role.json",
@@ -201,9 +203,6 @@
     "testdata/dsync_activated.json",
     "testdata/dsync_activated_data.json",
     "testdata/dsync_activated_data_domain.json",
-    "testdata/dsync_deactivated.json",
-    "testdata/dsync_deactivated_data.json",
-    "testdata/dsync_deactivated_data_domain.json",
     "testdata/dsync_deleted.json",
     "testdata/dsync_deleted_data.json",
     "testdata/dsync_group_created.json",
@@ -214,6 +213,10 @@
     "testdata/dsync_group_user_added_data.json",
     "testdata/dsync_group_user_removed.json",
     "testdata/dsync_group_user_removed_data.json",
+    "testdata/dsync_token_created.json",
+    "testdata/dsync_token_created_data.json",
+    "testdata/dsync_token_revoked.json",
+    "testdata/dsync_token_revoked_data.json",
     "testdata/dsync_user_created.json",
     "testdata/dsync_user_deleted.json",
     "testdata/dsync_user_updated.json",
@@ -232,6 +235,7 @@
     "testdata/event_context_google_analytics_session.json",
     "testdata/event_list_list_metadata.json",
     "testdata/event_schema.json",
+    "testdata/expire_api_key.json",
     "testdata/external_auth_complete_response.json",
     "testdata/feature_flag.json",
     "testdata/flag.json",
@@ -404,7 +408,6 @@
     "testdata/user_api_key.json",
     "testdata/user_api_key_created_data_owner.json",
     "testdata/user_api_key_owner.json",
-    "testdata/user_api_key_revoked_data_owner.json",
     "testdata/user_api_key_with_value.json",
     "testdata/user_api_key_with_value_owner.json",
     "testdata/user_authentication_factor_enroll_response.json",
@@ -1165,6 +1168,10 @@
     },
     "DELETE /api_keys/{id}": {
       "sdkMethod": "Delete",
+      "service": "api_keys"
+    },
+    "POST /api_keys/{id}/expire": {
+      "sdkMethod": "CreateExpire",
       "service": "api_keys"
     },
     "GET /user_management/users/{userId}/api_keys": {
