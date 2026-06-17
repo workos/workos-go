@@ -9,5 +9,7 @@
   ],
   "state": "connected",
   "created_at": "2024-01-16T14:20:00.000Z",
-  "updated_at": "2024-01-16T14:20:00.000Z"
+  "updated_at": "2024-01-16T14:20:00.000Z",
+  "auth_method": "oauth",
+  "api_key_last_4": null
 }
