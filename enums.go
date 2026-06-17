@@ -176,6 +176,7 @@ const (
 	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected            CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
 	CreateWebhookEndpointEventsAPIKeyCreated                              CreateWebhookEndpointEvents = "api_key.created"
 	CreateWebhookEndpointEventsAPIKeyRevoked                              CreateWebhookEndpointEvents = "api_key.revoked"
+	CreateWebhookEndpointEventsAPIKeyUpdated                              CreateWebhookEndpointEvents = "api_key.updated"
 	CreateWebhookEndpointEventsConnectionActivated                        CreateWebhookEndpointEvents = "connection.activated"
 	CreateWebhookEndpointEventsConnectionDeactivated                      CreateWebhookEndpointEvents = "connection.deactivated"
 	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired   CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
@@ -593,12 +594,6 @@ const (
 	DsyncActivatedDataStateDeleting           DsyncActivatedDataState = "deleting"
 )
 
-// DsyncDeactivatedDataType is an alias for DsyncActivatedDataType.
-type DsyncDeactivatedDataType = DsyncActivatedDataType
-
-// DsyncDeactivatedDataState is an alias for DsyncActivatedDataState.
-type DsyncDeactivatedDataState = DsyncActivatedDataState
-
 // DsyncDeletedDataType is an alias for DsyncActivatedDataType.
 type DsyncDeletedDataType = DsyncActivatedDataType
 
@@ -843,14 +838,13 @@ const (
 type RadarStandaloneResponseControl string
 
 const (
-	RadarStandaloneResponseControlBotDetection          RadarStandaloneResponseControl = "bot_detection"
-	RadarStandaloneResponseControlBruteForceAttack      RadarStandaloneResponseControl = "brute_force_attack"
-	RadarStandaloneResponseControlDomainSignUpRateLimit RadarStandaloneResponseControl = "domain_sign_up_rate_limit"
-	RadarStandaloneResponseControlImpossibleTravel      RadarStandaloneResponseControl = "impossible_travel"
-	RadarStandaloneResponseControlRepeatSignUp          RadarStandaloneResponseControl = "repeat_sign_up"
-	RadarStandaloneResponseControlStaleAccount          RadarStandaloneResponseControl = "stale_account"
-	RadarStandaloneResponseControlUnrecognizedDevice    RadarStandaloneResponseControl = "unrecognized_device"
-	RadarStandaloneResponseControlRestriction           RadarStandaloneResponseControl = "restriction"
+	RadarStandaloneResponseControlBotDetection       RadarStandaloneResponseControl = "bot_detection"
+	RadarStandaloneResponseControlBruteForceAttack   RadarStandaloneResponseControl = "brute_force_attack"
+	RadarStandaloneResponseControlImpossibleTravel   RadarStandaloneResponseControl = "impossible_travel"
+	RadarStandaloneResponseControlRepeatSignUp       RadarStandaloneResponseControl = "repeat_sign_up"
+	RadarStandaloneResponseControlStaleAccount       RadarStandaloneResponseControl = "stale_account"
+	RadarStandaloneResponseControlUnrecognizedDevice RadarStandaloneResponseControl = "unrecognized_device"
+	RadarStandaloneResponseControlRestriction        RadarStandaloneResponseControl = "restriction"
 )
 
 // RadarStandaloneResponseBlocklistType is an alias for RadarListType.
@@ -913,6 +907,7 @@ const (
 	AuditLogConfigurationLogStreamTypeGenericHttps       AuditLogConfigurationLogStreamType = "GenericHttps"
 	AuditLogConfigurationLogStreamTypeGoogleCloudStorage AuditLogConfigurationLogStreamType = "GoogleCloudStorage"
 	AuditLogConfigurationLogStreamTypeS3                 AuditLogConfigurationLogStreamType = "S3"
+	AuditLogConfigurationLogStreamTypeSnowflake          AuditLogConfigurationLogStreamType = "Snowflake"
 	AuditLogConfigurationLogStreamTypeSplunk             AuditLogConfigurationLogStreamType = "Splunk"
 )
 

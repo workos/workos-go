@@ -115,6 +115,32 @@ func TestAPIKeys_Delete(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestAPIKeys_CreateExpire(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/api_keys/test_id/expire", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/api_key.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.APIKeys().CreateExpire(context.Background(), "test_id", &workos.APIKeysCreateExpireParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "api_key_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "Production API Key", result.Name)
+	require.Equal(t, "sk_...3456", result.ObfuscatedValue)
+}
+
 func TestAPIKeys_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

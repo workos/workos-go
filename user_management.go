@@ -511,9 +511,9 @@ func (s *UserManagementService) CreateDevice(ctx context.Context, params *UserMa
 
 // UserManagementGetLogoutURLParams contains the parameters for GetLogoutURL.
 type UserManagementGetLogoutURLParams struct {
-	// SessionID is the ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
+	// SessionID is the ID of the session. This can be extracted from the `sid` claim of the access token.
 	SessionID string `url:"session_id" json:"-"`
-	// ReturnTo is the URL to redirect the user to after session revocation.
+	// ReturnTo is the URL to redirect the user to after logout.
 	ReturnTo *string `url:"return_to,omitempty" json:"-"`
 }
 
@@ -532,8 +532,6 @@ func (s *UserManagementService) GetLogoutURL(params *UserManagementGetLogoutURLP
 type UserManagementRevokeSessionParams struct {
 	// SessionID is the ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
 	SessionID string `json:"session_id" url:"-"`
-	// ReturnTo is the URL to redirect the user to after session revocation.
-	ReturnTo *string `json:"return_to,omitempty" url:"-"`
 }
 
 // RevokeSession
@@ -645,6 +643,8 @@ type UserManagementCreateParams struct {
 	FirstName *string `json:"first_name,omitempty" url:"-"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty" url:"-"`
+	// Name is the user's full name.
+	Name *string `json:"name,omitempty" url:"-"`
 	// EmailVerified is whether the user's email has been verified.
 	EmailVerified *bool `json:"email_verified,omitempty" url:"-"`
 	// Metadata is object containing metadata key/value pairs associated with the user.
@@ -716,6 +716,8 @@ type UserManagementUpdateParams struct {
 	FirstName *string `json:"first_name,omitempty" url:"-"`
 	// LastName is the last name of the user.
 	LastName *string `json:"last_name,omitempty" url:"-"`
+	// Name is the user's full name.
+	Name *string `json:"name,omitempty" url:"-"`
 	// EmailVerified is whether the user's email has been verified.
 	EmailVerified *bool `json:"email_verified,omitempty" url:"-"`
 	// Metadata is object containing metadata key/value pairs associated with the user.

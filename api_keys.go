@@ -68,3 +68,20 @@ func (s *APIKeyService) Delete(ctx context.Context, id string, opts ...RequestOp
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/api_keys/%s", url.PathEscape(id)), nil, nil, nil, opts)
 	return err
 }
+
+// APIKeysCreateExpireParams contains the parameters for CreateExpire.
+type APIKeysCreateExpireParams struct {
+	// ExpiresAt is when the API key should expire. If omitted or in the past, the key expires immediately. Use null to clear a scheduled future expiration.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
+}
+
+// CreateExpire expire an API key
+// Expire an API key immediately, schedule a future expiration, or clear a scheduled future expiration.
+func (s *APIKeyService) CreateExpire(ctx context.Context, id string, params *APIKeysCreateExpireParams, opts ...RequestOption) (*APIKey, error) {
+	var result APIKey
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/api_keys/%s/expire", url.PathEscape(id)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
