@@ -1,5 +1,21 @@
 # Changelog
 
+## [9.2.0](https://github.com/workos/workos-go/compare/v9.1.0...v9.2.0) (2026-06-17)
+
+
+### Features
+
+* **api_keys:** Add expire operation and API key update events ([#563](https://github.com/workos/workos-go/issues/563)) ([d2d0aef](https://github.com/workos/workos-go/commit/d2d0aefe1f0b30f5d0858b1320f4d6319104907d))
+* **audit_logs:** Add Snowflake as log stream type ([#563](https://github.com/workos/workos-go/issues/563)) ([d2d0aef](https://github.com/workos/workos-go/commit/d2d0aefe1f0b30f5d0858b1320f4d6319104907d))
+* **directory_sync:** Remove deactivated event and add token lifecycle events ([#563](https://github.com/workos/workos-go/issues/563)) ([d2d0aef](https://github.com/workos/workos-go/commit/d2d0aefe1f0b30f5d0858b1320f4d6319104907d))
+* **radar:** Remove domain sign-up rate limit control ([#563](https://github.com/workos/workos-go/issues/563)) ([d2d0aef](https://github.com/workos/workos-go/commit/d2d0aefe1f0b30f5d0858b1320f4d6319104907d))
+* **user_management:** Remove return_to from revoke session and add user name field ([#563](https://github.com/workos/workos-go/issues/563)) ([d2d0aef](https://github.com/workos/workos-go/commit/d2d0aefe1f0b30f5d0858b1320f4d6319104907d))
+
+
+### Bug Fixes
+
+* **renovate:** explicitly enable minor and patch updates ([#556](https://github.com/workos/workos-go/issues/556)) ([8f31158](https://github.com/workos/workos-go/commit/8f31158181395c86a5805988740444e73b8fcc92))
+
 ## [9.1.0](https://github.com/workos/workos-go/compare/v9.0.0...v9.1.0) (2026-05-27)
 
 ### Features
