@@ -119,6 +119,18 @@ type AuditLogSchemaActorInput = AuditLogSchemaActor
 // AuditLogSchemaTargetInput is an alias for AuditLogSchemaTarget.
 type AuditLogSchemaTargetInput = AuditLogSchemaTarget
 
+// ReplaceGroupRoleAssignmentEntry represents a replace group role assignment entry.
+type ReplaceGroupRoleAssignmentEntry struct {
+	// RoleSlug is the slug of the role to assign to the group.
+	RoleSlug string `json:"role_slug"`
+	// ResourceID is the ID of the resource. Omit along with the external-id fields to target the organization itself.
+	ResourceID *string `json:"resource_id,omitempty"`
+	// ResourceExternalID is the external ID of the resource.
+	ResourceExternalID *string `json:"resource_external_id,omitempty"`
+	// ResourceTypeSlug is the resource type slug.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
+}
+
 // OrganizationDomainData represents an organization domain data.
 type OrganizationDomainData struct {
 	// Domain is the domain value.
@@ -598,6 +610,33 @@ type SlimRole struct {
 	Slug string `json:"slug"`
 }
 
+// GroupRoleAssignment represents a group role assignment.
+type GroupRoleAssignment struct {
+	// Object distinguishes the group role assignment object.
+	Object string `json:"object"`
+	// ID is unique identifier of the group role assignment.
+	ID string `json:"id"`
+	// GroupID is the ID of the group the role is assigned to.
+	GroupID string `json:"group_id"`
+	// Role is the role included in the assignment.
+	Role *SlimRole `json:"role"`
+	// Resource is the resource the role is assigned on.
+	Resource *GroupRoleAssignmentResource `json:"resource"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// GroupRoleAssignmentList represents a group role assignment list.
+type GroupRoleAssignmentList struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is the list of records for the current page.
+	Data         []*GroupRoleAssignment `json:"data"`
+	ListMetadata *ListMetadata          `json:"list_metadata"`
+}
+
 // UserRoleAssignment represents a user role assignment.
 type UserRoleAssignment struct {
 	// Object distinguishes the role assignment object.
@@ -1057,6 +1096,8 @@ type APIKeyCreatedDataOwner struct {
 	Type string `json:"type"`
 	// ID is the unique identifier of the API key owner.
 	ID string `json:"id"`
+	// OrganizationID is the unique identifier of the organization the API key belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
 }
 
 // UserAPIKeyCreatedDataOwner represents a user api key created data owner.
@@ -1107,14 +1148,8 @@ type APIKeyRevokedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// The following types are structurally identical to APIKeyCreatedDataOwner.
-type (
-	APIKeyRevokedDataOwner           = APIKeyCreatedDataOwner
-	APIKeyUpdatedDataOwner           = APIKeyCreatedDataOwner
-	OrganizationAPIKeyWithValueOwner = APIKeyCreatedDataOwner
-	OrganizationAPIKeyOwner          = APIKeyCreatedDataOwner
-	APIKeyOwner                      = APIKeyCreatedDataOwner
-)
+// APIKeyRevokedDataOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyRevokedDataOwner = APIKeyCreatedDataOwner
 
 // UserAPIKeyRevokedDataOwner is an alias for UserAPIKeyCreatedDataOwner.
 type UserAPIKeyRevokedDataOwner = UserAPIKeyCreatedDataOwner
@@ -1158,6 +1193,9 @@ type APIKeyUpdatedData struct {
 	// PreviousAttributes is previous API key attributes before the update.
 	PreviousAttributes *APIKeyUpdatedDataPreviousAttribute `json:"previous_attributes"`
 }
+
+// APIKeyUpdatedDataOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyUpdatedDataOwner = APIKeyCreatedDataOwner
 
 // UserAPIKeyUpdatedDataOwner is an alias for UserAPIKeyCreatedDataOwner.
 type UserAPIKeyUpdatedDataOwner = UserAPIKeyCreatedDataOwner
@@ -4282,6 +4320,51 @@ type AuditLogConfiguration struct {
 	LogStream *AuditLogConfigurationLogStream `json:"log_stream,omitempty"`
 }
 
+// DataIntegrationCredentials organization-managed OAuth credential configuration. Present only for integrations whose credentials are supplied by the organization; absent otherwise.
+type DataIntegrationCredentials struct {
+	// CredentialsType is the credentials type for this integration (e.g., `shared`, `custom`, or `organization`).
+	CredentialsType DataIntegrationCredentialsCredentialsType `json:"credentials_type"`
+	// HasCredentials is whether the organization has supplied OAuth credentials for this integration.
+	HasCredentials bool `json:"has_credentials"`
+	// ClientID is the OAuth client ID supplied by the organization, or `null` when none is configured.
+	ClientID *string `json:"client_id"`
+	// ClientSecretLastFour is the last four characters of the organization-supplied OAuth client secret, or `null` when none is configured.
+	ClientSecretLastFour *string `json:"client_secret_last_four"`
+	// RedirectURI is the redirect URI to register with the provider when configuring the organization-managed OAuth application.
+	RedirectURI string `json:"redirect_uri"`
+}
+
+// DataIntegrationConfigurationResponse represents a data integration configuration response.
+type DataIntegrationConfigurationResponse struct {
+	// Object distinguishes the data integration configuration object.
+	Object string `json:"object"`
+	// ID is the unique identifier of the data integration.
+	ID string `json:"id"`
+	// OrganizationID is the [Organization](https://workos.com/docs/reference/organization) this configuration applies to.
+	OrganizationID string `json:"organization_id"`
+	// Slug is the slug identifier of the provider (e.g., `github`, `slack`, `notion`).
+	Slug string `json:"slug"`
+	// Name is the display name of the data integration.
+	Name string `json:"name"`
+	// Enabled is whether the integration is enabled for this organization. Reflects the organization override when one exists, otherwise the provider default.
+	Enabled bool `json:"enabled"`
+	// Scopes is the OAuth scopes in effect for this organization. Reflects the organization override when one is set, otherwise the provider scopes, or `null` when none are configured.
+	Scopes []string `json:"scopes"`
+	// CreatedAt is the timestamp when the configuration was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the configuration was last updated.
+	UpdatedAt   string                      `json:"updated_at"`
+	Credentials *DataIntegrationCredentials `json:"credentials,omitempty"`
+}
+
+// DataIntegrationConfigurationListResponse represents a data integration configuration list response.
+type DataIntegrationConfigurationListResponse struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is a list of data integration configurations for the organization.
+	Data []*DataIntegrationConfigurationResponse `json:"data"`
+}
+
 // DataIntegrationAuthorizeURLResponse represents a data integration authorize url response.
 type DataIntegrationAuthorizeURLResponse struct {
 	// URL is the OAuth authorization URL to redirect the user to.
@@ -4311,6 +4394,10 @@ type ConnectedAccount struct {
 	OrganizationID *string `json:"organization_id"`
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes"`
+	// AuthMethod is the authentication method used for this connection (`oauth` or `api_key`). Defaults to `oauth` if absent.
+	AuthMethod *ConnectedAccountAuthMethod `json:"auth_method,omitempty"`
+	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
+	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
 	// State is the state of the connected account:
 	// - `connected`: The connection is active and tokens are valid.
 	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
@@ -4633,9 +4720,12 @@ type WebhookEndpoint struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// WidgetSessionTokenResponse represents a widget session token response.
-type WidgetSessionTokenResponse struct {
-	// Token is the widget session token.
+// WidgetSessionTokenResponse is an alias for ClientAPITokenResponse.
+type WidgetSessionTokenResponse = ClientAPITokenResponse
+
+// ClientAPITokenResponse represents a client api token response.
+type ClientAPITokenResponse struct {
+	// Token is the Client API token.
 	Token string `json:"token"`
 }
 
@@ -4788,6 +4878,8 @@ type DataIntegrationsListResponseData struct {
 	CredentialsType string `json:"credentials_type"`
 	// Scopes is the OAuth scopes configured for this provider, or `null` if none are configured.
 	Scopes []string `json:"scopes"`
+	// AuthMethods is the authentication methods supported by this provider (`oauth`, `api_key`, or both). Defaults to `["oauth"]` if absent.
+	AuthMethods []DataIntegrationsListResponseDataAuthMethods `json:"auth_methods,omitempty"`
 	// Ownership is whether the provider is owned by a user or organization.
 	Ownership DataIntegrationsListResponseDataOwnership `json:"ownership"`
 	// CreatedAt is the timestamp when the provider was created.
@@ -4848,6 +4940,17 @@ type OrganizationDomain struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// OrganizationAPIKeyWithValueOwner is an alias for OrganizationAPIKeyOwner.
+type OrganizationAPIKeyWithValueOwner = OrganizationAPIKeyOwner
+
+// OrganizationAPIKeyOwner the entity that owns the API Key.
+type OrganizationAPIKeyOwner struct {
+	// Type is the type of the API Key owner.
+	Type string `json:"type"`
+	// ID is unique identifier of the API Key owner.
+	ID string `json:"id"`
 }
 
 // EventListListMetadata pagination cursor for navigating to the next page of results.
@@ -4922,8 +5025,11 @@ type ConnectionOption struct {
 	SigningCert *string `json:"signing_cert"`
 }
 
-// UserRoleAssignmentResource the resource the role is assigned on.
-type UserRoleAssignmentResource struct {
+// UserRoleAssignmentResource is an alias for GroupRoleAssignmentResource.
+type UserRoleAssignmentResource = GroupRoleAssignmentResource
+
+// GroupRoleAssignmentResource the resource the role is assigned on.
+type GroupRoleAssignmentResource struct {
 	// ID is the unique ID of the Resource.
 	ID string `json:"id"`
 	// ExternalID is an identifier you provide to reference the resource in your system.
@@ -4989,6 +5095,9 @@ type AuthorizedConnectApplicationListData struct {
 	OAuthResource *string             `json:"oauth_resource,omitempty"`
 	Application   *ConnectApplication `json:"application"`
 }
+
+// APIKeyOwner is an alias for APIKeyCreatedDataOwner.
+type APIKeyOwner = APIKeyCreatedDataOwner
 
 // UserConsentOptionChoice represents a user consent option choice.
 type UserConsentOptionChoice struct {
@@ -5057,9 +5166,9 @@ type FeatureFlagOwner struct {
 type AuthorizationCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
-	// ClientSecret is the client secret of the application.
-	ClientSecret string `json:"client_secret"`
-	GrantType    string `json:"grant_type"`
+	// ClientSecret is the client secret of the application. May be omitted by public clients that authenticate through other means, such as a PKCE `code_verifier`.
+	ClientSecret *string `json:"client_secret,omitempty"`
+	GrantType    string  `json:"grant_type"`
 	// Code is the authorization code received from the redirect.
 	Code string `json:"code"`
 	// CodeVerifier is the PKCE code verifier used to derive the code challenge passed to the authorization URL.
@@ -5099,9 +5208,9 @@ type PasswordSessionAuthenticateRequest struct {
 type RefreshTokenSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
-	// ClientSecret is the client secret of the application.
-	ClientSecret string `json:"client_secret"`
-	GrantType    string `json:"grant_type"`
+	// ClientSecret is the client secret of the application. May be omitted by public clients that authenticate through other means, such as a PKCE `code_verifier`.
+	ClientSecret *string `json:"client_secret,omitempty"`
+	GrantType    string  `json:"grant_type"`
 	// RefreshToken is the refresh token to exchange for new tokens.
 	RefreshToken string `json:"refresh_token"`
 	// OrganizationID is the ID of the organization to scope the session to.
@@ -5374,6 +5483,10 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	OrganizationID *string `json:"organization_id"`
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes"`
+	// AuthMethod is the authentication method used for this connection (`oauth` or `api_key`). Defaults to `oauth` if absent.
+	AuthMethod *DataIntegrationsListResponseDataConnectedAccountAuthMethod `json:"auth_method,omitempty"`
+	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
+	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
 	// State is the state of the connected account:
 	// - `connected`: The connection is active and tokens are valid.
 	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
