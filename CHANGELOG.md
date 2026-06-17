@@ -1,5 +1,51 @@
 # Changelog
 
+## [9.2.0](https://github.com/workos/workos-go/compare/v9.1.0...v9.2.0) (2026-06-17)
+
+### Bug Fixes
+
+* **renovate:** explicitly enable minor and patch updates ([#556](https://github.com/workos/workos-go/issues/556)) ([8f31158](https://github.com/workos/workos-go/commit/8f31158181395c86a5805988740444e73b8fcc92))
+
+- [#563](https://github.com/workos/workos-go/pull/563) feat(generated): regenerate from spec (5 changes)
+
+  **⚠️ Breaking**
+  - **[api_keys](https://workos.com/docs/reference/authkit/api-keys)**:
+    - Made `expires_at` required in API key models
+  - **[directory_sync](https://workos.com/docs/reference/directory-sync)**:
+    - Removed model `DsyncDeactivated`
+    - Removed model `DsyncDeactivatedData`
+    - Removed model `DsyncDeactivatedDataDomain`
+    - Removed enum `DsyncDeactivatedDataType`
+    - Removed enum `DsyncDeactivatedDataState`
+  - **[radar](https://workos.com/docs/reference/radar)**:
+    - Removed `domain_sign_up_rate_limit` from `RadarStandaloneResponseControl`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Removed `return_to` from `RevokeSession`
+
+  **Features**
+  - **[api_keys](https://workos.com/docs/reference/authkit/api-keys)**:
+    - Added model `ExpireApiKey`
+    - Added model `ApiKeyUpdated`
+    - Added model `ApiKeyUpdatedData`
+    - Added model `ApiKeyUpdatedDataOwner`
+    - Added model `UserApiKeyUpdatedDataOwner`
+    - Added model `ApiKeyUpdatedDataPreviousAttribute`
+    - Added endpoint `POST /api_keys/{id}/expire`
+  - **[audit_logs](https://workos.com/docs/reference/audit-logs)**:
+    - Added `Snowflake` to `AuditLogConfigurationLogStreamType`
+  - **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    - Added `name` to `UserObject`
+  - **[directory_sync](https://workos.com/docs/reference/directory-sync)**:
+    - Added model `DsyncTokenCreated`
+    - Added model `DsyncTokenCreatedData`
+    - Added model `DsyncTokenRevoked`
+    - Added model `DsyncTokenRevokedData`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Added `name` to user management models
+  - **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    - Added `api_key.updated` to `CreateWebhookEndpointEvents`
+    - Added `api_key.updated` to `UpdateWebhookEndpointEvents`
+
 ## [9.1.0](https://github.com/workos/workos-go/compare/v9.0.0...v9.1.0) (2026-05-27)
 
 ### Features
