@@ -4,5 +4,5 @@ package workos
 
 const (
 	// Version represents the SDK version number.
-	Version = "v9.2.0" // x-release-please-version
+	Version = "v9.3.0" // x-release-please-version
 )

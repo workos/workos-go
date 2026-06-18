@@ -1,5 +1,22 @@
 # Changelog
 
+## [9.3.0](https://github.com/workos/workos-go/compare/v9.2.0...v9.3.0) (2026-06-18)
+
+
+### Features
+
+* **authorization:** Add authorization operations and models ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **client:** Add client API surface ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **connect:** Add Connect API surface ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **groups:** Add groups API surface ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **organization_membership:** Add organization membership API surface ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **organization_membership:** Change response for `UserManagementOrganizationMembership.list` ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **pipes:** Add Pipes API surface ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **pipes:** SDK surface change: Symbol "PipeService.CreateDataIntegrationToken" was removed ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **user_management:** Change response for `UserManagementInvitations.list` ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **user_management:** Update user management API surface ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+* **widgets:** Add `widgets:pipes:manage` to `WidgetSessionTokenScopes` ([#566](https://github.com/workos/workos-go/issues/566)) ([ed3b203](https://github.com/workos/workos-go/commit/ed3b203983ce95d8f9b07afc7fae781c7c64b7e4))
+
 ## [9.2.0](https://github.com/workos/workos-go/compare/v9.1.0...v9.2.0) (2026-06-17)
 
 ### Bug Fixes
