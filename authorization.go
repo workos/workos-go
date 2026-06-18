@@ -106,6 +106,94 @@ func (p AuthorizationParentByExternalID) applyToQuery(v url.Values) {
 	v.Set("parent_external_id", p.ExternalID)
 }
 
+// AuthorizationListGroupRoleAssignmentsParams contains the parameters for ListGroupRoleAssignments.
+type AuthorizationListGroupRoleAssignmentsParams struct {
+	PaginationParams
+}
+
+// ListGroupRoleAssignments list role assignments for a group
+// List all role assignments granted to a group. Each assignment represents a role granted to the group on a resource.
+func (s *AuthorizationService) ListGroupRoleAssignments(ctx context.Context, groupID string, params *AuthorizationListGroupRoleAssignmentsParams, opts ...RequestOption) *Iterator[GroupRoleAssignment] {
+	return newIterator[GroupRoleAssignment](ctx, s.client, "GET", fmt.Sprintf("/authorization/groups/%s/role_assignments", url.PathEscape(groupID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// AuthorizationCreateGroupRoleAssignmentParams contains the parameters for CreateGroupRoleAssignment.
+type AuthorizationCreateGroupRoleAssignmentParams struct {
+	// RoleSlug is the slug of the role to assign to the group.
+	RoleSlug string `json:"role_slug" url:"-"`
+	// ResourceID is the ID of the resource. Omit along with the external-id fields to target the organization itself.
+	ResourceID *string `json:"resource_id,omitempty" url:"-"`
+	// ResourceExternalID is the external ID of the resource.
+	ResourceExternalID *string `json:"resource_external_id,omitempty" url:"-"`
+	// ResourceTypeSlug is the resource type slug.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty" url:"-"`
+}
+
+// CreateGroupRoleAssignment assign a role to a group
+// Assign a role to a group on a specific resource.
+func (s *AuthorizationService) CreateGroupRoleAssignment(ctx context.Context, groupID string, params *AuthorizationCreateGroupRoleAssignmentParams, opts ...RequestOption) (*GroupRoleAssignment, error) {
+	var result GroupRoleAssignment
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/groups/%s/role_assignments", url.PathEscape(groupID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AuthorizationUpdateGroupRoleAssignmentsParams contains the parameters for UpdateGroupRoleAssignments.
+type AuthorizationUpdateGroupRoleAssignmentsParams struct {
+	// RoleAssignments is the list of role assignments that should exist for the group. All existing assignments will be replaced.
+	RoleAssignments []*ReplaceGroupRoleAssignmentEntry `json:"role_assignments" url:"-"`
+}
+
+// UpdateGroupRoleAssignments replace all role assignments for a group
+// Replace all role assignments for a group with the provided list. Existing assignments not in the list will be removed.
+func (s *AuthorizationService) UpdateGroupRoleAssignments(ctx context.Context, groupID string, params *AuthorizationUpdateGroupRoleAssignmentsParams, opts ...RequestOption) (*GroupRoleAssignmentList, error) {
+	var result GroupRoleAssignmentList
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/authorization/groups/%s/role_assignments", url.PathEscape(groupID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AuthorizationDeleteGroupRoleAssignmentsParams contains the parameters for DeleteGroupRoleAssignments.
+type AuthorizationDeleteGroupRoleAssignmentsParams struct {
+	// RoleSlug is the slug of the role to remove assignments for.
+	RoleSlug string `json:"role_slug" url:"-"`
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
+	ResourceID *string `json:"resource_id,omitempty" url:"-"`
+	// ResourceExternalID is the external ID of the resource.
+	ResourceExternalID *string `json:"resource_external_id,omitempty" url:"-"`
+	// ResourceTypeSlug is the resource type slug.
+	ResourceTypeSlug *string `json:"resource_type_slug,omitempty" url:"-"`
+}
+
+// DeleteGroupRoleAssignments remove group role assignments by criteria
+// Remove role assignments from a group that match the provided criteria. Returns 404 when no matching active assignment is found.
+func (s *AuthorizationService) DeleteGroupRoleAssignments(ctx context.Context, groupID string, params *AuthorizationDeleteGroupRoleAssignmentsParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/groups/%s/role_assignments", url.PathEscape(groupID)), nil, params, nil, opts)
+	return err
+}
+
+// GetGroupRoleAssignment get a group role assignment
+// Get a specific role assignment for a group by its ID.
+func (s *AuthorizationService) GetGroupRoleAssignment(ctx context.Context, groupID string, roleAssignmentID string, opts ...RequestOption) (*GroupRoleAssignment, error) {
+	var result GroupRoleAssignment
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/authorization/groups/%s/role_assignments/%s", url.PathEscape(groupID), url.PathEscape(roleAssignmentID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteGroupRoleAssignment remove a group role assignment
+// Remove a specific role assignment from a group by its ID.
+func (s *AuthorizationService) DeleteGroupRoleAssignment(ctx context.Context, groupID string, roleAssignmentID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/authorization/groups/%s/role_assignments/%s", url.PathEscape(groupID), url.PathEscape(roleAssignmentID)), nil, nil, nil, opts)
+	return err
+}
+
 // AuthorizationCheckParams contains the parameters for Check.
 type AuthorizationCheckParams struct {
 	// PermissionSlug is the slug of the permission to check.

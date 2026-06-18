@@ -34,19 +34,19 @@ func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string,
 	return &result, nil
 }
 
-// PipesCreateDataIntegrationTokenParams contains the parameters for CreateDataIntegrationToken.
-type PipesCreateDataIntegrationTokenParams struct {
+// PipesGetAccessTokenParams contains the parameters for GetAccessToken.
+type PipesGetAccessTokenParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 }
 
-// CreateDataIntegrationToken get an access token for a connected account
+// GetAccessToken get an access token for a connected account
 // Fetches a valid OAuth access token for a user's connected account. WorkOS automatically handles token refresh, ensuring you always receive a valid, non-expired token.
-func (s *PipeService) CreateDataIntegrationToken(ctx context.Context, slug string, params *PipesCreateDataIntegrationTokenParams, opts ...RequestOption) (*DataIntegrationAccessTokenResponse, error) {
+func (s *PipeService) GetAccessToken(ctx context.Context, provider string, params *PipesGetAccessTokenParams, opts ...RequestOption) (*DataIntegrationAccessTokenResponse, error) {
 	var result DataIntegrationAccessTokenResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/token", url.PathEscape(slug)), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/token", url.PathEscape(provider)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ type PipesListUserDataProvidersParams struct {
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
 
-// ListUserDataProviders list providers
+// ListUserDataProviders list providers for a user
 // Retrieves a list of available providers and the user's connection status for each. Returns all providers configured for your environment, along with the user's [connected account](https://workos.com/docs/reference/pipes/connected-account) information where applicable.
 func (s *PipeService) ListUserDataProviders(ctx context.Context, userID string, params *PipesListUserDataProvidersParams, opts ...RequestOption) (*DataIntegrationsListResponse, error) {
 	var result DataIntegrationsListResponse

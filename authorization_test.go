@@ -15,6 +15,142 @@ import (
 	"github.com/workos/workos-go/v9"
 )
 
+func TestAuthorization_ListGroupRoleAssignments(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_group_role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationListGroupRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAuthorization_ListGroupRoleAssignments_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Authorization().ListGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationListGroupRoleAssignmentsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestAuthorization_CreateGroupRoleAssignment(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/group_role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Authorization().CreateGroupRoleAssignment(context.Background(), "test_group_id", &workos.AuthorizationCreateGroupRoleAssignmentParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "gra_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "group_01HXYZ123456789ABCDEFGHIJ", result.GroupID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestAuthorization_UpdateGroupRoleAssignments(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/group_role_assignment_list.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Authorization().UpdateGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationUpdateGroupRoleAssignmentsParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestAuthorization_DeleteGroupRoleAssignments(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Authorization().DeleteGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationDeleteGroupRoleAssignmentsParams{})
+	require.NoError(t, err)
+}
+
+func TestAuthorization_GetGroupRoleAssignment(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments/test_role_assignment_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/group_role_assignment.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Authorization().GetGroupRoleAssignment(context.Background(), "test_group_id", "test_role_assignment_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "gra_01HXYZ123456789ABCDEFGH", result.ID)
+	require.Equal(t, "group_01HXYZ123456789ABCDEFGHIJ", result.GroupID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestAuthorization_DeleteGroupRoleAssignment(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments/test_role_assignment_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Authorization().DeleteGroupRoleAssignment(context.Background(), "test_group_id", "test_role_assignment_id")
+	require.NoError(t, err)
+}
+
 func TestAuthorization_Check(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
@@ -1037,8 +1173,9 @@ func TestAuthorization_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
-	require.IsType(t, &workos.AuthenticationError{}, err)
+	iter := client.Authorization().ListGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationListGroupRoleAssignmentsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }
 
 func TestAuthorization_Error404(t *testing.T) {
@@ -1050,8 +1187,9 @@ func TestAuthorization_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
-	require.IsType(t, &workos.NotFoundError{}, err)
+	iter := client.Authorization().ListGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationListGroupRoleAssignmentsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
 }
 
 func TestAuthorization_Error422(t *testing.T) {
@@ -1063,6 +1201,7 @@ func TestAuthorization_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Authorization().Check(context.Background(), "test_organization_membership_id", &workos.AuthorizationCheckParams{})
-	require.IsType(t, &workos.UnprocessableEntityError{}, err)
+	iter := client.Authorization().ListGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationListGroupRoleAssignmentsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

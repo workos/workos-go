@@ -820,7 +820,7 @@ func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, para
 }
 
 // SendVerificationEmail
-// Sends an email that contains a one-time code used to verify a user’s email address.
+// Sends an email that contains a one-time code used to verify a user's email address.
 func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", url.PathEscape(id)), nil, nil, &result, opts)
@@ -1020,7 +1020,7 @@ type UserManagementCreateRedirectURIParams struct {
 }
 
 // CreateRedirectURI create a redirect URI
-// Creates a new redirect URI for an environment.
+// Creates a new redirect URI for an application.
 func (s *UserManagementService) CreateRedirectURI(ctx context.Context, params *UserManagementCreateRedirectURIParams, opts ...RequestOption) (*RedirectURI, error) {
 	var result RedirectURI
 	_, err := s.client.request(ctx, "POST", "/user_management/redirect_uris", nil, params, &result, opts)

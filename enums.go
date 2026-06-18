@@ -263,6 +263,7 @@ const (
 	WidgetSessionTokenScopesWidgetsAPIKeysManage            WidgetSessionTokenScopes = "widgets:api-keys:manage"
 	WidgetSessionTokenScopesWidgetsDsyncManage              WidgetSessionTokenScopes = "widgets:dsync:manage"
 	WidgetSessionTokenScopesWidgetsAuditLogStreamingManage  WidgetSessionTokenScopes = "widgets:audit-log-streaming:manage"
+	WidgetSessionTokenScopesWidgetsPipesManage              WidgetSessionTokenScopes = "widgets:pipes:manage"
 )
 
 // AuditLogExportState represents audit log export state values.
@@ -808,12 +809,29 @@ const (
 	AuditLogConfigurationStateDisabled AuditLogConfigurationState = "disabled"
 )
 
+// DataIntegrationCredentialsCredentialsType represents data integration credentials credentials type values.
+type DataIntegrationCredentialsCredentialsType string
+
+const (
+	DataIntegrationCredentialsCredentialsTypeShared       DataIntegrationCredentialsCredentialsType = "shared"
+	DataIntegrationCredentialsCredentialsTypeCustom       DataIntegrationCredentialsCredentialsType = "custom"
+	DataIntegrationCredentialsCredentialsTypeOrganization DataIntegrationCredentialsCredentialsType = "organization"
+)
+
 // DataIntegrationAccessTokenResponseError represents data integration access token response error values.
 type DataIntegrationAccessTokenResponseError string
 
 const (
-	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
 	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
+	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
+)
+
+// ConnectedAccountAuthMethod represents connected account auth method values.
+type ConnectedAccountAuthMethod string
+
+const (
+	ConnectedAccountAuthMethodOAuth  ConnectedAccountAuthMethod = "oauth"
+	ConnectedAccountAuthMethodAPIKey ConnectedAccountAuthMethod = "api_key"
 )
 
 // ConnectedAccountState represents connected account state values.
@@ -889,6 +907,9 @@ type WebhookEndpointStatus = UpdateWebhookEndpointStatus
 
 // ProfileConnectionType is an alias for ConnectionType.
 type ProfileConnectionType = ConnectionType
+
+// DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
+type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
 // DataIntegrationsListResponseDataOwnership represents data integrations list response data ownership values.
 type DataIntegrationsListResponseDataOwnership string
@@ -992,6 +1013,9 @@ type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 
 // UserSessionsStatus is an alias for SessionCreatedDataStatus.
 type UserSessionsStatus = SessionCreatedDataStatus
+
+// DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
+type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod
 
 // DataIntegrationsListResponseDataConnectedAccountState is an alias for ConnectedAccountState.
 type DataIntegrationsListResponseDataConnectedAccountState = ConnectedAccountState

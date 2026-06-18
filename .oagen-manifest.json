@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-06-03T19:19:57.720Z",
+  "generatedAt": "2026-06-17T20:55:27.831Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -11,6 +11,8 @@
     "audit_logs_test.go",
     "authorization.go",
     "authorization_test.go",
+    "client_api.go",
+    "client_api_test.go",
     "connect.go",
     "connect_test.go",
     "directory_sync.go",
@@ -33,6 +35,8 @@
     "organizations.go",
     "organizations_test.go",
     "pipes.go",
+    "pipes_provider.go",
+    "pipes_provider_test.go",
     "pipes_test.go",
     "pkg/events/events.go",
     "radar.go",
@@ -130,6 +134,9 @@
     "testdata/authorized_connect_application_list_data.json",
     "testdata/challenge_authentication_factor.json",
     "testdata/check_authorization.json",
+    "testdata/client_api_token.json",
+    "testdata/client_api_token_response.json",
+    "testdata/configure_data_integration_body.json",
     "testdata/connect_application.json",
     "testdata/connect_application_m2m.json",
     "testdata/connect_application_oauth.json",
@@ -163,6 +170,7 @@
     "testdata/create_data_key_response.json",
     "testdata/create_group.json",
     "testdata/create_group_membership.json",
+    "testdata/create_group_role_assignment.json",
     "testdata/create_m2m_application.json",
     "testdata/create_magic_code_and_return.json",
     "testdata/create_oauth_application.json",
@@ -182,6 +190,9 @@
     "testdata/data_integration_access_token_response.json",
     "testdata/data_integration_access_token_response_access_token.json",
     "testdata/data_integration_authorize_url_response.json",
+    "testdata/data_integration_configuration_list_response.json",
+    "testdata/data_integration_configuration_response.json",
+    "testdata/data_integration_credentials.json",
     "testdata/data_integrations_get_data_integration_authorize_url_request.json",
     "testdata/data_integrations_get_user_token_request.json",
     "testdata/data_integrations_list_response.json",
@@ -268,6 +279,9 @@
     "testdata/group_member_added_data.json",
     "testdata/group_member_removed.json",
     "testdata/group_member_removed_data.json",
+    "testdata/group_role_assignment.json",
+    "testdata/group_role_assignment_list.json",
+    "testdata/group_role_assignment_resource.json",
     "testdata/group_updated.json",
     "testdata/intent_options.json",
     "testdata/invitation.json",
@@ -293,6 +307,7 @@
     "testdata/list_event_schema.json",
     "testdata/list_flag.json",
     "testdata/list_group.json",
+    "testdata/list_group_role_assignment.json",
     "testdata/list_metadata.json",
     "testdata/list_object_summary.json",
     "testdata/list_organization.json",
@@ -369,6 +384,7 @@
     "testdata/refresh_token_session_authenticate_request.json",
     "testdata/rekey_request.json",
     "testdata/remove_role.json",
+    "testdata/replace_group_role_assignments.json",
     "testdata/resend_user_invite_options.json",
     "testdata/revoke_session.json",
     "testdata/role.json",
@@ -493,6 +509,30 @@
     "POST /authkit/oauth2/complete": {
       "sdkMethod": "CompleteOAuth2",
       "service": "connect"
+    },
+    "GET /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "ListGroupRoleAssignments",
+      "service": "authorization"
+    },
+    "POST /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "CreateGroupRoleAssignment",
+      "service": "authorization"
+    },
+    "PUT /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "UpdateGroupRoleAssignments",
+      "service": "authorization"
+    },
+    "DELETE /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "DeleteGroupRoleAssignments",
+      "service": "authorization"
+    },
+    "GET /authorization/groups/{group_id}/role_assignments/{role_assignment_id}": {
+      "sdkMethod": "GetGroupRoleAssignment",
+      "service": "authorization"
+    },
+    "DELETE /authorization/groups/{group_id}/role_assignments/{role_assignment_id}": {
+      "sdkMethod": "DeleteGroupRoleAssignment",
+      "service": "authorization"
     },
     "POST /authorization/organization_memberships/{organization_membership_id}/check": {
       "sdkMethod": "Check",
@@ -650,6 +690,10 @@
       "sdkMethod": "DeletePermission",
       "service": "authorization"
     },
+    "POST /client/token": {
+      "sdkMethod": "CreateToken",
+      "service": "client_api"
+    },
     "GET /connect/applications": {
       "sdkMethod": "ListApplications",
       "service": "connect"
@@ -698,8 +742,8 @@
       "sdkMethod": "AuthorizeDataIntegration",
       "service": "pipes"
     },
-    "POST /data-integrations/{slug}/token": {
-      "sdkMethod": "CreateDataIntegrationToken",
+    "POST /data-integrations/{provider}/token": {
+      "sdkMethod": "GetAccessToken",
       "service": "pipes"
     },
     "GET /directories": {
@@ -817,6 +861,14 @@
     "POST /organizations/{organizationId}/api_keys": {
       "sdkMethod": "CreateOrganizationAPIKey",
       "service": "api_keys"
+    },
+    "GET /organizations/{organizationId}/data_integration_configurations": {
+      "sdkMethod": "ListOrganizationDataIntegrationConfigurations",
+      "service": "pipes_provider"
+    },
+    "PUT /organizations/{organizationId}/data_integration_configurations/{slug}": {
+      "sdkMethod": "UpdateOrganizationDataIntegrationConfiguration",
+      "service": "pipes_provider"
     },
     "GET /organizations/{organizationId}/feature-flags": {
       "sdkMethod": "ListOrganizationFeatureFlags",

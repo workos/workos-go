@@ -17,6 +17,7 @@ type Client struct {
 	multiFactorAuth        *MultiFactorAuthService
 	connect                *ConnectService
 	authorization          *AuthorizationService
+	clientAPI              *ClientAPIService
 	sso                    *SSOService
 	pipes                  *PipeService
 	directorySync          *DirectorySyncService
@@ -25,6 +26,7 @@ type Client struct {
 	organizationDomains    *OrganizationDomainService
 	organizations          *OrganizationService
 	apiKeys                *APIKeyService
+	pipesProvider          *PipesProviderService
 	groups                 *GroupService
 	adminPortal            *AdminPortalService
 	radar                  *RadarService
@@ -51,6 +53,7 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.multiFactorAuth = &MultiFactorAuthService{client: c}
 	c.connect = &ConnectService{client: c}
 	c.authorization = &AuthorizationService{client: c}
+	c.clientAPI = &ClientAPIService{client: c}
 	c.sso = &SSOService{client: c}
 	c.pipes = &PipeService{client: c}
 	c.directorySync = &DirectorySyncService{client: c}
@@ -59,6 +62,7 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.organizationDomains = &OrganizationDomainService{client: c}
 	c.organizations = &OrganizationService{client: c}
 	c.apiKeys = &APIKeyService{client: c}
+	c.pipesProvider = &PipesProviderService{client: c}
 	c.groups = &GroupService{client: c}
 	c.adminPortal = &AdminPortalService{client: c}
 	c.radar = &RadarService{client: c}
@@ -85,6 +89,11 @@ func (c *Client) Connect() *ConnectService {
 // Authorization returns the Authorization service.
 func (c *Client) Authorization() *AuthorizationService {
 	return c.authorization
+}
+
+// ClientAPI returns the ClientAPI service.
+func (c *Client) ClientAPI() *ClientAPIService {
+	return c.clientAPI
 }
 
 // SSO returns the SSO service.
@@ -125,6 +134,11 @@ func (c *Client) Organizations() *OrganizationService {
 // APIKeys returns the APIKeys service.
 func (c *Client) APIKeys() *APIKeyService {
 	return c.apiKeys
+}
+
+// PipesProvider returns the PipesProvider service.
+func (c *Client) PipesProvider() *PipesProviderService {
+	return c.pipesProvider
 }
 
 // Groups returns the Groups service.

@@ -39,10 +39,10 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	require.Equal(t, "https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect", result.URL)
 }
 
-func TestPipes_CreateDataIntegrationToken(t *testing.T) {
+func TestPipes_GetAccessToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
-		require.Equal(t, "/data-integrations/test_slug/token", r.URL.Path)
+		require.Equal(t, "/data-integrations/test_provider/token", r.URL.Path)
 		body, _ := io.ReadAll(r.Body)
 		var bodyMap map[string]interface{}
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
@@ -57,7 +57,7 @@ func TestPipes_CreateDataIntegrationToken(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.Pipes().CreateDataIntegrationToken(context.Background(), "test_slug", &workos.PipesCreateDataIntegrationTokenParams{})
+	result, err := client.Pipes().GetAccessToken(context.Background(), "test_provider", &workos.PipesGetAccessTokenParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
