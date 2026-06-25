@@ -233,9 +233,11 @@ const (
 	CreateWebhookEndpointEventsPermissionDeleted                          CreateWebhookEndpointEvents = "permission.deleted"
 	CreateWebhookEndpointEventsPermissionUpdated                          CreateWebhookEndpointEvents = "permission.updated"
 	CreateWebhookEndpointEventsPipesConnectedAccountConnected             CreateWebhookEndpointEvents = "pipes.connected_account.connected"
+	CreateWebhookEndpointEventsPipesConnectedAccountConnectionFailed      CreateWebhookEndpointEvents = "pipes.connected_account.connection_failed"
 	CreateWebhookEndpointEventsPipesConnectedAccountDisconnected          CreateWebhookEndpointEvents = "pipes.connected_account.disconnected"
 	CreateWebhookEndpointEventsPipesConnectedAccountReauthorizationNeeded CreateWebhookEndpointEvents = "pipes.connected_account.reauthorization_needed"
 	CreateWebhookEndpointEventsSessionCreated                             CreateWebhookEndpointEvents = "session.created"
+	CreateWebhookEndpointEventsSessionReauthenticated                     CreateWebhookEndpointEvents = "session.reauthenticated"
 	CreateWebhookEndpointEventsSessionRevoked                             CreateWebhookEndpointEvents = "session.revoked"
 	CreateWebhookEndpointEventsWaitlistUserApproved                       CreateWebhookEndpointEvents = "waitlist_user.approved"
 	CreateWebhookEndpointEventsWaitlistUserCreated                        CreateWebhookEndpointEvents = "waitlist_user.created"
@@ -273,6 +275,7 @@ const (
 	AuditLogExportStatePending AuditLogExportState = "pending"
 	AuditLogExportStateReady   AuditLogExportState = "ready"
 	AuditLogExportStateError   AuditLogExportState = "error"
+	AuditLogExportStateExpired AuditLogExportState = "expired"
 )
 
 // AuthenticationFactorEnrolledType represents authentication factor enrolled type values.
@@ -756,6 +759,12 @@ const (
 	SessionCreatedDataStatusRevoked SessionCreatedDataStatus = "revoked"
 )
 
+// SessionReauthenticatedDataAuthMethod is an alias for SessionCreatedDataAuthMethod.
+type SessionReauthenticatedDataAuthMethod = SessionCreatedDataAuthMethod
+
+// SessionReauthenticatedDataStatus is an alias for SessionCreatedDataStatus.
+type SessionReauthenticatedDataStatus = SessionCreatedDataStatus
+
 // SessionRevokedDataAuthMethod is an alias for SessionCreatedDataAuthMethod.
 type SessionRevokedDataAuthMethod = SessionCreatedDataAuthMethod
 
@@ -793,12 +802,6 @@ type VaultMetadataReadDataActorSource = VaultDataCreatedDataActorSource
 
 // VaultNamesListedDataActorSource is an alias for VaultDataCreatedDataActorSource.
 type VaultNamesListedDataActorSource = VaultDataCreatedDataActorSource
-
-// OrganizationDomainStandAloneState is an alias for OrganizationCreatedDataDomainState.
-type OrganizationDomainStandAloneState = OrganizationCreatedDataDomainState
-
-// OrganizationDomainStandAloneVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
-type OrganizationDomainStandAloneVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
 
 // AuditLogConfigurationState represents audit log configuration state values.
 type AuditLogConfigurationState string
@@ -908,6 +911,12 @@ type WebhookEndpointStatus = UpdateWebhookEndpointStatus
 // ProfileConnectionType is an alias for ConnectionType.
 type ProfileConnectionType = ConnectionType
 
+// OrganizationDomainState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
 // DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
@@ -941,12 +950,6 @@ const (
 	AuditLogConfigurationLogStreamStateError    AuditLogConfigurationLogStreamState = "error"
 	AuditLogConfigurationLogStreamStateInvalid  AuditLogConfigurationLogStreamState = "invalid"
 )
-
-// OrganizationDomainState is an alias for OrganizationCreatedDataDomainState.
-type OrganizationDomainState = OrganizationCreatedDataDomainState
-
-// OrganizationDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
-type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
 
 // UserOrganizationMembershipBaseListDataStatus is an alias for OrganizationMembershipCreatedDataStatus.
 type UserOrganizationMembershipBaseListDataStatus = OrganizationMembershipCreatedDataStatus

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-06-17T20:55:27.831Z",
+  "generatedAt": "2026-06-25T13:51:00.179Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -80,6 +80,7 @@
     "testdata/audit_log_schema_target.json",
     "testdata/audit_log_schema_target_input.json",
     "testdata/audit_logs_retention.json",
+    "testdata/auth_method_mismatch_error.json",
     "testdata/authenticate_response.json",
     "testdata/authenticate_response_oauth_token.json",
     "testdata/authentication_challenge.json",
@@ -369,6 +370,8 @@
     "testdata/permission_updated.json",
     "testdata/pipe_connected_account.json",
     "testdata/pipes_connected_account_connected.json",
+    "testdata/pipes_connected_account_connection_failed.json",
+    "testdata/pipes_connected_account_connection_failed_data.json",
     "testdata/pipes_connected_account_disconnected.json",
     "testdata/pipes_connected_account_reauthorization_needed.json",
     "testdata/portal_link_response.json",
@@ -396,6 +399,7 @@
     "testdata/send_email_change.json",
     "testdata/session_created.json",
     "testdata/session_created_data.json",
+    "testdata/session_reauthenticated.json",
     "testdata/session_revoked.json",
     "testdata/set_role_permissions.json",
     "testdata/slim_role.json",

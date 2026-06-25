@@ -440,7 +440,7 @@ type AuditLogExport struct {
 	Object string `json:"object"`
 	// ID is the unique ID of the Audit Log Export.
 	ID string `json:"id"`
-	// State is the state of the export. Possible values: pending, ready, error.
+	// State is the state of the export. Possible values: pending, ready, error, expired.
 	State AuditLogExportState `json:"state"`
 	// URL is a URL to the CSV file. Only defined when the Audit Log Export is ready.
 	URL *string `json:"url,omitempty"`
@@ -3634,6 +3634,44 @@ type PipesConnectedAccountConnected struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
+// PipesConnectedAccountConnectionFailed represents a pipes connected account connection failed.
+type PipesConnectedAccountConnectionFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipesConnectedAccountConnectionFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesConnectedAccountConnectionFailedData the event payload.
+type PipesConnectedAccountConnectionFailedData struct {
+	// Object is the object type.
+	Object string `json:"object"`
+	// DataIntegrationID is the unique ID of the data integration.
+	DataIntegrationID string `json:"data_integration_id"`
+	// ProviderSlug is the provider slug for this connection attempt.
+	ProviderSlug string `json:"provider_slug"`
+	// UserID is the ID of the User the connection attempt belongs to.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the ID of the Organization the connection attempt belongs to.
+	OrganizationID *string `json:"organization_id"`
+	// ErrorCode is a machine-readable error code for the failure.
+	ErrorCode string `json:"error_code"`
+	// ErrorReason is a human-readable explanation of the failure.
+	ErrorReason *string `json:"error_reason"`
+	// ProviderError is the raw error code returned by the OAuth provider.
+	ProviderError *string `json:"provider_error"`
+	// ProviderErrorDescription is the raw error description returned by the OAuth provider.
+	ProviderErrorDescription *string `json:"provider_error_description"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+}
+
 // PipesConnectedAccountDisconnected represents a pipes connected account disconnected.
 type PipesConnectedAccountDisconnected struct {
 	// Object distinguishes the Event object.
@@ -3772,6 +3810,53 @@ type SessionCreatedData struct {
 
 // SessionCreatedDataImpersonator is an alias for AuthenticateResponseImpersonator.
 type SessionCreatedDataImpersonator = AuthenticateResponseImpersonator
+
+// SessionReauthenticated represents a session reauthenticated.
+type SessionReauthenticated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *SessionReauthenticatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// SessionReauthenticatedData the event payload.
+type SessionReauthenticatedData struct {
+	// Object distinguishes the session object.
+	Object string `json:"object"`
+	// ID is the unique ID of the session.
+	ID string `json:"id"`
+	// Impersonator is information about the impersonator if this session was created via impersonation.
+	Impersonator *SessionReauthenticatedDataImpersonator `json:"impersonator,omitempty"`
+	// IPAddress is the IP address from which the session was created.
+	IPAddress *string `json:"ip_address"`
+	// OrganizationID is the ID of the organization this session is associated with.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// UserAgent is the user agent string from the device that created the session.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user this session belongs to.
+	UserID string `json:"user_id"`
+	// AuthMethod is the authentication method used to create this session.
+	AuthMethod SessionReauthenticatedDataAuthMethod `json:"auth_method"`
+	// Status is the current status of the session.
+	Status SessionReauthenticatedDataStatus `json:"status"`
+	// ExpiresAt is the timestamp when the session expires.
+	ExpiresAt string `json:"expires_at"`
+	// EndedAt is the timestamp when the session ended.
+	EndedAt *string `json:"ended_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// SessionReauthenticatedDataImpersonator is an alias for AuthenticateResponseImpersonator.
+type SessionReauthenticatedDataImpersonator = AuthenticateResponseImpersonator
 
 // SessionRevoked represents a session revoked.
 type SessionRevoked struct {
@@ -4182,30 +4267,6 @@ type WaitlistUserDenied struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
-// OrganizationDomainStandAlone represents an organization domain stand alone.
-type OrganizationDomainStandAlone struct {
-	// Object distinguishes the organization domain object.
-	Object string `json:"object"`
-	// ID is unique identifier of the organization domain.
-	ID string `json:"id"`
-	// OrganizationID is id of the parent Organization.
-	OrganizationID string `json:"organization_id"`
-	// Domain is domain for the organization domain.
-	Domain string `json:"domain"`
-	// State is verification state of the domain.
-	State *OrganizationDomainStandAloneState `json:"state,omitempty"`
-	// VerificationPrefix is the prefix used in DNS verification.
-	VerificationPrefix *string `json:"verification_prefix,omitempty"`
-	// VerificationToken is validation token to be used in DNS TXT record.
-	VerificationToken *string `json:"verification_token,omitempty"`
-	// VerificationStrategy is strategy used to verify the domain.
-	VerificationStrategy *OrganizationDomainStandAloneVerificationStrategy `json:"verification_strategy,omitempty"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-}
-
 // Flag represents a flag.
 type Flag struct {
 	// Object distinguishes the Feature Flag object.
@@ -4382,6 +4443,14 @@ type DataIntegrationAccessTokenResponse struct {
 	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
 }
 
+// AuthMethodMismatchError represents an auth method mismatch error.
+type AuthMethodMismatchError struct {
+	// Code is error code indicating the endpoint does not match the installation auth method.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the mismatch.
+	Message string `json:"message"`
+}
+
 // ConnectedAccount represents a connected account.
 type ConnectedAccount struct {
 	// Object distinguishes the connected account object.
@@ -4545,6 +4614,8 @@ type UserOrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// Roles is the list of roles assigned to the user within the organization.
+	Roles []*SlimRole `json:"roles"`
 	// User is the user that belongs to the organization through this membership.
 	User *User `json:"user"`
 }
@@ -4809,6 +4880,30 @@ type JWTTemplateResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// OrganizationDomain represents an organization domain.
+type OrganizationDomain struct {
+	// Object distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // JWKSResponseKeys represents a jwks response keys.
 type JWKSResponseKeys struct {
 	// Alg is algorithm.
@@ -4916,30 +5011,6 @@ type AuditLogConfigurationLogStream struct {
 	LastSyncedAt *string `json:"last_synced_at"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
-}
-
-// OrganizationDomain represents an organization domain.
-type OrganizationDomain struct {
-	// Object distinguishes the organization domain object.
-	Object string `json:"object"`
-	// ID is unique identifier of the organization domain.
-	ID string `json:"id"`
-	// OrganizationID is id of the parent Organization.
-	OrganizationID string `json:"organization_id"`
-	// Domain is domain for the organization domain.
-	Domain string `json:"domain"`
-	// State is verification state of the domain.
-	State *OrganizationDomainState `json:"state,omitempty"`
-	// VerificationPrefix is the prefix used in DNS verification.
-	VerificationPrefix *string `json:"verification_prefix,omitempty"`
-	// VerificationToken is validation token to be used in DNS TXT record.
-	VerificationToken *string `json:"verification_token,omitempty"`
-	// VerificationStrategy is strategy used to verify the domain.
-	VerificationStrategy *OrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
 }
 
 // OrganizationAPIKeyWithValueOwner is an alias for OrganizationAPIKeyOwner.
@@ -5376,6 +5447,8 @@ type OrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// Roles is the list of roles assigned to the user within the organization.
+	Roles []*SlimRole `json:"roles"`
 	// User is the user that belongs to the organization through this membership.
 	User *User `json:"user"`
 }
