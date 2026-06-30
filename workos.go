@@ -14,6 +14,7 @@ type Client struct {
 	logger     Logger
 	appInfo    appInfo
 
+	agents                 *AgentService
 	multiFactorAuth        *MultiFactorAuthService
 	connect                *ConnectService
 	authorization          *AuthorizationService
@@ -50,6 +51,7 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.agents = &AgentService{client: c}
 	c.multiFactorAuth = &MultiFactorAuthService{client: c}
 	c.connect = &ConnectService{client: c}
 	c.authorization = &AuthorizationService{client: c}
@@ -74,6 +76,11 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.auditLogs = &AuditLogService{client: c}
 	c.passwordless = &PasswordlessService{client: c}
 	return c
+}
+
+// Agents returns the Agents service.
+func (c *Client) Agents() *AgentService {
+	return c.agents
 }
 
 // MultiFactorAuth returns the MultiFactorAuth service.

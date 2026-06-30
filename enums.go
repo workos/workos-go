@@ -820,6 +820,9 @@ const (
 	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
 )
 
+// DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
+
 // ConnectedAccountAuthMethod represents connected account auth method values.
 type ConnectedAccountAuthMethod string
 
