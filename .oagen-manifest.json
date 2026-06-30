@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "go",
-  "generatedAt": "2026-06-17T20:55:27.831Z",
+  "generatedAt": "2026-06-30T23:28:34.149Z",
   "files": [
     "admin_portal.go",
     "admin_portal_test.go",
@@ -80,6 +80,7 @@
     "testdata/audit_log_schema_target.json",
     "testdata/audit_log_schema_target_input.json",
     "testdata/audit_logs_retention.json",
+    "testdata/auth_method_mismatch_error.json",
     "testdata/authenticate_response.json",
     "testdata/authenticate_response_oauth_token.json",
     "testdata/authentication_challenge.json",
@@ -193,11 +194,15 @@
     "testdata/data_integration_configuration_list_response.json",
     "testdata/data_integration_configuration_response.json",
     "testdata/data_integration_credentials.json",
+    "testdata/data_integration_credentials_response.json",
+    "testdata/data_integration_credentials_response_credential.json",
     "testdata/data_integrations_get_data_integration_authorize_url_request.json",
     "testdata/data_integrations_get_user_token_request.json",
     "testdata/data_integrations_list_response.json",
     "testdata/data_integrations_list_response_data.json",
     "testdata/data_integrations_list_response_data_connected_account.json",
+    "testdata/data_integrations_upsert_api_key_request.json",
+    "testdata/data_integrations_vend_credentials_request.json",
     "testdata/decrypt_request.json",
     "testdata/decrypt_response.json",
     "testdata/delete_object_response.json",
@@ -1257,6 +1262,30 @@
     "GET /audit_logs/exports/{auditLogExportId}": {
       "sdkMethod": "GetExport",
       "service": "audit_logs"
+    },
+    "POST /agents/credentials/validate": {
+      "sdkMethod": "CreateValidate",
+      "service": "agents"
+    },
+    "GET /agents/registrations/{id}": {
+      "sdkMethod": "GetRegistration",
+      "service": "agents"
+    },
+    "PUT /data-integrations/{slug}/api-key": {
+      "sdkMethod": "UpdateDataIntegrationAPIKey",
+      "service": "pipes"
+    },
+    "POST /data-integrations/{slug}/credentials": {
+      "sdkMethod": "CreateDataIntegrationCredential",
+      "service": "pipes"
+    },
+    "GET /user_management/cors_origins": {
+      "sdkMethod": "ListCORSOrigins",
+      "service": "user_management"
+    },
+    "GET /user_management/redirect_uris": {
+      "sdkMethod": "ListRedirectURIs",
+      "service": "user_management"
     }
   }
 }

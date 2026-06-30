@@ -13,6 +13,27 @@ type PipeService struct {
 	client *Client
 }
 
+// PipesUpdateDataIntegrationAPIKeyParams contains the parameters for UpdateDataIntegrationAPIKey.
+type PipesUpdateDataIntegrationAPIKeyParams struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret" url:"-"`
+}
+
+// UpdateDataIntegrationAPIKey upsert an API key for a connected account
+// Creates or updates an API-key-based installation for the specified integration and user. If an installation already exists, the stored API key is rotated to the new value.
+func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesUpdateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // PipesAuthorizeDataIntegrationParams contains the parameters for AuthorizeDataIntegration.
 type PipesAuthorizeDataIntegrationParams struct {
 	// UserID is the ID of the user to authorize.
@@ -28,6 +49,25 @@ type PipesAuthorizeDataIntegrationParams struct {
 func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string, params *PipesAuthorizeDataIntegrationParams, opts ...RequestOption) (*DataIntegrationAuthorizeURLResponse, error) {
 	var result DataIntegrationAuthorizeURLResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/authorize", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesCreateDataIntegrationCredentialParams contains the parameters for CreateDataIntegrationCredential.
+type PipesCreateDataIntegrationCredentialParams struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+}
+
+// CreateDataIntegrationCredential vend credentials for a connected account
+// Returns credentials for a user's connected account. Branches on the installation's `auth_method`: OAuth installations return an access token (refreshed if needed); API-key installations return the stored secret.
+func (s *PipeService) CreateDataIntegrationCredential(ctx context.Context, slug string, params *PipesCreateDataIntegrationCredentialParams, opts ...RequestOption) (*DataIntegrationCredentialsResponse, error) {
+	var result DataIntegrationCredentialsResponse
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/credentials", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
