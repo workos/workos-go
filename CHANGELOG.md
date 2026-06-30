@@ -2,10 +2,11 @@
 
 ## [9.4.0](https://github.com/workos/workos-go/compare/v9.3.0...v9.4.0) (2026-06-30)
 
+* [#569](https://github.com/workos/workos-go/pull/569) fix(generated): regenerate from spec
 
-### Features
-
-* **generated:** OrganizationMembership (batch 4a353f07) ([#569](https://github.com/workos/workos-go/issues/569)) ([e020523](https://github.com/workos/workos-go/commit/e0205239dbdb27c5bc3fbd5c8863ea7d8f0c9c8a))
+  **Fixes**
+  * **[organization_membership](https://workos.com/docs/reference/authkit/organization-membership)**:
+    * Added `roles` to organization membership models
 
 ## [9.3.0](https://github.com/workos/workos-go/compare/v9.2.0...v9.3.0) (2026-06-18)
 
