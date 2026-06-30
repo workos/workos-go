@@ -4182,30 +4182,6 @@ type WaitlistUserDenied struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
-// OrganizationDomainStandAlone represents an organization domain stand alone.
-type OrganizationDomainStandAlone struct {
-	// Object distinguishes the organization domain object.
-	Object string `json:"object"`
-	// ID is unique identifier of the organization domain.
-	ID string `json:"id"`
-	// OrganizationID is id of the parent Organization.
-	OrganizationID string `json:"organization_id"`
-	// Domain is domain for the organization domain.
-	Domain string `json:"domain"`
-	// State is verification state of the domain.
-	State *OrganizationDomainStandAloneState `json:"state,omitempty"`
-	// VerificationPrefix is the prefix used in DNS verification.
-	VerificationPrefix *string `json:"verification_prefix,omitempty"`
-	// VerificationToken is validation token to be used in DNS TXT record.
-	VerificationToken *string `json:"verification_token,omitempty"`
-	// VerificationStrategy is strategy used to verify the domain.
-	VerificationStrategy *OrganizationDomainStandAloneVerificationStrategy `json:"verification_strategy,omitempty"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-}
-
 // Flag represents a flag.
 type Flag struct {
 	// Object distinguishes the Feature Flag object.
@@ -4545,6 +4521,8 @@ type UserOrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// Roles is the list of roles assigned to the user within the organization.
+	Roles []*SlimRole `json:"roles"`
 	// User is the user that belongs to the organization through this membership.
 	User *User `json:"user"`
 }
@@ -4809,6 +4787,30 @@ type JWTTemplateResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// OrganizationDomain represents an organization domain.
+type OrganizationDomain struct {
+	// Object distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // JWKSResponseKeys represents a jwks response keys.
 type JWKSResponseKeys struct {
 	// Alg is algorithm.
@@ -4916,30 +4918,6 @@ type AuditLogConfigurationLogStream struct {
 	LastSyncedAt *string `json:"last_synced_at"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
-}
-
-// OrganizationDomain represents an organization domain.
-type OrganizationDomain struct {
-	// Object distinguishes the organization domain object.
-	Object string `json:"object"`
-	// ID is unique identifier of the organization domain.
-	ID string `json:"id"`
-	// OrganizationID is id of the parent Organization.
-	OrganizationID string `json:"organization_id"`
-	// Domain is domain for the organization domain.
-	Domain string `json:"domain"`
-	// State is verification state of the domain.
-	State *OrganizationDomainState `json:"state,omitempty"`
-	// VerificationPrefix is the prefix used in DNS verification.
-	VerificationPrefix *string `json:"verification_prefix,omitempty"`
-	// VerificationToken is validation token to be used in DNS TXT record.
-	VerificationToken *string `json:"verification_token,omitempty"`
-	// VerificationStrategy is strategy used to verify the domain.
-	VerificationStrategy *OrganizationDomainVerificationStrategy `json:"verification_strategy,omitempty"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
 }
 
 // OrganizationAPIKeyWithValueOwner is an alias for OrganizationAPIKeyOwner.
@@ -5376,6 +5354,8 @@ type OrganizationMembership struct {
 	UpdatedAt string `json:"updated_at"`
 	// Role is the primary role assigned to the user within the organization.
 	Role *SlimRole `json:"role"`
+	// Roles is the list of roles assigned to the user within the organization.
+	Roles []*SlimRole `json:"roles"`
 	// User is the user that belongs to the organization through this membership.
 	User *User `json:"user"`
 }
@@ -5508,6 +5488,30 @@ type ConnectApplicationRedirectURI struct {
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
+}
+
+// OrganizationDomainStandAlone represents an organization domain stand alone.
+type OrganizationDomainStandAlone struct {
+	// Object distinguishes the organization domain object.
+	Object string `json:"object"`
+	// ID is unique identifier of the organization domain.
+	ID string `json:"id"`
+	// OrganizationID is id of the parent Organization.
+	OrganizationID string `json:"organization_id"`
+	// Domain is domain for the organization domain.
+	Domain string `json:"domain"`
+	// State is verification state of the domain.
+	State *OrganizationDomainStandAloneState `json:"state,omitempty"`
+	// VerificationPrefix is the prefix used in DNS verification.
+	VerificationPrefix *string `json:"verification_prefix,omitempty"`
+	// VerificationToken is validation token to be used in DNS TXT record.
+	VerificationToken *string `json:"verification_token,omitempty"`
+	// VerificationStrategy is strategy used to verify the domain.
+	VerificationStrategy *OrganizationDomainStandAloneVerificationStrategy `json:"verification_strategy,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // PaginationParams contains common pagination parameters for list operations.

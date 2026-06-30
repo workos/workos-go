@@ -794,12 +794,6 @@ type VaultMetadataReadDataActorSource = VaultDataCreatedDataActorSource
 // VaultNamesListedDataActorSource is an alias for VaultDataCreatedDataActorSource.
 type VaultNamesListedDataActorSource = VaultDataCreatedDataActorSource
 
-// OrganizationDomainStandAloneState is an alias for OrganizationCreatedDataDomainState.
-type OrganizationDomainStandAloneState = OrganizationCreatedDataDomainState
-
-// OrganizationDomainStandAloneVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
-type OrganizationDomainStandAloneVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
-
 // AuditLogConfigurationState represents audit log configuration state values.
 type AuditLogConfigurationState string
 
@@ -908,6 +902,12 @@ type WebhookEndpointStatus = UpdateWebhookEndpointStatus
 // ProfileConnectionType is an alias for ConnectionType.
 type ProfileConnectionType = ConnectionType
 
+// OrganizationDomainState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
+
 // DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
@@ -941,12 +941,6 @@ const (
 	AuditLogConfigurationLogStreamStateError    AuditLogConfigurationLogStreamState = "error"
 	AuditLogConfigurationLogStreamStateInvalid  AuditLogConfigurationLogStreamState = "invalid"
 )
-
-// OrganizationDomainState is an alias for OrganizationCreatedDataDomainState.
-type OrganizationDomainState = OrganizationCreatedDataDomainState
-
-// OrganizationDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
-type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
 
 // UserOrganizationMembershipBaseListDataStatus is an alias for OrganizationMembershipCreatedDataStatus.
 type UserOrganizationMembershipBaseListDataStatus = OrganizationMembershipCreatedDataStatus
@@ -1155,3 +1149,9 @@ const (
 	VaultOrderAsc  VaultOrder = "asc"
 	VaultOrderDesc VaultOrder = "desc"
 )
+
+// OrganizationDomainStandAloneState is an alias for OrganizationCreatedDataDomainState.
+type OrganizationDomainStandAloneState = OrganizationCreatedDataDomainState
+
+// OrganizationDomainStandAloneVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
+type OrganizationDomainStandAloneVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
