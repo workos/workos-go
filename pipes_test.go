@@ -15,6 +15,32 @@ import (
 	"github.com/workos/workos-go/v9"
 )
 
+func TestPipes_UpdateDataIntegrationAPIKey(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/api-key", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
 func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
@@ -37,6 +63,29 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect", result.URL)
+}
+
+func TestPipes_CreateDataIntegrationCredential(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/credentials", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration_credentials_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().CreateDataIntegrationCredential(context.Background(), "test_slug", &workos.PipesCreateDataIntegrationCredentialParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
 }
 
 func TestPipes_GetAccessToken(t *testing.T) {
@@ -127,7 +176,7 @@ func TestPipes_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
+	_, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }
 
@@ -140,7 +189,7 @@ func TestPipes_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
+	_, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
 	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
@@ -153,6 +202,6 @@ func TestPipes_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().AuthorizeDataIntegration(context.Background(), "test_slug", &workos.PipesAuthorizeDataIntegrationParams{})
+	_, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
 	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

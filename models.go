@@ -139,28 +139,6 @@ type OrganizationDomainData struct {
 	State OrganizationDomainDataState `json:"state"`
 }
 
-// SSOIntentOptions represents a SSO intent options.
-type SSOIntentOptions struct {
-	// BookmarkSlug is the bookmark slug to use for SSO.
-	BookmarkSlug *string `json:"bookmark_slug,omitempty"`
-	// ProviderType is the SSO provider type to configure.
-	ProviderType *string `json:"provider_type,omitempty"`
-}
-
-// DomainVerificationIntentOptions represents a domain verification intent options.
-type DomainVerificationIntentOptions struct {
-	// DomainName is the domain name to verify. When provided, the domain verification flow will skip the domain entry form and go directly to the verification step.
-	DomainName *string `json:"domain_name,omitempty"`
-}
-
-// IntentOptions represents an intent options.
-type IntentOptions struct {
-	// SSO is sso-specific options for the Admin Portal.
-	SSO *SSOIntentOptions `json:"sso,omitempty"`
-	// DomainVerification is domain verification-specific options for the Admin Portal.
-	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
-}
-
 // Actor the user or API key that performed an action.
 type Actor struct {
 	// ID is unique identifier of the actor.
@@ -4358,6 +4336,26 @@ type DataIntegrationAccessTokenResponse struct {
 	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
 }
 
+// AuthMethodMismatchError represents an auth method mismatch error.
+type AuthMethodMismatchError struct {
+	// Code is error code indicating the endpoint does not match the installation auth method.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the mismatch.
+	Message string `json:"message"`
+}
+
+// DataIntegrationCredentialsResponse represents a data integration credentials response.
+type DataIntegrationCredentialsResponse struct {
+	// Active indicates credentials are available.
+	Active *bool `json:"active,omitempty"`
+	// Credential is the credential object containing the vended secret.
+	Credential *DataIntegrationCredentialsResponseCredential `json:"credential,omitempty"`
+	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
+	// - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error *DataIntegrationCredentialsResponseError `json:"error,omitempty"`
+}
+
 // ConnectedAccount represents a connected account.
 type ConnectedAccount struct {
 	// Object distinguishes the connected account object.
@@ -4890,6 +4888,22 @@ type DataIntegrationsListResponseData struct {
 	UpdatedAt string `json:"updated_at"`
 	// ConnectedAccount is the user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` if the user has not connected.
 	ConnectedAccount *DataIntegrationsListResponseDataConnectedAccount `json:"connected_account"`
+}
+
+// DataIntegrationCredentialsResponseCredential the credential object containing the vended secret.
+type DataIntegrationCredentialsResponseCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the OAuth access token.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
+	MissingScopes []string `json:"missing_scopes"`
 }
 
 // DataIntegrationAccessTokenResponseAccessToken the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
@@ -5488,6 +5502,28 @@ type ConnectApplicationRedirectURI struct {
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
+}
+
+// SSOIntentOptions represents a SSO intent options.
+type SSOIntentOptions struct {
+	// BookmarkSlug is the bookmark slug to use for SSO.
+	BookmarkSlug *string `json:"bookmark_slug,omitempty"`
+	// ProviderType is the SSO provider type to configure.
+	ProviderType *string `json:"provider_type,omitempty"`
+}
+
+// DomainVerificationIntentOptions represents a domain verification intent options.
+type DomainVerificationIntentOptions struct {
+	// DomainName is the domain name to verify. When provided, the domain verification flow will skip the domain entry form and go directly to the verification step.
+	DomainName *string `json:"domain_name,omitempty"`
+}
+
+// IntentOptions represents an intent options.
+type IntentOptions struct {
+	// SSO is sso-specific options for the Admin Portal.
+	SSO *SSOIntentOptions `json:"sso,omitempty"`
+	// DomainVerification is domain verification-specific options for the Admin Portal.
+	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
 }
 
 // OrganizationDomainStandAlone represents an organization domain stand alone.
