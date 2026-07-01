@@ -422,6 +422,8 @@ type UserManagementGetAuthorizationURLParams struct {
 	ProviderScopes []string `url:"provider_scopes,omitempty" json:"-"`
 	// InvitationToken is a token representing a user invitation to redeem during authentication.
 	InvitationToken *string `url:"invitation_token,omitempty" json:"-"`
+	// MaxAge is maximum allowable elapsed time, in seconds, since the user last actively authenticated. If the last authentication is older than this value, the user is prompted to re-authenticate; a value of `0` forces re-authentication. Only supported when the provider is `authkit`.
+	MaxAge *int `url:"max_age,omitempty" json:"-"`
 	// ScreenHint is used to specify which screen to display when the provider is `authkit`.
 	// Defaults to "sign-in".
 	ScreenHint *UserManagementAuthenticationScreenHint `url:"screen_hint,omitempty" json:"-"`
@@ -469,6 +471,9 @@ func (s *UserManagementService) GetAuthorizationURL(params *UserManagementGetAut
 	}
 	if params.InvitationToken != nil {
 		query.Set("invitation_token", *params.InvitationToken)
+	}
+	if params.MaxAge != nil {
+		query.Set("max_age", fmt.Sprintf("%v", *params.MaxAge))
 	}
 	if params.ScreenHint != nil {
 		query.Set("screen_hint", fmt.Sprintf("%v", *params.ScreenHint))
@@ -539,6 +544,17 @@ type UserManagementRevokeSessionParams struct {
 func (s *UserManagementService) RevokeSession(ctx context.Context, params *UserManagementRevokeSessionParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", "/user_management/sessions/revoke", nil, params, nil, opts)
 	return err
+}
+
+// UserManagementListCORSOriginsParams contains the parameters for ListCORSOrigins.
+type UserManagementListCORSOriginsParams struct {
+	PaginationParams
+}
+
+// ListCORSOrigins list CORS origins
+// Lists the CORS origins for the current environment.
+func (s *UserManagementService) ListCORSOrigins(ctx context.Context, params *UserManagementListCORSOriginsParams, opts ...RequestOption) *Iterator[CORSOriginResponse] {
+	return newIterator[CORSOriginResponse](ctx, s.client, "GET", "/user_management/cors_origins", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateCORSOriginParams contains the parameters for CreateCORSOrigin.
@@ -1011,6 +1027,17 @@ func (s *UserManagementService) GetMagicAuth(ctx context.Context, id string, opt
 		return nil, err
 	}
 	return &result, nil
+}
+
+// UserManagementListRedirectURIsParams contains the parameters for ListRedirectURIs.
+type UserManagementListRedirectURIsParams struct {
+	PaginationParams
+}
+
+// ListRedirectURIs
+// Lists the redirect URIs for an environment.
+func (s *UserManagementService) ListRedirectURIs(ctx context.Context, params *UserManagementListRedirectURIsParams, opts ...RequestOption) *Iterator[RedirectURI] {
+	return newIterator[RedirectURI](ctx, s.client, "GET", "/user_management/redirect_uris", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
 // UserManagementCreateRedirectURIParams contains the parameters for CreateRedirectURI.

@@ -418,7 +418,7 @@ type AuditLogExport struct {
 	Object string `json:"object"`
 	// ID is the unique ID of the Audit Log Export.
 	ID string `json:"id"`
-	// State is the state of the export. Possible values: pending, ready, error.
+	// State is the state of the export. Possible values: pending, ready, error, expired.
 	State AuditLogExportState `json:"state"`
 	// URL is a URL to the CSV file. Only defined when the Audit Log Export is ready.
 	URL *string `json:"url,omitempty"`
@@ -627,6 +627,8 @@ type UserRoleAssignment struct {
 	Role *SlimRole `json:"role"`
 	// Resource is the resource the role is assigned on.
 	Resource *UserRoleAssignmentResource `json:"resource"`
+	// Source is the origin of the role assignment.
+	Source *UserRoleAssignmentSource `json:"source"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -5019,6 +5021,14 @@ type ConnectionOption struct {
 
 // UserRoleAssignmentResource is an alias for GroupRoleAssignmentResource.
 type UserRoleAssignmentResource = GroupRoleAssignmentResource
+
+// UserRoleAssignmentSource the origin of the role assignment.
+type UserRoleAssignmentSource struct {
+	// Type is whether the role was assigned directly or derived from a group.
+	Type UserRoleAssignmentSourceType `json:"type"`
+	// GroupRoleAssignmentID is the ID of the group role assignment the role was derived from, or null if direct.
+	GroupRoleAssignmentID *string `json:"group_role_assignment_id"`
+}
 
 // GroupRoleAssignmentResource the resource the role is assigned on.
 type GroupRoleAssignmentResource struct {
