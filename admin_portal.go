@@ -28,8 +28,6 @@ type AdminPortalGenerateLinkParams struct {
 	// - `certificate_renewal` - Launch Admin Portal for renewing SAML Certificates
 	// - `bring_your_own_key` - Launch Admin Portal for configuring Bring Your Own Key
 	Intent *GenerateLinkIntent `json:"intent,omitempty" url:"-"`
-	// IntentOptions is options to configure the Admin Portal based on the intent.
-	IntentOptions *IntentOptions `json:"intent_options,omitempty" url:"-"`
 	// ItContactEmails is the email addresses of the IT contacts to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
 	ItContactEmails []string `json:"it_contact_emails,omitempty" url:"-"`
 }

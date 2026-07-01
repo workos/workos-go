@@ -159,6 +159,11 @@ type UpdateUserPasswordHashType = CreateUserPasswordHashType
 type CreateWebhookEndpointEvents string
 
 const (
+	CreateWebhookEndpointEventsAgentRegistrationCreated                   CreateWebhookEndpointEvents = "agent.registration.created"
+	CreateWebhookEndpointEventsAgentRegistrationClaimAttemptCreated       CreateWebhookEndpointEvents = "agent.registration.claim.attempt.created"
+	CreateWebhookEndpointEventsAgentRegistrationClaimCompleted            CreateWebhookEndpointEvents = "agent.registration.claim.completed"
+	CreateWebhookEndpointEventsAgentRegistrationCredentialIssued          CreateWebhookEndpointEvents = "agent.registration.credential.issued"
+	CreateWebhookEndpointEventsAgentRegistrationOrganizationSwitched      CreateWebhookEndpointEvents = "agent.registration.organization.switched"
 	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded   CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
 	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed              CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
 	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded           CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
@@ -174,6 +179,7 @@ const (
 	CreateWebhookEndpointEventsAuthenticationSSOSucceeded                 CreateWebhookEndpointEvents = "authentication.sso_succeeded"
 	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                  CreateWebhookEndpointEvents = "authentication.sso_timed_out"
 	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected            CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
+	CreateWebhookEndpointEventsAuthenticationReauthenticationSucceeded    CreateWebhookEndpointEvents = "authentication.reauthentication_succeeded"
 	CreateWebhookEndpointEventsAPIKeyCreated                              CreateWebhookEndpointEvents = "api_key.created"
 	CreateWebhookEndpointEventsAPIKeyRevoked                              CreateWebhookEndpointEvents = "api_key.revoked"
 	CreateWebhookEndpointEventsAPIKeyUpdated                              CreateWebhookEndpointEvents = "api_key.updated"
@@ -233,6 +239,7 @@ const (
 	CreateWebhookEndpointEventsPermissionDeleted                          CreateWebhookEndpointEvents = "permission.deleted"
 	CreateWebhookEndpointEventsPermissionUpdated                          CreateWebhookEndpointEvents = "permission.updated"
 	CreateWebhookEndpointEventsPipesConnectedAccountConnected             CreateWebhookEndpointEvents = "pipes.connected_account.connected"
+	CreateWebhookEndpointEventsPipesConnectedAccountConnectionFailed      CreateWebhookEndpointEvents = "pipes.connected_account.connection_failed"
 	CreateWebhookEndpointEventsPipesConnectedAccountDisconnected          CreateWebhookEndpointEvents = "pipes.connected_account.disconnected"
 	CreateWebhookEndpointEventsPipesConnectedAccountReauthorizationNeeded CreateWebhookEndpointEvents = "pipes.connected_account.reauthorization_needed"
 	CreateWebhookEndpointEventsSessionCreated                             CreateWebhookEndpointEvents = "session.created"
@@ -273,6 +280,7 @@ const (
 	AuditLogExportStatePending AuditLogExportState = "pending"
 	AuditLogExportStateReady   AuditLogExportState = "ready"
 	AuditLogExportStateError   AuditLogExportState = "error"
+	AuditLogExportStateExpired AuditLogExportState = "expired"
 )
 
 // AuthenticationFactorEnrolledType represents authentication factor enrolled type values.
@@ -947,6 +955,14 @@ const (
 
 // UserOrganizationMembershipBaseListDataStatus is an alias for OrganizationMembershipCreatedDataStatus.
 type UserOrganizationMembershipBaseListDataStatus = OrganizationMembershipCreatedDataStatus
+
+// UserRoleAssignmentSourceType represents user role assignment source type values.
+type UserRoleAssignmentSourceType string
+
+const (
+	UserRoleAssignmentSourceTypeDirect UserRoleAssignmentSourceType = "direct"
+	UserRoleAssignmentSourceTypeGroup  UserRoleAssignmentSourceType = "group"
+)
 
 // AuthenticationFactorsCreateRequestType represents authentication factors create request type values.
 type AuthenticationFactorsCreateRequestType string

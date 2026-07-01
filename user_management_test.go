@@ -87,6 +87,44 @@ func TestUserManagement_RevokeSession(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestUserManagement_ListCORSOrigins(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/cors_origins", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_cors_origin_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListCORSOrigins(context.Background(), &workos.UserManagementListCORSOriginsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestUserManagement_ListCORSOrigins_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListCORSOrigins(context.Background(), &workos.UserManagementListCORSOriginsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
 func TestUserManagement_CreateCORSOrigin(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
@@ -782,6 +820,44 @@ func TestUserManagement_GetMagicAuth(t *testing.T) {
 	require.Equal(t, "magic_auth_01HWZBQZY2M3AMQW166Q22K88F", result.ID)
 	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
 	require.Equal(t, "marcelina.davis@example.com", result.Email)
+}
+
+func TestUserManagement_ListRedirectURIs(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/redirect_uris", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_redirect_uri.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListRedirectURIs(context.Background(), &workos.UserManagementListRedirectURIsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestUserManagement_ListRedirectURIs_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListRedirectURIs(context.Background(), &workos.UserManagementListRedirectURIsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
 }
 
 func TestUserManagement_CreateRedirectURI(t *testing.T) {
