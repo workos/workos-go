@@ -1,5 +1,20 @@
 # Changelog
 
+## [9.5.0](https://github.com/workos/workos-go/compare/v9.4.0...v9.5.0) (2026-07-02)
+
+
+### Features
+
+* **generated:** AdminPortal, Authorization, Webhooks, UserManagement, AuditLogs (batch 08085e9d) ([#574](https://github.com/workos/workos-go/issues/574)) ([4c2088d](https://github.com/workos/workos-go/commit/4c2088dd6d71296e9b606b01c53fefe05f55ada3))
+* **generated:** Pipes (batch 77e46600) ([#572](https://github.com/workos/workos-go/issues/572)) ([63aa11a](https://github.com/workos/workos-go/commit/63aa11ab899e7cad4e3b3427ef9d0bde7f157137))
+* **pipes:** Add Pipes operations and models ([#576](https://github.com/workos/workos-go/issues/576)) ([851c17b](https://github.com/workos/workos-go/commit/851c17b96fcd2d8ad424d0b77d8906877352d29b))
+* **user_management:** Add user management operations and models ([#577](https://github.com/workos/workos-go/issues/577)) ([9395260](https://github.com/workos/workos-go/commit/939526047871ed3f31f949d20986a5a842f806fb))
+
+
+### Bug Fixes
+
+* **user_management:** Update user management API surface ([#577](https://github.com/workos/workos-go/issues/577)) ([9395260](https://github.com/workos/workos-go/commit/939526047871ed3f31f949d20986a5a842f806fb))
+
 ## [9.4.0](https://github.com/workos/workos-go/compare/v9.3.0...v9.4.0) (2026-06-30)
 
 * [#569](https://github.com/workos/workos-go/pull/569) fix(generated): regenerate from spec
