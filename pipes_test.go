@@ -15,6 +15,132 @@ import (
 	"github.com/workos/workos-go/v9"
 )
 
+func TestPipes_ListDataIntegrations(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/data-integrations", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_data_integration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Pipes().ListDataIntegrations(context.Background(), &workos.PipesListDataIntegrationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestPipes_ListDataIntegrations_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Pipes().ListDataIntegrations(context.Background(), &workos.PipesListDataIntegrationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestPipes_CreateDataIntegration(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/data-integrations", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().CreateDataIntegration(context.Background(), &workos.PipesCreateDataIntegrationParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_integration_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "github", result.Slug)
+	require.Equal(t, "github", result.IntegrationType)
+}
+
+func TestPipes_GetDataIntegration(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/data-integrations/test_slug", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().GetDataIntegration(context.Background(), "test_slug")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_integration_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "github", result.Slug)
+	require.Equal(t, "github", result.IntegrationType)
+}
+
+func TestPipes_UpdateDataIntegration(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/data-integrations/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().UpdateDataIntegration(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_integration_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "github", result.Slug)
+	require.Equal(t, "github", result.IntegrationType)
+}
+
+func TestPipes_DeleteDataIntegration(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/data-integrations/test_slug", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Pipes().DeleteDataIntegration(context.Background(), "test_slug")
+	require.NoError(t, err)
+}
+
 func TestPipes_UpdateDataIntegrationAPIKey(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
@@ -134,6 +260,58 @@ func TestPipes_GetUserConnectedAccount(t *testing.T) {
 	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
 }
 
+func TestPipes_CreateUserConnectedAccount(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/connected_accounts/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().CreateUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.PipesCreateUserConnectedAccountParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
+func TestPipes_UpdateUserConnectedAccount(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/user_management/users/test_user_id/connected_accounts/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().UpdateUserConnectedAccount(context.Background(), "test_user_id", "test_slug", &workos.PipesUpdateUserConnectedAccountParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
 func TestPipes_DeleteUserConnectedAccount(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
@@ -176,8 +354,9 @@ func TestPipes_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
-	require.IsType(t, &workos.AuthenticationError{}, err)
+	iter := client.Pipes().ListDataIntegrations(context.Background(), &workos.PipesListDataIntegrationsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }
 
 func TestPipes_Error404(t *testing.T) {
@@ -189,8 +368,9 @@ func TestPipes_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
-	require.IsType(t, &workos.NotFoundError{}, err)
+	iter := client.Pipes().ListDataIntegrations(context.Background(), &workos.PipesListDataIntegrationsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
 }
 
 func TestPipes_Error422(t *testing.T) {
@@ -202,6 +382,7 @@ func TestPipes_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Pipes().UpdateDataIntegrationAPIKey(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationAPIKeyParams{})
-	require.IsType(t, &workos.UnprocessableEntityError{}, err)
+	iter := client.Pipes().ListDataIntegrations(context.Background(), &workos.PipesListDataIntegrationsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }
