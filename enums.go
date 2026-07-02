@@ -28,6 +28,15 @@ const (
 	OrganizationDomainDataStateVerified OrganizationDomainDataState = "verified"
 )
 
+// ConnectedAccountState represents connected account state values.
+type ConnectedAccountState string
+
+const (
+	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
+	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
+	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
+)
+
 // GenerateLinkIntent represents generate link intent values.
 type GenerateLinkIntent string
 
@@ -837,15 +846,6 @@ type ConnectedAccountAuthMethod string
 const (
 	ConnectedAccountAuthMethodOAuth  ConnectedAccountAuthMethod = "oauth"
 	ConnectedAccountAuthMethodAPIKey ConnectedAccountAuthMethod = "api_key"
-)
-
-// ConnectedAccountState represents connected account state values.
-type ConnectedAccountState string
-
-const (
-	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
-	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
-	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
 )
 
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
