@@ -514,6 +514,31 @@ func (s *UserManagementService) CreateDevice(ctx context.Context, params *UserMa
 	return &result, nil
 }
 
+// UserManagementCreateRadarChallengeParams contains the parameters for CreateRadarChallenge.
+type UserManagementCreateRadarChallengeParams struct {
+	// UserID is the ID of the user to send the SMS challenge to.
+	UserID string `json:"user_id" url:"-"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt that triggered the Radar challenge.
+	PendingAuthenticationToken string `json:"pending_authentication_token" url:"-"`
+	// PhoneNumber is the phone number to send the SMS verification code to.
+	PhoneNumber string `json:"phone_number" url:"-"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty" url:"-"`
+	// UserAgent is the user agent string from the user's request.
+	UserAgent *string `json:"user_agent,omitempty" url:"-"`
+}
+
+// CreateRadarChallenge send a Radar SMS challenge
+// Sends a one-time verification code over SMS to a user as part of a Radar challenge. Use the returned `verification_id` to authenticate the user with the `urn:workos:oauth:grant-type:radar-sms-challenge:code` grant type.
+func (s *UserManagementService) CreateRadarChallenge(ctx context.Context, params *UserManagementCreateRadarChallengeParams, opts ...RequestOption) (*SendRadarSmsChallengeResponse, error) {
+	var result SendRadarSmsChallengeResponse
+	_, err := s.client.request(ctx, "POST", "/user_management/radar_challenges", nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // UserManagementGetLogoutURLParams contains the parameters for GetLogoutURL.
 type UserManagementGetLogoutURLParams struct {
 	// SessionID is the ID of the session. This can be extracted from the `sid` claim of the access token.
@@ -667,6 +692,12 @@ type UserManagementCreateParams struct {
 	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is the external ID of the user.
 	ExternalID *string `json:"external_id,omitempty" url:"-"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty" url:"-"`
+	// UserAgent is the user agent string from the user's request.
+	UserAgent *string `json:"user_agent,omitempty" url:"-"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this request.
+	SignalsID *string `json:"signals_id,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
 }
@@ -693,8 +724,8 @@ func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
 
 // Create a user
 // Create a new user in the current environment.
-func (s *UserManagementService) Create(ctx context.Context, params *UserManagementCreateParams, opts ...RequestOption) (*User, error) {
-	var result User
+func (s *UserManagementService) Create(ctx context.Context, params *UserManagementCreateParams, opts ...RequestOption) (*UserCreateResponse, error) {
+	var result UserCreateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/users", nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -1005,12 +1036,20 @@ type UserManagementCreateMagicAuthParams struct {
 	Email string `json:"email" url:"-"`
 	// InvitationToken is the invitation token to associate with this magic code.
 	InvitationToken *string `json:"invitation_token,omitempty" url:"-"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty" url:"-"`
+	// UserAgent is the user agent string from the user's request.
+	UserAgent *string `json:"user_agent,omitempty" url:"-"`
+	// RadarAuthAttemptID is the ID of an existing Radar authentication attempt to associate with this request.
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty" url:"-"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this request.
+	SignalsID *string `json:"signals_id,omitempty" url:"-"`
 }
 
 // CreateMagicAuth create a Magic Auth code
 // Creates a one-time authentication code that can be sent to the user's email address. The code expires in 10 minutes. To verify the code, [authenticate the user with Magic Auth](https://workos.com/docs/reference/authkit/authentication/magic-auth).
-func (s *UserManagementService) CreateMagicAuth(ctx context.Context, params *UserManagementCreateMagicAuthParams, opts ...RequestOption) (*MagicAuth, error) {
-	var result MagicAuth
+func (s *UserManagementService) CreateMagicAuth(ctx context.Context, params *UserManagementCreateMagicAuthParams, opts ...RequestOption) (*MagicAuthSendMagicAuthCodeAndReturnResponse, error) {
+	var result MagicAuthSendMagicAuthCodeAndReturnResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/magic_auth", nil, params, &result, opts)
 	if err != nil {
 		return nil, err

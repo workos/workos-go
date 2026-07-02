@@ -7,5 +7,6 @@
   "device_id": "device_01HXYZ123456789ABCDEFGHIJ",
   "user_agent": "Mozilla/5.0",
   "code_verifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
-  "invitation_token": "inv_tok_01HXYZ123456789ABCDEFGHIJ"
+  "invitation_token": "inv_tok_01HXYZ123456789ABCDEFGHIJ",
+  "signals_id": "01JBS0GN92GC2RJQS4X9DBPQ2A"
 }
