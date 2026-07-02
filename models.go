@@ -4491,6 +4491,14 @@ type PortalLinkResponse struct {
 	Link string `json:"link"`
 }
 
+// SendRadarSmsChallengeResponse represents a send radar sms challenge response.
+type SendRadarSmsChallengeResponse struct {
+	// VerificationID is the ID of the SMS verification. Pass this to the authenticate endpoint to verify the code.
+	VerificationID string `json:"verification_id"`
+	// PhoneNumber is the phone number the verification code was sent to.
+	PhoneNumber string `json:"phone_number"`
+}
+
 // RadarStandaloneResponse represents a radar standalone response.
 type RadarStandaloneResponse struct {
 	// Verdict is the verdict of the risk assessment.
@@ -5311,6 +5319,8 @@ type AuthorizationCodeSessionAuthenticateRequest struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this authentication attempt.
+	SignalsID *string `json:"signals_id,omitempty"`
 }
 
 // PasswordSessionAuthenticateRequest represents a password session authenticate request.
@@ -5332,6 +5342,10 @@ type PasswordSessionAuthenticateRequest struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this authentication attempt.
+	SignalsID *string `json:"signals_id,omitempty"`
+	// RadarAuthAttemptID is the ID of an existing Radar authentication attempt to associate with this authentication.
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
 // RefreshTokenSessionAuthenticateRequest represents a refresh token session authenticate request.
@@ -5372,6 +5386,8 @@ type MagicAuthCodeSessionAuthenticateRequest struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+	// RadarAuthAttemptID is the ID of an existing Radar authentication attempt to associate with this authentication.
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
 // EmailVerificationCodeSessionAuthenticateRequest represents an urn workos OAuth grant type email verification code session authenticate request.
@@ -5433,6 +5449,50 @@ type OrganizationSelectionSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
+// RadarEmailChallengeCodeSessionAuthenticateRequest represents an urn workos OAuth grant type radar email challenge code session authenticate request.
+type RadarEmailChallengeCodeSessionAuthenticateRequest struct {
+	// ClientID is the client ID of the application.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the client secret of the application.
+	ClientSecret string `json:"client_secret"`
+	GrantType    string `json:"grant_type"`
+	// Code is the one-time code from the Radar email challenge.
+	Code string `json:"code"`
+	// RadarChallengeID is the ID of the Radar email challenge being verified.
+	RadarChallengeID string `json:"radar_challenge_id"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
+}
+
+// RadarSmsChallengeCodeSessionAuthenticateRequest represents an urn workos OAuth grant type radar sms challenge code session authenticate request.
+type RadarSmsChallengeCodeSessionAuthenticateRequest struct {
+	// ClientID is the client ID of the application.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the client secret of the application.
+	ClientSecret string `json:"client_secret"`
+	GrantType    string `json:"grant_type"`
+	// Code is the one-time code from the Radar SMS challenge.
+	Code string `json:"code"`
+	// VerificationID is the ID of the Radar SMS verification being confirmed.
+	VerificationID string `json:"verification_id"`
+	// PhoneNumber is the phone number the Radar SMS challenge was sent to.
+	PhoneNumber string `json:"phone_number"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
+}
+
 // DeviceCodeSessionAuthenticateRequest represents an urn ietf params OAuth grant type device code session authenticate request.
 type DeviceCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
@@ -5482,6 +5542,12 @@ type Invitation struct {
 	AcceptInvitationURL string `json:"accept_invitation_url"`
 }
 
+// MagicAuthSendMagicAuthCodeAndReturnResponse represents a magic auth send magic auth code and return response.
+type MagicAuthSendMagicAuthCodeAndReturnResponse struct {
+	// RadarAuthAttemptID is the ID of the Radar authentication attempt created for this request when Radar is enabled. Pass this value to the authenticate endpoint to associate the subsequent authentication with this Radar attempt.
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
+}
+
 // OrganizationMembership represents an organization membership.
 type OrganizationMembership struct {
 	// Object distinguishes the organization membership object.
@@ -5511,6 +5577,9 @@ type OrganizationMembership struct {
 	// User is the user that belongs to the organization through this membership.
 	User *User `json:"user"`
 }
+
+// UserCreateResponse is an alias for MagicAuthSendMagicAuthCodeAndReturnResponse.
+type UserCreateResponse = MagicAuthSendMagicAuthCodeAndReturnResponse
 
 // EmailChangeConfirmation represents an email change confirmation.
 type EmailChangeConfirmation struct {

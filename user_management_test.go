@@ -67,6 +67,31 @@ func TestUserManagement_CreateDevice(t *testing.T) {
 	require.Equal(t, "BCDF-GHJK", result.UserCode)
 }
 
+func TestUserManagement_CreateRadarChallenge(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/radar_challenges", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/send_radar_sms_challenge_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().CreateRadarChallenge(context.Background(), &workos.UserManagementCreateRadarChallengeParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "vrf_01HXYZ123456789ABCDEFGHIJ", result.VerificationID)
+	require.Equal(t, "+15555550123", result.PhoneNumber)
+}
+
 func TestUserManagement_GetLogoutURL(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithClientID("client_test"))
 	url := client.UserManagement().GetLogoutURL(&workos.UserManagementGetLogoutURLParams{})
@@ -293,7 +318,7 @@ func TestUserManagement_Create(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/user.json")
+		fixture, err := os.ReadFile("testdata/user_create_response.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -305,9 +330,6 @@ func TestUserManagement_Create(t *testing.T) {
 	result, err := client.UserManagement().Create(context.Background(), &workos.UserManagementCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
-	require.Equal(t, "marcelina.davis@example.com", result.Email)
-	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_GetByExternalID(t *testing.T) {
@@ -782,7 +804,7 @@ func TestUserManagement_CreateMagicAuth(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/magic_auth.json")
+		fixture, err := os.ReadFile("testdata/magic_auth_send_magic_auth_code_and_return_response.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -794,9 +816,6 @@ func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	result, err := client.UserManagement().CreateMagicAuth(context.Background(), &workos.UserManagementCreateMagicAuthParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.Equal(t, "magic_auth_01HWZBQZY2M3AMQW166Q22K88F", result.ID)
-	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
-	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_GetMagicAuth(t *testing.T) {

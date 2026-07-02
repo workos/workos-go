@@ -25,6 +25,8 @@ type RadarCreateAttemptParams struct {
 	AuthMethod RadarStandaloneAssessRequestAuthMethod `json:"auth_method" url:"-"`
 	// Action is the action being performed.
 	Action RadarStandaloneAssessRequestAction `json:"action" url:"-"`
+	// SignalsID is an optional Radar signals ID for the request.
+	SignalsID *string `json:"signals_id,omitempty" url:"-"`
 }
 
 // CreateAttempt create an attempt
