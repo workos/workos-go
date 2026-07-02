@@ -139,6 +139,68 @@ type OrganizationDomainData struct {
 	State OrganizationDomainDataState `json:"state"`
 }
 
+// DataIntegrationCredentialsDto represents a data integration credentials dto.
+type DataIntegrationCredentialsDto struct {
+	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (configured per-organization).
+	Type DataIntegrationCredentialsType `json:"type"`
+	// ClientID is oAuth client ID for the provider app. Required when `type` is `custom`; omit for `organization`.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecret is oAuth client secret for the provider app. Required when `type` is `custom`; omit for `organization`.
+	ClientSecret *string `json:"client_secret,omitempty"`
+}
+
+// CustomProviderDefinition represents a custom provider definition.
+type CustomProviderDefinition struct {
+	// Name is a descriptive name for the custom provider.
+	Name string `json:"name"`
+	// AuthorizationURL is the provider's OAuth authorization endpoint.
+	AuthorizationURL string `json:"authorization_url"`
+	// TokenURL is the provider's OAuth token endpoint.
+	TokenURL string `json:"token_url"`
+	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint.
+	RefreshTokenURL *string `json:"refresh_token_url,omitempty"`
+	// PKCEEnabled is whether PKCE is used during the authorization code flow. Defaults to `true`.
+	PKCEEnabled *bool `json:"pkce_enabled,omitempty"`
+	// RequestScopeSeparator is the separator used to join requested scopes. Defaults to a space.
+	RequestScopeSeparator *string `json:"request_scope_separator,omitempty"`
+	// ScopesRequired is whether at least one scope must be selected when connecting an account. Defaults to `false`.
+	ScopesRequired *bool `json:"scopes_required,omitempty"`
+	// ClientSecretRequired is whether a client secret is required for this provider. Defaults to `true`.
+	ClientSecretRequired *bool `json:"client_secret_required,omitempty"`
+	// AdditionalAuthorizationParameters is additional static query parameters appended to the authorization request.
+	AdditionalAuthorizationParameters map[string]string `json:"additional_authorization_parameters,omitempty"`
+	// TokenBodyContentType is the Content-Type used when exchanging the token request.
+	TokenBodyContentType *string `json:"token_body_content_type,omitempty"`
+	// AuthenticateVia is how client credentials are sent when exchanging authorization codes and refreshing tokens.
+	AuthenticateVia *CustomProviderDefinitionAuthenticateVia `json:"authenticate_via,omitempty"`
+}
+
+// UpdateCustomProviderDefinition represents an update custom provider definition.
+type UpdateCustomProviderDefinition struct {
+	// Name is a descriptive name for the custom provider.
+	Name *string `json:"name,omitempty"`
+	// AuthorizationURL is the provider's OAuth authorization endpoint.
+	AuthorizationURL *string `json:"authorization_url,omitempty"`
+	// TokenURL is the provider's OAuth token endpoint.
+	TokenURL *string `json:"token_url,omitempty"`
+	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint.
+	RefreshTokenURL *string `json:"refresh_token_url,omitempty"`
+	// PKCEEnabled is whether PKCE is used during the authorization code flow.
+	PKCEEnabled *bool `json:"pkce_enabled,omitempty"`
+	// RequestScopeSeparator is the separator used to join requested scopes.
+	RequestScopeSeparator *string `json:"request_scope_separator,omitempty"`
+	// ScopesRequired is whether at least one scope must be selected when connecting an account.
+	ScopesRequired *bool `json:"scopes_required,omitempty"`
+	// ClientSecretRequired is whether a client secret is required for this provider.
+	ClientSecretRequired *bool `json:"client_secret_required,omitempty"`
+	// AdditionalAuthorizationParameters is additional static query parameters appended to the authorization request.
+	AdditionalAuthorizationParameters map[string]string `json:"additional_authorization_parameters,omitempty"`
+	// TokenBodyContentType is the Content-Type used when exchanging the token request.
+	TokenBodyContentType *string `json:"token_body_content_type,omitempty"`
+	// AuthenticateVia is how client credentials are sent when exchanging authorization codes and refreshing tokens.
+	AuthenticateVia *UpdateCustomProviderDefinitionAuthenticateVia `json:"authenticate_via,omitempty"`
+}
+
 // Actor the user or API key that performed an action.
 type Actor struct {
 	// ID is unique identifier of the actor.
@@ -4321,6 +4383,36 @@ type DataIntegrationConfigurationListResponse struct {
 	Data []*DataIntegrationConfigurationResponse `json:"data"`
 }
 
+// DataIntegration represents a data integration.
+type DataIntegration struct {
+	// Object distinguishes the Data Integration object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Data Integration.
+	ID string `json:"id"`
+	// Slug is the provider slug for this Data Integration.
+	Slug string `json:"slug"`
+	// IntegrationType is the integration type derived from the provider.
+	IntegrationType string `json:"integration_type"`
+	// Description is an optional description of the Data Integration.
+	Description *string `json:"description"`
+	// Enabled is whether the Data Integration is enabled.
+	Enabled bool `json:"enabled"`
+	// State is the state of the Data Integration.
+	State DataIntegrationState `json:"state"`
+	// Scopes is the OAuth scopes configured for the Data Integration. `null` when the provider's configured scopes are used.
+	Scopes []string `json:"scopes"`
+	// RedirectURI is the OAuth redirect URI to register with the provider when configuring the custom application.
+	RedirectURI string `json:"redirect_uri"`
+	// Credentials is the credentials configured for the Data Integration.
+	Credentials *DataIntegrationCredential `json:"credentials"`
+	// CustomProvider is the OAuth definition when this is a custom provider; `null` for built-in providers.
+	CustomProvider *DataIntegrationCustomProvider `json:"custom_provider"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // DataIntegrationAuthorizeURLResponse represents a data integration authorize url response.
 type DataIntegrationAuthorizeURLResponse struct {
 	// URL is the OAuth authorization URL to redirect the user to.
@@ -4920,6 +5012,42 @@ type DataIntegrationAccessTokenResponseAccessToken struct {
 	Scopes []string `json:"scopes"`
 	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
 	MissingScopes []string `json:"missing_scopes"`
+}
+
+// DataIntegrationCredential the credentials configured for the Data Integration.
+type DataIntegrationCredential struct {
+	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (so `client_id`/`redacted_client_secret` are null on the integration itself).
+	Type DataIntegrationCredentialType `json:"type"`
+	// ClientID is the OAuth client ID configured for the provider app. Null for `organization` credentials.
+	ClientID *string `json:"client_id"`
+	// RedactedClientSecret is the last four characters of the OAuth client secret. The full secret is never returned. Null for `organization` credentials.
+	RedactedClientSecret *string `json:"redacted_client_secret"`
+}
+
+// DataIntegrationCustomProvider represents a data integration custom provider.
+type DataIntegrationCustomProvider struct {
+	// Name is a descriptive name for the custom provider.
+	Name string `json:"name"`
+	// AuthorizationURL is the provider's OAuth authorization endpoint.
+	AuthorizationURL *string `json:"authorization_url"`
+	// TokenURL is the provider's OAuth token endpoint.
+	TokenURL *string `json:"token_url"`
+	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint.
+	RefreshTokenURL *string `json:"refresh_token_url"`
+	// PKCEEnabled is whether PKCE is used during the authorization code flow.
+	PKCEEnabled bool `json:"pkce_enabled"`
+	// RequestScopeSeparator is the separator used to join requested scopes.
+	RequestScopeSeparator string `json:"request_scope_separator"`
+	// ScopesRequired is whether at least one scope must be selected when connecting an account.
+	ScopesRequired bool `json:"scopes_required"`
+	// ClientSecretRequired is whether a client secret is required for this provider.
+	ClientSecretRequired bool `json:"client_secret_required"`
+	// AdditionalAuthorizationParameters is additional static query parameters appended to the authorization request.
+	AdditionalAuthorizationParameters map[string]string `json:"additional_authorization_parameters"`
+	// TokenBodyContentType is the Content-Type used when exchanging the token request.
+	TokenBodyContentType string `json:"token_body_content_type"`
+	// AuthenticateVia is how client credentials are sent when exchanging authorization codes and refreshing tokens.
+	AuthenticateVia DataIntegrationCustomProviderAuthenticateVia `json:"authenticate_via"`
 }
 
 // AuditLogConfigurationLogStream the Audit Log Stream currently configured for the organization, if any.
