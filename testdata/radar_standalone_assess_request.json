@@ -5,5 +5,6 @@
   "auth_method": "Password",
   "action": "sign-in",
   "device_fingerprint": "fp_abc123",
-  "bot_score": "0.1"
+  "bot_score": "0.1",
+  "signals_id": "01JBS0GN92GC2RJQS4X9DBPQ2A"
 }
