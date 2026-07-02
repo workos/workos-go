@@ -28,6 +28,28 @@ const (
 	OrganizationDomainDataStateVerified OrganizationDomainDataState = "verified"
 )
 
+// DataIntegrationCredentialsType is an alias for DataIntegrationCredentialType.
+type DataIntegrationCredentialsType = DataIntegrationCredentialType
+
+// CustomProviderDefinitionAuthenticateVia represents custom provider definition authenticate via values.
+type CustomProviderDefinitionAuthenticateVia string
+
+const (
+	CustomProviderDefinitionAuthenticateViaRequestBody     CustomProviderDefinitionAuthenticateVia = "request_body"
+	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
+)
+
+// UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
+type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
+
+// ConnectedAccountState represents connected account state values.
+type ConnectedAccountState string
+
+const (
+	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
+	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
+)
+
 // GenerateLinkIntent represents generate link intent values.
 type GenerateLinkIntent string
 
@@ -820,6 +842,15 @@ const (
 	DataIntegrationCredentialsCredentialsTypeOrganization DataIntegrationCredentialsCredentialsType = "organization"
 )
 
+// DataIntegrationState represents data integration state values.
+type DataIntegrationState string
+
+const (
+	DataIntegrationStateValid     DataIntegrationState = "valid"
+	DataIntegrationStateInvalid   DataIntegrationState = "invalid"
+	DataIntegrationStateRequested DataIntegrationState = "requested"
+)
+
 // DataIntegrationAccessTokenResponseError represents data integration access token response error values.
 type DataIntegrationAccessTokenResponseError string
 
@@ -837,15 +868,6 @@ type ConnectedAccountAuthMethod string
 const (
 	ConnectedAccountAuthMethodOAuth  ConnectedAccountAuthMethod = "oauth"
 	ConnectedAccountAuthMethodAPIKey ConnectedAccountAuthMethod = "api_key"
-)
-
-// ConnectedAccountState represents connected account state values.
-type ConnectedAccountState string
-
-const (
-	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
-	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
-	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
 )
 
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
@@ -929,6 +951,17 @@ const (
 	DataIntegrationsListResponseDataOwnershipUserlandUser DataIntegrationsListResponseDataOwnership = "userland_user"
 	DataIntegrationsListResponseDataOwnershipOrganization DataIntegrationsListResponseDataOwnership = "organization"
 )
+
+// DataIntegrationCredentialType represents data integration credential type values.
+type DataIntegrationCredentialType string
+
+const (
+	DataIntegrationCredentialTypeCustom       DataIntegrationCredentialType = "custom"
+	DataIntegrationCredentialTypeOrganization DataIntegrationCredentialType = "organization"
+)
+
+// DataIntegrationCustomProviderAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
+type DataIntegrationCustomProviderAuthenticateVia = CustomProviderDefinitionAuthenticateVia
 
 // AuditLogConfigurationLogStreamType represents audit log configuration log stream type values.
 type AuditLogConfigurationLogStreamType string
@@ -1030,8 +1063,14 @@ type UserSessionsStatus = SessionCreatedDataStatus
 // DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod
 
-// DataIntegrationsListResponseDataConnectedAccountState is an alias for ConnectedAccountState.
-type DataIntegrationsListResponseDataConnectedAccountState = ConnectedAccountState
+// DataIntegrationsListResponseDataConnectedAccountState represents data integrations list response data connected account state values.
+type DataIntegrationsListResponseDataConnectedAccountState string
+
+const (
+	DataIntegrationsListResponseDataConnectedAccountStateConnected            DataIntegrationsListResponseDataConnectedAccountState = "connected"
+	DataIntegrationsListResponseDataConnectedAccountStateNeedsReauthorization DataIntegrationsListResponseDataConnectedAccountState = "needs_reauthorization"
+	DataIntegrationsListResponseDataConnectedAccountStateDisconnected         DataIntegrationsListResponseDataConnectedAccountState = "disconnected"
+)
 
 // AuthorizationAssignment represents authorization assignment values.
 type AuthorizationAssignment string

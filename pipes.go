@@ -13,6 +13,87 @@ type PipeService struct {
 	client *Client
 }
 
+// PipesListDataIntegrationsParams contains the parameters for ListDataIntegrations.
+type PipesListDataIntegrationsParams struct {
+	PaginationParams
+}
+
+// ListDataIntegrations
+// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers.
+func (s *PipeService) ListDataIntegrations(ctx context.Context, params *PipesListDataIntegrationsParams, opts ...RequestOption) *Iterator[DataIntegration] {
+	return newIterator[DataIntegration](ctx, s.client, "GET", "/data-integrations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// PipesCreateDataIntegrationParams contains the parameters for CreateDataIntegration.
+type PipesCreateDataIntegrationParams struct {
+	// Provider is the provider to create a Data Integration for. For a built-in provider use its slug (e.g. `github`, `slack`). For a custom provider, this is the new provider slug and `custom_provider` must be supplied. A custom provider slug cannot shadow an existing global provider slug.
+	Provider string `json:"provider" url:"-"`
+	// Description is an optional description of the Data Integration.
+	Description *string `json:"description,omitempty" url:"-"`
+	// Enabled is whether the Data Integration is enabled. Defaults to `false`.
+	Enabled *bool `json:"enabled,omitempty" url:"-"`
+	// Scopes is the OAuth scopes to request for the Data Integration. Defaults to the provider's configured scopes when omitted.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// Credentials is the credentials to configure for the Data Integration. Required for both built-in and custom providers.
+	Credentials *DataIntegrationCredentialsDto `json:"credentials,omitempty" url:"-"`
+	// CustomProvider is the OAuth definition for a custom provider. Supply this to define a custom provider; omit it to create an integration for a built-in provider.
+	CustomProvider *CustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+}
+
+// CreateDataIntegration create a data integration
+// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials, or `organization` to have each organization supply its own. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+func (s *PipeService) CreateDataIntegration(ctx context.Context, params *PipesCreateDataIntegrationParams, opts ...RequestOption) (*DataIntegration, error) {
+	var result DataIntegration
+	_, err := s.client.request(ctx, "POST", "/data-integrations", nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// GetDataIntegration get a data integration
+// Retrieves a data integration by its slug.
+func (s *PipeService) GetDataIntegration(ctx context.Context, slug string, opts ...RequestOption) (*DataIntegration, error) {
+	var result DataIntegration
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/data-integrations/%s", url.PathEscape(slug)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateDataIntegrationParams contains the parameters for UpdateDataIntegration.
+type PipesUpdateDataIntegrationParams struct {
+	// Description is an optional description of the Data Integration.
+	Description *string `json:"description,omitempty" url:"-"`
+	// Enabled is whether the Data Integration is enabled.
+	Enabled *bool `json:"enabled,omitempty" url:"-"`
+	// Scopes is the OAuth scopes to request for the Data Integration. Pass `null` to reset to the provider's configured scopes.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// Credentials is new credentials for the Data Integration. When provided, rotates the stored client secret.
+	Credentials *DataIntegrationCredentialsDto `json:"credentials,omitempty" url:"-"`
+	// CustomProvider updates to a custom provider's OAuth definition. Only valid for custom-provider integrations.
+	CustomProvider *UpdateCustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+}
+
+// UpdateDataIntegration update a data integration
+// Updates the description, enabled state, or custom credentials of a data integration. For custom providers, `custom_provider` updates the OAuth definition.
+func (s *PipeService) UpdateDataIntegration(ctx context.Context, slug string, params *PipesUpdateDataIntegrationParams, opts ...RequestOption) (*DataIntegration, error) {
+	var result DataIntegration
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteDataIntegration delete a data integration
+// Deletes a data integration and all of its connected installations. For a custom provider, also deletes the custom provider definition.
+func (s *PipeService) DeleteDataIntegration(ctx context.Context, slug string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/data-integrations/%s", url.PathEscape(slug)), nil, nil, nil, opts)
+	return err
+}
+
 // PipesUpdateDataIntegrationAPIKeyParams contains the parameters for UpdateDataIntegrationAPIKey.
 type PipesUpdateDataIntegrationAPIKeyParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
@@ -104,6 +185,60 @@ type PipesGetUserConnectedAccountParams struct {
 func (s *PipeService) GetUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesGetUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesCreateUserConnectedAccountParams contains the parameters for CreateUserConnectedAccount.
+type PipesCreateUserConnectedAccountParams struct {
+	// AccessToken is the OAuth access token for the connected account.
+	AccessToken *string `json:"access_token,omitempty" url:"-"`
+	// RefreshToken is the OAuth refresh token for the connected account.
+	RefreshToken *string `json:"refresh_token,omitempty" url:"-"`
+	// ExpiresAt is the ISO-8601 timestamp when the access token expires. Required when `access_token` is provided for tokens that expire.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
+	// Scopes is the OAuth scopes granted for this connection.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
+	State *ConnectedAccountState `json:"state,omitempty" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+}
+
+// CreateUserConnectedAccount import a connected account
+// Imports a [connected account](https://workos.com/docs/reference/pipes/connected-account) for a user by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+func (s *PipeService) CreateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesCreateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateUserConnectedAccountParams contains the parameters for UpdateUserConnectedAccount.
+type PipesUpdateUserConnectedAccountParams struct {
+	// AccessToken is the OAuth access token for the connected account.
+	AccessToken *string `json:"access_token,omitempty" url:"-"`
+	// RefreshToken is the OAuth refresh token for the connected account.
+	RefreshToken *string `json:"refresh_token,omitempty" url:"-"`
+	// ExpiresAt is the ISO-8601 timestamp when the access token expires. Required when `access_token` is provided for tokens that expire.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
+	// Scopes is the OAuth scopes granted for this connection.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
+	State *ConnectedAccountState `json:"state,omitempty" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+}
+
+// UpdateUserConnectedAccount update a connected account
+// Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+func (s *PipeService) UpdateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesUpdateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
