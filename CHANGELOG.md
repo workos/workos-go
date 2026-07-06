@@ -2,10 +2,19 @@
 
 ## [9.6.0](https://github.com/workos/workos-go/compare/v9.5.0...v9.6.0) (2026-07-06)
 
+* [#578](https://github.com/workos/workos-go/pull/578) fix(generated): regenerate from spec
 
-### Features
+  **Features**
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Added model `UserRoleAssignmentSource`
+    * Added `source` to `UserRoleAssignment`
+    * Added enum `UserRoleAssignmentSourceType`
+    * Added parameter `UserManagementAuthentication.authorize.max_age`
+    * Added endpoint `GET /user_management/cors_origins`
+    * Added endpoint `GET /user_management/redirect_uris`
 
-* **generated:** UserManagement, Radar (batch f510ddfb) ([#578](https://github.com/workos/workos-go/issues/578)) ([47f8aad](https://github.com/workos/workos-go/commit/47f8aad1521e727f27e710f0e92d817bc3bd96f8))
+  **Fixes**
+  * Restore mistakenly removed CreateMagicAuth logic from previous release
 
 ## [9.5.0](https://github.com/workos/workos-go/compare/v9.4.0...v9.5.0) (2026-07-02)
 
