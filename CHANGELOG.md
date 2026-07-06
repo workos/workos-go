@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.6.0](https://github.com/workos/workos-go/compare/v9.5.0...v9.6.0) (2026-07-06)
+
+
+### Features
+
+* **generated:** UserManagement, Radar (batch f510ddfb) ([#578](https://github.com/workos/workos-go/issues/578)) ([47f8aad](https://github.com/workos/workos-go/commit/47f8aad1521e727f27e710f0e92d817bc3bd96f8))
+
 ## [9.5.0](https://github.com/workos/workos-go/compare/v9.4.0...v9.5.0) (2026-07-02)
 
 * [#572](https://github.com/workos/workos-go/pull/572) fix(generated): regenerate from spec
