@@ -68,19 +68,25 @@ type UserManagementAuthenticateWithPasswordParams struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this authentication attempt.
+	SignalsID *string `json:"signals_id,omitempty"`
+	// RadarAuthAttemptID is the ID of an existing Radar authentication attempt to associate with this authentication.
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
 // authenticateWithPasswordBody is the JSON request body for AuthenticateWithPassword.
 type authenticateWithPasswordBody struct {
-	GrantType       string  `json:"grant_type"`
-	Email           string  `json:"email"`
-	Password        string  `json:"password"`
-	ClientID        string  `json:"client_id,omitempty"`
-	ClientSecret    string  `json:"client_secret,omitempty"`
-	InvitationToken *string `json:"invitation_token,omitempty"`
-	IPAddress       *string `json:"ip_address,omitempty"`
-	DeviceID        *string `json:"device_id,omitempty"`
-	UserAgent       *string `json:"user_agent,omitempty"`
+	GrantType          string  `json:"grant_type"`
+	Email              string  `json:"email"`
+	Password           string  `json:"password"`
+	ClientID           string  `json:"client_id,omitempty"`
+	ClientSecret       string  `json:"client_secret,omitempty"`
+	InvitationToken    *string `json:"invitation_token,omitempty"`
+	IPAddress          *string `json:"ip_address,omitempty"`
+	DeviceID           *string `json:"device_id,omitempty"`
+	UserAgent          *string `json:"user_agent,omitempty"`
+	SignalsID          *string `json:"signals_id,omitempty"`
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
 // AuthenticateWithPassword Authenticate with password.
@@ -96,6 +102,8 @@ func (s *UserManagementService) AuthenticateWithPassword(ctx context.Context, pa
 	body.IPAddress = params.IPAddress
 	body.DeviceID = params.DeviceID
 	body.UserAgent = params.UserAgent
+	body.SignalsID = params.SignalsID
+	body.RadarAuthAttemptID = params.RadarAuthAttemptID
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -118,6 +126,8 @@ type UserManagementAuthenticateWithCodeParams struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this authentication attempt.
+	SignalsID *string `json:"signals_id,omitempty"`
 }
 
 // authenticateWithCodeBody is the JSON request body for AuthenticateWithCode.
@@ -131,6 +141,7 @@ type authenticateWithCodeBody struct {
 	IPAddress       *string `json:"ip_address,omitempty"`
 	DeviceID        *string `json:"device_id,omitempty"`
 	UserAgent       *string `json:"user_agent,omitempty"`
+	SignalsID       *string `json:"signals_id,omitempty"`
 }
 
 // AuthenticateWithCode Authenticate with code.
@@ -146,6 +157,7 @@ func (s *UserManagementService) AuthenticateWithCode(ctx context.Context, params
 	body.IPAddress = params.IPAddress
 	body.DeviceID = params.DeviceID
 	body.UserAgent = params.UserAgent
+	body.SignalsID = params.SignalsID
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -202,25 +214,27 @@ func (s *UserManagementService) AuthenticateWithRefreshToken(ctx context.Context
 
 // UserManagementAuthenticateWithMagicAuthParams contains the parameters for AuthenticateWithMagicAuth.
 type UserManagementAuthenticateWithMagicAuthParams struct {
-	Code            string  `json:"code"`
-	Email           string  `json:"email"`
-	InvitationToken *string `json:"invitation_token,omitempty"`
-	IPAddress       *string `json:"ip_address,omitempty"`
-	DeviceID        *string `json:"device_id,omitempty"`
-	UserAgent       *string `json:"user_agent,omitempty"`
+	Code               string  `json:"code"`
+	Email              string  `json:"email"`
+	InvitationToken    *string `json:"invitation_token,omitempty"`
+	IPAddress          *string `json:"ip_address,omitempty"`
+	DeviceID           *string `json:"device_id,omitempty"`
+	UserAgent          *string `json:"user_agent,omitempty"`
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
 // authenticateWithMagicAuthBody is the JSON request body for AuthenticateWithMagicAuth.
 type authenticateWithMagicAuthBody struct {
-	GrantType       string  `json:"grant_type"`
-	Code            string  `json:"code"`
-	Email           string  `json:"email"`
-	ClientID        string  `json:"client_id,omitempty"`
-	ClientSecret    string  `json:"client_secret,omitempty"`
-	InvitationToken *string `json:"invitation_token,omitempty"`
-	IPAddress       *string `json:"ip_address,omitempty"`
-	DeviceID        *string `json:"device_id,omitempty"`
-	UserAgent       *string `json:"user_agent,omitempty"`
+	GrantType          string  `json:"grant_type"`
+	Code               string  `json:"code"`
+	Email              string  `json:"email"`
+	ClientID           string  `json:"client_id,omitempty"`
+	ClientSecret       string  `json:"client_secret,omitempty"`
+	InvitationToken    *string `json:"invitation_token,omitempty"`
+	IPAddress          *string `json:"ip_address,omitempty"`
+	DeviceID           *string `json:"device_id,omitempty"`
+	UserAgent          *string `json:"user_agent,omitempty"`
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
 // AuthenticateWithMagicAuth Authenticate with magic auth.
@@ -236,6 +250,7 @@ func (s *UserManagementService) AuthenticateWithMagicAuth(ctx context.Context, p
 	body.IPAddress = params.IPAddress
 	body.DeviceID = params.DeviceID
 	body.UserAgent = params.UserAgent
+	body.RadarAuthAttemptID = params.RadarAuthAttemptID
 	var result AuthenticateResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
 	if err != nil {
@@ -395,6 +410,97 @@ func (s *UserManagementService) AuthenticateWithDeviceCode(ctx context.Context, 
 		DeviceCode: params.DeviceCode,
 	}
 	body.ClientID = s.client.clientID
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
+	var result AuthenticateResponse
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// UserManagementAuthenticateWithRadarEmailChallengeParams contains the parameters for AuthenticateWithRadarEmailChallenge.
+type UserManagementAuthenticateWithRadarEmailChallengeParams struct {
+	Code                       string  `json:"code"`
+	RadarChallengeID           string  `json:"radar_challenge_id"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
+// authenticateWithRadarEmailChallengeBody is the JSON request body for AuthenticateWithRadarEmailChallenge.
+type authenticateWithRadarEmailChallengeBody struct {
+	GrantType                  string  `json:"grant_type"`
+	Code                       string  `json:"code"`
+	RadarChallengeID           string  `json:"radar_challenge_id"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	ClientID                   string  `json:"client_id,omitempty"`
+	ClientSecret               string  `json:"client_secret,omitempty"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
+// AuthenticateWithRadarEmailChallenge Authenticate with radar email challenge.
+func (s *UserManagementService) AuthenticateWithRadarEmailChallenge(ctx context.Context, params *UserManagementAuthenticateWithRadarEmailChallengeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+	body := authenticateWithRadarEmailChallengeBody{
+		GrantType:                  "urn:workos:oauth:grant-type:radar-email-challenge:code",
+		Code:                       params.Code,
+		RadarChallengeID:           params.RadarChallengeID,
+		PendingAuthenticationToken: params.PendingAuthenticationToken,
+	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
+	body.IPAddress = params.IPAddress
+	body.DeviceID = params.DeviceID
+	body.UserAgent = params.UserAgent
+	var result AuthenticateResponse
+	_, err := s.client.request(ctx, "POST", "/user_management/authenticate", nil, body, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// UserManagementAuthenticateWithRadarSmsChallengeParams contains the parameters for AuthenticateWithRadarSmsChallenge.
+type UserManagementAuthenticateWithRadarSmsChallengeParams struct {
+	Code                       string  `json:"code"`
+	VerificationID             string  `json:"verification_id"`
+	PhoneNumber                string  `json:"phone_number"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
+// authenticateWithRadarSmsChallengeBody is the JSON request body for AuthenticateWithRadarSmsChallenge.
+type authenticateWithRadarSmsChallengeBody struct {
+	GrantType                  string  `json:"grant_type"`
+	Code                       string  `json:"code"`
+	VerificationID             string  `json:"verification_id"`
+	PhoneNumber                string  `json:"phone_number"`
+	PendingAuthenticationToken string  `json:"pending_authentication_token"`
+	ClientID                   string  `json:"client_id,omitempty"`
+	ClientSecret               string  `json:"client_secret,omitempty"`
+	IPAddress                  *string `json:"ip_address,omitempty"`
+	DeviceID                   *string `json:"device_id,omitempty"`
+	UserAgent                  *string `json:"user_agent,omitempty"`
+}
+
+// AuthenticateWithRadarSmsChallenge Authenticate with radar sms challenge.
+func (s *UserManagementService) AuthenticateWithRadarSmsChallenge(ctx context.Context, params *UserManagementAuthenticateWithRadarSmsChallengeParams, opts ...RequestOption) (*AuthenticateResponse, error) {
+	body := authenticateWithRadarSmsChallengeBody{
+		GrantType:                  "urn:workos:oauth:grant-type:radar-sms-challenge:code",
+		Code:                       params.Code,
+		VerificationID:             params.VerificationID,
+		PhoneNumber:                params.PhoneNumber,
+		PendingAuthenticationToken: params.PendingAuthenticationToken,
+	}
+	body.ClientID = s.client.clientID
+	body.ClientSecret = s.client.apiKey
 	body.IPAddress = params.IPAddress
 	body.DeviceID = params.DeviceID
 	body.UserAgent = params.UserAgent

@@ -5544,6 +5544,22 @@ type Invitation struct {
 
 // MagicAuthSendMagicAuthCodeAndReturnResponse represents a magic auth send magic auth code and return response.
 type MagicAuthSendMagicAuthCodeAndReturnResponse struct {
+	// Object distinguishes the Magic Auth object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Magic Auth code.
+	ID string `json:"id"`
+	// UserID is the unique ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// ExpiresAt is the timestamp when the Magic Auth code expires.
+	ExpiresAt string `json:"expires_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Code is the code used to verify the Magic Auth code.
+	Code string `json:"code"`
 	// RadarAuthAttemptID is the ID of the Radar authentication attempt created for this request when Radar is enabled. Pass this value to the authenticate endpoint to associate the subsequent authentication with this Radar attempt.
 	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
@@ -5578,8 +5594,39 @@ type OrganizationMembership struct {
 	User *User `json:"user"`
 }
 
-// UserCreateResponse is an alias for MagicAuthSendMagicAuthCodeAndReturnResponse.
-type UserCreateResponse = MagicAuthSendMagicAuthCodeAndReturnResponse
+// UserCreateResponse represents a user create response.
+type UserCreateResponse struct {
+	// Object distinguishes the user object.
+	Object string `json:"object"`
+	// ID is the unique ID of the user.
+	ID string `json:"id"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name"`
+	// Name is the user's full name.
+	Name *string `json:"name,omitempty"`
+	// ProfilePictureURL is a URL reference to an image representing the user.
+	ProfilePictureURL *string `json:"profile_picture_url"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// EmailVerified is whether the user's email has been verified.
+	EmailVerified bool `json:"email_verified"`
+	// ExternalID is the external ID of the user.
+	ExternalID *string `json:"external_id"`
+	// Metadata is object containing metadata key/value pairs associated with the user.
+	Metadata map[string]string `json:"metadata,omitempty"`
+	// LastSignInAt is the timestamp when the user last signed in.
+	LastSignInAt *string `json:"last_sign_in_at"`
+	// Locale is the user's preferred locale.
+	Locale *string `json:"locale,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// RadarAuthAttemptID is the ID of the Radar authentication attempt created for this request when Radar is enabled. Pass this value to the authenticate endpoint to associate the subsequent authentication with this Radar attempt.
+	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
+}
 
 // EmailChangeConfirmation represents an email change confirmation.
 type EmailChangeConfirmation struct {

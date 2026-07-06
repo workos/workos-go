@@ -330,6 +330,9 @@ func TestUserManagement_Create(t *testing.T) {
 	result, err := client.UserManagement().Create(context.Background(), &workos.UserManagementCreateParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
 func TestUserManagement_GetByExternalID(t *testing.T) {
@@ -816,6 +819,9 @@ func TestUserManagement_CreateMagicAuth(t *testing.T) {
 	result, err := client.UserManagement().CreateMagicAuth(context.Background(), &workos.UserManagementCreateMagicAuthParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
+	require.Equal(t, "magic_auth_01HWZBQZY2M3AMQW166Q22K88F", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
 }
 
 func TestUserManagement_GetMagicAuth(t *testing.T) {
@@ -1200,6 +1206,52 @@ func TestUserManagement_AuthenticateWithDeviceCode(t *testing.T) {
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	result, err := client.UserManagement().AuthenticateWithDeviceCode(context.Background(), &workos.UserManagementAuthenticateWithDeviceCodeParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithRadarEmailChallenge(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithRadarEmailChallenge(context.Background(), &workos.UserManagementAuthenticateWithRadarEmailChallengeParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestUserManagement_AuthenticateWithRadarSmsChallenge(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/authenticate_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().AuthenticateWithRadarSmsChallenge(context.Background(), &workos.UserManagementAuthenticateWithRadarSmsChallengeParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
