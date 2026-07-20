@@ -58,6 +58,15 @@ func TestNullableClearing_InvalidField(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestNullableClearing_SentinelNeverLeaks(t *testing.T) {
+	data, err := json.Marshal(workos.OrganizationsUpdateParams{
+		Name:       workos.String("New Name"),
+		NullFields: []string{"external_id"},
+	})
+	require.NoError(t, err)
+	require.NotContains(t, string(data), "NullFields")
+}
+
 func TestNullableClearing_User(t *testing.T) {
 	data, err := json.Marshal(workos.UserManagementUpdateParams{
 		NullFields: []string{"external_id"},
