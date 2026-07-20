@@ -28,9 +28,6 @@ const (
 	OrganizationDomainDataStateVerified OrganizationDomainDataState = "verified"
 )
 
-// DataIntegrationCredentialsType is an alias for DataIntegrationCredentialType.
-type DataIntegrationCredentialsType = DataIntegrationCredentialType
-
 // CustomProviderDefinitionAuthenticateVia represents custom provider definition authenticate via values.
 type CustomProviderDefinitionAuthenticateVia string
 
@@ -41,14 +38,6 @@ const (
 
 // UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
-
-// ConnectedAccountState represents connected account state values.
-type ConnectedAccountState string
-
-const (
-	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
-	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
-)
 
 // GenerateLinkIntent represents generate link intent values.
 type GenerateLinkIntent string
@@ -870,6 +859,14 @@ const (
 	ConnectedAccountAuthMethodAPIKey ConnectedAccountAuthMethod = "api_key"
 )
 
+// ConnectedAccountState represents connected account state values.
+type ConnectedAccountState string
+
+const (
+	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
+	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
+)
+
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
 type RadarStandaloneResponseVerdict string
 
@@ -1207,6 +1204,9 @@ const (
 	VaultOrderAsc  VaultOrder = "asc"
 	VaultOrderDesc VaultOrder = "desc"
 )
+
+// DataIntegrationCredentialsType is an alias for DataIntegrationCredentialType.
+type DataIntegrationCredentialsType = DataIntegrationCredentialType
 
 // OrganizationDomainStandAloneState is an alias for OrganizationCreatedDataDomainState.
 type OrganizationDomainStandAloneState = OrganizationCreatedDataDomainState
