@@ -139,16 +139,6 @@ type OrganizationDomainData struct {
 	State OrganizationDomainDataState `json:"state"`
 }
 
-// DataIntegrationCredentialsDto represents a data integration credentials dto.
-type DataIntegrationCredentialsDto struct {
-	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (configured per-organization).
-	Type DataIntegrationCredentialsType `json:"type"`
-	// ClientID is oAuth client ID for the provider app. Required when `type` is `custom`; omit for `organization`.
-	ClientID *string `json:"client_id,omitempty"`
-	// ClientSecret is oAuth client secret for the provider app. Required when `type` is `custom`; omit for `organization`.
-	ClientSecret *string `json:"client_secret,omitempty"`
-}
-
 // CustomProviderDefinition represents a custom provider definition.
 type CustomProviderDefinition struct {
 	// Name is a descriptive name for the custom provider.
@@ -5149,12 +5139,6 @@ type DirectoryMetadata struct {
 // ConnectionDomain is an alias for ConnectionActivatedDataDomain.
 type ConnectionDomain = ConnectionActivatedDataDomain
 
-// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
-type ConnectionOption struct {
-	// SigningCert is the signing certificate of the SAML connection.
-	SigningCert *string `json:"signing_cert"`
-}
-
 // UserRoleAssignmentResource is an alias for GroupRoleAssignmentResource.
 type UserRoleAssignmentResource = GroupRoleAssignmentResource
 
@@ -5756,6 +5740,22 @@ type ConnectApplicationRedirectURI struct {
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
+}
+
+// DataIntegrationCredentialsDto represents a data integration credentials dto.
+type DataIntegrationCredentialsDto struct {
+	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (configured per-organization).
+	Type DataIntegrationCredentialsType `json:"type"`
+	// ClientID is oAuth client ID for the provider app. Required when `type` is `custom`; omit for `organization`.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecret is oAuth client secret for the provider app. Required when `type` is `custom`; omit for `organization`.
+	ClientSecret *string `json:"client_secret,omitempty"`
+}
+
+// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
+type ConnectionOption struct {
+	// SigningCert is the signing certificate of the SAML connection.
+	SigningCert *string `json:"signing_cert"`
 }
 
 // SSOIntentOptions represents a SSO intent options.

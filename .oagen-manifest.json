@@ -1329,6 +1329,14 @@
     "PUT /user_management/users/{user_id}/connected_accounts/{slug}": {
       "sdkMethod": "UpdateUserConnectedAccount",
       "service": "pipes"
+    },
+    "GET /user_management/radar_challenges/{id}": {
+      "sdkMethod": "GetRadarChallenge",
+      "service": "user_management"
+    },
+    "DELETE /user_management/redirect_uris/{id}": {
+      "sdkMethod": "DeleteRedirectURIs",
+      "service": "user_management"
     }
   }
 }
