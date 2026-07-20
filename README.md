@@ -173,10 +173,12 @@ Customize individual requests with functional options:
 ```go
 result, err := client.Organizations().Get(ctx, "org_123",
 	workos.WithTimeout(5 * time.Second),
-	workos.WithIdempotencyKey("unique-key"),
 	workos.WithExtraHeaders(http.Header{"X-Custom": {"value"}}),
 )
 ```
+
+> [!NOTE]
+> `workos.WithIdempotencyKey` sends an `Idempotency-Key` header, but the WorkOS API currently honors it only on the [Create Audit Log Event](https://workos.com/docs/reference/audit-logs/event) endpoint (`AuditLogs().CreateEvent`). Other endpoints accept the header but do not deduplicate requests, so a retried mutation elsewhere can still create a duplicate.
 
 ## AuthKit / SSO Helpers
 
