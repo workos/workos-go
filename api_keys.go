@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -73,6 +74,35 @@ func (s *APIKeyService) Delete(ctx context.Context, id string, opts ...RequestOp
 type APIKeysCreateExpireParams struct {
 	// ExpiresAt is when the API key should expire. If omitted or in the past, the key expires immediately. Use null to clear a scheduled future expiration.
 	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for APIKeysCreateExpireParams.
+func (p APIKeysCreateExpireParams) MarshalJSON() ([]byte, error) {
+	type Alias APIKeysCreateExpireParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"expires_at": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("APIKeysCreateExpireParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreateExpire expire an API key

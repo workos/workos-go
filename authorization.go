@@ -407,6 +407,35 @@ type AuthorizationCreateOrganizationRoleParams struct {
 	Description *string `json:"description,omitempty" url:"-"`
 	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationCreateOrganizationRoleParams.
+func (p AuthorizationCreateOrganizationRoleParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationCreateOrganizationRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationCreateOrganizationRoleParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreateOrganizationRole create a custom role
@@ -437,6 +466,35 @@ type AuthorizationUpdateOrganizationRoleParams struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// Description is an optional description of the role's purpose.
 	Description *string `json:"description,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationUpdateOrganizationRoleParams.
+func (p AuthorizationUpdateOrganizationRoleParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationUpdateOrganizationRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationUpdateOrganizationRoleParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateOrganizationRole update a custom role
@@ -517,6 +575,9 @@ type AuthorizationUpdateResourceByExternalIDParams struct {
 	Description *string `json:"description,omitempty" url:"-"`
 	// ParentResource optionally identifies the parent resource.
 	ParentResource AuthorizationParentResource `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for AuthorizationUpdateResourceByExternalIDParams.
@@ -526,7 +587,7 @@ func (p AuthorizationUpdateResourceByExternalIDParams) MarshalJSON() ([]byte, er
 	if err != nil {
 		return nil, err
 	}
-	if p.ParentResource == nil {
+	if p.ParentResource == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -535,6 +596,15 @@ func (p AuthorizationUpdateResourceByExternalIDParams) MarshalJSON() ([]byte, er
 	}
 	if p.ParentResource != nil {
 		p.ParentResource.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationUpdateResourceByExternalIDParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }
@@ -650,6 +720,9 @@ type AuthorizationCreateResourceParams struct {
 	OrganizationID string `json:"organization_id" url:"-"`
 	// ParentResource optionally identifies the parent resource.
 	ParentResource AuthorizationParentResource `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for AuthorizationCreateResourceParams.
@@ -659,7 +732,7 @@ func (p AuthorizationCreateResourceParams) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.ParentResource == nil {
+	if p.ParentResource == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -668,6 +741,15 @@ func (p AuthorizationCreateResourceParams) MarshalJSON() ([]byte, error) {
 	}
 	if p.ParentResource != nil {
 		p.ParentResource.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationCreateResourceParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }
@@ -702,6 +784,9 @@ type AuthorizationUpdateResourceParams struct {
 	Description *string `json:"description,omitempty" url:"-"`
 	// ParentResource optionally identifies the parent resource.
 	ParentResource AuthorizationParentResource `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for AuthorizationUpdateResourceParams.
@@ -711,7 +796,7 @@ func (p AuthorizationUpdateResourceParams) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.ParentResource == nil {
+	if p.ParentResource == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -720,6 +805,15 @@ func (p AuthorizationUpdateResourceParams) MarshalJSON() ([]byte, error) {
 	}
 	if p.ParentResource != nil {
 		p.ParentResource.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationUpdateResourceParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }
@@ -798,6 +892,35 @@ type AuthorizationCreateEnvironmentRoleParams struct {
 	Description *string `json:"description,omitempty" url:"-"`
 	// ResourceTypeSlug is the slug of the resource type the role is scoped to.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationCreateEnvironmentRoleParams.
+func (p AuthorizationCreateEnvironmentRoleParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationCreateEnvironmentRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationCreateEnvironmentRoleParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreateEnvironmentRole create an environment role
@@ -828,6 +951,35 @@ type AuthorizationUpdateEnvironmentRoleParams struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// Description is an optional description of the role.
 	Description *string `json:"description,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationUpdateEnvironmentRoleParams.
+func (p AuthorizationUpdateEnvironmentRoleParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationUpdateEnvironmentRoleParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationUpdateEnvironmentRoleParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateEnvironmentRole update an environment role
@@ -896,6 +1048,35 @@ type AuthorizationCreatePermissionParams struct {
 	Description *string `json:"description,omitempty" url:"-"`
 	// ResourceTypeSlug is the slug of the resource type this permission is scoped to.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationCreatePermissionParams.
+func (p AuthorizationCreatePermissionParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationCreatePermissionParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationCreatePermissionParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreatePermission create a permission
@@ -926,6 +1107,35 @@ type AuthorizationUpdatePermissionParams struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// Description is an optional description of the Permission.
 	Description *string `json:"description,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuthorizationUpdatePermissionParams.
+func (p AuthorizationUpdatePermissionParams) MarshalJSON() ([]byte, error) {
+	type Alias AuthorizationUpdatePermissionParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AuthorizationUpdatePermissionParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdatePermission update a permission

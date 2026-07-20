@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -34,6 +35,35 @@ type PipesProviderUpdateOrganizationDataIntegrationConfigurationParams struct {
 	ClientID *string `json:"client_id,omitempty" url:"-"`
 	// ClientSecret is the OAuth client secret of the organization's own application. Must be provided together with `client_id`.
 	ClientSecret *string `json:"client_secret,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesProviderUpdateOrganizationDataIntegrationConfigurationParams.
+func (p PipesProviderUpdateOrganizationDataIntegrationConfigurationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesProviderUpdateOrganizationDataIntegrationConfigurationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"scopes": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesProviderUpdateOrganizationDataIntegrationConfigurationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateOrganizationDataIntegrationConfiguration configure a provider for an organization

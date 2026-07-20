@@ -806,6 +806,9 @@ type UserManagementCreateParams struct {
 	SignalsID *string `json:"signals_id,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for UserManagementCreateParams.
@@ -815,7 +818,7 @@ func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.Password == nil {
+	if p.Password == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -824,6 +827,22 @@ func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"first_name":     true,
+		"last_name":      true,
+		"name":           true,
+		"email_verified": true,
+		"metadata":       true,
+		"external_id":    true,
+		"ip_address":     true,
+		"user_agent":     true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("UserManagementCreateParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }
@@ -881,6 +900,9 @@ type UserManagementUpdateParams struct {
 	Locale *string `json:"locale,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for UserManagementUpdateParams.
@@ -890,7 +912,7 @@ func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.Password == nil {
+	if p.Password == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -899,6 +921,17 @@ func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"metadata":    true,
+		"external_id": true,
+		"locale":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("UserManagementUpdateParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }

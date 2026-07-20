@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -38,6 +39,36 @@ type PipesCreateDataIntegrationParams struct {
 	Credentials *DataIntegrationCredentialsDto `json:"credentials,omitempty" url:"-"`
 	// CustomProvider is the OAuth definition for a custom provider. Supply this to define a custom provider; omit it to create an integration for a built-in provider.
 	CustomProvider *CustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesCreateDataIntegrationParams.
+func (p PipesCreateDataIntegrationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesCreateDataIntegrationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+		"scopes":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesCreateDataIntegrationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreateDataIntegration create a data integration
@@ -74,6 +105,36 @@ type PipesUpdateDataIntegrationParams struct {
 	Credentials *DataIntegrationCredentialsDto `json:"credentials,omitempty" url:"-"`
 	// CustomProvider updates to a custom provider's OAuth definition. Only valid for custom-provider integrations.
 	CustomProvider *UpdateCustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesUpdateDataIntegrationParams.
+func (p PipesUpdateDataIntegrationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesUpdateDataIntegrationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+		"scopes":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesUpdateDataIntegrationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateDataIntegration update a data integration
@@ -161,6 +222,35 @@ type PipesGetAccessTokenParams struct {
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesGetAccessTokenParams.
+func (p PipesGetAccessTokenParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesGetAccessTokenParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"organization_id": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesGetAccessTokenParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // GetAccessToken get an access token for a connected account
