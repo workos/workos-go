@@ -130,3 +130,29 @@ func TestUnsealData_TruncatedCiphertext(t *testing.T) {
 	_, err := workos.UnsealData("AQID", "password")
 	require.Error(t, err)
 }
+
+// TestSeal_EmptyPasswordRejected guards against SEC-1221: an empty cookie
+// password derives the fixed, publicly known key SHA-256(""), which would let
+// anyone forge session cookies. Sealing with an empty password must error.
+func TestSeal_EmptyPasswordRejected(t *testing.T) {
+	_, err := workos.SealData(map[string]interface{}{"a": "b"}, "")
+	require.Error(t, err)
+
+	_, err = workos.SealSession(&workos.SessionData{AccessToken: "x"}, "")
+	require.Error(t, err)
+}
+
+// TestAuthenticateSession_EmptyPasswordRejected guards against SEC-1221: an
+// attacker who knows the victim app uses an empty cookie password can forge a
+// cookie under SHA-256(""). Authentication with an empty password must not
+// succeed.
+func TestAuthenticateSession_EmptyPasswordRejected(t *testing.T) {
+	// Forged cookie an attacker would produce under the empty-password key.
+	forged, err := workos.Seal(map[string]interface{}{"access_token": "x"}, "hunter2-a-real-passphrase-32chars")
+	require.NoError(t, err)
+
+	result, err := workos.AuthenticateSession(forged, "")
+	require.NoError(t, err)
+	require.False(t, result.Authenticated)
+	require.Equal(t, "invalid_session_cookie", result.Reason)
+}
