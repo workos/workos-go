@@ -47,25 +47,29 @@ All API resources are accessed through service accessors on the `Client`:
 
 | Accessor                | Description                                  |
 | ----------------------- | -------------------------------------------- |
-| `APIKeys()`             | Organization API key management              |
-| `AdminPortal()`         | Admin Portal link generation                 |
-| `AuditLogs()`           | Audit log events and retention               |
-| `Authorization()`       | Fine-grained authorization (FGA) and RBAC    |
-| `Connect()`             | Connect application management               |
-| `DirectorySync()`       | Directory Sync (directories, users, groups)  |
-| `Events()`              | Event stream                                 |
-| `FeatureFlags()`        | Feature flag management and evaluation       |
-| `MultiFactorAuth()`     | Multi-factor authentication challenges       |
-| `OrganizationDomains()` | Organization domain verification             |
-| `Organizations()`       | Organization CRUD                            |
-| `Passwordless()`        | Passwordless authentication sessions         |
-| `Pipes()`               | Data integration pipes                       |
-| `Radar()`               | Radar list management                        |
-| `SSO()`                 | Single Sign-On connections and profiles      |
-| `UserManagement()`      | Users, invitations, auth methods             |
-| `Vault()`               | Key-value storage and client-side encryption |
-| `Webhooks()`            | Webhook endpoint management                  |
-| `Widgets()`             | Widget token generation                      |
+| `APIKeys()`                  | Organization API key management              |
+| `AdminPortal()`              | Admin Portal link generation                 |
+| `AuditLogs()`                | Audit log events and retention               |
+| `Authorization()`            | Roles, permissions, resources, and authorization checks |
+| `ClientAPI()`                | Client API token generation                  |
+| `Connect()`                  | Connect application management               |
+| `DirectorySync()`            | Directory Sync (directories, users, groups)  |
+| `Events()`                   | Event stream                                 |
+| `FeatureFlags()`             | Feature flag management and targeting        |
+| `Groups()`                   | Organization group management                |
+| `MultiFactorAuth()`          | Multi-factor authentication challenges       |
+| `OrganizationDomains()`      | Organization domain verification             |
+| `OrganizationMembership()`   | Organization membership management           |
+| `Organizations()`            | Organization CRUD                            |
+| `Passwordless()`             | Passwordless authentication sessions         |
+| `Pipes()`                    | Data integration pipes                       |
+| `PipesProvider()`            | Organization data integration configuration  |
+| `Radar()`                    | Radar risk assessment and list management    |
+| `SSO()`                      | Single Sign-On connections and profiles      |
+| `UserManagement()`           | Users, invitations, auth methods             |
+| `Vault()`                    | Key-value storage and client-side encryption |
+| `Webhooks()`                 | Webhook endpoint management                  |
+| `Widgets()`                  | Widget token generation                      |
 
 ## Error Handling
 
@@ -77,7 +81,7 @@ The SDK returns typed errors that can be inspected with `errors.As`, including t
 | `NotFoundError`            | 404         | Requested resource does not exist  |
 | `UnprocessableEntityError` | 422         | Validation errors                  |
 | `RateLimitExceededError`   | 429         | Rate limit exceeded (auto-retried) |
-| `ServerError`              | 5xx         | WorkOS server error (auto-retried) |
+| `ServerError`              | 5xx         | WorkOS server error (500/502/503/504 auto-retried) |
 | `NetworkError`             | -           | Connection failure                 |
 
 ```go
@@ -92,7 +96,7 @@ if err != nil {
 
 ## Pagination
 
-List endpoints return an `Iterator[T]` for auto-pagination:
+Paginated list endpoints return an `Iterator[T]` for auto-pagination:
 
 ```go
 iter := client.UserManagement().List(ctx, &workos.UserManagementListParams{})
@@ -112,6 +116,7 @@ Manage webhook endpoints with `client.Webhooks()`. Verify incoming webhook paylo
 ```go
 v := workos.NewWebhookVerifier(secret)
 
+// rawBody is the request body as a string, e.g. string(bodyBytes).
 payload, err := v.VerifyPayload(sigHeader, rawBody)
 if err != nil {
 	log.Fatal("invalid webhook signature")
@@ -156,10 +161,12 @@ Store and retrieve encrypted key-value data with client-side encryption:
 
 ```go
 // KV operations
-obj, _ := client.Vault().CreateObject(ctx, &workos.VaultCreateObjectParams{
-	Name: "api-token", Value: "secret-value",
+keyContext := map[string]string{"organization_id": "org_123"}
+
+obj, _ := client.Vault().CreateKv(ctx, &workos.VaultCreateKvParams{
+	Name: "api-token", Value: "secret-value", KeyContext: keyContext,
 })
-read, _ := client.Vault().ReadObject(ctx, obj.ID)
+read, _ := client.Vault().GetKv(ctx, obj.ID)
 
 // Client-side encryption (AES-256-GCM)
 encrypted, _ := client.Vault().Encrypt(ctx, "sensitive data", keyContext, "")
@@ -173,10 +180,12 @@ Customize individual requests with functional options:
 ```go
 result, err := client.Organizations().Get(ctx, "org_123",
 	workos.WithTimeout(5 * time.Second),
-	workos.WithIdempotencyKey("unique-key"),
 	workos.WithExtraHeaders(http.Header{"X-Custom": {"value"}}),
 )
 ```
+
+> [!NOTE]
+> The SDK automatically attaches an `Idempotency-Key` header (a random UUID, reused across automatic retries) to every `POST` request; use `workos.WithIdempotencyKey` to supply your own. The WorkOS API currently deduplicates on this key only for the [Create Audit Log Event](https://workos.com/docs/reference/audit-logs/event) endpoint (`AuditLogs().CreateEvent`). Other endpoints accept the header but do not deduplicate requests, so a retried mutation elsewhere can still create a duplicate.
 
 ## AuthKit / SSO Helpers
 
@@ -203,7 +212,7 @@ url, err := client.GetSSOAuthorizationURL(workos.SSOAuthorizationURLParams{
 
 This SDK is a Go library that uses a flat package layout at the module root rather than an application-style project layout.
 
-- The public API lives in the root `workos` package.
+- The public API lives in the root `workos` package; event type constants are additionally available in `github.com/workos/workos-go/v*/pkg/events`.
 - Tests are colocated in `*_test.go` files, which is idiomatic for Go libraries.
 - Request and response fixtures live in `testdata/`.
 

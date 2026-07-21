@@ -23,7 +23,7 @@ type listMetadata struct {
 //
 // Example usage:
 //
-//	iter := client.UserManagement().ListUsers(ctx, &workos.UserManagementListUsersParams{})
+//	iter := client.UserManagement().List(ctx, &workos.UserManagementListParams{})
 //	for iter.Next() {
 //	    user := iter.Current()
 //	    fmt.Println(user.Email)
