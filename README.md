@@ -212,7 +212,7 @@ url, err := client.GetSSOAuthorizationURL(workos.SSOAuthorizationURLParams{
 
 This SDK is a Go library that uses a flat package layout at the module root rather than an application-style project layout.
 
-- The public API lives in the root `workos` package; event type constants are additionally available in `github.com/workos/workos-go/v9/pkg/events`.
+- The public API lives in the root `workos` package; event type constants are additionally available in `github.com/workos/workos-go/v*/pkg/events`.
 - Tests are colocated in `*_test.go` files, which is idiomatic for Go libraries.
 - Request and response fixtures live in `testdata/`.
 
