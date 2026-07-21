@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -30,6 +31,35 @@ type GroupsCreateOrganizationGroupParams struct {
 	Name string `json:"name" url:"-"`
 	// Description is an optional description of the Group.
 	Description *string `json:"description,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for GroupsCreateOrganizationGroupParams.
+func (p GroupsCreateOrganizationGroupParams) MarshalJSON() ([]byte, error) {
+	type Alias GroupsCreateOrganizationGroupParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("GroupsCreateOrganizationGroupParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreateOrganizationGroup create a group
@@ -60,6 +90,35 @@ type GroupsUpdateOrganizationGroupParams struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// Description is an optional description of the Group.
 	Description *string `json:"description,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for GroupsUpdateOrganizationGroupParams.
+func (p GroupsUpdateOrganizationGroupParams) MarshalJSON() ([]byte, error) {
+	type Alias GroupsUpdateOrganizationGroupParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("GroupsUpdateOrganizationGroupParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateOrganizationGroup update a group

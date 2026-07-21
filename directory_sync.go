@@ -83,6 +83,10 @@ type DirectorySyncListUsersParams struct {
 	Directory *string `url:"directory,omitempty" json:"-"`
 	// Group is unique identifier of the WorkOS Directory Group. This value can be obtained from the WorkOS API.
 	Group *string `url:"group,omitempty" json:"-"`
+	// IdpID is filter Directory Users by the identity provider's unique identifier (`idp_id`). Requires the `directory` parameter to also be provided.
+	IdpID *string `url:"idp_id,omitempty" json:"-"`
+	// Email is filter Directory Users by their primary email address. Requires the `directory` parameter to also be provided.
+	Email *string `url:"email,omitempty" json:"-"`
 }
 
 // ListUsers list Directory Users

@@ -34,8 +34,8 @@ func (s *OrganizationDomainService) Create(ctx context.Context, params *Organiza
 
 // Get an Organization Domain
 // Get the details of an existing organization domain.
-func (s *OrganizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
-	var result OrganizationDomainStandAlone
+func (s *OrganizationDomainService) Get(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomain, error) {
+	var result OrganizationDomain
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organization_domains/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (s *OrganizationDomainService) Delete(ctx context.Context, id string, opts 
 
 // Verify an Organization Domain
 // Initiates verification process for an Organization Domain.
-func (s *OrganizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomainStandAlone, error) {
-	var result OrganizationDomainStandAlone
+func (s *OrganizationDomainService) Verify(ctx context.Context, id string, opts ...RequestOption) (*OrganizationDomain, error) {
+	var result OrganizationDomain
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organization_domains/%s/verify", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err

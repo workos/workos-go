@@ -139,6 +139,26 @@ type OrganizationDomainData struct {
 	State OrganizationDomainDataState `json:"state"`
 }
 
+// DataIntegrationCredentialsInput represents a data integration credentials input.
+type DataIntegrationCredentialsInput struct {
+	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (configured per-organization).
+	Type DataIntegrationCredentialsInputType `json:"type"`
+	// ClientID is oAuth client ID for the provider app. Required when `type` is `custom`; omit for `organization`.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecret is oAuth client secret for the provider app. Required when `type` is `custom`; omit for `organization`.
+	ClientSecret *string `json:"client_secret,omitempty"`
+}
+
+// APIKeyInstallation represents an api key installation.
+type APIKeyInstallation struct {
+	// Secret is the API key secret to store for the tenant.
+	Secret string `json:"secret"`
+	// UserID is the User identifier the API key is installed for.
+	UserID string `json:"user_id"`
+	// OrganizationID is an Organization identifier to scope the installation to a specific organization.
+	OrganizationID *string `json:"organization_id,omitempty"`
+}
+
 // CustomProviderDefinition represents a custom provider definition.
 type CustomProviderDefinition struct {
 	// Name is a descriptive name for the custom provider.
@@ -315,6 +335,48 @@ type ExternalAuthCompleteResponse struct {
 	RedirectURI string `json:"redirect_uri"`
 }
 
+// AgentRegistration represents an agent registration.
+type AgentRegistration struct {
+	// ID is unique identifier of the agent registration.
+	ID string `json:"id"`
+	// AgentIdentity is the agent identity associated with this registration.
+	AgentIdentity *AgentRegistrationAgentIdentity `json:"agent_identity"`
+	// OrganizationID is identifier of the organization the agent is registered to.
+	OrganizationID string `json:"organization_id"`
+	// Status is the current verification status of the registration.
+	Status AgentRegistrationStatus `json:"status"`
+	// Kind is the kind of agent registration.
+	Kind AgentRegistrationKind `json:"kind"`
+	// Claim is the claim associated with this registration, or `null` if the registration has no claim.
+	Claim *AgentRegistrationClaim `json:"claim"`
+	// CreatedAt is the timestamp when the registration was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the registration was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentCredentialValidation represents an agent credential validation.
+type AgentCredentialValidation struct {
+	// Valid is whether the presented credential is valid.
+	Valid bool `json:"valid"`
+	// RegistrationID is identifier of the agent registration the credential belongs to, or `null` when the credential is invalid.
+	RegistrationID *string `json:"registration_id"`
+	// ExpiresAt is the timestamp when the credential expires, or `null` when the credential is invalid.
+	ExpiresAt *string `json:"expires_at"`
+}
+
+// ClaimViewResponse represents a claim view response.
+type ClaimViewResponse struct {
+	// ID is the agent registration ID.
+	ID string `json:"id"`
+	// Status is current status of the agent registration.
+	Status ClaimViewResponseStatus `json:"status"`
+	// UserCode is the user code the agent needs to complete the claim.
+	UserCode string `json:"user_code"`
+	// Organizations is organizations the user belongs to, offered as placement choices.
+	Organizations []*ClaimViewResponseOrganization `json:"organizations"`
+}
+
 // APIKey represents an api key.
 type APIKey struct {
 	// Object distinguishes the API Key object.
@@ -342,6 +404,8 @@ type APIKey struct {
 // APIKeyValidationResponse represents an api key validation response.
 type APIKeyValidationResponse struct {
 	APIKey *APIKey `json:"api_key"`
+	// AgentRegistrationID is the ID of the agent registration this API Key was issued for. Present only when the API Key is assigned to an agent registration.
+	AgentRegistrationID *string `json:"agent_registration_id,omitempty"`
 }
 
 // ConnectApplication represents a connect application.
@@ -741,8 +805,8 @@ type Connection struct {
 	Status ConnectionStatus `json:"status"`
 	// Domains is list of Organization Domains.
 	Domains []*ConnectionDomain `json:"domains"`
-	// Options is configuration options for SAML connections. Only present for SAML connection types.
-	Options *ConnectionOption `json:"options,omitempty"`
+	// CallbackEndpoint is the immutable callback endpoint for this Connection. For SAML connections this is the ACS URL; for OIDC connections this is the redirect URI.
+	CallbackEndpoint *string `json:"callback_endpoint,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -1083,6 +1147,258 @@ type ActionUserRegistrationDeniedData struct {
 	// UserAgent is the user agent of the request.
 	UserAgent *string `json:"user_agent"`
 }
+
+// AgentRegistrationClaimAttemptCreated represents an agent registration claim attempt created.
+type AgentRegistrationClaimAttemptCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationClaimAttemptCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationClaimAttemptCreatedData the event payload.
+type AgentRegistrationClaimAttemptCreatedData struct {
+	// Object distinguishes the agent registration claim attempt object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent registration claim attempt.
+	ID string `json:"id"`
+	// AgentRegistrationID is the ID of the agent registration.
+	AgentRegistrationID string `json:"agent_registration_id"`
+	// AgentRegistrationClaimID is the ID of the agent registration claim.
+	AgentRegistrationClaimID string `json:"agent_registration_claim_id"`
+	// LoginHint is the login hint for the claim attempt.
+	LoginHint string `json:"login_hint"`
+	// ExpiresAt is the timestamp when the claim attempt expires.
+	ExpiresAt string `json:"expires_at"`
+	// CreatedAt is the timestamp when the claim attempt was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the claim attempt was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentRegistrationClaimCompleted represents an agent registration claim completed.
+type AgentRegistrationClaimCompleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationClaimCompletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationClaimCompletedData the event payload.
+type AgentRegistrationClaimCompletedData struct {
+	// Object distinguishes the agent registration claim object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent registration claim.
+	ID string `json:"id"`
+	// AgentRegistrationID is the ID of the agent registration.
+	AgentRegistrationID string `json:"agent_registration_id"`
+	// CompletedByAttemptID is the ID of the claim attempt that completed the claim.
+	CompletedByAttemptID string `json:"completed_by_attempt_id"`
+	// ClaimedBy is the user who completed the claim.
+	ClaimedBy *AgentRegistrationClaimCompletedDataClaimedBy `json:"claimed_by"`
+	// CompletedAt is the timestamp when the claim was completed.
+	CompletedAt string `json:"completed_at"`
+	// CreatedAt is the timestamp when the claim was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the claim was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentRegistrationClaimCompletedDataClaimedBy the user who completed the claim.
+type AgentRegistrationClaimCompletedDataClaimedBy struct {
+	// UserID is the ID of the user who completed the claim.
+	UserID string `json:"user_id"`
+	// OrganizationID is the ID of the organization the claiming user belongs to.
+	OrganizationID interface{} `json:"organization_id"`
+}
+
+// AgentRegistrationCreated represents an agent registration created.
+type AgentRegistrationCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationCreatedData the event payload.
+type AgentRegistrationCreatedData struct {
+	// Object distinguishes the agent registration object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent registration.
+	ID string `json:"id"`
+	// AgentIdentity is the agent identity for this registration.
+	AgentIdentity *AgentRegistrationCreatedDataAgentIdentity `json:"agent_identity"`
+	// OrganizationID is the ID of the organization the registration belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Status is the current status of the registration.
+	Status AgentRegistrationCreatedDataStatus `json:"status"`
+	// Kind is the kind of the registration.
+	Kind AgentRegistrationCreatedDataKind `json:"kind"`
+	// Method is the authentication method of the registration.
+	Method AgentRegistrationCreatedDataMethod `json:"method"`
+	// CreatedAt is the timestamp when the registration was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the registration was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentRegistrationCreatedDataAgentIdentity the agent identity for this registration.
+type AgentRegistrationCreatedDataAgentIdentity struct {
+	// Object distinguishes the agent identity object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent identity.
+	ID string `json:"id"`
+	// UserlandUserID is the ID of the userland user bound to this agent identity.
+	UserlandUserID interface{} `json:"userland_user_id"`
+}
+
+// AgentRegistrationCredentialIssued represents an agent registration credential issued.
+type AgentRegistrationCredentialIssued struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationCredentialIssuedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationCredentialIssuedData the event payload.
+type AgentRegistrationCredentialIssuedData struct {
+	// Object distinguishes the agent registration credential object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent registration credential.
+	ID string `json:"id"`
+	// AgentRegistrationID is the ID of the agent registration.
+	AgentRegistrationID string `json:"agent_registration_id"`
+	// Detail is details of the issued credential.
+	Detail *AgentRegistrationCredentialIssuedDataDetail `json:"detail"`
+	// CreatedAt is the timestamp when the credential was issued.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the credential was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentRegistrationCredentialIssuedDataDetail represents an agent registration credential issued data detail.
+type AgentRegistrationCredentialIssuedDataDetail struct {
+	// Kind is the kind of credential issued.
+	Kind string `json:"kind"`
+	// APIKeyID is the ID of the issued API key.
+	APIKeyID *string `json:"api_key_id,omitempty"`
+	// Jti is the JWT ID of the issued access token.
+	Jti *string `json:"jti,omitempty"`
+	// ExpiresAt is the timestamp when the access token expires.
+	ExpiresAt *interface{} `json:"expires_at,omitempty"`
+}
+
+// AccessTokenAgentRegistrationCredentialIssuedDataDetail represents an access token agent registration credential issued data detail.
+type AccessTokenAgentRegistrationCredentialIssuedDataDetail struct {
+	// Kind is the kind of credential issued.
+	Kind string `json:"kind"`
+	// Jti is the JWT ID of the issued access token.
+	Jti string `json:"jti"`
+	// ExpiresAt is the timestamp when the access token expires.
+	ExpiresAt interface{} `json:"expires_at"`
+}
+
+// AgentRegistrationDeleted represents an agent registration deleted.
+type AgentRegistrationDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationDeletedData the event payload.
+type AgentRegistrationDeletedData struct {
+	// AgentRegistrationID is the agent registration that was deleted.
+	AgentRegistrationID string `json:"agent_registration_id"`
+}
+
+// AgentRegistrationExpired represents an agent registration expired.
+type AgentRegistrationExpired struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationExpiredData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationExpiredData is an alias for AgentRegistrationDeletedData.
+type AgentRegistrationExpiredData = AgentRegistrationDeletedData
+
+// AgentRegistrationOrganizationSwitched represents an agent registration organization switched.
+type AgentRegistrationOrganizationSwitched struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationOrganizationSwitchedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationOrganizationSwitchedData the event payload.
+type AgentRegistrationOrganizationSwitchedData struct {
+	// AgentRegistrationID is the agent registration that was moved.
+	AgentRegistrationID string `json:"agent_registration_id"`
+	// FromOrganizationID is the agent-created organization the registration is moving off of. Migrate its resources to `to_organization_id`, then delete it.
+	FromOrganizationID string `json:"from_organization_id"`
+	// ToOrganizationID is the organization the registration now belongs to.
+	ToOrganizationID string `json:"to_organization_id"`
+}
+
+// AgentRegistrationRevoked represents an agent registration revoked.
+type AgentRegistrationRevoked struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationRevokedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationRevokedData is an alias for AgentRegistrationDeletedData.
+type AgentRegistrationRevokedData = AgentRegistrationDeletedData
 
 // APIKeyCreated represents an api key created.
 type APIKeyCreated struct {
@@ -1628,6 +1944,34 @@ type AuthenticationRadarRiskDetectedData struct {
 	Control *string `json:"control"`
 	// BlocklistType is the type of blocklist that triggered the risk detection.
 	BlocklistType *string `json:"blocklist_type"`
+	// IPAddress is the IP address of the request.
+	IPAddress *string `json:"ip_address"`
+	// UserAgent is the user agent of the request.
+	UserAgent *string `json:"user_agent"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+}
+
+// AuthenticationReauthenticationSucceeded represents an authentication reauthentication succeeded.
+type AuthenticationReauthenticationSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AuthenticationReauthenticationSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AuthenticationReauthenticationSucceededData the event payload.
+type AuthenticationReauthenticationSucceededData struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
 	// IPAddress is the IP address of the request.
 	IPAddress *string `json:"ip_address"`
 	// UserAgent is the user agent of the request.
@@ -3598,25 +3942,8 @@ type PermissionCreated struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
-// PermissionCreatedData the event payload.
-type PermissionCreatedData struct {
-	// Object distinguishes the permission object.
-	Object string `json:"object"`
-	// ID is unique identifier of the permission.
-	ID string `json:"id"`
-	// Slug is the slug identifier of the permission.
-	Slug string `json:"slug"`
-	// Name is the name of the permission.
-	Name string `json:"name"`
-	// Description is a description of the permission.
-	Description *string `json:"description"`
-	// System is whether the permission is a system permission.
-	System bool `json:"system"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-}
+// PermissionCreatedData is an alias for AuthorizationPermission.
+type PermissionCreatedData = AuthorizationPermission
 
 // PermissionDeleted represents a permission deleted.
 type PermissionDeleted struct {
@@ -3632,8 +3959,8 @@ type PermissionDeleted struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
-// PermissionDeletedData is an alias for PermissionCreatedData.
-type PermissionDeletedData = PermissionCreatedData
+// PermissionDeletedData is an alias for AuthorizationPermission.
+type PermissionDeletedData = AuthorizationPermission
 
 // PermissionUpdated represents a permission updated.
 type PermissionUpdated struct {
@@ -3649,8 +3976,8 @@ type PermissionUpdated struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
-// PermissionUpdatedData is an alias for PermissionCreatedData.
-type PermissionUpdatedData = PermissionCreatedData
+// PermissionUpdatedData is an alias for AuthorizationPermission.
+type PermissionUpdatedData = AuthorizationPermission
 
 // PipesConnectedAccountConnected represents a pipes connected account connected.
 type PipesConnectedAccountConnected struct {
@@ -3664,6 +3991,44 @@ type PipesConnectedAccountConnected struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesConnectedAccountConnectionFailed represents a pipes connected account connection failed.
+type PipesConnectedAccountConnectionFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipesConnectedAccountConnectionFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesConnectedAccountConnectionFailedData the event payload.
+type PipesConnectedAccountConnectionFailedData struct {
+	// Object is the object type.
+	Object string `json:"object"`
+	// DataIntegrationID is the unique ID of the data integration.
+	DataIntegrationID string `json:"data_integration_id"`
+	// ProviderSlug is the provider slug for this connection attempt.
+	ProviderSlug string `json:"provider_slug"`
+	// UserID is the ID of the User the connection attempt belongs to.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the ID of the Organization the connection attempt belongs to.
+	OrganizationID *string `json:"organization_id"`
+	// ErrorCode is a machine-readable error code for the failure.
+	ErrorCode string `json:"error_code"`
+	// ErrorReason is a human-readable explanation of the failure.
+	ErrorReason *string `json:"error_reason"`
+	// ProviderError is the raw error code returned by the OAuth provider.
+	ProviderError *string `json:"provider_error"`
+	// ProviderErrorDescription is the raw error description returned by the OAuth provider.
+	ProviderErrorDescription *string `json:"provider_error_description"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
 }
 
 // PipesConnectedAccountDisconnected represents a pipes connected account disconnected.
@@ -3692,6 +4057,32 @@ type PipesConnectedAccountReauthorizationNeeded struct {
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string        `json:"created_at"`
 	Context   *EventContext `json:"context,omitempty"`
+}
+
+// RadarChallengeCreated represents a radar challenge created.
+type RadarChallengeCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *RadarChallengeCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// RadarChallengeCreatedData the event payload.
+type RadarChallengeCreatedData struct {
+	// Type is the type of the Radar challenge.
+	Type string `json:"type"`
+	// RadarChallengeID is the ID of the Radar challenge.
+	RadarChallengeID string `json:"radar_challenge_id"`
+	// UserID is the ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
 }
 
 // RoleCreated represents a role created.
@@ -4124,6 +4515,33 @@ type VaultKekCreatedData struct {
 	KeyID string `json:"key_id"`
 }
 
+// VaultKekDeleted represents a vault kek deleted.
+type VaultKekDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultKekDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// VaultKekDeletedData the event payload.
+type VaultKekDeletedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                         `json:"actor_id"`
+	ActorSource VaultKekDeletedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KeyName is the name of the key encryption key.
+	KeyName string `json:"key_name"`
+	// KeyID is the unique identifier of the key encryption key.
+	KeyID string `json:"key_id"`
+}
+
 // VaultMetadataRead represents a vault metadata read.
 type VaultMetadataRead struct {
 	// Object distinguishes the Event object.
@@ -4393,8 +4811,12 @@ type DataIntegration struct {
 	Scopes []string `json:"scopes"`
 	// RedirectURI is the OAuth redirect URI to register with the provider when configuring the custom application.
 	RedirectURI string `json:"redirect_uri"`
+	// AuthMethods is how accounts authenticate with the provider for this Data Integration.
+	AuthMethods []DataIntegrationAuthMethods `json:"auth_methods"`
 	// Credentials is the credentials configured for the Data Integration.
 	Credentials *DataIntegrationCredential `json:"credentials"`
+	// Installation is the tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
+	Installation *DataIntegrationInstallation `json:"installation"`
 	// CustomProvider is the OAuth definition when this is a custom provider; `null` for built-in providers.
 	CustomProvider *DataIntegrationCustomProvider `json:"custom_provider"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4479,6 +4901,28 @@ type DataIntegrationsListResponse struct {
 type PortalLinkResponse struct {
 	// Link is an ephemeral link to initiate the Admin Portal.
 	Link string `json:"link"`
+}
+
+// RadarChallenge represents a radar challenge.
+type RadarChallenge struct {
+	// Object distinguishes the Radar Challenge object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Radar Challenge.
+	ID string `json:"id"`
+	// Type is the type of the Radar challenge.
+	Type string `json:"type"`
+	// UserID is the unique ID of the user.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// ExpiresAt is the timestamp when the Radar Challenge code expires.
+	ExpiresAt string `json:"expires_at"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Code is the code used to verify the Radar Challenge.
+	Code string `json:"code"`
 }
 
 // SendRadarSmsChallengeResponse represents a send radar sms challenge response.
@@ -5022,6 +5466,18 @@ type DataIntegrationCredential struct {
 	RedactedClientSecret *string `json:"redacted_client_secret"`
 }
 
+// DataIntegrationInstallation represents a data integration installation.
+type DataIntegrationInstallation struct {
+	// ID is unique identifier of the installation.
+	ID string `json:"id"`
+	// UserID is the User the API key was installed for.
+	UserID string `json:"user_id"`
+	// OrganizationID is the Organization the installation is scoped to, or null when unscoped.
+	OrganizationID *string `json:"organization_id"`
+	// APIKeyLast4 is the last four characters of the stored API key. The full key is never returned.
+	APIKeyLast4 *string `json:"api_key_last_4"`
+}
+
 // DataIntegrationCustomProvider represents a data integration custom provider.
 type DataIntegrationCustomProvider struct {
 	// Name is a descriptive name for the custom provider.
@@ -5205,6 +5661,21 @@ type AuditLogSchemaTarget struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
+// OrganizationAuthorizedConnectApplicationListData represents an organization authorized connect application list data.
+type OrganizationAuthorizedConnectApplicationListData struct {
+	// Object distinguishes the authorized connect application object.
+	Object string `json:"object"`
+	// ID is the unique ID of the authorized connect application.
+	ID string `json:"id"`
+	// GrantedScopes is the scopes granted by the user to the application.
+	GrantedScopes []string `json:"granted_scopes"`
+	// OAuthResource is the OAuth resource associated with the authorized connect application, if one was requested.
+	OAuthResource *string             `json:"oauth_resource,omitempty"`
+	Application   *ConnectApplication `json:"application"`
+	// UserID is the ID of the user who authorized the application.
+	UserID string `json:"user_id"`
+}
+
 // AuthorizedConnectApplicationListData represents an authorized connect application list data.
 type AuthorizedConnectApplicationListData struct {
 	// Object distinguishes the authorized connect application object.
@@ -5221,12 +5692,49 @@ type AuthorizedConnectApplicationListData struct {
 // APIKeyOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyOwner = APIKeyCreatedDataOwner
 
+// ClaimViewResponseOrganization is an alias for Actor.
+type ClaimViewResponseOrganization = Actor
+
+// AgentRegistrationAgentIdentity the agent identity associated with this registration.
+type AgentRegistrationAgentIdentity struct {
+	// ID is unique identifier of the agent identity.
+	ID string `json:"id"`
+	// UserlandUserID is identifier of the AuthKit user the agent identity is bound to, or `null` when the agent is not associated with a user.
+	UserlandUserID *string `json:"userland_user_id"`
+	// CreatedAt is the timestamp when the agent identity was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the agent identity was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentRegistrationClaim represents an agent registration claim.
+type AgentRegistrationClaim struct {
+	// ID is unique identifier of the claim.
+	ID string `json:"id"`
+	// ClaimCompletion is the completion record for the claim, or `null` if the claim has not been completed.
+	ClaimCompletion *AgentRegistrationClaimClaimCompletion `json:"claim_completion"`
+	// CreatedAt is the timestamp when the claim was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the claim was last updated.
+	UpdatedAt string `json:"updated_at"`
+	// ExpiresAt is the timestamp when the claim expires.
+	ExpiresAt string `json:"expires_at"`
+}
+
 // UserConsentOptionChoice represents a user consent option choice.
 type UserConsentOptionChoice struct {
 	// Value is the value of this choice.
 	Value *string `json:"value,omitempty"`
 	// Label is a human-readable label for this choice.
 	Label *string `json:"label,omitempty"`
+}
+
+// AgentAdminLinkClaimAttemptToExternalUserRequestUser the user to attach to the claim attempt, identified by email and external ID.
+type AgentAdminLinkClaimAttemptToExternalUserRequestUser struct {
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// ExternalID is the external ID of the user.
+	ExternalID string `json:"external_id"`
 }
 
 // Permission is an alias for AuthorizationPermission.
@@ -5351,7 +5859,7 @@ type RefreshTokenSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// MagicAuthCodeSessionAuthenticateRequest represents an urn workos OAuth grant type magic auth code session authenticate request.
+// MagicAuthCodeSessionAuthenticateRequest represents a magic auth code session authenticate request.
 type MagicAuthCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -5374,7 +5882,7 @@ type MagicAuthCodeSessionAuthenticateRequest struct {
 	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
-// EmailVerificationCodeSessionAuthenticateRequest represents an urn workos OAuth grant type email verification code session authenticate request.
+// EmailVerificationCodeSessionAuthenticateRequest represents an email verification code session authenticate request.
 type EmailVerificationCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -5393,7 +5901,7 @@ type EmailVerificationCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// MFATOTPSessionAuthenticateRequest represents an urn workos OAuth grant type mfa totp session authenticate request.
+// MFATOTPSessionAuthenticateRequest represents a mfa totp session authenticate request.
 type MFATOTPSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -5414,7 +5922,7 @@ type MFATOTPSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// OrganizationSelectionSessionAuthenticateRequest represents an urn workos OAuth grant type organization selection session authenticate request.
+// OrganizationSelectionSessionAuthenticateRequest represents an organization selection session authenticate request.
 type OrganizationSelectionSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -5433,7 +5941,7 @@ type OrganizationSelectionSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// RadarEmailChallengeCodeSessionAuthenticateRequest represents an urn workos OAuth grant type radar email challenge code session authenticate request.
+// RadarEmailChallengeCodeSessionAuthenticateRequest represents a radar email challenge code session authenticate request.
 type RadarEmailChallengeCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -5454,7 +5962,7 @@ type RadarEmailChallengeCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// RadarSmsChallengeCodeSessionAuthenticateRequest represents an urn workos OAuth grant type radar sms challenge code session authenticate request.
+// RadarSmsChallengeCodeSessionAuthenticateRequest represents a radar sms challenge code session authenticate request.
 type RadarSmsChallengeCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID string `json:"client_id"`
@@ -5477,7 +5985,7 @@ type RadarSmsChallengeCodeSessionAuthenticateRequest struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 }
 
-// DeviceCodeSessionAuthenticateRequest represents an urn ietf params OAuth grant type device code session authenticate request.
+// DeviceCodeSessionAuthenticateRequest represents a device code session authenticate request.
 type DeviceCodeSessionAuthenticateRequest struct {
 	// ClientID is the client ID of the application.
 	ClientID  string `json:"client_id"`
@@ -5694,6 +6202,20 @@ type UserSessionsListItem struct {
 
 // UserSessionsImpersonator is an alias for AuthenticateResponseImpersonator.
 type UserSessionsImpersonator = AuthenticateResponseImpersonator
+
+// AgentRegistrationClaimClaimCompletion represents an agent registration claim claim completion.
+type AgentRegistrationClaimClaimCompletion struct {
+	// ID is unique identifier of the claim completion.
+	ID string `json:"id"`
+	// CreatedAt is the timestamp when the claim completion was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the claim completion was last updated.
+	UpdatedAt string `json:"updated_at"`
+	// ExpiresAt is the timestamp when the claim completion expires.
+	ExpiresAt string `json:"expires_at"`
+	// ClaimedAt is the timestamp when the claim was completed.
+	ClaimedAt string `json:"claimed_at"`
+}
 
 // DirectoryMetadataUser counts of active and inactive directory users.
 type DirectoryMetadataUser struct {

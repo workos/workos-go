@@ -185,6 +185,44 @@ func TestOrganizations_GetAuditLogConfiguration(t *testing.T) {
 	require.Equal(t, "org_01EHZNVPK3SFK441A1RGBFSHRT", result.OrganizationID)
 }
 
+func TestOrganizations_ListAuthorizedApplications(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/authorized_applications", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_organization_authorized_connect_application_list_data.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Organizations().ListAuthorizedApplications(context.Background(), "test_organization_id", &workos.OrganizationsListAuthorizedApplicationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestOrganizations_ListAuthorizedApplications_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Organizations().ListAuthorizedApplications(context.Background(), "test_organization_id", &workos.OrganizationsListAuthorizedApplicationsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
 func TestOrganizations_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

@@ -214,12 +214,19 @@ func (s *UserManagementService) AuthenticateWithRefreshToken(ctx context.Context
 
 // UserManagementAuthenticateWithMagicAuthParams contains the parameters for AuthenticateWithMagicAuth.
 type UserManagementAuthenticateWithMagicAuthParams struct {
-	Code               string  `json:"code"`
-	Email              string  `json:"email"`
-	InvitationToken    *string `json:"invitation_token,omitempty"`
-	IPAddress          *string `json:"ip_address,omitempty"`
-	DeviceID           *string `json:"device_id,omitempty"`
-	UserAgent          *string `json:"user_agent,omitempty"`
+	// Code is the one-time code for Magic Auth authentication.
+	Code string `json:"code"`
+	// Email is the user's email address.
+	Email string `json:"email"`
+	// InvitationToken is an invitation token to accept during authentication.
+	InvitationToken *string `json:"invitation_token,omitempty"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
+	// RadarAuthAttemptID is the ID of an existing Radar authentication attempt to associate with this authentication.
 	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty"`
 }
 
@@ -261,11 +268,16 @@ func (s *UserManagementService) AuthenticateWithMagicAuth(ctx context.Context, p
 
 // UserManagementAuthenticateWithEmailVerificationParams contains the parameters for AuthenticateWithEmailVerification.
 type UserManagementAuthenticateWithEmailVerificationParams struct {
-	Code                       string  `json:"code"`
-	PendingAuthenticationToken string  `json:"pending_authentication_token"`
-	IPAddress                  *string `json:"ip_address,omitempty"`
-	DeviceID                   *string `json:"device_id,omitempty"`
-	UserAgent                  *string `json:"user_agent,omitempty"`
+	// Code is the email verification code.
+	Code string `json:"code"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
 }
 
 // authenticateWithEmailVerificationBody is the JSON request body for AuthenticateWithEmailVerification.
@@ -346,11 +358,16 @@ func (s *UserManagementService) AuthenticateWithTOTP(ctx context.Context, params
 
 // UserManagementAuthenticateWithOrganizationSelectionParams contains the parameters for AuthenticateWithOrganizationSelection.
 type UserManagementAuthenticateWithOrganizationSelectionParams struct {
-	PendingAuthenticationToken string  `json:"pending_authentication_token"`
-	OrganizationID             string  `json:"organization_id"`
-	IPAddress                  *string `json:"ip_address,omitempty"`
-	DeviceID                   *string `json:"device_id,omitempty"`
-	UserAgent                  *string `json:"user_agent,omitempty"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	// OrganizationID is the ID of the organization the user selected.
+	OrganizationID string `json:"organization_id"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
 }
 
 // authenticateWithOrganizationSelectionBody is the JSON request body for AuthenticateWithOrganizationSelection.
@@ -387,10 +404,14 @@ func (s *UserManagementService) AuthenticateWithOrganizationSelection(ctx contex
 
 // UserManagementAuthenticateWithDeviceCodeParams contains the parameters for AuthenticateWithDeviceCode.
 type UserManagementAuthenticateWithDeviceCodeParams struct {
-	DeviceCode string  `json:"device_code"`
-	IPAddress  *string `json:"ip_address,omitempty"`
-	DeviceID   *string `json:"device_id,omitempty"`
-	UserAgent  *string `json:"user_agent,omitempty"`
+	// DeviceCode is the device verification code.
+	DeviceCode string `json:"device_code"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
 }
 
 // authenticateWithDeviceCodeBody is the JSON request body for AuthenticateWithDeviceCode.
@@ -423,12 +444,18 @@ func (s *UserManagementService) AuthenticateWithDeviceCode(ctx context.Context, 
 
 // UserManagementAuthenticateWithRadarEmailChallengeParams contains the parameters for AuthenticateWithRadarEmailChallenge.
 type UserManagementAuthenticateWithRadarEmailChallengeParams struct {
-	Code                       string  `json:"code"`
-	RadarChallengeID           string  `json:"radar_challenge_id"`
-	PendingAuthenticationToken string  `json:"pending_authentication_token"`
-	IPAddress                  *string `json:"ip_address,omitempty"`
-	DeviceID                   *string `json:"device_id,omitempty"`
-	UserAgent                  *string `json:"user_agent,omitempty"`
+	// Code is the one-time code from the Radar email challenge.
+	Code string `json:"code"`
+	// RadarChallengeID is the ID of the Radar email challenge being verified.
+	RadarChallengeID string `json:"radar_challenge_id"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
 }
 
 // authenticateWithRadarEmailChallengeBody is the JSON request body for AuthenticateWithRadarEmailChallenge.
@@ -467,13 +494,20 @@ func (s *UserManagementService) AuthenticateWithRadarEmailChallenge(ctx context.
 
 // UserManagementAuthenticateWithRadarSmsChallengeParams contains the parameters for AuthenticateWithRadarSmsChallenge.
 type UserManagementAuthenticateWithRadarSmsChallengeParams struct {
-	Code                       string  `json:"code"`
-	VerificationID             string  `json:"verification_id"`
-	PhoneNumber                string  `json:"phone_number"`
-	PendingAuthenticationToken string  `json:"pending_authentication_token"`
-	IPAddress                  *string `json:"ip_address,omitempty"`
-	DeviceID                   *string `json:"device_id,omitempty"`
-	UserAgent                  *string `json:"user_agent,omitempty"`
+	// Code is the one-time code from the Radar SMS challenge.
+	Code string `json:"code"`
+	// VerificationID is the ID of the Radar SMS verification being confirmed.
+	VerificationID string `json:"verification_id"`
+	// PhoneNumber is the phone number the Radar SMS challenge was sent to.
+	PhoneNumber string `json:"phone_number"`
+	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
+	PendingAuthenticationToken string `json:"pending_authentication_token"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
 }
 
 // authenticateWithRadarSmsChallengeBody is the JSON request body for AuthenticateWithRadarSmsChallenge.
@@ -645,6 +679,17 @@ func (s *UserManagementService) CreateRadarChallenge(ctx context.Context, params
 	return &result, nil
 }
 
+// GetRadarChallenge details
+// Get the details of an existing Radar Challenge, including the OTP code.
+func (s *UserManagementService) GetRadarChallenge(ctx context.Context, id string, opts ...RequestOption) (*RadarChallenge, error) {
+	var result RadarChallenge
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/radar_challenges/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // UserManagementGetLogoutURLParams contains the parameters for GetLogoutURL.
 type UserManagementGetLogoutURLParams struct {
 	// SessionID is the ID of the session. This can be extracted from the `sid` claim of the access token.
@@ -695,7 +740,7 @@ type UserManagementCreateCORSOriginParams struct {
 }
 
 // CreateCORSOrigin create a CORS origin
-// Creates a new CORS origin for the current environment. CORS origins allow browser-based applications to make requests to the WorkOS API.
+// Creates a new CORS origin for the API key's application. CORS origins allow browser-based applications to make requests to the WorkOS API.
 func (s *UserManagementService) CreateCORSOrigin(ctx context.Context, params *UserManagementCreateCORSOriginParams, opts ...RequestOption) (*CORSOriginResponse, error) {
 	var result CORSOriginResponse
 	_, err := s.client.request(ctx, "POST", "/user_management/cors_origins", nil, params, &result, opts)
@@ -806,6 +851,9 @@ type UserManagementCreateParams struct {
 	SignalsID *string `json:"signals_id,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for UserManagementCreateParams.
@@ -815,7 +863,7 @@ func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.Password == nil {
+	if p.Password == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -824,6 +872,22 @@ func (p UserManagementCreateParams) MarshalJSON() ([]byte, error) {
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"first_name":     true,
+		"last_name":      true,
+		"name":           true,
+		"email_verified": true,
+		"metadata":       true,
+		"external_id":    true,
+		"ip_address":     true,
+		"user_agent":     true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("UserManagementCreateParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }
@@ -881,6 +945,9 @@ type UserManagementUpdateParams struct {
 	Locale *string `json:"locale,omitempty" url:"-"`
 	// Password optionally identifies the password.
 	Password UserManagementPassword `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
 }
 
 // MarshalJSON implements json.Marshaler for UserManagementUpdateParams.
@@ -890,7 +957,7 @@ func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.Password == nil {
+	if p.Password == nil && len(p.NullFields) == 0 {
 		return data, nil
 	}
 	var m map[string]any
@@ -899,6 +966,17 @@ func (p UserManagementUpdateParams) MarshalJSON() ([]byte, error) {
 	}
 	if p.Password != nil {
 		p.Password.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"metadata":    true,
+		"external_id": true,
+		"locale":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("UserManagementUpdateParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
 	}
 	return json.Marshal(m)
 }
@@ -1200,6 +1278,13 @@ func (s *UserManagementService) CreateRedirectURI(ctx context.Context, params *U
 		return nil, err
 	}
 	return &result, nil
+}
+
+// DeleteRedirectURIs delete a redirect URI
+// Deletes a redirect URI from an application.
+func (s *UserManagementService) DeleteRedirectURIs(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/redirect_uris/%s", url.PathEscape(id)), nil, nil, nil, opts)
+	return err
 }
 
 // UserManagementListAuthorizedApplicationsParams contains the parameters for ListAuthorizedApplications.

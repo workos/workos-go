@@ -28,6 +28,9 @@ const (
 	OrganizationDomainDataStateVerified OrganizationDomainDataState = "verified"
 )
 
+// DataIntegrationCredentialsInputType is an alias for DataIntegrationCredentialType.
+type DataIntegrationCredentialsInputType = DataIntegrationCredentialType
+
 // CustomProviderDefinitionAuthenticateVia represents custom provider definition authenticate via values.
 type CustomProviderDefinitionAuthenticateVia string
 
@@ -36,8 +39,19 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
+// CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
+type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
+
 // UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
+
+// ConnectedAccountInputState represents connected account input state values.
+type ConnectedAccountInputState string
+
+const (
+	ConnectedAccountInputStateConnected            ConnectedAccountInputState = "connected"
+	ConnectedAccountInputStateNeedsReauthorization ConnectedAccountInputState = "needs_reauthorization"
+)
 
 // GenerateLinkIntent represents generate link intent values.
 type GenerateLinkIntent string
@@ -158,6 +172,7 @@ const (
 	CreateUserPasswordHashTypeBcrypt         CreateUserPasswordHashType = "bcrypt"
 	CreateUserPasswordHashTypeFirebaseScrypt CreateUserPasswordHashType = "firebase-scrypt"
 	CreateUserPasswordHashTypeSsha           CreateUserPasswordHashType = "ssha"
+	CreateUserPasswordHashTypeSsha256        CreateUserPasswordHashType = "ssha256"
 	CreateUserPasswordHashTypeScrypt         CreateUserPasswordHashType = "scrypt"
 	CreateUserPasswordHashTypePbkdf2         CreateUserPasswordHashType = "pbkdf2"
 	CreateUserPasswordHashTypeArgon2         CreateUserPasswordHashType = "argon2"
@@ -174,7 +189,10 @@ const (
 	CreateWebhookEndpointEventsAgentRegistrationClaimAttemptCreated       CreateWebhookEndpointEvents = "agent.registration.claim.attempt.created"
 	CreateWebhookEndpointEventsAgentRegistrationClaimCompleted            CreateWebhookEndpointEvents = "agent.registration.claim.completed"
 	CreateWebhookEndpointEventsAgentRegistrationCredentialIssued          CreateWebhookEndpointEvents = "agent.registration.credential.issued"
+	CreateWebhookEndpointEventsAgentRegistrationDeleted                   CreateWebhookEndpointEvents = "agent.registration.deleted"
+	CreateWebhookEndpointEventsAgentRegistrationExpired                   CreateWebhookEndpointEvents = "agent.registration.expired"
 	CreateWebhookEndpointEventsAgentRegistrationOrganizationSwitched      CreateWebhookEndpointEvents = "agent.registration.organization.switched"
+	CreateWebhookEndpointEventsAgentRegistrationRevoked                   CreateWebhookEndpointEvents = "agent.registration.revoked"
 	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded   CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
 	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed              CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
 	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded           CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
@@ -189,6 +207,7 @@ const (
 	CreateWebhookEndpointEventsAuthenticationSSOStarted                   CreateWebhookEndpointEvents = "authentication.sso_started"
 	CreateWebhookEndpointEventsAuthenticationSSOSucceeded                 CreateWebhookEndpointEvents = "authentication.sso_succeeded"
 	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                  CreateWebhookEndpointEvents = "authentication.sso_timed_out"
+	CreateWebhookEndpointEventsRadarChallengeCreated                      CreateWebhookEndpointEvents = "radar.challenge_created"
 	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected            CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
 	CreateWebhookEndpointEventsAuthenticationReauthenticationSucceeded    CreateWebhookEndpointEvents = "authentication.reauthentication_succeeded"
 	CreateWebhookEndpointEventsAPIKeyCreated                              CreateWebhookEndpointEvents = "api_key.created"
@@ -283,6 +302,15 @@ const (
 	WidgetSessionTokenScopesWidgetsAuditLogStreamingManage  WidgetSessionTokenScopes = "widgets:audit-log-streaming:manage"
 	WidgetSessionTokenScopesWidgetsPipesManage              WidgetSessionTokenScopes = "widgets:pipes:manage"
 )
+
+// AgentRegistrationStatus is an alias for AgentRegistrationCreatedDataStatus.
+type AgentRegistrationStatus = AgentRegistrationCreatedDataStatus
+
+// AgentRegistrationKind is an alias for AgentRegistrationCreatedDataKind.
+type AgentRegistrationKind = AgentRegistrationCreatedDataKind
+
+// ClaimViewResponseStatus is an alias for AgentRegistrationCreatedDataStatus.
+type ClaimViewResponseStatus = AgentRegistrationCreatedDataStatus
 
 // AuditLogExportState represents audit log export state values.
 type AuditLogExportState string
@@ -447,13 +475,8 @@ const (
 	DirectoryUserStateInactive  DirectoryUserState = "inactive"
 )
 
-// PipeConnectedAccountState represents pipe connected account state values.
-type PipeConnectedAccountState string
-
-const (
-	PipeConnectedAccountStateConnected            PipeConnectedAccountState = "connected"
-	PipeConnectedAccountStateNeedsReauthorization PipeConnectedAccountState = "needs_reauthorization"
-)
+// PipeConnectedAccountState is an alias for ConnectedAccountInputState.
+type PipeConnectedAccountState = ConnectedAccountInputState
 
 // WaitlistUserState represents waitlist user state values.
 type WaitlistUserState string
@@ -462,6 +485,34 @@ const (
 	WaitlistUserStatePending  WaitlistUserState = "pending"
 	WaitlistUserStateApproved WaitlistUserState = "approved"
 	WaitlistUserStateDenied   WaitlistUserState = "denied"
+)
+
+// AgentRegistrationCreatedDataStatus represents agent registration created data status values.
+type AgentRegistrationCreatedDataStatus string
+
+const (
+	AgentRegistrationCreatedDataStatusUnverified AgentRegistrationCreatedDataStatus = "unverified"
+	AgentRegistrationCreatedDataStatusVerified   AgentRegistrationCreatedDataStatus = "verified"
+	AgentRegistrationCreatedDataStatusExpired    AgentRegistrationCreatedDataStatus = "expired"
+	AgentRegistrationCreatedDataStatusRevoked    AgentRegistrationCreatedDataStatus = "revoked"
+)
+
+// AgentRegistrationCreatedDataKind represents agent registration created data kind values.
+type AgentRegistrationCreatedDataKind string
+
+const (
+	AgentRegistrationCreatedDataKindAnonymous         AgentRegistrationCreatedDataKind = "anonymous"
+	AgentRegistrationCreatedDataKindServiceAuth       AgentRegistrationCreatedDataKind = "service_auth"
+	AgentRegistrationCreatedDataKindIdentityAssertion AgentRegistrationCreatedDataKind = "identity_assertion"
+)
+
+// AgentRegistrationCreatedDataMethod represents agent registration created data method values.
+type AgentRegistrationCreatedDataMethod string
+
+const (
+	AgentRegistrationCreatedDataMethodAnonymous   AgentRegistrationCreatedDataMethod = "anonymous"
+	AgentRegistrationCreatedDataMethodServiceAuth AgentRegistrationCreatedDataMethod = "service_auth"
+	AgentRegistrationCreatedDataMethodIDJag       AgentRegistrationCreatedDataMethod = "id_jag"
 )
 
 // AuthenticationRadarRiskDetectedDataAction represents authentication radar risk detected data action values.
@@ -807,6 +858,9 @@ type VaultDekReadDataActorSource = VaultDataCreatedDataActorSource
 // VaultKekCreatedDataActorSource is an alias for VaultDataCreatedDataActorSource.
 type VaultKekCreatedDataActorSource = VaultDataCreatedDataActorSource
 
+// VaultKekDeletedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultKekDeletedDataActorSource = VaultDataCreatedDataActorSource
+
 // VaultMetadataReadDataActorSource is an alias for VaultDataCreatedDataActorSource.
 type VaultMetadataReadDataActorSource = VaultDataCreatedDataActorSource
 
@@ -840,6 +894,9 @@ const (
 	DataIntegrationStateRequested DataIntegrationState = "requested"
 )
 
+// DataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
+type DataIntegrationAuthMethods = ConnectedAccountAuthMethod
+
 // DataIntegrationAccessTokenResponseError represents data integration access token response error values.
 type DataIntegrationAccessTokenResponseError string
 
@@ -865,6 +922,7 @@ type ConnectedAccountState string
 const (
 	ConnectedAccountStateConnected            ConnectedAccountState = "connected"
 	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
+	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
 )
 
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
@@ -994,6 +1052,14 @@ const (
 	UserRoleAssignmentSourceTypeGroup  UserRoleAssignmentSourceType = "group"
 )
 
+// AgentAdminValidateCredentialRequestType represents agent admin validate credential request type values.
+type AgentAdminValidateCredentialRequestType string
+
+const (
+	AgentAdminValidateCredentialRequestTypeAPIKey      AgentAdminValidateCredentialRequestType = "api_key"
+	AgentAdminValidateCredentialRequestTypeAccessToken AgentAdminValidateCredentialRequestType = "access_token"
+)
+
 // AuthenticationFactorsCreateRequestType represents authentication factors create request type values.
 type AuthenticationFactorsCreateRequestType string
 
@@ -1060,14 +1126,8 @@ type UserSessionsStatus = SessionCreatedDataStatus
 // DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod
 
-// DataIntegrationsListResponseDataConnectedAccountState represents data integrations list response data connected account state values.
-type DataIntegrationsListResponseDataConnectedAccountState string
-
-const (
-	DataIntegrationsListResponseDataConnectedAccountStateConnected            DataIntegrationsListResponseDataConnectedAccountState = "connected"
-	DataIntegrationsListResponseDataConnectedAccountStateNeedsReauthorization DataIntegrationsListResponseDataConnectedAccountState = "needs_reauthorization"
-	DataIntegrationsListResponseDataConnectedAccountStateDisconnected         DataIntegrationsListResponseDataConnectedAccountState = "disconnected"
-)
+// DataIntegrationsListResponseDataConnectedAccountState is an alias for ConnectedAccountState.
+type DataIntegrationsListResponseDataConnectedAccountState = ConnectedAccountState
 
 // AuthorizationAssignment represents authorization assignment values.
 type AuthorizationAssignment string
@@ -1075,6 +1135,14 @@ type AuthorizationAssignment string
 const (
 	AuthorizationAssignmentDirect   AuthorizationAssignment = "direct"
 	AuthorizationAssignmentIndirect AuthorizationAssignment = "indirect"
+)
+
+// ApplicationsRegistrationTypes represents applications registration types values.
+type ApplicationsRegistrationTypes string
+
+const (
+	ApplicationsRegistrationTypesDynamic       ApplicationsRegistrationTypes = "dynamic"
+	ApplicationsRegistrationTypesAuthenticated ApplicationsRegistrationTypes = "authenticated"
 )
 
 // ConnectionsConnectionType represents connections connection type values.

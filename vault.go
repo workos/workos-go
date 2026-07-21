@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -130,6 +131,35 @@ type VaultUpdateKvParams struct {
 	Value string `json:"value" url:"-"`
 	// VersionCheck is id of the expected current version for optimistic locking.
 	VersionCheck *string `json:"version_check,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for VaultUpdateKvParams.
+func (p VaultUpdateKvParams) MarshalJSON() ([]byte, error) {
+	type Alias VaultUpdateKvParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"version_check": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("VaultUpdateKvParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateKv update an object
