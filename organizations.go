@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -42,6 +43,36 @@ type OrganizationsCreateParams struct {
 	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is an external identifier for the Organization.
 	ExternalID *string `json:"external_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for OrganizationsCreateParams.
+func (p OrganizationsCreateParams) MarshalJSON() ([]byte, error) {
+	type Alias OrganizationsCreateParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"metadata":    true,
+		"external_id": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("OrganizationsCreateParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // Create an Organization
@@ -95,6 +126,36 @@ type OrganizationsUpdateParams struct {
 	Metadata map[string]string `json:"metadata,omitempty" url:"-"`
 	// ExternalID is an external identifier for the Organization.
 	ExternalID *string `json:"external_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for OrganizationsUpdateParams.
+func (p OrganizationsUpdateParams) MarshalJSON() ([]byte, error) {
+	type Alias OrganizationsUpdateParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"metadata":    true,
+		"external_id": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("OrganizationsUpdateParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // Update an Organization
@@ -124,4 +185,15 @@ func (s *OrganizationService) GetAuditLogConfiguration(ctx context.Context, id s
 		return nil, err
 	}
 	return &result, nil
+}
+
+// OrganizationsListAuthorizedApplicationsParams contains the parameters for ListAuthorizedApplications.
+type OrganizationsListAuthorizedApplicationsParams struct {
+	PaginationParams
+}
+
+// ListAuthorizedApplications
+// Get a list of all Connect applications that users in the organization have authorized.
+func (s *OrganizationService) ListAuthorizedApplications(ctx context.Context, organizationID string, params *OrganizationsListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[OrganizationAuthorizedConnectApplicationListData] {
+	return newIterator[OrganizationAuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/authorized_applications", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
