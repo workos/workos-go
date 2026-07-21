@@ -6,6 +6,14 @@ package events
 type Event string
 
 const (
+	AgentRegistrationCreated                   = "agent.registration.created"
+	AgentRegistrationClaimAttemptCreated       = "agent.registration.claim.attempt.created"
+	AgentRegistrationClaimCompleted            = "agent.registration.claim.completed"
+	AgentRegistrationCredentialIssued          = "agent.registration.credential.issued"
+	AgentRegistrationDeleted                   = "agent.registration.deleted"
+	AgentRegistrationExpired                   = "agent.registration.expired"
+	AgentRegistrationOrganizationSwitched      = "agent.registration.organization.switched"
+	AgentRegistrationRevoked                   = "agent.registration.revoked"
 	AuthenticationEmailVerificationSucceeded   = "authentication.email_verification_succeeded"
 	AuthenticationMagicAuthFailed              = "authentication.magic_auth_failed"
 	AuthenticationMagicAuthSucceeded           = "authentication.magic_auth_succeeded"
@@ -20,7 +28,9 @@ const (
 	AuthenticationSSOStarted                   = "authentication.sso_started"
 	AuthenticationSSOSucceeded                 = "authentication.sso_succeeded"
 	AuthenticationSSOTimedOut                  = "authentication.sso_timed_out"
+	RadarChallengeCreated                      = "radar.challenge_created"
 	AuthenticationRadarRiskDetected            = "authentication.radar_risk_detected"
+	AuthenticationReauthenticationSucceeded    = "authentication.reauthentication_succeeded"
 	APIKeyCreated                              = "api_key.created"
 	APIKeyRevoked                              = "api_key.revoked"
 	APIKeyUpdated                              = "api_key.updated"
@@ -80,6 +90,7 @@ const (
 	PermissionDeleted                          = "permission.deleted"
 	PermissionUpdated                          = "permission.updated"
 	PipesConnectedAccountConnected             = "pipes.connected_account.connected"
+	PipesConnectedAccountConnectionFailed      = "pipes.connected_account.connection_failed"
 	PipesConnectedAccountDisconnected          = "pipes.connected_account.disconnected"
 	PipesConnectedAccountReauthorizationNeeded = "pipes.connected_account.reauthorization_needed"
 	SessionCreated                             = "session.created"

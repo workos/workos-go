@@ -6264,68 +6264,6 @@ type ConnectApplicationRedirectURI struct {
 	Default bool `json:"default"`
 }
 
-// DataIntegrationCredentialsDto represents a data integration credentials dto.
-type DataIntegrationCredentialsDto struct {
-	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (configured per-organization).
-	Type DataIntegrationCredentialsType `json:"type"`
-	// ClientID is oAuth client ID for the provider app. Required when `type` is `custom`; omit for `organization`.
-	ClientID *string `json:"client_id,omitempty"`
-	// ClientSecret is oAuth client secret for the provider app. Required when `type` is `custom`; omit for `organization`.
-	ClientSecret *string `json:"client_secret,omitempty"`
-}
-
-// ConnectionOption configuration options for SAML connections. Only present for SAML connection types.
-type ConnectionOption struct {
-	// SigningCert is the signing certificate of the SAML connection.
-	SigningCert *string `json:"signing_cert"`
-}
-
-// SSOIntentOptions represents a SSO intent options.
-type SSOIntentOptions struct {
-	// BookmarkSlug is the bookmark slug to use for SSO.
-	BookmarkSlug *string `json:"bookmark_slug,omitempty"`
-	// ProviderType is the SSO provider type to configure.
-	ProviderType *string `json:"provider_type,omitempty"`
-}
-
-// DomainVerificationIntentOptions represents a domain verification intent options.
-type DomainVerificationIntentOptions struct {
-	// DomainName is the domain name to verify. When provided, the domain verification flow will skip the domain entry form and go directly to the verification step.
-	DomainName *string `json:"domain_name,omitempty"`
-}
-
-// IntentOptions represents an intent options.
-type IntentOptions struct {
-	// SSO is sso-specific options for the Admin Portal.
-	SSO *SSOIntentOptions `json:"sso,omitempty"`
-	// DomainVerification is domain verification-specific options for the Admin Portal.
-	DomainVerification *DomainVerificationIntentOptions `json:"domain_verification,omitempty"`
-}
-
-// OrganizationDomainStandAlone represents an organization domain stand alone.
-type OrganizationDomainStandAlone struct {
-	// Object distinguishes the organization domain object.
-	Object string `json:"object"`
-	// ID is unique identifier of the organization domain.
-	ID string `json:"id"`
-	// OrganizationID is id of the parent Organization.
-	OrganizationID string `json:"organization_id"`
-	// Domain is domain for the organization domain.
-	Domain string `json:"domain"`
-	// State is verification state of the domain.
-	State *OrganizationDomainStandAloneState `json:"state,omitempty"`
-	// VerificationPrefix is the prefix used in DNS verification.
-	VerificationPrefix *string `json:"verification_prefix,omitempty"`
-	// VerificationToken is validation token to be used in DNS TXT record.
-	VerificationToken *string `json:"verification_token,omitempty"`
-	// VerificationStrategy is strategy used to verify the domain.
-	VerificationStrategy *OrganizationDomainStandAloneVerificationStrategy `json:"verification_strategy,omitempty"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-}
-
 // PaginationParams contains common pagination parameters for list operations.
 type PaginationParams struct {
 	// Before is a cursor for reverse pagination.
