@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -42,6 +43,8 @@ func (s *ConnectService) CompleteOAuth2(ctx context.Context, params *ConnectComp
 // ConnectListApplicationsParams contains the parameters for ListApplications.
 type ConnectListApplicationsParams struct {
 	PaginationParams
+	// RegistrationTypes is filter Connect Applications by registration type. Specify multiple as a comma-separated list (e.g. `registration_types=dynamic,authenticated`). Defaults to `authenticated` only when not specified.
+	RegistrationTypes []ApplicationsRegistrationTypes `url:"registration_types,omitempty" json:"-"`
 	// OrganizationID is filter Connect Applications by organization ID.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
@@ -161,6 +164,37 @@ type ConnectUpdateApplicationParams struct {
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
 	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for ConnectUpdateApplicationParams.
+func (p ConnectUpdateApplicationParams) MarshalJSON() ([]byte, error) {
+	type Alias ConnectUpdateApplicationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description":   true,
+		"scopes":        true,
+		"redirect_uris": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("ConnectUpdateApplicationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateApplication update a Connect Application
