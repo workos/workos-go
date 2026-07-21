@@ -92,6 +92,29 @@ func TestUserManagement_CreateRadarChallenge(t *testing.T) {
 	require.Equal(t, "+15555550123", result.PhoneNumber)
 }
 
+func TestUserManagement_GetRadarChallenge(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/radar_challenges/test_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/radar_challenge.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().GetRadarChallenge(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "radar_challenge_01HWZBQZY2M3AMQW166Q22K88F", result.ID)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", result.UserID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+}
+
 func TestUserManagement_GetLogoutURL(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithClientID("client_test"))
 	url := client.UserManagement().GetLogoutURL(&workos.UserManagementGetLogoutURLParams{})
@@ -906,9 +929,22 @@ func TestUserManagement_CreateRedirectURI(t *testing.T) {
 	result, err := client.UserManagement().CreateRedirectURI(context.Background(), &workos.UserManagementCreateRedirectURIParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.Equal(t, "ruri_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "redir_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
 	require.Equal(t, "https://example.com/callback", result.URI)
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestUserManagement_DeleteRedirectURIs(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/redirect_uris/test_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.UserManagement().DeleteRedirectURIs(context.Background(), "test_id")
+	require.NoError(t, err)
 }
 
 func TestUserManagement_ListAuthorizedApplications(t *testing.T) {

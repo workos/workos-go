@@ -13,8 +13,8 @@ type WidgetService struct {
 
 // WidgetsCreateTokenParams contains the parameters for CreateToken.
 type WidgetsCreateTokenParams struct {
-	// OrganizationID is the ID of the organization to scope the widget session to.
-	OrganizationID string `json:"organization_id" url:"-"`
+	// OrganizationID is the ID of the organization to scope the widget session to. Required when scopes are provided. Optional when issuing a token for user-only widgets (e.g. `UserProfile`, `UserSecurity`) that do not require organization context.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 	// UserID is the ID of the user to issue the widget session token for.
 	UserID *string `json:"user_id,omitempty" url:"-"`
 	// Scopes is the scopes to grant the widget session.
@@ -22,7 +22,7 @@ type WidgetsCreateTokenParams struct {
 }
 
 // CreateToken generate a widget token
-// Generate a widget token scoped to an organization and user with the specified scopes.
+// Generate a widget token for a user, optionally scoped to an organization. When an organization is specified, org-scoped widgets are enabled; omitting it issues a user-only token for widgets like `UserProfile` and `UserSecurity`.
 func (s *WidgetService) CreateToken(ctx context.Context, params *WidgetsCreateTokenParams, opts ...RequestOption) (*WidgetSessionTokenResponse, error) {
 	var result WidgetSessionTokenResponse
 	_, err := s.client.request(ctx, "POST", "/widgets/token", nil, params, &result, opts)

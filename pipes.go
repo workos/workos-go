@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -19,7 +20,7 @@ type PipesListDataIntegrationsParams struct {
 }
 
 // ListDataIntegrations
-// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers.
+// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers and API key integrations.
 func (s *PipeService) ListDataIntegrations(ctx context.Context, params *PipesListDataIntegrationsParams, opts ...RequestOption) *Iterator[DataIntegration] {
 	return newIterator[DataIntegration](ctx, s.client, "GET", "/data-integrations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
@@ -34,14 +35,48 @@ type PipesCreateDataIntegrationParams struct {
 	Enabled *bool `json:"enabled,omitempty" url:"-"`
 	// Scopes is the OAuth scopes to request for the Data Integration. Defaults to the provider's configured scopes when omitted.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
-	// Credentials is the credentials to configure for the Data Integration. Required for both built-in and custom providers.
-	Credentials *DataIntegrationCredentialsDto `json:"credentials,omitempty" url:"-"`
+	// AuthMethods is how accounts authenticate with the provider. Defaults to `["oauth"]`. Use `["api_key"]` to declare an API key integration; `credentials` is then not required and keys are supplied per-tenant (optionally via `api_key` on this request).
+	AuthMethods []CreateDataIntegrationAuthMethods `json:"auth_methods,omitempty" url:"-"`
+	// Credentials is the OAuth credentials to configure for the Data Integration. Required for OAuth integrations; omit when `auth_methods` is `["api_key"]`.
+	Credentials *DataIntegrationCredentialsInput `json:"credentials,omitempty" url:"-"`
+	// APIKey is an optional API key to install for the first tenant on an `api_key` integration. Omit to declare a keyless integration; tenants can be added later via the per-installation API key path.
+	APIKey *APIKeyInstallation `json:"api_key,omitempty" url:"-"`
 	// CustomProvider is the OAuth definition for a custom provider. Supply this to define a custom provider; omit it to create an integration for a built-in provider.
 	CustomProvider *CustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesCreateDataIntegrationParams.
+func (p PipesCreateDataIntegrationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesCreateDataIntegrationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+		"scopes":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesCreateDataIntegrationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // CreateDataIntegration create a data integration
-// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials, or `organization` to have each organization supply its own. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
 func (s *PipeService) CreateDataIntegration(ctx context.Context, params *PipesCreateDataIntegrationParams, opts ...RequestOption) (*DataIntegration, error) {
 	var result DataIntegration
 	_, err := s.client.request(ctx, "POST", "/data-integrations", nil, params, &result, opts)
@@ -70,10 +105,42 @@ type PipesUpdateDataIntegrationParams struct {
 	Enabled *bool `json:"enabled,omitempty" url:"-"`
 	// Scopes is the OAuth scopes to request for the Data Integration. Pass `null` to reset to the provider's configured scopes.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
-	// Credentials is new credentials for the Data Integration. When provided, rotates the stored client secret.
-	Credentials *DataIntegrationCredentialsDto `json:"credentials,omitempty" url:"-"`
+	// Credentials is new OAuth credentials for the Data Integration. When provided, rotates the stored client secret. Mutually exclusive with `api_key`.
+	Credentials *DataIntegrationCredentialsInput `json:"credentials,omitempty" url:"-"`
+	// APIKey is an API key to install or rotate for a tenant on an `api_key` integration. Upserts the tenant installation identified by `user_id` (and optional `organization_id`).
+	APIKey *APIKeyInstallation `json:"api_key,omitempty" url:"-"`
 	// CustomProvider updates to a custom provider's OAuth definition. Only valid for custom-provider integrations.
 	CustomProvider *UpdateCustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesUpdateDataIntegrationParams.
+func (p PipesUpdateDataIntegrationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesUpdateDataIntegrationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+		"scopes":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesUpdateDataIntegrationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateDataIntegration update a data integration
@@ -161,6 +228,35 @@ type PipesGetAccessTokenParams struct {
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesGetAccessTokenParams.
+func (p PipesGetAccessTokenParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesGetAccessTokenParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"organization_id": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesGetAccessTokenParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // GetAccessToken get an access token for a connected account
@@ -202,7 +298,7 @@ type PipesCreateUserConnectedAccountParams struct {
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
-	State *ConnectedAccountState `json:"state,omitempty" url:"-"`
+	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
@@ -229,7 +325,7 @@ type PipesUpdateUserConnectedAccountParams struct {
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
-	State *ConnectedAccountState `json:"state,omitempty" url:"-"`
+	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
