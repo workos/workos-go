@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v9"
+	"github.com/workos/workos-go/v10"
 )
 
 const testActionSecret = "action_secret_key"
