@@ -143,17 +143,21 @@ func unsealSession(sealed string, password string) (*SessionData, error) {
 }
 
 // deriveKey derives a 32-byte AES key from the password.
-// If the password is a valid hex-encoded 32-byte string (64 hex chars), it is decoded directly.
-// Otherwise, the password is hashed with SHA-256.
-// deriveKey derives a 32-byte AES key from the password.
 // If the password is a valid hex-encoded 32-byte string (64 hex chars), it is
 // decoded directly. Otherwise, the password is hashed with SHA-256 to derive
-// a key. Note: non-hex passwords of any length are silently accepted and
-// hashed rather than rejected.
+// a key.
+//
+// An empty password is rejected: hashing "" yields the fixed, publicly known
+// value SHA-256(""), so accepting it would let anyone forge and unseal session
+// cookies. Callers must supply a non-empty cookie password.
 func deriveKey(password string) ([]byte, error) {
 	decoded, err := hex.DecodeString(password)
 	if err == nil && len(decoded) == 32 {
 		return decoded, nil
+	}
+
+	if password == "" {
+		return nil, fmt.Errorf("workos: cookie password must not be empty")
 	}
 
 	hash := sha256.Sum256([]byte(password))
