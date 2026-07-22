@@ -1272,12 +1272,3 @@ const (
 	VaultOrderAsc  VaultOrder = "asc"
 	VaultOrderDesc VaultOrder = "desc"
 )
-
-// DataIntegrationCredentialsType is an alias for DataIntegrationCredentialType.
-type DataIntegrationCredentialsType = DataIntegrationCredentialType
-
-// OrganizationDomainStandAloneState is an alias for OrganizationCreatedDataDomainState.
-type OrganizationDomainStandAloneState = OrganizationCreatedDataDomainState
-
-// OrganizationDomainStandAloneVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
-type OrganizationDomainStandAloneVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
