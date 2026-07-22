@@ -1,5 +1,42 @@
 # Changelog
 
+## [10.0.0](https://github.com/workos/workos-go/compare/v9.6.0...v10.0.0) (2026-07-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* **connect:** SDK surface change: Symbol "ConnectionOption" was removed ([#588](https://github.com/workos/workos-go/issues/588))
+* **organization_domains:** SDK surface change: Symbol "DomainVerificationIntentOptions" was removed ([#588](https://github.com/workos/workos-go/issues/588))
+* **pipes:** SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed ([#588](https://github.com/workos/workos-go/issues/588))
+* **sso:** SDK surface change: Symbol "SSOIntentOptions" was removed ([#588](https://github.com/workos/workos-go/issues/588))
+* **admin_portal:** SDK surface change: Symbol "IntentOptions" was removed ([#588](https://github.com/workos/workos-go/issues/588))
+* **connect:** SDK surface change: Symbol "ConnectUpdateApplicationParams.description" was removed ([#586](https://github.com/workos/workos-go/issues/586))
+* **groups:** SDK surface change: Symbol "GroupsCreateOrganizationGroupParams.description" was removed ([#586](https://github.com/workos/workos-go/issues/586))
+* **organizations:** SDK surface change: Symbol "OrganizationsCreateParams.allow_profiles_outside_organization" was removed ([#586](https://github.com/workos/workos-go/issues/586))
+* **pipes:** SDK surface change: Symbol "PipesCreateDataIntegrationParams.credentials" was removed ([#586](https://github.com/workos/workos-go/issues/586))
+* **vault:** SDK surface change: Symbol "VaultUpdateKvParams.value" was removed ([#586](https://github.com/workos/workos-go/issues/586))
+* **authorization:** SDK surface change: Symbol "PermissionCreatedData.created_at" was removed ([#586](https://github.com/workos/workos-go/issues/586))
+
+### Features
+
+* **admin_portal:** SDK surface change: Symbol "IntentOptions" was removed ([#588](https://github.com/workos/workos-go/issues/588)) ([446ae2b](https://github.com/workos/workos-go/commit/446ae2b2321c97b26294316f8f062e68ec85915b))
+* **authorization:** SDK surface change: Symbol "PermissionCreatedData.created_at" was removed ([#586](https://github.com/workos/workos-go/issues/586)) ([fbcf272](https://github.com/workos/workos-go/commit/fbcf2725a2258dcce6d57f3e9d62ef519add4215))
+* **connect:** SDK surface change: Symbol "ConnectionOption" was removed ([#588](https://github.com/workos/workos-go/issues/588)) ([446ae2b](https://github.com/workos/workos-go/commit/446ae2b2321c97b26294316f8f062e68ec85915b))
+* **connect:** SDK surface change: Symbol "ConnectUpdateApplicationParams.description" was removed ([#586](https://github.com/workos/workos-go/issues/586)) ([fbcf272](https://github.com/workos/workos-go/commit/fbcf2725a2258dcce6d57f3e9d62ef519add4215))
+* **generated:** AuditLogs (batch 56391ebd) ([#582](https://github.com/workos/workos-go/issues/582)) ([279cd27](https://github.com/workos/workos-go/commit/279cd27620da89514c28e02ded76e8c109f68413))
+* **groups:** SDK surface change: Symbol "GroupsCreateOrganizationGroupParams.description" was removed ([#586](https://github.com/workos/workos-go/issues/586)) ([fbcf272](https://github.com/workos/workos-go/commit/fbcf2725a2258dcce6d57f3e9d62ef519add4215))
+* **organization_domains:** SDK surface change: Symbol "DomainVerificationIntentOptions" was removed ([#588](https://github.com/workos/workos-go/issues/588)) ([446ae2b](https://github.com/workos/workos-go/commit/446ae2b2321c97b26294316f8f062e68ec85915b))
+* **organizations:** SDK surface change: Symbol "OrganizationsCreateParams.allow_profiles_outside_organization" was removed ([#586](https://github.com/workos/workos-go/issues/586)) ([fbcf272](https://github.com/workos/workos-go/commit/fbcf2725a2258dcce6d57f3e9d62ef519add4215))
+* **pipes:** SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed ([#588](https://github.com/workos/workos-go/issues/588)) ([446ae2b](https://github.com/workos/workos-go/commit/446ae2b2321c97b26294316f8f062e68ec85915b))
+* **pipes:** SDK surface change: Symbol "PipesCreateDataIntegrationParams.credentials" was removed ([#586](https://github.com/workos/workos-go/issues/586)) ([fbcf272](https://github.com/workos/workos-go/commit/fbcf2725a2258dcce6d57f3e9d62ef519add4215))
+* **sso:** SDK surface change: Symbol "SSOIntentOptions" was removed ([#588](https://github.com/workos/workos-go/issues/588)) ([446ae2b](https://github.com/workos/workos-go/commit/446ae2b2321c97b26294316f8f062e68ec85915b))
+* **vault:** SDK surface change: Symbol "VaultUpdateKvParams.value" was removed ([#586](https://github.com/workos/workos-go/issues/586)) ([fbcf272](https://github.com/workos/workos-go/commit/fbcf2725a2258dcce6d57f3e9d62ef519add4215))
+
+
+### Bug Fixes
+
+* Reject empty cookie password in session seal key derivation ([#587](https://github.com/workos/workos-go/issues/587)) ([6ef65c4](https://github.com/workos/workos-go/commit/6ef65c46fe2cba9890547475b98729719208677e))
+
 ## [9.6.0](https://github.com/workos/workos-go/compare/v9.5.0...v9.6.0) (2026-07-06)
 
 * [#578](https://github.com/workos/workos-go/pull/578) fix(generated): regenerate from spec
