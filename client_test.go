@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v9"
+	"github.com/workos/workos-go/v10"
 )
 
 func TestClient_UserAgentIncludesVersion(t *testing.T) {

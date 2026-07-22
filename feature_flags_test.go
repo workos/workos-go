@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/workos/workos-go/v9"
+	"github.com/workos/workos-go/v10"
 )
 
 func TestFeatureFlags_List(t *testing.T) {
