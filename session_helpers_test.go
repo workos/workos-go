@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -173,6 +175,52 @@ func TestNewSession_Authenticate_EmptySession(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, result.Authenticated)
 	require.Equal(t, "no_session_cookie_provided", result.Reason)
+}
+
+// A terminal refresh failure (OAuth invalid_grant) must be labeled
+// refresh_token_revoked. The WorkOS token endpoint returns invalid_grant at
+// HTTP 400, so detection must not be coupled to a 401 status.
+func TestSession_Refresh_InvalidGrantIsTerminal(t *testing.T) {
+	fakeJWT := buildFakeJWT()
+	sealed, err := workos.SealSessionFromAuthResponse(fakeJWT, "refresh_tok_abc", nil, nil, testCookiePassword)
+	require.NoError(t, err)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "/user_management/authenticate", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"Refresh token is invalid."}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.RefreshSession(context.Background(), sealed, testCookiePassword)
+	require.Error(t, err)
+	require.NotNil(t, result)
+	require.False(t, result.Authenticated)
+	require.Equal(t, "refresh_token_revoked", result.Reason)
+}
+
+// A non-invalid_grant failure (e.g. a generic 400) is not a dead token, so it
+// must remain the generic refresh_failed rather than being reported as revoked.
+func TestSession_Refresh_NonInvalidGrantIsNotRevoked(t *testing.T) {
+	fakeJWT := buildFakeJWT()
+	sealed, err := workos.SealSessionFromAuthResponse(fakeJWT, "refresh_tok_abc", nil, nil, testCookiePassword)
+	require.NoError(t, err)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":"invalid_request","error_description":"Something else."}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.RefreshSession(context.Background(), sealed, testCookiePassword)
+	require.Error(t, err)
+	require.NotNil(t, result)
+	require.False(t, result.Authenticated)
+	require.Equal(t, "refresh_failed", result.Reason)
 }
 
 // GetLogoutURL must succeed for a session whose access token has expired:
