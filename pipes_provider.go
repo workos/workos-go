@@ -35,6 +35,8 @@ type PipesProviderUpdateOrganizationDataIntegrationConfigurationParams struct {
 	ClientID *string `json:"client_id,omitempty" url:"-"`
 	// ClientSecret is the OAuth client secret of the organization's own application. Must be provided together with `client_id`.
 	ClientSecret *string `json:"client_secret,omitempty" url:"-"`
+	// Config is provider-specific config values to set for the organization, keyed by config field. Only fields the provider declares are accepted, and each value must match that field's pattern. Accepted only for providers whose credentials are organization-managed; for shared or custom credential providers, config belongs on the integration itself (via the data-integrations API) and supplying it here is rejected.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
 	NullFields []string `json:"-" url:"-"`

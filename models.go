@@ -4776,6 +4776,8 @@ type DataIntegrationConfigurationResponse struct {
 	Enabled bool `json:"enabled"`
 	// Scopes is the OAuth scopes in effect for this organization. Reflects the organization override when one is set, otherwise the provider scopes, or `null` when none are configured.
 	Scopes []string `json:"scopes"`
+	// Config is the provider-specific config values in effect for this organization, keyed by config field. Reflects the organization override for organization-credential providers, otherwise the provider root. Empty when none are configured.
+	Config map[string]string `json:"config"`
 	// CreatedAt is the timestamp when the configuration was created.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the configuration was last updated.
@@ -4817,6 +4819,8 @@ type DataIntegration struct {
 	Credentials *DataIntegrationCredential `json:"credentials"`
 	// Installation is the tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
 	Installation *DataIntegrationInstallation `json:"installation"`
+	// Config is provider-specific config values set on the Data Integration (e.g. a Snowflake `account_identifier`), keyed by config field. Only fields the provider declares are accepted.
+	Config map[string]string `json:"config"`
 	// CustomProvider is the OAuth definition when this is a custom provider; `null` for built-in providers.
 	CustomProvider *DataIntegrationCustomProvider `json:"custom_provider"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4874,7 +4878,7 @@ type ConnectedAccount struct {
 	OrganizationID *string `json:"organization_id"`
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes"`
-	// AuthMethod is the authentication method used for this connection (`oauth` or `api_key`). Defaults to `oauth` if absent.
+	// AuthMethod is the authentication method used for this connection (`oauth`, `api_key`, or `client_credentials`). Defaults to `oauth` if absent.
 	AuthMethod *ConnectedAccountAuthMethod `json:"auth_method,omitempty"`
 	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
 	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
@@ -5414,7 +5418,7 @@ type DataIntegrationsListResponseData struct {
 	CredentialsType string `json:"credentials_type"`
 	// Scopes is the OAuth scopes configured for this provider, or `null` if none are configured.
 	Scopes []string `json:"scopes"`
-	// AuthMethods is the authentication methods supported by this provider (`oauth`, `api_key`, or both). Defaults to `["oauth"]` if absent.
+	// AuthMethods is the authentication methods supported by this provider (`oauth`, `api_key`, `client_credentials`, or a combination). Defaults to `["oauth"]` if absent.
 	AuthMethods []DataIntegrationsListResponseDataAuthMethods `json:"auth_methods,omitempty"`
 	// Ownership is whether the provider is owned by a user or organization.
 	Ownership DataIntegrationsListResponseDataOwnership `json:"ownership"`
@@ -6237,7 +6241,7 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	OrganizationID *string `json:"organization_id"`
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes"`
-	// AuthMethod is the authentication method used for this connection (`oauth` or `api_key`). Defaults to `oauth` if absent.
+	// AuthMethod is the authentication method used for this connection (`oauth`, `api_key`, or `client_credentials`). Defaults to `oauth` if absent.
 	AuthMethod *DataIntegrationsListResponseDataConnectedAccountAuthMethod `json:"auth_method,omitempty"`
 	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
 	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
