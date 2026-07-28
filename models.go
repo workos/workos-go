@@ -805,8 +805,6 @@ type Connection struct {
 	Status ConnectionStatus `json:"status"`
 	// Domains is list of Organization Domains.
 	Domains []*ConnectionDomain `json:"domains"`
-	// CallbackEndpoint is the immutable callback endpoint for this Connection. For SAML connections this is the ACS URL; for OIDC connections this is the redirect URI.
-	CallbackEndpoint *string `json:"callback_endpoint,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
