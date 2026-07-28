@@ -37,6 +37,8 @@ type PipesCreateDataIntegrationParams struct {
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// AuthMethods is how accounts authenticate with the provider. Defaults to `["oauth"]`. Use `["api_key"]` to declare an API key integration; `credentials` is then not required and keys are supplied per-tenant (optionally via `api_key` on this request).
 	AuthMethods []CreateDataIntegrationAuthMethods `json:"auth_methods,omitempty" url:"-"`
+	// Config is provider-specific config values (e.g. a Snowflake `account_identifier`), keyed by the config field. Only fields the built-in provider declares are accepted.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 	// Credentials is the OAuth credentials to configure for the Data Integration. Required for OAuth integrations; omit when `auth_methods` is `["api_key"]`.
 	Credentials *DataIntegrationCredentialsInput `json:"credentials,omitempty" url:"-"`
 	// APIKey is an optional API key to install for the first tenant on an `api_key` integration. Omit to declare a keyless integration; tenants can be added later via the per-installation API key path.
@@ -190,6 +192,8 @@ type PipesAuthorizeDataIntegrationParams struct {
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 	// ReturnTo is the URL to redirect the user to after authorization.
 	ReturnTo *string `json:"return_to,omitempty" url:"-"`
+	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 }
 
 // AuthorizeDataIntegration get authorization URL

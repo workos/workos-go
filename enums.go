@@ -39,8 +39,13 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
-// CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
-type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
+// CreateDataIntegrationAuthMethods represents create data integration auth methods values.
+type CreateDataIntegrationAuthMethods string
+
+const (
+	CreateDataIntegrationAuthMethodsOAuth  CreateDataIntegrationAuthMethods = "oauth"
+	CreateDataIntegrationAuthMethodsAPIKey CreateDataIntegrationAuthMethods = "api_key"
+)
 
 // UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
@@ -912,8 +917,9 @@ type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenRespons
 type ConnectedAccountAuthMethod string
 
 const (
-	ConnectedAccountAuthMethodOAuth  ConnectedAccountAuthMethod = "oauth"
-	ConnectedAccountAuthMethodAPIKey ConnectedAccountAuthMethod = "api_key"
+	ConnectedAccountAuthMethodOAuth             ConnectedAccountAuthMethod = "oauth"
+	ConnectedAccountAuthMethodAPIKey            ConnectedAccountAuthMethod = "api_key"
+	ConnectedAccountAuthMethodClientCredentials ConnectedAccountAuthMethod = "client_credentials"
 )
 
 // ConnectedAccountState represents connected account state values.
