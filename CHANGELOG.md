@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.1.0](https://github.com/workos/workos-go/compare/v10.0.0...v10.1.0) (2026-07-28)
+
+
+### Features
+
+* **generated:** Pipes, PipesProvider, UserManagement (batch 6c21f6dc) ([#590](https://github.com/workos/workos-go/issues/590)) ([cea4afc](https://github.com/workos/workos-go/commit/cea4afc02d85eb5105a1559151fedf9684d20c7f))
+* **generated:** SSO (batch 16283437) ([#592](https://github.com/workos/workos-go/issues/592)) ([2afa9e4](https://github.com/workos/workos-go/commit/2afa9e49cf0371aab91392e425445cf3df439f3a))
+
 ## [10.0.0](https://github.com/workos/workos-go/compare/v9.6.0...v10.0.0) (2026-07-22)
 
 ### Bug Fixes
