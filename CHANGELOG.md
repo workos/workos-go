@@ -1,5 +1,32 @@
 # Changelog
 
+## [10.1.0](https://github.com/workos/workos-go/compare/v10.0.0...v10.1.0) (2026-07-28)
+
+* [#590](https://github.com/workos/workos-go/pull/590) fix(generated): regenerate from spec
+
+  **Features**
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added `config` to `DataIntegrationsGetDataIntegrationAuthorizeUrlRequest`
+    * Added `client_credentials` to `DataIntegrationAuthMethods`
+    * Added `client_credentials` to `DataIntegrationsListResponseDataAuthMethods`
+    * Added `client_credentials` to `DataIntegrationsListResponseDataConnectedAccountAuthMethod`
+    * Added `config` to Pipes models
+  * **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    * Added `client_credentials` to `ConnectedAccountAuthMethod`
+
+  **Fixes**
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Changed errors for endpoint `POST /user_management/invitations`
+    * Changed errors for endpoint `POST /user_management/invitations/{id}/resend`
+    * Changed errors for endpoint `POST /user_management/magic_auth`
+    * Changed errors for endpoint `POST /user_management/authenticate`
+
+* [#592](https://github.com/workos/workos-go/pull/592) fix(generated): regenerate from spec
+
+  **Fixes**
+  * **[sso](https://workos.com/docs/reference/sso)**:
+    * Removed `callback_endpoint` from `Connection`
+
 ## [10.0.0](https://github.com/workos/workos-go/compare/v9.6.0...v10.0.0) (2026-07-22)
 
 ### Bug Fixes
