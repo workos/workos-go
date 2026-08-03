@@ -185,9 +185,15 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		OrganizationID: orgID,
 	}, opts...)
 	if err != nil {
+		// A terminal refresh failure surfaces as OAuth `invalid_grant` (the
+		// refresh token is expired, revoked, or reused past the grace window).
+		// The WorkOS token endpoint returns it at HTTP 400 — do not couple the
+		// check to a specific status. Any other error (429, 5xx, network, or a
+		// lock-timeout surfaced as 429) is transient: the refresh token is
+		// still valid, so keep the session and retry rather than signing out.
 		reason := "refresh_failed"
 		var apiErr *APIError
-		if errors.As(err, &apiErr) && apiErr.StatusCode == 401 && apiErr.ErrorCode == "invalid_grant" {
+		if errors.As(err, &apiErr) && apiErr.ErrorCode == "invalid_grant" {
 			reason = "refresh_token_revoked"
 		}
 		return &RefreshSessionResult{
