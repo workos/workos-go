@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.1.1](https://github.com/workos/workos-go/compare/v10.1.0...v10.1.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* Detect revoked refresh token via invalid_grant regardless of status ([#589](https://github.com/workos/workos-go/issues/589)) ([b4fd3dd](https://github.com/workos/workos-go/commit/b4fd3dd07055dc272e923d3aaaed84fc13a45a01))
+
 ## [10.1.0](https://github.com/workos/workos-go/compare/v10.0.0...v10.1.0) (2026-07-28)
 
 * [#590](https://github.com/workos/workos-go/pull/590) fix(generated): regenerate from spec
