@@ -86,7 +86,7 @@ func TestActionsHelper_ConstructAuthenticationAction(t *testing.T) {
 	payload := `{"object":"authentication_action_context","id":"action_01","user":{"object":"user","id":"user_01","email":"test@example.com"},"organization":{"object":"organization","id":"org_01","name":"Example","domains":[],"metadata":{},"created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1","user_agent":"Mozilla/5.0","device_fingerprint":"fingerprint","issuer":"client_01"}`
 	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
 
-	action, err := workos.NewActionsHelper().ConstructActionContext(payload, sigHeader, testActionSecret)
+	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
 	require.Equal(t, "authentication_action_context", action.Object)
 	require.Equal(t, "action_01", action.ID)
@@ -100,7 +100,7 @@ func TestActionsHelper_ConstructUserRegistrationAction(t *testing.T) {
 	payload := `{"object":"user_registration_action_context","id":"action_01","user_data":{"object":"user_data","email":"test@example.com","name":null,"first_name":"Test","last_name":"User"},"invitation":{"object":"invitation","id":"invitation_01","email":"test@example.com","expires_at":"2024-01-02T00:00:00Z","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1"}`
 	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
 
-	action, err := workos.NewActionsHelper().ConstructActionContext(payload, sigHeader, testActionSecret)
+	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
 	require.Equal(t, "user_registration_action_context", action.Object)
 	require.Equal(t, "test@example.com", action.UserData.Email)
@@ -108,15 +108,15 @@ func TestActionsHelper_ConstructUserRegistrationAction(t *testing.T) {
 	require.Equal(t, "invitation_01", action.Invitation.ID)
 }
 
-func TestActionsHelper_ConstructActionContext_InvalidPayload(t *testing.T) {
+func TestActionsHelper_ConstructAction_InvalidPayload(t *testing.T) {
 	helper := workos.NewActionsHelper()
 
 	invalidJSON := `not-valid-json`
-	_, err := helper.ConstructActionContext(invalidJSON, buildActionSigHeader(testActionSecret, invalidJSON, time.Now()), testActionSecret)
+	_, err := helper.ConstructAction(invalidJSON, buildActionSigHeader(testActionSecret, invalidJSON, time.Now()), testActionSecret)
 	require.ErrorContains(t, err, "failed to parse action payload")
 
 	unsupported := `{"object":"event","id":"event_01"}`
-	_, err = helper.ConstructActionContext(unsupported, buildActionSigHeader(testActionSecret, unsupported, time.Now()), testActionSecret)
+	_, err = helper.ConstructAction(unsupported, buildActionSigHeader(testActionSecret, unsupported, time.Now()), testActionSecret)
 	require.ErrorContains(t, err, `unsupported action object "event"`)
 }
 
@@ -167,12 +167,8 @@ func TestActionsHelper_SignActionResponse_InvalidInput(t *testing.T) {
 	require.ErrorContains(t, err, `unsupported action verdict "unknown"`)
 }
 
-func TestActionsHelper_DeprecatedAPIsRemainCompatible(t *testing.T) {
+func TestActionsHelper_DeprecatedSignResponseRemainsWireCompatible(t *testing.T) {
 	helper := workos.NewActionsHelper()
-	eventPayload := `{"id":"action_01","event":"authentication_action.created","object":"event","created_at":"2024-01-01T00:00:00Z","data":{"type":"authentication"}}`
-	event, err := helper.ConstructAction(eventPayload, buildActionSigHeader(testActionSecret, eventPayload, time.Now()), testActionSecret)
-	require.NoError(t, err)
-	require.Equal(t, "authentication_action.created", event.Event)
 
 	response, err := helper.SignResponse(workos.ActionTypeAuthentication, workos.ActionVerdictAllow, "", testActionSecret)
 	require.NoError(t, err)

@@ -134,23 +134,9 @@ func (r ActionSignedResponse) MarshalJSON() ([]byte, error) {
 	}{Payload: r.Payload, Sig: r.Sig})
 }
 
-// ConstructAction preserves the original v10 event-envelope return type.
-//
-// Deprecated: Use ConstructActionContext to parse the flat Actions API request.
-func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*EventSchema, error) {
-	if err := a.VerifyHeader(payload, sigHeader, secret); err != nil {
-		return nil, err
-	}
-
-	var action EventSchema
-	if err := json.Unmarshal([]byte(payload), &action); err != nil {
-		return nil, fmt.Errorf("workos: failed to parse action payload: %w", err)
-	}
-	return &action, nil
-}
-
-// ConstructActionContext verifies and deserializes an Actions request.
-func (a *ActionsHelper) ConstructActionContext(payload string, sigHeader string, secret string) (*ActionContext, error) {
+// ConstructAction verifies and deserializes an Actions request into an
+// ActionContext. Dispatch on Object to read the type-specific fields.
+func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*ActionContext, error) {
 	if err := a.VerifyHeader(payload, sigHeader, secret); err != nil {
 		return nil, err
 	}
