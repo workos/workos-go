@@ -5,6 +5,7 @@ package workos
 import (
 	"bytes"
 	"crypto/subtle"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -106,15 +107,50 @@ type ActionResponsePayload struct {
 	ErrorMessage string        `json:"error_message,omitempty"`
 }
 
-// ActionSignedResponse is the response body to send to WorkOS.
-type ActionSignedResponse struct {
+// ActionResponse is the response body to send to WorkOS.
+type ActionResponse struct {
 	Object    string                `json:"object"`
 	Payload   ActionResponsePayload `json:"payload"`
 	Signature string                `json:"signature"`
 }
 
-// ConstructAction verifies and deserializes an Actions request.
-func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*ActionContext, error) {
+// ActionSignedResponse preserves the original v10 response fields.
+//
+// Deprecated: Use ActionResponse and SignActionResponse instead.
+type ActionSignedResponse struct {
+	Payload  string `json:"-"`
+	Sig      string `json:"-"`
+	response *ActionResponse
+}
+
+// MarshalJSON emits the Actions API wire format while preserving the legacy fields for source compatibility.
+func (r ActionSignedResponse) MarshalJSON() ([]byte, error) {
+	if r.response != nil {
+		return json.Marshal(r.response)
+	}
+	return json.Marshal(struct {
+		Payload string `json:"payload"`
+		Sig     string `json:"sig"`
+	}{Payload: r.Payload, Sig: r.Sig})
+}
+
+// ConstructAction preserves the original v10 event-envelope return type.
+//
+// Deprecated: Use ConstructActionContext to parse the flat Actions API request.
+func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*EventSchema, error) {
+	if err := a.VerifyHeader(payload, sigHeader, secret); err != nil {
+		return nil, err
+	}
+
+	var action EventSchema
+	if err := json.Unmarshal([]byte(payload), &action); err != nil {
+		return nil, fmt.Errorf("workos: failed to parse action payload: %w", err)
+	}
+	return &action, nil
+}
+
+// ConstructActionContext verifies and deserializes an Actions request.
+func (a *ActionsHelper) ConstructActionContext(payload string, sigHeader string, secret string) (*ActionContext, error) {
 	if err := a.VerifyHeader(payload, sigHeader, secret); err != nil {
 		return nil, err
 	}
@@ -129,8 +165,28 @@ func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret
 	return &action, nil
 }
 
-// SignResponse signs an action response with the given secret.
+// SignResponse preserves the original v10 return type while emitting the correct wire format when JSON encoded.
+//
+// Deprecated: Use SignActionResponse for a typed Actions API response.
 func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionSignedResponse, error) {
+	response, err := a.SignActionResponse(actionType, verdict, errorMessage, secret)
+	if err != nil {
+		return nil, err
+	}
+	payloadJSON, err := marshalActionResponsePayload(response.Payload)
+	if err != nil {
+		return nil, err
+	}
+	timestamp := strconv.FormatInt(response.Payload.Timestamp, 10)
+	return &ActionSignedResponse{
+		Payload:  base64.StdEncoding.EncodeToString(payloadJSON),
+		Sig:      fmt.Sprintf("t=%s,v1=%s", timestamp, response.Signature),
+		response: response,
+	}, nil
+}
+
+// SignActionResponse signs an action response with the given secret.
+func (a *ActionsHelper) SignActionResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionResponse, error) {
 	var object string
 	switch actionType {
 	case ActionTypeAuthentication:
@@ -152,18 +208,25 @@ func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdic
 		payload.ErrorMessage = errorMessage
 	}
 
+	payloadJSON, err := marshalActionResponsePayload(payload)
+	if err != nil {
+		return nil, err
+	}
+	timestamp := strconv.FormatInt(payload.Timestamp, 10)
+
+	return &ActionResponse{
+		Object:    object,
+		Payload:   payload,
+		Signature: ComputeWebhookSignature(secret, timestamp, string(payloadJSON)),
+	}, nil
+}
+
+func marshalActionResponsePayload(payload ActionResponsePayload) ([]byte, error) {
 	var encoded bytes.Buffer
 	encoder := json.NewEncoder(&encoded)
 	encoder.SetEscapeHTML(false)
 	if err := encoder.Encode(payload); err != nil {
 		return nil, fmt.Errorf("workos: failed to marshal action response: %w", err)
 	}
-	payloadJSON := bytes.TrimSuffix(encoded.Bytes(), []byte{'\n'})
-	timestamp := strconv.FormatInt(payload.Timestamp, 10)
-
-	return &ActionSignedResponse{
-		Object:    object,
-		Payload:   payload,
-		Signature: ComputeWebhookSignature(secret, timestamp, string(payloadJSON)),
-	}, nil
+	return bytes.TrimSuffix(encoded.Bytes(), []byte{'\n'}), nil
 }
