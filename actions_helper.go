@@ -3,8 +3,8 @@
 package workos
 
 import (
+	"bytes"
 	"crypto/subtle"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -75,52 +75,95 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 	return nil
 }
 
-// ActionSignedResponse is the result of signing an action response.
-// Send Payload and Sig back to WorkOS as the action webhook response body.
-type ActionSignedResponse struct {
-	// Payload is the base64-encoded JSON response body.
-	Payload string `json:"payload"`
-	// Sig is the signature header in the form "t=<timestamp>,v1=<hex>".
-	Sig string `json:"sig"`
+// ActionContext is the context sent to an Actions endpoint.
+type ActionContext struct {
+	Object                 string                  `json:"object"`
+	ID                     string                  `json:"id"`
+	User                   *User                   `json:"user,omitempty"`
+	Organization           *Organization           `json:"organization,omitempty"`
+	OrganizationMembership *OrganizationMembership `json:"organization_membership,omitempty"`
+	UserData               *ActionUserData         `json:"user_data,omitempty"`
+	Invitation             *Invitation             `json:"invitation,omitempty"`
+	IPAddress              string                  `json:"ip_address,omitempty"`
+	UserAgent              string                  `json:"user_agent,omitempty"`
+	DeviceFingerprint      string                  `json:"device_fingerprint,omitempty"`
+	Issuer                 string                  `json:"issuer,omitempty"`
 }
 
-// ConstructAction verifies and deserializes an Actions request into the
-// standard WorkOS event envelope. Callers can inspect Event/Data to
-// dispatch on action type.
-func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*EventSchema, error) {
+// ActionUserData is the user data sent in a user registration action.
+type ActionUserData struct {
+	Object    string  `json:"object"`
+	Email     string  `json:"email"`
+	Name      *string `json:"name"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+}
+
+// ActionResponsePayload is the signed payload in an action response.
+type ActionResponsePayload struct {
+	Timestamp    int64         `json:"timestamp"`
+	Verdict      ActionVerdict `json:"verdict"`
+	ErrorMessage string        `json:"error_message,omitempty"`
+}
+
+// ActionSignedResponse is the response body to send to WorkOS.
+type ActionSignedResponse struct {
+	Object    string                `json:"object"`
+	Payload   ActionResponsePayload `json:"payload"`
+	Signature string                `json:"signature"`
+}
+
+// ConstructAction verifies and deserializes an Actions request.
+func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*ActionContext, error) {
 	if err := a.VerifyHeader(payload, sigHeader, secret); err != nil {
 		return nil, err
 	}
 
-	var action EventSchema
+	var action ActionContext
 	if err := json.Unmarshal([]byte(payload), &action); err != nil {
 		return nil, fmt.Errorf("workos: failed to parse action payload: %w", err)
+	}
+	if action.Object != "authentication_action_context" && action.Object != "user_registration_action_context" {
+		return nil, fmt.Errorf("workos: unsupported action object %q", action.Object)
 	}
 	return &action, nil
 }
 
 // SignResponse signs an action response with the given secret.
 func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionSignedResponse, error) {
-	responsePayload := map[string]interface{}{
-		"type":          string(actionType),
-		"verdict":       string(verdict),
-		"error_message": errorMessage,
+	var object string
+	switch actionType {
+	case ActionTypeAuthentication:
+		object = "authentication_action_response"
+	case ActionTypeUserRegistration:
+		object = "user_registration_action_response"
+	default:
+		return nil, fmt.Errorf("workos: unsupported action type %q", actionType)
+	}
+	if verdict != ActionVerdictAllow && verdict != ActionVerdictDeny {
+		return nil, fmt.Errorf("workos: unsupported action verdict %q", verdict)
 	}
 
-	jsonBytes, err := json.Marshal(responsePayload)
-	if err != nil {
+	payload := ActionResponsePayload{
+		Timestamp: a.now().UnixMilli(),
+		Verdict:   verdict,
+	}
+	if verdict == ActionVerdictDeny {
+		payload.ErrorMessage = errorMessage
+	}
+
+	var encoded bytes.Buffer
+	encoder := json.NewEncoder(&encoded)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(payload); err != nil {
 		return nil, fmt.Errorf("workos: failed to marshal action response: %w", err)
 	}
-
-	b64Payload := base64.StdEncoding.EncodeToString(jsonBytes)
-
-	now := a.now()
-	timestamp := strconv.FormatInt(now.UnixMilli(), 10)
-
-	sig := ComputeWebhookSignature(secret, timestamp, b64Payload)
+	payloadJSON := bytes.TrimSuffix(encoded.Bytes(), []byte{'\n'})
+	timestamp := strconv.FormatInt(payload.Timestamp, 10)
 
 	return &ActionSignedResponse{
-		Payload: b64Payload,
-		Sig:     fmt.Sprintf("t=%s,v1=%s", timestamp, sig),
+		Object:    object,
+		Payload:   payload,
+		Signature: ComputeWebhookSignature(secret, timestamp, string(payloadJSON)),
 	}, nil
 }

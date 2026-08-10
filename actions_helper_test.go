@@ -3,9 +3,9 @@
 package workos_test
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -33,6 +33,15 @@ func buildActionSigHeader(secret, payload string, ts time.Time) string {
 	timestamp := strconv.FormatInt(ts.UnixMilli(), 10)
 	sig := computeTestActionSignature(secret, timestamp, payload)
 	return fmt.Sprintf("t=%s,v1=%s", timestamp, sig)
+}
+
+func marshalWithoutHTMLEscaping(t *testing.T, value interface{}) string {
+	t.Helper()
+	var encoded bytes.Buffer
+	encoder := json.NewEncoder(&encoded)
+	encoder.SetEscapeHTML(false)
+	require.NoError(t, encoder.Encode(value))
+	return string(bytes.TrimSuffix(encoded.Bytes(), []byte{'\n'}))
 }
 
 func TestActionsHelper_VerifyHeader_Valid(t *testing.T) {
@@ -64,7 +73,6 @@ func TestActionsHelper_VerifyHeader_EmptyHeader(t *testing.T) {
 
 func TestActionsHelper_VerifyHeader_ExpiredTimestamp(t *testing.T) {
 	payload := `{"type":"authentication"}`
-	// 10 minutes ago, well beyond the 30s default tolerance.
 	old := time.Now().Add(-10 * time.Minute)
 	sigHeader := buildActionSigHeader(testActionSecret, payload, old)
 
@@ -73,97 +81,87 @@ func TestActionsHelper_VerifyHeader_ExpiredTimestamp(t *testing.T) {
 	require.ErrorIs(t, err, workos.ErrWebhookOutsideTolerance)
 }
 
-func TestActionsHelper_ConstructAction(t *testing.T) {
-	payload := `{"id":"action_01","event":"authentication_action.created","object":"event","created_at":"2024-01-01T00:00:00Z","data":{"type":"authentication","action_id":"action_123","user":{"email":"test@example.com"}}}`
-	now := time.Now()
-	sigHeader := buildActionSigHeader(testActionSecret, payload, now)
+func TestActionsHelper_ConstructAuthenticationAction(t *testing.T) {
+	payload := `{"object":"authentication_action_context","id":"action_01","user":{"object":"user","id":"user_01","email":"test@example.com"},"organization":{"object":"organization","id":"org_01","name":"Example","domains":[],"metadata":{},"created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1","user_agent":"Mozilla/5.0","device_fingerprint":"fingerprint","issuer":"client_01"}`
+	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
 
-	helper := workos.NewActionsHelper()
-	action, err := helper.ConstructAction(payload, sigHeader, testActionSecret)
+	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
+	require.Equal(t, "authentication_action_context", action.Object)
 	require.Equal(t, "action_01", action.ID)
-	require.Equal(t, "authentication_action.created", action.Event)
-	require.Equal(t, "event", action.Object)
-	require.Equal(t, "authentication", action.Data["type"])
-	require.Equal(t, "action_123", action.Data["action_id"])
-
-	user, ok := action.Data["user"].(map[string]interface{})
-	require.True(t, ok)
-	require.Equal(t, "test@example.com", user["email"])
+	require.Equal(t, "test@example.com", action.User.Email)
+	require.Equal(t, "Example", action.Organization.Name)
+	require.Equal(t, "203.0.113.1", action.IPAddress)
+	require.Equal(t, "client_01", action.Issuer)
 }
 
-func TestActionsHelper_ConstructAction_InvalidJSON(t *testing.T) {
-	payload := `not-valid-json`
-	now := time.Now()
-	sigHeader := buildActionSigHeader(testActionSecret, payload, now)
+func TestActionsHelper_ConstructUserRegistrationAction(t *testing.T) {
+	payload := `{"object":"user_registration_action_context","id":"action_01","user_data":{"object":"user_data","email":"test@example.com","name":null,"first_name":"Test","last_name":"User"},"invitation":{"object":"invitation","id":"invitation_01","email":"test@example.com","expires_at":"2024-01-02T00:00:00Z","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1"}`
+	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
 
+	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
+	require.NoError(t, err)
+	require.Equal(t, "user_registration_action_context", action.Object)
+	require.Equal(t, "test@example.com", action.UserData.Email)
+	require.Equal(t, "Test", action.UserData.FirstName)
+	require.Equal(t, "invitation_01", action.Invitation.ID)
+}
+
+func TestActionsHelper_ConstructAction_InvalidPayload(t *testing.T) {
 	helper := workos.NewActionsHelper()
-	_, err := helper.ConstructAction(payload, sigHeader, testActionSecret)
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to parse action payload")
+
+	invalidJSON := `not-valid-json`
+	_, err := helper.ConstructAction(invalidJSON, buildActionSigHeader(testActionSecret, invalidJSON, time.Now()), testActionSecret)
+	require.ErrorContains(t, err, "failed to parse action payload")
+
+	unsupported := `{"object":"event","id":"event_01"}`
+	_, err = helper.ConstructAction(unsupported, buildActionSigHeader(testActionSecret, unsupported, time.Now()), testActionSecret)
+	require.ErrorContains(t, err, `unsupported action object "event"`)
 }
 
 func TestActionsHelper_SignResponse(t *testing.T) {
-	helper := workos.NewActionsHelper()
-
-	result, err := helper.SignResponse(
+	response, err := workos.NewActionsHelper().SignResponse(
 		workos.ActionTypeAuthentication,
 		workos.ActionVerdictAllow,
 		"",
 		testActionSecret,
 	)
 	require.NoError(t, err)
-	require.NotEmpty(t, result.Payload)
-	require.NotEmpty(t, result.Sig)
-	require.Contains(t, result.Sig, "t=")
-	require.Contains(t, result.Sig, "v1=")
+	require.Equal(t, "authentication_action_response", response.Object)
+	require.Equal(t, workos.ActionVerdictAllow, response.Payload.Verdict)
+	require.Empty(t, response.Payload.ErrorMessage)
 
-	// Decode the payload and verify its contents.
-	decoded, err := base64.StdEncoding.DecodeString(result.Payload)
-	require.NoError(t, err)
+	timestamp := strconv.FormatInt(response.Payload.Timestamp, 10)
+	expected := computeTestActionSignature(testActionSecret, timestamp, marshalWithoutHTMLEscaping(t, response.Payload))
+	require.Equal(t, expected, response.Signature)
 
-	var body map[string]interface{}
-	err = json.Unmarshal(decoded, &body)
+	body, err := json.Marshal(response)
 	require.NoError(t, err)
-	require.Equal(t, "authentication", body["type"])
-	require.Equal(t, "Allow", body["verdict"])
-	require.Equal(t, "", body["error_message"])
+	require.JSONEq(t, fmt.Sprintf(`{"object":"authentication_action_response","payload":{"timestamp":%s,"verdict":"Allow"},"signature":"%s"}`, timestamp, expected), string(body))
 }
 
 func TestActionsHelper_SignResponse_Deny(t *testing.T) {
-	helper := workos.NewActionsHelper()
-
-	result, err := helper.SignResponse(
+	response, err := workos.NewActionsHelper().SignResponse(
 		workos.ActionTypeUserRegistration,
 		workos.ActionVerdictDeny,
-		"IP blocked",
+		"Email must not contain <script>",
 		testActionSecret,
 	)
 	require.NoError(t, err)
+	require.Equal(t, "user_registration_action_response", response.Object)
+	require.Equal(t, "Email must not contain <script>", response.Payload.ErrorMessage)
 
-	decoded, err := base64.StdEncoding.DecodeString(result.Payload)
-	require.NoError(t, err)
-
-	var body map[string]interface{}
-	err = json.Unmarshal(decoded, &body)
-	require.NoError(t, err)
-	require.Equal(t, "user_registration", body["type"])
-	require.Equal(t, "Deny", body["verdict"])
-	require.Equal(t, "IP blocked", body["error_message"])
+	timestamp := strconv.FormatInt(response.Payload.Timestamp, 10)
+	expected := computeTestActionSignature(testActionSecret, timestamp, marshalWithoutHTMLEscaping(t, response.Payload))
+	require.Equal(t, expected, response.Signature)
 }
 
-func TestActionsHelper_SignResponse_SignatureIsVerifiable(t *testing.T) {
+func TestActionsHelper_SignResponse_InvalidInput(t *testing.T) {
 	helper := workos.NewActionsHelper()
 
-	result, err := helper.SignResponse(
-		workos.ActionTypeAuthentication,
-		workos.ActionVerdictAllow,
-		"",
-		testActionSecret,
-	)
-	require.NoError(t, err)
+	_, err := helper.SignResponse(workos.ActionType("unknown"), workos.ActionVerdictAllow, "", testActionSecret)
+	require.ErrorContains(t, err, `unsupported action type "unknown"`)
 
-	// The signature produced by SignResponse should be verifiable by VerifyHeader.
-	err = helper.VerifyHeader(result.Payload, result.Sig, testActionSecret)
-	require.NoError(t, err)
+	_, err = helper.SignResponse(workos.ActionTypeAuthentication, workos.ActionVerdict("unknown"), "", testActionSecret)
+	require.ErrorContains(t, err, `unsupported action verdict "unknown"`)
 }
