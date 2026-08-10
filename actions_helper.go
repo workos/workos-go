@@ -5,7 +5,6 @@ package workos
 import (
 	"bytes"
 	"crypto/subtle"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -114,26 +113,6 @@ type ActionResponse struct {
 	Signature string                `json:"signature"`
 }
 
-// ActionSignedResponse preserves the original v10 response fields.
-//
-// Deprecated: Use ActionResponse and SignActionResponse instead.
-type ActionSignedResponse struct {
-	Payload  string `json:"-"`
-	Sig      string `json:"-"`
-	response *ActionResponse
-}
-
-// MarshalJSON emits the Actions API wire format while preserving the legacy fields for source compatibility.
-func (r ActionSignedResponse) MarshalJSON() ([]byte, error) {
-	if r.response != nil {
-		return json.Marshal(r.response)
-	}
-	return json.Marshal(struct {
-		Payload string `json:"payload"`
-		Sig     string `json:"sig"`
-	}{Payload: r.Payload, Sig: r.Sig})
-}
-
 // ConstructAction verifies and deserializes an Actions request into an
 // ActionContext. Dispatch on Object to read the type-specific fields.
 func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret string) (*ActionContext, error) {
@@ -151,28 +130,9 @@ func (a *ActionsHelper) ConstructAction(payload string, sigHeader string, secret
 	return &action, nil
 }
 
-// SignResponse preserves the original v10 return type while emitting the correct wire format when JSON encoded.
-//
-// Deprecated: Use SignActionResponse for a typed Actions API response.
-func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionSignedResponse, error) {
-	response, err := a.SignActionResponse(actionType, verdict, errorMessage, secret)
-	if err != nil {
-		return nil, err
-	}
-	payloadJSON, err := marshalActionResponsePayload(response.Payload)
-	if err != nil {
-		return nil, err
-	}
-	timestamp := strconv.FormatInt(response.Payload.Timestamp, 10)
-	return &ActionSignedResponse{
-		Payload:  base64.StdEncoding.EncodeToString(payloadJSON),
-		Sig:      fmt.Sprintf("t=%s,v1=%s", timestamp, response.Signature),
-		response: response,
-	}, nil
-}
-
-// SignActionResponse signs an action response with the given secret.
-func (a *ActionsHelper) SignActionResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionResponse, error) {
+// SignResponse signs an action response with the given secret, returning the
+// {object, payload, signature} body to send to WorkOS.
+func (a *ActionsHelper) SignResponse(actionType ActionType, verdict ActionVerdict, errorMessage string, secret string) (*ActionResponse, error) {
 	var object string
 	switch actionType {
 	case ActionTypeAuthentication:
