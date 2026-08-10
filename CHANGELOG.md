@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.1.2](https://github.com/workos/workos-go/compare/v10.1.1...v10.1.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* correct Actions helper wire format ([#595](https://github.com/workos/workos-go/issues/595)) ([e4ec3c1](https://github.com/workos/workos-go/commit/e4ec3c19c1f8da71dde29e4e51e739d0b591e058))
+
 ## [10.1.1](https://github.com/workos/workos-go/compare/v10.1.0...v10.1.1) (2026-08-03)
 
 
