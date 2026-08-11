@@ -163,10 +163,10 @@ type APIKeyInstallation struct {
 type CustomProviderDefinition struct {
 	// Name is a descriptive name for the custom provider.
 	Name string `json:"name"`
-	// AuthorizationURL is the provider's OAuth authorization endpoint.
-	AuthorizationURL string `json:"authorization_url"`
-	// TokenURL is the provider's OAuth token endpoint.
-	TokenURL string `json:"token_url"`
+	// AuthorizationURL is the provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers.
+	AuthorizationURL *string `json:"authorization_url,omitempty"`
+	// TokenURL is the provider's OAuth token endpoint. Required for OAuth providers; omit for `api_key` providers.
+	TokenURL *string `json:"token_url,omitempty"`
 	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint.
 	RefreshTokenURL *string `json:"refresh_token_url,omitempty"`
 	// PKCEEnabled is whether PKCE is used during the authorization code flow. Defaults to `true`.
@@ -1054,6 +1054,8 @@ type WaitlistUser struct {
 	State WaitlistUserState `json:"state"`
 	// ApprovedAt is the timestamp when the Waitlist User was approved, or null if not yet approved.
 	ApprovedAt *string `json:"approved_at"`
+	// WaitlistID is the unique ID of the Waitlist that the Waitlist User joined.
+	WaitlistID *string `json:"waitlist_id,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -1380,6 +1382,23 @@ type AgentRegistrationOrganizationSwitchedData struct {
 	// ToOrganizationID is the organization the registration now belongs to.
 	ToOrganizationID string `json:"to_organization_id"`
 }
+
+// AgentRegistrationRefreshed represents an agent registration refreshed.
+type AgentRegistrationRefreshed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentRegistrationRefreshedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentRegistrationRefreshedData is an alias for AgentRegistrationDeletedData.
+type AgentRegistrationRefreshedData = AgentRegistrationDeletedData
 
 // AgentRegistrationRevoked represents an agent registration revoked.
 type AgentRegistrationRevoked struct {
@@ -4813,11 +4832,11 @@ type DataIntegration struct {
 	RedirectURI string `json:"redirect_uri"`
 	// AuthMethods is how accounts authenticate with the provider for this Data Integration.
 	AuthMethods []DataIntegrationAuthMethods `json:"auth_methods"`
-	// Credentials is the credentials configured for the Data Integration.
+	// Credentials is the integration-level OAuth app credentials. `null` for `api_key` integrations, which hold no OAuth credentials (keys are installed per-tenant).
 	Credentials *DataIntegrationCredential `json:"credentials"`
 	// Installation is the tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
 	Installation *DataIntegrationInstallation `json:"installation"`
-	// Config is provider-specific config values set on the Data Integration (e.g. a Snowflake `account_identifier`), keyed by config field. Only fields the provider declares are accepted.
+	// Config is provider-specific config values set on the Data Integration (e.g. a Snowflake `account`), keyed by config field. Only fields the provider declares are accepted.
 	Config map[string]string `json:"config"`
 	// CustomProvider is the OAuth definition when this is a custom provider; `null` for built-in providers.
 	CustomProvider *DataIntegrationCustomProvider `json:"custom_provider"`
@@ -4880,6 +4899,12 @@ type ConnectedAccount struct {
 	AuthMethod *ConnectedAccountAuthMethod `json:"auth_method,omitempty"`
 	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
 	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
+	// ClientID is the client ID supplied for this connection. Only present when `auth_method` is `client_credentials`.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
+	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
+	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding any it declares as secret. Only present when `auth_method` is `client_credentials`.
+	Config map[string]string `json:"config,omitempty"`
 	// State is the state of the connected account:
 	// - `connected`: The connection is active and tokens are valid.
 	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
@@ -5458,7 +5483,7 @@ type DataIntegrationAccessTokenResponseAccessToken struct {
 	MissingScopes []string `json:"missing_scopes"`
 }
 
-// DataIntegrationCredential the credentials configured for the Data Integration.
+// DataIntegrationCredential represents a data integration credential.
 type DataIntegrationCredential struct {
 	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (so `client_id`/`redacted_client_secret` are null on the integration itself).
 	Type DataIntegrationCredentialType `json:"type"`
@@ -5973,10 +5998,10 @@ type RadarSmsChallengeCodeSessionAuthenticateRequest struct {
 	GrantType    string `json:"grant_type"`
 	// Code is the one-time code from the Radar SMS challenge.
 	Code string `json:"code"`
-	// VerificationID is the ID of the Radar SMS verification being confirmed.
-	VerificationID string `json:"verification_id"`
-	// PhoneNumber is the phone number the Radar SMS challenge was sent to.
-	PhoneNumber string `json:"phone_number"`
+	// VerificationID is the ID of the Radar SMS verification being confirmed. Required for sign-up challenges; omitted for sign-in challenges, where the verification is resolved server-side.
+	VerificationID *string `json:"verification_id,omitempty"`
+	// PhoneNumber is the phone number the Radar SMS challenge was sent to. Required for sign-up challenges; omitted for sign-in challenges, where the phone number on file is resolved server-side.
+	PhoneNumber *string `json:"phone_number,omitempty"`
 	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
 	PendingAuthenticationToken string `json:"pending_authentication_token"`
 	// IPAddress is the IP address of the user's request.
@@ -6243,6 +6268,12 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	AuthMethod *DataIntegrationsListResponseDataConnectedAccountAuthMethod `json:"auth_method,omitempty"`
 	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
 	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
+	// ClientID is the client ID supplied for this connection. Only present when `auth_method` is `client_credentials`.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
+	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
+	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding any it declares as secret. Only present when `auth_method` is `client_credentials`.
+	Config map[string]string `json:"config,omitempty"`
 	// State is the state of the connected account:
 	// - `connected`: The connection is active and tokens are valid.
 	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.

@@ -33,14 +33,18 @@ func (p UserManagementPasswordPlaintext) applyToBody(m map[string]any) {
 }
 
 type UserManagementPasswordHashed struct {
-	Hash     string
-	HashType UpdateUserPasswordHashType
+	Hash         string
+	HashType     UpdateUserPasswordHashType
+	SaltPosition *UpdateUserPasswordSaltPosition
 }
 
 func (p UserManagementPasswordHashed) isUserManagementPassword() {}
 func (p UserManagementPasswordHashed) applyToBody(m map[string]any) {
 	m["password_hash"] = p.Hash
 	m["password_hash_type"] = p.HashType
+	if p.SaltPosition != nil {
+		m["password_salt_position"] = *p.SaltPosition
+	}
 }
 
 // GetJWKS
@@ -496,10 +500,10 @@ func (s *UserManagementService) AuthenticateWithRadarEmailChallenge(ctx context.
 type UserManagementAuthenticateWithRadarSmsChallengeParams struct {
 	// Code is the one-time code from the Radar SMS challenge.
 	Code string `json:"code"`
-	// VerificationID is the ID of the Radar SMS verification being confirmed.
-	VerificationID string `json:"verification_id"`
-	// PhoneNumber is the phone number the Radar SMS challenge was sent to.
-	PhoneNumber string `json:"phone_number"`
+	// VerificationID is the ID of the Radar SMS verification being confirmed. Required for sign-up challenges; omitted for sign-in challenges, where the verification is resolved server-side.
+	VerificationID *string `json:"verification_id,omitempty"`
+	// PhoneNumber is the phone number the Radar SMS challenge was sent to. Required for sign-up challenges; omitted for sign-in challenges, where the phone number on file is resolved server-side.
+	PhoneNumber *string `json:"phone_number,omitempty"`
 	// PendingAuthenticationToken is the pending authentication token from a previous authentication attempt.
 	PendingAuthenticationToken string `json:"pending_authentication_token"`
 	// IPAddress is the IP address of the user's request.
@@ -514,11 +518,11 @@ type UserManagementAuthenticateWithRadarSmsChallengeParams struct {
 type authenticateWithRadarSmsChallengeBody struct {
 	GrantType                  string  `json:"grant_type"`
 	Code                       string  `json:"code"`
-	VerificationID             string  `json:"verification_id"`
-	PhoneNumber                string  `json:"phone_number"`
 	PendingAuthenticationToken string  `json:"pending_authentication_token"`
 	ClientID                   string  `json:"client_id,omitempty"`
 	ClientSecret               string  `json:"client_secret,omitempty"`
+	VerificationID             *string `json:"verification_id,omitempty"`
+	PhoneNumber                *string `json:"phone_number,omitempty"`
 	IPAddress                  *string `json:"ip_address,omitempty"`
 	DeviceID                   *string `json:"device_id,omitempty"`
 	UserAgent                  *string `json:"user_agent,omitempty"`
@@ -529,12 +533,12 @@ func (s *UserManagementService) AuthenticateWithRadarSmsChallenge(ctx context.Co
 	body := authenticateWithRadarSmsChallengeBody{
 		GrantType:                  "urn:workos:oauth:grant-type:radar-sms-challenge:code",
 		Code:                       params.Code,
-		VerificationID:             params.VerificationID,
-		PhoneNumber:                params.PhoneNumber,
 		PendingAuthenticationToken: params.PendingAuthenticationToken,
 	}
 	body.ClientID = s.client.clientID
 	body.ClientSecret = s.client.apiKey
+	body.VerificationID = params.VerificationID
+	body.PhoneNumber = params.PhoneNumber
 	body.IPAddress = params.IPAddress
 	body.DeviceID = params.DeviceID
 	body.UserAgent = params.UserAgent

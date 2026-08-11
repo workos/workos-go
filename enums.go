@@ -39,13 +39,8 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
-// CreateDataIntegrationAuthMethods represents create data integration auth methods values.
-type CreateDataIntegrationAuthMethods string
-
-const (
-	CreateDataIntegrationAuthMethodsOAuth  CreateDataIntegrationAuthMethods = "oauth"
-	CreateDataIntegrationAuthMethodsAPIKey CreateDataIntegrationAuthMethods = "api_key"
-)
+// CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
+type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
 
 // UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
@@ -183,8 +178,19 @@ const (
 	CreateUserPasswordHashTypeArgon2         CreateUserPasswordHashType = "argon2"
 )
 
+// CreateUserPasswordSaltPosition represents create user password salt position values.
+type CreateUserPasswordSaltPosition string
+
+const (
+	CreateUserPasswordSaltPositionPrefix CreateUserPasswordSaltPosition = "prefix"
+	CreateUserPasswordSaltPositionSuffix CreateUserPasswordSaltPosition = "suffix"
+)
+
 // UpdateUserPasswordHashType is an alias for CreateUserPasswordHashType.
 type UpdateUserPasswordHashType = CreateUserPasswordHashType
+
+// UpdateUserPasswordSaltPosition is an alias for CreateUserPasswordSaltPosition.
+type UpdateUserPasswordSaltPosition = CreateUserPasswordSaltPosition
 
 // CreateWebhookEndpointEvents represents create webhook endpoint events values.
 type CreateWebhookEndpointEvents string
@@ -195,6 +201,7 @@ const (
 	CreateWebhookEndpointEventsAgentRegistrationClaimCompleted            CreateWebhookEndpointEvents = "agent.registration.claim.completed"
 	CreateWebhookEndpointEventsAgentRegistrationCredentialIssued          CreateWebhookEndpointEvents = "agent.registration.credential.issued"
 	CreateWebhookEndpointEventsAgentRegistrationDeleted                   CreateWebhookEndpointEvents = "agent.registration.deleted"
+	CreateWebhookEndpointEventsAgentRegistrationRefreshed                 CreateWebhookEndpointEvents = "agent.registration.refreshed"
 	CreateWebhookEndpointEventsAgentRegistrationExpired                   CreateWebhookEndpointEvents = "agent.registration.expired"
 	CreateWebhookEndpointEventsAgentRegistrationOrganizationSwitched      CreateWebhookEndpointEvents = "agent.registration.organization.switched"
 	CreateWebhookEndpointEventsAgentRegistrationRevoked                   CreateWebhookEndpointEvents = "agent.registration.revoked"
@@ -375,6 +382,8 @@ const (
 	ConnectionTypeGoogleOAuth            ConnectionType = "GoogleOAuth"
 	ConnectionTypeGoogleOIDC             ConnectionType = "GoogleOIDC"
 	ConnectionTypeGoogleSAML             ConnectionType = "GoogleSAML"
+	ConnectionTypeGrokOAuth              ConnectionType = "GrokOAuth"
+	ConnectionTypeXoAuth                 ConnectionType = "XOAuth"
 	ConnectionTypeIntuitOAuth            ConnectionType = "IntuitOAuth"
 	ConnectionTypeJumpCloudSAML          ConnectionType = "JumpCloudSAML"
 	ConnectionTypeKeycloakSAML           ConnectionType = "KeycloakSAML"
@@ -565,6 +574,8 @@ const (
 	ConnectionActivatedDataConnectionTypeGoogleOAuth            ConnectionActivatedDataConnectionType = "GoogleOAuth"
 	ConnectionActivatedDataConnectionTypeGoogleOIDC             ConnectionActivatedDataConnectionType = "GoogleOIDC"
 	ConnectionActivatedDataConnectionTypeGoogleSAML             ConnectionActivatedDataConnectionType = "GoogleSAML"
+	ConnectionActivatedDataConnectionTypeGrokOAuth              ConnectionActivatedDataConnectionType = "GrokOAuth"
+	ConnectionActivatedDataConnectionTypeXoAuth                 ConnectionActivatedDataConnectionType = "XOAuth"
 	ConnectionActivatedDataConnectionTypeIntuitOAuth            ConnectionActivatedDataConnectionType = "IntuitOAuth"
 	ConnectionActivatedDataConnectionTypeJumpCloudSAML          ConnectionActivatedDataConnectionType = "JumpCloudSAML"
 	ConnectionActivatedDataConnectionTypeKeycloakSAML           ConnectionActivatedDataConnectionType = "KeycloakSAML"
@@ -977,6 +988,8 @@ const (
 	AuthenticateResponseAuthenticationMethodGitHubOAuth            AuthenticateResponseAuthenticationMethod = "GitHubOAuth"
 	AuthenticateResponseAuthenticationMethodGitLabOAuth            AuthenticateResponseAuthenticationMethod = "GitLabOAuth"
 	AuthenticateResponseAuthenticationMethodGoogleOAuth            AuthenticateResponseAuthenticationMethod = "GoogleOAuth"
+	AuthenticateResponseAuthenticationMethodGrokOAuth              AuthenticateResponseAuthenticationMethod = "GrokOAuth"
+	AuthenticateResponseAuthenticationMethodXoAuth                 AuthenticateResponseAuthenticationMethod = "XOAuth"
 	AuthenticateResponseAuthenticationMethodIntuitOAuth            AuthenticateResponseAuthenticationMethod = "IntuitOAuth"
 	AuthenticateResponseAuthenticationMethodLinkedInOAuth          AuthenticateResponseAuthenticationMethod = "LinkedInOAuth"
 	AuthenticateResponseAuthenticationMethodMicrosoftOAuth         AuthenticateResponseAuthenticationMethod = "MicrosoftOAuth"
@@ -1113,6 +1126,8 @@ const (
 	UserIdentitiesGetItemProviderGithubOAuth            UserIdentitiesGetItemProvider = "GithubOAuth"
 	UserIdentitiesGetItemProviderGitLabOAuth            UserIdentitiesGetItemProvider = "GitLabOAuth"
 	UserIdentitiesGetItemProviderGoogleOAuth            UserIdentitiesGetItemProvider = "GoogleOAuth"
+	UserIdentitiesGetItemProviderGrokOAuth              UserIdentitiesGetItemProvider = "GrokOAuth"
+	UserIdentitiesGetItemProviderXoAuth                 UserIdentitiesGetItemProvider = "XOAuth"
 	UserIdentitiesGetItemProviderIntuitOAuth            UserIdentitiesGetItemProvider = "IntuitOAuth"
 	UserIdentitiesGetItemProviderLinkedInOAuth          UserIdentitiesGetItemProvider = "LinkedInOAuth"
 	UserIdentitiesGetItemProviderMicrosoftOAuth         UserIdentitiesGetItemProvider = "MicrosoftOAuth"
@@ -1176,6 +1191,8 @@ const (
 	ConnectionsConnectionTypeGoogleOAuth            ConnectionsConnectionType = "GoogleOAuth"
 	ConnectionsConnectionTypeGoogleOIDC             ConnectionsConnectionType = "GoogleOIDC"
 	ConnectionsConnectionTypeGoogleSAML             ConnectionsConnectionType = "GoogleSAML"
+	ConnectionsConnectionTypeGrokOAuth              ConnectionsConnectionType = "GrokOAuth"
+	ConnectionsConnectionTypeXoAuth                 ConnectionsConnectionType = "XOAuth"
 	ConnectionsConnectionTypeIntuitOAuth            ConnectionsConnectionType = "IntuitOAuth"
 	ConnectionsConnectionTypeJumpCloudSAML          ConnectionsConnectionType = "JumpCloudSAML"
 	ConnectionsConnectionTypeKeycloakSAML           ConnectionsConnectionType = "KeycloakSAML"

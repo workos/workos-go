@@ -15,7 +15,7 @@ type EventService struct {
 type EventsListParams struct {
 	PaginationParams
 	// Events is filter events by one or more event types (e.g. `dsync.user.created`).
-	Events []string `url:"events,omitempty" json:"-"`
+	Events []string `url:"events" json:"-"`
 	// RangeStart is iso-8601 date string to filter events created after this date.
 	RangeStart *string `url:"range_start,omitempty" json:"-"`
 	// RangeEnd is iso-8601 date string to filter events created before this date.
