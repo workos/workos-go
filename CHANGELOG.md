@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.2.0](https://github.com/workos/workos-go/compare/v10.1.2...v10.2.0) (2026-08-11)
+
+
+### Features
+
+* **events:** Change required status for parameter `Events.list.events` ([#597](https://github.com/workos/workos-go/issues/597)) ([b79ba8a](https://github.com/workos/workos-go/commit/b79ba8a4de0d8f8ff6f2343ad782fe3145ad46f7))
+
 ## [10.1.2](https://github.com/workos/workos-go/compare/v10.1.1...v10.1.2) (2026-08-10)
 
 
