@@ -17,6 +17,8 @@ type GroupService struct {
 // GroupsListOrganizationGroupsParams contains the parameters for ListOrganizationGroups.
 type GroupsListOrganizationGroupsParams struct {
 	PaginationParams
+	// Search is search groups by name or by group ID.
+	Search *string `url:"search,omitempty" json:"-"`
 }
 
 // ListOrganizationGroups list groups

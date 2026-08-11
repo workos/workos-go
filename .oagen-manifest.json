@@ -75,6 +75,7 @@
     "testdata/agent_registration_expired.json",
     "testdata/agent_registration_organization_switched.json",
     "testdata/agent_registration_organization_switched_data.json",
+    "testdata/agent_registration_refreshed.json",
     "testdata/agent_registration_revoked.json",
     "testdata/api_key.json",
     "testdata/api_key_created.json",
@@ -242,6 +243,7 @@
     "testdata/data_integrations_list_response_data.json",
     "testdata/data_integrations_list_response_data_connected_account.json",
     "testdata/data_integrations_upsert_api_key_request.json",
+    "testdata/data_integrations_upsert_client_credentials_request.json",
     "testdata/data_integrations_vend_credentials_request.json",
     "testdata/decrypt_request.json",
     "testdata/decrypt_response.json",
@@ -1390,6 +1392,10 @@
     "GET /audit_logs/exports/{auditLogExportId}": {
       "sdkMethod": "GetExport",
       "service": "audit_logs"
+    },
+    "PUT /data-integrations/{slug}/client-credentials": {
+      "sdkMethod": "UpdateDataIntegrationClientCredentials",
+      "service": "pipes"
     }
   }
 }

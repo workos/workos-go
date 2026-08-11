@@ -35,9 +35,9 @@ type PipesCreateDataIntegrationParams struct {
 	Enabled *bool `json:"enabled,omitempty" url:"-"`
 	// Scopes is the OAuth scopes to request for the Data Integration. Defaults to the provider's configured scopes when omitted.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
-	// AuthMethods is how accounts authenticate with the provider. Defaults to `["oauth"]`. Use `["api_key"]` to declare an API key integration; `credentials` is then not required and keys are supplied per-tenant (optionally via `api_key` on this request).
+	// AuthMethods is how accounts authenticate with the provider. Defaults to `["oauth"]`. Use `["api_key"]` to declare an API key integration; `credentials` is then not required and keys are supplied per-tenant (optionally via `api_key` on this request). Use `["client_credentials"]` to declare a client-credentials integration; `credentials` is likewise not required and client credentials are supplied per-tenant.
 	AuthMethods []CreateDataIntegrationAuthMethods `json:"auth_methods,omitempty" url:"-"`
-	// Config is provider-specific config values (e.g. a Snowflake `account_identifier`), keyed by the config field. Only fields the built-in provider declares are accepted.
+	// Config is provider-specific config values (e.g. a Snowflake `account`), keyed by the config field. Only fields the built-in provider declares are accepted.
 	Config map[string]string `json:"config,omitempty" url:"-"`
 	// Credentials is the OAuth credentials to configure for the Data Integration. Required for OAuth integrations; omit when `auth_methods` is `["api_key"]`.
 	Credentials *DataIntegrationCredentialsInput `json:"credentials,omitempty" url:"-"`
@@ -78,7 +78,7 @@ func (p PipesCreateDataIntegrationParams) MarshalJSON() ([]byte, error) {
 }
 
 // CreateDataIntegration create a data integration
-// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. Set `auth_methods` to `["client_credentials"]` to create a client-credentials integration; client credentials are installed per-tenant afterwards. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
 func (s *PipeService) CreateDataIntegration(ctx context.Context, params *PipesCreateDataIntegrationParams, opts ...RequestOption) (*DataIntegration, error) {
 	var result DataIntegration
 	_, err := s.client.request(ctx, "POST", "/data-integrations", nil, params, &result, opts)
@@ -201,6 +201,31 @@ type PipesAuthorizeDataIntegrationParams struct {
 func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string, params *PipesAuthorizeDataIntegrationParams, opts ...RequestOption) (*DataIntegrationAuthorizeURLResponse, error) {
 	var result DataIntegrationAuthorizeURLResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/authorize", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateDataIntegrationClientCredentialsParams contains the parameters for UpdateDataIntegrationClientCredentials.
+type PipesUpdateDataIntegrationClientCredentialsParams struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id" url:"-"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret" url:"-"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty" url:"-"`
+}
+
+// UpdateDataIntegrationClientCredentials upsert client credentials for a connected account
+// Creates or updates a client-credentials-based installation for the specified integration and user. If an installation already exists, the stored client credentials are rotated to the new values.
+func (s *PipeService) UpdateDataIntegrationClientCredentials(ctx context.Context, slug string, params *PipesUpdateDataIntegrationClientCredentialsParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}

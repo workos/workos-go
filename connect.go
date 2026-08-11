@@ -85,7 +85,7 @@ type createOAuthApplicationBody struct {
 	OrganizationID  *string             `json:"organization_id,omitempty"`
 }
 
-// CreateOAuthApplication Create oauth application.
+// CreateOAuthApplication Create OAuth application.
 func (s *ConnectService) CreateOAuthApplication(ctx context.Context, params *ConnectCreateOAuthApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	body := createOAuthApplicationBody{
 		ApplicationType: "oauth",
@@ -126,7 +126,7 @@ type createM2MApplicationBody struct {
 	Scopes          []string `json:"scopes,omitempty"`
 }
 
-// CreateM2MApplication Create m2m application.
+// CreateM2MApplication Create M2M application.
 func (s *ConnectService) CreateM2MApplication(ctx context.Context, params *ConnectCreateM2MApplicationParams, opts ...RequestOption) (*ConnectApplication, error) {
 	body := createM2MApplicationBody{
 		ApplicationType: "m2m",

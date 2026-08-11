@@ -191,6 +191,32 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	require.Equal(t, "https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect", result.URL)
 }
 
+func TestPipes_UpdateDataIntegrationClientCredentials(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/client-credentials", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().UpdateDataIntegrationClientCredentials(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationClientCredentialsParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
 func TestPipes_CreateDataIntegrationCredential(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
