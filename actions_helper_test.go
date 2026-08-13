@@ -89,7 +89,8 @@ func TestActionsHelper_ConstructAuthenticationAction(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "authentication_action_context", action.Object)
 	require.Equal(t, "action_01", action.ID)
-	require.Equal(t, workos.AuthenticateResponseAuthenticationMethodPassword, action.AuthenticationMethod)
+	require.NotNil(t, action.AuthenticationMethod)
+	require.Equal(t, workos.AuthenticateResponseAuthenticationMethodPassword, *action.AuthenticationMethod)
 	require.Equal(t, "test@example.com", action.User.Email)
 	require.Equal(t, "Example", action.Organization.Name)
 	require.Equal(t, "203.0.113.1", action.IPAddress)
@@ -103,10 +104,21 @@ func TestActionsHelper_ConstructUserRegistrationAction(t *testing.T) {
 	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
 	require.Equal(t, "user_registration_action_context", action.Object)
-	require.Equal(t, workos.AuthenticateResponseAuthenticationMethodGoogleOAuth, action.AuthenticationMethod)
+	require.NotNil(t, action.AuthenticationMethod)
+	require.Equal(t, workos.AuthenticateResponseAuthenticationMethodGoogleOAuth, *action.AuthenticationMethod)
 	require.Equal(t, "test@example.com", action.UserData.Email)
 	require.Equal(t, "Test", action.UserData.FirstName)
 	require.Equal(t, "invitation_01", action.Invitation.ID)
+}
+
+func TestActionsHelper_ConstructAction_OmittedAuthenticationMethod(t *testing.T) {
+	payload := `{"object":"user_registration_action_context","id":"action_01","user_data":{"object":"user_data","email":"test@example.com","name":null,"first_name":"Test","last_name":"User"},"ip_address":"203.0.113.1"}`
+	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
+
+	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
+	require.NoError(t, err)
+	require.Equal(t, "user_registration_action_context", action.Object)
+	require.Nil(t, action.AuthenticationMethod)
 }
 
 func TestActionsHelper_ConstructAction_InvalidPayload(t *testing.T) {

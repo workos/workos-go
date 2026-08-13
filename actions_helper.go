@@ -77,18 +77,18 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 
 // ActionContext is the context sent to an Actions endpoint.
 type ActionContext struct {
-	Object                 string                                   `json:"object"`
-	ID                     string                                   `json:"id"`
-	AuthenticationMethod   AuthenticateResponseAuthenticationMethod `json:"authentication_method"`
-	User                   *User                                    `json:"user,omitempty"`
-	Organization           *Organization                            `json:"organization,omitempty"`
-	OrganizationMembership *OrganizationMembership                  `json:"organization_membership,omitempty"`
-	UserData               *ActionUserData                          `json:"user_data,omitempty"`
-	Invitation             *Invitation                              `json:"invitation,omitempty"`
-	IPAddress              string                                   `json:"ip_address,omitempty"`
-	UserAgent              string                                   `json:"user_agent,omitempty"`
-	DeviceFingerprint      string                                   `json:"device_fingerprint,omitempty"`
-	Issuer                 string                                   `json:"issuer,omitempty"`
+	Object                 string                                    `json:"object"`
+	ID                     string                                    `json:"id"`
+	User                   *User                                     `json:"user,omitempty"`
+	Organization           *Organization                             `json:"organization,omitempty"`
+	OrganizationMembership *OrganizationMembership                   `json:"organization_membership,omitempty"`
+	UserData               *ActionUserData                           `json:"user_data,omitempty"`
+	Invitation             *Invitation                               `json:"invitation,omitempty"`
+	IPAddress              string                                    `json:"ip_address,omitempty"`
+	UserAgent              string                                    `json:"user_agent,omitempty"`
+	DeviceFingerprint      string                                    `json:"device_fingerprint,omitempty"`
+	Issuer                 string                                    `json:"issuer,omitempty"`
+	AuthenticationMethod   *AuthenticateResponseAuthenticationMethod `json:"authentication_method,omitempty"`
 }
 
 // ActionUserData is the user data sent in a user registration action.
