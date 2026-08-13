@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.3.0](https://github.com/workos/workos-go/compare/v10.2.0...v10.3.0) (2026-08-13)
+
+
+### Features
+
+* expose authentication method on action contexts ([#599](https://github.com/workos/workos-go/issues/599)) ([50283ab](https://github.com/workos/workos-go/commit/50283ab6400201557ffe0fde2014825d11c4389d))
+
 ## [10.2.0](https://github.com/workos/workos-go/compare/v10.1.2...v10.2.0) (2026-08-11)
 
 * [#597](https://github.com/workos/workos-go/pull/597) feat(generated)!: regenerate from spec (1 change)
