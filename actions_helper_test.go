@@ -82,13 +82,15 @@ func TestActionsHelper_VerifyHeader_ExpiredTimestamp(t *testing.T) {
 }
 
 func TestActionsHelper_ConstructAuthenticationAction(t *testing.T) {
-	payload := `{"object":"authentication_action_context","id":"action_01","user":{"object":"user","id":"user_01","email":"test@example.com"},"organization":{"object":"organization","id":"org_01","name":"Example","domains":[],"metadata":{},"created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1","user_agent":"Mozilla/5.0","device_fingerprint":"fingerprint","issuer":"client_01"}`
+	payload := `{"object":"authentication_action_context","id":"action_01","authentication_method":"Password","user":{"object":"user","id":"user_01","email":"test@example.com"},"organization":{"object":"organization","id":"org_01","name":"Example","domains":[],"metadata":{},"created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1","user_agent":"Mozilla/5.0","device_fingerprint":"fingerprint","issuer":"client_01"}`
 	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
 
 	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
 	require.Equal(t, "authentication_action_context", action.Object)
 	require.Equal(t, "action_01", action.ID)
+	require.NotNil(t, action.AuthenticationMethod)
+	require.Equal(t, workos.AuthenticateResponseAuthenticationMethodPassword, *action.AuthenticationMethod)
 	require.Equal(t, "test@example.com", action.User.Email)
 	require.Equal(t, "Example", action.Organization.Name)
 	require.Equal(t, "203.0.113.1", action.IPAddress)
@@ -96,15 +98,27 @@ func TestActionsHelper_ConstructAuthenticationAction(t *testing.T) {
 }
 
 func TestActionsHelper_ConstructUserRegistrationAction(t *testing.T) {
-	payload := `{"object":"user_registration_action_context","id":"action_01","user_data":{"object":"user_data","email":"test@example.com","name":null,"first_name":"Test","last_name":"User"},"invitation":{"object":"invitation","id":"invitation_01","email":"test@example.com","expires_at":"2024-01-02T00:00:00Z","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1"}`
+	payload := `{"object":"user_registration_action_context","id":"action_01","authentication_method":"GoogleOAuth","user_data":{"object":"user_data","email":"test@example.com","name":null,"first_name":"Test","last_name":"User"},"invitation":{"object":"invitation","id":"invitation_01","email":"test@example.com","expires_at":"2024-01-02T00:00:00Z","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1"}`
 	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
 
 	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
 	require.NoError(t, err)
 	require.Equal(t, "user_registration_action_context", action.Object)
+	require.NotNil(t, action.AuthenticationMethod)
+	require.Equal(t, workos.AuthenticateResponseAuthenticationMethodGoogleOAuth, *action.AuthenticationMethod)
 	require.Equal(t, "test@example.com", action.UserData.Email)
 	require.Equal(t, "Test", action.UserData.FirstName)
 	require.Equal(t, "invitation_01", action.Invitation.ID)
+}
+
+func TestActionsHelper_ConstructAction_OmittedAuthenticationMethod(t *testing.T) {
+	payload := `{"object":"user_registration_action_context","id":"action_01","user_data":{"object":"user_data","email":"test@example.com","name":null,"first_name":"Test","last_name":"User"},"ip_address":"203.0.113.1"}`
+	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())
+
+	action, err := workos.NewActionsHelper().ConstructAction(payload, sigHeader, testActionSecret)
+	require.NoError(t, err)
+	require.Equal(t, "user_registration_action_context", action.Object)
+	require.Nil(t, action.AuthenticationMethod)
 }
 
 func TestActionsHelper_ConstructAction_InvalidPayload(t *testing.T) {
