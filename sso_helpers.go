@@ -154,6 +154,11 @@ func (c *Client) SSOPKCECodeExchange(ctx context.Context, params SSOPKCECodeExch
 
 // SSOLogoutParams holds parameters for SSO logout.
 type SSOLogoutParams struct {
+	// ProfileID is the unique ID of the SSO profile to log out.
+	ProfileID string
+	// SessionID is retained for backward compatibility.
+	//
+	// Deprecated: Use ProfileID. Despite its name, this value must contain an SSO profile ID.
 	SessionID string
 	ReturnTo  *string
 }
@@ -161,9 +166,21 @@ type SSOLogoutParams struct {
 // SSOLogout initiates a logout flow.
 // First obtains a logout token via AuthorizeLogout, then builds the logout redirect URL.
 func (c *Client) SSOLogout(ctx context.Context, params SSOLogoutParams, opts ...RequestOption) (string, error) {
+	if params.ProfileID != "" && params.SessionID != "" && params.ProfileID != params.SessionID {
+		return "", fmt.Errorf("workos: ProfileID and deprecated SessionID must match when both are provided")
+	}
+
+	profileID := params.ProfileID
+	if profileID == "" {
+		profileID = params.SessionID
+	}
+	if profileID == "" {
+		return "", fmt.Errorf("workos: profile ID is required for SSO logout")
+	}
+
 	// Step 1: Call AuthorizeLogout to get a logout token.
 	logoutResp, err := c.SSO().AuthorizeLogout(ctx, &SSOAuthorizeLogoutParams{
-		ProfileID: params.SessionID,
+		ProfileID: profileID,
 	}, opts...)
 	if err != nil {
 		return "", err
