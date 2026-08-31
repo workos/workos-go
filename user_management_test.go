@@ -998,6 +998,189 @@ func TestUserManagement_DeleteAuthorizedApplication(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestUserManagement_DeleteWaitlistEntry(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/waitlist_entries/test_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.UserManagement().DeleteWaitlistEntry(context.Background(), "test_id")
+	require.NoError(t, err)
+}
+
+func TestUserManagement_CreateWaitlistEntryApprove(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/waitlist_entries/test_id/approve", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/waitlist_entry.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().CreateWaitlistEntryApprove(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "wl_user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestUserManagement_CreateWaitlistEntryDeny(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/waitlist_entries/test_id/deny", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/waitlist_entry.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().CreateWaitlistEntryDeny(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "wl_user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestUserManagement_ListWaitlists(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/waitlists", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_waitlist.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListWaitlists(context.Background())
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestUserManagement_ListWaitlists_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListWaitlists(context.Background())
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestUserManagement_GetWaitlist(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/waitlists/test_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/waitlist.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().GetWaitlist(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "waitlist_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.UpdatedAt)
+}
+
+func TestUserManagement_ListWaitlistEntries(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/user_management/waitlists/test_id/entries", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_waitlist_entry.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListWaitlistEntries(context.Background(), "test_id", &workos.UserManagementListWaitlistEntriesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestUserManagement_ListWaitlistEntries_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.UserManagement().ListWaitlistEntries(context.Background(), "test_id", &workos.UserManagementListWaitlistEntriesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestUserManagement_CreateWaitlistEntry(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/user_management/waitlists/test_id/entries", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/waitlist_entry.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.UserManagement().CreateWaitlistEntry(context.Background(), "test_id", &workos.UserManagementCreateWaitlistEntryParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "wl_user_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "marcelina.davis@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
 func TestUserManagement_ListAPIKeys(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)

@@ -223,6 +223,7 @@
     "testdata/create_user_api_key.json",
     "testdata/create_user_invite_options.json",
     "testdata/create_user_organization_membership.json",
+    "testdata/create_waitlist_entry.json",
     "testdata/create_webhook_endpoint.json",
     "testdata/custom_provider_definition.json",
     "testdata/data_integration.json",
@@ -366,6 +367,8 @@
     "testdata/list_user_organization_membership_base_list_data.json",
     "testdata/list_user_role_assignment.json",
     "testdata/list_user_sessions_list_item.json",
+    "testdata/list_waitlist.json",
+    "testdata/list_waitlist_entry.json",
     "testdata/list_webhook_endpoint.json",
     "testdata/magic_auth.json",
     "testdata/magic_auth_code_session_authenticate_request.json",
@@ -531,6 +534,8 @@
     "testdata/verify_email_address.json",
     "testdata/verify_email_response.json",
     "testdata/version_list_response.json",
+    "testdata/waitlist.json",
+    "testdata/waitlist_entry.json",
     "testdata/waitlist_user.json",
     "testdata/waitlist_user_approved.json",
     "testdata/waitlist_user_created.json",
@@ -1396,6 +1401,146 @@
     "PUT /data-integrations/{slug}/client-credentials": {
       "sdkMethod": "UpdateDataIntegrationClientCredentials",
       "service": "pipes"
+    },
+    "GET /agents/blueprints": {
+      "sdkMethod": "ListBlueprints",
+      "service": "agents"
+    },
+    "POST /agents/blueprints": {
+      "sdkMethod": "CreateBlueprint",
+      "service": "agents"
+    },
+    "GET /agents/blueprints/{agent_blueprint_id}": {
+      "sdkMethod": "GetBlueprint",
+      "service": "agents"
+    },
+    "PATCH /agents/blueprints/{agent_blueprint_id}": {
+      "sdkMethod": "UpdateBlueprint",
+      "service": "agents"
+    },
+    "DELETE /agents/blueprints/{agent_blueprint_id}": {
+      "sdkMethod": "DeleteBlueprint",
+      "service": "agents"
+    },
+    "POST /agents/blueprints/{agent_blueprint_id}/tokens": {
+      "sdkMethod": "CreateBlueprintToken",
+      "service": "agents"
+    },
+    "GET /agents/instances": {
+      "sdkMethod": "ListInstances",
+      "service": "agents"
+    },
+    "GET /agents/instances/{agent_instance_id}": {
+      "sdkMethod": "GetInstance",
+      "service": "agents"
+    },
+    "DELETE /agents/instances/{agent_instance_id}": {
+      "sdkMethod": "DeleteInstance",
+      "service": "agents"
+    },
+    "GET /agents/sessions": {
+      "sdkMethod": "ListSessions",
+      "service": "agents"
+    },
+    "GET /agents/sessions/{agent_instance_session_id}": {
+      "sdkMethod": "GetSession",
+      "service": "agents"
+    },
+    "POST /agents/sessions/{agent_instance_session_id}/revoke": {
+      "sdkMethod": "RevokeSession",
+      "service": "agents"
+    },
+    "POST /connections": {
+      "sdkMethod": "CreateConnection",
+      "service": "sso"
+    },
+    "GET /connections/{connectionId}/saml_idp_signing_certs": {
+      "sdkMethod": "ListConnectionSAMLIdpSigningCerts",
+      "service": "sso"
+    },
+    "POST /connections/{connectionId}/saml_idp_signing_certs": {
+      "sdkMethod": "CreateConnectionSAMLIdpSigningCert",
+      "service": "sso"
+    },
+    "DELETE /connections/{connectionId}/saml_idp_signing_certs/{certificateId}": {
+      "sdkMethod": "DeleteConnectionSAMLIdpSigningCert",
+      "service": "sso"
+    },
+    "GET /connections/{connectionId}/saml_sp_encryption_certs": {
+      "sdkMethod": "ListConnectionSAMLSpEncryptionCerts",
+      "service": "sso"
+    },
+    "POST /connections/{connectionId}/saml_sp_encryption_certs": {
+      "sdkMethod": "CreateConnectionSAMLSpEncryptionCert",
+      "service": "sso"
+    },
+    "DELETE /connections/{connectionId}/saml_sp_encryption_certs/{certificateId}": {
+      "sdkMethod": "DeleteConnectionSAMLSpEncryptionCert",
+      "service": "sso"
+    },
+    "GET /connections/{connectionId}/saml_sp_signing_cert": {
+      "sdkMethod": "ListConnectionSAMLSpSigningCert",
+      "service": "sso"
+    },
+    "POST /connections/{connectionId}/saml_sp_signing_cert": {
+      "sdkMethod": "CreateConnectionSAMLSpSigningCert",
+      "service": "sso"
+    },
+    "DELETE /connections/{connectionId}/saml_sp_signing_cert/{certificateId}": {
+      "sdkMethod": "DeleteConnectionSAMLSpSigningCert",
+      "service": "sso"
+    },
+    "PATCH /connections/{id}": {
+      "sdkMethod": "UpdateConnection",
+      "service": "sso"
+    },
+    "GET /organizations/{organization_id}/it_contacts": {
+      "sdkMethod": "ListItContacts",
+      "service": "organizations"
+    },
+    "POST /organizations/{organization_id}/it_contacts": {
+      "sdkMethod": "CreateItContact",
+      "service": "organizations"
+    },
+    "DELETE /organizations/{organization_id}/it_contacts/{contact_id}": {
+      "sdkMethod": "DeleteItContact",
+      "service": "organizations"
+    },
+    "POST /organizations/{organization_id}/it_contacts/{contact_id}/invite": {
+      "sdkMethod": "InviteItContact",
+      "service": "organizations"
+    },
+    "POST /organizations/{organization_id}/it_contacts/{contact_id}/revoke": {
+      "sdkMethod": "RevokeItContact",
+      "service": "organizations"
+    },
+    "DELETE /user_management/waitlist_entries/{id}": {
+      "sdkMethod": "DeleteWaitlistEntry",
+      "service": "user_management"
+    },
+    "POST /user_management/waitlist_entries/{id}/approve": {
+      "sdkMethod": "CreateWaitlistEntryApprove",
+      "service": "user_management"
+    },
+    "POST /user_management/waitlist_entries/{id}/deny": {
+      "sdkMethod": "CreateWaitlistEntryDeny",
+      "service": "user_management"
+    },
+    "GET /user_management/waitlists": {
+      "sdkMethod": "ListWaitlists",
+      "service": "user_management"
+    },
+    "GET /user_management/waitlists/{id}": {
+      "sdkMethod": "GetWaitlist",
+      "service": "user_management"
+    },
+    "GET /user_management/waitlists/{id}/entries": {
+      "sdkMethod": "ListWaitlistEntries",
+      "service": "user_management"
+    },
+    "POST /user_management/waitlists/{id}/entries": {
+      "sdkMethod": "CreateWaitlistEntry",
+      "service": "user_management"
     }
   }
 }

@@ -5239,6 +5239,40 @@ type DeviceAuthorizationResponse struct {
 	Interval *float64 `json:"interval,omitempty"`
 }
 
+// Waitlist represents a waitlist.
+type Waitlist struct {
+	// Object distinguishes the Waitlist object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Waitlist.
+	ID string `json:"id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// WaitlistEntry represents a waitlist entry.
+type WaitlistEntry struct {
+	// ID is the unique ID of the waitlist entry.
+	ID string `json:"id"`
+	// Email is the email address of the user on the waitlist.
+	Email string `json:"email"`
+	// State is the state of the waitlist entry.
+	State WaitlistEntryState `json:"state"`
+	// ApprovedAt is the timestamp when the entry was approved, or null if not yet approved.
+	ApprovedAt *string `json:"approved_at"`
+	// AdditionalFields is additional fields submitted when the user joined the waitlist. Values are user-provided — treat them as untrusted input when rendering or exporting.
+	AdditionalFields map[string]string `json:"additional_fields,omitempty"`
+	// WaitlistID is the unique ID of the waitlist the entry belongs to.
+	WaitlistID *string `json:"waitlist_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Object distinguishes the Waitlist Entry object.
+	Object string `json:"object"`
+}
+
 // WebhookEndpoint represents a webhook endpoint.
 type WebhookEndpoint struct {
 	// Object distinguishes the Webhook Endpoint object.

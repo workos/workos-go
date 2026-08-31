@@ -324,6 +324,15 @@ type AgentRegistrationKind = AgentRegistrationCreatedDataKind
 // ClaimViewResponseStatus is an alias for AgentRegistrationCreatedDataStatus.
 type ClaimViewResponseStatus = AgentRegistrationCreatedDataStatus
 
+// AgentInstanceSessionStatus represents agent instance session status values.
+type AgentInstanceSessionStatus string
+
+const (
+	AgentInstanceSessionStatusActive  AgentInstanceSessionStatus = "active"
+	AgentInstanceSessionStatusRevoked AgentInstanceSessionStatus = "revoked"
+	AgentInstanceSessionStatusExpired AgentInstanceSessionStatus = "expired"
+)
+
 // AuditLogExportState represents audit log export state values.
 type AuditLogExportState string
 
@@ -983,13 +992,10 @@ const (
 	AuthenticateResponseAuthenticationMethodAppleOAuth             AuthenticateResponseAuthenticationMethod = "AppleOAuth"
 	AuthenticateResponseAuthenticationMethodBitbucketOAuth         AuthenticateResponseAuthenticationMethod = "BitbucketOAuth"
 	AuthenticateResponseAuthenticationMethodCrossAppAuth           AuthenticateResponseAuthenticationMethod = "CrossAppAuth"
-	AuthenticateResponseAuthenticationMethodDiscordOAuth           AuthenticateResponseAuthenticationMethod = "DiscordOAuth"
 	AuthenticateResponseAuthenticationMethodExternalAuth           AuthenticateResponseAuthenticationMethod = "ExternalAuth"
 	AuthenticateResponseAuthenticationMethodGitHubOAuth            AuthenticateResponseAuthenticationMethod = "GitHubOAuth"
 	AuthenticateResponseAuthenticationMethodGitLabOAuth            AuthenticateResponseAuthenticationMethod = "GitLabOAuth"
 	AuthenticateResponseAuthenticationMethodGoogleOAuth            AuthenticateResponseAuthenticationMethod = "GoogleOAuth"
-	AuthenticateResponseAuthenticationMethodGrokOAuth              AuthenticateResponseAuthenticationMethod = "GrokOAuth"
-	AuthenticateResponseAuthenticationMethodXoAuth                 AuthenticateResponseAuthenticationMethod = "XOAuth"
 	AuthenticateResponseAuthenticationMethodIntuitOAuth            AuthenticateResponseAuthenticationMethod = "IntuitOAuth"
 	AuthenticateResponseAuthenticationMethodLinkedInOAuth          AuthenticateResponseAuthenticationMethod = "LinkedInOAuth"
 	AuthenticateResponseAuthenticationMethodMicrosoftOAuth         AuthenticateResponseAuthenticationMethod = "MicrosoftOAuth"
@@ -1002,6 +1008,9 @@ const (
 	AuthenticateResponseAuthenticationMethodImpersonation          AuthenticateResponseAuthenticationMethod = "Impersonation"
 	AuthenticateResponseAuthenticationMethodMigratedSession        AuthenticateResponseAuthenticationMethod = "MigratedSession"
 )
+
+// WaitlistEntryState is an alias for UserManagementWaitlistsState.
+type WaitlistEntryState = UserManagementWaitlistsState
 
 // WebhookEndpointStatus is an alias for UpdateWebhookEndpointStatus.
 type WebhookEndpointStatus = UpdateWebhookEndpointStatus
@@ -1122,12 +1131,9 @@ type UserIdentitiesGetItemProvider string
 const (
 	UserIdentitiesGetItemProviderAppleOAuth             UserIdentitiesGetItemProvider = "AppleOAuth"
 	UserIdentitiesGetItemProviderBitbucketOAuth         UserIdentitiesGetItemProvider = "BitbucketOAuth"
-	UserIdentitiesGetItemProviderDiscordOAuth           UserIdentitiesGetItemProvider = "DiscordOAuth"
 	UserIdentitiesGetItemProviderGithubOAuth            UserIdentitiesGetItemProvider = "GithubOAuth"
 	UserIdentitiesGetItemProviderGitLabOAuth            UserIdentitiesGetItemProvider = "GitLabOAuth"
 	UserIdentitiesGetItemProviderGoogleOAuth            UserIdentitiesGetItemProvider = "GoogleOAuth"
-	UserIdentitiesGetItemProviderGrokOAuth              UserIdentitiesGetItemProvider = "GrokOAuth"
-	UserIdentitiesGetItemProviderXoAuth                 UserIdentitiesGetItemProvider = "XOAuth"
 	UserIdentitiesGetItemProviderIntuitOAuth            UserIdentitiesGetItemProvider = "IntuitOAuth"
 	UserIdentitiesGetItemProviderLinkedInOAuth          UserIdentitiesGetItemProvider = "LinkedInOAuth"
 	UserIdentitiesGetItemProviderMicrosoftOAuth         UserIdentitiesGetItemProvider = "MicrosoftOAuth"
@@ -1141,8 +1147,8 @@ const (
 // UserSessionsAuthMethod is an alias for SessionCreatedDataAuthMethod.
 type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 
-// UserSessionsStatus is an alias for SessionCreatedDataStatus.
-type UserSessionsStatus = SessionCreatedDataStatus
+// UserSessionsStatus is an alias for AgentInstanceSessionStatus.
+type UserSessionsStatus = AgentInstanceSessionStatus
 
 // DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod
@@ -1287,6 +1293,15 @@ const (
 
 // UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
 type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
+
+// UserManagementWaitlistsState represents user management waitlists state values.
+type UserManagementWaitlistsState string
+
+const (
+	UserManagementWaitlistsStatePending  UserManagementWaitlistsState = "pending"
+	UserManagementWaitlistsStateApproved UserManagementWaitlistsState = "approved"
+	UserManagementWaitlistsStateDenied   UserManagementWaitlistsState = "denied"
+)
 
 // VaultOrder represents vault order values.
 type VaultOrder string
