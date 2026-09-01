@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -11,6 +12,32 @@ import (
 // AuditLogService handles AuditLogs operations.
 type AuditLogService struct {
 	client *Client
+}
+
+// AuditLogsRetentionGroup is one of:
+//   - AuditLogsRetentionGroupPeriod
+//   - AuditLogsRetentionGroupPeriodInDays
+type AuditLogsRetentionGroup interface {
+	isAuditLogsRetentionGroup()
+	applyToBody(map[string]any)
+}
+
+type AuditLogsRetentionGroupPeriod struct {
+	Period UpdateAuditLogsRetentionRetentionPeriod
+}
+
+func (p AuditLogsRetentionGroupPeriod) isAuditLogsRetentionGroup() {}
+func (p AuditLogsRetentionGroupPeriod) applyToBody(m map[string]any) {
+	m["retention_period"] = p.Period
+}
+
+type AuditLogsRetentionGroupPeriodInDays struct {
+	PeriodInDays int
+}
+
+func (p AuditLogsRetentionGroupPeriodInDays) isAuditLogsRetentionGroup() {}
+func (p AuditLogsRetentionGroupPeriodInDays) applyToBody(m map[string]any) {
+	m["retention_period_in_days"] = p.PeriodInDays
 }
 
 // GetOrganizationAuditLogsRetention get Retention
@@ -26,8 +53,28 @@ func (s *AuditLogService) GetOrganizationAuditLogsRetention(ctx context.Context,
 
 // AuditLogsUpdateOrganizationAuditLogsRetentionParams contains the parameters for UpdateOrganizationAuditLogsRetention.
 type AuditLogsUpdateOrganizationAuditLogsRetentionParams struct {
-	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` and `365`.
-	RetentionPeriodInDays int `json:"retention_period_in_days" url:"-"`
+	// Retention identifies the retention (required).
+	Retention AuditLogsRetentionGroup `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AuditLogsUpdateOrganizationAuditLogsRetentionParams.
+func (p AuditLogsUpdateOrganizationAuditLogsRetentionParams) MarshalJSON() ([]byte, error) {
+	type Alias AuditLogsUpdateOrganizationAuditLogsRetentionParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Retention == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.Retention != nil {
+		p.Retention.applyToBody(m)
+	}
+	return json.Marshal(m)
 }
 
 // UpdateOrganizationAuditLogsRetention set Retention
