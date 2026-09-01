@@ -24,7 +24,7 @@ type UserManagementPassword interface {
 }
 
 type UserManagementPasswordPlaintext struct {
-	Password string
+	Password *string
 }
 
 func (p UserManagementPasswordPlaintext) isUserManagementPassword() {}
@@ -34,8 +34,8 @@ func (p UserManagementPasswordPlaintext) applyToBody(m map[string]any) {
 
 type UserManagementPasswordHashed struct {
 	Hash         string
-	HashType     UpdateUserPasswordHashType
-	SaltPosition *UpdateUserPasswordSaltPosition
+	HashType     CreateUserPasswordHashType
+	SaltPosition *CreateUserPasswordSaltPosition
 }
 
 func (p UserManagementPasswordHashed) isUserManagementPassword() {}
@@ -1307,6 +1307,91 @@ func (s *UserManagementService) ListAuthorizedApplications(ctx context.Context, 
 func (s *UserManagementService) DeleteAuthorizedApplication(ctx context.Context, userID string, applicationID string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/authorized_applications/%s", url.PathEscape(userID), url.PathEscape(applicationID)), nil, nil, nil, opts)
 	return err
+}
+
+// DeleteWaitlistEntry delete a waitlist entry
+// Remove the entry from the waitlist. Its email address can join again unless a user with that email now exists in the environment. Deleting the entry does not revoke an invitation created by approving it — [revoke that invitation](https://workos.com/docs/reference/authkit/invitation/revoke) separately to withdraw access.
+func (s *UserManagementService) DeleteWaitlistEntry(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/waitlist_entries/%s", url.PathEscape(id)), nil, nil, nil, opts)
+	return err
+}
+
+// CreateWaitlistEntryApprove approve a waitlist entry
+// Approve a waitlist entry, create an invitation for its email address, and send the invitation email. Approving a denied entry reverses the denial. The approval is saved even when the invitation steps fail, so instead of retrying the approval, recover based on the outcome:
+// - `200` — the entry is approved. If invitation creation failed, no invitation exists yet; [send](https://workos.com/docs/reference/authkit/invitation/send) one.
+// - `422` with code `invitation_email_not_sent` — the entry is approved and an invitation exists, but its email was not sent; [resend](https://workos.com/docs/reference/authkit/invitation/resend) it.
+// - `422` with code `invalid_state` — the entry was already approved.
+func (s *UserManagementService) CreateWaitlistEntryApprove(ctx context.Context, id string, opts ...RequestOption) (*WaitlistEntry, error) {
+	var result WaitlistEntry
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/waitlist_entries/%s/approve", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// CreateWaitlistEntryDeny deny a waitlist entry
+// Deny a pending waitlist entry. Denying an entry that is not pending fails with the code `invalid_state`. A denial can be reversed by approving the entry.
+func (s *UserManagementService) CreateWaitlistEntryDeny(ctx context.Context, id string, opts ...RequestOption) (*WaitlistEntry, error) {
+	var result WaitlistEntry
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/waitlist_entries/%s/deny", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// ListWaitlists
+// Get a list of the waitlists in the environment. All waitlists are returned in a single response — this endpoint is not paginated, so the `list_metadata` cursors are always `null`.
+func (s *UserManagementService) ListWaitlists(ctx context.Context, opts ...RequestOption) *Iterator[Waitlist] {
+	return newIterator[Waitlist](ctx, s.client, "GET", "/user_management/waitlists", nil, "after", "data", opts, nil)
+}
+
+// GetWaitlist get a waitlist
+// Get the details of an existing waitlist.
+func (s *UserManagementService) GetWaitlist(ctx context.Context, id string, opts ...RequestOption) (*Waitlist, error) {
+	var result Waitlist
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/user_management/waitlists/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// UserManagementListWaitlistEntriesParams contains the parameters for ListWaitlistEntries.
+type UserManagementListWaitlistEntriesParams struct {
+	PaginationParams
+	// State is filter waitlist entries by their state.
+	State *UserManagementWaitlistsState `url:"state,omitempty" json:"-"`
+	// Email is filter waitlist entries by their exact email address.
+	Email *string `url:"email,omitempty" json:"-"`
+}
+
+// ListWaitlistEntries
+// Get a list of entries on a waitlist matching the criteria specified.
+func (s *UserManagementService) ListWaitlistEntries(ctx context.Context, id string, params *UserManagementListWaitlistEntriesParams, opts ...RequestOption) *Iterator[WaitlistEntry] {
+	return newIterator[WaitlistEntry](ctx, s.client, "GET", fmt.Sprintf("/user_management/waitlists/%s/entries", url.PathEscape(id)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// UserManagementCreateWaitlistEntryParams contains the parameters for CreateWaitlistEntry.
+type UserManagementCreateWaitlistEntryParams struct {
+	// Email is the email address of the user joining the waitlist.
+	Email string `json:"email" url:"-"`
+	// AdditionalFields is object containing additional key/value pairs collected with the waitlist entry. Supports up to 50 string pairs, with keys up to 40 characters and values up to 600 characters. Values are user-provided — treat them as untrusted input when rendering or exporting.
+	AdditionalFields map[string]string `json:"additional_fields,omitempty" url:"-"`
+	// SendConfirmationEmail is whether to send the waitlist confirmation email to the user. Defaults to `false`. No email is sent when the waitlist confirmation email is disabled in the environment, even if `send_confirmation_email` is `true`.
+	SendConfirmationEmail *bool `json:"send_confirmation_email,omitempty" url:"-"`
+}
+
+// CreateWaitlistEntry create a waitlist entry
+// Add an email address to the waitlist. Email addresses are normalized and unique per environment: a request for an email address already on the waitlist returns the existing entry unchanged (still with status `201`) and does not send another confirmation email. If a user with the email address already exists in the environment, the request fails with the code `user_already_exists`.
+func (s *UserManagementService) CreateWaitlistEntry(ctx context.Context, id string, params *UserManagementCreateWaitlistEntryParams, opts ...RequestOption) (*WaitlistEntry, error) {
+	var result WaitlistEntry
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/waitlists/%s/entries", url.PathEscape(id)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 // UserManagementListAPIKeysParams contains the parameters for ListAPIKeys.
