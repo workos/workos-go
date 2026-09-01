@@ -166,6 +166,31 @@ func TestAgents_CreateBlueprintToken(t *testing.T) {
 	require.Equal(t, "njGkA8Wyht0GBEGGA0Zh1Q3wZzL2...", result.RefreshToken)
 }
 
+func TestAgents_ValidateBlueprintToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/agents/blueprints/test_agent_blueprint_id/tokens/validate", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_token_validation.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().ValidateBlueprintToken(context.Background(), "test_agent_blueprint_id", &workos.AgentsValidateBlueprintTokenParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_01EHWNCE74X7JSDV0X3SZ3KJNY", result.AgentInstanceID)
+	require.Equal(t, "agent_session_01EHWNCE74X7JSDV0X3SZ3KJNY", result.AgentInstanceSessionID)
+}
+
 func TestAgents_UpdateAttempts(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)

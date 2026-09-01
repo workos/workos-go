@@ -571,6 +571,26 @@ type AgentToken struct {
 	Permissions []string `json:"permissions"`
 }
 
+// AgentTokenValidation represents an agent token validation.
+type AgentTokenValidation struct {
+	// Valid is always `true`: an invalid token is reported as an error with a stable code, never as a `200`.
+	Valid bool `json:"valid"`
+	// AgentInstanceID is the agent instance the token was minted for.
+	AgentInstanceID string `json:"agent_instance_id"`
+	// AgentInstanceSessionID is the agent instance session backing the token.
+	AgentInstanceSessionID string `json:"agent_instance_session_id"`
+	// OrganizationID is the organization the agent acts within.
+	OrganizationID string `json:"organization_id"`
+	// Permissions is the effective permission slugs carried by the token.
+	Permissions []string `json:"permissions"`
+	// Intent is the caller-supplied context echoed into the token at mint time, or `null` when none was given.
+	Intent *string `json:"intent"`
+	// ActingUserID is the delegating user carried in the `act.sub` claim of the token, or `null` for autonomous sessions.
+	ActingUserID *string `json:"acting_user_id"`
+	// SessionExpiresAt is when the backing agent instance session expires.
+	SessionExpiresAt string `json:"session_expires_at"`
+}
+
 // AgentInstanceSession represents an agent instance session.
 type AgentInstanceSession struct {
 	// Object distinguishes the agent instance session object.

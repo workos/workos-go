@@ -36,7 +36,7 @@ type AgentsCreateBlueprintParams struct {
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintsCreateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
 	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
-	SessionSettings *AgentBlueprintsCreateRequestSessionSetting `json:"session_settings" url:"-"`
+	SessionSettings *AgentBlueprintsCreateRequestSessionSetting `json:"session_settings,omitempty" url:"-"`
 }
 
 // CreateBlueprint create an agent blueprint
@@ -143,6 +143,23 @@ type AgentsCreateBlueprintTokenParams struct {
 func (s *AgentService) CreateBlueprintToken(ctx context.Context, agentBlueprintID string, params *AgentsCreateBlueprintTokenParams, opts ...RequestOption) (*AgentToken, error) {
 	var result AgentToken
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/agents/blueprints/%s/tokens", url.PathEscape(agentBlueprintID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AgentsValidateBlueprintTokenParams contains the parameters for ValidateBlueprintToken.
+type AgentsValidateBlueprintTokenParams struct {
+	// AgentAccessToken is the agent access token (a JWT) to validate.
+	AgentAccessToken string `json:"agent_access_token" url:"-"`
+}
+
+// ValidateBlueprintToken validate an agent token
+// Validates an agent access token: verifies its signature against the environment, that it was minted under this blueprint, and that the backing session is live (not revoked or expired, and — for delegated sessions — that the delegating user session has not ended). Returns the token claims and session metadata when valid; invalid tokens are reported as errors with stable codes.
+func (s *AgentService) ValidateBlueprintToken(ctx context.Context, agentBlueprintID string, params *AgentsValidateBlueprintTokenParams, opts ...RequestOption) (*AgentTokenValidation, error) {
+	var result AgentTokenValidation
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/agents/blueprints/%s/tokens/validate", url.PathEscape(agentBlueprintID)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
