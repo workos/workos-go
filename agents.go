@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -11,6 +12,141 @@ import (
 // AgentService handles Agents operations.
 type AgentService struct {
 	client *Client
+}
+
+// AgentsListBlueprintsParams contains the parameters for ListBlueprints.
+type AgentsListBlueprintsParams struct {
+	PaginationParams
+}
+
+// ListBlueprints list agent blueprints
+// Lists the agent blueprints in the current environment.
+func (s *AgentService) ListBlueprints(ctx context.Context, params *AgentsListBlueprintsParams, opts ...RequestOption) *Iterator[AgentBlueprint] {
+	return newIterator[AgentBlueprint](ctx, s.client, "GET", "/agents/blueprints", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// AgentsCreateBlueprintParams contains the parameters for CreateBlueprint.
+type AgentsCreateBlueprintParams struct {
+	// Name is human-readable name of the agent blueprint.
+	Name string `json:"name" url:"-"`
+	// Description is human-readable description of the agent blueprint.
+	Description *string `json:"description,omitempty" url:"-"`
+	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment.
+	Permissions []string `json:"permissions,omitempty" url:"-"`
+	// InvocableBy is who may mint sessions from this blueprint.
+	InvocableBy *AgentBlueprintsCreateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
+	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
+	SessionSettings *AgentBlueprintsCreateRequestSessionSetting `json:"session_settings" url:"-"`
+}
+
+// CreateBlueprint create an agent blueprint
+// Creates an agent blueprint: the template describing what an agent may do (its permission ceiling), who may invoke it, and the lifetimes of its sessions.
+func (s *AgentService) CreateBlueprint(ctx context.Context, params *AgentsCreateBlueprintParams, opts ...RequestOption) (*AgentBlueprint, error) {
+	var result AgentBlueprint
+	_, err := s.client.request(ctx, "POST", "/agents/blueprints", nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// GetBlueprint get an agent blueprint
+// Retrieves an agent blueprint by ID.
+func (s *AgentService) GetBlueprint(ctx context.Context, agentBlueprintID string, opts ...RequestOption) (*AgentBlueprint, error) {
+	var result AgentBlueprint
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/agents/blueprints/%s", url.PathEscape(agentBlueprintID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AgentsUpdateBlueprintParams contains the parameters for UpdateBlueprint.
+type AgentsUpdateBlueprintParams struct {
+	// Name is human-readable name of the agent blueprint.
+	Name *string `json:"name,omitempty" url:"-"`
+	// Description is human-readable description of the agent blueprint. Pass `null` to clear it.
+	Description *string `json:"description,omitempty" url:"-"`
+	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment.
+	Permissions []string `json:"permissions,omitempty" url:"-"`
+	// InvocableBy is who may mint sessions from this blueprint. Omitted lists are left unchanged.
+	InvocableBy *AgentBlueprintsUpdateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
+	// SessionSettings is token and session lifetimes for sessions minted from this blueprint. Omitted fields are left unchanged.
+	SessionSettings *AgentBlueprintsUpdateRequestSessionSetting `json:"session_settings,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for AgentsUpdateBlueprintParams.
+func (p AgentsUpdateBlueprintParams) MarshalJSON() ([]byte, error) {
+	type Alias AgentsUpdateBlueprintParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("AgentsUpdateBlueprintParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
+}
+
+// UpdateBlueprint update an agent blueprint
+// Updates an agent blueprint. Omitted fields are left unchanged; provided lists replace the existing configuration.
+func (s *AgentService) UpdateBlueprint(ctx context.Context, agentBlueprintID string, params *AgentsUpdateBlueprintParams, opts ...RequestOption) (*AgentBlueprint, error) {
+	var result AgentBlueprint
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/agents/blueprints/%s", url.PathEscape(agentBlueprintID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteBlueprint delete an agent blueprint
+// Deletes an agent blueprint along with its configuration, instances, and sessions.
+func (s *AgentService) DeleteBlueprint(ctx context.Context, agentBlueprintID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/agents/blueprints/%s", url.PathEscape(agentBlueprintID)), nil, nil, nil, opts)
+	return err
+}
+
+// AgentsCreateBlueprintTokenParams contains the parameters for CreateBlueprintToken.
+type AgentsCreateBlueprintTokenParams struct {
+	// Type is how the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`.
+	Type AgentBlueprintsTokenMintTokenRequestType `json:"type" url:"-"`
+	// UserAccessToken is the access token of the user delegating to the agent. The token identifies the user and organization; effective permissions are resolved server-side.
+	UserAccessToken *string `json:"user_access_token,omitempty" url:"-"`
+	// Intent is optional caller-supplied context, echoed as an object with a `text` field in the `intent` claim of the minted access token.
+	Intent *string `json:"intent,omitempty" url:"-"`
+	// OrganizationID is the organization the agent acts within when operating as itself.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// AgentAccessToken is the agent's own access token to exchange for a new session on the same instance. The token must have been minted from this blueprint; permissions are re-derived from current authority.
+	AgentAccessToken *string `json:"agent_access_token,omitempty" url:"-"`
+	// RefreshToken is the refresh token issued with a previous agent access token. Refresh tokens are single-use: each refresh rotates it.
+	RefreshToken *string `json:"refresh_token,omitempty" url:"-"`
+}
+
+// CreateBlueprintToken mint an agent token
+// Mint an agent access token (and backing session) from an agent blueprint. The session can be user-delegated (exchanging a user access token), autonomous (the agent acting as itself in an organization), agent-delegated (the agent exchanging its own access token for a new session on the same instance), or a refresh of a previously issued refresh token.
+func (s *AgentService) CreateBlueprintToken(ctx context.Context, agentBlueprintID string, params *AgentsCreateBlueprintTokenParams, opts ...RequestOption) (*AgentToken, error) {
+	var result AgentToken
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/agents/blueprints/%s/tokens", url.PathEscape(agentBlueprintID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 // AgentsUpdateAttemptsParams contains the parameters for UpdateAttempts.
@@ -62,6 +198,76 @@ func (s *AgentService) CreateValidate(ctx context.Context, params *AgentsCreateV
 func (s *AgentService) GetRegistration(ctx context.Context, id string, opts ...RequestOption) (*AgentRegistration, error) {
 	var result AgentRegistration
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/agents/registrations/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// AgentsListInstancesParams contains the parameters for ListInstances.
+type AgentsListInstancesParams struct {
+	PaginationParams
+	// OrganizationID is only return instances acting within this organization.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// AgentBlueprintID is only return instances minted from this blueprint.
+	AgentBlueprintID *string `url:"agent_blueprint_id,omitempty" json:"-"`
+}
+
+// ListInstances list agent instances
+// Lists the agent instances in the current environment. Instances are created implicitly when tokens are minted.
+func (s *AgentService) ListInstances(ctx context.Context, params *AgentsListInstancesParams, opts ...RequestOption) *Iterator[AgentInstance] {
+	return newIterator[AgentInstance](ctx, s.client, "GET", "/agents/instances", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// GetInstance get an agent instance
+// Retrieves an agent instance by ID.
+func (s *AgentService) GetInstance(ctx context.Context, agentInstanceID string, opts ...RequestOption) (*AgentInstance, error) {
+	var result AgentInstance
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/agents/instances/%s", url.PathEscape(agentInstanceID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteInstance delete an agent instance
+// Deletes an agent instance along with its sessions, invalidating their refresh tokens.
+func (s *AgentService) DeleteInstance(ctx context.Context, agentInstanceID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/agents/instances/%s", url.PathEscape(agentInstanceID)), nil, nil, nil, opts)
+	return err
+}
+
+// AgentsListSessionsParams contains the parameters for ListSessions.
+type AgentsListSessionsParams struct {
+	PaginationParams
+	// AgentBlueprintID is only return sessions of instances minted from this blueprint.
+	AgentBlueprintID *string `url:"agent_blueprint_id,omitempty" json:"-"`
+	// AgentInstanceID is only return sessions belonging to this agent instance.
+	AgentInstanceID *string `url:"agent_instance_id,omitempty" json:"-"`
+}
+
+// ListSessions list agent instance sessions
+// Lists the agent instance sessions in the current environment. Sessions are created when tokens are minted.
+func (s *AgentService) ListSessions(ctx context.Context, params *AgentsListSessionsParams, opts ...RequestOption) *Iterator[AgentInstanceSession] {
+	return newIterator[AgentInstanceSession](ctx, s.client, "GET", "/agents/sessions", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// GetSession get an agent instance session
+// Retrieves an agent instance session by ID.
+func (s *AgentService) GetSession(ctx context.Context, agentInstanceSessionID string, opts ...RequestOption) (*AgentInstanceSession, error) {
+	var result AgentInstanceSession
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/agents/sessions/%s", url.PathEscape(agentInstanceSessionID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// RevokeSession revoke an agent instance session
+// Revokes an agent instance session, invalidating its refresh token and every access token minted under it. Revocation is idempotent: revoking an already-revoked session keeps the original `revoked_at`, and revoking an already-expired session returns the session with `status: expired` and a null `revoked_at`.
+func (s *AgentService) RevokeSession(ctx context.Context, agentInstanceSessionID string, opts ...RequestOption) (*AgentInstanceSession, error) {
+	var result AgentInstanceSession
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/agents/sessions/%s/revoke", url.PathEscape(agentInstanceSessionID)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}

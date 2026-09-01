@@ -53,6 +53,206 @@ func TestSSO_ListConnections_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
+func TestSSO_CreateConnection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connections", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connection.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().CreateConnection(context.Background(), &workos.SSOCreateConnectionParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "conn_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "Foo Corp", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestSSO_ListConnectionSAMLIdpSigningCerts(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_idp_signing_certs", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/saml_idp_signing_certificate_list.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().ListConnectionSAMLIdpSigningCerts(context.Background(), "test_connectionId")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestSSO_CreateConnectionSAMLIdpSigningCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_idp_signing_certs", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/saml_idp_signing_certificate.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().CreateConnectionSAMLIdpSigningCert(context.Background(), "test_connectionId", &workos.SSOCreateConnectionSAMLIdpSigningCertParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "saml_x509_cert_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "-----BEGIN CERTIFICATE-----MIIC...-----END CERTIFICATE-----", result.Value)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestSSO_DeleteConnectionSAMLIdpSigningCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_idp_signing_certs/test_certificateId", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.SSO().DeleteConnectionSAMLIdpSigningCert(context.Background(), "test_connectionId", "test_certificateId")
+	require.NoError(t, err)
+}
+
+func TestSSO_ListConnectionSAMLSpEncryptionCerts(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_sp_encryption_certs", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/saml_sp_encryption_certificate_list.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().ListConnectionSAMLSpEncryptionCerts(context.Background(), "test_connectionId")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestSSO_CreateConnectionSAMLSpEncryptionCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_sp_encryption_certs", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/saml_sp_encryption_certificate.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().CreateConnectionSAMLSpEncryptionCert(context.Background(), "test_connectionId")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "saml_enc_key_pair_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "-----BEGIN CERTIFICATE-----MIIC...-----END CERTIFICATE-----", result.Value)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestSSO_DeleteConnectionSAMLSpEncryptionCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_sp_encryption_certs/test_certificateId", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.SSO().DeleteConnectionSAMLSpEncryptionCert(context.Background(), "test_connectionId", "test_certificateId")
+	require.NoError(t, err)
+}
+
+func TestSSO_ListConnectionSAMLSpSigningCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_sp_signing_cert", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/saml_sp_signing_certificate.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().ListConnectionSAMLSpSigningCert(context.Background(), "test_connectionId")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "saml_party_trust_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "-----BEGIN CERTIFICATE-----MIIC...-----END CERTIFICATE-----", result.Value)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestSSO_CreateConnectionSAMLSpSigningCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_sp_signing_cert", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/saml_sp_signing_certificate.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().CreateConnectionSAMLSpSigningCert(context.Background(), "test_connectionId")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "saml_party_trust_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "-----BEGIN CERTIFICATE-----MIIC...-----END CERTIFICATE-----", result.Value)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestSSO_DeleteConnectionSAMLSpSigningCert(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/connections/test_connectionId/saml_sp_signing_cert/test_certificateId", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.SSO().DeleteConnectionSAMLSpSigningCert(context.Background(), "test_connectionId", "test_certificateId")
+	require.NoError(t, err)
+}
+
 func TestSSO_GetConnection(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
@@ -69,6 +269,32 @@ func TestSSO_GetConnection(t *testing.T) {
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 	result, err := client.SSO().GetConnection(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "conn_01E4ZCR3C56J083X43JQXF3JK5", result.ID)
+	require.Equal(t, "Foo Corp", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestSSO_UpdateConnection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/connections/test_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connection.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.SSO().UpdateConnection(context.Background(), "test_id", &workos.SSOUpdateConnectionParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.Equal(t, "conn_01E4ZCR3C56J083X43JQXF3JK5", result.ID)

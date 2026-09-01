@@ -36,6 +36,8 @@ type OrganizationsCreateParams struct {
 	// AllowProfilesOutsideOrganization is whether the organization allows profiles from outside the organization to sign in.
 	AllowProfilesOutsideOrganization *bool `json:"allow_profiles_outside_organization,omitempty" url:"-"`
 	// Domains is the domains associated with the organization. Deprecated in favor of `domain_data`.
+	//
+	// Deprecated: this field is deprecated.
 	Domains []string `json:"domains,omitempty" url:"-"`
 	// DomainData is the domains associated with the organization, including verification state.
 	DomainData []*OrganizationDomainData `json:"domain_data,omitempty" url:"-"`
@@ -196,4 +198,59 @@ type OrganizationsListAuthorizedApplicationsParams struct {
 // Get a list of all Connect applications that users in the organization have authorized.
 func (s *OrganizationService) ListAuthorizedApplications(ctx context.Context, organizationID string, params *OrganizationsListAuthorizedApplicationsParams, opts ...RequestOption) *Iterator[OrganizationAuthorizedConnectApplicationListData] {
 	return newIterator[OrganizationAuthorizedConnectApplicationListData](ctx, s.client, "GET", fmt.Sprintf("/organizations/%s/authorized_applications", url.PathEscape(organizationID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// ListItContacts
+// Get the IT contacts for an organization.
+func (s *OrganizationService) ListItContacts(ctx context.Context, organizationID string, opts ...RequestOption) (*ItContactList, error) {
+	var result ItContactList
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/it_contacts", url.PathEscape(organizationID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// OrganizationsCreateItContactParams contains the parameters for CreateItContact.
+type OrganizationsCreateItContactParams struct {
+	// Email is the email address of the IT contact.
+	Email string `json:"email" url:"-"`
+}
+
+// CreateItContact create an IT contact
+// Add an IT contact to an organization. No Admin Portal invitation is sent, though the contact is notified if the organization has a connection certificate nearing expiry.
+func (s *OrganizationService) CreateItContact(ctx context.Context, organizationID string, params *OrganizationsCreateItContactParams, opts ...RequestOption) (*ItContact, error) {
+	var result ItContact
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/it_contacts", url.PathEscape(organizationID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteItContact delete an IT contact
+// Remove an IT contact from an organization and revoke the contact's active setup links.
+func (s *OrganizationService) DeleteItContact(ctx context.Context, organizationID string, contactID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s/it_contacts/%s", url.PathEscape(organizationID), url.PathEscape(contactID)), nil, nil, nil, opts)
+	return err
+}
+
+// OrganizationsInviteItContactParams contains the parameters for InviteItContact.
+type OrganizationsInviteItContactParams struct {
+	// Intents is the Admin Portal features that the IT contact can configure.
+	Intents []InviteItContactIntents `json:"intents" url:"-"`
+}
+
+// InviteItContact invite an IT contact
+// Create an Admin Portal setup link and email it to the IT contact. An organization can have at most one active invitation.
+func (s *OrganizationService) InviteItContact(ctx context.Context, organizationID string, contactID string, params *OrganizationsInviteItContactParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/it_contacts/%s/invite", url.PathEscape(organizationID), url.PathEscape(contactID)), nil, params, nil, opts)
+	return err
+}
+
+// RevokeItContact revoke an IT contact's invitation
+// Revoke the organization's active Admin Portal invitation.
+func (s *OrganizationService) RevokeItContact(ctx context.Context, organizationID string, contactID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/it_contacts/%s/revoke", url.PathEscape(organizationID), url.PathEscape(contactID)), nil, nil, nil, opts)
+	return err
 }

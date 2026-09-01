@@ -272,7 +272,7 @@ type AuthorizationListEffectivePermissionsParams struct {
 }
 
 // ListEffectivePermissions for an organization membership on a resource
-// Returns all permissions the organization membership effectively has on a resource, including permissions inherited through roles assigned to ancestor resources.
+// Returns all permissions the organization membership effectively has on a resource, including permissions inherited through roles assigned to ancestor resources. Results are not filtered by the resource type: a permission is returned whenever a check for it on this resource would be authorized, and each permission is labeled with the resource type it is declared on.
 func (s *AuthorizationService) ListEffectivePermissions(ctx context.Context, organizationMembershipID string, resourceID string, params *AuthorizationListEffectivePermissionsParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
 	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/permissions", url.PathEscape(organizationMembershipID), url.PathEscape(resourceID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
@@ -283,7 +283,7 @@ type AuthorizationListEffectivePermissionsByExternalIDParams struct {
 }
 
 // ListEffectivePermissionsByExternalID list effective permissions for an organization membership on a resource by external ID
-// Returns all permissions the organization membership effectively has on a resource identified by its external ID, including permissions inherited through roles assigned to ancestor resources.
+// Returns all permissions the organization membership effectively has on a resource identified by its external ID, including permissions inherited through roles assigned to ancestor resources. Results are not filtered by the resource type: a permission is returned whenever a check for it on this resource would be authorized, and each permission is labeled with the resource type it is declared on.
 func (s *AuthorizationService) ListEffectivePermissionsByExternalID(ctx context.Context, organizationMembershipID string, resourceTypeSlug string, externalID string, params *AuthorizationListEffectivePermissionsByExternalIDParams, opts ...RequestOption) *Iterator[AuthorizationPermission] {
 	return newIterator[AuthorizationPermission](ctx, s.client, "GET", fmt.Sprintf("/authorization/organization_memberships/%s/resources/%s/%s/permissions", url.PathEscape(organizationMembershipID), url.PathEscape(resourceTypeSlug), url.PathEscape(externalID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
