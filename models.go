@@ -5239,6 +5239,40 @@ type DeviceAuthorizationResponse struct {
 	Interval *float64 `json:"interval,omitempty"`
 }
 
+// Waitlist represents a waitlist.
+type Waitlist struct {
+	// Object distinguishes the Waitlist object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Waitlist.
+	ID string `json:"id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// WaitlistEntry represents a waitlist entry.
+type WaitlistEntry struct {
+	// ID is the unique ID of the waitlist entry.
+	ID string `json:"id"`
+	// Email is the email address of the user on the waitlist.
+	Email string `json:"email"`
+	// State is the state of the waitlist entry.
+	State WaitlistEntryState `json:"state"`
+	// ApprovedAt is the timestamp when the entry was approved, or null if not yet approved.
+	ApprovedAt *string `json:"approved_at"`
+	// AdditionalFields is additional fields submitted when the user joined the waitlist. Values are user-provided — treat them as untrusted input when rendering or exporting.
+	AdditionalFields map[string]string `json:"additional_fields,omitempty"`
+	// WaitlistID is the unique ID of the waitlist the entry belongs to.
+	WaitlistID *string `json:"waitlist_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Object distinguishes the Waitlist Entry object.
+	Object string `json:"object"`
+}
+
 // WebhookEndpoint represents a webhook endpoint.
 type WebhookEndpoint struct {
 	// Object distinguishes the Webhook Endpoint object.
@@ -5947,6 +5981,27 @@ type MFATOTPSessionAuthenticateRequest struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+}
+
+// EmailCompletionSessionAuthenticateRequest represents an email completion session authenticate request.
+type EmailCompletionSessionAuthenticateRequest struct {
+	// ClientID is the client ID of the application.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the client secret of the application.
+	ClientSecret string `json:"client_secret"`
+	GrantType    string `json:"grant_type"`
+	// EmailCompletionToken is the token from the `email_completion_required` response.
+	EmailCompletionToken string `json:"email_completion_token"`
+	// Email is the email address the user supplied for a profile the identity provider left without one.
+	Email string `json:"email"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this authentication attempt.
+	SignalsID *string `json:"signals_id,omitempty"`
 }
 
 // OrganizationSelectionSessionAuthenticateRequest represents an organization selection session authenticate request.
