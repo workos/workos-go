@@ -1,5 +1,25 @@
 # Changelog
 
+## [10.4.0](https://github.com/workos/workos-go/compare/v10.3.0...v10.4.0) (2026-09-01)
+
+
+### Features
+
+* **agents:** Add blueprint, instance, and session endpoints ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+* **audit_logs:** Replace RetentionPeriodInDays param with Retention union supporting retention periods ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+* **generated:** Agents (batch 13ebc8c1) ([#611](https://github.com/workos/workos-go/issues/611)) ([d339bf4](https://github.com/workos/workos-go/commit/d339bf4f67669cc12e334d62c941dca31d01010f))
+* **organizations:** Add IT contacts endpoints ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+* **platform_teams:** Add Platform Teams service ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+* **sso:** Add connection management and SAML certificate endpoints ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+* **user_management:** Add email-completion grant and waitlist endpoints ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+* **webhooks:** Add agent instance and blueprint webhook event types ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+
+
+### Bug Fixes
+
+* **deps:** update minor and patch updates ([#602](https://github.com/workos/workos-go/issues/602)) ([10bdaf8](https://github.com/workos/workos-go/commit/10bdaf8d6869ad6ea9b39c254b828219b67f23ee))
+* **sso:** Remove DiscordOAuth, GrokOAuth, and XOAuth from connection type enums ([#609](https://github.com/workos/workos-go/issues/609)) ([aaa9a4f](https://github.com/workos/workos-go/commit/aaa9a4fcdce7b093327f128157b039e560647082))
+
 ## [10.3.0](https://github.com/workos/workos-go/compare/v10.2.0...v10.3.0) (2026-08-13)
 
 
