@@ -65,6 +65,7 @@
     "testdata/agent_blueprint_updated.json",
     "testdata/agent_blueprints_create_request.json",
     "testdata/agent_blueprints_token_mint_token_request.json",
+    "testdata/agent_blueprints_token_validate_token_request.json",
     "testdata/agent_blueprints_update_request.json",
     "testdata/agent_credential_validation.json",
     "testdata/agent_instance.json",
@@ -98,6 +99,7 @@
     "testdata/agent_registration_refreshed.json",
     "testdata/agent_registration_revoked.json",
     "testdata/agent_token.json",
+    "testdata/agent_token_validation.json",
     "testdata/api_key.json",
     "testdata/api_key_created.json",
     "testdata/api_key_created_data.json",
@@ -1603,6 +1605,10 @@
     "POST /user_management/waitlists/{id}/entries": {
       "sdkMethod": "CreateWaitlistEntry",
       "service": "user_management"
+    },
+    "POST /agents/blueprints/{agent_blueprint_id}/tokens/validate": {
+      "sdkMethod": "ValidateBlueprintToken",
+      "service": "agents"
     }
   }
 }
