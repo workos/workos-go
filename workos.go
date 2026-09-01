@@ -29,6 +29,7 @@ type Client struct {
 	apiKeys                *APIKeyService
 	pipesProvider          *PipesProviderService
 	groups                 *GroupService
+	platformTeams          *PlatformTeamService
 	adminPortal            *AdminPortalService
 	radar                  *RadarService
 	userManagement         *UserManagementService
@@ -66,6 +67,7 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.apiKeys = &APIKeyService{client: c}
 	c.pipesProvider = &PipesProviderService{client: c}
 	c.groups = &GroupService{client: c}
+	c.platformTeams = &PlatformTeamService{client: c}
 	c.adminPortal = &AdminPortalService{client: c}
 	c.radar = &RadarService{client: c}
 	c.userManagement = &UserManagementService{client: c}
@@ -151,6 +153,11 @@ func (c *Client) PipesProvider() *PipesProviderService {
 // Groups returns the Groups service.
 func (c *Client) Groups() *GroupService {
 	return c.groups
+}
+
+// PlatformTeams returns the PlatformTeams service.
+func (c *Client) PlatformTeams() *PlatformTeamService {
+	return c.platformTeams
 }
 
 // AdminPortal returns the AdminPortal service.

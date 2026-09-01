@@ -4,6 +4,7 @@ package workos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -12,6 +13,58 @@ import (
 // SSOService handles SSO operations.
 type SSOService struct {
 	client *Client
+}
+
+// SSOCreateProtocolOptions is one of:
+//   - SSOCreateProtocolOptionsSAML
+//   - SSOCreateProtocolOptionsOIDC
+type SSOCreateProtocolOptions interface {
+	isSSOCreateProtocolOptions()
+	applyToBody(map[string]any)
+}
+
+type SSOCreateProtocolOptionsSAML struct {
+	SAMLOptions CreateConnectionSAMLOptions
+}
+
+func (p SSOCreateProtocolOptionsSAML) isSSOCreateProtocolOptions() {}
+func (p SSOCreateProtocolOptionsSAML) applyToBody(m map[string]any) {
+	m["saml_options"] = p.SAMLOptions
+}
+
+type SSOCreateProtocolOptionsOIDC struct {
+	OIDCOptions CreateConnectionOIDCOptions
+}
+
+func (p SSOCreateProtocolOptionsOIDC) isSSOCreateProtocolOptions() {}
+func (p SSOCreateProtocolOptionsOIDC) applyToBody(m map[string]any) {
+	m["oidc_options"] = p.OIDCOptions
+}
+
+// SSOPatchProtocolOptions is one of:
+//   - SSOPatchProtocolOptionsSAML
+//   - SSOPatchProtocolOptionsOIDC
+type SSOPatchProtocolOptions interface {
+	isSSOPatchProtocolOptions()
+	applyToBody(map[string]any)
+}
+
+type SSOPatchProtocolOptionsSAML struct {
+	SAMLOptions PatchConnectionSAMLOptions
+}
+
+func (p SSOPatchProtocolOptionsSAML) isSSOPatchProtocolOptions() {}
+func (p SSOPatchProtocolOptionsSAML) applyToBody(m map[string]any) {
+	m["saml_options"] = p.SAMLOptions
+}
+
+type SSOPatchProtocolOptionsOIDC struct {
+	OIDCOptions PatchConnectionOIDCOptions
+}
+
+func (p SSOPatchProtocolOptionsOIDC) isSSOPatchProtocolOptions() {}
+func (p SSOPatchProtocolOptionsOIDC) applyToBody(m map[string]any) {
+	m["oidc_options"] = p.OIDCOptions
 }
 
 // SSOListConnectionsParams contains the parameters for ListConnections.
@@ -33,11 +86,208 @@ func (s *SSOService) ListConnections(ctx context.Context, params *SSOListConnect
 	return newIterator[Connection](ctx, s.client, "GET", "/connections", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
+// SSOCreateConnectionParams contains the parameters for CreateConnection.
+type SSOCreateConnectionParams struct {
+	// OrganizationID is unique identifier for the Organization in which the Connection resides.
+	OrganizationID string `json:"organization_id" url:"-"`
+	// Name is a human-readable name for the Connection. This will most commonly be the organization's name.
+	Name *string `json:"name,omitempty" url:"-"`
+	// ExternalID is the customer-owned identifier for the Connection.
+	ExternalID *string `json:"external_id,omitempty" url:"-"`
+	// ConnectionType is the type of the Connection. Only SAML and OIDC connection types may be created. When omitted, the type is inferred from the provided options.
+	ConnectionType *string `json:"connection_type,omitempty" url:"-"`
+	// AttributeMaps is how IdP attributes or claims map onto WorkOS profile fields. Provided fields override the defaults for the connection type.
+	AttributeMaps *CreateConnectionAttributeMaps `json:"attribute_maps,omitempty" url:"-"`
+	// ProtocolOptions identifies the protocol options (required).
+	ProtocolOptions SSOCreateProtocolOptions `url:"-" json:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for SSOCreateConnectionParams.
+func (p SSOCreateConnectionParams) MarshalJSON() ([]byte, error) {
+	type Alias SSOCreateConnectionParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ProtocolOptions == nil {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ProtocolOptions != nil {
+		p.ProtocolOptions.applyToBody(m)
+	}
+	return json.Marshal(m)
+}
+
+// CreateConnection create a Connection
+// Creates a new connection for an organization. Provide `saml_options` or `oidc_options` to configure the identity provider. When `external_id` matches an existing connection in the organization, that connection is returned instead of creating a duplicate.
+func (s *SSOService) CreateConnection(ctx context.Context, params *SSOCreateConnectionParams, opts ...RequestOption) (*Connection, error) {
+	var result Connection
+	_, err := s.client.request(ctx, "POST", "/connections", nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// ListConnectionSAMLIdpSigningCerts list IdP signing certificates
+// Lists every Identity Provider signing certificate on the connection, including expired ones, oldest first.
+func (s *SSOService) ListConnectionSAMLIdpSigningCerts(ctx context.Context, connectionID string, opts ...RequestOption) (*SAMLIdpSigningCertificateList, error) {
+	var result SAMLIdpSigningCertificateList
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s/saml_idp_signing_certs", url.PathEscape(connectionID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// SSOCreateConnectionSAMLIdpSigningCertParams contains the parameters for CreateConnectionSAMLIdpSigningCert.
+type SSOCreateConnectionSAMLIdpSigningCertParams struct {
+	// Value is the PEM-encoded X.509 certificate.
+	Value string `json:"value" url:"-"`
+}
+
+// CreateConnectionSAMLIdpSigningCert create an IdP signing certificate
+// Adds an Identity Provider signing certificate to the connection, so SAML responses signed with its key can be verified. Use this to import a new certificate ahead of an Identity Provider rotation — the existing certificates keep working until they are deleted or expire.
+func (s *SSOService) CreateConnectionSAMLIdpSigningCert(ctx context.Context, connectionID string, params *SSOCreateConnectionSAMLIdpSigningCertParams, opts ...RequestOption) (*SAMLIdpSigningCertificate, error) {
+	var result SAMLIdpSigningCertificate
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connections/%s/saml_idp_signing_certs", url.PathEscape(connectionID)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteConnectionSAMLIdpSigningCert delete an IdP signing certificate
+// Removes an Identity Provider signing certificate from the connection. The last remaining certificate cannot be deleted. A certificate still published in the Identity Provider metadata may be restored by a metadata refresh.
+func (s *SSOService) DeleteConnectionSAMLIdpSigningCert(ctx context.Context, connectionID string, certificateID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connections/%s/saml_idp_signing_certs/%s", url.PathEscape(connectionID), url.PathEscape(certificateID)), nil, nil, nil, opts)
+	return err
+}
+
+// ListConnectionSAMLSpEncryptionCerts list SP encryption certificates
+// Lists the public certificates the Identity Provider can use to encrypt SAML responses sent to WorkOS, including expired ones, oldest first.
+func (s *SSOService) ListConnectionSAMLSpEncryptionCerts(ctx context.Context, connectionID string, opts ...RequestOption) (*SAMLSpEncryptionCertificateList, error) {
+	var result SAMLSpEncryptionCertificateList
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s/saml_sp_encryption_certs", url.PathEscape(connectionID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// CreateConnectionSAMLSpEncryptionCert create an SP encryption certificate
+// Generates a new encryption key pair for the connection and returns its public certificate. WorkOS holds the private key, so the request takes no body — to bring your own key pairs, provide `saml_options.sp_encryption_key_pairs` when creating the connection instead. Creating a certificate appends rather than replaces: every active private key is tried when decrypting, which lets a rotation overlap the old and new certificates.
+func (s *SSOService) CreateConnectionSAMLSpEncryptionCert(ctx context.Context, connectionID string, opts ...RequestOption) (*SAMLSpEncryptionCertificate, error) {
+	var result SAMLSpEncryptionCertificate
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connections/%s/saml_sp_encryption_certs", url.PathEscape(connectionID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteConnectionSAMLSpEncryptionCert delete an SP encryption certificate
+// Removes an encryption key pair from the connection. SAML responses encrypted with its certificate can no longer be decrypted, so remove the certificate from the Identity Provider first when rotating.
+func (s *SSOService) DeleteConnectionSAMLSpEncryptionCert(ctx context.Context, connectionID string, certificateID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connections/%s/saml_sp_encryption_certs/%s", url.PathEscape(connectionID), url.PathEscape(certificateID)), nil, nil, nil, opts)
+	return err
+}
+
+// ListConnectionSAMLSpSigningCert get the SP signing certificate
+// Returns the public certificate the Identity Provider can use to verify the signature of SAML requests sent by WorkOS. Responds with `404` when the connection has no request signing key pair.
+func (s *SSOService) ListConnectionSAMLSpSigningCert(ctx context.Context, connectionID string, opts ...RequestOption) (*SAMLSpSigningCertificate, error) {
+	var result SAMLSpSigningCertificate
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s/saml_sp_signing_cert", url.PathEscape(connectionID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// CreateConnectionSAMLSpSigningCert create an SP signing certificate
+// Generates a new request signing key pair for the connection and returns its public certificate. WorkOS holds the private key, so the request takes no body — to bring your own key pair, provide `saml_options.sp_signing_key_pair` when creating the connection instead. A connection signs with one key pair at a time: delete the existing certificate before creating its replacement.
+func (s *SSOService) CreateConnectionSAMLSpSigningCert(ctx context.Context, connectionID string, opts ...RequestOption) (*SAMLSpSigningCertificate, error) {
+	var result SAMLSpSigningCertificate
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/connections/%s/saml_sp_signing_cert", url.PathEscape(connectionID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteConnectionSAMLSpSigningCert delete the SP signing certificate
+// Removes the request signing key pair from the connection, after which SAML requests are sent unsigned. Delete the certificate before creating its replacement when rotating.
+func (s *SSOService) DeleteConnectionSAMLSpSigningCert(ctx context.Context, connectionID string, certificateID string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/connections/%s/saml_sp_signing_cert/%s", url.PathEscape(connectionID), url.PathEscape(certificateID)), nil, nil, nil, opts)
+	return err
+}
+
 // GetConnection get a Connection
 // Get the details of an existing connection.
 func (s *SSOService) GetConnection(ctx context.Context, id string, opts ...RequestOption) (*Connection, error) {
 	var result Connection
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/connections/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// SSOUpdateConnectionParams contains the parameters for UpdateConnection.
+type SSOUpdateConnectionParams struct {
+	// Name is a human-readable name for the Connection.
+	Name *string `json:"name,omitempty" url:"-"`
+	// ExternalID is the customer-owned identifier for the Connection. Set to `null` to stop tracking one.
+	ExternalID *string `json:"external_id,omitempty" url:"-"`
+	// ConnectionType is the type of the Connection. Immutable after creation — it may be sent, but only with the Connection current type.
+	ConnectionType *string `json:"connection_type,omitempty" url:"-"`
+	// AttributeMaps is how IdP attributes or claims map onto WorkOS profile fields. Only the provided fields are updated.
+	AttributeMaps *PatchConnectionAttributeMaps `json:"attribute_maps,omitempty" url:"-"`
+	// ProtocolOptions optionally identifies the protocol options.
+	ProtocolOptions SSOPatchProtocolOptions `url:"-" json:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for SSOUpdateConnectionParams.
+func (p SSOUpdateConnectionParams) MarshalJSON() ([]byte, error) {
+	type Alias SSOUpdateConnectionParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.ProtocolOptions == nil && len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	if p.ProtocolOptions != nil {
+		p.ProtocolOptions.applyToBody(m)
+	}
+	nullable := map[string]bool{
+		"external_id": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("SSOUpdateConnectionParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
+}
+
+// UpdateConnection update a Connection
+// Updates an existing connection. Only the provided fields are changed; fields that accept `null` are reset to their default behavior.
+func (s *SSOService) UpdateConnection(ctx context.Context, id string, params *SSOUpdateConnectionParams, opts ...RequestOption) (*Connection, error) {
+	var result Connection
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/connections/%s", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -175,16 +425,25 @@ func (s *SSOService) GetProfile(ctx context.Context, opts ...RequestOption) (*Pr
 
 // SSOGetProfileAndTokenParams contains the parameters for GetProfileAndToken.
 type SSOGetProfileAndTokenParams struct {
-	// Code is the authorization code received from the authorization callback.
-	Code string `json:"code" url:"-"`
+	// Code is the authorization code received from the authorization callback. Required when `grant_type` is `authorization_code`.
+	Code *string `json:"code,omitempty" url:"-"`
+	// SubjectToken is the OIDC ID token to exchange. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
+	SubjectToken *string `json:"subject_token,omitempty" url:"-"`
+	// SubjectTokenType is the type of the subject token. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
+	SubjectTokenType *string `json:"subject_token_type,omitempty" url:"-"`
+	// OrganizationID is the ID of the organization whose connection the subject token is validated against. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 }
 
 // getProfileAndTokenBody is the JSON request body for GetProfileAndToken.
 type getProfileAndTokenBody struct {
-	GrantType    string `json:"grant_type"`
-	Code         string `json:"code"`
-	ClientID     string `json:"client_id,omitempty"`
-	ClientSecret string `json:"client_secret,omitempty"`
+	GrantType        string  `json:"grant_type"`
+	ClientID         string  `json:"client_id,omitempty"`
+	ClientSecret     string  `json:"client_secret,omitempty"`
+	Code             *string `json:"code,omitempty"`
+	SubjectToken     *string `json:"subject_token,omitempty"`
+	SubjectTokenType *string `json:"subject_token_type,omitempty"`
+	OrganizationID   *string `json:"organization_id,omitempty"`
 }
 
 // GetProfileAndToken get a Profile and Token
@@ -192,10 +451,13 @@ type getProfileAndTokenBody struct {
 func (s *SSOService) GetProfileAndToken(ctx context.Context, params *SSOGetProfileAndTokenParams, opts ...RequestOption) (*SSOTokenResponse, error) {
 	body := getProfileAndTokenBody{
 		GrantType: "authorization_code",
-		Code:      params.Code,
 	}
 	body.ClientID = s.client.clientID
 	body.ClientSecret = s.client.apiKey
+	body.Code = params.Code
+	body.SubjectToken = params.SubjectToken
+	body.SubjectTokenType = params.SubjectTokenType
+	body.OrganizationID = params.OrganizationID
 	var result SSOTokenResponse
 	_, err := s.client.request(ctx, "POST", "/sso/token", params, body, &result, opts)
 	if err != nil {

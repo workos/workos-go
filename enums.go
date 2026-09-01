@@ -20,6 +20,78 @@ const (
 	VaultByokKeyProviderAzureKeyVault VaultByokKeyProvider = "AZURE_KEY_VAULT"
 )
 
+// UpdateAuditLogsRetentionRetentionPeriod represents update audit logs retention retention period values.
+type UpdateAuditLogsRetentionRetentionPeriod string
+
+const (
+	UpdateAuditLogsRetentionRetentionPeriod1Month   UpdateAuditLogsRetentionRetentionPeriod = "1_MONTH"
+	UpdateAuditLogsRetentionRetentionPeriod2Months  UpdateAuditLogsRetentionRetentionPeriod = "2_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod3Months  UpdateAuditLogsRetentionRetentionPeriod = "3_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod4Months  UpdateAuditLogsRetentionRetentionPeriod = "4_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod5Months  UpdateAuditLogsRetentionRetentionPeriod = "5_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod6Months  UpdateAuditLogsRetentionRetentionPeriod = "6_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod7Months  UpdateAuditLogsRetentionRetentionPeriod = "7_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod8Months  UpdateAuditLogsRetentionRetentionPeriod = "8_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod9Months  UpdateAuditLogsRetentionRetentionPeriod = "9_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod10Months UpdateAuditLogsRetentionRetentionPeriod = "10_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod11Months UpdateAuditLogsRetentionRetentionPeriod = "11_MONTHS"
+	UpdateAuditLogsRetentionRetentionPeriod1Year    UpdateAuditLogsRetentionRetentionPeriod = "1_YEAR"
+	UpdateAuditLogsRetentionRetentionPeriod2Years   UpdateAuditLogsRetentionRetentionPeriod = "2_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod3Years   UpdateAuditLogsRetentionRetentionPeriod = "3_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod4Years   UpdateAuditLogsRetentionRetentionPeriod = "4_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod5Years   UpdateAuditLogsRetentionRetentionPeriod = "5_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod6Years   UpdateAuditLogsRetentionRetentionPeriod = "6_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod7Years   UpdateAuditLogsRetentionRetentionPeriod = "7_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod8Years   UpdateAuditLogsRetentionRetentionPeriod = "8_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod9Years   UpdateAuditLogsRetentionRetentionPeriod = "9_YEARS"
+	UpdateAuditLogsRetentionRetentionPeriod10Years  UpdateAuditLogsRetentionRetentionPeriod = "10_YEARS"
+)
+
+// CreateConnectionOIDCOptionsTokenAuthenticationMethod represents create connection oidc options token authentication method values.
+type CreateConnectionOIDCOptionsTokenAuthenticationMethod string
+
+const (
+	CreateConnectionOIDCOptionsTokenAuthenticationMethodClientSecretPost  CreateConnectionOIDCOptionsTokenAuthenticationMethod = "client_secret_post"
+	CreateConnectionOIDCOptionsTokenAuthenticationMethodClientSecretBasic CreateConnectionOIDCOptionsTokenAuthenticationMethod = "client_secret_basic"
+	CreateConnectionOIDCOptionsTokenAuthenticationMethodPrivateKeyJWT     CreateConnectionOIDCOptionsTokenAuthenticationMethod = "private_key_jwt"
+)
+
+// CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm represents create connection oidc options id token signature algorithm values.
+type CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm string
+
+const (
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmEs256 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "ES256"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmEs384 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "ES384"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmEs512 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "ES512"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmEdDsa CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "EdDSA"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmHs256 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "HS256"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmHs384 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "HS384"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmHs512 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "HS512"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmPs256 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "PS256"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmPs384 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "PS384"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmPs512 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "PS512"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmRs256 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "RS256"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmRs384 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "RS384"
+	CreateConnectionOIDCOptionsIDTokenSignatureAlgorithmRs512 CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm = "RS512"
+)
+
+// PatchConnectionOIDCOptionsTokenAuthenticationMethod is an alias for CreateConnectionOIDCOptionsTokenAuthenticationMethod.
+type PatchConnectionOIDCOptionsTokenAuthenticationMethod = CreateConnectionOIDCOptionsTokenAuthenticationMethod
+
+// PatchConnectionOIDCOptionsIDTokenSignatureAlgorithm is an alias for CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm.
+type PatchConnectionOIDCOptionsIDTokenSignatureAlgorithm = CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm
+
+// InviteItContactIntents represents invite it contact intents values.
+type InviteItContactIntents string
+
+const (
+	InviteItContactIntentsSSO                InviteItContactIntents = "sso"
+	InviteItContactIntentsDirectorySync      InviteItContactIntents = "directory_sync"
+	InviteItContactIntentsLogStreams         InviteItContactIntents = "log_streams"
+	InviteItContactIntentsDomainVerification InviteItContactIntents = "domain_verification"
+	InviteItContactIntentsBringYourOwnKey    InviteItContactIntents = "bring_your_own_key"
+)
+
 // OrganizationDomainDataState represents organization domain data state values.
 type OrganizationDomainDataState string
 
@@ -196,6 +268,13 @@ type UpdateUserPasswordSaltPosition = CreateUserPasswordSaltPosition
 type CreateWebhookEndpointEvents string
 
 const (
+	CreateWebhookEndpointEventsAgentBlueprintCreated                      CreateWebhookEndpointEvents = "agent.blueprint.created"
+	CreateWebhookEndpointEventsAgentBlueprintDeleted                      CreateWebhookEndpointEvents = "agent.blueprint.deleted"
+	CreateWebhookEndpointEventsAgentBlueprintUpdated                      CreateWebhookEndpointEvents = "agent.blueprint.updated"
+	CreateWebhookEndpointEventsAgentInstanceCreated                       CreateWebhookEndpointEvents = "agent.instance.created"
+	CreateWebhookEndpointEventsAgentInstanceDeleted                       CreateWebhookEndpointEvents = "agent.instance.deleted"
+	CreateWebhookEndpointEventsAgentInstanceSessionCreated                CreateWebhookEndpointEvents = "agent.instance.session.created"
+	CreateWebhookEndpointEventsAgentInstanceSessionRevoked                CreateWebhookEndpointEvents = "agent.instance.session.revoked"
 	CreateWebhookEndpointEventsAgentRegistrationCreated                   CreateWebhookEndpointEvents = "agent.registration.created"
 	CreateWebhookEndpointEventsAgentRegistrationClaimAttemptCreated       CreateWebhookEndpointEvents = "agent.registration.claim.attempt.created"
 	CreateWebhookEndpointEventsAgentRegistrationClaimCompleted            CreateWebhookEndpointEvents = "agent.registration.claim.completed"
@@ -315,6 +394,9 @@ const (
 	WidgetSessionTokenScopesWidgetsPipesManage              WidgetSessionTokenScopes = "widgets:pipes:manage"
 )
 
+// TokenQueryGrantType is an alias for SSOGrantType.
+type TokenQueryGrantType = SSOGrantType
+
 // AgentRegistrationStatus is an alias for AgentRegistrationCreatedDataStatus.
 type AgentRegistrationStatus = AgentRegistrationCreatedDataStatus
 
@@ -323,6 +405,18 @@ type AgentRegistrationKind = AgentRegistrationCreatedDataKind
 
 // ClaimViewResponseStatus is an alias for AgentRegistrationCreatedDataStatus.
 type ClaimViewResponseStatus = AgentRegistrationCreatedDataStatus
+
+// AgentInstanceType is an alias for AgentInstanceCreatedDataType.
+type AgentInstanceType = AgentInstanceCreatedDataType
+
+// AgentInstanceSessionStatus represents agent instance session status values.
+type AgentInstanceSessionStatus string
+
+const (
+	AgentInstanceSessionStatusActive  AgentInstanceSessionStatus = "active"
+	AgentInstanceSessionStatusRevoked AgentInstanceSessionStatus = "revoked"
+	AgentInstanceSessionStatusExpired AgentInstanceSessionStatus = "expired"
+)
 
 // AuditLogExportState represents audit log export state values.
 type AuditLogExportState string
@@ -372,7 +466,6 @@ const (
 	ConnectionTypeCleverOIDC             ConnectionType = "CleverOIDC"
 	ConnectionTypeCloudflareSAML         ConnectionType = "CloudflareSAML"
 	ConnectionTypeCyberArkSAML           ConnectionType = "CyberArkSAML"
-	ConnectionTypeDiscordOAuth           ConnectionType = "DiscordOAuth"
 	ConnectionTypeDuoSAML                ConnectionType = "DuoSAML"
 	ConnectionTypeEntraIDOIDC            ConnectionType = "EntraIdOIDC"
 	ConnectionTypeGenericOIDC            ConnectionType = "GenericOIDC"
@@ -382,8 +475,6 @@ const (
 	ConnectionTypeGoogleOAuth            ConnectionType = "GoogleOAuth"
 	ConnectionTypeGoogleOIDC             ConnectionType = "GoogleOIDC"
 	ConnectionTypeGoogleSAML             ConnectionType = "GoogleSAML"
-	ConnectionTypeGrokOAuth              ConnectionType = "GrokOAuth"
-	ConnectionTypeXoAuth                 ConnectionType = "XOAuth"
 	ConnectionTypeIntuitOAuth            ConnectionType = "IntuitOAuth"
 	ConnectionTypeJumpCloudSAML          ConnectionType = "JumpCloudSAML"
 	ConnectionTypeKeycloakSAML           ConnectionType = "KeycloakSAML"
@@ -492,14 +583,19 @@ const (
 // PipeConnectedAccountState is an alias for ConnectedAccountInputState.
 type PipeConnectedAccountState = ConnectedAccountInputState
 
-// WaitlistUserState represents waitlist user state values.
-type WaitlistUserState string
+// WaitlistUserState is an alias for UserManagementWaitlistsState.
+type WaitlistUserState = UserManagementWaitlistsState
+
+// AgentInstanceCreatedDataType represents agent instance created data type values.
+type AgentInstanceCreatedDataType string
 
 const (
-	WaitlistUserStatePending  WaitlistUserState = "pending"
-	WaitlistUserStateApproved WaitlistUserState = "approved"
-	WaitlistUserStateDenied   WaitlistUserState = "denied"
+	AgentInstanceCreatedDataTypeDelegated  AgentInstanceCreatedDataType = "delegated"
+	AgentInstanceCreatedDataTypeAutonomous AgentInstanceCreatedDataType = "autonomous"
 )
+
+// AgentInstanceDeletedDataType is an alias for AgentInstanceCreatedDataType.
+type AgentInstanceDeletedDataType = AgentInstanceCreatedDataType
 
 // AgentRegistrationCreatedDataStatus represents agent registration created data status values.
 type AgentRegistrationCreatedDataStatus string
@@ -564,7 +660,6 @@ const (
 	ConnectionActivatedDataConnectionTypeCleverOIDC             ConnectionActivatedDataConnectionType = "CleverOIDC"
 	ConnectionActivatedDataConnectionTypeCloudflareSAML         ConnectionActivatedDataConnectionType = "CloudflareSAML"
 	ConnectionActivatedDataConnectionTypeCyberArkSAML           ConnectionActivatedDataConnectionType = "CyberArkSAML"
-	ConnectionActivatedDataConnectionTypeDiscordOAuth           ConnectionActivatedDataConnectionType = "DiscordOAuth"
 	ConnectionActivatedDataConnectionTypeDuoSAML                ConnectionActivatedDataConnectionType = "DuoSAML"
 	ConnectionActivatedDataConnectionTypeEntraIDOIDC            ConnectionActivatedDataConnectionType = "EntraIdOIDC"
 	ConnectionActivatedDataConnectionTypeGenericOIDC            ConnectionActivatedDataConnectionType = "GenericOIDC"
@@ -574,8 +669,6 @@ const (
 	ConnectionActivatedDataConnectionTypeGoogleOAuth            ConnectionActivatedDataConnectionType = "GoogleOAuth"
 	ConnectionActivatedDataConnectionTypeGoogleOIDC             ConnectionActivatedDataConnectionType = "GoogleOIDC"
 	ConnectionActivatedDataConnectionTypeGoogleSAML             ConnectionActivatedDataConnectionType = "GoogleSAML"
-	ConnectionActivatedDataConnectionTypeGrokOAuth              ConnectionActivatedDataConnectionType = "GrokOAuth"
-	ConnectionActivatedDataConnectionTypeXoAuth                 ConnectionActivatedDataConnectionType = "XOAuth"
 	ConnectionActivatedDataConnectionTypeIntuitOAuth            ConnectionActivatedDataConnectionType = "IntuitOAuth"
 	ConnectionActivatedDataConnectionTypeJumpCloudSAML          ConnectionActivatedDataConnectionType = "JumpCloudSAML"
 	ConnectionActivatedDataConnectionTypeKeycloakSAML           ConnectionActivatedDataConnectionType = "KeycloakSAML"
@@ -817,6 +910,26 @@ type OrganizationUpdatedDataDomainState = OrganizationCreatedDataDomainState
 // OrganizationUpdatedDataDomainVerificationStrategy is an alias for OrganizationCreatedDataDomainVerificationStrategy.
 type OrganizationUpdatedDataDomainVerificationStrategy = OrganizationCreatedDataDomainVerificationStrategy
 
+// ResourceExportCompletedDataResourceType represents resource export completed data resource type values.
+type ResourceExportCompletedDataResourceType string
+
+const (
+	ResourceExportCompletedDataResourceTypeUsers          ResourceExportCompletedDataResourceType = "users"
+	ResourceExportCompletedDataResourceTypeOrganizations  ResourceExportCompletedDataResourceType = "organizations"
+	ResourceExportCompletedDataResourceTypeEvents         ResourceExportCompletedDataResourceType = "events"
+	ResourceExportCompletedDataResourceTypeSessions       ResourceExportCompletedDataResourceType = "sessions"
+	ResourceExportCompletedDataResourceTypeAuditLogEvents ResourceExportCompletedDataResourceType = "auditLogEvents"
+)
+
+// ResourceExportCreatedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
+type ResourceExportCreatedDataResourceType = ResourceExportCompletedDataResourceType
+
+// ResourceExportDownloadedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
+type ResourceExportDownloadedDataResourceType = ResourceExportCompletedDataResourceType
+
+// ResourceExportFailedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
+type ResourceExportFailedDataResourceType = ResourceExportCompletedDataResourceType
+
 // SessionCreatedDataAuthMethod represents session created data auth method values.
 type SessionCreatedDataAuthMethod string
 
@@ -833,20 +946,14 @@ const (
 	SessionCreatedDataAuthMethodUnknown         SessionCreatedDataAuthMethod = "unknown"
 )
 
-// SessionCreatedDataStatus represents session created data status values.
-type SessionCreatedDataStatus string
-
-const (
-	SessionCreatedDataStatusActive  SessionCreatedDataStatus = "active"
-	SessionCreatedDataStatusExpired SessionCreatedDataStatus = "expired"
-	SessionCreatedDataStatusRevoked SessionCreatedDataStatus = "revoked"
-)
+// SessionCreatedDataStatus is an alias for AgentInstanceSessionStatus.
+type SessionCreatedDataStatus = AgentInstanceSessionStatus
 
 // SessionRevokedDataAuthMethod is an alias for SessionCreatedDataAuthMethod.
 type SessionRevokedDataAuthMethod = SessionCreatedDataAuthMethod
 
-// SessionRevokedDataStatus is an alias for SessionCreatedDataStatus.
-type SessionRevokedDataStatus = SessionCreatedDataStatus
+// SessionRevokedDataStatus is an alias for AgentInstanceSessionStatus.
+type SessionRevokedDataStatus = AgentInstanceSessionStatus
 
 // VaultDataCreatedDataActorSource represents vault data created data actor source values.
 type VaultDataCreatedDataActorSource string
@@ -967,6 +1074,16 @@ const (
 // RadarStandaloneResponseBlocklistType is an alias for RadarListType.
 type RadarStandaloneResponseBlocklistType = RadarListType
 
+// TeamProductionState represents team production state values.
+type TeamProductionState string
+
+const (
+	TeamProductionStateActive    TeamProductionState = "Active"
+	TeamProductionStateInactive  TeamProductionState = "Inactive"
+	TeamProductionStateSuspended TeamProductionState = "Suspended"
+	TeamProductionStateDeleting  TeamProductionState = "Deleting"
+)
+
 // UserInviteState is an alias for InvitationAcceptedDataState.
 type UserInviteState = InvitationAcceptedDataState
 
@@ -983,13 +1100,10 @@ const (
 	AuthenticateResponseAuthenticationMethodAppleOAuth             AuthenticateResponseAuthenticationMethod = "AppleOAuth"
 	AuthenticateResponseAuthenticationMethodBitbucketOAuth         AuthenticateResponseAuthenticationMethod = "BitbucketOAuth"
 	AuthenticateResponseAuthenticationMethodCrossAppAuth           AuthenticateResponseAuthenticationMethod = "CrossAppAuth"
-	AuthenticateResponseAuthenticationMethodDiscordOAuth           AuthenticateResponseAuthenticationMethod = "DiscordOAuth"
 	AuthenticateResponseAuthenticationMethodExternalAuth           AuthenticateResponseAuthenticationMethod = "ExternalAuth"
 	AuthenticateResponseAuthenticationMethodGitHubOAuth            AuthenticateResponseAuthenticationMethod = "GitHubOAuth"
 	AuthenticateResponseAuthenticationMethodGitLabOAuth            AuthenticateResponseAuthenticationMethod = "GitLabOAuth"
 	AuthenticateResponseAuthenticationMethodGoogleOAuth            AuthenticateResponseAuthenticationMethod = "GoogleOAuth"
-	AuthenticateResponseAuthenticationMethodGrokOAuth              AuthenticateResponseAuthenticationMethod = "GrokOAuth"
-	AuthenticateResponseAuthenticationMethodXoAuth                 AuthenticateResponseAuthenticationMethod = "XOAuth"
 	AuthenticateResponseAuthenticationMethodIntuitOAuth            AuthenticateResponseAuthenticationMethod = "IntuitOAuth"
 	AuthenticateResponseAuthenticationMethodLinkedInOAuth          AuthenticateResponseAuthenticationMethod = "LinkedInOAuth"
 	AuthenticateResponseAuthenticationMethodMicrosoftOAuth         AuthenticateResponseAuthenticationMethod = "MicrosoftOAuth"
@@ -1002,6 +1116,9 @@ const (
 	AuthenticateResponseAuthenticationMethodImpersonation          AuthenticateResponseAuthenticationMethod = "Impersonation"
 	AuthenticateResponseAuthenticationMethodMigratedSession        AuthenticateResponseAuthenticationMethod = "MigratedSession"
 )
+
+// WaitlistEntryState is an alias for UserManagementWaitlistsState.
+type WaitlistEntryState = UserManagementWaitlistsState
 
 // WebhookEndpointStatus is an alias for UpdateWebhookEndpointStatus.
 type WebhookEndpointStatus = UpdateWebhookEndpointStatus
@@ -1071,6 +1188,16 @@ const (
 	UserRoleAssignmentSourceTypeGroup  UserRoleAssignmentSourceType = "group"
 )
 
+// AgentBlueprintsTokenMintTokenRequestType represents agent blueprints token mint token request type values.
+type AgentBlueprintsTokenMintTokenRequestType string
+
+const (
+	AgentBlueprintsTokenMintTokenRequestTypeUserDelegated  AgentBlueprintsTokenMintTokenRequestType = "user_delegated"
+	AgentBlueprintsTokenMintTokenRequestTypeAutonomous     AgentBlueprintsTokenMintTokenRequestType = "autonomous"
+	AgentBlueprintsTokenMintTokenRequestTypeAgentDelegated AgentBlueprintsTokenMintTokenRequestType = "agent_delegated"
+	AgentBlueprintsTokenMintTokenRequestTypeRefresh        AgentBlueprintsTokenMintTokenRequestType = "refresh"
+)
+
 // AgentAdminValidateCredentialRequestType represents agent admin validate credential request type values.
 type AgentAdminValidateCredentialRequestType string
 
@@ -1122,12 +1249,9 @@ type UserIdentitiesGetItemProvider string
 const (
 	UserIdentitiesGetItemProviderAppleOAuth             UserIdentitiesGetItemProvider = "AppleOAuth"
 	UserIdentitiesGetItemProviderBitbucketOAuth         UserIdentitiesGetItemProvider = "BitbucketOAuth"
-	UserIdentitiesGetItemProviderDiscordOAuth           UserIdentitiesGetItemProvider = "DiscordOAuth"
 	UserIdentitiesGetItemProviderGithubOAuth            UserIdentitiesGetItemProvider = "GithubOAuth"
 	UserIdentitiesGetItemProviderGitLabOAuth            UserIdentitiesGetItemProvider = "GitLabOAuth"
 	UserIdentitiesGetItemProviderGoogleOAuth            UserIdentitiesGetItemProvider = "GoogleOAuth"
-	UserIdentitiesGetItemProviderGrokOAuth              UserIdentitiesGetItemProvider = "GrokOAuth"
-	UserIdentitiesGetItemProviderXoAuth                 UserIdentitiesGetItemProvider = "XOAuth"
 	UserIdentitiesGetItemProviderIntuitOAuth            UserIdentitiesGetItemProvider = "IntuitOAuth"
 	UserIdentitiesGetItemProviderLinkedInOAuth          UserIdentitiesGetItemProvider = "LinkedInOAuth"
 	UserIdentitiesGetItemProviderMicrosoftOAuth         UserIdentitiesGetItemProvider = "MicrosoftOAuth"
@@ -1141,8 +1265,8 @@ const (
 // UserSessionsAuthMethod is an alias for SessionCreatedDataAuthMethod.
 type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 
-// UserSessionsStatus is an alias for SessionCreatedDataStatus.
-type UserSessionsStatus = SessionCreatedDataStatus
+// UserSessionsStatus is an alias for AgentInstanceSessionStatus.
+type UserSessionsStatus = AgentInstanceSessionStatus
 
 // DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod
@@ -1181,7 +1305,6 @@ const (
 	ConnectionsConnectionTypeClassLinkSAML          ConnectionsConnectionType = "ClassLinkSAML"
 	ConnectionsConnectionTypeCleverOIDC             ConnectionsConnectionType = "CleverOIDC"
 	ConnectionsConnectionTypeCyberArkSAML           ConnectionsConnectionType = "CyberArkSAML"
-	ConnectionsConnectionTypeDiscordOAuth           ConnectionsConnectionType = "DiscordOAuth"
 	ConnectionsConnectionTypeDuoSAML                ConnectionsConnectionType = "DuoSAML"
 	ConnectionsConnectionTypeEntraIDOIDC            ConnectionsConnectionType = "EntraIdOIDC"
 	ConnectionsConnectionTypeGenericOIDC            ConnectionsConnectionType = "GenericOIDC"
@@ -1191,8 +1314,6 @@ const (
 	ConnectionsConnectionTypeGoogleOAuth            ConnectionsConnectionType = "GoogleOAuth"
 	ConnectionsConnectionTypeGoogleOIDC             ConnectionsConnectionType = "GoogleOIDC"
 	ConnectionsConnectionTypeGoogleSAML             ConnectionsConnectionType = "GoogleSAML"
-	ConnectionsConnectionTypeGrokOAuth              ConnectionsConnectionType = "GrokOAuth"
-	ConnectionsConnectionTypeXoAuth                 ConnectionsConnectionType = "XOAuth"
 	ConnectionsConnectionTypeIntuitOAuth            ConnectionsConnectionType = "IntuitOAuth"
 	ConnectionsConnectionTypeJumpCloudSAML          ConnectionsConnectionType = "JumpCloudSAML"
 	ConnectionsConnectionTypeKeycloakSAML           ConnectionsConnectionType = "KeycloakSAML"
@@ -1262,6 +1383,14 @@ const (
 	SSOProviderXeroOAuth              SSOProvider = "XeroOAuth"
 )
 
+// SSOGrantType represents SSO grant type values.
+type SSOGrantType string
+
+const (
+	SSOGrantTypeAuthorizationCode                        SSOGrantType = "authorization_code"
+	SSOGrantTypeUrnIetfParamsOAuthGrantTypeTokenExchange SSOGrantType = "urn:ietf:params:oauth:grant-type:token-exchange"
+)
+
 // UserManagementAuthenticationScreenHint is an alias for RadarStandaloneAssessRequestAction.
 type UserManagementAuthenticationScreenHint = RadarStandaloneAssessRequestAction
 
@@ -1287,6 +1416,15 @@ const (
 
 // UserManagementOrganizationMembershipStatuses is an alias for OrganizationMembershipCreatedDataStatus.
 type UserManagementOrganizationMembershipStatuses = OrganizationMembershipCreatedDataStatus
+
+// UserManagementWaitlistsState represents user management waitlists state values.
+type UserManagementWaitlistsState string
+
+const (
+	UserManagementWaitlistsStatePending  UserManagementWaitlistsState = "pending"
+	UserManagementWaitlistsStateApproved UserManagementWaitlistsState = "approved"
+	UserManagementWaitlistsStateDenied   UserManagementWaitlistsState = "denied"
+)
 
 // VaultOrder represents vault order values.
 type VaultOrder string

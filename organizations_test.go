@@ -223,6 +223,91 @@ func TestOrganizations_ListAuthorizedApplications_Empty(t *testing.T) {
 	require.NoError(t, iter.Err())
 }
 
+func TestOrganizations_ListItContacts(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/it_contacts", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/it_contact_list.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Organizations().ListItContacts(context.Background(), "test_organization_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
+func TestOrganizations_CreateItContact(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/it_contacts", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/it_contact.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Organizations().CreateItContact(context.Background(), "test_organization_id", &workos.OrganizationsCreateItContactParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "it_contact_01HXYZ123456789ABCDEFGHIJ", result.ID)
+	require.Equal(t, "it-contact@example.com", result.Email)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestOrganizations_DeleteItContact(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/it_contacts/test_contact_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Organizations().DeleteItContact(context.Background(), "test_organization_id", "test_contact_id")
+	require.NoError(t, err)
+}
+
+func TestOrganizations_InviteItContact(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/it_contacts/test_contact_id/invite", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Organizations().InviteItContact(context.Background(), "test_organization_id", "test_contact_id", &workos.OrganizationsInviteItContactParams{})
+	require.NoError(t, err)
+}
+
+func TestOrganizations_RevokeItContact(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/it_contacts/test_contact_id/revoke", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Organizations().RevokeItContact(context.Background(), "test_organization_id", "test_contact_id")
+	require.NoError(t, err)
+}
+
 func TestOrganizations_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

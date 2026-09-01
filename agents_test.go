@@ -15,6 +15,157 @@ import (
 	"github.com/workos/workos-go/v10"
 )
 
+func TestAgents_ListBlueprints(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/agents/blueprints", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_agent_blueprint.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Agents().ListBlueprints(context.Background(), &workos.AgentsListBlueprintsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAgents_ListBlueprints_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Agents().ListBlueprints(context.Background(), &workos.AgentsListBlueprintsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestAgents_CreateBlueprint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/agents/blueprints", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_blueprint.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().CreateBlueprint(context.Background(), &workos.AgentsCreateBlueprintParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Prospecting Agent", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestAgents_GetBlueprint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/agents/blueprints/test_agent_blueprint_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_blueprint.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().GetBlueprint(context.Background(), "test_agent_blueprint_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Prospecting Agent", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestAgents_UpdateBlueprint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/agents/blueprints/test_agent_blueprint_id", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_blueprint.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().UpdateBlueprint(context.Background(), "test_agent_blueprint_id", &workos.AgentsUpdateBlueprintParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "Prospecting Agent", result.Name)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
+func TestAgents_DeleteBlueprint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/agents/blueprints/test_agent_blueprint_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Agents().DeleteBlueprint(context.Background(), "test_agent_blueprint_id")
+	require.NoError(t, err)
+}
+
+func TestAgents_CreateBlueprintToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/agents/blueprints/test_agent_blueprint_id/tokens", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_token.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().CreateBlueprintToken(context.Background(), "test_agent_blueprint_id", &workos.AgentsCreateBlueprintTokenParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "eyJhbGciOiJSUzI1NiIsImtpZCI6...", result.AccessToken)
+	require.Equal(t, "njGkA8Wyht0GBEGGA0Zh1Q3wZzL2...", result.RefreshToken)
+}
+
 func TestAgents_UpdateAttempts(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)
@@ -86,6 +237,164 @@ func TestAgents_GetRegistration(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
+func TestAgents_ListInstances(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/agents/instances", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_agent_instance.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Agents().ListInstances(context.Background(), &workos.AgentsListInstancesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAgents_ListInstances_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Agents().ListInstances(context.Background(), &workos.AgentsListInstancesParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestAgents_GetInstance(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/agents/instances/test_agent_instance_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_instance.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().GetInstance(context.Background(), "test_agent_instance_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY", result.AgentBlueprintID)
+	require.Equal(t, "org_01EHWNCE74X7JSDV0X3SZ3KJNY", result.OrganizationID)
+}
+
+func TestAgents_DeleteInstance(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/agents/instances/test_agent_instance_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Agents().DeleteInstance(context.Background(), "test_agent_instance_id")
+	require.NoError(t, err)
+}
+
+func TestAgents_ListSessions(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/agents/sessions", r.URL.Path)
+		require.Equal(t, "10", r.URL.Query().Get("limit"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/list_agent_instance_session.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Agents().ListSessions(context.Background(), &workos.AgentsListSessionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.NotNil(t, iter)
+	require.True(t, iter.Next())
+	require.NoError(t, iter.Err())
+	item := iter.Current()
+	require.NotNil(t, item)
+}
+
+func TestAgents_ListSessions_Empty(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	iter := client.Agents().ListSessions(context.Background(), &workos.AgentsListSessionsParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	require.False(t, iter.Next())
+	require.NoError(t, iter.Err())
+}
+
+func TestAgents_GetSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/agents/sessions/test_agent_instance_session_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_instance_session.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().GetSession(context.Background(), "test_agent_instance_session_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_session_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "agent_01EHWNCE74X7JSDV0X3SZ3KJNY", result.AgentInstanceID)
+	require.Equal(t, "2026-01-15T13:00:00.000Z", result.ExpiresAt)
+}
+
+func TestAgents_RevokeSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/agents/sessions/test_agent_instance_session_id/revoke", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_instance_session.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().RevokeSession(context.Background(), "test_agent_instance_session_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_session_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "agent_01EHWNCE74X7JSDV0X3SZ3KJNY", result.AgentInstanceID)
+	require.Equal(t, "2026-01-15T13:00:00.000Z", result.ExpiresAt)
+}
+
 func TestAgents_Error401(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -95,8 +404,9 @@ func TestAgents_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Agents().UpdateAttempts(context.Background(), &workos.AgentsUpdateAttemptsParams{})
-	require.IsType(t, &workos.AuthenticationError{}, err)
+	iter := client.Agents().ListBlueprints(context.Background(), &workos.AgentsListBlueprintsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.AuthenticationError{}, iter.Err())
 }
 
 func TestAgents_Error404(t *testing.T) {
@@ -108,8 +418,9 @@ func TestAgents_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Agents().UpdateAttempts(context.Background(), &workos.AgentsUpdateAttemptsParams{})
-	require.IsType(t, &workos.NotFoundError{}, err)
+	iter := client.Agents().ListBlueprints(context.Background(), &workos.AgentsListBlueprintsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.NotFoundError{}, iter.Err())
 }
 
 func TestAgents_Error422(t *testing.T) {
@@ -121,6 +432,7 @@ func TestAgents_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.Agents().UpdateAttempts(context.Background(), &workos.AgentsUpdateAttemptsParams{})
-	require.IsType(t, &workos.UnprocessableEntityError{}, err)
+	iter := client.Agents().ListBlueprints(context.Background(), &workos.AgentsListBlueprintsParams{})
+	require.False(t, iter.Next())
+	require.IsType(t, &workos.UnprocessableEntityError{}, iter.Err())
 }

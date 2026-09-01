@@ -131,6 +131,138 @@ type ReplaceGroupRoleAssignmentEntry struct {
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
+// CreateConnectionKeyPair represents a create connection key pair.
+type CreateConnectionKeyPair struct {
+	// Key is the PEM-encoded private key.
+	Key string `json:"key"`
+	// Cert is the PEM-encoded X.509 certificate for the key.
+	Cert string `json:"cert"`
+}
+
+// CreateConnectionSAMLOptions represents a create connection SAML options.
+type CreateConnectionSAMLOptions struct {
+	// IdpMetadataURL is the Identity Provider metadata URL. When provided, the IdP fields and signing certificates are imported from the metadata document. Mutually exclusive with the manual IdP fields.
+	IdpMetadataURL *string `json:"idp_metadata_url,omitempty"`
+	// AcsURL is a custom Assertion Consumer Service (ACS) URL override. When omitted, the standard WorkOS-generated ACS URL is used.
+	AcsURL *string `json:"acs_url,omitempty"`
+	// SpEntityID is a custom Service Provider Entity ID (audience) override. When omitted, the connection external key is used.
+	SpEntityID *string `json:"sp_entity_id,omitempty"`
+	// IdpEntityID is the Identity Provider Entity ID.
+	IdpEntityID *string `json:"idp_entity_id,omitempty"`
+	// IdpSSOURL is the Identity Provider SSO URL. Required when configuring the connection with manual IdP fields.
+	IdpSSOURL *string `json:"idp_sso_url,omitempty"`
+	// IdpSigningCerts is the X.509 certificates used to verify signed SAML responses from the Identity Provider. Required when configuring the connection with manual IdP fields.
+	IdpSigningCerts []string `json:"idp_signing_certs,omitempty"`
+	// SpSigningKeyPair is the customer-owned key pair used to sign SAML requests sent to the Identity Provider. When omitted, WorkOS generates and manages the signing key pair.
+	SpSigningKeyPair *CreateConnectionKeyPair `json:"sp_signing_key_pair,omitempty"`
+	// SpEncryptionKeyPairs is the customer-owned key pairs used to decrypt encrypted SAML responses from the Identity Provider. When omitted, WorkOS generates and manages the encryption key pair.
+	SpEncryptionKeyPairs []*CreateConnectionKeyPair `json:"sp_encryption_key_pairs,omitempty"`
+}
+
+// CreateConnectionOIDCOptions represents a create connection oidc options.
+type CreateConnectionOIDCOptions struct {
+	// DiscoveryEndpoint is the OIDC discovery endpoint.
+	DiscoveryEndpoint string `json:"discovery_endpoint"`
+	// ClientID is the OIDC client ID.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OIDC client secret. Required for `client_secret_basic` and `client_secret_post`, and rejected for `private_key_jwt`, which authenticates with a key pair instead. This value is write-only and is never returned.
+	ClientSecret *string `json:"client_secret,omitempty"`
+	// RedirectURI is a custom OAuth callback URL override. When omitted, the standard WorkOS-generated redirect URI is used.
+	RedirectURI *string `json:"redirect_uri,omitempty"`
+	// PKCE is whether PKCE is enabled for the connection.
+	PKCE *bool `json:"pkce,omitempty"`
+	// TokenAuthenticationMethod is the token-endpoint client authentication method.
+	TokenAuthenticationMethod *CreateConnectionOIDCOptionsTokenAuthenticationMethod `json:"token_authentication_method,omitempty"`
+	// JWTSigningKeyPair is a key pair for WorkOS to sign `private_key_jwt` client assertions with. Only accepted when `token_authentication_method` is `private_key_jwt`; when omitted, WorkOS generates one and returns its certificate in `oidc_options.jwt_signing_certs`.
+	JWTSigningKeyPair *CreateConnectionKeyPair `json:"jwt_signing_key_pair,omitempty"`
+	// IDTokenSignatureAlgorithm is the ID-token signing algorithm.
+	IDTokenSignatureAlgorithm *CreateConnectionOIDCOptionsIDTokenSignatureAlgorithm `json:"id_token_signature_algorithm,omitempty"`
+	// FetchUserInfo is whether to fetch additional profile attributes from the userinfo endpoint.
+	FetchUserInfo *bool `json:"fetch_user_info,omitempty"`
+}
+
+// CreateConnectionStandardAttributes represents a create connection standard attributes.
+type CreateConnectionStandardAttributes struct {
+	// IdpID is the IdP attribute or claim the profile's `idp_id` is mapped from. When omitted, the default for the connection type is used.
+	IdpID *string `json:"idp_id,omitempty"`
+	// Email is the IdP attribute or claim the profile's `email` is mapped from. When omitted, the default for the connection type is used.
+	Email *string `json:"email,omitempty"`
+	// FirstName is the IdP attribute or claim the profile's `first_name` is mapped from. When omitted, the default for the connection type is used.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the IdP attribute or claim the profile's `last_name` is mapped from. When omitted, the default for the connection type is used.
+	LastName *string `json:"last_name,omitempty"`
+	// Groups is the IdP attribute or claim the profile's `groups` are mapped from. `null` leaves the mapping unset.
+	Groups *string `json:"groups,omitempty"`
+	// Name is the IdP attribute or claim the profile's `name` is mapped from. `null` leaves the mapping unset.
+	Name *string `json:"name,omitempty"`
+}
+
+// CreateConnectionAttributeMaps represents a create connection attribute maps.
+type CreateConnectionAttributeMaps struct {
+	// StandardAttributes is how IdP attributes or claims map onto the standard WorkOS profile fields. Provided fields override the defaults for the connection type.
+	StandardAttributes *CreateConnectionStandardAttributes `json:"standard_attributes,omitempty"`
+	// CustomAttributes is how IdP attributes or claims map onto custom attributes, keyed by custom attribute name. Custom attributes must already be defined in the WorkOS dashboard.
+	CustomAttributes map[string]string `json:"custom_attributes,omitempty"`
+}
+
+// PatchConnectionSAMLOptions represents a patch connection SAML options.
+type PatchConnectionSAMLOptions struct {
+	// IdpMetadataURL is the Identity Provider metadata URL. When provided, the IdP fields and signing certificates are re-imported from the metadata document, replacing the current set. Mutually exclusive with the manual IdP fields. Set to `null` to stop tracking a metadata URL.
+	IdpMetadataURL *string `json:"idp_metadata_url,omitempty"`
+	// AcsURL is a custom Assertion Consumer Service (ACS) URL override. Set to `null` to revert to the standard WorkOS-generated ACS URL.
+	AcsURL *string `json:"acs_url,omitempty"`
+	// SpEntityID is a custom Service Provider Entity ID (audience) override. Set to `null` to revert to the connection external key.
+	SpEntityID *string `json:"sp_entity_id,omitempty"`
+	// IdpEntityID is the Identity Provider Entity ID.
+	IdpEntityID *string `json:"idp_entity_id,omitempty"`
+	// IdpSSOURL is the Identity Provider SSO URL.
+	IdpSSOURL *string `json:"idp_sso_url,omitempty"`
+}
+
+// PatchConnectionOIDCOptions represents a patch connection oidc options.
+type PatchConnectionOIDCOptions struct {
+	// DiscoveryEndpoint is the OIDC discovery endpoint.
+	DiscoveryEndpoint *string `json:"discovery_endpoint,omitempty"`
+	// ClientID is the OIDC client ID.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecret is the OIDC client secret. Required when moving the connection to `client_secret_basic` or `client_secret_post`, and rejected for `private_key_jwt`, which authenticates with a key pair instead. This value is write-only and is never returned.
+	ClientSecret *string `json:"client_secret,omitempty"`
+	// RedirectURI is a custom OAuth callback URL override. Set to `null` to revert to the standard WorkOS-generated redirect URI.
+	RedirectURI *string `json:"redirect_uri,omitempty"`
+	// PKCE is whether PKCE is enabled for the connection.
+	PKCE *bool `json:"pkce,omitempty"`
+	// TokenAuthenticationMethod is the token-endpoint client authentication method. Moving to `private_key_jwt` generates a signing key pair if the connection has none; its certificate is returned in `oidc_options.jwt_signing_certs` and must be registered at the Identity Provider.
+	TokenAuthenticationMethod *PatchConnectionOIDCOptionsTokenAuthenticationMethod `json:"token_authentication_method,omitempty"`
+	// IDTokenSignatureAlgorithm is the ID-token signing algorithm.
+	IDTokenSignatureAlgorithm *PatchConnectionOIDCOptionsIDTokenSignatureAlgorithm `json:"id_token_signature_algorithm,omitempty"`
+	// FetchUserInfo is whether to fetch additional profile attributes from the userinfo endpoint.
+	FetchUserInfo *bool `json:"fetch_user_info,omitempty"`
+}
+
+// PatchConnectionStandardAttributes represents a patch connection standard attributes.
+type PatchConnectionStandardAttributes struct {
+	// IdpID is the IdP attribute or claim the profile's `idp_id` is mapped from.
+	IdpID *string `json:"idp_id,omitempty"`
+	// Email is the IdP attribute or claim the profile's `email` is mapped from.
+	Email *string `json:"email,omitempty"`
+	// FirstName is the IdP attribute or claim the profile's `first_name` is mapped from.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the IdP attribute or claim the profile's `last_name` is mapped from.
+	LastName *string `json:"last_name,omitempty"`
+	// Groups is the IdP attribute or claim the profile's `groups` are mapped from. Set to `null` to unset the mapping.
+	Groups *string `json:"groups,omitempty"`
+	// Name is the IdP attribute or claim the profile's `name` is mapped from. Set to `null` to unset the mapping.
+	Name *string `json:"name,omitempty"`
+}
+
+// PatchConnectionAttributeMaps represents a patch connection attribute maps.
+type PatchConnectionAttributeMaps struct {
+	// StandardAttributes is how IdP attributes or claims map onto the standard WorkOS profile fields. Only the provided fields are updated.
+	StandardAttributes *PatchConnectionStandardAttributes `json:"standard_attributes,omitempty"`
+	// CustomAttributes is how IdP attributes or claims map onto custom attributes, keyed by custom attribute name. Custom attributes must already be defined in the WorkOS dashboard. Only the provided keys are updated; a `null` value unsets that mapping.
+	CustomAttributes map[string]*string `json:"custom_attributes,omitempty"`
+}
+
 // OrganizationDomainData represents an organization domain data.
 type OrganizationDomainData struct {
 	// Domain is the domain value.
@@ -163,11 +295,11 @@ type APIKeyInstallation struct {
 type CustomProviderDefinition struct {
 	// Name is a descriptive name for the custom provider.
 	Name string `json:"name"`
-	// AuthorizationURL is the provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers.
+	// AuthorizationURL is the provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
 	AuthorizationURL *string `json:"authorization_url,omitempty"`
-	// TokenURL is the provider's OAuth token endpoint. Required for OAuth providers; omit for `api_key` providers.
+	// TokenURL is the provider's OAuth token endpoint. Required for OAuth and `client_credentials` providers; omit for `api_key` providers. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
 	TokenURL *string `json:"token_url,omitempty"`
-	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint.
+	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint. Must be a static URL, like the other endpoints.
 	RefreshTokenURL *string `json:"refresh_token_url,omitempty"`
 	// PKCEEnabled is whether PKCE is used during the authorization code flow. Defaults to `true`.
 	PKCEEnabled *bool `json:"pkce_enabled,omitempty"`
@@ -189,11 +321,11 @@ type CustomProviderDefinition struct {
 type UpdateCustomProviderDefinition struct {
 	// Name is a descriptive name for the custom provider.
 	Name *string `json:"name,omitempty"`
-	// AuthorizationURL is the provider's OAuth authorization endpoint.
+	// AuthorizationURL is the provider's OAuth authorization endpoint. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
 	AuthorizationURL *string `json:"authorization_url,omitempty"`
-	// TokenURL is the provider's OAuth token endpoint.
+	// TokenURL is the provider's OAuth token endpoint. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
 	TokenURL *string `json:"token_url,omitempty"`
-	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint.
+	// RefreshTokenURL is the endpoint used to refresh tokens, if different from the token endpoint. Must be a static URL, like the other endpoints.
 	RefreshTokenURL *string `json:"refresh_token_url,omitempty"`
 	// PKCEEnabled is whether PKCE is used during the authorization code flow.
 	PKCEEnabled *bool `json:"pkce_enabled,omitempty"`
@@ -375,6 +507,88 @@ type ClaimViewResponse struct {
 	UserCode string `json:"user_code"`
 	// Organizations is organizations the user belongs to, offered as placement choices.
 	Organizations []*ClaimViewResponseOrganization `json:"organizations"`
+}
+
+// AgentBlueprint represents an agent blueprint.
+type AgentBlueprint struct {
+	// Object distinguishes the agent blueprint object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent blueprint.
+	ID string `json:"id"`
+	// Name is human-readable name of the agent blueprint.
+	Name string `json:"name"`
+	// Description is human-readable description of the agent blueprint.
+	Description *string `json:"description"`
+	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+	Permissions []string `json:"permissions"`
+	// InvocableBy is who may mint sessions from this blueprint.
+	InvocableBy *AgentBlueprintInvocableBy `json:"invocable_by"`
+	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
+	SessionSettings *AgentBlueprintSessionSetting `json:"session_settings"`
+	// CreatedAt is timestamp when the agent blueprint was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is timestamp when the agent blueprint was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentInstance represents an agent instance.
+type AgentInstance struct {
+	// Object distinguishes the agent instance object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent instance.
+	ID string `json:"id"`
+	// AgentBlueprintID is the blueprint this instance was minted from.
+	AgentBlueprintID string `json:"agent_blueprint_id"`
+	// OrganizationID is the organization the instance acts within.
+	OrganizationID string `json:"organization_id"`
+	// OrganizationMembershipID is the organization membership of the delegating user; `null` for autonomous instances.
+	OrganizationMembershipID *string `json:"organization_membership_id"`
+	// Type is whether the instance acts on behalf of a specific user (`delegated`) or as itself (`autonomous`).
+	Type AgentInstanceType `json:"type"`
+	// CreatedAt is timestamp when the agent instance was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is timestamp when the agent instance was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentToken represents an agent token.
+type AgentToken struct {
+	// AccessToken is the agent access token (a JWT) carrying the effective permissions.
+	AccessToken string `json:"access_token"`
+	// TokenType is always `Bearer`.
+	TokenType string `json:"token_type"`
+	// ExpiresIn is number of seconds until the access token expires.
+	ExpiresIn int `json:"expires_in"`
+	// RefreshToken is single-use refresh token for rotating the access token within the session lifetime.
+	RefreshToken string `json:"refresh_token"`
+	// AgentInstanceID is the agent instance the session belongs to.
+	AgentInstanceID string `json:"agent_instance_id"`
+	// NewInstance is whether this mint created the agent instance: `true` only for the mint that inserted the row, `false` when an existing instance was reused (including when a concurrent mint inserted it first).
+	NewInstance bool `json:"new_instance"`
+	// AgentInstanceSessionID is the backing agent instance session.
+	AgentInstanceSessionID string `json:"agent_instance_session_id"`
+	// Permissions is the effective permission slugs carried by the token.
+	Permissions []string `json:"permissions"`
+}
+
+// AgentInstanceSession represents an agent instance session.
+type AgentInstanceSession struct {
+	// Object distinguishes the agent instance session object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent instance session.
+	ID string `json:"id"`
+	// AgentInstanceID is the agent instance the session belongs to.
+	AgentInstanceID string `json:"agent_instance_id"`
+	// Status is derived from `revoked_at` and `expires_at` at read time; a revoked session stays `revoked` even after it expires.
+	Status AgentInstanceSessionStatus `json:"status"`
+	// ExpiresAt is timestamp when the session expires.
+	ExpiresAt string `json:"expires_at"`
+	// RevokedAt is timestamp when the session was revoked; `null` if it has not been revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// CreatedAt is timestamp when the session was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is timestamp when the session was last updated.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // APIKey represents an api key.
@@ -1044,22 +1258,24 @@ type PipeConnectedAccount struct {
 
 // WaitlistUser represents a waitlist user.
 type WaitlistUser struct {
-	// Object distinguishes the Waitlist User object.
-	Object string `json:"object"`
-	// ID is the unique ID of the Waitlist User.
+	// ID is the unique ID of the waitlist entry.
 	ID string `json:"id"`
-	// Email is the email address of the Waitlist User.
+	// Email is the email address of the user on the waitlist.
 	Email string `json:"email"`
-	// State is the state of the Waitlist User.
+	// State is the state of the waitlist entry.
 	State WaitlistUserState `json:"state"`
-	// ApprovedAt is the timestamp when the Waitlist User was approved, or null if not yet approved.
+	// ApprovedAt is the timestamp when the entry was approved, or null if not yet approved.
 	ApprovedAt *string `json:"approved_at"`
-	// WaitlistID is the unique ID of the Waitlist that the Waitlist User joined.
+	// AdditionalFields is additional fields submitted when the user joined the waitlist. Values are user-provided — treat them as untrusted input when rendering or exporting.
+	AdditionalFields map[string]string `json:"additional_fields,omitempty"`
+	// WaitlistID is the unique ID of the waitlist the entry belongs to.
 	WaitlistID *string `json:"waitlist_id,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+	// Object distinguishes the Waitlist User object.
+	Object string `json:"object"`
 }
 
 // EventSchema an event emitted by WorkOS.
@@ -1146,6 +1362,268 @@ type ActionUserRegistrationDeniedData struct {
 	IPAddress *string `json:"ip_address"`
 	// UserAgent is the user agent of the request.
 	UserAgent *string `json:"user_agent"`
+}
+
+// AgentBlueprintCreated represents an agent blueprint created.
+type AgentBlueprintCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentBlueprintCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentBlueprintCreatedData the event payload.
+type AgentBlueprintCreatedData struct {
+	// Object distinguishes the agent blueprint object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent blueprint.
+	ID string `json:"id"`
+	// Name is human-readable name of the agent blueprint.
+	Name string `json:"name"`
+	// Description is human-readable description of the agent blueprint.
+	Description *string `json:"description"`
+	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+	Permissions []string `json:"permissions"`
+	// InvocableBy is who may mint sessions from this blueprint.
+	InvocableBy *AgentBlueprintCreatedDataInvocableBy `json:"invocable_by"`
+	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
+	SessionSettings *AgentBlueprintCreatedDataSessionSetting `json:"session_settings"`
+	// CreatedAt is the timestamp when the agent blueprint was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the agent blueprint was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentBlueprintCreatedDataInvocableBy who may mint sessions from this blueprint.
+type AgentBlueprintCreatedDataInvocableBy struct {
+	// RoleSlugs is role slugs whose members may mint user-delegated sessions from this blueprint.
+	RoleSlugs []string `json:"role_slugs"`
+	// OrganizationIDs is organizations in which autonomous sessions may be minted from this blueprint.
+	OrganizationIDs []string `json:"organization_ids"`
+}
+
+// AgentBlueprintCreatedDataSessionSetting token and session lifetimes for sessions minted from this blueprint.
+type AgentBlueprintCreatedDataSessionSetting struct {
+	// MaxAgeSeconds is maximum lifetime of a session in seconds; refreshes never extend a session past this.
+	MaxAgeSeconds float64 `json:"max_age_seconds"`
+	// AccessTokenTtlSeconds is lifetime of each minted access token in seconds.
+	AccessTokenTtlSeconds float64 `json:"access_token_ttl_seconds"`
+	// RefreshTokenTtlSeconds is lifetime of each rotated refresh token in seconds.
+	RefreshTokenTtlSeconds float64 `json:"refresh_token_ttl_seconds"`
+}
+
+// AgentBlueprintDeleted represents an agent blueprint deleted.
+type AgentBlueprintDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentBlueprintDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentBlueprintDeletedData the event payload.
+type AgentBlueprintDeletedData struct {
+	// Object distinguishes the agent blueprint object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent blueprint.
+	ID string `json:"id"`
+	// Name is human-readable name of the agent blueprint.
+	Name string `json:"name"`
+	// CreatedAt is the timestamp when the agent blueprint was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the agent blueprint was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentBlueprintUpdated represents an agent blueprint updated.
+type AgentBlueprintUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentBlueprintUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentBlueprintUpdatedData the event payload.
+type AgentBlueprintUpdatedData struct {
+	// Object distinguishes the agent blueprint object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent blueprint.
+	ID string `json:"id"`
+	// Name is human-readable name of the agent blueprint.
+	Name string `json:"name"`
+	// Description is human-readable description of the agent blueprint.
+	Description *string `json:"description"`
+	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+	Permissions []string `json:"permissions"`
+	// InvocableBy is who may mint sessions from this blueprint.
+	InvocableBy *AgentBlueprintUpdatedDataInvocableBy `json:"invocable_by"`
+	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
+	SessionSettings *AgentBlueprintUpdatedDataSessionSetting `json:"session_settings"`
+	// CreatedAt is the timestamp when the agent blueprint was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the agent blueprint was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentBlueprintUpdatedDataInvocableBy is an alias for AgentBlueprintCreatedDataInvocableBy.
+type AgentBlueprintUpdatedDataInvocableBy = AgentBlueprintCreatedDataInvocableBy
+
+// AgentBlueprintUpdatedDataSessionSetting is an alias for AgentBlueprintCreatedDataSessionSetting.
+type AgentBlueprintUpdatedDataSessionSetting = AgentBlueprintCreatedDataSessionSetting
+
+// AgentInstanceCreated represents an agent instance created.
+type AgentInstanceCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentInstanceCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentInstanceCreatedData the event payload.
+type AgentInstanceCreatedData struct {
+	// Object distinguishes the agent instance object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent instance.
+	ID string `json:"id"`
+	// AgentBlueprintID is the agent blueprint this instance was minted from.
+	AgentBlueprintID string `json:"agent_blueprint_id"`
+	// OrganizationID is the organization the instance acts within.
+	OrganizationID string `json:"organization_id"`
+	// OrganizationMembershipID is the organization membership the instance acts on behalf of; `null` for an autonomous instance.
+	OrganizationMembershipID *string `json:"organization_membership_id"`
+	// Type is whether the instance acts on behalf of a user (`delegated`) or as itself within an organization (`autonomous`).
+	Type AgentInstanceCreatedDataType `json:"type"`
+	// CreatedAt is the timestamp when the agent instance was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the agent instance was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentInstanceDeleted represents an agent instance deleted.
+type AgentInstanceDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentInstanceDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentInstanceDeletedData the event payload.
+type AgentInstanceDeletedData struct {
+	// Object distinguishes the agent instance object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent instance.
+	ID string `json:"id"`
+	// AgentBlueprintID is the agent blueprint this instance was minted from.
+	AgentBlueprintID string `json:"agent_blueprint_id"`
+	// OrganizationID is the organization the instance acts within.
+	OrganizationID string `json:"organization_id"`
+	// OrganizationMembershipID is the organization membership the instance acts on behalf of; `null` for an autonomous instance.
+	OrganizationMembershipID *string `json:"organization_membership_id"`
+	// Type is whether the instance acts on behalf of a user (`delegated`) or as itself within an organization (`autonomous`).
+	Type AgentInstanceDeletedDataType `json:"type"`
+	// CreatedAt is the timestamp when the agent instance was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the agent instance was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentInstanceSessionCreated represents an agent instance session created.
+type AgentInstanceSessionCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentInstanceSessionCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentInstanceSessionCreatedData the event payload.
+type AgentInstanceSessionCreatedData struct {
+	// Object distinguishes the agent instance session object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent instance session.
+	ID string `json:"id"`
+	// AgentInstanceID is the agent instance the session belongs to.
+	AgentInstanceID string `json:"agent_instance_id"`
+	// OrganizationID is the organization the owning agent instance belongs to.
+	OrganizationID string `json:"organization_id"`
+	// ExpiresAt is timestamp when the session expires.
+	ExpiresAt string `json:"expires_at"`
+	// RevokedAt is timestamp when the session was revoked; `null` if it has not been revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// CreatedAt is the timestamp when the session was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the session was last updated.
+	UpdatedAt string `json:"updated_at"`
+	// PermissionSlugs is the permissions granted to the session at mint time.
+	PermissionSlugs []string `json:"permission_slugs"`
+}
+
+// AgentInstanceSessionRevoked represents an agent instance session revoked.
+type AgentInstanceSessionRevoked struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *AgentInstanceSessionRevokedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// AgentInstanceSessionRevokedData the event payload.
+type AgentInstanceSessionRevokedData struct {
+	// Object distinguishes the agent instance session object.
+	Object string `json:"object"`
+	// ID is unique identifier of the agent instance session.
+	ID string `json:"id"`
+	// AgentInstanceID is the agent instance the session belongs to.
+	AgentInstanceID string `json:"agent_instance_id"`
+	// OrganizationID is the organization the owning agent instance belongs to.
+	OrganizationID string `json:"organization_id"`
+	// ExpiresAt is timestamp when the session expires.
+	ExpiresAt string `json:"expires_at"`
+	// RevokedAt is timestamp when the session was revoked; `null` if it has not been revoked.
+	RevokedAt *string `json:"revoked_at"`
+	// CreatedAt is the timestamp when the session was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the session was last updated.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // AgentRegistrationClaimAttemptCreated represents an agent registration claim attempt created.
@@ -1792,6 +2270,8 @@ type AuthenticationOAuthFailedData struct {
 	Email *string `json:"email"`
 	// Error is details about the authentication error.
 	Error *AuthenticationOAuthFailedDataError `json:"error"`
+	// Provider is the OAuth provider used for authentication.
+	Provider *string `json:"provider,omitempty"`
 }
 
 // AuthenticationOAuthSucceeded represents an authentication OAuth succeeded.
@@ -1820,6 +2300,8 @@ type AuthenticationOAuthSucceededData struct {
 	UserID *string `json:"user_id"`
 	// Email is the email address of the user.
 	Email string `json:"email"`
+	// Provider is the OAuth provider used for authentication.
+	Provider *string `json:"provider,omitempty"`
 }
 
 // AuthenticationPasskeyFailed represents an authentication passkey failed.
@@ -4102,6 +4584,94 @@ type RadarChallengeCreatedData struct {
 	Email string `json:"email"`
 }
 
+// ResourceExportCompleted represents a resource export completed.
+type ResourceExportCompleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ResourceExportCompletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ResourceExportCompletedData the event payload.
+type ResourceExportCompletedData struct {
+	// ID is the ID of the resource export.
+	ID string `json:"id"`
+	// ResourceType is the type of resource being exported.
+	ResourceType ResourceExportCompletedDataResourceType `json:"resource_type"`
+}
+
+// ResourceExportCreated represents a resource export created.
+type ResourceExportCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ResourceExportCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ResourceExportCreatedData the event payload.
+type ResourceExportCreatedData struct {
+	// ID is the ID of the resource export.
+	ID string `json:"id"`
+	// ResourceType is the type of resource being exported.
+	ResourceType ResourceExportCreatedDataResourceType `json:"resource_type"`
+}
+
+// ResourceExportDownloaded represents a resource export downloaded.
+type ResourceExportDownloaded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ResourceExportDownloadedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ResourceExportDownloadedData the event payload.
+type ResourceExportDownloadedData struct {
+	// ID is the ID of the resource export.
+	ID string `json:"id"`
+	// ResourceType is the type of resource being exported.
+	ResourceType ResourceExportDownloadedDataResourceType `json:"resource_type"`
+}
+
+// ResourceExportFailed represents a resource export failed.
+type ResourceExportFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ResourceExportFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ResourceExportFailedData the event payload.
+type ResourceExportFailedData struct {
+	// ID is the ID of the resource export.
+	ID string `json:"id"`
+	// ResourceType is the type of resource being exported.
+	ResourceType ResourceExportFailedDataResourceType `json:"resource_type"`
+}
+
 // RoleCreated represents a role created.
 type RoleCreated struct {
 	// Object distinguishes the Event object.
@@ -4725,6 +5295,30 @@ type OrganizationAPIKeyWithValue struct {
 	Value string `json:"value"`
 }
 
+// ItContact represents an it contact.
+type ItContact struct {
+	// Object is the IT Contact object.
+	Object string `json:"object"`
+	// ID is the unique ID of the IT Contact.
+	ID string `json:"id"`
+	// Email is the email address of the IT Contact.
+	Email string `json:"email"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// ItContactList represents an it contact list.
+type ItContactList struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is the list of records for the current page.
+	Data []*ItContact `json:"data"`
+	// ListMetadata is pagination cursors for navigating between pages of results.
+	ListMetadata *ItContactListListMetadata `json:"list_metadata"`
+}
+
 // Organization represents an organization.
 type Organization struct {
 	// Object distinguishes the Organization object.
@@ -4828,11 +5422,11 @@ type DataIntegration struct {
 	State DataIntegrationState `json:"state"`
 	// Scopes is the OAuth scopes configured for the Data Integration. `null` when the provider's configured scopes are used.
 	Scopes []string `json:"scopes"`
-	// RedirectURI is the OAuth redirect URI to register with the provider when configuring the custom application.
+	// RedirectURI is the OAuth redirect URI to register with the provider when configuring the custom application. Empty for `api_key` and `client_credentials` integrations, which run no authorization redirect.
 	RedirectURI string `json:"redirect_uri"`
 	// AuthMethods is how accounts authenticate with the provider for this Data Integration.
 	AuthMethods []DataIntegrationAuthMethods `json:"auth_methods"`
-	// Credentials is the integration-level OAuth app credentials. `null` for `api_key` integrations, which hold no OAuth credentials (keys are installed per-tenant).
+	// Credentials is the integration-level OAuth app credentials. `null` for `api_key` and `client_credentials` integrations, which hold no integration-level credentials (secrets are installed per-tenant).
 	Credentials *DataIntegrationCredential `json:"credentials"`
 	// Installation is the tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
 	Installation *DataIntegrationInstallation `json:"installation"`
@@ -4993,6 +5587,86 @@ type RedirectURI struct {
 	// CreatedAt is the timestamp when the redirect URI was created.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the redirect URI was last updated.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// SAMLIdpSigningCertificate represents a SAML idp signing certificate.
+type SAMLIdpSigningCertificate struct {
+	// Object distinguishes the SAML Identity Provider signing certificate object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Identity Provider signing certificate.
+	ID string `json:"id"`
+	// Value is the PEM-encoded public X.509 certificate.
+	Value string `json:"value"`
+	// NotBefore is when the certificate becomes valid.
+	NotBefore *string `json:"not_before"`
+	// NotAfter is when the certificate expires.
+	NotAfter *string `json:"not_after"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+}
+
+// SAMLIdpSigningCertificateList represents a SAML idp signing certificate list.
+type SAMLIdpSigningCertificateList struct {
+	Object string `json:"object"`
+	// Data is every Identity Provider signing certificate on the Connection, including expired ones, oldest first.
+	Data []*SAMLIdpSigningCertificate `json:"data"`
+}
+
+// SAMLSpEncryptionCertificate represents a SAML sp encryption certificate.
+type SAMLSpEncryptionCertificate struct {
+	// Object distinguishes the SAML Service Provider encryption certificate object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Service Provider encryption key pair. WorkOS holds the corresponding private key, which is never exposed.
+	ID string `json:"id"`
+	// Value is the PEM-encoded public X.509 certificate.
+	Value string `json:"value"`
+	// NotBefore is when the certificate becomes valid.
+	NotBefore *string `json:"not_before"`
+	// NotAfter is when the certificate expires.
+	NotAfter *string `json:"not_after"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+}
+
+// SAMLSpEncryptionCertificateList represents a SAML sp encryption certificate list.
+type SAMLSpEncryptionCertificateList struct {
+	Object string `json:"object"`
+	// Data is every Service Provider encryption certificate on the Connection, including expired ones.
+	Data []*SAMLSpEncryptionCertificate `json:"data"`
+}
+
+// SAMLSpSigningCertificate represents a SAML sp signing certificate.
+type SAMLSpSigningCertificate struct {
+	// Object distinguishes the SAML Service Provider signing certificate object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Service Provider signing key pair. WorkOS holds the corresponding private key, which is never exposed.
+	ID string `json:"id"`
+	// Value is the PEM-encoded public X.509 certificate.
+	Value string `json:"value"`
+	// NotBefore is when the certificate becomes valid.
+	NotBefore *string `json:"not_before"`
+	// NotAfter is when the certificate expires.
+	NotAfter *string `json:"not_after"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+}
+
+// Team represents a team.
+type Team struct {
+	// Object distinguishes the team object.
+	Object string `json:"object"`
+	// ID is unique identifier of the team.
+	ID string `json:"id"`
+	// Name is the name of the team.
+	Name string `json:"name"`
+	// ProductionState is whether the team can host production environments. `Active` means billing is set up. `Inactive` means a team admin must add a payment method in the WorkOS Dashboard. `Suspended` and `Deleting` mean the team can't be provisioned into.
+	ProductionState TeamProductionState `json:"production_state"`
+	// ProductionEnabledAt is the timestamp when production was enabled for the team, or `null` if it never has been.
+	ProductionEnabledAt *string `json:"production_enabled_at"`
+	// CreatedAt is the timestamp when the team was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the team was last updated.
 	UpdatedAt string `json:"updated_at"`
 }
 
@@ -5237,6 +5911,40 @@ type DeviceAuthorizationResponse struct {
 	ExpiresIn float64 `json:"expires_in"`
 	// Interval is minimum polling interval in seconds.
 	Interval *float64 `json:"interval,omitempty"`
+}
+
+// Waitlist represents a waitlist.
+type Waitlist struct {
+	// Object distinguishes the Waitlist object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Waitlist.
+	ID string `json:"id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// WaitlistEntry represents a waitlist entry.
+type WaitlistEntry struct {
+	// ID is the unique ID of the waitlist entry.
+	ID string `json:"id"`
+	// Email is the email address of the user on the waitlist.
+	Email string `json:"email"`
+	// State is the state of the waitlist entry.
+	State WaitlistEntryState `json:"state"`
+	// ApprovedAt is the timestamp when the entry was approved, or null if not yet approved.
+	ApprovedAt *string `json:"approved_at"`
+	// AdditionalFields is additional fields submitted when the user joined the waitlist. Values are user-provided — treat them as untrusted input when rendering or exporting.
+	AdditionalFields map[string]string `json:"additional_fields,omitempty"`
+	// WaitlistID is the unique ID of the waitlist the entry belongs to.
+	WaitlistID *string `json:"waitlist_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Object distinguishes the Waitlist Entry object.
+	Object string `json:"object"`
 }
 
 // WebhookEndpoint represents a webhook endpoint.
@@ -5545,6 +6253,14 @@ type AuditLogConfigurationLogStream struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// ItContactListListMetadata pagination cursors for navigating between pages of results.
+type ItContactListListMetadata struct {
+	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the start of the list.
+	Before *string `json:"before"`
+	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
+	After *string `json:"after"`
+}
+
 // OrganizationAPIKeyWithValueOwner is an alias for OrganizationAPIKeyOwner.
 type OrganizationAPIKeyWithValueOwner = OrganizationAPIKeyOwner
 
@@ -5719,6 +6435,19 @@ type AuthorizedConnectApplicationListData struct {
 // APIKeyOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyOwner = APIKeyCreatedDataOwner
 
+// AgentBlueprintInvocableBy is an alias for AgentBlueprintCreatedDataInvocableBy.
+type AgentBlueprintInvocableBy = AgentBlueprintCreatedDataInvocableBy
+
+// AgentBlueprintSessionSetting token and session lifetimes for sessions minted from this blueprint.
+type AgentBlueprintSessionSetting struct {
+	// MaxAgeSeconds is maximum lifetime of a session in seconds; refreshes never extend a session past this.
+	MaxAgeSeconds int `json:"max_age_seconds"`
+	// AccessTokenTtlSeconds is lifetime of each minted access token in seconds.
+	AccessTokenTtlSeconds int `json:"access_token_ttl_seconds"`
+	// RefreshTokenTtlSeconds is lifetime of each rotated refresh token in seconds.
+	RefreshTokenTtlSeconds int `json:"refresh_token_ttl_seconds"`
+}
+
 // ClaimViewResponseOrganization is an alias for Actor.
 type ClaimViewResponseOrganization = Actor
 
@@ -5754,6 +6483,30 @@ type UserConsentOptionChoice struct {
 	Value *string `json:"value,omitempty"`
 	// Label is a human-readable label for this choice.
 	Label *string `json:"label,omitempty"`
+}
+
+// AgentBlueprintsCreateRequestInvocableBy who may mint sessions from this blueprint.
+type AgentBlueprintsCreateRequestInvocableBy struct {
+	// RoleSlugs is role slugs whose members may mint user-delegated sessions from this blueprint. An empty list allows any member.
+	RoleSlugs []string `json:"role_slugs,omitempty"`
+	// OrganizationIDs is organizations in which sessions may be minted from this blueprint, enforced on user-delegated, autonomous, and agent-delegated mints. An empty list allows any organization in the environment.
+	OrganizationIDs []string `json:"organization_ids,omitempty"`
+}
+
+// AgentBlueprintsCreateRequestSessionSetting is an alias for AgentBlueprintSessionSetting.
+type AgentBlueprintsCreateRequestSessionSetting = AgentBlueprintSessionSetting
+
+// AgentBlueprintsUpdateRequestInvocableBy is an alias for AgentBlueprintsCreateRequestInvocableBy.
+type AgentBlueprintsUpdateRequestInvocableBy = AgentBlueprintsCreateRequestInvocableBy
+
+// AgentBlueprintsUpdateRequestSessionSetting token and session lifetimes for sessions minted from this blueprint. Omitted fields are left unchanged.
+type AgentBlueprintsUpdateRequestSessionSetting struct {
+	// MaxAgeSeconds is maximum lifetime of a session in seconds; refreshes never extend a session past this. At most 31,536,000 (365 days).
+	MaxAgeSeconds *int `json:"max_age_seconds,omitempty"`
+	// AccessTokenTtlSeconds is lifetime of each minted access token in seconds. At most 3,600 (1 hour).
+	AccessTokenTtlSeconds *int `json:"access_token_ttl_seconds,omitempty"`
+	// RefreshTokenTtlSeconds is lifetime of each rotated refresh token in seconds. At most 5,184,000 (60 days).
+	RefreshTokenTtlSeconds *int `json:"refresh_token_ttl_seconds,omitempty"`
 }
 
 // AgentAdminLinkClaimAttemptToExternalUserRequestUser the user to attach to the claim attempt, identified by email and external ID.
@@ -5947,6 +6700,27 @@ type MFATOTPSessionAuthenticateRequest struct {
 	DeviceID *string `json:"device_id,omitempty"`
 	// UserAgent is the user agent string from the user's browser.
 	UserAgent *string `json:"user_agent,omitempty"`
+}
+
+// EmailCompletionSessionAuthenticateRequest represents an email completion session authenticate request.
+type EmailCompletionSessionAuthenticateRequest struct {
+	// ClientID is the client ID of the application.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the client secret of the application.
+	ClientSecret string `json:"client_secret"`
+	GrantType    string `json:"grant_type"`
+	// EmailCompletionToken is the token from the `email_completion_required` response.
+	EmailCompletionToken string `json:"email_completion_token"`
+	// Email is the email address the user supplied for a profile the identity provider left without one.
+	Email string `json:"email"`
+	// IPAddress is the IP address of the user's request.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// DeviceID is a unique identifier for the device.
+	DeviceID *string `json:"device_id,omitempty"`
+	// UserAgent is the user agent string from the user's browser.
+	UserAgent *string `json:"user_agent,omitempty"`
+	// SignalsID is an optional Radar signals ID to correlate client-side signals with this authentication attempt.
+	SignalsID *string `json:"signals_id,omitempty"`
 }
 
 // OrganizationSelectionSessionAuthenticateRequest represents an organization selection session authenticate request.
