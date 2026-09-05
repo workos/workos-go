@@ -238,6 +238,8 @@ type PipesCreateDataIntegrationCredentialParams struct {
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
 }
 
 // CreateDataIntegrationCredential vend credentials for a connected account
@@ -257,6 +259,8 @@ type PipesGetAccessTokenParams struct {
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
 	NullFields []string `json:"-" url:"-"`
@@ -303,6 +307,8 @@ func (s *PipeService) GetAccessToken(ctx context.Context, provider string, param
 type PipesGetUserConnectedAccountParams struct {
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
+	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
 }
 
 // GetUserConnectedAccount get a connected account
@@ -357,6 +363,8 @@ type PipesUpdateUserConnectedAccountParams struct {
 	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
+	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
 }
 
 // UpdateUserConnectedAccount update a connected account
@@ -374,6 +382,8 @@ func (s *PipeService) UpdateUserConnectedAccount(ctx context.Context, userID str
 type PipesDeleteUserConnectedAccountParams struct {
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to delete.
+	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
 }
 
 // DeleteUserConnectedAccount delete a connected account

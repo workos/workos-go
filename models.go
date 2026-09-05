@@ -5534,7 +5534,7 @@ type ConnectedAccount struct {
 type DataIntegrationsListResponse struct {
 	// Object indicates this is a list response.
 	Object string `json:"object"`
-	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including a [`connected_account`](https://workos.com/docs/reference/pipes/connected-account) field with the user's connection status.
+	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
 	Data []*DataIntegrationsListResponseData `json:"data"`
 }
 
@@ -6179,6 +6179,8 @@ type DataIntegrationsListResponseData struct {
 	UpdatedAt string `json:"updated_at"`
 	// ConnectedAccount is the user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` if the user has not connected.
 	ConnectedAccount *DataIntegrationsListResponseDataConnectedAccount `json:"connected_account"`
+	// ConnectedAccounts is the user's connected accounts for this provider in the requested ownership context.
+	ConnectedAccounts []*DataIntegrationsListResponseDataConnectedAccount `json:"connected_accounts"`
 }
 
 // DataIntegrationCredentialsResponseCredential the credential object containing the vended secret.
