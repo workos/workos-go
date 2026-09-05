@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/workos/workos-go/v10"
 )
@@ -152,8 +153,8 @@ func TestGetSSOPKCEAuthorizationURL_PreservesCustomState(t *testing.T) {
 
 func TestSSOPKCECodeExchange_WithMockServer(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "POST", r.Method)
-		require.Equal(t, "/sso/token", r.URL.Path)
+		assert.Equal(t, "POST", r.Method)
+		assert.Equal(t, "/sso/token", r.URL.Path)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -193,16 +194,16 @@ func TestSSOPKCECodeExchange_WithMockServer(t *testing.T) {
 
 func TestSSOLogout_WithProfileID(t *testing.T) {
 	// The SSOLogout helper first calls AuthorizeLogout (POST /sso/logout/authorize)
-	// to get a logout token, then builds the logout redirect URL.
+	// to get a logout URL, then appends return_to to it.
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "POST", r.Method)
-		require.Equal(t, "/sso/logout/authorize", r.URL.Path)
+		assert.Equal(t, "POST", r.Method)
+		assert.Equal(t, "/sso/logout/authorize", r.URL.Path)
 
 		var body struct {
 			ProfileID string `json:"profile_id"`
 		}
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		require.Equal(t, "prof_123", body.ProfileID)
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		assert.Equal(t, "prof_123", body.ProfileID)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -246,7 +247,7 @@ func TestSSOLogout_RequiresProfileID(t *testing.T) {
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
 
 	_, err := client.SSOLogout(context.Background(), workos.SSOLogoutParams{})
-	require.EqualError(t, err, "workos: profile ID is required for SSO logout")
+	require.EqualError(t, err, "workos: profile_id is required for SSO logout")
 	require.Zero(t, requests.Load())
 }
 
@@ -265,7 +266,7 @@ func TestSSOLogout_RejectsConflictingProfileIDs(t *testing.T) {
 		ProfileID: "prof_new",
 		SessionID: "prof_legacy",
 	})
-	require.EqualError(t, err, "workos: ProfileID and deprecated SessionID must match when both are provided")
+	require.EqualError(t, err, "workos: profile_id and deprecated session_id must match when both are provided")
 	require.Zero(t, requests.Load())
 }
 
@@ -274,8 +275,8 @@ func TestSSOLogout_DeprecatedSessionIDFallback(t *testing.T) {
 		var body struct {
 			ProfileID string `json:"profile_id"`
 		}
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		require.Equal(t, "prof_legacy", body.ProfileID)
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		assert.Equal(t, "prof_legacy", body.ProfileID)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -302,4 +303,65 @@ func TestSSOLogout_DeprecatedSessionIDFallback(t *testing.T) {
 	q := parsed.Query()
 	require.Equal(t, "tok_abc", q.Get("token"))
 	require.Empty(t, q.Get("return_to"))
+}
+
+func TestSSOLogout_UsesReturnedLogoutURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{
+			"logout_url": "https://sso.example.com/sso/logout?token=tok_abc",
+			"logout_token": "tok_abc"
+		}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+
+	returnTo := "https://example.com/signed-out"
+	logoutURL, err := client.SSOLogout(context.Background(), workos.SSOLogoutParams{
+		ProfileID: "prof_123",
+		ReturnTo:  &returnTo,
+	})
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(logoutURL)
+	require.NoError(t, err)
+
+	require.Equal(t, "sso.example.com", parsed.Host)
+	require.Equal(t, "/sso/logout", parsed.Path)
+
+	q := parsed.Query()
+	require.Equal(t, "tok_abc", q.Get("token"))
+	require.Equal(t, "https://example.com/signed-out", q.Get("return_to"))
+}
+
+func TestSSOLogout_FallsBackToTokenWhenLogoutURLMissing(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"logout_token": "tok_abc"}`))
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+
+	returnTo := "https://example.com/signed-out"
+	logoutURL, err := client.SSOLogout(context.Background(), workos.SSOLogoutParams{
+		ProfileID: "prof_123",
+		ReturnTo:  &returnTo,
+	})
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(logoutURL)
+	require.NoError(t, err)
+
+	serverURL, err := url.Parse(server.URL)
+	require.NoError(t, err)
+	require.Equal(t, serverURL.Host, parsed.Host)
+	require.Equal(t, "/sso/logout", parsed.Path)
+
+	q := parsed.Query()
+	require.Equal(t, "tok_abc", q.Get("token"))
+	require.Equal(t, "https://example.com/signed-out", q.Get("return_to"))
 }

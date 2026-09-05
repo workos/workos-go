@@ -164,10 +164,10 @@ type SSOLogoutParams struct {
 }
 
 // SSOLogout initiates a logout flow.
-// First obtains a logout token via AuthorizeLogout, then builds the logout redirect URL.
+// First obtains a logout URL via AuthorizeLogout, then appends return_to to it.
 func (c *Client) SSOLogout(ctx context.Context, params SSOLogoutParams, opts ...RequestOption) (string, error) {
 	if params.ProfileID != "" && params.SessionID != "" && params.ProfileID != params.SessionID {
-		return "", fmt.Errorf("workos: ProfileID and deprecated SessionID must match when both are provided")
+		return "", fmt.Errorf("workos: profile_id and deprecated session_id must match when both are provided")
 	}
 
 	profileID := params.ProfileID
@@ -175,10 +175,10 @@ func (c *Client) SSOLogout(ctx context.Context, params SSOLogoutParams, opts ...
 		profileID = params.SessionID
 	}
 	if profileID == "" {
-		return "", fmt.Errorf("workos: profile ID is required for SSO logout")
+		return "", fmt.Errorf("workos: profile_id is required for SSO logout")
 	}
 
-	// Step 1: Call AuthorizeLogout to get a logout token.
+	// Step 1: Call AuthorizeLogout to get the logout redirect URL.
 	logoutResp, err := c.SSO().AuthorizeLogout(ctx, &SSOAuthorizeLogoutParams{
 		ProfileID: profileID,
 	}, opts...)
@@ -186,23 +186,23 @@ func (c *Client) SSOLogout(ctx context.Context, params SSOLogoutParams, opts ...
 		return "", err
 	}
 
-	// Step 2: Build the logout redirect URL.
-	baseURL := c.baseURL
-	if baseURL == "" {
-		baseURL = defaultBaseURL
+	// Step 2: Use the logout URL returned by the API. Fall back to building it
+	// from the logout token if the response did not include one.
+	logoutURL := logoutResp.LogoutURL
+	if logoutURL == "" {
+		logoutURL = c.SSO().GetLogoutURL(&SSOGetLogoutURLParams{Token: logoutResp.LogoutToken}, opts...)
+	}
+	if params.ReturnTo == nil {
+		return logoutURL, nil
 	}
 
-	u, err := url.Parse(baseURL + "/sso/logout")
+	u, err := url.Parse(logoutURL)
 	if err != nil {
 		return "", fmt.Errorf("workos: failed to parse logout URL: %w", err)
 	}
 
 	q := u.Query()
-	q.Set("token", logoutResp.LogoutToken)
-	if params.ReturnTo != nil {
-		q.Set("return_to", *params.ReturnTo)
-	}
-
+	q.Set("return_to", *params.ReturnTo)
 	u.RawQuery = q.Encode()
 	return u.String(), nil
 }
