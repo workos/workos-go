@@ -107,6 +107,51 @@ func TestLocalDecrypt_FailsWithInvalidBase64(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestLocalDecrypt_RejectsInvalidLengths(t *testing.T) {
+	pair := makeTestDataKeyPair()
+	tests := []struct {
+		name    string
+		raw     []byte
+		wantErr string
+	}{
+		{"empty prefix", nil, "unexpected end of LEB128 data"},
+		{"truncated prefix", []byte{0x80}, "unexpected end of LEB128 data"},
+		{"missing keys", []byte{0x01}, "encrypted data too short: missing nonce"},
+		{"short nonce", make([]byte, 12), "encrypted data too short: missing nonce"},
+		{"missing ciphertext", make([]byte, 13), "encrypted data too short: missing ciphertext"},
+		{"max int32", []byte{0xff, 0xff, 0xff, 0xff, 0x07}, "encrypted data too short: missing nonce"},
+		{"above max int32", []byte{0x80, 0x80, 0x80, 0x80, 0x08}, "encrypted data too short: missing nonce"},
+		{"max uint32", []byte{0xff, 0xff, 0xff, 0xff, 0x0f}, "encrypted data too short: missing nonce"},
+		{"above max uint32", []byte{0x80, 0x80, 0x80, 0x80, 0x10}, "LEB128 value too large for uint32"},
+		{"overflow with low bits", []byte{0xff, 0xff, 0xff, 0xff, 0x1f}, "LEB128 value too large for uint32"},
+		{"max fifth byte payload", []byte{0xff, 0xff, 0xff, 0xff, 0x7f}, "LEB128 value too large for uint32"},
+		{"fifth byte continuation", []byte{0x80, 0x80, 0x80, 0x80, 0x80}, "LEB128 value too large for uint32"},
+		{"six byte prefix", []byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x00}, "LEB128 value too large for uint32"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			encrypted := base64.StdEncoding.EncodeToString(tt.raw)
+			require.NotPanics(t, func() {
+				plaintext, err := workos.LocalDecrypt(encrypted, workos.DecryptResponse{DataKey: pair.DataKey}, "")
+				require.ErrorContains(t, err, tt.wantErr)
+				require.Empty(t, plaintext)
+			})
+		})
+	}
+}
+
+func TestLocalEncryptDecrypt_MultiByteKeyLength(t *testing.T) {
+	pair := makeTestDataKeyPair()
+	pair.EncryptedKeys = base64.StdEncoding.EncodeToString(make([]byte, 128))
+
+	encrypted, err := workos.LocalEncrypt("hello, vault encryption!", pair, "")
+	require.NoError(t, err)
+
+	decrypted, err := workos.LocalDecrypt(encrypted, workos.DecryptResponse{DataKey: pair.DataKey}, "")
+	require.NoError(t, err)
+	require.Equal(t, "hello, vault encryption!", decrypted)
+}
+
 func TestLocalEncrypt_ProducesDifferentCiphertexts(t *testing.T) {
 	pair := makeTestDataKeyPair()
 	plaintext := "same input twice"
