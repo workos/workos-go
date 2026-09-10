@@ -4,12 +4,9 @@ package workos
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -64,21 +61,44 @@ type Session struct {
 	client         *Client
 	cookiePassword string
 	sessionData    string // sealed session cookie value
+	issuer         string
 }
 
-// NewSession creates a new Session helper.
-func NewSession(client *Client, sessionData string, cookiePassword string) *Session {
-	return &Session{
+// SessionOption configures session token verification.
+type SessionOption func(*Session)
+
+// WithSessionIssuer sets the trusted access-token issuer for a custom auth domain.
+// The default is https://api.workos.com/. This must be trusted configuration,
+// never a value taken from an unverified token.
+func WithSessionIssuer(issuer string) SessionOption {
+	return func(s *Session) { s.issuer = issuer }
+}
+
+// NewSession creates a new Session helper. Authentication requires a Client
+// configured with WithClientID so access tokens can be verified against its JWKS.
+func NewSession(client *Client, sessionData string, cookiePassword string, opts ...SessionOption) *Session {
+	s := &Session{
 		client:         client,
 		cookiePassword: cookiePassword,
 		sessionData:    sessionData,
+		issuer:         "https://api.workos.com/",
 	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
 }
 
-// Authenticate validates the session cookie.
-// Unseals the session data, validates that the access token is present,
-// and extracts claims from the JWT payload.
+// Authenticate unseals the session cookie and verifies the access token's RS256
+// signature and claims against the configured client's JWKS before trusting it.
+// Uncached JWKS requests have a five-second timeout. Use AuthenticateContext to
+// additionally control cancellation with a context.
 func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
+	return s.AuthenticateContext(context.Background())
+}
+
+// AuthenticateContext authenticates a session using ctx for JWKS requests.
+func (s *Session) AuthenticateContext(ctx context.Context) (*AuthenticateSessionResult, error) {
 	if s.sessionData == "" {
 		return &AuthenticateSessionResult{
 			Authenticated: false,
@@ -101,7 +121,7 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 		}, nil
 	}
 
-	claims, err := parseJWTPayload(session.AccessToken)
+	claims, err := s.verifyAccessToken(ctx, session.AccessToken)
 	if err != nil {
 		return &AuthenticateSessionResult{
 			Authenticated: false,
@@ -109,8 +129,8 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 		}, nil
 	}
 
-	// Enforce JWT expiration. Treat tokens whose `exp` claim is in the past
-	// as expired and signal that the caller should refresh the session.
+	// Enforce JWT expiration without extending the token's lifetime, and signal
+	// that the caller should refresh only after verifying the token.
 	if claims.Exp != 0 && time.Now().Unix() >= claims.Exp {
 		return &AuthenticateSessionResult{
 			Authenticated:  false,
@@ -172,10 +192,11 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		return nil, errors.New("workos: client is required for session refresh")
 	}
 
-	// Extract organization_id from the JWT claims for the refresh request.
+	// A verified organization_id is only a non-authoritative refresh-request
+	// hint. Expired tokens are allowed; WorkOS authorizes the refresh token.
 	var orgID *string
 	if session.AccessToken != "" {
-		if claims, err := parseJWTPayload(session.AccessToken); err == nil && claims.OrganizationID != "" {
+		if claims, err := s.verifyAccessToken(ctx, session.AccessToken); err == nil && claims.OrganizationID != "" {
 			orgID = &claims.OrganizationID
 		}
 	}
@@ -233,7 +254,7 @@ func (s *Session) GetLogoutURL(ctx context.Context, returnTo string, opts ...Req
 	// Reason=session_expired) still has a valid SessionID, and logging out
 	// after expiry is the common case. The WorkOS logout endpoint accepts the
 	// session ID regardless of access-token freshness.
-	result, err := s.Authenticate()
+	result, err := s.AuthenticateContext(ctx)
 	if err != nil {
 		return "", fmt.Errorf("workos: failed to authenticate session: %w", err)
 	}
@@ -265,41 +286,27 @@ func SealSessionFromAuthResponse(accessToken string, refreshToken string, user *
 	return SealSession(session, cookiePassword)
 }
 
-// AuthenticateSession is a convenience method for one-shot session authentication.
-// It does not require a Client — only the sealed session and cookie password.
+// AuthenticateSession cannot authenticate an access token without a configured
+// client and fails closed with invalid_jwt for otherwise valid session cookies.
+//
+// Deprecated: use Client.AuthenticateSession or NewSession with a Client
+// configured with WithClientID.
 func AuthenticateSession(sealedSession string, cookiePassword string) (*AuthenticateSessionResult, error) {
-	session := NewSession(nil, sealedSession, cookiePassword)
-	return session.Authenticate()
+	result, err := NewSession(nil, sealedSession, cookiePassword).Authenticate()
+	if err == nil && result.Reason == "invalid_jwt" {
+		err = errors.New("workos: use Client.AuthenticateSession with WithClientID to verify session tokens")
+	}
+	return result, err
+}
+
+// AuthenticateSession verifies a sealed session using this client's configured
+// client ID and JWKS endpoint. Options can override the trusted issuer.
+func (c *Client) AuthenticateSession(ctx context.Context, sealedSession string, cookiePassword string, opts ...SessionOption) (*AuthenticateSessionResult, error) {
+	return NewSession(c, sealedSession, cookiePassword, opts...).AuthenticateContext(ctx)
 }
 
 // RefreshSession is a convenience method on Client for one-shot session refresh.
 func (c *Client) RefreshSession(ctx context.Context, sealedSession string, cookiePassword string, opts ...RequestOption) (*RefreshSessionResult, error) {
 	session := NewSession(c, sealedSession, cookiePassword)
 	return session.Refresh(ctx, opts...)
-}
-
-// parseJWTPayload extracts and decodes the payload (claims) from a JWT.
-// It does not verify the signature — this is acceptable because the JWT was
-// sealed by us and is trusted after unsealing.
-func parseJWTPayload(token string) (*JWTClaims, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("workos: invalid JWT format: expected 3 parts, got %d", len(parts))
-	}
-
-	payload := parts[1]
-
-	// Base64url decode — the standard library's RawURLEncoding handles the
-	// URL-safe alphabet and no-padding variant used by JWTs.
-	decoded, err := base64.RawURLEncoding.DecodeString(payload)
-	if err != nil {
-		return nil, fmt.Errorf("workos: failed to decode JWT payload: %w", err)
-	}
-
-	var claims JWTClaims
-	if err := json.Unmarshal(decoded, &claims); err != nil {
-		return nil, fmt.Errorf("workos: failed to unmarshal JWT claims: %w", err)
-	}
-
-	return &claims, nil
 }
