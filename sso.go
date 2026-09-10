@@ -459,7 +459,7 @@ func (s *SSOService) GetProfileAndToken(ctx context.Context, params *SSOGetProfi
 	body.SubjectTokenType = params.SubjectTokenType
 	body.OrganizationID = params.OrganizationID
 	var result SSOTokenResponse
-	_, err := s.client.request(ctx, "POST", "/sso/token", params, body, &result, opts)
+	_, err := s.client.request(ctx, "POST", "/sso/token", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
