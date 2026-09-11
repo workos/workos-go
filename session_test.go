@@ -3,6 +3,10 @@
 package workos_test
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,7 +14,7 @@ import (
 )
 
 func TestSealData_UnsealData_RoundTrip(t *testing.T) {
-	password := "my-super-secret-password"
+	password := "my-super-secret-password-for-testing"
 	data := map[string]interface{}{
 		"user_id": "user_123",
 		"email":   "test@example.com",
@@ -29,7 +33,7 @@ func TestSealData_UnsealData_RoundTrip(t *testing.T) {
 }
 
 func TestUnsealData_WrongPassword(t *testing.T) {
-	password := "correct-password"
+	password := "correct-password-for-session-testing"
 	data := map[string]interface{}{
 		"secret": "value",
 	}
@@ -37,7 +41,7 @@ func TestUnsealData_WrongPassword(t *testing.T) {
 	sealed, err := workos.SealData(data, password)
 	require.NoError(t, err)
 
-	_, err = workos.UnsealData(sealed, "wrong-password")
+	_, err = workos.UnsealData(sealed, "wrong-password-for-session-testing")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to decrypt")
 }
@@ -58,7 +62,7 @@ func TestSealData_HexKey(t *testing.T) {
 }
 
 func TestSealData_NestedData(t *testing.T) {
-	password := "test-password"
+	password := "test-password-for-session-sealing"
 	data := map[string]interface{}{
 		"user": map[string]interface{}{
 			"name":  "Alice",
@@ -87,7 +91,7 @@ func TestSealData_NestedData(t *testing.T) {
 }
 
 func TestSealData_EmptyMap(t *testing.T) {
-	password := "test-password"
+	password := "test-password-for-session-sealing"
 	data := map[string]interface{}{}
 
 	sealed, err := workos.SealData(data, password)
@@ -99,7 +103,7 @@ func TestSealData_EmptyMap(t *testing.T) {
 }
 
 func TestSealData_ProducesDifferentCiphertexts(t *testing.T) {
-	password := "test-password"
+	password := "test-password-for-session-sealing"
 	data := map[string]interface{}{"key": "value"}
 
 	sealed1, err := workos.SealData(data, password)
@@ -120,15 +124,98 @@ func TestSealData_ProducesDifferentCiphertexts(t *testing.T) {
 }
 
 func TestUnsealData_InvalidBase64(t *testing.T) {
-	_, err := workos.UnsealData("not-valid-base64!!!", "password")
+	_, err := workos.UnsealData("not-valid-base64!!!", "test-password-for-session-sealing")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to decode")
 }
 
 func TestUnsealData_TruncatedCiphertext(t *testing.T) {
 	// Very short base64 that decodes to fewer bytes than a GCM nonce.
-	_, err := workos.UnsealData("AQID", "password")
-	require.Error(t, err)
+	_, err := workos.UnsealData("AQID", "test-password-for-session-sealing")
+	require.ErrorContains(t, err, "sealed data too short")
+}
+
+// TestSeal_ShortPasswordRejected guards against VULN-1221 across all seal helpers.
+func TestSeal_ShortPasswordRejected(t *testing.T) {
+	for length := 0; length < 32; length++ {
+		t.Run(fmt.Sprintf("length_%d", length), func(t *testing.T) {
+			password := strings.Repeat("a", length)
+			data := map[string]interface{}{"a": "b"}
+
+			_, err := workos.Seal(data, password)
+			require.EqualError(t, err, "workos: cookie password must be at least 32 characters")
+
+			_, err = workos.SealData(data, password)
+			require.EqualError(t, err, "workos: cookie password must be at least 32 characters")
+
+			_, err = workos.SealSession(&workos.SessionData{AccessToken: "x"}, password)
+			require.EqualError(t, err, "workos: cookie password must be at least 32 characters")
+		})
+	}
+}
+
+func TestAuthenticateSession_ShortPasswordRejected(t *testing.T) {
+	for _, password := range []string{"short-password", strings.Repeat("a", 31)} {
+		t.Run(password, func(t *testing.T) {
+			// Simulate an attacker sealing with the pre-change SHA-256 fallback.
+			key := sha256.Sum256([]byte(password))
+			keyHex := hex.EncodeToString(key[:])
+			forged, err := workos.SealSession(&workos.SessionData{
+				AccessToken: buildFakeJWT(),
+				User:        &workos.User{ID: "user_admin"},
+			}, keyHex)
+			require.NoError(t, err)
+
+			// The cookie is otherwise valid, including its spoofed role claims.
+			control, err := workos.AuthenticateSession(forged, keyHex)
+			require.NoError(t, err)
+			require.True(t, control.Authenticated)
+			require.Equal(t, "admin", control.Role)
+
+			result, err := workos.AuthenticateSession(forged, password)
+			require.NoError(t, err)
+			require.False(t, result.Authenticated)
+			require.Equal(t, "invalid_session_cookie", result.Reason)
+		})
+	}
+}
+
+func TestAuthenticateSession_LegacyPassphraseCompatibility(t *testing.T) {
+	for _, password := range []string{
+		"test-password-for-session-sealing", // Exactly 32 characters.
+		testCookiePassword,
+		strings.Repeat("z", 64), // Non-hex passwords still use SHA-256.
+	} {
+		t.Run(fmt.Sprintf("length_%d", len(password)), func(t *testing.T) {
+			// Seal with the old fallback key independently of current passphrase
+			// derivation, so changing the latter cannot silently log users out.
+			key := sha256.Sum256([]byte(password))
+			data := &workos.SessionData{
+				AccessToken:  buildFakeJWT(),
+				RefreshToken: "refresh_tok_abc",
+				User:         &workos.User{ID: "user_123"},
+			}
+			sealed, err := workos.SealSession(data, hex.EncodeToString(key[:]))
+			require.NoError(t, err)
+
+			unsealed, err := workos.Unseal[workos.SessionData](sealed, password)
+			require.NoError(t, err)
+			require.Equal(t, *data, unsealed)
+
+			result, err := workos.AuthenticateSession(sealed, password)
+			require.NoError(t, err)
+			require.True(t, result.Authenticated)
+			require.Equal(t, data.User, result.User)
+			require.Equal(t, "admin", result.Role)
+
+			// New cookies retain the old key derivation as well.
+			sealed, err = workos.SealSession(data, password)
+			require.NoError(t, err)
+			unsealed, err = workos.Unseal[workos.SessionData](sealed, hex.EncodeToString(key[:]))
+			require.NoError(t, err)
+			require.Equal(t, *data, unsealed)
+		})
+	}
 }
 
 // TestSeal_EmptyPasswordRejected guards against SEC-1221: an empty cookie

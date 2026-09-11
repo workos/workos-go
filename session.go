@@ -81,8 +81,10 @@ func unsealToBytes(sealed string, password string) ([]byte, error) {
 }
 
 // Seal encrypts data of any JSON-serializable type using AES-256-GCM.
-// The password should be a hex-encoded 32-byte key. If the password is not
-// valid hex or not the right length, it is hashed with SHA-256 to derive a key.
+// The password should be a 64-character hex string encoding 32 random bytes
+// (e.g. generated with openssl rand -hex 32). Otherwise, it must be at least
+// 32 characters and is hashed with SHA-256 to derive a key. Shorter passwords
+// are rejected with an error.
 // Returns a base64-encoded sealed string.
 func Seal[T any](data T, password string) (string, error) {
 	plaintext, err := json.Marshal(data)
@@ -119,6 +121,10 @@ func UnsealData(sealed string, password string) (map[string]interface{}, error) 
 }
 
 // SealSession encrypts a SessionData struct using AES-256-GCM.
+// The password should be a 64-character hex string encoding 32 random bytes
+// (e.g. generated with openssl rand -hex 32). Otherwise, it must be at least
+// 32 characters and is hashed with SHA-256 to derive a key. Shorter passwords
+// are rejected with an error.
 // Returns a base64-encoded sealed string suitable for use as a session cookie.
 func SealSession(data *SessionData, password string) (string, error) {
 	plaintext, err := json.Marshal(data)
@@ -144,20 +150,18 @@ func unsealSession(sealed string, password string) (*SessionData, error) {
 
 // deriveKey derives a 32-byte AES key from the password.
 // If the password is a valid hex-encoded 32-byte string (64 hex chars), it is
-// decoded directly. Otherwise, the password is hashed with SHA-256 to derive
-// a key.
-//
-// An empty password is rejected: hashing "" yields the fixed, publicly known
-// value SHA-256(""), so accepting it would let anyone forge and unseal session
-// cookies. Callers must supply a non-empty cookie password.
+// decoded directly. Otherwise, the password must be at least 32 characters and
+// is hashed with SHA-256 exactly as before, so existing cookies sealed under
+// compliant passwords remain valid. Empty and short passwords are rejected
+// to guard against session forgery with known or easily guessed keys.
 func deriveKey(password string) ([]byte, error) {
 	decoded, err := hex.DecodeString(password)
 	if err == nil && len(decoded) == 32 {
 		return decoded, nil
 	}
 
-	if password == "" {
-		return nil, fmt.Errorf("workos: cookie password must not be empty")
+	if len(password) < 32 {
+		return nil, fmt.Errorf("workos: cookie password must be at least 32 characters")
 	}
 
 	hash := sha256.Sum256([]byte(password))
