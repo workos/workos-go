@@ -13,9 +13,9 @@ type AdminPortalService struct {
 
 // AdminPortalGenerateLinkParams contains the parameters for GenerateLink.
 type AdminPortalGenerateLinkParams struct {
-	// ReturnURL is the URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
+	// ReturnURL is the URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Admin Portal](https://dashboard.workos.com/admin-portal) page will be used.
 	ReturnURL *string `json:"return_url,omitempty" url:"-"`
-	// SuccessURL is the URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
+	// SuccessURL is the URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Admin Portal](https://dashboard.workos.com/admin-portal) page will be used.
 	SuccessURL *string `json:"success_url,omitempty" url:"-"`
 	// Organization is an [Organization](https://workos.com/docs/reference/organization) identifier.
 	Organization string `json:"organization" url:"-"`

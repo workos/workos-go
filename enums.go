@@ -111,6 +111,14 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
+// CreateDataIntegrationOwnership represents create data integration ownership values.
+type CreateDataIntegrationOwnership string
+
+const (
+	CreateDataIntegrationOwnershipUser         CreateDataIntegrationOwnership = "user"
+	CreateDataIntegrationOwnershipOrganization CreateDataIntegrationOwnership = "organization"
+)
+
 // CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
 type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
 
@@ -919,6 +927,7 @@ const (
 	ResourceExportCompletedDataResourceTypeEvents         ResourceExportCompletedDataResourceType = "events"
 	ResourceExportCompletedDataResourceTypeSessions       ResourceExportCompletedDataResourceType = "sessions"
 	ResourceExportCompletedDataResourceTypeAuditLogEvents ResourceExportCompletedDataResourceType = "auditLogEvents"
+	ResourceExportCompletedDataResourceTypeConnections    ResourceExportCompletedDataResourceType = "connections"
 )
 
 // ResourceExportCreatedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
@@ -1007,6 +1016,9 @@ const (
 	DataIntegrationCredentialsCredentialsTypeCustom       DataIntegrationCredentialsCredentialsType = "custom"
 	DataIntegrationCredentialsCredentialsTypeOrganization DataIntegrationCredentialsCredentialsType = "organization"
 )
+
+// DataIntegrationOwnership is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationOwnership = CreateDataIntegrationOwnership
 
 // DataIntegrationState represents data integration state values.
 type DataIntegrationState string
@@ -1215,6 +1227,15 @@ const (
 	AuthenticationFactorsCreateRequestTypeTOTP       AuthenticationFactorsCreateRequestType = "totp"
 )
 
+// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsVendCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
+
 // RadarStandaloneAssessRequestAuthMethod represents radar standalone assess request auth method values.
 type RadarStandaloneAssessRequestAuthMethod string
 
@@ -1267,6 +1288,9 @@ type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 
 // UserSessionsStatus is an alias for AgentInstanceSessionStatus.
 type UserSessionsStatus = AgentInstanceSessionStatus
+
+// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsGetUserTokenRequestConnectionOwner = CreateDataIntegrationOwnership
 
 // DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod
@@ -1342,6 +1366,9 @@ const (
 	ConnectionsConnectionTypeVMwareSAML             ConnectionsConnectionType = "VMwareSAML"
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
+
+// PipesOwnership is an alias for CreateDataIntegrationOwnership.
+type PipesOwnership = CreateDataIntegrationOwnership
 
 // RadarListType represents radar list type values.
 type RadarListType string
