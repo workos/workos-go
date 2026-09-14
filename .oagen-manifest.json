@@ -47,6 +47,7 @@
     "sso.go",
     "sso_test.go",
     "testdata/access_token_agent_registration_credential_issued_data_detail.json",
+    "testdata/account_selection_required_error.json",
     "testdata/action_authentication_denied.json",
     "testdata/action_authentication_denied_data.json",
     "testdata/action_user_registration_denied.json",
@@ -183,6 +184,7 @@
     "testdata/authentication_sso_succeeded_data.json",
     "testdata/authentication_sso_timed_out.json",
     "testdata/authentication_sso_timed_out_data.json",
+    "testdata/authkit_oauth_resource.json",
     "testdata/authorization_check.json",
     "testdata/authorization_code_session_authenticate_request.json",
     "testdata/authorization_permission.json",
@@ -222,6 +224,7 @@
     "testdata/connection_saml_certificate_renewed_data_connection.json",
     "testdata/cors_origin_response.json",
     "testdata/create_application_secret.json",
+    "testdata/create_authkit_oauth_resource.json",
     "testdata/create_authorization_permission.json",
     "testdata/create_authorization_resource.json",
     "testdata/create_connection.json",
@@ -380,6 +383,7 @@
     "testdata/list_audit_log_action.json",
     "testdata/list_audit_log_schema.json",
     "testdata/list_authentication_factor.json",
+    "testdata/list_authkit_oauth_resource.json",
     "testdata/list_authorization_permission.json",
     "testdata/list_authorization_resource.json",
     "testdata/list_authorized_connect_application_list_data.json",
@@ -1609,6 +1613,30 @@
     "POST /agents/blueprints/{agent_blueprint_id}/tokens/validate": {
       "sdkMethod": "ValidateBlueprintToken",
       "service": "agents"
+    },
+    "GET /data-integrations/{slug}/organization": {
+      "sdkMethod": "ListDataIntegrationOrganization",
+      "service": "pipes"
+    },
+    "PUT /data-integrations/{slug}/organization": {
+      "sdkMethod": "UpdateDataIntegrationOrganization",
+      "service": "pipes"
+    },
+    "DELETE /data-integrations/{slug}/organization": {
+      "sdkMethod": "DeleteDataIntegrationOrganization",
+      "service": "pipes"
+    },
+    "GET /user_management/authkit_oauth_resources": {
+      "sdkMethod": "ListAuthkitOAuthResources",
+      "service": "user_management"
+    },
+    "POST /user_management/authkit_oauth_resources": {
+      "sdkMethod": "CreateAuthkitOAuthResource",
+      "service": "user_management"
+    },
+    "DELETE /user_management/authkit_oauth_resources/{id}": {
+      "sdkMethod": "DeleteAuthkitOAuthResource",
+      "service": "user_management"
     }
   }
 }

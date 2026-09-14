@@ -17,10 +17,12 @@ type PipeService struct {
 // PipesListDataIntegrationsParams contains the parameters for ListDataIntegrations.
 type PipesListDataIntegrationsParams struct {
 	PaginationParams
+	// Ownership is only return Data Integrations with this ownership: `user` for the integrations users connect their own accounts to, or `organization` for the roots organizations connect to. Omit to return both.
+	Ownership *PipesOwnership `url:"ownership,omitempty" json:"-"`
 }
 
 // ListDataIntegrations
-// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers and API key integrations.
+// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers and API key integrations. Both user-owned and organization-owned roots are returned, each as its own row with an `ownership`; filter with `ownership` to return only one kind.
 func (s *PipeService) ListDataIntegrations(ctx context.Context, params *PipesListDataIntegrationsParams, opts ...RequestOption) *Iterator[DataIntegration] {
 	return newIterator[DataIntegration](ctx, s.client, "GET", "/data-integrations", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
@@ -29,6 +31,8 @@ func (s *PipeService) ListDataIntegrations(ctx context.Context, params *PipesLis
 type PipesCreateDataIntegrationParams struct {
 	// Provider is the provider to create a Data Integration for. For a built-in provider use its slug (e.g. `github`, `slack`). For a custom provider, this is the new provider slug and `custom_provider` must be supplied. A custom provider slug cannot shadow an existing global provider slug.
 	Provider string `json:"provider" url:"-"`
+	// Ownership is who owns the Data Integration. `user` (the default) creates the integration users connect their own accounts to; `organization` creates the root organizations connect to. Ownership is fixed at creation, and one integration of each ownership may exist per provider. Independent of `credentials.type`.
+	Ownership *CreateDataIntegrationOwnership `json:"ownership,omitempty" url:"-"`
 	// Description is an optional description of the Data Integration.
 	Description *string `json:"description,omitempty" url:"-"`
 	// Enabled is whether the Data Integration is enabled. Defaults to `false`.
@@ -78,7 +82,7 @@ func (p PipesCreateDataIntegrationParams) MarshalJSON() ([]byte, error) {
 }
 
 // CreateDataIntegration create a data integration
-// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. Set `auth_methods` to `["client_credentials"]` to create a client-credentials integration; client credentials are installed per-tenant afterwards. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. Set `auth_methods` to `["client_credentials"]` to create a client-credentials integration; client credentials are installed per-tenant afterwards. Set `ownership` to `organization` to create the integration organizations connect to instead of the default user-owned one; a provider may have one of each. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition, or the slug of an existing custom provider (without `custom_provider`) to add the other ownership.
 func (s *PipeService) CreateDataIntegration(ctx context.Context, params *PipesCreateDataIntegrationParams, opts ...RequestOption) (*DataIntegration, error) {
 	var result DataIntegration
 	_, err := s.client.request(ctx, "POST", "/data-integrations", nil, params, &result, opts)
@@ -89,7 +93,7 @@ func (s *PipeService) CreateDataIntegration(ctx context.Context, params *PipesCr
 }
 
 // GetDataIntegration get a data integration
-// Retrieves a data integration by its slug.
+// Retrieves the user-owned data integration by its slug.
 func (s *PipeService) GetDataIntegration(ctx context.Context, slug string, opts ...RequestOption) (*DataIntegration, error) {
 	var result DataIntegration
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/data-integrations/%s", url.PathEscape(slug)), nil, nil, &result, opts)
@@ -146,7 +150,7 @@ func (p PipesUpdateDataIntegrationParams) MarshalJSON() ([]byte, error) {
 }
 
 // UpdateDataIntegration update a data integration
-// Updates the description, enabled state, or custom credentials of a data integration. For custom providers, `custom_provider` updates the OAuth definition.
+// Updates the description, enabled state, or custom credentials of the user-owned data integration. For custom providers, `custom_provider` updates the OAuth definition.
 func (s *PipeService) UpdateDataIntegration(ctx context.Context, slug string, params *PipesUpdateDataIntegrationParams, opts ...RequestOption) (*DataIntegration, error) {
 	var result DataIntegration
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s", url.PathEscape(slug)), nil, params, &result, opts)
@@ -157,7 +161,7 @@ func (s *PipeService) UpdateDataIntegration(ctx context.Context, slug string, pa
 }
 
 // DeleteDataIntegration delete a data integration
-// Deletes a data integration and all of its connected installations. For a custom provider, also deletes the custom provider definition.
+// Deletes the user-owned data integration and all of its connected installations. For a custom provider, the provider definition is deleted once no organization-owned root references it either.
 func (s *PipeService) DeleteDataIntegration(ctx context.Context, slug string, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/data-integrations/%s", url.PathEscape(slug)), nil, nil, nil, opts)
 	return err
@@ -167,14 +171,18 @@ func (s *PipeService) DeleteDataIntegration(ctx context.Context, slug string, op
 type PipesUpdateDataIntegrationAPIKeyParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
 	UserID string `json:"user_id" url:"-"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to rotate a specific existing connection.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
 	// Secret is the API key secret to store for this integration.
 	Secret string `json:"secret" url:"-"`
 }
 
 // UpdateDataIntegrationAPIKey upsert an API key for a connected account
-// Creates or updates an API-key-based installation for the specified integration and user. If an installation already exists, the stored API key is rotated to the new value.
+// Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value.
 func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesUpdateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params, &result, opts)
@@ -211,8 +219,12 @@ func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string,
 type PipesUpdateDataIntegrationClientCredentialsParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
 	UserID string `json:"user_id" url:"-"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to rotate a specific existing connection.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
 	// ClientID is the OAuth client ID to store for this integration.
 	ClientID string `json:"client_id" url:"-"`
 	// ClientSecret is the OAuth client secret to store for this integration.
@@ -222,7 +234,7 @@ type PipesUpdateDataIntegrationClientCredentialsParams struct {
 }
 
 // UpdateDataIntegrationClientCredentials upsert client credentials for a connected account
-// Creates or updates a client-credentials-based installation for the specified integration and user. If an installation already exists, the stored client credentials are rotated to the new values.
+// Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values.
 func (s *PipeService) UpdateDataIntegrationClientCredentials(ctx context.Context, slug string, params *PipesUpdateDataIntegrationClientCredentialsParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params, &result, opts)
@@ -234,12 +246,16 @@ func (s *PipeService) UpdateDataIntegrationClientCredentials(ctx context.Context
 
 // PipesCreateDataIntegrationCredentialParams contains the parameters for CreateDataIntegrationCredential.
 type PipesCreateDataIntegrationCredentialParams struct {
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier. When `connection_owner` is `organization`, this is the user the credentials are vended on behalf of; they must be an active member of the organization.
 	UserID string `json:"user_id" url:"-"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
 	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// ConnectionOwner is which connection to vend from. `user` (the default) vends the user's own connection and requires `user_id`. `organization` vends the organization's shared connection and requires `organization_id`.
+	ConnectionOwner *DataIntegrationsVendCredentialsRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. If no `connected_account_id` is supplied and several connections match, the request returns `account_selection_required`. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `json:"supports_multiple_connections,omitempty" url:"-"`
 }
 
 // CreateDataIntegrationCredential vend credentials for a connected account
@@ -253,14 +269,93 @@ func (s *PipeService) CreateDataIntegrationCredential(ctx context.Context, slug 
 	return &result, nil
 }
 
+// ListDataIntegrationOrganization get an organization-owned data integration
+// Retrieves the organization-owned data integration for a provider by its slug. The `/organization` suffix selects the environment-level organization-owned root for the provider; it does not name a particular organization.
+func (s *PipeService) ListDataIntegrationOrganization(ctx context.Context, slug string, opts ...RequestOption) (*DataIntegration, error) {
+	var result DataIntegration
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/data-integrations/%s/organization", url.PathEscape(slug)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateDataIntegrationOrganizationParams contains the parameters for UpdateDataIntegrationOrganization.
+type PipesUpdateDataIntegrationOrganizationParams struct {
+	// Description is an optional description of the Data Integration.
+	Description *string `json:"description,omitempty" url:"-"`
+	// Enabled is whether the Data Integration is enabled.
+	Enabled *bool `json:"enabled,omitempty" url:"-"`
+	// Scopes is the OAuth scopes to request for the Data Integration. Pass `null` to reset to the provider's configured scopes.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// Credentials is new OAuth credentials for the Data Integration. When provided, rotates the stored client secret. Mutually exclusive with `api_key`.
+	Credentials *DataIntegrationCredentialsInput `json:"credentials,omitempty" url:"-"`
+	// APIKey is an API key to install or rotate for a tenant on an `api_key` integration. Upserts the tenant installation identified by `user_id` (and optional `organization_id`).
+	APIKey *APIKeyInstallation `json:"api_key,omitempty" url:"-"`
+	// CustomProvider updates to a custom provider's OAuth definition. Only valid for custom-provider integrations.
+	CustomProvider *UpdateCustomProviderDefinition `json:"custom_provider,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesUpdateDataIntegrationOrganizationParams.
+func (p PipesUpdateDataIntegrationOrganizationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesUpdateDataIntegrationOrganizationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"description": true,
+		"scopes":      true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesUpdateDataIntegrationOrganizationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
+}
+
+// UpdateDataIntegrationOrganization update an organization-owned data integration
+// Updates the description, enabled state, or custom credentials of the organization-owned data integration for a provider. For custom providers, `custom_provider` updates the OAuth definition, which is shared with the user-owned root. The `/organization` suffix selects the environment-level organization-owned root for the provider; it does not name a particular organization.
+func (s *PipeService) UpdateDataIntegrationOrganization(ctx context.Context, slug string, params *PipesUpdateDataIntegrationOrganizationParams, opts ...RequestOption) (*DataIntegration, error) {
+	var result DataIntegration
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/organization", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteDataIntegrationOrganization delete an organization-owned data integration
+// Deletes the organization-owned data integration for a provider and all of its connected installations. For a custom provider, the provider definition is deleted once no user-owned root references it either. The `/organization` suffix selects the environment-level organization-owned root for the provider; it does not name a particular organization.
+func (s *PipeService) DeleteDataIntegrationOrganization(ctx context.Context, slug string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/data-integrations/%s/organization", url.PathEscape(slug)), nil, nil, nil, opts)
+	return err
+}
+
 // PipesGetAccessTokenParams contains the parameters for GetAccessToken.
 type PipesGetAccessTokenParams struct {
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier. When `connection_owner` is `organization`, this is the user the credentials are vended on behalf of; they must be an active member of the organization.
 	UserID string `json:"user_id" url:"-"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
 	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// ConnectionOwner is which connection to vend from. `user` (the default) vends the user's own connection and requires `user_id`. `organization` vends the organization's shared connection and requires `organization_id`.
+	ConnectionOwner *DataIntegrationsGetUserTokenRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. If no `connected_account_id` is supplied and several connections match, the request returns `account_selection_required`. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `json:"supports_multiple_connections,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
 	NullFields []string `json:"-" url:"-"`
@@ -307,6 +402,8 @@ func (s *PipeService) GetAccessToken(ctx context.Context, provider string, param
 type PipesGetUserConnectedAccountParams struct {
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
 	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
 }
@@ -363,6 +460,8 @@ type PipesUpdateUserConnectedAccountParams struct {
 	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
 	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
 }
@@ -382,12 +481,14 @@ func (s *PipeService) UpdateUserConnectedAccount(ctx context.Context, userID str
 type PipesDeleteUserConnectedAccountParams struct {
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to delete.
 	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
 }
 
 // DeleteUserConnectedAccount delete a connected account
-// Disconnects WorkOS's account for the user, including removing any stored access and refresh tokens. The user will need to reauthorize if they want to reconnect. This does not revoke access on the provider side.
+// Disconnects WorkOS's account for the user, including removing any stored access and refresh tokens. The user will need to reauthorize if they want to reconnect. Access is not revoked on the provider side, except for the WorkOS OAuth provider, whose underlying AuthKit grant is revoked.
 func (s *PipeService) DeleteUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesDeleteUserConnectedAccountParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, nil, nil, opts)
 	return err
@@ -397,6 +498,8 @@ func (s *PipeService) DeleteUserConnectedAccount(ctx context.Context, userID str
 type PipesListUserDataProvidersParams struct {
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to filter connections for a specific organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
 }
 
 // ListUserDataProviders list providers for a user

@@ -257,6 +257,8 @@ func (s *AgentService) DeleteInstance(ctx context.Context, agentInstanceID strin
 // AgentsListSessionsParams contains the parameters for ListSessions.
 type AgentsListSessionsParams struct {
 	PaginationParams
+	// OrganizationID is only return sessions of instances acting within this organization.
+	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// AgentBlueprintID is only return sessions of instances minted from this blueprint.
 	AgentBlueprintID *string `url:"agent_blueprint_id,omitempty" json:"-"`
 	// AgentInstanceID is only return sessions belonging to this agent instance.

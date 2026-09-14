@@ -726,6 +726,43 @@ func (s *UserManagementService) RevokeSession(ctx context.Context, params *UserM
 	return err
 }
 
+// UserManagementListAuthkitOAuthResourcesParams contains the parameters for ListAuthkitOAuthResources.
+type UserManagementListAuthkitOAuthResourcesParams struct {
+	PaginationParams
+}
+
+// ListAuthkitOAuthResources list MCP resource indicators
+// Lists the MCP resource indicators configured for an environment.
+func (s *UserManagementService) ListAuthkitOAuthResources(ctx context.Context, params *UserManagementListAuthkitOAuthResourcesParams, opts ...RequestOption) *Iterator[AuthkitOAuthResource] {
+	return newIterator[AuthkitOAuthResource](ctx, s.client, "GET", "/user_management/authkit_oauth_resources", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// UserManagementCreateAuthkitOAuthResourceParams contains the parameters for CreateAuthkitOAuthResource.
+type UserManagementCreateAuthkitOAuthResourceParams struct {
+	// URI is the resource URI. May be a wildcard pattern with a single `*` in the leftmost hostname label, where enabled for the environment.
+	URI string `json:"uri" url:"-"`
+	// Default is whether the resource being created becomes the environment default, clearing any previous default. Applies at creation only — this API has no update endpoint yet, so changing the default on an existing resource is done from the dashboard. A wildcard pattern cannot be the default.
+	Default *bool `json:"default,omitempty" url:"-"`
+}
+
+// CreateAuthkitOAuthResource create an MCP resource indicator
+// Adds an MCP resource indicator (RFC 8707) to an environment, leaving any others in place.
+func (s *UserManagementService) CreateAuthkitOAuthResource(ctx context.Context, params *UserManagementCreateAuthkitOAuthResourceParams, opts ...RequestOption) (*AuthkitOAuthResource, error) {
+	var result AuthkitOAuthResource
+	_, err := s.client.request(ctx, "POST", "/user_management/authkit_oauth_resources", nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DeleteAuthkitOAuthResource delete an MCP resource indicator
+// Removes an MCP resource indicator from an environment. Any application consents granted against it are removed too.
+func (s *UserManagementService) DeleteAuthkitOAuthResource(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/authkit_oauth_resources/%s", url.PathEscape(id)), nil, nil, nil, opts)
+	return err
+}
+
 // UserManagementListCORSOriginsParams contains the parameters for ListCORSOrigins.
 type UserManagementListCORSOriginsParams struct {
 	PaginationParams

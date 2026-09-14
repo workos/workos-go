@@ -240,6 +240,68 @@ func TestPipes_CreateDataIntegrationCredential(t *testing.T) {
 	require.NotNil(t, result)
 }
 
+func TestPipes_ListDataIntegrationOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/organization", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().ListDataIntegrationOrganization(context.Background(), "test_slug")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_integration_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "github", result.Slug)
+	require.Equal(t, "github", result.IntegrationType)
+}
+
+func TestPipes_UpdateDataIntegrationOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/organization", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().UpdateDataIntegrationOrganization(context.Background(), "test_slug", &workos.PipesUpdateDataIntegrationOrganizationParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_integration_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "github", result.Slug)
+	require.Equal(t, "github", result.IntegrationType)
+}
+
+func TestPipes_DeleteDataIntegrationOrganization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/data-integrations/test_slug/organization", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Pipes().DeleteDataIntegrationOrganization(context.Background(), "test_slug")
+	require.NoError(t, err)
+}
+
 func TestPipes_GetAccessToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)

@@ -780,7 +780,7 @@ type AuditLogExport struct {
 
 // AuditLogsRetention represents an audit logs retention.
 type AuditLogsRetention struct {
-	// RetentionPeriodInDays is the number of days Audit Log events will be retained before being permanently deleted. Valid values are 30 and 365.
+	// RetentionPeriodInDays is the number of days Audit Log events will be retained before being permanently deleted. Valid values are 30 through 330 in 30-day increments and 365 through 3650 in 365-day increments.
 	RetentionPeriodInDays *int `json:"retention_period_in_days"`
 }
 
@@ -5434,6 +5434,8 @@ type DataIntegration struct {
 	Slug string `json:"slug"`
 	// IntegrationType is the integration type derived from the provider.
 	IntegrationType string `json:"integration_type"`
+	// Ownership is who owns the Data Integration: `user` when users connect their own accounts, `organization` when organizations connect. Fixed at creation.
+	Ownership DataIntegrationOwnership `json:"ownership"`
 	// Description is an optional description of the Data Integration.
 	Description *string `json:"description"`
 	// Enabled is whether the Data Integration is enabled.
@@ -5475,6 +5477,14 @@ type DataIntegrationAccessTokenResponse struct {
 	// Error is - `"not_installed"`: The user does not have the integration installed.
 	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
 	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
+}
+
+// AccountSelectionRequiredError represents an account selection required error.
+type AccountSelectionRequiredError struct {
+	// Code indicates that several connected accounts match and the request must name one.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the ambiguity.
+	Message string `json:"message"`
 }
 
 // AuthMethodMismatchError represents an auth method mismatch error.
@@ -5592,6 +5602,22 @@ type RadarStandaloneResponse struct {
 type RadarListEntryAlreadyPresentResponse struct {
 	// Message is a message indicating the entry already exists.
 	Message string `json:"message"`
+}
+
+// AuthkitOAuthResource represents an authkit OAuth resource.
+type AuthkitOAuthResource struct {
+	// Object is the object type.
+	Object string `json:"object"`
+	// ID is the ID of the MCP resource indicator.
+	ID string `json:"id"`
+	// URI is the resource URI.
+	URI string `json:"uri"`
+	// Default is whether this is the default MCP resource indicator for the environment.
+	Default bool `json:"default"`
+	// CreatedAt is the timestamp when the MCP resource indicator was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the MCP resource indicator was last updated.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // RedirectURI represents a redirect uri.
@@ -6177,9 +6203,9 @@ type DataIntegrationsListResponseData struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the provider was last updated.
 	UpdatedAt string `json:"updated_at"`
-	// ConnectedAccount is the user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` if the user has not connected.
+	// ConnectedAccount is the user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection.
 	ConnectedAccount *DataIntegrationsListResponseDataConnectedAccount `json:"connected_account"`
-	// ConnectedAccounts is the user's connected accounts for this provider in the requested ownership context.
+	// ConnectedAccounts is the user's connected accounts for this provider in the requested ownership context. This contains only the compatibility connection unless `supports_multiple_connections` is `true`.
 	ConnectedAccounts []*DataIntegrationsListResponseDataConnectedAccount `json:"connected_accounts"`
 }
 
@@ -6227,9 +6253,9 @@ type DataIntegrationCredential struct {
 type DataIntegrationInstallation struct {
 	// ID is unique identifier of the installation.
 	ID string `json:"id"`
-	// UserID is the User the API key was installed for.
-	UserID string `json:"user_id"`
-	// OrganizationID is the Organization the installation is scoped to, or null when unscoped.
+	// UserID is the User the API key was installed for. Null on an `organization`-owned integration, whose installations belong to the organization.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the Organization the installation is scoped to (or owned by, on an `organization`-owned integration), or null when unscoped.
 	OrganizationID *string `json:"organization_id"`
 	// APIKeyLast4 is the last four characters of the stored API key. The full key is never returned.
 	APIKeyLast4 *string `json:"api_key_last_4"`
