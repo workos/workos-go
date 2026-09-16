@@ -28,6 +28,8 @@ type APIError struct {
 	PendingAuthenticationToken string `json:"pending_authentication_token,omitempty"`
 	// EmailVerificationID is the ID of the pending email verification.
 	EmailVerificationID string `json:"email_verification_id,omitempty"`
+	// RadarChallengeID is the ID of the Radar challenge the user must complete to finish authenticating.
+	RadarChallengeID string `json:"radar_challenge_id,omitempty"`
 }
 
 // FieldError represents a field-level validation error.
@@ -59,6 +61,9 @@ func (e *APIError) Error() string {
 	}
 	if e.EmailVerificationID != "" {
 		base += fmt.Sprintf(", email_verification_id: %q", e.EmailVerificationID)
+	}
+	if e.RadarChallengeID != "" {
+		base += fmt.Sprintf(", radar_challenge_id: %q", e.RadarChallengeID)
 	}
 	return base
 }
@@ -130,6 +135,7 @@ const (
 	OrganizationSelectionRequiredCode             = "organization_selection_required"
 	SSORequiredCode                               = "sso_required"
 	OrganizationAuthenticationMethodsRequiredCode = "organization_authentication_methods_required"
+	RadarEmailChallengeCode                       = "radar_email_challenge"
 )
 
 // PendingAuthenticationOrganization represents an organization in an organization selection error.
@@ -175,6 +181,18 @@ type OrganizationSelectionRequiredError struct {
 
 func (e *OrganizationSelectionRequiredError) Error() string { return e.APIError.Error() }
 func (e *OrganizationSelectionRequiredError) Unwrap() error { return e.APIError }
+
+// RadarEmailChallengeError occurs when Radar requires the user to complete an email
+// challenge before authentication can finish. Complete it with
+// UserManagement().AuthenticateWithRadarEmailChallenge using RadarChallengeID and
+// PendingAuthenticationToken.
+type RadarEmailChallengeError struct {
+	*APIError
+	User User `json:"user"`
+}
+
+func (e *RadarEmailChallengeError) Error() string { return e.APIError.Error() }
+func (e *RadarEmailChallengeError) Unwrap() error { return e.APIError }
 
 // SSORequiredError occurs when a user must authenticate via SSO.
 type SSORequiredError struct {

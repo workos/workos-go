@@ -199,6 +199,65 @@ func TestOrganizationSelectionRequiredError(t *testing.T) {
 	require.Equal(t, "YQyCkYfuVw2mI3tzSrk2C1Y7S", orgErr.PendingAuthenticationToken)
 }
 
+func TestRadarEmailChallengeError(t *testing.T) {
+	client, close := errTestClient(403, `{
+		"code": "radar_email_challenge",
+		"message": "The user must complete a Radar challenge to finish authenticating.",
+		"pending_authentication_token": "YQyCkYfuVw2mI3tzSrk2C1Y7S",
+		"radar_challenge_id": "radar_challenge_01HXYZ123456789ABCDEFGHIJ",
+		"user": {
+			"object": "user",
+			"id": "user_01E4ZCR3C56J083X43JQXF3JK5",
+			"email": "marcelina.davis@example.com",
+			"first_name": "Marcelina",
+			"last_name": "Davis",
+			"email_verified": true,
+			"created_at": "2021-06-25T19:07:33.155Z",
+			"updated_at": "2021-06-25T19:07:33.155Z"
+		}
+	}`)
+	defer close()
+
+	_, err := client.Organizations().Get(context.Background(), "org_123")
+	require.Error(t, err)
+
+	var radarErr *RadarEmailChallengeError
+	require.True(t, errors.As(err, &radarErr))
+	require.Equal(t, 403, radarErr.StatusCode)
+	require.Equal(t, "radar_email_challenge", radarErr.Code)
+	require.Equal(t, "radar_challenge_01HXYZ123456789ABCDEFGHIJ", radarErr.RadarChallengeID)
+	require.Equal(t, "YQyCkYfuVw2mI3tzSrk2C1Y7S", radarErr.PendingAuthenticationToken)
+	require.Equal(t, "user_01E4ZCR3C56J083X43JQXF3JK5", radarErr.User.ID)
+	require.Equal(t, "marcelina.davis@example.com", radarErr.User.Email)
+	require.Contains(t, radarErr.Error(), `radar_challenge_id: "radar_challenge_01HXYZ123456789ABCDEFGHIJ"`)
+
+	// The ID is also available on the base APIError.
+	var apiErr *APIError
+	require.True(t, errors.As(err, &apiErr))
+	require.Equal(t, "radar_challenge_01HXYZ123456789ABCDEFGHIJ", apiErr.RadarChallengeID)
+}
+
+func TestRadarEmailChallengeError_MissingIDFallsBack(t *testing.T) {
+	client, close := errTestClient(403, `{
+		"code": "radar_email_challenge",
+		"message": "The user must complete a Radar challenge to finish authenticating.",
+		"pending_authentication_token": "YQyCkYfuVw2mI3tzSrk2C1Y7S"
+	}`)
+	defer close()
+
+	_, err := client.Organizations().Get(context.Background(), "org_123")
+	require.Error(t, err)
+
+	// Without a challenge ID the caller cannot complete the challenge, so fall back to the generic APIError.
+	var radarErr *RadarEmailChallengeError
+	require.False(t, errors.As(err, &radarErr))
+
+	var apiErr *APIError
+	require.True(t, errors.As(err, &apiErr))
+	require.Equal(t, "radar_email_challenge", apiErr.Code)
+	require.Equal(t, "YQyCkYfuVw2mI3tzSrk2C1Y7S", apiErr.PendingAuthenticationToken)
+}
+
 func TestSSORequiredError(t *testing.T) {
 	client, close := errTestClient(422, `{
 		"error": "sso_required",
