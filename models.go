@@ -1258,6 +1258,12 @@ type PipeConnectedAccount struct {
 	Object string `json:"object"`
 	// ID is the unique ID of the connected account.
 	ID string `json:"id"`
+	// ConnectionRole is whether this is the compatibility connection visible to undeclared clients or a standard connection for plural-aware clients. Historical events may omit this field.
+	ConnectionRole *PipeConnectedAccountConnectionRole `json:"connection_role,omitempty"`
+	// AccountIdentifier is a best-effort identifier for the provider account this connection points at. It is not the connection identifier or a selector. Historical events may omit this field.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// AccountDisplayName is a mutable, non-unique display name for the provider account connection. Historical events may omit this field.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
 	// DataIntegrationID is the unique ID of the data integration.
 	DataIntegrationID string `json:"data_integration_id"`
 	// ProviderSlug is the provider slug for this connected account.
@@ -1268,6 +1274,10 @@ type PipeConnectedAccount struct {
 	OrganizationID *string `json:"organization_id"`
 	// Scopes is the OAuth scopes granted for this connected account.
 	Scopes []string `json:"scopes"`
+	// AuthMethod is how the connection authenticates. Historical events may omit this field.
+	AuthMethod *PipeConnectedAccountAuthMethod `json:"auth_method,omitempty"`
+	// APIKeyLast4 is the last four characters of the API key, or null for other authentication methods. Historical events may omit this field.
+	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
 	// State is the state of the connected account.
 	State PipeConnectedAccountState `json:"state"`
 	// CreatedAt is an ISO 8601 timestamp.
@@ -4498,6 +4508,105 @@ type PermissionUpdated struct {
 // PermissionUpdatedData is an alias for AuthorizationPermission.
 type PermissionUpdatedData = AuthorizationPermission
 
+// PipesAccountConnectionAddFailed represents a pipes account connection add failed.
+type PipesAccountConnectionAddFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipesAccountConnectionAddFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesAccountConnectionAddFailedData the event payload.
+type PipesAccountConnectionAddFailedData struct {
+	// Object is the object type.
+	Object string `json:"object"`
+	// DataIntegrationID is the unique ID of the data integration.
+	DataIntegrationID string `json:"data_integration_id"`
+	// ProviderSlug is the provider slug for this connection attempt.
+	ProviderSlug string `json:"provider_slug"`
+	// UserID is the ID of the User the connection attempt belongs to.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the ID of the Organization the connection attempt belongs to.
+	OrganizationID *string `json:"organization_id"`
+	// AccountIdentifier is a best-effort identifier for the provider account involved in the attempt. It is not a connection identifier or selector. Historical events may omit this field.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// ErrorCode is a machine-readable error code for the failure.
+	ErrorCode string `json:"error_code"`
+	// ErrorReason is a human-readable explanation of the failure.
+	ErrorReason *string `json:"error_reason"`
+	// ProviderError is the raw error code returned by the OAuth provider.
+	ProviderError *string `json:"provider_error"`
+	// ProviderErrorDescription is the raw error description returned by the OAuth provider.
+	ProviderErrorDescription *string `json:"provider_error_description"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+}
+
+// PipesAccountConnectionConnected represents a pipes account connection connected.
+type PipesAccountConnectionConnected struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesAccountConnectionConnectionFailed represents a pipes account connection connection failed.
+type PipesAccountConnectionConnectionFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipesAccountConnectionConnectionFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesAccountConnectionConnectionFailedData is an alias for PipesAccountConnectionAddFailedData.
+type PipesAccountConnectionConnectionFailedData = PipesAccountConnectionAddFailedData
+
+// PipesAccountConnectionDisconnected represents a pipes account connection disconnected.
+type PipesAccountConnectionDisconnected struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// PipesAccountConnectionReauthorizationNeeded represents a pipes account connection reauthorization needed.
+type PipesAccountConnectionReauthorizationNeeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *PipeConnectedAccount `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
 // PipesConnectedAccountConnected represents a pipes connected account connected.
 type PipesConnectedAccountConnected struct {
 	// Object distinguishes the Event object.
@@ -4526,29 +4635,8 @@ type PipesConnectedAccountConnectionFailed struct {
 	Context   *EventContext `json:"context,omitempty"`
 }
 
-// PipesConnectedAccountConnectionFailedData the event payload.
-type PipesConnectedAccountConnectionFailedData struct {
-	// Object is the object type.
-	Object string `json:"object"`
-	// DataIntegrationID is the unique ID of the data integration.
-	DataIntegrationID string `json:"data_integration_id"`
-	// ProviderSlug is the provider slug for this connection attempt.
-	ProviderSlug string `json:"provider_slug"`
-	// UserID is the ID of the User the connection attempt belongs to.
-	UserID *string `json:"user_id"`
-	// OrganizationID is the ID of the Organization the connection attempt belongs to.
-	OrganizationID *string `json:"organization_id"`
-	// ErrorCode is a machine-readable error code for the failure.
-	ErrorCode string `json:"error_code"`
-	// ErrorReason is a human-readable explanation of the failure.
-	ErrorReason *string `json:"error_reason"`
-	// ProviderError is the raw error code returned by the OAuth provider.
-	ProviderError *string `json:"provider_error"`
-	// ProviderErrorDescription is the raw error description returned by the OAuth provider.
-	ProviderErrorDescription *string `json:"provider_error_description"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-}
+// PipesConnectedAccountConnectionFailedData is an alias for PipesAccountConnectionAddFailedData.
+type PipesConnectedAccountConnectionFailedData = PipesAccountConnectionAddFailedData
 
 // PipesConnectedAccountDisconnected represents a pipes connected account disconnected.
 type PipesConnectedAccountDisconnected struct {
@@ -5513,6 +5601,12 @@ type ConnectedAccount struct {
 	Object string `json:"object"`
 	// ID is the unique identifier of the connected account.
 	ID string `json:"id"`
+	// ConnectionRole is whether this row is the compatibility connection visible to undeclared clients or a standard peer for plural-aware clients. The role does not indicate preference or creation order.
+	ConnectionRole ConnectedAccountConnectionRole `json:"connection_role"`
+	// AccountIdentifier is a best-effort identifier for the provider account this connection points at. It is correlation metadata, not the connection identifier or a selector.
+	AccountIdentifier *string `json:"account_identifier"`
+	// AccountDisplayName is a mutable, non-unique display name for the provider account connection.
+	AccountDisplayName *string `json:"account_display_name"`
 	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier associated with this connection.
 	UserID *string `json:"user_id"`
 	// OrganizationID is the [Organization](https://workos.com/docs/reference/organization) identifier associated with this connection, or `null` if not scoped to an organization.
@@ -6197,7 +6291,11 @@ type DataIntegrationsListResponseData struct {
 	Scopes []string `json:"scopes"`
 	// AuthMethods is the authentication methods supported by this provider (`oauth`, `api_key`, `client_credentials`, or a combination). Defaults to `["oauth"]` if absent.
 	AuthMethods []DataIntegrationsListResponseDataAuthMethods `json:"auth_methods,omitempty"`
-	// Ownership is whether the provider is owned by a user or organization.
+	// ConnectionOwner is who owns connections made through this provider: `user` for connections owned by individual users, or `organization` for a connection shared by every member of the organization. A provider row can exist before any connected account does.
+	ConnectionOwner DataIntegrationsListResponseDataConnectionOwner `json:"connection_owner"`
+	// Ownership is use `connection_owner` instead. Legacy spelling of the same value: `userland_user` corresponds to `connection_owner: "user"` and `organization` to `connection_owner: "organization"`.
+	//
+	// Deprecated: Use `connection_owner` instead.
 	Ownership DataIntegrationsListResponseDataOwnership `json:"ownership"`
 	// CreatedAt is the timestamp when the provider was created.
 	CreatedAt string `json:"created_at"`
@@ -6253,6 +6351,12 @@ type DataIntegrationCredential struct {
 type DataIntegrationInstallation struct {
 	// ID is unique identifier of the installation.
 	ID string `json:"id"`
+	// ConnectionRole is whether this is the compatibility connection visible to undeclared clients or a standard connection for plural-aware clients.
+	ConnectionRole DataIntegrationInstallationConnectionRole `json:"connection_role"`
+	// AccountIdentifier is a best-effort provider account identifier used for correlation, not connection selection.
+	AccountIdentifier *string `json:"account_identifier"`
+	// AccountDisplayName is a mutable, non-unique display name for this connection.
+	AccountDisplayName *string `json:"account_display_name"`
 	// UserID is the User the API key was installed for. Null on an `organization`-owned integration, whose installations belong to the organization.
 	UserID *string `json:"user_id"`
 	// OrganizationID is the Organization the installation is scoped to (or owned by, on an `organization`-owned integration), or null when unscoped.
@@ -7080,6 +7184,12 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	Object string `json:"object"`
 	// ID is the unique identifier of the connected account.
 	ID string `json:"id"`
+	// ConnectionRole is whether this row is the compatibility connection visible to undeclared clients or a standard peer for plural-aware clients. The role does not indicate preference or creation order.
+	ConnectionRole DataIntegrationsListResponseDataConnectedAccountConnectionRole `json:"connection_role"`
+	// AccountIdentifier is a best-effort identifier for the provider account this connection points at. It is correlation metadata, not the connection identifier or a selector.
+	AccountIdentifier *string `json:"account_identifier"`
+	// AccountDisplayName is a mutable, non-unique display name for the provider account connection.
+	AccountDisplayName *string `json:"account_display_name"`
 	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier associated with this connection.
 	UserID *string `json:"user_id"`
 	// OrganizationID is the [Organization](https://workos.com/docs/reference/organization) identifier associated with this connection, or `null` if not scoped to an organization.

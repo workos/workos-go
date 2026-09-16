@@ -739,7 +739,7 @@ func (s *UserManagementService) ListAuthkitOAuthResources(ctx context.Context, p
 
 // UserManagementCreateAuthkitOAuthResourceParams contains the parameters for CreateAuthkitOAuthResource.
 type UserManagementCreateAuthkitOAuthResourceParams struct {
-	// URI is the resource URI. May be a wildcard pattern with a single `*` in the leftmost hostname label, where enabled for the environment.
+	// URI is the resource URI. May be a wildcard pattern with a single `*`, either in the leftmost hostname label or as the final path segment, where enabled for the environment.
 	URI string `json:"uri" url:"-"`
 	// Default is whether the resource being created becomes the environment default, clearing any previous default. Applies at creation only — this API has no update endpoint yet, so changing the default on an existing resource is done from the dashboard. A wildcard pattern cannot be the default.
 	Default *bool `json:"default,omitempty" url:"-"`

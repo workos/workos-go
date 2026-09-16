@@ -276,106 +276,111 @@ type UpdateUserPasswordSaltPosition = CreateUserPasswordSaltPosition
 type CreateWebhookEndpointEvents string
 
 const (
-	CreateWebhookEndpointEventsAgentBlueprintCreated                      CreateWebhookEndpointEvents = "agent.blueprint.created"
-	CreateWebhookEndpointEventsAgentBlueprintDeleted                      CreateWebhookEndpointEvents = "agent.blueprint.deleted"
-	CreateWebhookEndpointEventsAgentBlueprintUpdated                      CreateWebhookEndpointEvents = "agent.blueprint.updated"
-	CreateWebhookEndpointEventsAgentInstanceCreated                       CreateWebhookEndpointEvents = "agent.instance.created"
-	CreateWebhookEndpointEventsAgentInstanceDeleted                       CreateWebhookEndpointEvents = "agent.instance.deleted"
-	CreateWebhookEndpointEventsAgentInstanceSessionCreated                CreateWebhookEndpointEvents = "agent.instance.session.created"
-	CreateWebhookEndpointEventsAgentInstanceSessionRevoked                CreateWebhookEndpointEvents = "agent.instance.session.revoked"
-	CreateWebhookEndpointEventsAgentRegistrationCreated                   CreateWebhookEndpointEvents = "agent.registration.created"
-	CreateWebhookEndpointEventsAgentRegistrationClaimAttemptCreated       CreateWebhookEndpointEvents = "agent.registration.claim.attempt.created"
-	CreateWebhookEndpointEventsAgentRegistrationClaimCompleted            CreateWebhookEndpointEvents = "agent.registration.claim.completed"
-	CreateWebhookEndpointEventsAgentRegistrationCredentialIssued          CreateWebhookEndpointEvents = "agent.registration.credential.issued"
-	CreateWebhookEndpointEventsAgentRegistrationDeleted                   CreateWebhookEndpointEvents = "agent.registration.deleted"
-	CreateWebhookEndpointEventsAgentRegistrationRefreshed                 CreateWebhookEndpointEvents = "agent.registration.refreshed"
-	CreateWebhookEndpointEventsAgentRegistrationExpired                   CreateWebhookEndpointEvents = "agent.registration.expired"
-	CreateWebhookEndpointEventsAgentRegistrationOrganizationSwitched      CreateWebhookEndpointEvents = "agent.registration.organization.switched"
-	CreateWebhookEndpointEventsAgentRegistrationRevoked                   CreateWebhookEndpointEvents = "agent.registration.revoked"
-	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded   CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
-	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed              CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
-	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded           CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
-	CreateWebhookEndpointEventsAuthenticationMFASucceeded                 CreateWebhookEndpointEvents = "authentication.mfa_succeeded"
-	CreateWebhookEndpointEventsAuthenticationOAuthFailed                  CreateWebhookEndpointEvents = "authentication.oauth_failed"
-	CreateWebhookEndpointEventsAuthenticationOAuthSucceeded               CreateWebhookEndpointEvents = "authentication.oauth_succeeded"
-	CreateWebhookEndpointEventsAuthenticationPasswordFailed               CreateWebhookEndpointEvents = "authentication.password_failed"
-	CreateWebhookEndpointEventsAuthenticationPasswordSucceeded            CreateWebhookEndpointEvents = "authentication.password_succeeded"
-	CreateWebhookEndpointEventsAuthenticationPasskeyFailed                CreateWebhookEndpointEvents = "authentication.passkey_failed"
-	CreateWebhookEndpointEventsAuthenticationPasskeySucceeded             CreateWebhookEndpointEvents = "authentication.passkey_succeeded"
-	CreateWebhookEndpointEventsAuthenticationSSOFailed                    CreateWebhookEndpointEvents = "authentication.sso_failed"
-	CreateWebhookEndpointEventsAuthenticationSSOStarted                   CreateWebhookEndpointEvents = "authentication.sso_started"
-	CreateWebhookEndpointEventsAuthenticationSSOSucceeded                 CreateWebhookEndpointEvents = "authentication.sso_succeeded"
-	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                  CreateWebhookEndpointEvents = "authentication.sso_timed_out"
-	CreateWebhookEndpointEventsRadarChallengeCreated                      CreateWebhookEndpointEvents = "radar.challenge_created"
-	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected            CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
-	CreateWebhookEndpointEventsAuthenticationReauthenticationSucceeded    CreateWebhookEndpointEvents = "authentication.reauthentication_succeeded"
-	CreateWebhookEndpointEventsAPIKeyCreated                              CreateWebhookEndpointEvents = "api_key.created"
-	CreateWebhookEndpointEventsAPIKeyRevoked                              CreateWebhookEndpointEvents = "api_key.revoked"
-	CreateWebhookEndpointEventsAPIKeyUpdated                              CreateWebhookEndpointEvents = "api_key.updated"
-	CreateWebhookEndpointEventsConnectionActivated                        CreateWebhookEndpointEvents = "connection.activated"
-	CreateWebhookEndpointEventsConnectionDeactivated                      CreateWebhookEndpointEvents = "connection.deactivated"
-	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired   CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
-	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed           CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
-	CreateWebhookEndpointEventsConnectionDeleted                          CreateWebhookEndpointEvents = "connection.deleted"
-	CreateWebhookEndpointEventsDsyncActivated                             CreateWebhookEndpointEvents = "dsync.activated"
-	CreateWebhookEndpointEventsDsyncDeleted                               CreateWebhookEndpointEvents = "dsync.deleted"
-	CreateWebhookEndpointEventsDsyncGroupCreated                          CreateWebhookEndpointEvents = "dsync.group.created"
-	CreateWebhookEndpointEventsDsyncGroupDeleted                          CreateWebhookEndpointEvents = "dsync.group.deleted"
-	CreateWebhookEndpointEventsDsyncGroupUpdated                          CreateWebhookEndpointEvents = "dsync.group.updated"
-	CreateWebhookEndpointEventsDsyncGroupUserAdded                        CreateWebhookEndpointEvents = "dsync.group.user_added"
-	CreateWebhookEndpointEventsDsyncGroupUserRemoved                      CreateWebhookEndpointEvents = "dsync.group.user_removed"
-	CreateWebhookEndpointEventsDsyncUserCreated                           CreateWebhookEndpointEvents = "dsync.user.created"
-	CreateWebhookEndpointEventsDsyncUserDeleted                           CreateWebhookEndpointEvents = "dsync.user.deleted"
-	CreateWebhookEndpointEventsDsyncUserUpdated                           CreateWebhookEndpointEvents = "dsync.user.updated"
-	CreateWebhookEndpointEventsEmailVerificationCreated                   CreateWebhookEndpointEvents = "email_verification.created"
-	CreateWebhookEndpointEventsGroupCreated                               CreateWebhookEndpointEvents = "group.created"
-	CreateWebhookEndpointEventsGroupDeleted                               CreateWebhookEndpointEvents = "group.deleted"
-	CreateWebhookEndpointEventsGroupMemberAdded                           CreateWebhookEndpointEvents = "group.member_added"
-	CreateWebhookEndpointEventsGroupMemberRemoved                         CreateWebhookEndpointEvents = "group.member_removed"
-	CreateWebhookEndpointEventsGroupUpdated                               CreateWebhookEndpointEvents = "group.updated"
-	CreateWebhookEndpointEventsFlagCreated                                CreateWebhookEndpointEvents = "flag.created"
-	CreateWebhookEndpointEventsFlagDeleted                                CreateWebhookEndpointEvents = "flag.deleted"
-	CreateWebhookEndpointEventsFlagUpdated                                CreateWebhookEndpointEvents = "flag.updated"
-	CreateWebhookEndpointEventsFlagRuleUpdated                            CreateWebhookEndpointEvents = "flag.rule_updated"
-	CreateWebhookEndpointEventsInvitationAccepted                         CreateWebhookEndpointEvents = "invitation.accepted"
-	CreateWebhookEndpointEventsInvitationCreated                          CreateWebhookEndpointEvents = "invitation.created"
-	CreateWebhookEndpointEventsInvitationResent                           CreateWebhookEndpointEvents = "invitation.resent"
-	CreateWebhookEndpointEventsInvitationRevoked                          CreateWebhookEndpointEvents = "invitation.revoked"
-	CreateWebhookEndpointEventsMagicAuthCreated                           CreateWebhookEndpointEvents = "magic_auth.created"
-	CreateWebhookEndpointEventsOrganizationCreated                        CreateWebhookEndpointEvents = "organization.created"
-	CreateWebhookEndpointEventsOrganizationDeleted                        CreateWebhookEndpointEvents = "organization.deleted"
-	CreateWebhookEndpointEventsOrganizationUpdated                        CreateWebhookEndpointEvents = "organization.updated"
-	CreateWebhookEndpointEventsOrganizationDomainCreated                  CreateWebhookEndpointEvents = "organization_domain.created"
-	CreateWebhookEndpointEventsOrganizationDomainDeleted                  CreateWebhookEndpointEvents = "organization_domain.deleted"
-	CreateWebhookEndpointEventsOrganizationDomainUpdated                  CreateWebhookEndpointEvents = "organization_domain.updated"
-	CreateWebhookEndpointEventsOrganizationDomainVerified                 CreateWebhookEndpointEvents = "organization_domain.verified"
-	CreateWebhookEndpointEventsOrganizationDomainVerificationFailed       CreateWebhookEndpointEvents = "organization_domain.verification_failed"
-	CreateWebhookEndpointEventsPasswordResetCreated                       CreateWebhookEndpointEvents = "password_reset.created"
-	CreateWebhookEndpointEventsPasswordResetSucceeded                     CreateWebhookEndpointEvents = "password_reset.succeeded"
-	CreateWebhookEndpointEventsUserCreated                                CreateWebhookEndpointEvents = "user.created"
-	CreateWebhookEndpointEventsUserUpdated                                CreateWebhookEndpointEvents = "user.updated"
-	CreateWebhookEndpointEventsUserDeleted                                CreateWebhookEndpointEvents = "user.deleted"
-	CreateWebhookEndpointEventsOrganizationMembershipCreated              CreateWebhookEndpointEvents = "organization_membership.created"
-	CreateWebhookEndpointEventsOrganizationMembershipDeleted              CreateWebhookEndpointEvents = "organization_membership.deleted"
-	CreateWebhookEndpointEventsOrganizationMembershipUpdated              CreateWebhookEndpointEvents = "organization_membership.updated"
-	CreateWebhookEndpointEventsRoleCreated                                CreateWebhookEndpointEvents = "role.created"
-	CreateWebhookEndpointEventsRoleDeleted                                CreateWebhookEndpointEvents = "role.deleted"
-	CreateWebhookEndpointEventsRoleUpdated                                CreateWebhookEndpointEvents = "role.updated"
-	CreateWebhookEndpointEventsOrganizationRoleCreated                    CreateWebhookEndpointEvents = "organization_role.created"
-	CreateWebhookEndpointEventsOrganizationRoleDeleted                    CreateWebhookEndpointEvents = "organization_role.deleted"
-	CreateWebhookEndpointEventsOrganizationRoleUpdated                    CreateWebhookEndpointEvents = "organization_role.updated"
-	CreateWebhookEndpointEventsPermissionCreated                          CreateWebhookEndpointEvents = "permission.created"
-	CreateWebhookEndpointEventsPermissionDeleted                          CreateWebhookEndpointEvents = "permission.deleted"
-	CreateWebhookEndpointEventsPermissionUpdated                          CreateWebhookEndpointEvents = "permission.updated"
-	CreateWebhookEndpointEventsPipesConnectedAccountConnected             CreateWebhookEndpointEvents = "pipes.connected_account.connected"
-	CreateWebhookEndpointEventsPipesConnectedAccountConnectionFailed      CreateWebhookEndpointEvents = "pipes.connected_account.connection_failed"
-	CreateWebhookEndpointEventsPipesConnectedAccountDisconnected          CreateWebhookEndpointEvents = "pipes.connected_account.disconnected"
-	CreateWebhookEndpointEventsPipesConnectedAccountReauthorizationNeeded CreateWebhookEndpointEvents = "pipes.connected_account.reauthorization_needed"
-	CreateWebhookEndpointEventsSessionCreated                             CreateWebhookEndpointEvents = "session.created"
-	CreateWebhookEndpointEventsSessionRevoked                             CreateWebhookEndpointEvents = "session.revoked"
-	CreateWebhookEndpointEventsWaitlistUserApproved                       CreateWebhookEndpointEvents = "waitlist_user.approved"
-	CreateWebhookEndpointEventsWaitlistUserCreated                        CreateWebhookEndpointEvents = "waitlist_user.created"
-	CreateWebhookEndpointEventsWaitlistUserDenied                         CreateWebhookEndpointEvents = "waitlist_user.denied"
+	CreateWebhookEndpointEventsAgentBlueprintCreated                       CreateWebhookEndpointEvents = "agent.blueprint.created"
+	CreateWebhookEndpointEventsAgentBlueprintDeleted                       CreateWebhookEndpointEvents = "agent.blueprint.deleted"
+	CreateWebhookEndpointEventsAgentBlueprintUpdated                       CreateWebhookEndpointEvents = "agent.blueprint.updated"
+	CreateWebhookEndpointEventsAgentInstanceCreated                        CreateWebhookEndpointEvents = "agent.instance.created"
+	CreateWebhookEndpointEventsAgentInstanceDeleted                        CreateWebhookEndpointEvents = "agent.instance.deleted"
+	CreateWebhookEndpointEventsAgentInstanceSessionCreated                 CreateWebhookEndpointEvents = "agent.instance.session.created"
+	CreateWebhookEndpointEventsAgentInstanceSessionRevoked                 CreateWebhookEndpointEvents = "agent.instance.session.revoked"
+	CreateWebhookEndpointEventsAgentRegistrationCreated                    CreateWebhookEndpointEvents = "agent.registration.created"
+	CreateWebhookEndpointEventsAgentRegistrationClaimAttemptCreated        CreateWebhookEndpointEvents = "agent.registration.claim.attempt.created"
+	CreateWebhookEndpointEventsAgentRegistrationClaimCompleted             CreateWebhookEndpointEvents = "agent.registration.claim.completed"
+	CreateWebhookEndpointEventsAgentRegistrationCredentialIssued           CreateWebhookEndpointEvents = "agent.registration.credential.issued"
+	CreateWebhookEndpointEventsAgentRegistrationDeleted                    CreateWebhookEndpointEvents = "agent.registration.deleted"
+	CreateWebhookEndpointEventsAgentRegistrationRefreshed                  CreateWebhookEndpointEvents = "agent.registration.refreshed"
+	CreateWebhookEndpointEventsAgentRegistrationExpired                    CreateWebhookEndpointEvents = "agent.registration.expired"
+	CreateWebhookEndpointEventsAgentRegistrationOrganizationSwitched       CreateWebhookEndpointEvents = "agent.registration.organization.switched"
+	CreateWebhookEndpointEventsAgentRegistrationRevoked                    CreateWebhookEndpointEvents = "agent.registration.revoked"
+	CreateWebhookEndpointEventsAuthenticationEmailVerificationSucceeded    CreateWebhookEndpointEvents = "authentication.email_verification_succeeded"
+	CreateWebhookEndpointEventsAuthenticationMagicAuthFailed               CreateWebhookEndpointEvents = "authentication.magic_auth_failed"
+	CreateWebhookEndpointEventsAuthenticationMagicAuthSucceeded            CreateWebhookEndpointEvents = "authentication.magic_auth_succeeded"
+	CreateWebhookEndpointEventsAuthenticationMFASucceeded                  CreateWebhookEndpointEvents = "authentication.mfa_succeeded"
+	CreateWebhookEndpointEventsAuthenticationOAuthFailed                   CreateWebhookEndpointEvents = "authentication.oauth_failed"
+	CreateWebhookEndpointEventsAuthenticationOAuthSucceeded                CreateWebhookEndpointEvents = "authentication.oauth_succeeded"
+	CreateWebhookEndpointEventsAuthenticationPasswordFailed                CreateWebhookEndpointEvents = "authentication.password_failed"
+	CreateWebhookEndpointEventsAuthenticationPasswordSucceeded             CreateWebhookEndpointEvents = "authentication.password_succeeded"
+	CreateWebhookEndpointEventsAuthenticationPasskeyFailed                 CreateWebhookEndpointEvents = "authentication.passkey_failed"
+	CreateWebhookEndpointEventsAuthenticationPasskeySucceeded              CreateWebhookEndpointEvents = "authentication.passkey_succeeded"
+	CreateWebhookEndpointEventsAuthenticationSSOFailed                     CreateWebhookEndpointEvents = "authentication.sso_failed"
+	CreateWebhookEndpointEventsAuthenticationSSOStarted                    CreateWebhookEndpointEvents = "authentication.sso_started"
+	CreateWebhookEndpointEventsAuthenticationSSOSucceeded                  CreateWebhookEndpointEvents = "authentication.sso_succeeded"
+	CreateWebhookEndpointEventsAuthenticationSSOTimedOut                   CreateWebhookEndpointEvents = "authentication.sso_timed_out"
+	CreateWebhookEndpointEventsRadarChallengeCreated                       CreateWebhookEndpointEvents = "radar.challenge_created"
+	CreateWebhookEndpointEventsAuthenticationRadarRiskDetected             CreateWebhookEndpointEvents = "authentication.radar_risk_detected"
+	CreateWebhookEndpointEventsAuthenticationReauthenticationSucceeded     CreateWebhookEndpointEvents = "authentication.reauthentication_succeeded"
+	CreateWebhookEndpointEventsAPIKeyCreated                               CreateWebhookEndpointEvents = "api_key.created"
+	CreateWebhookEndpointEventsAPIKeyRevoked                               CreateWebhookEndpointEvents = "api_key.revoked"
+	CreateWebhookEndpointEventsAPIKeyUpdated                               CreateWebhookEndpointEvents = "api_key.updated"
+	CreateWebhookEndpointEventsConnectionActivated                         CreateWebhookEndpointEvents = "connection.activated"
+	CreateWebhookEndpointEventsConnectionDeactivated                       CreateWebhookEndpointEvents = "connection.deactivated"
+	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired    CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
+	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed            CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
+	CreateWebhookEndpointEventsConnectionDeleted                           CreateWebhookEndpointEvents = "connection.deleted"
+	CreateWebhookEndpointEventsDsyncActivated                              CreateWebhookEndpointEvents = "dsync.activated"
+	CreateWebhookEndpointEventsDsyncDeleted                                CreateWebhookEndpointEvents = "dsync.deleted"
+	CreateWebhookEndpointEventsDsyncGroupCreated                           CreateWebhookEndpointEvents = "dsync.group.created"
+	CreateWebhookEndpointEventsDsyncGroupDeleted                           CreateWebhookEndpointEvents = "dsync.group.deleted"
+	CreateWebhookEndpointEventsDsyncGroupUpdated                           CreateWebhookEndpointEvents = "dsync.group.updated"
+	CreateWebhookEndpointEventsDsyncGroupUserAdded                         CreateWebhookEndpointEvents = "dsync.group.user_added"
+	CreateWebhookEndpointEventsDsyncGroupUserRemoved                       CreateWebhookEndpointEvents = "dsync.group.user_removed"
+	CreateWebhookEndpointEventsDsyncUserCreated                            CreateWebhookEndpointEvents = "dsync.user.created"
+	CreateWebhookEndpointEventsDsyncUserDeleted                            CreateWebhookEndpointEvents = "dsync.user.deleted"
+	CreateWebhookEndpointEventsDsyncUserUpdated                            CreateWebhookEndpointEvents = "dsync.user.updated"
+	CreateWebhookEndpointEventsEmailVerificationCreated                    CreateWebhookEndpointEvents = "email_verification.created"
+	CreateWebhookEndpointEventsGroupCreated                                CreateWebhookEndpointEvents = "group.created"
+	CreateWebhookEndpointEventsGroupDeleted                                CreateWebhookEndpointEvents = "group.deleted"
+	CreateWebhookEndpointEventsGroupMemberAdded                            CreateWebhookEndpointEvents = "group.member_added"
+	CreateWebhookEndpointEventsGroupMemberRemoved                          CreateWebhookEndpointEvents = "group.member_removed"
+	CreateWebhookEndpointEventsGroupUpdated                                CreateWebhookEndpointEvents = "group.updated"
+	CreateWebhookEndpointEventsFlagCreated                                 CreateWebhookEndpointEvents = "flag.created"
+	CreateWebhookEndpointEventsFlagDeleted                                 CreateWebhookEndpointEvents = "flag.deleted"
+	CreateWebhookEndpointEventsFlagUpdated                                 CreateWebhookEndpointEvents = "flag.updated"
+	CreateWebhookEndpointEventsFlagRuleUpdated                             CreateWebhookEndpointEvents = "flag.rule_updated"
+	CreateWebhookEndpointEventsInvitationAccepted                          CreateWebhookEndpointEvents = "invitation.accepted"
+	CreateWebhookEndpointEventsInvitationCreated                           CreateWebhookEndpointEvents = "invitation.created"
+	CreateWebhookEndpointEventsInvitationResent                            CreateWebhookEndpointEvents = "invitation.resent"
+	CreateWebhookEndpointEventsInvitationRevoked                           CreateWebhookEndpointEvents = "invitation.revoked"
+	CreateWebhookEndpointEventsMagicAuthCreated                            CreateWebhookEndpointEvents = "magic_auth.created"
+	CreateWebhookEndpointEventsOrganizationCreated                         CreateWebhookEndpointEvents = "organization.created"
+	CreateWebhookEndpointEventsOrganizationDeleted                         CreateWebhookEndpointEvents = "organization.deleted"
+	CreateWebhookEndpointEventsOrganizationUpdated                         CreateWebhookEndpointEvents = "organization.updated"
+	CreateWebhookEndpointEventsOrganizationDomainCreated                   CreateWebhookEndpointEvents = "organization_domain.created"
+	CreateWebhookEndpointEventsOrganizationDomainDeleted                   CreateWebhookEndpointEvents = "organization_domain.deleted"
+	CreateWebhookEndpointEventsOrganizationDomainUpdated                   CreateWebhookEndpointEvents = "organization_domain.updated"
+	CreateWebhookEndpointEventsOrganizationDomainVerified                  CreateWebhookEndpointEvents = "organization_domain.verified"
+	CreateWebhookEndpointEventsOrganizationDomainVerificationFailed        CreateWebhookEndpointEvents = "organization_domain.verification_failed"
+	CreateWebhookEndpointEventsPasswordResetCreated                        CreateWebhookEndpointEvents = "password_reset.created"
+	CreateWebhookEndpointEventsPasswordResetSucceeded                      CreateWebhookEndpointEvents = "password_reset.succeeded"
+	CreateWebhookEndpointEventsUserCreated                                 CreateWebhookEndpointEvents = "user.created"
+	CreateWebhookEndpointEventsUserUpdated                                 CreateWebhookEndpointEvents = "user.updated"
+	CreateWebhookEndpointEventsUserDeleted                                 CreateWebhookEndpointEvents = "user.deleted"
+	CreateWebhookEndpointEventsOrganizationMembershipCreated               CreateWebhookEndpointEvents = "organization_membership.created"
+	CreateWebhookEndpointEventsOrganizationMembershipDeleted               CreateWebhookEndpointEvents = "organization_membership.deleted"
+	CreateWebhookEndpointEventsOrganizationMembershipUpdated               CreateWebhookEndpointEvents = "organization_membership.updated"
+	CreateWebhookEndpointEventsRoleCreated                                 CreateWebhookEndpointEvents = "role.created"
+	CreateWebhookEndpointEventsRoleDeleted                                 CreateWebhookEndpointEvents = "role.deleted"
+	CreateWebhookEndpointEventsRoleUpdated                                 CreateWebhookEndpointEvents = "role.updated"
+	CreateWebhookEndpointEventsOrganizationRoleCreated                     CreateWebhookEndpointEvents = "organization_role.created"
+	CreateWebhookEndpointEventsOrganizationRoleDeleted                     CreateWebhookEndpointEvents = "organization_role.deleted"
+	CreateWebhookEndpointEventsOrganizationRoleUpdated                     CreateWebhookEndpointEvents = "organization_role.updated"
+	CreateWebhookEndpointEventsPermissionCreated                           CreateWebhookEndpointEvents = "permission.created"
+	CreateWebhookEndpointEventsPermissionDeleted                           CreateWebhookEndpointEvents = "permission.deleted"
+	CreateWebhookEndpointEventsPermissionUpdated                           CreateWebhookEndpointEvents = "permission.updated"
+	CreateWebhookEndpointEventsPipesAccountConnectionAddFailed             CreateWebhookEndpointEvents = "pipes.account_connection.add_failed"
+	CreateWebhookEndpointEventsPipesAccountConnectionConnected             CreateWebhookEndpointEvents = "pipes.account_connection.connected"
+	CreateWebhookEndpointEventsPipesAccountConnectionConnectionFailed      CreateWebhookEndpointEvents = "pipes.account_connection.connection_failed"
+	CreateWebhookEndpointEventsPipesAccountConnectionDisconnected          CreateWebhookEndpointEvents = "pipes.account_connection.disconnected"
+	CreateWebhookEndpointEventsPipesAccountConnectionReauthorizationNeeded CreateWebhookEndpointEvents = "pipes.account_connection.reauthorization_needed"
+	CreateWebhookEndpointEventsPipesConnectedAccountConnected              CreateWebhookEndpointEvents = "pipes.connected_account.connected"
+	CreateWebhookEndpointEventsPipesConnectedAccountConnectionFailed       CreateWebhookEndpointEvents = "pipes.connected_account.connection_failed"
+	CreateWebhookEndpointEventsPipesConnectedAccountDisconnected           CreateWebhookEndpointEvents = "pipes.connected_account.disconnected"
+	CreateWebhookEndpointEventsPipesConnectedAccountReauthorizationNeeded  CreateWebhookEndpointEvents = "pipes.connected_account.reauthorization_needed"
+	CreateWebhookEndpointEventsSessionCreated                              CreateWebhookEndpointEvents = "session.created"
+	CreateWebhookEndpointEventsSessionRevoked                              CreateWebhookEndpointEvents = "session.revoked"
+	CreateWebhookEndpointEventsWaitlistUserApproved                        CreateWebhookEndpointEvents = "waitlist_user.approved"
+	CreateWebhookEndpointEventsWaitlistUserCreated                         CreateWebhookEndpointEvents = "waitlist_user.created"
+	CreateWebhookEndpointEventsWaitlistUserDenied                          CreateWebhookEndpointEvents = "waitlist_user.denied"
 )
 
 // UpdateWebhookEndpointStatus represents update webhook endpoint status values.
@@ -587,6 +592,12 @@ const (
 	DirectoryUserStateSuspended DirectoryUserState = "suspended"
 	DirectoryUserStateInactive  DirectoryUserState = "inactive"
 )
+
+// PipeConnectedAccountConnectionRole is an alias for ConnectedAccountConnectionRole.
+type PipeConnectedAccountConnectionRole = ConnectedAccountConnectionRole
+
+// PipeConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
+type PipeConnectedAccountAuthMethod = ConnectedAccountAuthMethod
 
 // PipeConnectedAccountState is an alias for ConnectedAccountInputState.
 type PipeConnectedAccountState = ConnectedAccountInputState
@@ -928,6 +939,7 @@ const (
 	ResourceExportCompletedDataResourceTypeSessions       ResourceExportCompletedDataResourceType = "sessions"
 	ResourceExportCompletedDataResourceTypeAuditLogEvents ResourceExportCompletedDataResourceType = "auditLogEvents"
 	ResourceExportCompletedDataResourceTypeConnections    ResourceExportCompletedDataResourceType = "connections"
+	ResourceExportCompletedDataResourceTypeDirectoryUsers ResourceExportCompletedDataResourceType = "directoryUsers"
 )
 
 // ResourceExportCreatedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
@@ -1043,6 +1055,14 @@ const (
 // DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
 type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
 
+// ConnectedAccountConnectionRole represents connected account connection role values.
+type ConnectedAccountConnectionRole string
+
+const (
+	ConnectedAccountConnectionRoleCompatibility ConnectedAccountConnectionRole = "compatibility"
+	ConnectedAccountConnectionRoleStandard      ConnectedAccountConnectionRole = "standard"
+)
+
 // ConnectedAccountAuthMethod represents connected account auth method values.
 type ConnectedAccountAuthMethod string
 
@@ -1147,6 +1167,9 @@ type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerif
 // DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
+// DataIntegrationsListResponseDataConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsListResponseDataConnectionOwner = CreateDataIntegrationOwnership
+
 // DataIntegrationsListResponseDataOwnership represents data integrations list response data ownership values.
 type DataIntegrationsListResponseDataOwnership string
 
@@ -1162,6 +1185,9 @@ const (
 	DataIntegrationCredentialTypeCustom       DataIntegrationCredentialType = "custom"
 	DataIntegrationCredentialTypeOrganization DataIntegrationCredentialType = "organization"
 )
+
+// DataIntegrationInstallationConnectionRole is an alias for ConnectedAccountConnectionRole.
+type DataIntegrationInstallationConnectionRole = ConnectedAccountConnectionRole
 
 // DataIntegrationCustomProviderAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type DataIntegrationCustomProviderAuthenticateVia = CustomProviderDefinitionAuthenticateVia
@@ -1230,6 +1256,9 @@ const (
 // DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
 
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = CreateDataIntegrationOwnership
+
 // DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
 
@@ -1291,6 +1320,9 @@ type UserSessionsStatus = AgentInstanceSessionStatus
 
 // DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsGetUserTokenRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// DataIntegrationsListResponseDataConnectedAccountConnectionRole is an alias for ConnectedAccountConnectionRole.
+type DataIntegrationsListResponseDataConnectedAccountConnectionRole = ConnectedAccountConnectionRole
 
 // DataIntegrationsListResponseDataConnectedAccountAuthMethod is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataConnectedAccountAuthMethod = ConnectedAccountAuthMethod

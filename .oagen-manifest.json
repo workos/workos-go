@@ -34,6 +34,8 @@
     "organization_membership.go",
     "organization_membership_test.go",
     "organizations.go",
+    "organizations_data_providers.go",
+    "organizations_data_providers_test.go",
     "organizations_test.go",
     "pipes.go",
     "pipes_provider.go",
@@ -469,6 +471,12 @@
     "testdata/permission_deleted.json",
     "testdata/permission_updated.json",
     "testdata/pipe_connected_account.json",
+    "testdata/pipes_account_connection_add_failed.json",
+    "testdata/pipes_account_connection_add_failed_data.json",
+    "testdata/pipes_account_connection_connected.json",
+    "testdata/pipes_account_connection_connection_failed.json",
+    "testdata/pipes_account_connection_disconnected.json",
+    "testdata/pipes_account_connection_reauthorization_needed.json",
     "testdata/pipes_connected_account_connected.json",
     "testdata/pipes_connected_account_connection_failed.json",
     "testdata/pipes_connected_account_connection_failed_data.json",
@@ -1637,6 +1645,26 @@
     "DELETE /user_management/authkit_oauth_resources/{id}": {
       "sdkMethod": "DeleteAuthkitOAuthResource",
       "service": "user_management"
+    },
+    "GET /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "GetConnectedAccount",
+      "service": "organizations_data_providers"
+    },
+    "POST /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "CreateConnectedAccount",
+      "service": "organizations_data_providers"
+    },
+    "PUT /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "UpdateConnectedAccount",
+      "service": "organizations_data_providers"
+    },
+    "DELETE /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "DeleteConnectedAccount",
+      "service": "organizations_data_providers"
+    },
+    "GET /organizations/{organization_id}/data_providers": {
+      "sdkMethod": "List",
+      "service": "organizations_data_providers"
     }
   }
 }
