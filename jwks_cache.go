@@ -83,15 +83,21 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 			return nil, errors.New("workos: JWT signing key unavailable")
 		}
 		if _, exists := sessionJWKSCache.entries[cacheURL]; !exists && len(sessionJWKSCache.entries) >= jwksCacheLimit {
-			// Evict the least recently attempted idle entry. An entry whose fetch
-			// is in flight is kept so its result reaches the callers waiting on
-			// it; if every entry is in flight the limit is exceeded by one.
-			var oldestURL string
-			var oldest time.Time
+			// Evict the least recently attempted idle entry so an in-flight fetch's
+			// result still reaches the callers waiting on it. Only when every entry
+			// is in flight is the oldest of those evicted, keeping the cache bounded.
+			var oldestURL, oldestIdleURL string
+			var oldest, oldestIdle time.Time
 			for url, cached := range sessionJWKSCache.entries {
-				if cached.loading == nil && (oldestURL == "" || cached.attemptAt.Before(oldest)) {
+				if oldestURL == "" || cached.attemptAt.Before(oldest) {
 					oldestURL, oldest = url, cached.attemptAt
 				}
+				if cached.loading == nil && (oldestIdleURL == "" || cached.attemptAt.Before(oldestIdle)) {
+					oldestIdleURL, oldestIdle = url, cached.attemptAt
+				}
+			}
+			if oldestIdleURL != "" {
+				oldestURL = oldestIdleURL
 			}
 			delete(sessionJWKSCache.entries, oldestURL)
 		}

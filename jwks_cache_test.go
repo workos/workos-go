@@ -113,6 +113,42 @@ func TestSessionJWKSCacheBoundAndClientIDIsolation(t *testing.T) {
 	require.True(t, kept, "eviction must not drop an entry with a fetch in flight")
 }
 
+func TestSessionJWKSEvictionStaysBoundedWhenAllInflight(t *testing.T) {
+	jwk := cacheTestJWK(t, "key")
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(JWKSResponse{Keys: []*JWKSResponseKeys{jwk}})
+	}))
+	defer server.Close()
+	// Fill the cache with in-flight entries only; the oldest attempt is entry 0.
+	inflight := make(chan struct{})
+	sessionJWKSCache.Lock()
+	saved := sessionJWKSCache.entries
+	sessionJWKSCache.entries = make(map[string]cachedSessionJWKS)
+	for i := 0; i < jwksCacheLimit; i++ {
+		sessionJWKSCache.entries[fmt.Sprintf("https://inflight.example/%d", i)] = cachedSessionJWKS{
+			attemptAt: time.Now().Add(time.Duration(i-jwksCacheLimit) * time.Second), loading: inflight,
+		}
+	}
+	sessionJWKSCache.Unlock()
+	t.Cleanup(func() {
+		sessionJWKSCache.Lock()
+		sessionJWKSCache.entries = saved
+		sessionJWKSCache.Unlock()
+		close(inflight)
+	})
+	client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("bounded"))
+	_, err := client.sessionVerificationKey(context.Background(), jwk.Kid)
+	require.NoError(t, err)
+	sessionJWKSCache.RLock()
+	count := len(sessionJWKSCache.entries)
+	_, oldestKept := sessionJWKSCache.entries["https://inflight.example/0"]
+	_, newestKept := sessionJWKSCache.entries[fmt.Sprintf("https://inflight.example/%d", jwksCacheLimit-1)]
+	sessionJWKSCache.RUnlock()
+	require.Equal(t, jwksCacheLimit, count, "cache must stay bounded when every entry is in flight")
+	require.False(t, oldestKept, "the oldest in-flight entry must be the one evicted")
+	require.True(t, newestKept)
+}
+
 func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 	started, release := make(chan struct{}), make(chan struct{})
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
