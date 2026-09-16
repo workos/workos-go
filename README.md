@@ -132,7 +132,8 @@ fmt.Println(event.Event, event.ID)
 
 ## Session Management
 
-The cookie password must be at least 32 characters. Use a high-entropy secret;
+The cookie password must be at least 32 bytes long (32 ASCII characters;
+multibyte UTF-8 characters count by their byte length). Use a high-entropy secret;
 length alone does not make a predictable passphrase safe. We recommend a
 64-character hex string encoding 32 random bytes, generated with
 `openssl rand -hex 32`. Valid 64-character hex keys are decoded directly;

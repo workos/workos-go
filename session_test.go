@@ -143,15 +143,38 @@ func TestSeal_ShortPasswordRejected(t *testing.T) {
 			data := map[string]interface{}{"a": "b"}
 
 			_, err := workos.Seal(data, password)
-			require.EqualError(t, err, "workos: cookie password must be at least 32 characters")
+			require.EqualError(t, err, "workos: cookie password must be at least 32 bytes")
 
 			_, err = workos.SealData(data, password)
-			require.EqualError(t, err, "workos: cookie password must be at least 32 characters")
+			require.EqualError(t, err, "workos: cookie password must be at least 32 bytes")
 
 			_, err = workos.SealSession(&workos.SessionData{AccessToken: "x"}, password)
-			require.EqualError(t, err, "workos: cookie password must be at least 32 characters")
+			require.EqualError(t, err, "workos: cookie password must be at least 32 bytes")
 		})
 	}
+}
+
+// TestSeal_PasswordMinimumIsBytes pins the contract that the minimum is measured
+// in UTF-8 bytes (Go's len), not characters, so multibyte passwords are neither
+// over- nor under-rejected relative to the documented rule.
+func TestSeal_PasswordMinimumIsBytes(t *testing.T) {
+	data := map[string]interface{}{"a": "b"}
+
+	// Eight 4-byte runes (U+1F600): 8 characters but 32 bytes, so accepted.
+	accepted := strings.Repeat("\U0001F600", 8)
+	require.Len(t, accepted, 32)
+	sealed, err := workos.SealData(data, accepted)
+	require.NoError(t, err)
+	unsealed, err := workos.UnsealData(sealed, accepted)
+	require.NoError(t, err)
+	require.Equal(t, data, unsealed)
+
+	// Fifteen 2-byte runes (U+00E9) plus one ASCII byte: 16 characters but
+	// 31 bytes, so rejected.
+	rejected := strings.Repeat("\u00e9", 15) + "a"
+	require.Len(t, rejected, 31)
+	_, err = workos.SealData(data, rejected)
+	require.EqualError(t, err, "workos: cookie password must be at least 32 bytes")
 }
 
 func TestAuthenticateSession_ShortPasswordRejected(t *testing.T) {
@@ -182,7 +205,7 @@ func TestAuthenticateSession_ShortPasswordRejected(t *testing.T) {
 
 func TestAuthenticateSession_LegacyPassphraseCompatibility(t *testing.T) {
 	for _, password := range []string{
-		"test-password-for-session-sealing", // Exactly 32 characters.
+		"test-password-for-session-sealing", // Exactly 32 bytes.
 		testCookiePassword,
 		strings.Repeat("z", 64), // Non-hex passwords still use SHA-256.
 	} {
