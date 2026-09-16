@@ -87,6 +87,18 @@ func TestSessionJWKSCacheBoundAndClientIDIsolation(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(JWKSResponse{Keys: []*JWKSResponseKeys{jwk}})
 	}))
 	defer server.Close()
+	// The least recently attempted entry still has a fetch in flight: evicting
+	// it would discard the result and make the callers waiting on it fetch again.
+	inflightURL, inflight := "https://inflight.example/sso/jwks/client", make(chan struct{})
+	sessionJWKSCache.Lock()
+	sessionJWKSCache.entries[inflightURL] = cachedSessionJWKS{attemptAt: time.Now().Add(-time.Hour), loading: inflight}
+	sessionJWKSCache.Unlock()
+	t.Cleanup(func() {
+		sessionJWKSCache.Lock()
+		delete(sessionJWKSCache.entries, inflightURL)
+		sessionJWKSCache.Unlock()
+		close(inflight)
+	})
 	for i := 0; i < jwksCacheLimit+1; i++ {
 		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID(fmt.Sprintf("client_%d", i)))
 		_, err := client.sessionVerificationKey(context.Background(), jwk.Kid)
@@ -95,8 +107,10 @@ func TestSessionJWKSCacheBoundAndClientIDIsolation(t *testing.T) {
 	require.Equal(t, int32(jwksCacheLimit+1), requests.Load(), "client IDs must have independent cache entries")
 	sessionJWKSCache.RLock()
 	count := len(sessionJWKSCache.entries)
+	_, kept := sessionJWKSCache.entries[inflightURL]
 	sessionJWKSCache.RUnlock()
 	require.LessOrEqual(t, count, jwksCacheLimit)
+	require.True(t, kept, "eviction must not drop an entry with a fetch in flight")
 }
 
 func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {

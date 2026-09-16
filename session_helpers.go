@@ -121,7 +121,7 @@ func (s *Session) AuthenticateContext(ctx context.Context) (*AuthenticateSession
 		}, nil
 	}
 
-	claims, err := s.verifyAccessToken(ctx, session.AccessToken)
+	claims, err := s.verifyAccessToken(ctx, session.AccessToken, true)
 	if err != nil {
 		return &AuthenticateSessionResult{
 			Authenticated: false,
@@ -192,11 +192,14 @@ func (s *Session) Refresh(ctx context.Context, opts ...RequestOption) (*RefreshS
 		return nil, errors.New("workos: client is required for session refresh")
 	}
 
-	// A verified organization_id is only a non-authoritative refresh-request
-	// hint. Expired tokens are allowed; WorkOS authorizes the refresh token.
+	// A verified organization_id is only an optional, non-authoritative
+	// refresh-request hint, so it is read only when the signing key is already
+	// cached: a JWKS request must never consume the context needed to submit
+	// the refresh token. Expired tokens are allowed; WorkOS authorizes the
+	// refresh token.
 	var orgID *string
 	if session.AccessToken != "" {
-		if claims, err := s.verifyAccessToken(ctx, session.AccessToken); err == nil && claims.OrganizationID != "" {
+		if claims, err := s.verifyAccessToken(ctx, session.AccessToken, false); err == nil && claims.OrganizationID != "" {
 			orgID = &claims.OrganizationID
 		}
 	}

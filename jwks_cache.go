@@ -39,31 +39,41 @@ var sessionJWKSCache = struct {
 	entries map[string]cachedSessionJWKS
 }{entries: make(map[string]cachedSessionJWKS)}
 
+// cachedSessionVerificationKey returns the fresh cached signing key for kid
+// without any I/O, so best-effort callers never wait on a JWKS request.
+func (c *Client) cachedSessionVerificationKey(kid string) (*rsa.PublicKey, error) {
+	sessionJWKSCache.RLock()
+	defer sessionJWKSCache.RUnlock()
+	entry := sessionJWKSCache.entries[c.JWKSURLFromClient()]
+	if key := entry.keys[kid]; key != nil && time.Since(entry.fetchedAt) < jwksCacheTTL {
+		return key, nil
+	}
+	return nil, errors.New("workos: JWT signing key is not cached")
+}
+
 func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.PublicKey, error) {
 	cacheURL := c.JWKSURLFromClient()
 	for {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		sessionJWKSCache.RLock()
-		entry := sessionJWKSCache.entries[cacheURL]
-		key := entry.keys[kid]
-		fresh := time.Since(entry.fetchedAt) < jwksCacheTTL
-		sessionJWKSCache.RUnlock()
-		if fresh && key != nil {
+		if key, err := c.cachedSessionVerificationKey(kid); err == nil {
 			return key, nil
 		}
-		if entry.loading != nil {
+		sessionJWKSCache.RLock()
+		inflight := sessionJWKSCache.entries[cacheURL].loading
+		sessionJWKSCache.RUnlock()
+		if inflight != nil {
 			select {
 			case <-ctx.Done():
 				return nil, ctx.Err()
-			case <-entry.loading:
+			case <-inflight:
 				continue
 			}
 		}
 
 		sessionJWKSCache.Lock()
-		entry = sessionJWKSCache.entries[cacheURL]
+		entry := sessionJWKSCache.entries[cacheURL]
 		if entry.loading != nil || (time.Since(entry.fetchedAt) < jwksCacheTTL && entry.keys[kid] != nil) {
 			sessionJWKSCache.Unlock()
 			continue
@@ -73,10 +83,13 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 			return nil, errors.New("workos: JWT signing key unavailable")
 		}
 		if _, exists := sessionJWKSCache.entries[cacheURL]; !exists && len(sessionJWKSCache.entries) >= jwksCacheLimit {
+			// Evict the least recently attempted idle entry. An entry whose fetch
+			// is in flight is kept so its result reaches the callers waiting on
+			// it; if every entry is in flight the limit is exceeded by one.
 			var oldestURL string
 			var oldest time.Time
 			for url, cached := range sessionJWKSCache.entries {
-				if oldestURL == "" || cached.attemptAt.Before(oldest) {
+				if cached.loading == nil && (oldestURL == "" || cached.attemptAt.Before(oldest)) {
 					oldestURL, oldest = url, cached.attemptAt
 				}
 			}
@@ -143,8 +156,10 @@ func (c *Client) fetchSessionJWKS(ctx context.Context) (map[string]*rsa.PublicKe
 
 // verifyAccessToken verifies the signature and identity claims before returning
 // any authorization claims. Expiration is handled by Authenticate so verified,
-// expired tokens can still be used to refresh and log out.
-func (s *Session) verifyAccessToken(ctx context.Context, token string) (*JWTClaims, error) {
+// expired tokens can still be used to refresh and log out. When fetch is false
+// only an already-cached signing key is used, so verification never performs
+// I/O or waits on another caller's JWKS request.
+func (s *Session) verifyAccessToken(ctx context.Context, token string, fetch bool) (*JWTClaims, error) {
 	if s.client == nil || s.client.clientID == "" {
 		return nil, errors.New("workos: a client configured with WithClientID is required for session authentication")
 	}
@@ -171,9 +186,14 @@ func (s *Session) verifyAccessToken(ctx context.Context, token string) (*JWTClai
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(ctx, sessionVerificationTimeout)
-	defer cancel()
-	key, err := s.client.sessionVerificationKey(ctx, header.Kid)
+	var key *rsa.PublicKey
+	if fetch {
+		ctx, cancel := context.WithTimeout(ctx, sessionVerificationTimeout)
+		defer cancel()
+		key, err = s.client.sessionVerificationKey(ctx, header.Kid)
+	} else {
+		key, err = s.client.cachedSessionVerificationKey(header.Kid)
+	}
 	if err != nil {
 		return nil, err
 	}

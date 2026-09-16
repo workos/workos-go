@@ -232,6 +232,58 @@ func TestSession_Refresh_NonInvalidGrantIsNotRevoked(t *testing.T) {
 	require.Equal(t, "refresh_failed", result.Reason)
 }
 
+// Refresh must never spend the caller's context on a JWKS request: the
+// organization hint is optional, so it is sent only when the signing key is
+// already cached, and an unavailable JWKS endpoint cannot block a valid refresh.
+func TestSession_Refresh_UsesOnlyCachedJWKS(t *testing.T) {
+	key := sessionTestKey(t)
+	sealed := sealSessionToken(t, signSessionJWT(t, key, map[string]any{"alg": "RS256", "kid": "session-key"}, sessionTestClaims()))
+	var jwksAvailable atomic.Bool
+	hints := make(chan *string, 2)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/sso/jwks/client_session":
+			if !jwksAvailable.Load() {
+				<-r.Context().Done()
+				return
+			}
+			_ = json.NewEncoder(w).Encode(workos.JWKSResponse{Keys: []*workos.JWKSResponseKeys{sessionTestJWK(key)}})
+		case "/user_management/authenticate":
+			var body struct {
+				OrganizationID *string `json:"organization_id"`
+			}
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			hints <- body.OrganizationID
+			_, _ = w.Write([]byte(`{"access_token":"new_access","refresh_token":"new_refresh"}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL), workos.WithClientID("client_session"))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	// Cold cache while the JWKS endpoint hangs: refresh immediately, without a hint.
+	result, err := client.RefreshSession(ctx, sealed, testCookiePassword)
+	require.NoError(t, err)
+	require.True(t, result.Authenticated)
+	require.Nil(t, <-hints)
+
+	// Warm cache: the verified organization_id is sent as the hint.
+	jwksAvailable.Store(true)
+	auth, err := client.AuthenticateSession(ctx, sealed, testCookiePassword)
+	require.NoError(t, err)
+	require.True(t, auth.Authenticated)
+	result, err = client.RefreshSession(ctx, sealed, testCookiePassword)
+	require.NoError(t, err)
+	require.True(t, result.Authenticated)
+	hint := <-hints
+	require.NotNil(t, hint)
+	require.Equal(t, "org_456", *hint)
+}
+
 // GetLogoutURL must succeed for a session whose access token has expired:
 // the JWT exp check makes Authenticate return Authenticated=false with
 // SessionID populated, and the logout endpoint accepts that session ID
