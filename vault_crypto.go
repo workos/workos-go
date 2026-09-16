@@ -131,11 +131,12 @@ func LocalDecrypt(encryptedData string, dataKey DecryptResponse, associatedData 
 		return "", fmt.Errorf("failed to decode LEB128 prefix: %w", err)
 	}
 
-	offset := bytesRead + int(keysLen)
-	if offset+12 > len(raw) {
+	// Check the length before converting to int, which may be only 32 bits.
+	if uint64(bytesRead)+uint64(keysLen)+12 > uint64(len(raw)) {
 		return "", errors.New("encrypted data too short: missing nonce")
 	}
 
+	offset := bytesRead + int(keysLen)
 	nonce := raw[offset : offset+12]
 	ciphertext := raw[offset+12:]
 
@@ -190,14 +191,14 @@ func decodeLEB128(buf []byte) (uint32, int, error) {
 	var shift uint
 	for i := 0; i < len(buf); i++ {
 		b := buf[i]
+		if i == 4 && b > 0x0f {
+			return 0, 0, errors.New("LEB128 value too large for uint32")
+		}
 		result |= uint32(b&0x7f) << shift
 		if b&0x80 == 0 {
 			return result, i + 1, nil
 		}
 		shift += 7
-		if shift >= 35 {
-			return 0, 0, errors.New("LEB128 value too large for uint32")
-		}
 	}
 	return 0, 0, errors.New("unexpected end of LEB128 data")
 }
