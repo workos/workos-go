@@ -258,6 +258,28 @@ func TestRadarEmailChallengeError_MissingIDFallsBack(t *testing.T) {
 	require.Equal(t, "YQyCkYfuVw2mI3tzSrk2C1Y7S", apiErr.PendingAuthenticationToken)
 }
 
+func TestRadarEmailChallengeError_MissingPendingTokenFallsBack(t *testing.T) {
+	client, close := errTestClient(403, `{
+		"code": "radar_email_challenge",
+		"message": "The user must complete a Radar challenge to finish authenticating.",
+		"radar_challenge_id": "radar_challenge_01HXYZ123456789ABCDEFGHIJ"
+	}`)
+	defer close()
+
+	_, err := client.Organizations().Get(context.Background(), "org_123")
+	require.Error(t, err)
+
+	// AuthenticateWithRadarEmailChallenge needs the pending token too, so this payload is also incomplete.
+	var radarErr *RadarEmailChallengeError
+	require.False(t, errors.As(err, &radarErr))
+
+	var apiErr *APIError
+	require.True(t, errors.As(err, &apiErr))
+	require.Equal(t, "radar_email_challenge", apiErr.Code)
+	require.Equal(t, "radar_challenge_01HXYZ123456789ABCDEFGHIJ", apiErr.RadarChallengeID)
+	require.Empty(t, apiErr.PendingAuthenticationToken)
+}
+
 func TestSSORequiredError(t *testing.T) {
 	client, close := errTestClient(422, `{
 		"error": "sso_required",

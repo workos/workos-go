@@ -296,7 +296,7 @@ func parseAuthenticationError(apiErr *APIError, body []byte) error {
 		case RadarEmailChallengeCode:
 			e := &RadarEmailChallengeError{APIError: apiErr}
 			_ = json.Unmarshal(body, e)
-			if e.RadarChallengeID == "" {
+			if e.RadarChallengeID == "" || e.PendingAuthenticationToken == "" {
 				return nil // incomplete payload, fall back to generic
 			}
 			return e
