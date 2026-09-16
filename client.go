@@ -265,7 +265,7 @@ func parseAPIError(resp *http.Response) error {
 // returns a structured error type. Returns nil if the error is not a
 // recognized authentication error.
 func parseAuthenticationError(apiErr *APIError, body []byte) error {
-	// Check code/message format (email_verification_required, mfa_*, organization_selection_required)
+	// Check code/message format (email_verification_required, mfa_*, organization_selection_required, radar_email_challenge)
 	if apiErr.Code != "" {
 		switch apiErr.Code {
 		case EmailVerificationRequiredCode:
@@ -291,6 +291,13 @@ func parseAuthenticationError(apiErr *APIError, body []byte) error {
 			_ = json.Unmarshal(body, e)
 			if e.User.ID == "" {
 				return nil
+			}
+			return e
+		case RadarEmailChallengeCode:
+			e := &RadarEmailChallengeError{APIError: apiErr}
+			_ = json.Unmarshal(body, e)
+			if e.RadarChallengeID == "" || e.PendingAuthenticationToken == "" {
+				return nil // incomplete payload, fall back to generic
 			}
 			return e
 		}
