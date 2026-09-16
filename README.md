@@ -132,6 +132,23 @@ fmt.Println(event.Event, event.ID)
 
 ## Session Management
 
+The cookie password must be at least 32 bytes long (32 ASCII characters;
+multibyte UTF-8 characters count by their byte length). Use a high-entropy secret;
+length alone does not make a predictable passphrase safe. We recommend a
+64-character hex string encoding 32 random bytes, generated with
+`openssl rand -hex 32`. Valid 64-character hex keys are decoded directly;
+other passwords meeting the minimum are hashed with SHA-256, as before.
+This requirement also applies to the generic `Seal`/`Unseal` and
+`SealData`/`UnsealData` helpers.
+
+Upgrading does not invalidate existing sessions sealed under an already-compliant
+password: key derivation is unchanged, so no re-login is required. Applications
+using empty or shorter passwords must rotate to a strong, compliant secret,
+which invalidates their existing cookies and requires users to log in again.
+These weak-password cookies are vulnerable to forgery and cannot safely be
+preserved. Sealing with a short password returns an error; authenticating a
+cookie with one returns `Authenticated: false` and `Reason: "invalid_session_cookie"`.
+
 Authenticate and refresh user sessions using sealed cookies:
 
 ```go

@@ -145,7 +145,7 @@ func TestAuthenticateSession_WrongPassword(t *testing.T) {
 	require.NoError(t, err)
 
 	// Try to unseal with the wrong password
-	result, err := workos.AuthenticateSession(sealed, "wrong-password")
+	result, err := workos.AuthenticateSession(sealed, "wrong-password-for-session-testing")
 	require.NoError(t, err)
 	require.False(t, result.Authenticated)
 	require.Equal(t, "invalid_session_cookie", result.Reason)
