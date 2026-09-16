@@ -3,6 +3,7 @@
 package workos_test
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -178,24 +179,28 @@ func TestSeal_PasswordMinimumIsBytes(t *testing.T) {
 }
 
 func TestAuthenticateSession_ShortPasswordRejected(t *testing.T) {
+	// Authenticate through a client with a client ID and JWKS so that a
+	// correctly derived key yields an authenticated session; only the short
+	// password should fail, and it must fail on the cookie, not the JWT.
+	client, token := signedSessionFixture(t, sessionTestClaims())
 	for _, password := range []string{"short-password", strings.Repeat("a", 31)} {
 		t.Run(password, func(t *testing.T) {
 			// Simulate an attacker sealing with the pre-change SHA-256 fallback.
 			key := sha256.Sum256([]byte(password))
 			keyHex := hex.EncodeToString(key[:])
 			forged, err := workos.SealSession(&workos.SessionData{
-				AccessToken: buildFakeJWT(),
+				AccessToken: token,
 				User:        &workos.User{ID: "user_admin"},
 			}, keyHex)
 			require.NoError(t, err)
 
-			// The cookie is otherwise valid, including its spoofed role claims.
-			control, err := workos.AuthenticateSession(forged, keyHex)
+			// The cookie is otherwise valid, including its role claims.
+			control, err := client.AuthenticateSession(context.Background(), forged, keyHex)
 			require.NoError(t, err)
 			require.True(t, control.Authenticated)
 			require.Equal(t, "admin", control.Role)
 
-			result, err := workos.AuthenticateSession(forged, password)
+			result, err := client.AuthenticateSession(context.Background(), forged, password)
 			require.NoError(t, err)
 			require.False(t, result.Authenticated)
 			require.Equal(t, "invalid_session_cookie", result.Reason)
@@ -204,6 +209,7 @@ func TestAuthenticateSession_ShortPasswordRejected(t *testing.T) {
 }
 
 func TestAuthenticateSession_LegacyPassphraseCompatibility(t *testing.T) {
+	client, token := signedSessionFixture(t, sessionTestClaims())
 	for _, password := range []string{
 		"test-password-for-session-sealing", // Exactly 32 bytes.
 		testCookiePassword,
@@ -214,7 +220,7 @@ func TestAuthenticateSession_LegacyPassphraseCompatibility(t *testing.T) {
 			// derivation, so changing the latter cannot silently log users out.
 			key := sha256.Sum256([]byte(password))
 			data := &workos.SessionData{
-				AccessToken:  buildFakeJWT(),
+				AccessToken:  token,
 				RefreshToken: "refresh_tok_abc",
 				User:         &workos.User{ID: "user_123"},
 			}
@@ -225,7 +231,7 @@ func TestAuthenticateSession_LegacyPassphraseCompatibility(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, *data, unsealed)
 
-			result, err := workos.AuthenticateSession(sealed, password)
+			result, err := client.AuthenticateSession(context.Background(), sealed, password)
 			require.NoError(t, err)
 			require.True(t, result.Authenticated)
 			require.Equal(t, data.User, result.User)
