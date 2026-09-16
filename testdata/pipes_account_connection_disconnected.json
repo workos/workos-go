@@ -1,7 +1,7 @@
 {
   "object": "event",
   "id": "event_01EHZNVPK3SFK441A1RGBFSHRT",
-  "event": "pipes.connected_account.reauthorization_needed",
+  "event": "pipes.account_connection.disconnected",
   "data": {
     "object": "connected_account",
     "id": "data_installation_01EHZNVPK3SFK441A1RGBFSHRT",

@@ -194,10 +194,12 @@ func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug stri
 
 // PipesAuthorizeDataIntegrationParams contains the parameters for AuthorizeDataIntegration.
 type PipesAuthorizeDataIntegrationParams struct {
-	// UserID is the ID of the user to authorize.
+	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
 	UserID string `json:"user_id" url:"-"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization.
+	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
+	ConnectionOwner *DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
 	// ReturnTo is the URL to redirect the user to after authorization.
 	ReturnTo *string `json:"return_to,omitempty" url:"-"`
 	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.

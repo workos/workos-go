@@ -75,7 +75,7 @@ func (s *MultiFactorAuthService) DeleteFactor(ctx context.Context, id string, op
 
 // MultiFactorAuthChallengeFactorParams contains the parameters for ChallengeFactor.
 type MultiFactorAuthChallengeFactorParams struct {
-	// SmsTemplate is a custom template for the SMS message. Use the {{code}} placeholder to include the verification code.
+	// SmsTemplate is a custom template for the SMS message. Use the {{code}} placeholder to include the verification code. Must not contain URLs or domain names.
 	SmsTemplate *string `json:"sms_template,omitempty" url:"-"`
 }
 
