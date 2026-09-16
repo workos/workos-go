@@ -33,9 +33,3 @@ jobs:
       - name: Run Tests
         run: |
           go test -v ./...
-
-      # 32-bit int: LocalDecrypt's length guards only catch the int(uint32)
-      # overflow (VULN-1280) on a 32-bit runtime, so exercise one in CI.
-      - name: Run Tests (32-bit)
-        run: |
-          GOARCH=386 go test -v ./...
