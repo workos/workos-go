@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  # Manual fallback. Tags any merged-but-untagged release PR, then lets
+  # release-please open the next release PR. Use it if a push to main
+  # ever fails to trigger this workflow.
+  workflow_dispatch:
 
 concurrency:
   group: release-please
@@ -171,18 +175,25 @@ jobs:
           git commit -m "chore: inline release notes from .changelog-pending"
           git push
 
-  # Detect when a release-please release PR has merged, then tag and
-  # create the GitHub Release whose body is extracted from CHANGELOG.md
-  # (now rich, after the inline step above). Runs on every push to main;
-  # the detect step gates everything else.
+  # Tag and create the GitHub Release for every merged release PR that
+  # release-please still labels "autorelease: pending". The Release body
+  # is the rich CHANGELOG.md section (after the inline step above) as of
+  # the merge commit.
+  #
+  # This runs on every push to main and on manual dispatch, and it is
+  # idempotent: it looks at merged PRs, not at the commit that triggered
+  # the run. So if the run for a release merge is ever lost (GitHub
+  # dropped the push event for the 10.4.0 merge on 2026-09-01), the next
+  # run heals it instead of leaving release-please aborting forever with
+  # "untagged, merged release PRs outstanding".
   publish-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     outputs:
-      is-release: ${{ steps.detect.outputs.is-release }}
-      version: ${{ steps.detect.outputs.version }}
+      is-release: ${{ steps.publish.outputs.is-release }}
+      version: ${{ steps.publish.outputs.version }}
     steps:
       - name: Generate token
         id: generate-token
@@ -198,69 +209,79 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.generate-token.outputs.token }}
 
-      - name: Detect release PR merge
-        id: detect
+      - name: Find merged release PRs awaiting a tag
+        id: pending
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           set -euo pipefail
-          SUBJECT=$(git log -1 --format=%s)
           # release-please's default release PR title:
           #   chore(main): release X.Y.Z
-          if [[ "$SUBJECT" =~ ^chore\(.*\):[[:space:]]release[[:space:]]([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            VERSION="${BASH_REMATCH[1]}"
-            echo "is-release=true"  >> "$GITHUB_OUTPUT"
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-            if [[ "$SUBJECT" =~ \#([0-9]+) ]]; then
-              echo "pr-number=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-            fi
-            echo "Detected release PR merge for v$VERSION"
+          gh pr list --state merged --base main --label "autorelease: pending" \
+            --json number,title,mergeCommit \
+            --jq '[ .[]
+                    | select(.title | test("^chore\\(.*\\): release [0-9]+\\.[0-9]+\\.[0-9]+$"))
+                    | { number,
+                        sha: .mergeCommit.oid,
+                        version: (.title | capture("release (?<v>[0-9]+\\.[0-9]+\\.[0-9]+)").v) } ]
+                  | sort_by(.version | split(".") | map(tonumber))' \
+            > /tmp/pending.json
+          COUNT=$(jq length /tmp/pending.json)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No merged release PRs awaiting a tag."
           else
-            echo "Not a release PR merge: $SUBJECT"
-            echo "is-release=false" >> "$GITHUB_OUTPUT"
+            jq -r '.[] | "PR #\(.number): v\(.version) at \(.sha)"' /tmp/pending.json
           fi
 
-      - name: Extract release notes from CHANGELOG.md
-        if: steps.detect.outputs.is-release == 'true'
-        env:
-          VERSION: ${{ steps.detect.outputs.version }}
-        run: |
-          set -euo pipefail
-          awk -v v="$VERSION" '
-            $0 ~ ("^## \\[" v "\\]") { found=1; next }
-            found && /^## \[/ { exit }
-            found
-          ' CHANGELOG.md > /tmp/release-notes.md
-          if [ ! -s /tmp/release-notes.md ]; then
-            echo "::error::CHANGELOG.md has no body for v$VERSION"
-            exit 1
-          fi
-
-      - name: Tag and create GitHub Release
-        if: steps.detect.outputs.is-release == 'true'
+      - name: Tag, create GitHub Release, and mark PR as tagged
+        id: publish
+        if: steps.pending.outputs.count != '0'
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          VERSION: ${{ steps.detect.outputs.version }}
         run: |
           set -euo pipefail
-          TAG="v$VERSION"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG already exists; skipping."
-            exit 0
-          fi
           git config user.name "workos-sdk-automation[bot]"
           git config user.email "255426317+workos-sdk-automation[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "Release $TAG"
-          git push origin "$TAG"
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --notes-file /tmp/release-notes.md
 
-      - name: Mark release PR as tagged
-        if: steps.detect.outputs.is-release == 'true' && steps.detect.outputs['pr-number']
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          PR_NUMBER: ${{ steps.detect.outputs['pr-number'] }}
-        run: |
-          set -euo pipefail
-          gh pr edit "$PR_NUMBER" \
-            --remove-label "autorelease: pending" \
-            --add-label "autorelease: tagged"
+          while IFS=$'\t' read -r NUMBER SHA VERSION; do
+            TAG="v$VERSION"
+            echo "::group::Publishing $TAG from PR #$NUMBER ($SHA)"
+
+            # Read CHANGELOG.md as of the merge commit so that healing an
+            # older release still gets that release's notes.
+            git show "$SHA:CHANGELOG.md" | awk -v v="$VERSION" '
+              $0 ~ ("^## \\[" v "\\]") { found=1; next }
+              found && /^## \[/ { exit }
+              found
+            ' > /tmp/release-notes.md
+            if [ ! -s /tmp/release-notes.md ]; then
+              echo "::error::CHANGELOG.md at $SHA has no body for $TAG"
+              exit 1
+            fi
+
+            if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+              echo "Tag $TAG already exists; skipping tag."
+            else
+              git tag -a "$TAG" "$SHA" -m "Release $TAG"
+              git push origin "$TAG"
+            fi
+
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              echo "Release $TAG already exists; skipping release."
+            else
+              gh release create "$TAG" \
+                --title "$TAG" \
+                --target "$SHA" \
+                --notes-file /tmp/release-notes.md
+            fi
+
+            gh pr edit "$NUMBER" \
+              --remove-label "autorelease: pending" \
+              --add-label "autorelease: tagged"
+
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "::endgroup::"
+          done < <(jq -r '.[] | [.number, .sha, .version] | @tsv' /tmp/pending.json)
+
+          echo "is-release=true" >> "$GITHUB_OUTPUT"
