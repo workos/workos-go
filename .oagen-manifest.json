@@ -34,8 +34,6 @@
     "organization_membership.go",
     "organization_membership_test.go",
     "organizations.go",
-    "organizations_data_providers.go",
-    "organizations_data_providers_test.go",
     "organizations_test.go",
     "pipes.go",
     "pipes_provider.go",
@@ -137,7 +135,6 @@
     "testdata/audit_logs_retention.json",
     "testdata/auth_method_mismatch_error.json",
     "testdata/authenticate_response.json",
-    "testdata/authenticate_response_impersonator.json",
     "testdata/authenticate_response_oauth_token.json",
     "testdata/authentication_challenge.json",
     "testdata/authentication_challenge_verify_response.json",
@@ -199,7 +196,6 @@
     "testdata/client_api_token.json",
     "testdata/client_api_token_response.json",
     "testdata/configure_data_integration_body.json",
-    "testdata/confirm_email_change.json",
     "testdata/connect_application.json",
     "testdata/connect_application_m2m.json",
     "testdata/connect_application_oauth.json",
@@ -479,7 +475,6 @@
     "testdata/pipes_account_connection_reauthorization_needed.json",
     "testdata/pipes_connected_account_connected.json",
     "testdata/pipes_connected_account_connection_failed.json",
-    "testdata/pipes_connected_account_connection_failed_data.json",
     "testdata/pipes_connected_account_disconnected.json",
     "testdata/pipes_connected_account_reauthorization_needed.json",
     "testdata/portal_link_response.json",
@@ -571,7 +566,6 @@
     "testdata/user_role_assignment_resource.json",
     "testdata/user_role_assignment_source.json",
     "testdata/user_sessions_impersonator.json",
-    "testdata/user_sessions_list_item.json",
     "testdata/user_updated.json",
     "testdata/validate_api_key.json",
     "testdata/vault_byok_key_deleted.json",
@@ -622,6 +616,34 @@
     "workos.go"
   ],
   "operations": {
+    "GET /agents/blueprints": {
+      "sdkMethod": "ListBlueprints",
+      "service": "agents"
+    },
+    "POST /agents/blueprints": {
+      "sdkMethod": "CreateBlueprint",
+      "service": "agents"
+    },
+    "GET /agents/blueprints/{agent_blueprint_id}": {
+      "sdkMethod": "GetBlueprint",
+      "service": "agents"
+    },
+    "PATCH /agents/blueprints/{agent_blueprint_id}": {
+      "sdkMethod": "UpdateBlueprint",
+      "service": "agents"
+    },
+    "DELETE /agents/blueprints/{agent_blueprint_id}": {
+      "sdkMethod": "DeleteBlueprint",
+      "service": "agents"
+    },
+    "POST /agents/blueprints/{agent_blueprint_id}/tokens": {
+      "sdkMethod": "CreateBlueprintToken",
+      "service": "agents"
+    },
+    "POST /agents/blueprints/{agent_blueprint_id}/tokens/validate": {
+      "sdkMethod": "ValidateBlueprintToken",
+      "service": "agents"
+    },
     "PATCH /agents/claims/attempts": {
       "sdkMethod": "UpdateAttempts",
       "service": "agents"
@@ -632,6 +654,30 @@
     },
     "GET /agents/registrations/{id}": {
       "sdkMethod": "GetRegistration",
+      "service": "agents"
+    },
+    "GET /agents/instances": {
+      "sdkMethod": "ListInstances",
+      "service": "agents"
+    },
+    "GET /agents/instances/{agent_instance_id}": {
+      "sdkMethod": "GetInstance",
+      "service": "agents"
+    },
+    "DELETE /agents/instances/{agent_instance_id}": {
+      "sdkMethod": "DeleteInstance",
+      "service": "agents"
+    },
+    "GET /agents/sessions": {
+      "sdkMethod": "ListSessions",
+      "service": "agents"
+    },
+    "GET /agents/sessions/{agent_instance_session_id}": {
+      "sdkMethod": "GetSession",
+      "service": "agents"
+    },
+    "POST /agents/sessions/{agent_instance_session_id}/revoke": {
+      "sdkMethod": "RevokeSession",
       "service": "agents"
     },
     "POST /auth/challenges/{id}/verify": {
@@ -878,8 +924,52 @@
       "sdkMethod": "ListConnections",
       "service": "sso"
     },
+    "POST /connections": {
+      "sdkMethod": "CreateConnection",
+      "service": "sso"
+    },
+    "GET /connections/{connectionId}/saml_idp_signing_certs": {
+      "sdkMethod": "ListConnectionSAMLIdpSigningCerts",
+      "service": "sso"
+    },
+    "POST /connections/{connectionId}/saml_idp_signing_certs": {
+      "sdkMethod": "CreateConnectionSAMLIdpSigningCert",
+      "service": "sso"
+    },
+    "DELETE /connections/{connectionId}/saml_idp_signing_certs/{certificateId}": {
+      "sdkMethod": "DeleteConnectionSAMLIdpSigningCert",
+      "service": "sso"
+    },
+    "GET /connections/{connectionId}/saml_sp_encryption_certs": {
+      "sdkMethod": "ListConnectionSAMLSpEncryptionCerts",
+      "service": "sso"
+    },
+    "POST /connections/{connectionId}/saml_sp_encryption_certs": {
+      "sdkMethod": "CreateConnectionSAMLSpEncryptionCert",
+      "service": "sso"
+    },
+    "DELETE /connections/{connectionId}/saml_sp_encryption_certs/{certificateId}": {
+      "sdkMethod": "DeleteConnectionSAMLSpEncryptionCert",
+      "service": "sso"
+    },
+    "GET /connections/{connectionId}/saml_sp_signing_cert": {
+      "sdkMethod": "ListConnectionSAMLSpSigningCert",
+      "service": "sso"
+    },
+    "POST /connections/{connectionId}/saml_sp_signing_cert": {
+      "sdkMethod": "CreateConnectionSAMLSpSigningCert",
+      "service": "sso"
+    },
+    "DELETE /connections/{connectionId}/saml_sp_signing_cert/{certificateId}": {
+      "sdkMethod": "DeleteConnectionSAMLSpSigningCert",
+      "service": "sso"
+    },
     "GET /connections/{id}": {
       "sdkMethod": "GetConnection",
+      "service": "sso"
+    },
+    "PATCH /connections/{id}": {
+      "sdkMethod": "UpdateConnection",
       "service": "sso"
     },
     "DELETE /connections/{id}": {
@@ -914,8 +1004,24 @@
       "sdkMethod": "AuthorizeDataIntegration",
       "service": "pipes"
     },
+    "PUT /data-integrations/{slug}/client-credentials": {
+      "sdkMethod": "UpdateDataIntegrationClientCredentials",
+      "service": "pipes"
+    },
     "POST /data-integrations/{slug}/credentials": {
       "sdkMethod": "CreateDataIntegrationCredential",
+      "service": "pipes"
+    },
+    "GET /data-integrations/{slug}/organization": {
+      "sdkMethod": "ListDataIntegrationOrganization",
+      "service": "pipes"
+    },
+    "PUT /data-integrations/{slug}/organization": {
+      "sdkMethod": "UpdateDataIntegrationOrganization",
+      "service": "pipes"
+    },
+    "DELETE /data-integrations/{slug}/organization": {
+      "sdkMethod": "DeleteDataIntegrationOrganization",
       "service": "pipes"
     },
     "POST /data-integrations/{provider}/token": {
@@ -1086,6 +1192,54 @@
       "sdkMethod": "ListAuthorizedApplications",
       "service": "organizations"
     },
+    "GET /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "GetOrganizationConnectedAccount",
+      "service": "pipes"
+    },
+    "POST /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "CreateOrganizationConnectedAccount",
+      "service": "pipes"
+    },
+    "PUT /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "UpdateOrganizationConnectedAccount",
+      "service": "pipes"
+    },
+    "DELETE /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "DeleteOrganizationConnectedAccount",
+      "service": "pipes"
+    },
+    "GET /organizations/{organization_id}/data_providers": {
+      "sdkMethod": "ListOrganizationDataProviders",
+      "service": "pipes"
+    },
+    "GET /organizations/{organization_id}/it_contacts": {
+      "sdkMethod": "ListItContacts",
+      "service": "organizations"
+    },
+    "POST /organizations/{organization_id}/it_contacts": {
+      "sdkMethod": "CreateItContact",
+      "service": "organizations"
+    },
+    "DELETE /organizations/{organization_id}/it_contacts/{contact_id}": {
+      "sdkMethod": "DeleteItContact",
+      "service": "organizations"
+    },
+    "POST /organizations/{organization_id}/it_contacts/{contact_id}/invite": {
+      "sdkMethod": "InviteItContact",
+      "service": "organizations"
+    },
+    "POST /organizations/{organization_id}/it_contacts/{contact_id}/revoke": {
+      "sdkMethod": "RevokeItContact",
+      "service": "organizations"
+    },
+    "POST /platform/teams": {
+      "sdkMethod": "CreateTeam",
+      "service": "platform_teams"
+    },
+    "GET /platform/teams/{team_id}": {
+      "sdkMethod": "GetTeam",
+      "service": "platform_teams"
+    },
     "POST /portal/generate_link": {
       "sdkMethod": "GenerateLink",
       "service": "admin_portal"
@@ -1156,6 +1310,18 @@
     },
     "POST /user_management/sessions/revoke": {
       "sdkMethod": "RevokeSession",
+      "service": "user_management"
+    },
+    "GET /user_management/authkit_oauth_resources": {
+      "sdkMethod": "ListAuthkitOAuthResources",
+      "service": "user_management"
+    },
+    "POST /user_management/authkit_oauth_resources": {
+      "sdkMethod": "CreateAuthkitOAuthResource",
+      "service": "user_management"
+    },
+    "DELETE /user_management/authkit_oauth_resources/{id}": {
+      "sdkMethod": "DeleteAuthkitOAuthResource",
       "service": "user_management"
     },
     "GET /user_management/cors_origins": {
@@ -1358,6 +1524,34 @@
       "sdkMethod": "CreateUserAuthFactor",
       "service": "multi_factor_auth"
     },
+    "DELETE /user_management/waitlist_entries/{id}": {
+      "sdkMethod": "DeleteWaitlistEntry",
+      "service": "user_management"
+    },
+    "POST /user_management/waitlist_entries/{id}/approve": {
+      "sdkMethod": "CreateWaitlistEntryApprove",
+      "service": "user_management"
+    },
+    "POST /user_management/waitlist_entries/{id}/deny": {
+      "sdkMethod": "CreateWaitlistEntryDeny",
+      "service": "user_management"
+    },
+    "GET /user_management/waitlists": {
+      "sdkMethod": "ListWaitlists",
+      "service": "user_management"
+    },
+    "GET /user_management/waitlists/{id}": {
+      "sdkMethod": "GetWaitlist",
+      "service": "user_management"
+    },
+    "GET /user_management/waitlists/{id}/entries": {
+      "sdkMethod": "ListWaitlistEntries",
+      "service": "user_management"
+    },
+    "POST /user_management/waitlists/{id}/entries": {
+      "sdkMethod": "CreateWaitlistEntry",
+      "service": "user_management"
+    },
     "POST /vault/v1/keys/data-key": {
       "sdkMethod": "CreateDataKey",
       "service": "vault"
@@ -1465,206 +1659,6 @@
     "GET /audit_logs/exports/{auditLogExportId}": {
       "sdkMethod": "GetExport",
       "service": "audit_logs"
-    },
-    "PUT /data-integrations/{slug}/client-credentials": {
-      "sdkMethod": "UpdateDataIntegrationClientCredentials",
-      "service": "pipes"
-    },
-    "GET /agents/blueprints": {
-      "sdkMethod": "ListBlueprints",
-      "service": "agents"
-    },
-    "POST /agents/blueprints": {
-      "sdkMethod": "CreateBlueprint",
-      "service": "agents"
-    },
-    "GET /agents/blueprints/{agent_blueprint_id}": {
-      "sdkMethod": "GetBlueprint",
-      "service": "agents"
-    },
-    "PATCH /agents/blueprints/{agent_blueprint_id}": {
-      "sdkMethod": "UpdateBlueprint",
-      "service": "agents"
-    },
-    "DELETE /agents/blueprints/{agent_blueprint_id}": {
-      "sdkMethod": "DeleteBlueprint",
-      "service": "agents"
-    },
-    "POST /agents/blueprints/{agent_blueprint_id}/tokens": {
-      "sdkMethod": "CreateBlueprintToken",
-      "service": "agents"
-    },
-    "GET /agents/instances": {
-      "sdkMethod": "ListInstances",
-      "service": "agents"
-    },
-    "GET /agents/instances/{agent_instance_id}": {
-      "sdkMethod": "GetInstance",
-      "service": "agents"
-    },
-    "DELETE /agents/instances/{agent_instance_id}": {
-      "sdkMethod": "DeleteInstance",
-      "service": "agents"
-    },
-    "GET /agents/sessions": {
-      "sdkMethod": "ListSessions",
-      "service": "agents"
-    },
-    "GET /agents/sessions/{agent_instance_session_id}": {
-      "sdkMethod": "GetSession",
-      "service": "agents"
-    },
-    "POST /agents/sessions/{agent_instance_session_id}/revoke": {
-      "sdkMethod": "RevokeSession",
-      "service": "agents"
-    },
-    "POST /connections": {
-      "sdkMethod": "CreateConnection",
-      "service": "sso"
-    },
-    "GET /connections/{connectionId}/saml_idp_signing_certs": {
-      "sdkMethod": "ListConnectionSAMLIdpSigningCerts",
-      "service": "sso"
-    },
-    "POST /connections/{connectionId}/saml_idp_signing_certs": {
-      "sdkMethod": "CreateConnectionSAMLIdpSigningCert",
-      "service": "sso"
-    },
-    "DELETE /connections/{connectionId}/saml_idp_signing_certs/{certificateId}": {
-      "sdkMethod": "DeleteConnectionSAMLIdpSigningCert",
-      "service": "sso"
-    },
-    "GET /connections/{connectionId}/saml_sp_encryption_certs": {
-      "sdkMethod": "ListConnectionSAMLSpEncryptionCerts",
-      "service": "sso"
-    },
-    "POST /connections/{connectionId}/saml_sp_encryption_certs": {
-      "sdkMethod": "CreateConnectionSAMLSpEncryptionCert",
-      "service": "sso"
-    },
-    "DELETE /connections/{connectionId}/saml_sp_encryption_certs/{certificateId}": {
-      "sdkMethod": "DeleteConnectionSAMLSpEncryptionCert",
-      "service": "sso"
-    },
-    "GET /connections/{connectionId}/saml_sp_signing_cert": {
-      "sdkMethod": "ListConnectionSAMLSpSigningCert",
-      "service": "sso"
-    },
-    "POST /connections/{connectionId}/saml_sp_signing_cert": {
-      "sdkMethod": "CreateConnectionSAMLSpSigningCert",
-      "service": "sso"
-    },
-    "DELETE /connections/{connectionId}/saml_sp_signing_cert/{certificateId}": {
-      "sdkMethod": "DeleteConnectionSAMLSpSigningCert",
-      "service": "sso"
-    },
-    "PATCH /connections/{id}": {
-      "sdkMethod": "UpdateConnection",
-      "service": "sso"
-    },
-    "GET /organizations/{organization_id}/it_contacts": {
-      "sdkMethod": "ListItContacts",
-      "service": "organizations"
-    },
-    "POST /organizations/{organization_id}/it_contacts": {
-      "sdkMethod": "CreateItContact",
-      "service": "organizations"
-    },
-    "DELETE /organizations/{organization_id}/it_contacts/{contact_id}": {
-      "sdkMethod": "DeleteItContact",
-      "service": "organizations"
-    },
-    "POST /organizations/{organization_id}/it_contacts/{contact_id}/invite": {
-      "sdkMethod": "InviteItContact",
-      "service": "organizations"
-    },
-    "POST /organizations/{organization_id}/it_contacts/{contact_id}/revoke": {
-      "sdkMethod": "RevokeItContact",
-      "service": "organizations"
-    },
-    "POST /platform/teams": {
-      "sdkMethod": "CreateTeam",
-      "service": "platform_teams"
-    },
-    "GET /platform/teams/{team_id}": {
-      "sdkMethod": "GetTeam",
-      "service": "platform_teams"
-    },
-    "DELETE /user_management/waitlist_entries/{id}": {
-      "sdkMethod": "DeleteWaitlistEntry",
-      "service": "user_management"
-    },
-    "POST /user_management/waitlist_entries/{id}/approve": {
-      "sdkMethod": "CreateWaitlistEntryApprove",
-      "service": "user_management"
-    },
-    "POST /user_management/waitlist_entries/{id}/deny": {
-      "sdkMethod": "CreateWaitlistEntryDeny",
-      "service": "user_management"
-    },
-    "GET /user_management/waitlists": {
-      "sdkMethod": "ListWaitlists",
-      "service": "user_management"
-    },
-    "GET /user_management/waitlists/{id}": {
-      "sdkMethod": "GetWaitlist",
-      "service": "user_management"
-    },
-    "GET /user_management/waitlists/{id}/entries": {
-      "sdkMethod": "ListWaitlistEntries",
-      "service": "user_management"
-    },
-    "POST /user_management/waitlists/{id}/entries": {
-      "sdkMethod": "CreateWaitlistEntry",
-      "service": "user_management"
-    },
-    "POST /agents/blueprints/{agent_blueprint_id}/tokens/validate": {
-      "sdkMethod": "ValidateBlueprintToken",
-      "service": "agents"
-    },
-    "GET /data-integrations/{slug}/organization": {
-      "sdkMethod": "ListDataIntegrationOrganization",
-      "service": "pipes"
-    },
-    "PUT /data-integrations/{slug}/organization": {
-      "sdkMethod": "UpdateDataIntegrationOrganization",
-      "service": "pipes"
-    },
-    "DELETE /data-integrations/{slug}/organization": {
-      "sdkMethod": "DeleteDataIntegrationOrganization",
-      "service": "pipes"
-    },
-    "GET /user_management/authkit_oauth_resources": {
-      "sdkMethod": "ListAuthkitOAuthResources",
-      "service": "user_management"
-    },
-    "POST /user_management/authkit_oauth_resources": {
-      "sdkMethod": "CreateAuthkitOAuthResource",
-      "service": "user_management"
-    },
-    "DELETE /user_management/authkit_oauth_resources/{id}": {
-      "sdkMethod": "DeleteAuthkitOAuthResource",
-      "service": "user_management"
-    },
-    "GET /organizations/{organization_id}/connected_accounts/{slug}": {
-      "sdkMethod": "GetConnectedAccount",
-      "service": "organizations_data_providers"
-    },
-    "POST /organizations/{organization_id}/connected_accounts/{slug}": {
-      "sdkMethod": "CreateConnectedAccount",
-      "service": "organizations_data_providers"
-    },
-    "PUT /organizations/{organization_id}/connected_accounts/{slug}": {
-      "sdkMethod": "UpdateConnectedAccount",
-      "service": "organizations_data_providers"
-    },
-    "DELETE /organizations/{organization_id}/connected_accounts/{slug}": {
-      "sdkMethod": "DeleteConnectedAccount",
-      "service": "organizations_data_providers"
-    },
-    "GET /organizations/{organization_id}/data_providers": {
-      "sdkMethod": "List",
-      "service": "organizations_data_providers"
     }
   }
 }

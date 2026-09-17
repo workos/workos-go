@@ -400,6 +400,111 @@ func (s *PipeService) GetAccessToken(ctx context.Context, provider string, param
 	return &result, nil
 }
 
+// PipesGetOrganizationConnectedAccountParams contains the parameters for GetOrganizationConnectedAccount.
+type PipesGetOrganizationConnectedAccountParams struct {
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the organization has several for this provider.
+	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
+}
+
+// GetOrganizationConnectedAccount get an organization connected account
+// Retrieves an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) for a specific provider.
+func (s *PipeService) GetOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesGetOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), params, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesCreateOrganizationConnectedAccountParams contains the parameters for CreateOrganizationConnectedAccount.
+type PipesCreateOrganizationConnectedAccountParams struct {
+	// AccessToken is the OAuth access token for the connected account.
+	AccessToken *string `json:"access_token,omitempty" url:"-"`
+	// RefreshToken is the OAuth refresh token for the connected account.
+	RefreshToken *string `json:"refresh_token,omitempty" url:"-"`
+	// ExpiresAt is the ISO-8601 timestamp when the access token expires. Required when `access_token` is provided for tokens that expire.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
+	// Scopes is the OAuth scopes granted for this connection.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
+	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
+}
+
+// CreateOrganizationConnectedAccount import an organization connected account
+// Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+func (s *PipeService) CreateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesCreateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateOrganizationConnectedAccountParams contains the parameters for UpdateOrganizationConnectedAccount.
+type PipesUpdateOrganizationConnectedAccountParams struct {
+	// AccessToken is the OAuth access token for the connected account.
+	AccessToken *string `json:"access_token,omitempty" url:"-"`
+	// RefreshToken is the OAuth refresh token for the connected account.
+	RefreshToken *string `json:"refresh_token,omitempty" url:"-"`
+	// ExpiresAt is the ISO-8601 timestamp when the access token expires. Required when `access_token` is provided for tokens that expire.
+	ExpiresAt *string `json:"expires_at,omitempty" url:"-"`
+	// Scopes is the OAuth scopes granted for this connection.
+	Scopes []string `json:"scopes,omitempty" url:"-"`
+	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
+	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
+	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
+}
+
+// UpdateOrganizationConnectedAccount update an organization connected account
+// Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+func (s *PipeService) UpdateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesUpdateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), params, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesDeleteOrganizationConnectedAccountParams contains the parameters for DeleteOrganizationConnectedAccount.
+type PipesDeleteOrganizationConnectedAccountParams struct {
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
+	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to delete.
+	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
+}
+
+// DeleteOrganizationConnectedAccount delete an organization connected account
+// Disconnects the organization's account for the provider, including removing any stored access and refresh tokens. A member will need to reauthorize if the organization wants to reconnect. This does not revoke access on the provider side.
+func (s *PipeService) DeleteOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesDeleteOrganizationConnectedAccountParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), params, nil, nil, opts)
+	return err
+}
+
+// PipesListOrganizationDataProvidersParams contains the parameters for ListOrganizationDataProviders.
+type PipesListOrganizationDataProvidersParams struct {
+	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
+}
+
+// ListOrganizationDataProviders list providers for an organization
+// Retrieves the organization-owned providers configured for your environment and the organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) information for each. Providers owned by individual users are not included.
+func (s *PipeService) ListOrganizationDataProviders(ctx context.Context, organizationID string, params *PipesListOrganizationDataProvidersParams, opts ...RequestOption) (*DataIntegrationsListResponse, error) {
+	var result DataIntegrationsListResponse
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/data_providers", url.PathEscape(organizationID)), params, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // PipesGetUserConnectedAccountParams contains the parameters for GetUserConnectedAccount.
 type PipesGetUserConnectedAccountParams struct {
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
