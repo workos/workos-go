@@ -1,5 +1,30 @@
 # Changelog
 
+## [10.5.0](https://github.com/workos/workos-go/compare/v10.4.0...v10.5.0) (2026-09-18)
+
+
+### Features
+
+* add RadarEmailChallengeError with typed radar_challenge_id ([#623](https://github.com/workos/workos-go/issues/623)) ([2426570](https://github.com/workos/workos-go/commit/2426570010267fdb7a6e3eb9edebe4f45c049ce2))
+* **agents:** Add parameter `AgentsSessions.list.organization_id` ([#618](https://github.com/workos/workos-go/issues/618)) ([f83d8ba](https://github.com/workos/workos-go/commit/f83d8ba5689218d14d75b063bcf127eb99838aef))
+* **generated:** Pipes (batch 8ad8e447) ([#612](https://github.com/workos/workos-go/issues/612)) ([5ba4820](https://github.com/workos/workos-go/commit/5ba4820f0e4febb6a7539d7325b3cd8f829ad1c5))
+* **generated:** SSO (batch 9fe95ce5) ([#614](https://github.com/workos/workos-go/issues/614)) ([87c201c](https://github.com/workos/workos-go/commit/87c201c837e6ffd192fc94c2e290bb52557b11b8))
+* **pipes:** Update Pipes API surface ([#618](https://github.com/workos/workos-go/issues/618)) ([f83d8ba](https://github.com/workos/workos-go/commit/f83d8ba5689218d14d75b063bcf127eb99838aef))
+* **user_management:** Add user management API surface ([#618](https://github.com/workos/workos-go/issues/618)) ([f83d8ba](https://github.com/workos/workos-go/commit/f83d8ba5689218d14d75b063bcf127eb99838aef))
+
+
+### Bug Fixes
+
+* **deps:** update minor and patch updates ([#620](https://github.com/workos/workos-go/issues/620)) ([77147e2](https://github.com/workos/workos-go/commit/77147e27052017784ad6fad6201013bc0e3ec659))
+* **multi_factor_auth:** Change errors for endpoint `POST /auth/factors/{id}/challenge` ([#622](https://github.com/workos/workos-go/issues/622)) ([669de30](https://github.com/workos/workos-go/commit/669de30f85522f400329eafb4282eaa77ea1494e))
+* **multi_factor_auth:** Change errors for endpoint `POST /auth/factors/{id}/challenge` ([#625](https://github.com/workos/workos-go/issues/625)) ([82cf286](https://github.com/workos/workos-go/commit/82cf286087ad7523453fa1adb44e60e9d38f064c))
+* **pipes:** Move organization connected-account operations onto Pipes ([#625](https://github.com/workos/workos-go/issues/625)) ([82cf286](https://github.com/workos/workos-go/commit/82cf286087ad7523453fa1adb44e60e9d38f064c))
+* **pipes:** Update Pipes API surface ([#618](https://github.com/workos/workos-go/issues/618)) ([f83d8ba](https://github.com/workos/workos-go/commit/f83d8ba5689218d14d75b063bcf127eb99838aef))
+* **session:** Reject short cookie passwords without changing valid keys ([#617](https://github.com/workos/workos-go/issues/617)) ([9a1395e](https://github.com/workos/workos-go/commit/9a1395e91903bee0e937226e63b7d187f0a0803c))
+* **session:** Verify JWTs before trusting authorization claims ([#615](https://github.com/workos/workos-go/issues/615)) ([bb30105](https://github.com/workos/workos-go/commit/bb3010568a9c6c5abd0b411829841508b701fcf0))
+* use profile IDs for SSO logout ([#606](https://github.com/workos/workos-go/issues/606)) ([1018564](https://github.com/workos/workos-go/commit/1018564960be7157c7e8916d17918cfda44aa3bf))
+* **vault:** Reject overflowing encrypted lengths ([#616](https://github.com/workos/workos-go/issues/616)) ([33af690](https://github.com/workos/workos-go/commit/33af690acbbb73c8f27d0581cdd32b43e4bee17f))
+
 ## [10.4.0](https://github.com/workos/workos-go/compare/v10.3.0...v10.4.0) (2026-09-01)
 
 ### Bug Fixes
