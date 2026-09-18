@@ -325,6 +325,114 @@ func TestPipes_GetAccessToken(t *testing.T) {
 	require.NotNil(t, result)
 }
 
+func TestPipes_GetOrganizationConnectedAccount(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/connected_accounts/test_slug", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().GetOrganizationConnectedAccount(context.Background(), "test_organization_id", "test_slug", &workos.PipesGetOrganizationConnectedAccountParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
+func TestPipes_CreateOrganizationConnectedAccount(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/connected_accounts/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().CreateOrganizationConnectedAccount(context.Background(), "test_organization_id", "test_slug", &workos.PipesCreateOrganizationConnectedAccountParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
+func TestPipes_UpdateOrganizationConnectedAccount(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PUT", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/connected_accounts/test_slug", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/connected_account.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().UpdateOrganizationConnectedAccount(context.Background(), "test_organization_id", "test_slug", &workos.PipesUpdateOrganizationConnectedAccountParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "data_installation_01EHZNVPK3SFK441A1RGBFSHRT", result.ID)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.CreatedAt)
+	require.Equal(t, "2024-01-16T14:20:00.000Z", result.UpdatedAt)
+}
+
+func TestPipes_DeleteOrganizationConnectedAccount(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/connected_accounts/test_slug", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Pipes().DeleteOrganizationConnectedAccount(context.Background(), "test_organization_id", "test_slug", &workos.PipesDeleteOrganizationConnectedAccountParams{})
+	require.NoError(t, err)
+}
+
+func TestPipes_ListOrganizationDataProviders(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/organizations/test_organization_id/data_providers", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integrations_list_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().ListOrganizationDataProviders(context.Background(), "test_organization_id", &workos.PipesListOrganizationDataProvidersParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
 func TestPipes_GetUserConnectedAccount(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
