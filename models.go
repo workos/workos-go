@@ -6307,22 +6307,6 @@ type DataIntegrationsListResponseData struct {
 	ConnectedAccounts []*DataIntegrationsListResponseDataConnectedAccount `json:"connected_accounts"`
 }
 
-// DataIntegrationCredentialsResponseCredential the credential object containing the vended secret.
-type DataIntegrationCredentialsResponseCredential struct {
-	// Object distinguishes the credential object.
-	Object string `json:"object"`
-	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
-	AuthMethod string `json:"auth_method"`
-	// Value is the OAuth access token.
-	Value string `json:"value"`
-	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires.
-	ExpiresAt *string `json:"expires_at"`
-	// Scopes is the scopes granted to the access token.
-	Scopes []string `json:"scopes"`
-	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
-	MissingScopes []string `json:"missing_scopes"`
-}
-
 // DataIntegrationAccessTokenResponseAccessToken the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
 type DataIntegrationAccessTokenResponseAccessToken struct {
 	// Object distinguishes the access token object.
@@ -6499,6 +6483,8 @@ type UserRoleAssignmentSource struct {
 	Type UserRoleAssignmentSourceType `json:"type"`
 	// GroupRoleAssignmentID is the ID of the group role assignment the role was derived from, or null if direct.
 	GroupRoleAssignmentID *string `json:"group_role_assignment_id"`
+	// Group is the group the role was derived from, or null if direct.
+	Group *UserRoleAssignmentSourceGroup `json:"group"`
 }
 
 // GroupRoleAssignmentResource the resource the role is assigned on.
@@ -7170,6 +7156,9 @@ type AgentRegistrationClaimClaimCompletion struct {
 	ClaimedAt string `json:"claimed_at"`
 }
 
+// UserRoleAssignmentSourceGroup is an alias for Actor.
+type UserRoleAssignmentSourceGroup = Actor
+
 // DirectoryMetadataUser counts of active and inactive directory users.
 type DirectoryMetadataUser struct {
 	// Active is count of active directory users.
@@ -7227,6 +7216,22 @@ type ConnectApplicationRedirectURI struct {
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
+}
+
+// DataIntegrationCredentialsResponseCredential the credential object containing the vended secret.
+type DataIntegrationCredentialsResponseCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the OAuth access token.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
+	MissingScopes []string `json:"missing_scopes"`
 }
 
 // PaginationParams contains common pagination parameters for list operations.

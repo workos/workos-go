@@ -565,6 +565,7 @@
     "testdata/user_role_assignment.json",
     "testdata/user_role_assignment_resource.json",
     "testdata/user_role_assignment_source.json",
+    "testdata/user_role_assignment_source_group.json",
     "testdata/user_sessions_impersonator.json",
     "testdata/user_updated.json",
     "testdata/validate_api_key.json",
