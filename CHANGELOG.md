@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.6.0](https://github.com/workos/workos-go/compare/v10.5.0...v10.6.0) (2026-09-24)
+
+
+### Features
+
+* **generated:** Authorization (batch c64ce1e7) ([#626](https://github.com/workos/workos-go/issues/626)) ([8d7f597](https://github.com/workos/workos-go/commit/8d7f597fa1918a771d8b5fc9fce8809556decf97))
+
 ## [10.5.0](https://github.com/workos/workos-go/compare/v10.4.0...v10.5.0) (2026-09-18)
 
 ### Features
