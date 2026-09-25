@@ -125,6 +125,15 @@ type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
 // UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
 
+// CreateOrganizationConnectedAccountState is an alias for ConnectedAccountInputState.
+type CreateOrganizationConnectedAccountState = ConnectedAccountInputState
+
+// OrganizationConnectedAccountState is an alias for ConnectedAccountInputState.
+type OrganizationConnectedAccountState = ConnectedAccountInputState
+
+// CreateConnectedAccountState is an alias for ConnectedAccountInputState.
+type CreateConnectedAccountState = ConnectedAccountInputState
+
 // ConnectedAccountInputState represents connected account input state values.
 type ConnectedAccountInputState string
 
@@ -1253,14 +1262,32 @@ const (
 	AuthenticationFactorsCreateRequestTypeTOTP       AuthenticationFactorsCreateRequestType = "totp"
 )
 
+// DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner = CreateDataIntegrationOwnership
+
 // DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner = CreateDataIntegrationOwnership
 
 // DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = CreateDataIntegrationOwnership
 
+// DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner = CreateDataIntegrationOwnership
+
 // DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner = CreateDataIntegrationOwnership
 
 // DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
 type DataIntegrationsVendCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
