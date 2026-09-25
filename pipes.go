@@ -167,25 +167,41 @@ func (s *PipeService) DeleteDataIntegration(ctx context.Context, slug string, op
 	return err
 }
 
-// PipesUpdateDataIntegrationAPIKeyParams contains the parameters for UpdateDataIntegrationAPIKey.
-type PipesUpdateDataIntegrationAPIKeyParams struct {
+// PipesCreateDataIntegrationAPIKeyParams contains the parameters for CreateDataIntegrationAPIKey.
+type PipesCreateDataIntegrationAPIKeyParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
-	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to rotate a specific existing connection.
-	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
 	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	ConnectionOwner *DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
 	// Secret is the API key secret to store for this integration.
 	Secret string `json:"secret" url:"-"`
+	// ConnectionIntent is must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`.
+	ConnectionIntent string `json:"connection_intent" url:"-"`
+}
+
+// CreateDataIntegrationAPIKey create another API key connected account
+// Creates another API key-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+func (s *PipeService) CreateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesCreateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateDataIntegrationAPIKeyParams contains the parameters for UpdateDataIntegrationAPIKey.
+type PipesUpdateDataIntegrationAPIKeyParams struct {
+	Body interface{} `json:"-"`
 }
 
 // UpdateDataIntegrationAPIKey upsert an API key for a connected account
-// Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value.
+// Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value. To create another connection, use POST.
 func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesUpdateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params.Body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -217,29 +233,45 @@ func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string,
 	return &result, nil
 }
 
-// PipesUpdateDataIntegrationClientCredentialsParams contains the parameters for UpdateDataIntegrationClientCredentials.
-type PipesUpdateDataIntegrationClientCredentialsParams struct {
+// PipesCreateDataIntegrationClientCredentialParams contains the parameters for CreateDataIntegrationClientCredential.
+type PipesCreateDataIntegrationClientCredentialParams struct {
 	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
 	UserID string `json:"user_id" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
 	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
-	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to rotate a specific existing connection.
-	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
 	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	ConnectionOwner *DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
 	// ClientID is the OAuth client ID to store for this integration.
 	ClientID string `json:"client_id" url:"-"`
 	// ClientSecret is the OAuth client secret to store for this integration.
 	ClientSecret string `json:"client_secret" url:"-"`
 	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
 	Config map[string]string `json:"config,omitempty" url:"-"`
+	// ConnectionIntent is must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`.
+	ConnectionIntent string `json:"connection_intent" url:"-"`
+}
+
+// CreateDataIntegrationClientCredential create another client credentials connected account
+// Creates another client credentials-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+func (s *PipeService) CreateDataIntegrationClientCredential(ctx context.Context, slug string, params *PipesCreateDataIntegrationClientCredentialParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// PipesUpdateDataIntegrationClientCredentialsParams contains the parameters for UpdateDataIntegrationClientCredentials.
+type PipesUpdateDataIntegrationClientCredentialsParams struct {
+	Body interface{} `json:"-"`
 }
 
 // UpdateDataIntegrationClientCredentials upsert client credentials for a connected account
-// Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values.
+// Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values. To create another connection, use POST.
 func (s *PipeService) UpdateDataIntegrationClientCredentials(ctx context.Context, slug string, params *PipesUpdateDataIntegrationClientCredentialsParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params.Body, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +293,7 @@ type PipesCreateDataIntegrationCredentialParams struct {
 }
 
 // CreateDataIntegrationCredential vend credentials for a connected account
-// Returns credentials for a user's connected account. Branches on the installation's `auth_method`: OAuth installations return an access token (refreshed if needed); API-key installations return the stored secret.
+// Returns credentials for a user's connected account. Branches on the installation's `auth_method`: OAuth installations return an access token (refreshed if needed); API-key installations return the stored secret. Every active credential includes `config`: provider-declared, non-secret values from the installation snapshot, with current provider defaults for unset fields. Editing integration or organization configuration does not change the snapshot; reconnect or explicitly rebind the connection to adopt those edits. Defaults remain live, so a changed default can appear in `config` before a cached token is refreshed or re-minted. Credentials that never refresh require a reconnect or rebind when a default changes their routing.
 func (s *PipeService) CreateDataIntegrationCredential(ctx context.Context, slug string, params *PipesCreateDataIntegrationCredentialParams, opts ...RequestOption) (*DataIntegrationCredentialsResponse, error) {
 	var result DataIntegrationCredentialsResponse
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/credentials", url.PathEscape(slug)), nil, params, &result, opts)
@@ -430,11 +462,15 @@ type PipesCreateOrganizationConnectedAccountParams struct {
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
-	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
+	State *CreateOrganizationConnectedAccountState `json:"state,omitempty" url:"-"`
+	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization.
+	UserID string `json:"user_id" url:"-"`
+	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
 }
 
 // CreateOrganizationConnectedAccount import an organization connected account
-// Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+// Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Omit `connection_intent` to create only the compatibility connection, or set it to `add` to explicitly create another connection. This creation-only endpoint does not accept `connected_account_id` or reauthorization intent.
 func (s *PipeService) CreateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesCreateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), nil, params, &result, opts)
@@ -455,11 +491,15 @@ type PipesUpdateOrganizationConnectedAccountParams struct {
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
-	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
-	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	State *OrganizationConnectedAccountState `json:"state,omitempty" url:"-"`
+	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization.
+	UserID string `json:"user_id" url:"-"`
+	// SupportsMultipleConnections is accepted for compatibility; does not change update targeting. Omit intent and selector to update the compatibility connection, or supply `connected_account_id` to update an exact connection.
 	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
 	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
+	// ConnectionIntent is set to `reauthorize` with `connected_account_id` to update one exact connection. The intent may be omitted when supplying an ID. Omit both for permanent compatibility behavior.
+	ConnectionIntent *string `url:"connection_intent,omitempty" json:"-"`
 }
 
 // UpdateOrganizationConnectedAccount update an organization connected account
@@ -537,7 +577,9 @@ type PipesCreateUserConnectedAccountParams struct {
 	// Scopes is the OAuth scopes granted for this connection.
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
-	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
+	State *CreateConnectedAccountState `json:"state,omitempty" url:"-"`
+	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 }
@@ -567,10 +609,12 @@ type PipesUpdateUserConnectedAccountParams struct {
 	State *ConnectedAccountInputState `json:"state,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
-	// SupportsMultipleConnections is set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+	// SupportsMultipleConnections is accepted for compatibility; does not change update targeting. Omit intent and selector to update the compatibility connection, or supply `connected_account_id` to update an exact connection.
 	SupportsMultipleConnections *bool `url:"supports_multiple_connections,omitempty" json:"-"`
 	// ConnectedAccountID is a [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
 	ConnectedAccountID *string `url:"connected_account_id,omitempty" json:"-"`
+	// ConnectionIntent is set to `reauthorize` with `connected_account_id` to update one exact connection. The intent may be omitted when supplying an ID. Omit both for permanent compatibility behavior.
+	ConnectionIntent *string `url:"connection_intent,omitempty" json:"-"`
 }
 
 // UpdateUserConnectedAccount update a connected account

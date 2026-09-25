@@ -5583,12 +5583,32 @@ type AuthMethodMismatchError struct {
 	Message string `json:"message"`
 }
 
+// DataIntegrationVendedCredential represents a data integration vended credential.
+type DataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object *string `json:"object,omitempty"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod *string `json:"auth_method,omitempty"`
+	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
+	Value *string `json:"value,omitempty"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Scopes []string `json:"scopes,omitempty"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	MissingScopes []string `json:"missing_scopes,omitempty"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config,omitempty"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Only present for `client_credentials` credentials.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
 // DataIntegrationCredentialsResponse represents a data integration credentials response.
 type DataIntegrationCredentialsResponse struct {
 	// Active indicates credentials are available.
 	Active *bool `json:"active,omitempty"`
 	// Credential is the credential object containing the vended secret.
-	Credential *DataIntegrationCredentialsResponseCredential `json:"credential,omitempty"`
+	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
 	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
 	// - `"not_installed"`: The user does not have the integration installed.
 	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
@@ -6672,6 +6692,102 @@ type ApplicationCredentialsListItem struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// DataIntegrationsUpsertAPIKeyRequest represents a data integrations upsert api key request.
+type DataIntegrationsUpsertAPIKeyRequest struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret"`
+}
+
+// ReauthorizeDataIntegrationsUpsertAPIKeyRequest represents a reauthorize data integrations upsert api key request.
+type ReauthorizeDataIntegrationsUpsertAPIKeyRequest struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret"`
+	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
+	ConnectionIntent string `json:"connection_intent"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsUpsertAPIKeyRequest2 represents a data integrations upsert api key request2.
+type DataIntegrationsUpsertAPIKeyRequest2 struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner `json:"connection_owner,omitempty"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret"`
+	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsUpsertClientCredentialsRequest represents a data integrations upsert client credentials request.
+type DataIntegrationsUpsertClientCredentialsRequest struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty"`
+}
+
+// ReauthorizeDataIntegrationsUpsertClientCredentialsRequest represents a reauthorize data integrations upsert client credentials request.
+type ReauthorizeDataIntegrationsUpsertClientCredentialsRequest struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty"`
+	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
+	ConnectionIntent string `json:"connection_intent"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsUpsertClientCredentialsRequest2 represents a data integrations upsert client credentials request2.
+type DataIntegrationsUpsertClientCredentialsRequest2 struct {
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner `json:"connection_owner,omitempty"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty"`
+	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
+	ConnectedAccountID string `json:"connected_account_id"`
 }
 
 // FeatureFlag represents a feature flag.
