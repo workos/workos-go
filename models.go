@@ -1085,6 +1085,22 @@ type Directory struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// DirectorySyncResponse represents a directory sync response.
+type DirectorySyncResponse struct {
+	// Status is the sync request was queued for asynchronous processing. This does not indicate that the sync has started or completed.
+	Status string `json:"status"`
+}
+
+// DirectorySyncRateLimitError represents a directory sync rate limit error.
+type DirectorySyncRateLimitError struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// RetryAfterSeconds is the number of seconds to wait before requesting another manual sync of this directory.
+	RetryAfterSeconds int `json:"retry_after_seconds"`
+}
+
 // DirectoryGroup represents a directory group.
 type DirectoryGroup struct {
 	// Object distinguishes the Directory Group object.

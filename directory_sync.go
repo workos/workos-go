@@ -50,6 +50,17 @@ func (s *DirectorySyncService) Delete(ctx context.Context, id string, opts ...Re
 	return err
 }
 
+// Sync a Directory
+// Request an asynchronous sync from the directory provider. Currently supports Google Workspace directories in linked or validating state. Manual requests share a five-minute per-directory cooldown across the API, Dashboard, Admin Portal, and MCP. Acceptance means the request was queued, not that the sync has started or completed. A running sync prevents another request from being queued.
+func (s *DirectorySyncService) Sync(ctx context.Context, id string, opts ...RequestOption) (*DirectorySyncResponse, error) {
+	var result DirectorySyncResponse
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/directories/%s/sync", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // DirectorySyncListGroupsParams contains the parameters for ListGroups.
 type DirectorySyncListGroupsParams struct {
 	PaginationParams
