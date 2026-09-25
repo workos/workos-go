@@ -288,9 +288,12 @@
     "testdata/directory_group.json",
     "testdata/directory_metadata.json",
     "testdata/directory_metadata_user.json",
+    "testdata/directory_sync_rate_limit_error.json",
+    "testdata/directory_sync_response.json",
     "testdata/directory_user.json",
     "testdata/directory_user_email.json",
     "testdata/directory_user_with_groups.json",
+    "testdata/directory_user_with_groups_email.json",
     "testdata/dsync_activated.json",
     "testdata/dsync_activated_data.json",
     "testdata/dsync_activated_data_domain.json",
@@ -1660,6 +1663,10 @@
     "GET /audit_logs/exports/{auditLogExportId}": {
       "sdkMethod": "GetExport",
       "service": "audit_logs"
+    },
+    "POST /directories/{id}/sync": {
+      "sdkMethod": "Sync",
+      "service": "directory_sync"
     }
   }
 }

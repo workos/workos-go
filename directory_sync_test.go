@@ -87,6 +87,26 @@ func TestDirectorySync_Delete(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestDirectorySync_Sync(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/directories/test_id/sync", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/directory_sync_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.DirectorySync().Sync(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
 func TestDirectorySync_ListGroups(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
