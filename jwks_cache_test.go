@@ -63,6 +63,7 @@ func TestSessionJWKSRotationAndExpiry(t *testing.T) {
 	rotation.Store(true)
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
 	require.Error(t, err)
+	require.NotErrorIs(t, err, ErrSigningKeyUnavailable, "a kid missing from a fresh key set is an invalid token")
 	require.Equal(t, int32(1), requests.Load())
 	ageSessionJWKS(client, jwksRefreshCooldown+time.Second)
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
@@ -73,9 +74,9 @@ func TestSessionJWKSRotationAndExpiry(t *testing.T) {
 	ageSessionJWKS(client, jwksCacheTTL+time.Second)
 	unavailable.Store(true)
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
-	require.Error(t, err, "expired cached keys must not bypass a failed fetch")
+	require.ErrorIs(t, err, ErrSigningKeyUnavailable, "expired cached keys must not bypass a failed fetch")
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
-	require.Error(t, err)
+	require.ErrorIs(t, err, ErrSigningKeyUnavailable)
 	require.Equal(t, int32(3), requests.Load(), "upstream errors must also respect cooldown")
 }
 
@@ -172,6 +173,7 @@ func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 	defer cancel()
 	_, err := client.sessionVerificationKey(ctx, "key")
 	require.ErrorIs(t, err, context.DeadlineExceeded)
+	require.ErrorIs(t, err, ErrSigningKeyUnavailable)
 	// A different URL must not wait for the blocked network request either.
 	otherServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"keys":[]}`))

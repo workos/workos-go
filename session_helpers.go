@@ -33,7 +33,7 @@ type AuthenticateSessionResult struct {
 	// session (e.g. via Session.Refresh) before treating the user as
 	// unauthenticated.
 	NeedsRefresh bool
-	Reason       string // populated on failure: "no_session_cookie_provided", "invalid_session_cookie", "invalid_jwt", "session_expired", etc.
+	Reason       string // populated on failure: "no_session_cookie_provided", "invalid_session_cookie", "invalid_jwt", "jwks_unavailable", "session_expired", etc.
 }
 
 // JWTClaims represents the claims extracted from a session JWT payload.
@@ -93,6 +93,10 @@ func NewSession(client *Client, sessionData string, cookiePassword string, opts 
 // signature and claims against the configured client's JWKS before trusting it.
 // Uncached JWKS requests have a five-second timeout. Use AuthenticateContext to
 // additionally control cancellation with a context.
+//
+// When the signing key cannot be obtained the result carries the Reason
+// "jwks_unavailable" and the returned error matches ErrSigningKeyUnavailable.
+// The token was not judged, so callers should keep the session and retry.
 func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 	return s.AuthenticateContext(context.Background())
 }
@@ -122,6 +126,14 @@ func (s *Session) AuthenticateContext(ctx context.Context) (*AuthenticateSession
 	}
 
 	claims, err := s.verifyAccessToken(ctx, session.AccessToken, true)
+	if errors.Is(err, ErrSigningKeyUnavailable) {
+		// The token was not judged: the session may still be valid, so this is
+		// reported apart from invalid_jwt and callers can keep it and retry.
+		return &AuthenticateSessionResult{
+			Authenticated: false,
+			Reason:        "jwks_unavailable",
+		}, err
+	}
 	if err != nil {
 		return &AuthenticateSessionResult{
 			Authenticated: false,
