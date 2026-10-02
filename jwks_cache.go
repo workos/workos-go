@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"sync"
@@ -23,6 +24,12 @@ const (
 	jwksRefreshCooldown        = 30 * time.Second
 	jwksCacheLimit             = 128
 )
+
+// ErrSigningKeyUnavailable reports that a session's access token could not be
+// verified because its signing key could not be obtained: the JWKS request
+// failed, timed out or was cancelled, or an earlier failed request is still
+// within its retry cooldown. It says nothing about the token itself.
+var ErrSigningKeyUnavailable = errors.New("workos: JWT signing key unavailable")
 
 type cachedSessionJWKS struct {
 	keys      map[string]*rsa.PublicKey
@@ -55,7 +62,7 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 	cacheURL := c.JWKSURLFromClient()
 	for {
 		if err := ctx.Err(); err != nil {
-			return nil, err
+			return nil, signingKeyUnavailable(err)
 		}
 		if key, err := c.cachedSessionVerificationKey(kid); err == nil {
 			return key, nil
@@ -66,7 +73,7 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 		if inflight != nil {
 			select {
 			case <-ctx.Done():
-				return nil, ctx.Err()
+				return nil, signingKeyUnavailable(ctx.Err())
 			case <-inflight:
 				continue
 			}
@@ -80,7 +87,12 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 		}
 		if time.Since(entry.attemptAt) < jwksRefreshCooldown {
 			sessionJWKSCache.Unlock()
-			return nil, errors.New("workos: JWT signing key unavailable")
+			// A fetch that succeeded leaves fetchedAt at or after attemptAt: the
+			// key set is current and does not hold this kid.
+			if !entry.fetchedAt.Before(entry.attemptAt) {
+				return nil, errors.New("workos: unknown JWT signing key")
+			}
+			return nil, ErrSigningKeyUnavailable
 		}
 		if _, exists := sessionJWKSCache.entries[cacheURL]; !exists && len(sessionJWKSCache.entries) >= jwksCacheLimit {
 			// Evict the least recently attempted idle entry so an in-flight fetch's
@@ -120,13 +132,17 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 		close(loading)
 		sessionJWKSCache.Unlock()
 		if err != nil {
-			return nil, err
+			return nil, signingKeyUnavailable(err)
 		}
 		if keys[kid] == nil {
 			return nil, errors.New("workos: unknown JWT signing key")
 		}
 		return keys[kid], nil
 	}
+}
+
+func signingKeyUnavailable(err error) error {
+	return fmt.Errorf("%w: %w", ErrSigningKeyUnavailable, err)
 }
 
 func (c *Client) fetchSessionJWKS(ctx context.Context) (map[string]*rsa.PublicKey, error) {

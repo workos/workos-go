@@ -533,7 +533,7 @@ func TestSessionJWKSFailures(t *testing.T) {
 	key := sessionTestKey(t)
 	token := signSessionJWT(t, key, map[string]any{"alg": "RS256", "kid": "session-key"}, sessionTestClaims())
 	sealed := sealSessionToken(t, token)
-	for _, body := range []string{`not json`, `{}`, `{"keys":[null]}`, `{"keys":[{"kid":"session-key","kty":"RSA","n":"!","e":"AQAB"}]}`} {
+	for _, body := range []string{`{}`, `{"keys":[null]}`, `{"keys":[{"kid":"session-key","kty":"RSA","n":"!","e":"AQAB"}]}`} {
 		t.Run(body, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte(body)) }))
 			defer server.Close()
@@ -543,13 +543,38 @@ func TestSessionJWKSFailures(t *testing.T) {
 			require.Equal(t, &workos.AuthenticateSessionResult{Reason: "invalid_jwt"}, result)
 		})
 	}
-	t.Run("upstream error", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusServiceUnavailable) }))
+}
+
+// A key set that could not be obtained says nothing about the token, so it is
+// reported apart from an invalid token and callers can keep the session.
+func TestSessionJWKSUnavailable(t *testing.T) {
+	key := sessionTestKey(t)
+	token := signSessionJWT(t, key, map[string]any{"alg": "RS256", "kid": "session-key"}, sessionTestClaims())
+	sealed := sealSessionToken(t, token)
+	requireUnavailable := func(t *testing.T, ctx context.Context, client *workos.Client) error {
+		t.Helper()
+		result, err := client.AuthenticateSession(ctx, sealed, testCookiePassword)
+		require.ErrorIs(t, err, workos.ErrSigningKeyUnavailable)
+		require.Equal(t, &workos.AuthenticateSessionResult{Reason: "jwks_unavailable"}, result)
+		return err
+	}
+	t.Run("malformed response", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte(`not json`)) }))
 		defer server.Close()
 		client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL), workos.WithClientID("client_session"))
-		result, err := client.AuthenticateSession(context.Background(), sealed, testCookiePassword)
-		require.NoError(t, err)
-		require.Equal(t, &workos.AuthenticateSessionResult{Reason: "invalid_jwt"}, result)
+		requireUnavailable(t, context.Background(), client)
+	})
+	t.Run("upstream error and refresh cooldown", func(t *testing.T) {
+		var requests atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requests.Add(1)
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}))
+		defer server.Close()
+		client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL), workos.WithClientID("client_session"))
+		requireUnavailable(t, context.Background(), client)
+		requireUnavailable(t, context.Background(), client)
+		require.Equal(t, int32(1), requests.Load(), "the cooldown after a failed fetch is also unavailable")
 	})
 	t.Run("context timeout", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { <-r.Context().Done() }))
@@ -557,9 +582,7 @@ func TestSessionJWKSFailures(t *testing.T) {
 		client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL), workos.WithClientID("client_session"))
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
-		result, err := client.AuthenticateSession(ctx, sealed, testCookiePassword)
-		require.NoError(t, err)
-		require.Equal(t, &workos.AuthenticateSessionResult{Reason: "invalid_jwt"}, result)
+		require.ErrorIs(t, requireUnavailable(t, ctx, client), context.DeadlineExceeded)
 	})
 }
 
