@@ -155,7 +155,10 @@ Authenticate and refresh user sessions using sealed cookies:
 session := workos.NewSession(client, sealedCookie, cookiePassword)
 
 result, err := session.Authenticate()
-if err != nil {
+if errors.Is(err, workos.ErrSigningKeyUnavailable) {
+	// The signing key could not be fetched, so the token was not judged:
+	// keep the session cookie and retry on a later request.
+} else if err != nil {
 	log.Fatal(err)
 }
 if result.Authenticated {
