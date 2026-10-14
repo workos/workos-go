@@ -36,7 +36,20 @@ func TestAdminPortal_GenerateLink(t *testing.T) {
 	result, err := client.AdminPortal().GenerateLink(context.Background(), &workos.AdminPortalGenerateLinkParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
-	require.Equal(t, "https://setup.workos.com?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", result.Link)
+	require.Equal(t, "https://setup.workos.com/init?apiToken=01EHZNVPK3SFK441A1RGBFSHRT", result.Link)
+}
+
+func TestAdminPortal_CreateRevokeLink(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/portal/revoke_link", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.AdminPortal().CreateRevokeLink(context.Background(), &workos.AdminPortalCreateRevokeLinkParams{})
+	require.NoError(t, err)
 }
 
 func TestAdminPortal_Error401(t *testing.T) {
