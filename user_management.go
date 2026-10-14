@@ -870,7 +870,7 @@ func (s *UserManagementService) List(ctx context.Context, params *UserManagement
 
 // UserManagementCreateParams contains the parameters for Create.
 type UserManagementCreateParams struct {
-	// Email is the email address of the user.
+	// Email is the email address of the user. WorkOS trims whitespace and converts the address to lowercase before storing it.
 	Email string `json:"email" url:"-"`
 	// FirstName is the first name of the user.
 	FirstName *string `json:"first_name,omitempty" url:"-"`
