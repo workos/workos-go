@@ -523,6 +523,8 @@ type AgentBlueprint struct {
 	Permissions []string `json:"permissions"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintInvocableBy `json:"invocable_by"`
+	// InvocableAs is how sessions may be minted from this blueprint.
+	InvocableAs *AgentBlueprintInvocableAs `json:"invocable_as"`
 	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
 	SessionSettings *AgentBlueprintSessionSetting `json:"session_settings"`
 	// CreatedAt is timestamp when the agent blueprint was created.
@@ -1085,6 +1087,22 @@ type Directory struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// DirectorySyncResponse represents a directory sync response.
+type DirectorySyncResponse struct {
+	// Status is the sync request was queued for asynchronous processing. This does not indicate that the sync has started or completed.
+	Status string `json:"status"`
+}
+
+// DirectorySyncRateLimitError represents a directory sync rate limit error.
+type DirectorySyncRateLimitError struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// RetryAfterSeconds is the number of seconds to wait before requesting another manual sync of this directory.
+	RetryAfterSeconds int `json:"retry_after_seconds"`
+}
+
 // DirectoryGroup represents a directory group.
 type DirectoryGroup struct {
 	// Object distinguishes the Directory Group object.
@@ -1280,6 +1298,10 @@ type PipeConnectedAccount struct {
 	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
 	// State is the state of the connected account.
 	State PipeConnectedAccountState `json:"state"`
+	// EstablishedByUserID is the ID of the User whose authorization established the connected account, or null when it is developer-managed, its establisher is unknown, or the establishing member left the organization. Historical events may omit this field.
+	EstablishedByUserID *string `json:"established_by_user_id,omitempty"`
+	// StateReason is why WorkOS put the connected account in its current state, or null when there is no WorkOS-recorded reason. `establishing_member_membership_ended` means the member who established an organization-owned connection is no longer an active member. Additional values may be added. Historical events may omit this field.
+	StateReason *string `json:"state_reason,omitempty"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -1422,6 +1444,8 @@ type AgentBlueprintCreatedData struct {
 	Permissions []string `json:"permissions"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintCreatedDataInvocableBy `json:"invocable_by"`
+	// InvocableAs is how sessions may be minted from this blueprint.
+	InvocableAs *AgentBlueprintCreatedDataInvocableAs `json:"invocable_as"`
 	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
 	SessionSettings *AgentBlueprintCreatedDataSessionSetting `json:"session_settings"`
 	// CreatedAt is the timestamp when the agent blueprint was created.
@@ -1436,6 +1460,12 @@ type AgentBlueprintCreatedDataInvocableBy struct {
 	RoleSlugs []string `json:"role_slugs"`
 	// OrganizationIDs is organizations in which autonomous sessions may be minted from this blueprint.
 	OrganizationIDs []string `json:"organization_ids"`
+}
+
+// AgentBlueprintCreatedDataInvocableAs how sessions may be minted from this blueprint.
+type AgentBlueprintCreatedDataInvocableAs struct {
+	// InstanceTypes is instance types that may be minted from this blueprint: `delegated` (acting for a user) and/or `autonomous` (acting as the agent itself).
+	InstanceTypes []AgentBlueprintCreatedDataInvocableAsInstanceTypes `json:"instance_types"`
 }
 
 // AgentBlueprintCreatedDataSessionSetting token and session lifetimes for sessions minted from this blueprint.
@@ -1504,6 +1534,8 @@ type AgentBlueprintUpdatedData struct {
 	Permissions []string `json:"permissions"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintUpdatedDataInvocableBy `json:"invocable_by"`
+	// InvocableAs is how sessions may be minted from this blueprint.
+	InvocableAs *AgentBlueprintUpdatedDataInvocableAs `json:"invocable_as"`
 	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
 	SessionSettings *AgentBlueprintUpdatedDataSessionSetting `json:"session_settings"`
 	// CreatedAt is the timestamp when the agent blueprint was created.
@@ -1514,6 +1546,12 @@ type AgentBlueprintUpdatedData struct {
 
 // AgentBlueprintUpdatedDataInvocableBy is an alias for AgentBlueprintCreatedDataInvocableBy.
 type AgentBlueprintUpdatedDataInvocableBy = AgentBlueprintCreatedDataInvocableBy
+
+// AgentBlueprintUpdatedDataInvocableAs how sessions may be minted from this blueprint.
+type AgentBlueprintUpdatedDataInvocableAs struct {
+	// InstanceTypes is instance types that may be minted from this blueprint: `delegated` (acting for a user) and/or `autonomous` (acting as the agent itself).
+	InstanceTypes []AgentBlueprintUpdatedDataInvocableAsInstanceTypes `json:"instance_types"`
+}
 
 // AgentBlueprintUpdatedDataSessionSetting is an alias for AgentBlueprintCreatedDataSessionSetting.
 type AgentBlueprintUpdatedDataSessionSetting = AgentBlueprintCreatedDataSessionSetting
@@ -5183,6 +5221,32 @@ type VaultDekReadData struct {
 	KeyContext map[string]string `json:"key_context"`
 }
 
+// VaultDekRekeyed represents a vault dek rekeyed.
+type VaultDekRekeyed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *VaultDekRekeyedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// VaultDekRekeyedData the event payload.
+type VaultDekRekeyedData struct {
+	// ActorID is the unique identifier of the actor.
+	ActorID     string                         `json:"actor_id"`
+	ActorSource VaultDekRekeyedDataActorSource `json:"actor_source"`
+	// ActorName is the name of the actor.
+	ActorName string `json:"actor_name"`
+	// KeyIDs is the unique identifiers of the re-encrypted data encryption keys.
+	KeyIDs     []string          `json:"key_ids"`
+	KeyContext map[string]string `json:"key_context"`
+}
+
 // VaultKekCreated represents a vault kek created.
 type VaultKekCreated struct {
 	// Object distinguishes the Event object.
@@ -5556,6 +5620,14 @@ type DataIntegrationAuthorizeURLResponse struct {
 	URL string `json:"url"`
 }
 
+// AuthMethodMismatchError represents an auth method mismatch error.
+type AuthMethodMismatchError struct {
+	// Code is error code indicating the endpoint does not match the installation auth method.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the mismatch.
+	Message string `json:"message"`
+}
+
 // DataIntegrationAccessTokenResponse represents a data integration access token response.
 type DataIntegrationAccessTokenResponse struct {
 	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
@@ -5575,12 +5647,24 @@ type AccountSelectionRequiredError struct {
 	Message string `json:"message"`
 }
 
-// AuthMethodMismatchError represents an auth method mismatch error.
-type AuthMethodMismatchError struct {
-	// Code is error code indicating the endpoint does not match the installation auth method.
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the mismatch.
-	Message string `json:"message"`
+// DataIntegrationVendedCredential represents a data integration vended credential.
+type DataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object *string `json:"object,omitempty"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod *string `json:"auth_method,omitempty"`
+	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
+	Value *string `json:"value,omitempty"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Scopes []string `json:"scopes,omitempty"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	MissingScopes []string `json:"missing_scopes,omitempty"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config,omitempty"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Only present for `client_credentials` credentials.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // DataIntegrationCredentialsResponse represents a data integration credentials response.
@@ -5588,11 +5672,66 @@ type DataIntegrationCredentialsResponse struct {
 	// Active indicates credentials are available.
 	Active *bool `json:"active,omitempty"`
 	// Credential is the credential object containing the vended secret.
-	Credential *DataIntegrationCredentialsResponseCredential `json:"credential,omitempty"`
+	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
 	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
 	// - `"not_installed"`: The user does not have the integration installed.
 	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
 	Error *DataIntegrationCredentialsResponseError `json:"error,omitempty"`
+}
+
+// ConnectedAccountWriteResponse represents a connected account write response.
+type ConnectedAccountWriteResponse struct {
+	// Object distinguishes the connected account object.
+	Object string `json:"object"`
+	// ID is the unique identifier of the connected account.
+	ID string `json:"id"`
+	// ConnectionRole is whether this row is the compatibility connection visible to undeclared clients or a standard peer for plural-aware clients. The role does not indicate preference or creation order.
+	ConnectionRole ConnectedAccountWriteResponseConnectionRole `json:"connection_role"`
+	// AccountIdentifier is a best-effort identifier for the provider account this connection points at. It is correlation metadata, not the connection identifier or a selector.
+	AccountIdentifier *string `json:"account_identifier"`
+	// AccountDisplayName is a mutable, non-unique display name for the provider account connection.
+	AccountDisplayName *string `json:"account_display_name"`
+	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier associated with this connection.
+	UserID *string `json:"user_id"`
+	// OrganizationID is the [Organization](https://workos.com/docs/reference/organization) identifier associated with this connection, or `null` if not scoped to an organization.
+	OrganizationID *string `json:"organization_id"`
+	// Scopes is the OAuth scopes granted for this connection.
+	Scopes []string `json:"scopes"`
+	// AuthMethod is the authentication method used for this connection (`oauth`, `api_key`, or `client_credentials`). Defaults to `oauth` if absent.
+	AuthMethod *ConnectedAccountWriteResponseAuthMethod `json:"auth_method,omitempty"`
+	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
+	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
+	// ClientID is the client ID supplied for this connection. Only present when `auth_method` is `client_credentials`.
+	ClientID *string `json:"client_id,omitempty"`
+	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
+	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
+	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding secret and undeclared fields. Returned for every authentication method; empty when no stored values can be disclosed.
+	Config map[string]string `json:"config,omitempty"`
+	// State is the state of the connected account:
+	// - `connected`: The connection is active and tokens are valid.
+	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
+	// - `disconnected`: The connection has been disconnected.
+	State ConnectedAccountWriteResponseState `json:"state"`
+	// EstablishedByUserID is the [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`.
+	EstablishedByUserID *string `json:"established_by_user_id,omitempty"`
+	// StateReason is why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
+	// - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
+	// Additional values may be added; treat an unrecognized value as an unknown reason.
+	StateReason *string `json:"state_reason,omitempty"`
+	// CreatedAt is the timestamp when the connection was created.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is the timestamp when the connection was last updated.
+	UpdatedAt string `json:"updated_at"`
+	// Warnings is non-blocking warnings about an explicitly supplied label, omitted when no duplicate exists. Reads do not include this field.
+	Warnings []*ConnectedAccountWriteResponseWarning `json:"warnings,omitempty"`
+}
+
+// DataIntegrationsListResponse represents a data integrations list response.
+type DataIntegrationsListResponse struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
+	Data []*DataIntegrationsListResponseData `json:"data"`
 }
 
 // ConnectedAccount represents a connected account.
@@ -5621,25 +5760,23 @@ type ConnectedAccount struct {
 	ClientID *string `json:"client_id,omitempty"`
 	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
 	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
-	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding any it declares as secret. Only present when `auth_method` is `client_credentials`.
+	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding secret and undeclared fields. Returned for every authentication method; empty when no stored values can be disclosed.
 	Config map[string]string `json:"config,omitempty"`
 	// State is the state of the connected account:
 	// - `connected`: The connection is active and tokens are valid.
-	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
+	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
 	// - `disconnected`: The connection has been disconnected.
 	State ConnectedAccountState `json:"state"`
+	// EstablishedByUserID is the [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`.
+	EstablishedByUserID *string `json:"established_by_user_id,omitempty"`
+	// StateReason is why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
+	// - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
+	// Additional values may be added; treat an unrecognized value as an unknown reason.
+	StateReason *string `json:"state_reason,omitempty"`
 	// CreatedAt is the timestamp when the connection was created.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the connection was last updated.
 	UpdatedAt string `json:"updated_at"`
-}
-
-// DataIntegrationsListResponse represents a data integrations list response.
-type DataIntegrationsListResponse struct {
-	// Object indicates this is a list response.
-	Object string `json:"object"`
-	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
-	Data []*DataIntegrationsListResponseData `json:"data"`
 }
 
 // PortalLinkResponse represents a portal link response.
@@ -6307,6 +6444,13 @@ type DataIntegrationsListResponseData struct {
 	ConnectedAccounts []*DataIntegrationsListResponseDataConnectedAccount `json:"connected_accounts"`
 }
 
+// ConnectedAccountWriteResponseWarning represents a connected account write response warning.
+type ConnectedAccountWriteResponseWarning struct {
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the non-blocking warning.
+	Message string `json:"message"`
+}
+
 // DataIntegrationAccessTokenResponseAccessToken the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
 type DataIntegrationAccessTokenResponseAccessToken struct {
 	// Object distinguishes the access token object.
@@ -6576,6 +6720,12 @@ type APIKeyOwner = APIKeyCreatedDataOwner
 // AgentBlueprintInvocableBy is an alias for AgentBlueprintCreatedDataInvocableBy.
 type AgentBlueprintInvocableBy = AgentBlueprintCreatedDataInvocableBy
 
+// AgentBlueprintInvocableAs how sessions may be minted from this blueprint.
+type AgentBlueprintInvocableAs struct {
+	// InstanceTypes is instance types that may be minted from this blueprint: `delegated` and/or `autonomous`.
+	InstanceTypes []AgentBlueprintInvocableAsInstanceTypes `json:"instance_types"`
+}
+
 // AgentBlueprintSessionSetting token and session lifetimes for sessions minted from this blueprint.
 type AgentBlueprintSessionSetting struct {
 	// MaxAgeSeconds is maximum lifetime of a session in seconds; refreshes never extend a session past this.
@@ -6631,11 +6781,23 @@ type AgentBlueprintsCreateRequestInvocableBy struct {
 	OrganizationIDs []string `json:"organization_ids,omitempty"`
 }
 
+// AgentBlueprintsCreateRequestInvocableAs how sessions may be minted from this blueprint.
+type AgentBlueprintsCreateRequestInvocableAs struct {
+	// InstanceTypes is instance types that may be minted from this blueprint: `delegated` (a user-delegated session, minted with a user access token) and/or `autonomous` (a session acting as the agent itself, minted with an agent registration credential). Agent-delegated chaining and refreshes are checked against the type of the presenting instance. Defaults to both.
+	InstanceTypes []AgentBlueprintsCreateRequestInvocableAsInstanceTypes `json:"instance_types,omitempty"`
+}
+
 // AgentBlueprintsCreateRequestSessionSetting is an alias for AgentBlueprintSessionSetting.
 type AgentBlueprintsCreateRequestSessionSetting = AgentBlueprintSessionSetting
 
 // AgentBlueprintsUpdateRequestInvocableBy is an alias for AgentBlueprintsCreateRequestInvocableBy.
 type AgentBlueprintsUpdateRequestInvocableBy = AgentBlueprintsCreateRequestInvocableBy
+
+// AgentBlueprintsUpdateRequestInvocableAs how sessions may be minted from this blueprint. Omitted lists are left unchanged.
+type AgentBlueprintsUpdateRequestInvocableAs struct {
+	// InstanceTypes is instance types that may be minted from this blueprint: `delegated` and/or `autonomous`. At least one is required; existing sessions of a removed type are refused at their next refresh.
+	InstanceTypes []AgentBlueprintsUpdateRequestInvocableAsInstanceTypes `json:"instance_types,omitempty"`
+}
 
 // AgentBlueprintsUpdateRequestSessionSetting token and session lifetimes for sessions minted from this blueprint. Omitted fields are left unchanged.
 type AgentBlueprintsUpdateRequestSessionSetting struct {
@@ -6672,6 +6834,180 @@ type ApplicationCredentialsListItem struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// DataIntegrationsUpsertAPIKeyRequest represents a data integrations upsert api key request.
+type DataIntegrationsUpsertAPIKeyRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret"`
+}
+
+// ReauthorizeDataIntegrationsUpsertAPIKeyRequest represents a reauthorize data integrations upsert api key request.
+type ReauthorizeDataIntegrationsUpsertAPIKeyRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret"`
+	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
+	ConnectionIntent string `json:"connection_intent"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsUpsertAPIKeyRequest2 represents a data integrations upsert api key request2.
+type DataIntegrationsUpsertAPIKeyRequest2 struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner `json:"connection_owner,omitempty"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret"`
+	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a data integrations get data integration authorize url request.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
+	UserID string `json:"user_id"`
+	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
+	ConnectionOwner *DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ReturnTo is the URL to redirect the user to after authorization.
+	ReturnTo *string `json:"return_to,omitempty"`
+	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
+	Config map[string]string `json:"config,omitempty"`
+}
+
+// AddDataIntegrationsGetDataIntegrationAuthorizeURLRequest represents an add data integrations get data integration authorize url request.
+type AddDataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
+	UserID string `json:"user_id"`
+	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
+	ConnectionOwner *AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ReturnTo is the URL to redirect the user to after authorization.
+	ReturnTo *string `json:"return_to,omitempty"`
+	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
+	Config map[string]string `json:"config,omitempty"`
+	// ConnectionIntent is create another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`. Omit `connection_intent` to use the compatibility connection, or send `reauthorize` with `connected_account_id` to reauthorize one exact connection.
+	ConnectionIntent string `json:"connection_intent"`
+}
+
+// ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a reauthorize data integrations get data integration authorize url request.
+type ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
+	UserID string `json:"user_id"`
+	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
+	ConnectionOwner *ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ReturnTo is the URL to redirect the user to after authorization.
+	ReturnTo *string `json:"return_to,omitempty"`
+	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
+	Config map[string]string `json:"config,omitempty"`
+	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
+	ConnectionIntent string `json:"connection_intent"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsUpsertClientCredentialsRequest represents a data integrations upsert client credentials request.
+type DataIntegrationsUpsertClientCredentialsRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty"`
+}
+
+// ReauthorizeDataIntegrationsUpsertClientCredentialsRequest represents a reauthorize data integrations upsert client credentials request.
+type ReauthorizeDataIntegrationsUpsertClientCredentialsRequest struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty"`
+	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
+	ConnectionIntent string `json:"connection_intent"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
+	ConnectedAccountID string `json:"connected_account_id"`
+}
+
+// DataIntegrationsUpsertClientCredentialsRequest2 represents a data integrations upsert client credentials request2.
+type DataIntegrationsUpsertClientCredentialsRequest2 struct {
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner `json:"connection_owner,omitempty"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty"`
+	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
+	ConnectedAccountID string `json:"connected_account_id"`
 }
 
 // FeatureFlag represents a feature flag.
@@ -7193,13 +7529,19 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	ClientID *string `json:"client_id,omitempty"`
 	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
 	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
-	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding any it declares as secret. Only present when `auth_method` is `client_credentials`.
+	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding secret and undeclared fields. Returned for every authentication method; empty when no stored values can be disclosed.
 	Config map[string]string `json:"config,omitempty"`
 	// State is the state of the connected account:
 	// - `connected`: The connection is active and tokens are valid.
-	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
+	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
 	// - `disconnected`: The connection has been disconnected.
 	State DataIntegrationsListResponseDataConnectedAccountState `json:"state"`
+	// EstablishedByUserID is the [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`.
+	EstablishedByUserID *string `json:"established_by_user_id,omitempty"`
+	// StateReason is why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
+	// - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
+	// Additional values may be added; treat an unrecognized value as an unknown reason.
+	StateReason *string `json:"state_reason,omitempty"`
 	// CreatedAt is the timestamp when the connection was created.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the connection was last updated.
@@ -7216,22 +7558,6 @@ type ConnectApplicationRedirectURI struct {
 	URI string `json:"uri"`
 	// Default is whether this is the default redirect URI.
 	Default bool `json:"default"`
-}
-
-// DataIntegrationCredentialsResponseCredential the credential object containing the vended secret.
-type DataIntegrationCredentialsResponseCredential struct {
-	// Object distinguishes the credential object.
-	Object string `json:"object"`
-	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
-	AuthMethod string `json:"auth_method"`
-	// Value is the OAuth access token.
-	Value string `json:"value"`
-	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires.
-	ExpiresAt *string `json:"expires_at"`
-	// Scopes is the scopes granted to the access token.
-	Scopes []string `json:"scopes"`
-	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here.
-	MissingScopes []string `json:"missing_scopes"`
 }
 
 // PaginationParams contains common pagination parameters for list operations.

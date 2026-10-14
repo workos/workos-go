@@ -111,19 +111,23 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
-// CreateDataIntegrationOwnership represents create data integration ownership values.
-type CreateDataIntegrationOwnership string
-
-const (
-	CreateDataIntegrationOwnershipUser         CreateDataIntegrationOwnership = "user"
-	CreateDataIntegrationOwnershipOrganization CreateDataIntegrationOwnership = "organization"
-)
+// CreateDataIntegrationOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type CreateDataIntegrationOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
 // CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
 type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
 
 // UpdateCustomProviderDefinitionAuthenticateVia is an alias for CustomProviderDefinitionAuthenticateVia.
 type UpdateCustomProviderDefinitionAuthenticateVia = CustomProviderDefinitionAuthenticateVia
+
+// CreateOrganizationConnectedAccountState is an alias for ConnectedAccountInputState.
+type CreateOrganizationConnectedAccountState = ConnectedAccountInputState
+
+// OrganizationConnectedAccountState is an alias for ConnectedAccountInputState.
+type OrganizationConnectedAccountState = ConnectedAccountInputState
+
+// CreateConnectedAccountState is an alias for ConnectedAccountInputState.
+type CreateConnectedAccountState = ConnectedAccountInputState
 
 // ConnectedAccountInputState represents connected account input state values.
 type ConnectedAccountInputState string
@@ -419,8 +423,8 @@ type AgentRegistrationKind = AgentRegistrationCreatedDataKind
 // ClaimViewResponseStatus is an alias for AgentRegistrationCreatedDataStatus.
 type ClaimViewResponseStatus = AgentRegistrationCreatedDataStatus
 
-// AgentInstanceType is an alias for AgentInstanceCreatedDataType.
-type AgentInstanceType = AgentInstanceCreatedDataType
+// AgentInstanceType is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentInstanceType = AgentBlueprintCreatedDataInvocableAsInstanceTypes
 
 // AgentInstanceSessionStatus represents agent instance session status values.
 type AgentInstanceSessionStatus string
@@ -605,16 +609,22 @@ type PipeConnectedAccountState = ConnectedAccountInputState
 // WaitlistUserState is an alias for UserManagementWaitlistsState.
 type WaitlistUserState = UserManagementWaitlistsState
 
-// AgentInstanceCreatedDataType represents agent instance created data type values.
-type AgentInstanceCreatedDataType string
+// AgentBlueprintCreatedDataInvocableAsInstanceTypes represents agent blueprint created data invocable as instance types values.
+type AgentBlueprintCreatedDataInvocableAsInstanceTypes string
 
 const (
-	AgentInstanceCreatedDataTypeDelegated  AgentInstanceCreatedDataType = "delegated"
-	AgentInstanceCreatedDataTypeAutonomous AgentInstanceCreatedDataType = "autonomous"
+	AgentBlueprintCreatedDataInvocableAsInstanceTypesDelegated  AgentBlueprintCreatedDataInvocableAsInstanceTypes = "delegated"
+	AgentBlueprintCreatedDataInvocableAsInstanceTypesAutonomous AgentBlueprintCreatedDataInvocableAsInstanceTypes = "autonomous"
 )
 
-// AgentInstanceDeletedDataType is an alias for AgentInstanceCreatedDataType.
-type AgentInstanceDeletedDataType = AgentInstanceCreatedDataType
+// AgentBlueprintUpdatedDataInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintUpdatedDataInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
+// AgentInstanceCreatedDataType is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentInstanceCreatedDataType = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
+// AgentInstanceDeletedDataType is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentInstanceDeletedDataType = AgentBlueprintCreatedDataInvocableAsInstanceTypes
 
 // AgentRegistrationCreatedDataStatus represents agent registration created data status values.
 type AgentRegistrationCreatedDataStatus string
@@ -940,6 +950,7 @@ const (
 	ResourceExportCompletedDataResourceTypeAuditLogEvents ResourceExportCompletedDataResourceType = "auditLogEvents"
 	ResourceExportCompletedDataResourceTypeConnections    ResourceExportCompletedDataResourceType = "connections"
 	ResourceExportCompletedDataResourceTypeDirectoryUsers ResourceExportCompletedDataResourceType = "directoryUsers"
+	ResourceExportCompletedDataResourceTypeSCIMLogs       ResourceExportCompletedDataResourceType = "scimLogs"
 )
 
 // ResourceExportCreatedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
@@ -999,6 +1010,9 @@ type VaultDekDecryptedDataActorSource = VaultDataCreatedDataActorSource
 // VaultDekReadDataActorSource is an alias for VaultDataCreatedDataActorSource.
 type VaultDekReadDataActorSource = VaultDataCreatedDataActorSource
 
+// VaultDekRekeyedDataActorSource is an alias for VaultDataCreatedDataActorSource.
+type VaultDekRekeyedDataActorSource = VaultDataCreatedDataActorSource
+
 // VaultKekCreatedDataActorSource is an alias for VaultDataCreatedDataActorSource.
 type VaultKekCreatedDataActorSource = VaultDataCreatedDataActorSource
 
@@ -1029,8 +1043,8 @@ const (
 	DataIntegrationCredentialsCredentialsTypeOrganization DataIntegrationCredentialsCredentialsType = "organization"
 )
 
-// DataIntegrationOwnership is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationOwnership = CreateDataIntegrationOwnership
+// DataIntegrationOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
 // DataIntegrationState represents data integration state values.
 type DataIntegrationState string
@@ -1054,6 +1068,15 @@ const (
 
 // DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
 type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
+
+// ConnectedAccountWriteResponseConnectionRole is an alias for ConnectedAccountConnectionRole.
+type ConnectedAccountWriteResponseConnectionRole = ConnectedAccountConnectionRole
+
+// ConnectedAccountWriteResponseAuthMethod is an alias for ConnectedAccountAuthMethod.
+type ConnectedAccountWriteResponseAuthMethod = ConnectedAccountAuthMethod
+
+// ConnectedAccountWriteResponseState is an alias for ConnectedAccountState.
+type ConnectedAccountWriteResponseState = ConnectedAccountState
 
 // ConnectedAccountConnectionRole represents connected account connection role values.
 type ConnectedAccountConnectionRole string
@@ -1167,8 +1190,8 @@ type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerif
 // DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
-// DataIntegrationsListResponseDataConnectionOwner is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationsListResponseDataConnectionOwner = CreateDataIntegrationOwnership
+// DataIntegrationsListResponseDataConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsListResponseDataConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
 // DataIntegrationsListResponseDataOwnership represents data integrations list response data ownership values.
 type DataIntegrationsListResponseDataOwnership string
@@ -1226,6 +1249,15 @@ const (
 	UserRoleAssignmentSourceTypeGroup  UserRoleAssignmentSourceType = "group"
 )
 
+// AgentBlueprintInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
+// AgentBlueprintsCreateRequestInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintsCreateRequestInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
+// AgentBlueprintsUpdateRequestInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintsUpdateRequestInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
 // AgentBlueprintsTokenMintTokenRequestType represents agent blueprints token mint token request type values.
 type AgentBlueprintsTokenMintTokenRequestType string
 
@@ -1253,17 +1285,46 @@ const (
 	AuthenticationFactorsCreateRequestTypeTOTP       AuthenticationFactorsCreateRequestType = "totp"
 )
 
-// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
+// DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
-// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = CreateDataIntegrationOwnership
+// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
-// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
+// ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
-// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationsVendCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
+// DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner represents add data integrations get data integration authorize url request connection owner values.
+type AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner string
+
+const (
+	AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwnerUser         AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = "user"
+	AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwnerOrganization AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = "organization"
+)
+
+// ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+
+// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsVendCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
 // RadarStandaloneAssessRequestAuthMethod represents radar standalone assess request auth method values.
 type RadarStandaloneAssessRequestAuthMethod string
@@ -1318,8 +1379,8 @@ type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 // UserSessionsStatus is an alias for AgentInstanceSessionStatus.
 type UserSessionsStatus = AgentInstanceSessionStatus
 
-// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
-type DataIntegrationsGetUserTokenRequestConnectionOwner = CreateDataIntegrationOwnership
+// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type DataIntegrationsGetUserTokenRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
 // DataIntegrationsListResponseDataConnectedAccountConnectionRole is an alias for ConnectedAccountConnectionRole.
 type DataIntegrationsListResponseDataConnectedAccountConnectionRole = ConnectedAccountConnectionRole
@@ -1399,8 +1460,8 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
-// PipesOwnership is an alias for CreateDataIntegrationOwnership.
-type PipesOwnership = CreateDataIntegrationOwnership
+// PipesOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
+type PipesOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
 
 // RadarListType represents radar list type values.
 type RadarListType string
