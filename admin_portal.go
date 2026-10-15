@@ -45,17 +45,17 @@ func (s *AdminPortalService) GenerateLink(ctx context.Context, params *AdminPort
 	return &result, nil
 }
 
-// AdminPortalCreateRevokeLinkParams contains the parameters for CreateRevokeLink.
-type AdminPortalCreateRevokeLinkParams struct {
+// AdminPortalRevokeLinkParams contains the parameters for RevokeLink.
+type AdminPortalRevokeLinkParams struct {
 	// Organization is an [Organization](https://workos.com/docs/reference/organization) identifier.
 	Organization string `json:"organization" url:"-"`
 	// ExternalUserID is the `external_user_id` the Portal Links were generated with for this organization. Every matching link is revoked, along with any Admin Portal sessions started from those links.
 	ExternalUserID string `json:"external_user_id" url:"-"`
 }
 
-// CreateRevokeLink revoke Portal Links
+// RevokeLink revoke Portal Links
 // Revokes every Portal Link generated for the given organization with the given `external_user_id`, and immediately ends any Admin Portal sessions that were started from those links. Use this when an admin is deprovisioned from your application: unopened links stop working, and their already-open portal sessions are ended. Only links that were generated with an `external_user_id` can be revoked, so pass one to `generate_link` for every admin you may later need to deprovision.
-func (s *AdminPortalService) CreateRevokeLink(ctx context.Context, params *AdminPortalCreateRevokeLinkParams, opts ...RequestOption) error {
+func (s *AdminPortalService) RevokeLink(ctx context.Context, params *AdminPortalRevokeLinkParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", "/portal/revoke_link", nil, params, nil, opts)
 	return err
 }
