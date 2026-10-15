@@ -35,6 +35,8 @@ type AgentsCreateBlueprintParams struct {
 	Permissions []string `json:"permissions,omitempty" url:"-"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintsCreateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
+	// InvocableAs is how sessions may be minted from this blueprint.
+	InvocableAs *AgentBlueprintsCreateRequestInvocableAs `json:"invocable_as,omitempty" url:"-"`
 	// SessionSettings is token and session lifetimes for sessions minted from this blueprint.
 	SessionSettings *AgentBlueprintsCreateRequestSessionSetting `json:"session_settings,omitempty" url:"-"`
 }
@@ -71,6 +73,8 @@ type AgentsUpdateBlueprintParams struct {
 	Permissions []string `json:"permissions,omitempty" url:"-"`
 	// InvocableBy is who may mint sessions from this blueprint. Omitted lists are left unchanged.
 	InvocableBy *AgentBlueprintsUpdateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
+	// InvocableAs is how sessions may be minted from this blueprint. Omitted lists are left unchanged.
+	InvocableAs *AgentBlueprintsUpdateRequestInvocableAs `json:"invocable_as,omitempty" url:"-"`
 	// SessionSettings is token and session lifetimes for sessions minted from this blueprint. Omitted fields are left unchanged.
 	SessionSettings *AgentBlueprintsUpdateRequestSessionSetting `json:"session_settings,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,

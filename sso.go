@@ -427,6 +427,8 @@ func (s *SSOService) GetProfile(ctx context.Context, opts ...RequestOption) (*Pr
 type SSOGetProfileAndTokenParams struct {
 	// Code is the authorization code received from the authorization callback. Required when `grant_type` is `authorization_code`.
 	Code *string `json:"code,omitempty" url:"-"`
+	// CodeVerifier is the PKCE code verifier matching the `code_challenge` sent with the authorization request. Required when the authorization request included a `code_challenge`. Must be sent in the request body.
+	CodeVerifier *string `json:"code_verifier,omitempty" url:"-"`
 	// SubjectToken is the OIDC ID token to exchange. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
 	SubjectToken *string `json:"subject_token,omitempty" url:"-"`
 	// SubjectTokenType is the type of the subject token. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
@@ -441,6 +443,7 @@ type getProfileAndTokenBody struct {
 	ClientID         string  `json:"client_id,omitempty"`
 	ClientSecret     string  `json:"client_secret,omitempty"`
 	Code             *string `json:"code,omitempty"`
+	CodeVerifier     *string `json:"code_verifier,omitempty"`
 	SubjectToken     *string `json:"subject_token,omitempty"`
 	SubjectTokenType *string `json:"subject_token_type,omitempty"`
 	OrganizationID   *string `json:"organization_id,omitempty"`
@@ -455,6 +458,7 @@ func (s *SSOService) GetProfileAndToken(ctx context.Context, params *SSOGetProfi
 	body.ClientID = s.client.clientID
 	body.ClientSecret = s.client.apiKey
 	body.Code = params.Code
+	body.CodeVerifier = params.CodeVerifier
 	body.SubjectToken = params.SubjectToken
 	body.SubjectTokenType = params.SubjectTokenType
 	body.OrganizationID = params.OrganizationID
