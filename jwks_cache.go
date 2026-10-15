@@ -27,15 +27,19 @@ const (
 
 // ErrSigningKeyUnavailable reports that a session's access token could not be
 // verified because its signing key could not be obtained: the JWKS request
-// failed, timed out or was cancelled, or an earlier failed request is still
-// within its retry cooldown. It says nothing about the token itself.
+// failed, timed out or was cancelled, returned a key set that cannot be
+// trusted, or an earlier failed request is still within its retry cooldown.
+// It says nothing about the token itself.
 var ErrSigningKeyUnavailable = errors.New("workos: JWT signing key unavailable")
 
 type cachedSessionJWKS struct {
 	keys      map[string]*rsa.PublicKey
 	fetchedAt time.Time
 	attemptAt time.Time
-	loading   chan struct{}
+	// lastErr is why the most recent fetch failed, so callers refused during
+	// the cooldown still learn the cause. Nil after a successful fetch.
+	lastErr error
+	loading chan struct{}
 }
 
 // Key sets are shared by sessions using the same configured JWKS URL. Bound
@@ -92,7 +96,7 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 			if !entry.fetchedAt.Before(entry.attemptAt) {
 				return nil, errors.New("workos: unknown JWT signing key")
 			}
-			return nil, ErrSigningKeyUnavailable
+			return nil, signingKeyUnavailable(entry.lastErr)
 		}
 		if _, exists := sessionJWKSCache.entries[cacheURL]; !exists && len(sessionJWKSCache.entries) >= jwksCacheLimit {
 			// Evict the least recently attempted idle entry so an in-flight fetch's
@@ -123,7 +127,7 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 		keys, err := c.fetchSessionJWKS(ctx)
 		sessionJWKSCache.Lock()
 		if sessionJWKSCache.entries[cacheURL].loading == loading {
-			entry.loading = nil
+			entry.loading, entry.lastErr = nil, err
 			if err == nil {
 				entry.keys, entry.fetchedAt = keys, time.Now()
 			}
@@ -141,8 +145,11 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 	}
 }
 
-func signingKeyUnavailable(err error) error {
-	return fmt.Errorf("%w: %w", ErrSigningKeyUnavailable, err)
+func signingKeyUnavailable(cause error) error {
+	if cause == nil {
+		return ErrSigningKeyUnavailable
+	}
+	return fmt.Errorf("%w: %w", ErrSigningKeyUnavailable, cause)
 }
 
 func (c *Client) fetchSessionJWKS(ctx context.Context) (map[string]*rsa.PublicKey, error) {

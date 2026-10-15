@@ -77,6 +77,9 @@ func TestSessionJWKSRotationAndExpiry(t *testing.T) {
 	require.ErrorIs(t, err, ErrSigningKeyUnavailable, "expired cached keys must not bypass a failed fetch")
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
 	require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+	var apiErr *APIError
+	require.ErrorAs(t, err, &apiErr, "the cooldown must report why the last fetch failed")
+	require.Equal(t, http.StatusServiceUnavailable, apiErr.StatusCode)
 	require.Equal(t, int32(3), requests.Load(), "upstream errors must also respect cooldown")
 }
 
@@ -188,16 +191,20 @@ func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 
 func TestSessionJWKSRejectsInvalidKeyMetadata(t *testing.T) {
 	valid := cacheTestJWK(t, "key")
+	// A key set that was fetched but holds no usable key for the kid is an
+	// invalid token. An ambiguous key set cannot be trusted at all, so the
+	// token is not judged and callers may retry once it is corrected.
 	for _, tc := range []struct {
-		name   string
-		mutate func(*JWKSResponseKeys)
+		name        string
+		mutate      func(*JWKSResponseKeys)
+		unavailable bool
 	}{
-		{"algorithm", func(k *JWKSResponseKeys) { k.Alg = "HS256" }},
-		{"key type", func(k *JWKSResponseKeys) { k.Kty = "EC" }},
-		{"key use", func(k *JWKSResponseKeys) { k.Use = "enc" }},
-		{"exponent", func(k *JWKSResponseKeys) { k.E = "AA" }},
-		{"weak modulus", func(k *JWKSResponseKeys) { k.N = "AQAB" }},
-		{"duplicate key ID", func(k *JWKSResponseKeys) {}},
+		{"algorithm", func(k *JWKSResponseKeys) { k.Alg = "HS256" }, false},
+		{"key type", func(k *JWKSResponseKeys) { k.Kty = "EC" }, false},
+		{"key use", func(k *JWKSResponseKeys) { k.Use = "enc" }, false},
+		{"exponent", func(k *JWKSResponseKeys) { k.E = "AA" }, false},
+		{"weak modulus", func(k *JWKSResponseKeys) { k.N = "AQAB" }, false},
+		{"duplicate key ID", func(k *JWKSResponseKeys) {}, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			jwk := *valid
@@ -212,7 +219,12 @@ func TestSessionJWKSRejectsInvalidKeyMetadata(t *testing.T) {
 			defer server.Close()
 			client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("invalid"))
 			_, err := client.sessionVerificationKey(context.Background(), valid.Kid)
-			require.Error(t, err)
+			if tc.unavailable {
+				require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+			} else {
+				require.ErrorContains(t, err, "unknown JWT signing key")
+				require.NotErrorIs(t, err, ErrSigningKeyUnavailable)
+			}
 		})
 	}
 }

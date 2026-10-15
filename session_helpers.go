@@ -102,6 +102,7 @@ func (s *Session) Authenticate() (*AuthenticateSessionResult, error) {
 }
 
 // AuthenticateContext authenticates a session using ctx for JWKS requests.
+// See Authenticate for the jwks_unavailable result.
 func (s *Session) AuthenticateContext(ctx context.Context) (*AuthenticateSessionResult, error) {
 	if s.sessionData == "" {
 		return &AuthenticateSessionResult{
@@ -315,7 +316,8 @@ func AuthenticateSession(sealedSession string, cookiePassword string) (*Authenti
 }
 
 // AuthenticateSession verifies a sealed session using this client's configured
-// client ID and JWKS endpoint. Options can override the trusted issuer.
+// client ID and JWKS endpoint. Options can override the trusted issuer. See
+// Session.Authenticate for the jwks_unavailable result.
 func (c *Client) AuthenticateSession(ctx context.Context, sealedSession string, cookiePassword string, opts ...SessionOption) (*AuthenticateSessionResult, error) {
 	return NewSession(c, sealedSession, cookiePassword, opts...).AuthenticateContext(ctx)
 }
