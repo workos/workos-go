@@ -155,6 +155,11 @@ Authenticate and refresh user sessions using sealed cookies:
 session := workos.NewSession(client, sealedCookie, cookiePassword)
 
 result, err := session.Authenticate()
+if errors.Is(err, workos.ErrSigningKeyUnavailable) {
+	// The signing key could not be fetched, so the token was not judged.
+	// Keep the session cookie and retry on a later request.
+	return
+}
 if err != nil {
 	log.Fatal(err)
 }
@@ -171,6 +176,11 @@ if refreshed.Authenticated {
 	// Set refreshed.SealedSession as the new cookie value
 }
 ```
+
+When the signing key cannot be obtained (the JWKS request failed, timed out or
+was cancelled), `Authenticate` returns `Reason: "jwks_unavailable"` and an error
+matching `workos.ErrSigningKeyUnavailable`. The token was not judged, so keep
+the session cookie and retry instead of signing the user out.
 
 ## Vault
 

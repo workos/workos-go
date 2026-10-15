@@ -63,6 +63,7 @@ func TestSessionJWKSRotationAndExpiry(t *testing.T) {
 	rotation.Store(true)
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
 	require.Error(t, err)
+	require.NotErrorIs(t, err, ErrSigningKeyUnavailable, "a kid missing from a fresh key set is an invalid token")
 	require.Equal(t, int32(1), requests.Load())
 	ageSessionJWKS(client, jwksRefreshCooldown+time.Second)
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
@@ -73,9 +74,12 @@ func TestSessionJWKSRotationAndExpiry(t *testing.T) {
 	ageSessionJWKS(client, jwksCacheTTL+time.Second)
 	unavailable.Store(true)
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
-	require.Error(t, err, "expired cached keys must not bypass a failed fetch")
+	require.ErrorIs(t, err, ErrSigningKeyUnavailable, "expired cached keys must not bypass a failed fetch")
 	_, err = client.sessionVerificationKey(ctx, rotated.Kid)
-	require.Error(t, err)
+	require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+	var apiErr *APIError
+	require.ErrorAs(t, err, &apiErr, "the cooldown must report why the last fetch failed")
+	require.Equal(t, http.StatusServiceUnavailable, apiErr.StatusCode)
 	require.Equal(t, int32(3), requests.Load(), "upstream errors must also respect cooldown")
 }
 
@@ -172,6 +176,7 @@ func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 	defer cancel()
 	_, err := client.sessionVerificationKey(ctx, "key")
 	require.ErrorIs(t, err, context.DeadlineExceeded)
+	require.ErrorIs(t, err, ErrSigningKeyUnavailable)
 	// A different URL must not wait for the blocked network request either.
 	otherServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"keys":[]}`))
@@ -184,18 +189,73 @@ func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 	require.ErrorContains(t, err, "unknown JWT signing key")
 }
 
+// A caller that gives up on its own fetch has not learned anything about
+// upstream, so the next caller must be allowed to try again at once.
+func TestSessionJWKSCancelledFetchDoesNotStartCooldown(t *testing.T) {
+	jwk := cacheTestJWK(t, "key")
+	t.Run("cancellation", func(t *testing.T) {
+		started := make(chan struct{})
+		var requests atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if requests.Add(1) == 1 {
+				close(started)
+				<-r.Context().Done()
+				return
+			}
+			_ = json.NewEncoder(w).Encode(JWKSResponse{Keys: []*JWKSResponseKeys{jwk}})
+		}))
+		defer server.Close()
+		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("cancelled"))
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		go func() {
+			<-started
+			cancel()
+		}()
+		_, err := client.sessionVerificationKey(ctx, jwk.Kid)
+		require.ErrorIs(t, err, context.Canceled)
+		require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+		_, err = client.sessionVerificationKey(context.Background(), jwk.Kid)
+		require.NoError(t, err, "a cancelled fetch must not hold the next caller in the cooldown")
+		require.Equal(t, int32(2), requests.Load())
+	})
+	t.Run("deadline", func(t *testing.T) {
+		var requests atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requests.Add(1)
+			<-r.Context().Done()
+		}))
+		defer server.Close()
+		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("deadline"))
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		defer cancel()
+		_, err := client.sessionVerificationKey(ctx, jwk.Kid)
+		require.ErrorIs(t, err, context.DeadlineExceeded)
+		require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+		_, err = client.sessionVerificationKey(context.Background(), jwk.Kid)
+		require.ErrorIs(t, err, ErrSigningKeyUnavailable, "a deadline may mean a slow upstream, so the cooldown stays")
+		require.ErrorIs(t, err, context.DeadlineExceeded, "the cooldown carries the failed fetch's cause")
+		require.ErrorContains(t, err, "retry cooldown after a failed fetch")
+		require.Equal(t, int32(1), requests.Load())
+	})
+}
+
 func TestSessionJWKSRejectsInvalidKeyMetadata(t *testing.T) {
 	valid := cacheTestJWK(t, "key")
+	// A key set that was fetched but holds no usable key for the kid is an
+	// invalid token. An ambiguous key set cannot be trusted at all, so the
+	// token is not judged and callers may retry once it is corrected.
 	for _, tc := range []struct {
-		name   string
-		mutate func(*JWKSResponseKeys)
+		name        string
+		mutate      func(*JWKSResponseKeys)
+		unavailable bool
 	}{
-		{"algorithm", func(k *JWKSResponseKeys) { k.Alg = "HS256" }},
-		{"key type", func(k *JWKSResponseKeys) { k.Kty = "EC" }},
-		{"key use", func(k *JWKSResponseKeys) { k.Use = "enc" }},
-		{"exponent", func(k *JWKSResponseKeys) { k.E = "AA" }},
-		{"weak modulus", func(k *JWKSResponseKeys) { k.N = "AQAB" }},
-		{"duplicate key ID", func(k *JWKSResponseKeys) {}},
+		{"algorithm", func(k *JWKSResponseKeys) { k.Alg = "HS256" }, false},
+		{"key type", func(k *JWKSResponseKeys) { k.Kty = "EC" }, false},
+		{"key use", func(k *JWKSResponseKeys) { k.Use = "enc" }, false},
+		{"exponent", func(k *JWKSResponseKeys) { k.E = "AA" }, false},
+		{"weak modulus", func(k *JWKSResponseKeys) { k.N = "AQAB" }, false},
+		{"duplicate key ID", func(k *JWKSResponseKeys) {}, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			jwk := *valid
@@ -210,7 +270,12 @@ func TestSessionJWKSRejectsInvalidKeyMetadata(t *testing.T) {
 			defer server.Close()
 			client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("invalid"))
 			_, err := client.sessionVerificationKey(context.Background(), valid.Kid)
-			require.Error(t, err)
+			if tc.unavailable {
+				require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+			} else {
+				require.ErrorContains(t, err, "unknown JWT signing key")
+				require.NotErrorIs(t, err, ErrSigningKeyUnavailable)
+			}
 		})
 	}
 }
