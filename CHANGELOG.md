@@ -1,5 +1,29 @@
 # Changelog
 
+## [10.6.0](https://github.com/workos/workos-go/compare/v10.5.0...v10.6.0) (2026-10-15)
+
+
+### Features
+
+* **admin_portal:** SDK surface change: `AdminPortalService.CreateRevokeLink` was renamed to `AdminPortalService.RevokeLink` ([#635](https://github.com/workos/workos-go/issues/635)) ([25a65e4](https://github.com/workos/workos-go/commit/25a65e48eef0b1610387dc32a2be03a6053b9b0a))
+* **admin_portal:** Update admin portal API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **audit_logs:** Update audit log API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **authorization:** Update authorization API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **feature_flags:** Update feature flag API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **generated:** Authorization (batch c64ce1e7) ([#626](https://github.com/workos/workos-go/issues/626)) ([8d7f597](https://github.com/workos/workos-go/commit/8d7f597fa1918a771d8b5fc9fce8809556decf97))
+* **organizations:** Update organization API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **pipes:** Change Pipes API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **pipes:** Update Pipes API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **radar:** Update radar API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **user_management:** Update user management API surface ([#632](https://github.com/workos/workos-go/issues/632)) ([bd91be1](https://github.com/workos/workos-go/commit/bd91be146155c7bc335cfef9d7a305aa5aab7187))
+* **user_management:** Update user management API surface ([#635](https://github.com/workos/workos-go/issues/635)) ([25a65e4](https://github.com/workos/workos-go/commit/25a65e48eef0b1610387dc32a2be03a6053b9b0a))
+
+
+### Bug Fixes
+
+* **session:** return ErrSigningKeyUnavailable instead of invalid_jwt when the JWKS cannot be fetched ([#631](https://github.com/workos/workos-go/issues/631)) ([7d713ee](https://github.com/workos/workos-go/commit/7d713eec1e8f05c56ac630384f969ceb4ff723d1))
+* **user_management:** Change errors for endpoint `POST /user_management/authenticate` ([#635](https://github.com/workos/workos-go/issues/635)) ([25a65e4](https://github.com/workos/workos-go/commit/25a65e48eef0b1610387dc32a2be03a6053b9b0a))
+
 ## [10.5.0](https://github.com/workos/workos-go/compare/v10.4.0...v10.5.0) (2026-09-18)
 
 ### Features
