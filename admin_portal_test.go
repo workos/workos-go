@@ -39,7 +39,7 @@ func TestAdminPortal_GenerateLink(t *testing.T) {
 	require.Equal(t, "https://setup.workos.com/init?apiToken=01EHZNVPK3SFK441A1RGBFSHRT", result.Link)
 }
 
-func TestAdminPortal_CreateRevokeLink(t *testing.T) {
+func TestAdminPortal_RevokeLink(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/portal/revoke_link", r.URL.Path)
@@ -48,7 +48,7 @@ func TestAdminPortal_CreateRevokeLink(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	err := client.AdminPortal().CreateRevokeLink(context.Background(), &workos.AdminPortalCreateRevokeLinkParams{})
+	err := client.AdminPortal().RevokeLink(context.Background(), &workos.AdminPortalRevokeLinkParams{})
 	require.NoError(t, err)
 }
 
