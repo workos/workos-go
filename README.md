@@ -156,9 +156,11 @@ session := workos.NewSession(client, sealedCookie, cookiePassword)
 
 result, err := session.Authenticate()
 if errors.Is(err, workos.ErrSigningKeyUnavailable) {
-	// The signing key could not be fetched, so the token was not judged:
-	// keep the session cookie and retry on a later request.
-} else if err != nil {
+	// The signing key could not be fetched, so the token was not judged.
+	// Keep the session cookie and retry on a later request.
+	return
+}
+if err != nil {
 	log.Fatal(err)
 }
 if result.Authenticated {
