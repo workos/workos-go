@@ -573,9 +573,11 @@ func TestSessionJWKSUnavailable(t *testing.T) {
 		defer server.Close()
 		client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL), workos.WithClientID("client_session"))
 		requireUnavailable(t, context.Background(), client)
+		cooldownErr := requireUnavailable(t, context.Background(), client)
 		var apiErr *workos.APIError
-		require.ErrorAs(t, requireUnavailable(t, context.Background(), client), &apiErr, "the cooldown carries the failed fetch's cause")
+		require.ErrorAs(t, cooldownErr, &apiErr, "the cooldown carries the failed fetch's cause")
 		require.Equal(t, http.StatusServiceUnavailable, apiErr.StatusCode)
+		require.ErrorContains(t, cooldownErr, "retry cooldown after a failed fetch")
 		require.Equal(t, int32(1), requests.Load(), "the cooldown after a failed fetch is also unavailable")
 	})
 	t.Run("context timeout", func(t *testing.T) {

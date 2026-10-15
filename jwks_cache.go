@@ -30,6 +30,10 @@ const (
 // failed, timed out or was cancelled, returned a key set that cannot be
 // trusted, or an earlier failed request is still within its retry cooldown.
 // It says nothing about the token itself.
+//
+// A key set that was fetched and decoded is a verdict on the token, whatever
+// it contains: a kid missing from it, or a key in it that is unusable, is an
+// invalid token rather than an unavailable key.
 var ErrSigningKeyUnavailable = errors.New("workos: JWT signing key unavailable")
 
 type cachedSessionJWKS struct {
@@ -96,7 +100,11 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 			if !entry.fetchedAt.Before(entry.attemptAt) {
 				return nil, errors.New("workos: unknown JWT signing key")
 			}
-			return nil, signingKeyUnavailable(entry.lastErr)
+			cause := errors.New("retry cooldown after a failed fetch")
+			if entry.lastErr != nil {
+				cause = fmt.Errorf("retry cooldown after a failed fetch: %w", entry.lastErr)
+			}
+			return nil, signingKeyUnavailable(cause)
 		}
 		if _, exists := sessionJWKSCache.entries[cacheURL]; !exists && len(sessionJWKSCache.entries) >= jwksCacheLimit {
 			// Evict the least recently attempted idle entry so an in-flight fetch's
@@ -130,6 +138,13 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 			entry.loading, entry.lastErr = nil, err
 			if err == nil {
 				entry.keys, entry.fetchedAt = keys, time.Now()
+			} else if errors.Is(ctx.Err(), context.Canceled) {
+				// The caller went away before upstream answered, which is no
+				// verdict on upstream: let the next caller retry instead of
+				// holding every caller in the cooldown. A deadline keeps the
+				// cooldown because it may be the verification timeout on a
+				// slow upstream.
+				entry.attemptAt = time.Time{}
 			}
 			sessionJWKSCache.entries[cacheURL] = entry
 		}

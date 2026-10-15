@@ -189,6 +189,57 @@ func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 	require.ErrorContains(t, err, "unknown JWT signing key")
 }
 
+// A caller that gives up on its own fetch has not learned anything about
+// upstream, so the next caller must be allowed to try again at once.
+func TestSessionJWKSCancelledFetchDoesNotStartCooldown(t *testing.T) {
+	jwk := cacheTestJWK(t, "key")
+	t.Run("cancellation", func(t *testing.T) {
+		started := make(chan struct{})
+		var requests atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if requests.Add(1) == 1 {
+				close(started)
+				<-r.Context().Done()
+				return
+			}
+			_ = json.NewEncoder(w).Encode(JWKSResponse{Keys: []*JWKSResponseKeys{jwk}})
+		}))
+		defer server.Close()
+		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("cancelled"))
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		go func() {
+			<-started
+			cancel()
+		}()
+		_, err := client.sessionVerificationKey(ctx, jwk.Kid)
+		require.ErrorIs(t, err, context.Canceled)
+		require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+		_, err = client.sessionVerificationKey(context.Background(), jwk.Kid)
+		require.NoError(t, err, "a cancelled fetch must not hold the next caller in the cooldown")
+		require.Equal(t, int32(2), requests.Load())
+	})
+	t.Run("deadline", func(t *testing.T) {
+		var requests atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requests.Add(1)
+			<-r.Context().Done()
+		}))
+		defer server.Close()
+		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("deadline"))
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		defer cancel()
+		_, err := client.sessionVerificationKey(ctx, jwk.Kid)
+		require.ErrorIs(t, err, context.DeadlineExceeded)
+		require.ErrorIs(t, err, ErrSigningKeyUnavailable)
+		_, err = client.sessionVerificationKey(context.Background(), jwk.Kid)
+		require.ErrorIs(t, err, ErrSigningKeyUnavailable, "a deadline may mean a slow upstream, so the cooldown stays")
+		require.ErrorIs(t, err, context.DeadlineExceeded, "the cooldown carries the failed fetch's cause")
+		require.ErrorContains(t, err, "retry cooldown after a failed fetch")
+		require.Equal(t, int32(1), requests.Load())
+	})
+}
+
 func TestSessionJWKSRejectsInvalidKeyMetadata(t *testing.T) {
 	valid := cacheTestJWK(t, "key")
 	// A key set that was fetched but holds no usable key for the kid is an
