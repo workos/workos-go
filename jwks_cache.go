@@ -138,10 +138,12 @@ func (c *Client) sessionVerificationKey(ctx context.Context, kid string) (*rsa.P
 			entry.loading, entry.lastErr = nil, err
 			if err == nil {
 				entry.keys, entry.fetchedAt = keys, time.Now()
-			} else if errors.Is(ctx.Err(), context.Canceled) {
+			} else if errors.Is(err, context.Canceled) {
 				// The caller went away before upstream answered, which is no
 				// verdict on upstream: let the next caller retry instead of
-				// holding every caller in the cooldown. A deadline keeps the
+				// holding every caller in the cooldown. Judge the fetch error,
+				// not the context, so an upstream failure that lands as the
+				// caller leaves still starts the cooldown. A deadline keeps the
 				// cooldown because it may be the verification timeout on a
 				// slow upstream.
 				entry.attemptAt = time.Time{}
