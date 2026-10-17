@@ -27,7 +27,7 @@ const (
 
 // ErrSigningKeyUnavailable reports that a session's access token could not be
 // verified because its signing key could not be obtained: the JWKS request
-// failed, timed out or was cancelled, returned a key set that cannot be
+// failed, timed out or was canceled, returned a key set that cannot be
 // trusted, or an earlier failed request is still within its retry cooldown.
 // It says nothing about the token itself.
 //

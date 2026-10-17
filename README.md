@@ -178,7 +178,7 @@ if refreshed.Authenticated {
 ```
 
 When the signing key cannot be obtained (the JWKS request failed, timed out or
-was cancelled), `Authenticate` returns `Reason: "jwks_unavailable"` and an error
+was canceled), `Authenticate` returns `Reason: "jwks_unavailable"` and an error
 matching `workos.ErrSigningKeyUnavailable`. The token was not judged, so keep
 the session cookie and retry instead of signing the user out.
 

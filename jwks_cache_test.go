@@ -191,7 +191,7 @@ func TestSessionJWKSInflightWaitRespectsContext(t *testing.T) {
 
 // A caller that gives up on its own fetch has not learned anything about
 // upstream, so the next caller must be allowed to try again at once.
-func TestSessionJWKSCancelledFetchDoesNotStartCooldown(t *testing.T) {
+func TestSessionJWKSCanceledFetchDoesNotStartCooldown(t *testing.T) {
 	jwk := cacheTestJWK(t, "key")
 	t.Run("cancellation", func(t *testing.T) {
 		started := make(chan struct{})
@@ -205,7 +205,7 @@ func TestSessionJWKSCancelledFetchDoesNotStartCooldown(t *testing.T) {
 			_ = json.NewEncoder(w).Encode(JWKSResponse{Keys: []*JWKSResponseKeys{jwk}})
 		}))
 		defer server.Close()
-		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("cancelled"))
+		client := NewClient("sk_test", WithBaseURL(server.URL), WithClientID("canceled"))
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		go func() {
@@ -216,7 +216,7 @@ func TestSessionJWKSCancelledFetchDoesNotStartCooldown(t *testing.T) {
 		require.ErrorIs(t, err, context.Canceled)
 		require.ErrorIs(t, err, ErrSigningKeyUnavailable)
 		_, err = client.sessionVerificationKey(context.Background(), jwk.Kid)
-		require.NoError(t, err, "a cancelled fetch must not hold the next caller in the cooldown")
+		require.NoError(t, err, "a canceled fetch must not hold the next caller in the cooldown")
 		require.Equal(t, int32(2), requests.Load())
 	})
 	t.Run("deadline", func(t *testing.T) {
