@@ -154,7 +154,7 @@ func (c *Client) AuthKitStartDeviceAuthorization(ctx context.Context, opts ...Re
 
 // AuthKitPollDeviceCode polls for device code completion (part 2).
 // Returns the authentication response once the user completes authorization.
-// This method blocks until authorization completes, an error occurs, or the context is cancelled.
+// This method blocks until authorization completes, an error occurs, or the context is canceled.
 func (c *Client) AuthKitPollDeviceCode(ctx context.Context, deviceCode string, interval int, opts ...RequestOption) (*AuthenticateResponse, error) {
 	if interval <= 0 {
 		interval = 5
