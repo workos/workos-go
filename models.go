@@ -477,6 +477,8 @@ type AgentRegistration struct {
 	OrganizationID string `json:"organization_id"`
 	// Status is the current verification status of the registration.
 	Status AgentRegistrationStatus `json:"status"`
+	// RevokedAt is the timestamp when the registration was revoked, or `null` if it has not been revoked.
+	RevokedAt *string `json:"revoked_at"`
 	// Kind is the kind of agent registration.
 	Kind AgentRegistrationKind `json:"kind"`
 	// Claim is the claim associated with this registration, or `null` if the registration has no claim.
@@ -3302,11 +3304,12 @@ type FlagCreatedData struct {
 
 // The following types are structurally identical to FeatureFlagOwner.
 type (
-	FlagCreatedDataOwner     = FeatureFlagOwner
-	FlagDeletedDataOwner     = FeatureFlagOwner
-	FlagRuleUpdatedDataOwner = FeatureFlagOwner
-	FlagUpdatedDataOwner     = FeatureFlagOwner
-	FlagOwner                = FeatureFlagOwner
+	FlagCreatedDataOwner                         = FeatureFlagOwner
+	FlagDeletedDataOwner                         = FeatureFlagOwner
+	FlagRuleUpdatedDataOwner                     = FeatureFlagOwner
+	FlagUpdatedDataOwner                         = FeatureFlagOwner
+	FlagUpdatedContextPreviousAttributeDataOwner = FeatureFlagOwner
+	FlagOwner                                    = FeatureFlagOwner
 )
 
 // FlagCreatedContext additional context about the event.
@@ -3585,6 +3588,8 @@ type FlagUpdatedContextPreviousAttributeData struct {
 	Description *string `json:"description,omitempty"`
 	// Tags is the previous tags of the flag.
 	Tags []string `json:"tags,omitempty"`
+	// Owner is the previous owner of the flag, or `null` if it had none.
+	Owner *FlagUpdatedContextPreviousAttributeDataOwner `json:"owner,omitempty"`
 	// Enabled is whether the flag was previously enabled.
 	Enabled *bool `json:"enabled,omitempty"`
 	// DefaultValue is the previous default value of the flag.

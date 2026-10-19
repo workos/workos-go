@@ -225,6 +225,17 @@ func (s *AgentService) GetRegistration(ctx context.Context, id string, opts ...R
 	return &result, nil
 }
 
+// RevokeRegistration revoke an agent registration
+// Revoke an agent registration by ID. Revocation is permanent: the registration, its identity assertions, and every access token or API key issued from it stop working, and the agent must register again. Revoking an already revoked registration succeeds and returns the original `revoked_at`. The registration is scoped to the environment of the API key used to authenticate the request.
+func (s *AgentService) RevokeRegistration(ctx context.Context, id string, opts ...RequestOption) (*AgentRegistration, error) {
+	var result AgentRegistration
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/agents/registrations/%s/revoke", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // AgentsListInstancesParams contains the parameters for ListInstances.
 type AgentsListInstancesParams struct {
 	PaginationParams

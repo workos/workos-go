@@ -53,7 +53,7 @@ type AdminPortalRevokeLinkParams struct {
 	ExternalUserID string `json:"external_user_id" url:"-"`
 }
 
-// RevokeLink revoke Portal Links
+// RevokeLink revoke a Portal Link
 // Revokes every Portal Link generated for the given organization with the given `external_user_id`, and immediately ends any Admin Portal sessions that were started from those links. Use this when an admin is deprovisioned from your application: unopened links stop working, and their already-open portal sessions are ended. Only links that were generated with an `external_user_id` can be revoked, so pass one to `generate_link` for every admin you may later need to deprovision.
 func (s *AdminPortalService) RevokeLink(ctx context.Context, params *AdminPortalRevokeLinkParams, opts ...RequestOption) error {
 	_, err := s.client.request(ctx, "POST", "/portal/revoke_link", nil, params, nil, opts)
