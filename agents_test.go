@@ -262,6 +262,29 @@ func TestAgents_GetRegistration(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
+func TestAgents_RevokeRegistration(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/agents/registrations/test_id/revoke", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/agent_registration.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Agents().RevokeRegistration(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "agent_reg_01EHWNCE74X7JSDV0X3SZ3KJNY", result.ID)
+	require.Equal(t, "org_01EHQMYV6MBK39QC5PZXHY59C3", result.OrganizationID)
+	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
+}
+
 func TestAgents_ListInstances(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)

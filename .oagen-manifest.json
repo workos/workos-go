@@ -676,6 +676,10 @@
       "sdkMethod": "GetRegistration",
       "service": "agents"
     },
+    "POST /agents/registrations/{id}/revoke": {
+      "sdkMethod": "RevokeRegistration",
+      "service": "agents"
+    },
     "GET /agents/instances": {
       "sdkMethod": "ListInstances",
       "service": "agents"
