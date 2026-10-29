@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.6.1](https://github.com/workos/workos-go/compare/v10.6.0...v10.6.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **sso:** send `connection` and `organization` selectors from GetSSOAuthorizationURL ([#640](https://github.com/workos/workos-go/issues/640)) ([94fea54](https://github.com/workos/workos-go/commit/94fea54606fe00f4b7b82bcb0e90c2ae9bad996b))
+
 ## [10.6.0](https://github.com/workos/workos-go/compare/v10.5.0...v10.6.0) (2026-10-19)
 
 ### Bug Fixes
