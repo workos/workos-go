@@ -15,8 +15,8 @@ type SSOAuthorizationURLParams struct {
 	RedirectURI         string
 	ClientID            string // if empty, uses client's configured clientID
 	Provider            *string
-	ConnectionID        *string
-	OrganizationID      *string
+	ConnectionID        *string // sent as the `connection` query parameter
+	OrganizationID      *string // sent as the `organization` query parameter
 	DomainHint          *string
 	LoginHint           *string
 	State               *string
@@ -56,10 +56,10 @@ func (c *Client) GetSSOAuthorizationURL(params SSOAuthorizationURLParams) (strin
 		q.Set("provider", *params.Provider)
 	}
 	if params.ConnectionID != nil {
-		q.Set("connection_id", *params.ConnectionID)
+		q.Set("connection", *params.ConnectionID)
 	}
 	if params.OrganizationID != nil {
-		q.Set("organization_id", *params.OrganizationID)
+		q.Set("organization", *params.OrganizationID)
 	}
 	if params.DomainHint != nil {
 		q.Set("domain_hint", *params.DomainHint)

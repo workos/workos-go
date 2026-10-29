@@ -98,12 +98,54 @@ func TestGetSSOAuthorizationURL_AllOptionalParams(t *testing.T) {
 	require.NoError(t, err)
 
 	q := parsed.Query()
-	require.Equal(t, "conn_abc", q.Get("connection_id"))
-	require.Equal(t, "org_def", q.Get("organization_id"))
+	require.Equal(t, "conn_abc", q.Get("connection"))
+	require.Equal(t, "org_def", q.Get("organization"))
+	// /sso/authorize only recognizes `connection` and `organization` as
+	// selectors; the `_id` spellings are silently ignored by the API.
+	require.False(t, q.Has("connection_id"))
+	require.False(t, q.Has("organization_id"))
 	require.Equal(t, "example.com", q.Get("domain_hint"))
 	require.Equal(t, "user@example.com", q.Get("login_hint"))
 	require.Equal(t, "challenge_value", q.Get("code_challenge"))
 	require.Equal(t, "S256", q.Get("code_challenge_method"))
+}
+
+func TestGetSSOAuthorizationURL_SelectorParamsMatchSSOService(t *testing.T) {
+	// The hand-maintained helper and the generated SSOService.GetAuthorizationURL
+	// must emit the same selector parameter names, otherwise /sso/authorize
+	// ignores the selector and redirects to the invalid-connection-selector page.
+	client := workos.NewClient("sk_test",
+		workos.WithClientID("client_123"),
+		workos.WithBaseURL("https://api.workos.com"),
+	)
+
+	connectionID := "conn_abc"
+	organizationID := "org_def"
+
+	helperURL, err := client.GetSSOAuthorizationURL(workos.SSOAuthorizationURLParams{
+		RedirectURI:    "https://example.com/callback",
+		ConnectionID:   &connectionID,
+		OrganizationID: &organizationID,
+	})
+	require.NoError(t, err)
+
+	serviceURL := client.SSO().GetAuthorizationURL(&workos.SSOGetAuthorizationURLParams{
+		RedirectURI:  "https://example.com/callback",
+		Connection:   &connectionID,
+		Organization: &organizationID,
+	})
+
+	helperParsed, err := url.Parse(helperURL)
+	require.NoError(t, err)
+	serviceParsed, err := url.Parse(serviceURL)
+	require.NoError(t, err)
+
+	helperQuery := helperParsed.Query()
+	serviceQuery := serviceParsed.Query()
+	for _, key := range []string{"connection", "organization"} {
+		require.True(t, serviceQuery.Has(key), "generated service should send %q", key)
+		require.Equal(t, serviceQuery.Get(key), helperQuery.Get(key), "helper should send %q like the generated service", key)
+	}
 }
 
 func TestGetSSOPKCEAuthorizationURL_GeneratesPKCE(t *testing.T) {
