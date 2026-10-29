@@ -47,6 +47,9 @@ const (
 	UpdateAuditLogsRetentionRetentionPeriod10Years  UpdateAuditLogsRetentionRetentionPeriod = "10_YEARS"
 )
 
+// UpdateAuditLogsRetentionWithRetentionPeriodRetentionPeriod is an alias for UpdateAuditLogsRetentionRetentionPeriod.
+type UpdateAuditLogsRetentionWithRetentionPeriodRetentionPeriod = UpdateAuditLogsRetentionRetentionPeriod
+
 // CreateConnectionOIDCOptionsTokenAuthenticationMethod represents create connection oidc options token authentication method values.
 type CreateConnectionOIDCOptionsTokenAuthenticationMethod string
 
@@ -111,8 +114,13 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
-// CreateDataIntegrationOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type CreateDataIntegrationOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// CreateDataIntegrationOwnership represents create data integration ownership values.
+type CreateDataIntegrationOwnership string
+
+const (
+	CreateDataIntegrationOwnershipUser         CreateDataIntegrationOwnership = "user"
+	CreateDataIntegrationOwnershipOrganization CreateDataIntegrationOwnership = "organization"
+)
 
 // CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
 type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
@@ -150,104 +158,107 @@ const (
 	GenerateLinkIntentBringYourOwnKey    GenerateLinkIntent = "bring_your_own_key"
 )
 
-// CreateUserInviteOptionsLocale represents create user invite options locale values.
-type CreateUserInviteOptionsLocale string
+// CreateMagicCodeAndReturnLocale represents create magic code and return locale values.
+type CreateMagicCodeAndReturnLocale string
 
 const (
-	CreateUserInviteOptionsLocaleAf    CreateUserInviteOptionsLocale = "af"
-	CreateUserInviteOptionsLocaleAm    CreateUserInviteOptionsLocale = "am"
-	CreateUserInviteOptionsLocaleAr    CreateUserInviteOptionsLocale = "ar"
-	CreateUserInviteOptionsLocaleBg    CreateUserInviteOptionsLocale = "bg"
-	CreateUserInviteOptionsLocaleBn    CreateUserInviteOptionsLocale = "bn"
-	CreateUserInviteOptionsLocaleBs    CreateUserInviteOptionsLocale = "bs"
-	CreateUserInviteOptionsLocaleCa    CreateUserInviteOptionsLocale = "ca"
-	CreateUserInviteOptionsLocaleCs    CreateUserInviteOptionsLocale = "cs"
-	CreateUserInviteOptionsLocaleDa    CreateUserInviteOptionsLocale = "da"
-	CreateUserInviteOptionsLocaleDe    CreateUserInviteOptionsLocale = "de"
-	CreateUserInviteOptionsLocaleDeDe  CreateUserInviteOptionsLocale = "de-DE"
-	CreateUserInviteOptionsLocaleEl    CreateUserInviteOptionsLocale = "el"
-	CreateUserInviteOptionsLocaleEn    CreateUserInviteOptionsLocale = "en"
-	CreateUserInviteOptionsLocaleEnAu  CreateUserInviteOptionsLocale = "en-AU"
-	CreateUserInviteOptionsLocaleEnCa  CreateUserInviteOptionsLocale = "en-CA"
-	CreateUserInviteOptionsLocaleEnGb  CreateUserInviteOptionsLocale = "en-GB"
-	CreateUserInviteOptionsLocaleEnUs  CreateUserInviteOptionsLocale = "en-US"
-	CreateUserInviteOptionsLocaleEs    CreateUserInviteOptionsLocale = "es"
-	CreateUserInviteOptionsLocaleEs419 CreateUserInviteOptionsLocale = "es-419"
-	CreateUserInviteOptionsLocaleEsEs  CreateUserInviteOptionsLocale = "es-ES"
-	CreateUserInviteOptionsLocaleEsUs  CreateUserInviteOptionsLocale = "es-US"
-	CreateUserInviteOptionsLocaleEt    CreateUserInviteOptionsLocale = "et"
-	CreateUserInviteOptionsLocaleFa    CreateUserInviteOptionsLocale = "fa"
-	CreateUserInviteOptionsLocaleFi    CreateUserInviteOptionsLocale = "fi"
-	CreateUserInviteOptionsLocaleFil   CreateUserInviteOptionsLocale = "fil"
-	CreateUserInviteOptionsLocaleFr    CreateUserInviteOptionsLocale = "fr"
-	CreateUserInviteOptionsLocaleFrBe  CreateUserInviteOptionsLocale = "fr-BE"
-	CreateUserInviteOptionsLocaleFrCa  CreateUserInviteOptionsLocale = "fr-CA"
-	CreateUserInviteOptionsLocaleFrFr  CreateUserInviteOptionsLocale = "fr-FR"
-	CreateUserInviteOptionsLocaleFy    CreateUserInviteOptionsLocale = "fy"
-	CreateUserInviteOptionsLocaleGl    CreateUserInviteOptionsLocale = "gl"
-	CreateUserInviteOptionsLocaleGu    CreateUserInviteOptionsLocale = "gu"
-	CreateUserInviteOptionsLocaleHa    CreateUserInviteOptionsLocale = "ha"
-	CreateUserInviteOptionsLocaleHe    CreateUserInviteOptionsLocale = "he"
-	CreateUserInviteOptionsLocaleHi    CreateUserInviteOptionsLocale = "hi"
-	CreateUserInviteOptionsLocaleHr    CreateUserInviteOptionsLocale = "hr"
-	CreateUserInviteOptionsLocaleHu    CreateUserInviteOptionsLocale = "hu"
-	CreateUserInviteOptionsLocaleHy    CreateUserInviteOptionsLocale = "hy"
-	CreateUserInviteOptionsLocaleID    CreateUserInviteOptionsLocale = "id"
-	CreateUserInviteOptionsLocaleIs    CreateUserInviteOptionsLocale = "is"
-	CreateUserInviteOptionsLocaleIt    CreateUserInviteOptionsLocale = "it"
-	CreateUserInviteOptionsLocaleItIt  CreateUserInviteOptionsLocale = "it-IT"
-	CreateUserInviteOptionsLocaleJa    CreateUserInviteOptionsLocale = "ja"
-	CreateUserInviteOptionsLocaleJv    CreateUserInviteOptionsLocale = "jv"
-	CreateUserInviteOptionsLocaleKa    CreateUserInviteOptionsLocale = "ka"
-	CreateUserInviteOptionsLocaleKk    CreateUserInviteOptionsLocale = "kk"
-	CreateUserInviteOptionsLocaleKm    CreateUserInviteOptionsLocale = "km"
-	CreateUserInviteOptionsLocaleKn    CreateUserInviteOptionsLocale = "kn"
-	CreateUserInviteOptionsLocaleKo    CreateUserInviteOptionsLocale = "ko"
-	CreateUserInviteOptionsLocaleLt    CreateUserInviteOptionsLocale = "lt"
-	CreateUserInviteOptionsLocaleLv    CreateUserInviteOptionsLocale = "lv"
-	CreateUserInviteOptionsLocaleMk    CreateUserInviteOptionsLocale = "mk"
-	CreateUserInviteOptionsLocaleMl    CreateUserInviteOptionsLocale = "ml"
-	CreateUserInviteOptionsLocaleMn    CreateUserInviteOptionsLocale = "mn"
-	CreateUserInviteOptionsLocaleMr    CreateUserInviteOptionsLocale = "mr"
-	CreateUserInviteOptionsLocaleMs    CreateUserInviteOptionsLocale = "ms"
-	CreateUserInviteOptionsLocaleMy    CreateUserInviteOptionsLocale = "my"
-	CreateUserInviteOptionsLocaleNb    CreateUserInviteOptionsLocale = "nb"
-	CreateUserInviteOptionsLocaleNe    CreateUserInviteOptionsLocale = "ne"
-	CreateUserInviteOptionsLocaleNl    CreateUserInviteOptionsLocale = "nl"
-	CreateUserInviteOptionsLocaleNlBe  CreateUserInviteOptionsLocale = "nl-BE"
-	CreateUserInviteOptionsLocaleNlNl  CreateUserInviteOptionsLocale = "nl-NL"
-	CreateUserInviteOptionsLocaleNn    CreateUserInviteOptionsLocale = "nn"
-	CreateUserInviteOptionsLocaleNo    CreateUserInviteOptionsLocale = "no"
-	CreateUserInviteOptionsLocalePa    CreateUserInviteOptionsLocale = "pa"
-	CreateUserInviteOptionsLocalePl    CreateUserInviteOptionsLocale = "pl"
-	CreateUserInviteOptionsLocalePt    CreateUserInviteOptionsLocale = "pt"
-	CreateUserInviteOptionsLocalePtBr  CreateUserInviteOptionsLocale = "pt-BR"
-	CreateUserInviteOptionsLocalePtPt  CreateUserInviteOptionsLocale = "pt-PT"
-	CreateUserInviteOptionsLocaleRo    CreateUserInviteOptionsLocale = "ro"
-	CreateUserInviteOptionsLocaleRu    CreateUserInviteOptionsLocale = "ru"
-	CreateUserInviteOptionsLocaleSk    CreateUserInviteOptionsLocale = "sk"
-	CreateUserInviteOptionsLocaleSl    CreateUserInviteOptionsLocale = "sl"
-	CreateUserInviteOptionsLocaleSq    CreateUserInviteOptionsLocale = "sq"
-	CreateUserInviteOptionsLocaleSr    CreateUserInviteOptionsLocale = "sr"
-	CreateUserInviteOptionsLocaleSv    CreateUserInviteOptionsLocale = "sv"
-	CreateUserInviteOptionsLocaleSw    CreateUserInviteOptionsLocale = "sw"
-	CreateUserInviteOptionsLocaleTa    CreateUserInviteOptionsLocale = "ta"
-	CreateUserInviteOptionsLocaleTe    CreateUserInviteOptionsLocale = "te"
-	CreateUserInviteOptionsLocaleTh    CreateUserInviteOptionsLocale = "th"
-	CreateUserInviteOptionsLocaleTr    CreateUserInviteOptionsLocale = "tr"
-	CreateUserInviteOptionsLocaleUk    CreateUserInviteOptionsLocale = "uk"
-	CreateUserInviteOptionsLocaleUr    CreateUserInviteOptionsLocale = "ur"
-	CreateUserInviteOptionsLocaleUz    CreateUserInviteOptionsLocale = "uz"
-	CreateUserInviteOptionsLocaleVi    CreateUserInviteOptionsLocale = "vi"
-	CreateUserInviteOptionsLocaleZh    CreateUserInviteOptionsLocale = "zh"
-	CreateUserInviteOptionsLocaleZhCn  CreateUserInviteOptionsLocale = "zh-CN"
-	CreateUserInviteOptionsLocaleZhHk  CreateUserInviteOptionsLocale = "zh-HK"
-	CreateUserInviteOptionsLocaleZhTw  CreateUserInviteOptionsLocale = "zh-TW"
-	CreateUserInviteOptionsLocaleZu    CreateUserInviteOptionsLocale = "zu"
+	CreateMagicCodeAndReturnLocaleAf    CreateMagicCodeAndReturnLocale = "af"
+	CreateMagicCodeAndReturnLocaleAm    CreateMagicCodeAndReturnLocale = "am"
+	CreateMagicCodeAndReturnLocaleAr    CreateMagicCodeAndReturnLocale = "ar"
+	CreateMagicCodeAndReturnLocaleBg    CreateMagicCodeAndReturnLocale = "bg"
+	CreateMagicCodeAndReturnLocaleBn    CreateMagicCodeAndReturnLocale = "bn"
+	CreateMagicCodeAndReturnLocaleBs    CreateMagicCodeAndReturnLocale = "bs"
+	CreateMagicCodeAndReturnLocaleCa    CreateMagicCodeAndReturnLocale = "ca"
+	CreateMagicCodeAndReturnLocaleCs    CreateMagicCodeAndReturnLocale = "cs"
+	CreateMagicCodeAndReturnLocaleDa    CreateMagicCodeAndReturnLocale = "da"
+	CreateMagicCodeAndReturnLocaleDe    CreateMagicCodeAndReturnLocale = "de"
+	CreateMagicCodeAndReturnLocaleDeDe  CreateMagicCodeAndReturnLocale = "de-DE"
+	CreateMagicCodeAndReturnLocaleEl    CreateMagicCodeAndReturnLocale = "el"
+	CreateMagicCodeAndReturnLocaleEn    CreateMagicCodeAndReturnLocale = "en"
+	CreateMagicCodeAndReturnLocaleEnAu  CreateMagicCodeAndReturnLocale = "en-AU"
+	CreateMagicCodeAndReturnLocaleEnCa  CreateMagicCodeAndReturnLocale = "en-CA"
+	CreateMagicCodeAndReturnLocaleEnGb  CreateMagicCodeAndReturnLocale = "en-GB"
+	CreateMagicCodeAndReturnLocaleEnUs  CreateMagicCodeAndReturnLocale = "en-US"
+	CreateMagicCodeAndReturnLocaleEs    CreateMagicCodeAndReturnLocale = "es"
+	CreateMagicCodeAndReturnLocaleEs419 CreateMagicCodeAndReturnLocale = "es-419"
+	CreateMagicCodeAndReturnLocaleEsEs  CreateMagicCodeAndReturnLocale = "es-ES"
+	CreateMagicCodeAndReturnLocaleEsUs  CreateMagicCodeAndReturnLocale = "es-US"
+	CreateMagicCodeAndReturnLocaleEt    CreateMagicCodeAndReturnLocale = "et"
+	CreateMagicCodeAndReturnLocaleFa    CreateMagicCodeAndReturnLocale = "fa"
+	CreateMagicCodeAndReturnLocaleFi    CreateMagicCodeAndReturnLocale = "fi"
+	CreateMagicCodeAndReturnLocaleFil   CreateMagicCodeAndReturnLocale = "fil"
+	CreateMagicCodeAndReturnLocaleFr    CreateMagicCodeAndReturnLocale = "fr"
+	CreateMagicCodeAndReturnLocaleFrBe  CreateMagicCodeAndReturnLocale = "fr-BE"
+	CreateMagicCodeAndReturnLocaleFrCa  CreateMagicCodeAndReturnLocale = "fr-CA"
+	CreateMagicCodeAndReturnLocaleFrFr  CreateMagicCodeAndReturnLocale = "fr-FR"
+	CreateMagicCodeAndReturnLocaleFy    CreateMagicCodeAndReturnLocale = "fy"
+	CreateMagicCodeAndReturnLocaleGl    CreateMagicCodeAndReturnLocale = "gl"
+	CreateMagicCodeAndReturnLocaleGu    CreateMagicCodeAndReturnLocale = "gu"
+	CreateMagicCodeAndReturnLocaleHa    CreateMagicCodeAndReturnLocale = "ha"
+	CreateMagicCodeAndReturnLocaleHe    CreateMagicCodeAndReturnLocale = "he"
+	CreateMagicCodeAndReturnLocaleHi    CreateMagicCodeAndReturnLocale = "hi"
+	CreateMagicCodeAndReturnLocaleHr    CreateMagicCodeAndReturnLocale = "hr"
+	CreateMagicCodeAndReturnLocaleHu    CreateMagicCodeAndReturnLocale = "hu"
+	CreateMagicCodeAndReturnLocaleHy    CreateMagicCodeAndReturnLocale = "hy"
+	CreateMagicCodeAndReturnLocaleID    CreateMagicCodeAndReturnLocale = "id"
+	CreateMagicCodeAndReturnLocaleIs    CreateMagicCodeAndReturnLocale = "is"
+	CreateMagicCodeAndReturnLocaleIt    CreateMagicCodeAndReturnLocale = "it"
+	CreateMagicCodeAndReturnLocaleItIt  CreateMagicCodeAndReturnLocale = "it-IT"
+	CreateMagicCodeAndReturnLocaleJa    CreateMagicCodeAndReturnLocale = "ja"
+	CreateMagicCodeAndReturnLocaleJv    CreateMagicCodeAndReturnLocale = "jv"
+	CreateMagicCodeAndReturnLocaleKa    CreateMagicCodeAndReturnLocale = "ka"
+	CreateMagicCodeAndReturnLocaleKk    CreateMagicCodeAndReturnLocale = "kk"
+	CreateMagicCodeAndReturnLocaleKm    CreateMagicCodeAndReturnLocale = "km"
+	CreateMagicCodeAndReturnLocaleKn    CreateMagicCodeAndReturnLocale = "kn"
+	CreateMagicCodeAndReturnLocaleKo    CreateMagicCodeAndReturnLocale = "ko"
+	CreateMagicCodeAndReturnLocaleLt    CreateMagicCodeAndReturnLocale = "lt"
+	CreateMagicCodeAndReturnLocaleLv    CreateMagicCodeAndReturnLocale = "lv"
+	CreateMagicCodeAndReturnLocaleMk    CreateMagicCodeAndReturnLocale = "mk"
+	CreateMagicCodeAndReturnLocaleMl    CreateMagicCodeAndReturnLocale = "ml"
+	CreateMagicCodeAndReturnLocaleMn    CreateMagicCodeAndReturnLocale = "mn"
+	CreateMagicCodeAndReturnLocaleMr    CreateMagicCodeAndReturnLocale = "mr"
+	CreateMagicCodeAndReturnLocaleMs    CreateMagicCodeAndReturnLocale = "ms"
+	CreateMagicCodeAndReturnLocaleMy    CreateMagicCodeAndReturnLocale = "my"
+	CreateMagicCodeAndReturnLocaleNb    CreateMagicCodeAndReturnLocale = "nb"
+	CreateMagicCodeAndReturnLocaleNe    CreateMagicCodeAndReturnLocale = "ne"
+	CreateMagicCodeAndReturnLocaleNl    CreateMagicCodeAndReturnLocale = "nl"
+	CreateMagicCodeAndReturnLocaleNlBe  CreateMagicCodeAndReturnLocale = "nl-BE"
+	CreateMagicCodeAndReturnLocaleNlNl  CreateMagicCodeAndReturnLocale = "nl-NL"
+	CreateMagicCodeAndReturnLocaleNn    CreateMagicCodeAndReturnLocale = "nn"
+	CreateMagicCodeAndReturnLocaleNo    CreateMagicCodeAndReturnLocale = "no"
+	CreateMagicCodeAndReturnLocalePa    CreateMagicCodeAndReturnLocale = "pa"
+	CreateMagicCodeAndReturnLocalePl    CreateMagicCodeAndReturnLocale = "pl"
+	CreateMagicCodeAndReturnLocalePt    CreateMagicCodeAndReturnLocale = "pt"
+	CreateMagicCodeAndReturnLocalePtBr  CreateMagicCodeAndReturnLocale = "pt-BR"
+	CreateMagicCodeAndReturnLocalePtPt  CreateMagicCodeAndReturnLocale = "pt-PT"
+	CreateMagicCodeAndReturnLocaleRo    CreateMagicCodeAndReturnLocale = "ro"
+	CreateMagicCodeAndReturnLocaleRu    CreateMagicCodeAndReturnLocale = "ru"
+	CreateMagicCodeAndReturnLocaleSk    CreateMagicCodeAndReturnLocale = "sk"
+	CreateMagicCodeAndReturnLocaleSl    CreateMagicCodeAndReturnLocale = "sl"
+	CreateMagicCodeAndReturnLocaleSq    CreateMagicCodeAndReturnLocale = "sq"
+	CreateMagicCodeAndReturnLocaleSr    CreateMagicCodeAndReturnLocale = "sr"
+	CreateMagicCodeAndReturnLocaleSv    CreateMagicCodeAndReturnLocale = "sv"
+	CreateMagicCodeAndReturnLocaleSw    CreateMagicCodeAndReturnLocale = "sw"
+	CreateMagicCodeAndReturnLocaleTa    CreateMagicCodeAndReturnLocale = "ta"
+	CreateMagicCodeAndReturnLocaleTe    CreateMagicCodeAndReturnLocale = "te"
+	CreateMagicCodeAndReturnLocaleTh    CreateMagicCodeAndReturnLocale = "th"
+	CreateMagicCodeAndReturnLocaleTr    CreateMagicCodeAndReturnLocale = "tr"
+	CreateMagicCodeAndReturnLocaleUk    CreateMagicCodeAndReturnLocale = "uk"
+	CreateMagicCodeAndReturnLocaleUr    CreateMagicCodeAndReturnLocale = "ur"
+	CreateMagicCodeAndReturnLocaleUz    CreateMagicCodeAndReturnLocale = "uz"
+	CreateMagicCodeAndReturnLocaleVi    CreateMagicCodeAndReturnLocale = "vi"
+	CreateMagicCodeAndReturnLocaleZh    CreateMagicCodeAndReturnLocale = "zh"
+	CreateMagicCodeAndReturnLocaleZhCn  CreateMagicCodeAndReturnLocale = "zh-CN"
+	CreateMagicCodeAndReturnLocaleZhHk  CreateMagicCodeAndReturnLocale = "zh-HK"
+	CreateMagicCodeAndReturnLocaleZhTw  CreateMagicCodeAndReturnLocale = "zh-TW"
+	CreateMagicCodeAndReturnLocaleZu    CreateMagicCodeAndReturnLocale = "zu"
 )
 
-// ResendUserInviteOptionsLocale is an alias for CreateUserInviteOptionsLocale.
-type ResendUserInviteOptionsLocale = CreateUserInviteOptionsLocale
+// CreateUserInviteOptionsLocale is an alias for CreateMagicCodeAndReturnLocale.
+type CreateUserInviteOptionsLocale = CreateMagicCodeAndReturnLocale
+
+// ResendUserInviteOptionsLocale is an alias for CreateMagicCodeAndReturnLocale.
+type ResendUserInviteOptionsLocale = CreateMagicCodeAndReturnLocale
 
 // CreateUserPasswordHashType represents create user password hash type values.
 type CreateUserPasswordHashType string
@@ -275,6 +286,15 @@ type UpdateUserPasswordHashType = CreateUserPasswordHashType
 
 // UpdateUserPasswordSaltPosition is an alias for CreateUserPasswordSaltPosition.
 type UpdateUserPasswordSaltPosition = CreateUserPasswordSaltPosition
+
+// SendVerificationEmailLocale is an alias for CreateMagicCodeAndReturnLocale.
+type SendVerificationEmailLocale = CreateMagicCodeAndReturnLocale
+
+// CreatePasswordResetTokenLocale is an alias for CreateMagicCodeAndReturnLocale.
+type CreatePasswordResetTokenLocale = CreateMagicCodeAndReturnLocale
+
+// SendEmailChangeLocale is an alias for CreateMagicCodeAndReturnLocale.
+type SendEmailChangeLocale = CreateMagicCodeAndReturnLocale
 
 // CreateWebhookEndpointEvents represents create webhook endpoint events values.
 type CreateWebhookEndpointEvents string
@@ -403,6 +423,8 @@ type WidgetSessionTokenScopes string
 
 const (
 	WidgetSessionTokenScopesWidgetsUsersTableManage         WidgetSessionTokenScopes = "widgets:users-table:manage"
+	WidgetSessionTokenScopesWidgetsUserAPIKeysManageSelf    WidgetSessionTokenScopes = "widgets:user-api-keys:manage-self"
+	WidgetSessionTokenScopesWidgetsUserAPIKeysManageAll     WidgetSessionTokenScopes = "widgets:user-api-keys:manage-all"
 	WidgetSessionTokenScopesWidgetsDomainVerificationManage WidgetSessionTokenScopes = "widgets:domain-verification:manage"
 	WidgetSessionTokenScopesWidgetsSSOManage                WidgetSessionTokenScopes = "widgets:sso:manage"
 	WidgetSessionTokenScopesWidgetsAPIKeysManage            WidgetSessionTokenScopes = "widgets:api-keys:manage"
@@ -943,14 +965,15 @@ type OrganizationUpdatedDataDomainVerificationStrategy = OrganizationCreatedData
 type ResourceExportCompletedDataResourceType string
 
 const (
-	ResourceExportCompletedDataResourceTypeUsers          ResourceExportCompletedDataResourceType = "users"
-	ResourceExportCompletedDataResourceTypeOrganizations  ResourceExportCompletedDataResourceType = "organizations"
-	ResourceExportCompletedDataResourceTypeEvents         ResourceExportCompletedDataResourceType = "events"
-	ResourceExportCompletedDataResourceTypeSessions       ResourceExportCompletedDataResourceType = "sessions"
-	ResourceExportCompletedDataResourceTypeAuditLogEvents ResourceExportCompletedDataResourceType = "auditLogEvents"
-	ResourceExportCompletedDataResourceTypeConnections    ResourceExportCompletedDataResourceType = "connections"
-	ResourceExportCompletedDataResourceTypeDirectoryUsers ResourceExportCompletedDataResourceType = "directoryUsers"
-	ResourceExportCompletedDataResourceTypeSCIMLogs       ResourceExportCompletedDataResourceType = "scimLogs"
+	ResourceExportCompletedDataResourceTypeUsers           ResourceExportCompletedDataResourceType = "users"
+	ResourceExportCompletedDataResourceTypeOrganizations   ResourceExportCompletedDataResourceType = "organizations"
+	ResourceExportCompletedDataResourceTypeEvents          ResourceExportCompletedDataResourceType = "events"
+	ResourceExportCompletedDataResourceTypeSessions        ResourceExportCompletedDataResourceType = "sessions"
+	ResourceExportCompletedDataResourceTypeAuditLogEvents  ResourceExportCompletedDataResourceType = "auditLogEvents"
+	ResourceExportCompletedDataResourceTypeConnections     ResourceExportCompletedDataResourceType = "connections"
+	ResourceExportCompletedDataResourceTypeDirectoryUsers  ResourceExportCompletedDataResourceType = "directoryUsers"
+	ResourceExportCompletedDataResourceTypeSCIMLogs        ResourceExportCompletedDataResourceType = "scimLogs"
+	ResourceExportCompletedDataResourceTypeRadarDetections ResourceExportCompletedDataResourceType = "radarDetections"
 )
 
 // ResourceExportCreatedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
@@ -1043,8 +1066,8 @@ const (
 	DataIntegrationCredentialsCredentialsTypeOrganization DataIntegrationCredentialsCredentialsType = "organization"
 )
 
-// DataIntegrationOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationOwnership is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationOwnership = CreateDataIntegrationOwnership
 
 // DataIntegrationState represents data integration state values.
 type DataIntegrationState string
@@ -1057,26 +1080,6 @@ const (
 
 // DataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationAuthMethods = ConnectedAccountAuthMethod
-
-// DataIntegrationAccessTokenResponseError represents data integration access token response error values.
-type DataIntegrationAccessTokenResponseError string
-
-const (
-	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
-	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
-)
-
-// DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
-type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
-
-// ConnectedAccountWriteResponseConnectionRole is an alias for ConnectedAccountConnectionRole.
-type ConnectedAccountWriteResponseConnectionRole = ConnectedAccountConnectionRole
-
-// ConnectedAccountWriteResponseAuthMethod is an alias for ConnectedAccountAuthMethod.
-type ConnectedAccountWriteResponseAuthMethod = ConnectedAccountAuthMethod
-
-// ConnectedAccountWriteResponseState is an alias for ConnectedAccountState.
-type ConnectedAccountWriteResponseState = ConnectedAccountState
 
 // ConnectedAccountConnectionRole represents connected account connection role values.
 type ConnectedAccountConnectionRole string
@@ -1103,6 +1106,23 @@ const (
 	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
 	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
 )
+
+// DataIntegrationAccessTokenResponseError represents data integration access token response error values.
+type DataIntegrationAccessTokenResponseError string
+
+const (
+	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
+	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
+)
+
+// DataIntegrationAccessTokenResponseWithErrorError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationAccessTokenResponseWithErrorError = DataIntegrationAccessTokenResponseError
+
+// DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
+
+// DataIntegrationCredentialsResponseWithErrorError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationCredentialsResponseWithErrorError = DataIntegrationAccessTokenResponseError
 
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
 type RadarStandaloneResponseVerdict string
@@ -1190,8 +1210,8 @@ type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerif
 // DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
-// DataIntegrationsListResponseDataConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsListResponseDataConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsListResponseDataConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsListResponseDataConnectionOwner = CreateDataIntegrationOwnership
 
 // DataIntegrationsListResponseDataOwnership represents data integrations list response data ownership values.
 type DataIntegrationsListResponseDataOwnership string
@@ -1285,46 +1305,31 @@ const (
 	AuthenticationFactorsCreateRequestTypeTOTP       AuthenticationFactorsCreateRequestType = "totp"
 )
 
-// DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner represents add data integrations get data integration authorize url request connection owner values.
-type AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner string
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent represents data integrations get data integration authorize url request connection intent values.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent string
 
 const (
-	AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwnerUser         AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = "user"
-	AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwnerOrganization AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = "organization"
+	DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntentAdd         DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent = "add"
+	DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntentReauthorize DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent = "reauthorize"
 )
 
-// ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsVendCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsVendCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
 
 // RadarStandaloneAssessRequestAuthMethod represents radar standalone assess request auth method values.
 type RadarStandaloneAssessRequestAuthMethod string
@@ -1379,8 +1384,112 @@ type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 // UserSessionsStatus is an alias for AgentInstanceSessionStatus.
 type UserSessionsStatus = AgentInstanceSessionStatus
 
-// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsGetUserTokenRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsGetUserTokenRequestConnectionOwner = CreateDataIntegrationOwnership
+
+// DataIntegrationsFinishConnectionError400Code represents data integrations finish connection error400code values.
+type DataIntegrationsFinishConnectionError400Code string
+
+const (
+	DataIntegrationsFinishConnectionError400CodeInvalidConnectCode             DataIntegrationsFinishConnectionError400Code = "invalid_connect_code"
+	DataIntegrationsFinishConnectionError400CodeAuthorizationCodeExchangeError DataIntegrationsFinishConnectionError400Code = "authorization_code_exchange_error"
+	DataIntegrationsFinishConnectionError400CodeAuthorizationStateExpired      DataIntegrationsFinishConnectionError400Code = "authorization_state_expired"
+	DataIntegrationsFinishConnectionError400CodeAuthMethodMismatch             DataIntegrationsFinishConnectionError400Code = "auth_method_mismatch"
+	DataIntegrationsFinishConnectionError400CodeConcurrentRequest              DataIntegrationsFinishConnectionError400Code = "concurrent_request"
+	DataIntegrationsFinishConnectionError400CodeConnectedAccountLimitReached   DataIntegrationsFinishConnectionError400Code = "connected_account_limit_reached"
+	DataIntegrationsFinishConnectionError400CodeConnectedAccountNotFound       DataIntegrationsFinishConnectionError400Code = "connected_account_not_found"
+	DataIntegrationsFinishConnectionError400CodeInstallationFailed             DataIntegrationsFinishConnectionError400Code = "installation_failed"
+	DataIntegrationsFinishConnectionError400CodeInvalidAuthorizationURL        DataIntegrationsFinishConnectionError400Code = "invalid_authorization_url"
+	DataIntegrationsFinishConnectionError400CodeInvalidClientID                DataIntegrationsFinishConnectionError400Code = "invalid_client_id"
+	DataIntegrationsFinishConnectionError400CodeInvalidDataIntegration         DataIntegrationsFinishConnectionError400Code = "invalid_data_integration"
+	DataIntegrationsFinishConnectionError400CodeMissingAccessToken             DataIntegrationsFinishConnectionError400Code = "missing_access_token"
+	DataIntegrationsFinishConnectionError400CodeMissingCode                    DataIntegrationsFinishConnectionError400Code = "missing_code"
+	DataIntegrationsFinishConnectionError400CodeMultipleConnectionsUnavailable DataIntegrationsFinishConnectionError400Code = "multiple_connections_unavailable"
+	DataIntegrationsFinishConnectionError400CodeProviderError                  DataIntegrationsFinishConnectionError400Code = "provider_error"
+	DataIntegrationsFinishConnectionError400CodeReauthorizationNeeded          DataIntegrationsFinishConnectionError400Code = "reauthorization_needed"
+	DataIntegrationsFinishConnectionError400CodeTargetDeleted                  DataIntegrationsFinishConnectionError400Code = "target_deleted"
+	DataIntegrationsFinishConnectionError400CodeUnexpectedResponseFormat       DataIntegrationsFinishConnectionError400Code = "unexpected_response_format"
+)
+
+// DataIntegrationsCreateAPIKeyConnectionError404Code represents data integrations create api key connection error404code values.
+type DataIntegrationsCreateAPIKeyConnectionError404Code string
+
+const (
+	DataIntegrationsCreateAPIKeyConnectionError404CodeMultipleConnectionsUnavailable DataIntegrationsCreateAPIKeyConnectionError404Code = "multiple_connections_unavailable"
+	DataIntegrationsCreateAPIKeyConnectionError404CodeEntityNotFound                 DataIntegrationsCreateAPIKeyConnectionError404Code = "entity_not_found"
+)
+
+// DataIntegrationsCreateAPIKeyConnectionError409Code represents data integrations create api key connection error409code values.
+type DataIntegrationsCreateAPIKeyConnectionError409Code string
+
+const (
+	DataIntegrationsCreateAPIKeyConnectionError409CodeConnectedAccountLimitReached DataIntegrationsCreateAPIKeyConnectionError409Code = "connected_account_limit_reached"
+	DataIntegrationsCreateAPIKeyConnectionError409CodeIdempotencyKeyConflict       DataIntegrationsCreateAPIKeyConnectionError409Code = "idempotency_key_conflict"
+)
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLError400Code represents data integrations get data integration authorize url error400code values.
+type DataIntegrationsGetDataIntegrationAuthorizeURLError400Code string
+
+const (
+	DataIntegrationsGetDataIntegrationAuthorizeURLError400CodeInvalidReturnTo            DataIntegrationsGetDataIntegrationAuthorizeURLError400Code = "invalid_return_to"
+	DataIntegrationsGetDataIntegrationAuthorizeURLError400CodeReturnToRequiresExactMatch DataIntegrationsGetDataIntegrationAuthorizeURLError400Code = "return_to_requires_exact_match"
+	DataIntegrationsGetDataIntegrationAuthorizeURLError400CodeConnectFinishUnavailable   DataIntegrationsGetDataIntegrationAuthorizeURLError400Code = "connect_finish_unavailable"
+)
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLError404Code represents data integrations get data integration authorize url error404code values.
+type DataIntegrationsGetDataIntegrationAuthorizeURLError404Code string
+
+const (
+	DataIntegrationsGetDataIntegrationAuthorizeURLError404CodeMultipleConnectionsUnavailable DataIntegrationsGetDataIntegrationAuthorizeURLError404Code = "multiple_connections_unavailable"
+	DataIntegrationsGetDataIntegrationAuthorizeURLError404CodeConnectedAccountNotFound       DataIntegrationsGetDataIntegrationAuthorizeURLError404Code = "connected_account_not_found"
+	DataIntegrationsGetDataIntegrationAuthorizeURLError404CodeEntityNotFound                 DataIntegrationsGetDataIntegrationAuthorizeURLError404Code = "entity_not_found"
+)
+
+// DataIntegrationsCreateClientCredentialsConnectionError404Code is an alias for DataIntegrationsCreateAPIKeyConnectionError404Code.
+type DataIntegrationsCreateClientCredentialsConnectionError404Code = DataIntegrationsCreateAPIKeyConnectionError404Code
+
+// DataIntegrationsCreateClientCredentialsConnectionError409Code is an alias for DataIntegrationsCreateAPIKeyConnectionError409Code.
+type DataIntegrationsCreateClientCredentialsConnectionError409Code = DataIntegrationsCreateAPIKeyConnectionError409Code
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError404Code is an alias for DataIntegrationsCreateAPIKeyConnectionError404Code.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError404Code = DataIntegrationsCreateAPIKeyConnectionError404Code
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError409Code is an alias for DataIntegrationsCreateAPIKeyConnectionError409Code.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError409Code = DataIntegrationsCreateAPIKeyConnectionError409Code
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError422Code represents data integrations organization create organization data installation error422code values.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError422Code string
+
+const (
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError422CodeInvalidTokenCombination        DataIntegrationsOrganizationCreateOrganizationDataInstallationError422Code = "invalid_token_combination"
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError422CodeInvalidDataIntegrationState    DataIntegrationsOrganizationCreateOrganizationDataInstallationError422Code = "invalid_data_integration_state"
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError422CodeClientCredentialsNotConfigured DataIntegrationsOrganizationCreateOrganizationDataInstallationError422Code = "client_credentials_not_configured"
+)
+
+// UserInvitesAcceptError400Code represents user invites accept error400code values.
+type UserInvitesAcceptError400Code string
+
+const (
+	UserInvitesAcceptError400CodeInviteNotPending        UserInvitesAcceptError400Code = "invite_not_pending"
+	UserInvitesAcceptError400CodeInvalidInvite           UserInvitesAcceptError400Code = "invalid_invite"
+	UserInvitesAcceptError400CodeInviteHasAcceptedUserID UserInvitesAcceptError400Code = "invite_has_accepted_user_id"
+)
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError404Code is an alias for DataIntegrationsCreateAPIKeyConnectionError404Code.
+type DataIntegrationsUserManagementCreateUserDataInstallationError404Code = DataIntegrationsCreateAPIKeyConnectionError404Code
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError409Code is an alias for DataIntegrationsCreateAPIKeyConnectionError409Code.
+type DataIntegrationsUserManagementCreateUserDataInstallationError409Code = DataIntegrationsCreateAPIKeyConnectionError409Code
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError422Code represents data integrations user management create user data installation error422code values.
+type DataIntegrationsUserManagementCreateUserDataInstallationError422Code string
+
+const (
+	DataIntegrationsUserManagementCreateUserDataInstallationError422CodeInvalidRefreshToken            DataIntegrationsUserManagementCreateUserDataInstallationError422Code = "invalid_refresh_token"
+	DataIntegrationsUserManagementCreateUserDataInstallationError422CodeInvalidTokenCombination        DataIntegrationsUserManagementCreateUserDataInstallationError422Code = "invalid_token_combination"
+	DataIntegrationsUserManagementCreateUserDataInstallationError422CodeInvalidDataIntegrationState    DataIntegrationsUserManagementCreateUserDataInstallationError422Code = "invalid_data_integration_state"
+	DataIntegrationsUserManagementCreateUserDataInstallationError422CodeClientCredentialsNotConfigured DataIntegrationsUserManagementCreateUserDataInstallationError422Code = "client_credentials_not_configured"
+)
 
 // DataIntegrationsListResponseDataConnectedAccountConnectionRole is an alias for ConnectedAccountConnectionRole.
 type DataIntegrationsListResponseDataConnectedAccountConnectionRole = ConnectedAccountConnectionRole
@@ -1460,8 +1569,8 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
-// PipesOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type PipesOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// PipesOwnership is an alias for CreateDataIntegrationOwnership.
+type PipesOwnership = CreateDataIntegrationOwnership
 
 // RadarListType represents radar list type values.
 type RadarListType string

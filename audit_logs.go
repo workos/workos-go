@@ -121,7 +121,7 @@ type AuditLogsCreateSchemaParams struct {
 }
 
 // CreateSchema
-// Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
+// Creates an Audit Log schema used to validate incoming Audit Log events, or returns the latest version if the submitted schema matches it. If the schema differs from the latest version, creates and returns a new version. If the action does not exist, creates the action and its first schema version.
 func (s *AuditLogService) CreateSchema(ctx context.Context, actionName string, params *AuditLogsCreateSchemaParams, opts ...RequestOption) (*AuditLogSchema, error) {
 	var result AuditLogSchema
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/audit_logs/actions/%s/schemas", url.PathEscape(actionName)), nil, params, &result, opts)

@@ -102,6 +102,19 @@ func TestAuthorization_UpdateGroupRoleAssignments(t *testing.T) {
 	require.NotNil(t, result)
 }
 
+func TestAuthorization_PatchGroupRoleAssignments(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/groups/test_group_id/role_assignments", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Authorization().PatchGroupRoleAssignments(context.Background(), "test_group_id", &workos.AuthorizationPatchGroupRoleAssignmentsParams{})
+	require.NoError(t, err)
+}
+
 func TestAuthorization_DeleteGroupRoleAssignments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)

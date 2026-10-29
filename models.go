@@ -50,6 +50,8 @@ type CreateOAuthApplication struct {
 	Scopes []string `json:"scopes,omitempty"`
 	// RedirectURIs is redirect URIs for the application.
 	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
+	// CORSOrigins is origins allowed to call the OAuth token endpoint for this application from a browser.
+	CORSOrigins []string `json:"cors_origins,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -111,6 +113,20 @@ type AuditLogEvent struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Version is what schema version the event is associated with.
 	Version *int `json:"version,omitempty"`
+}
+
+// UpdateAuditLogsRetentionWithRetentionPeriod represents an update audit logs retention with retention period.
+type UpdateAuditLogsRetentionWithRetentionPeriod struct {
+	// RetentionPeriod is the period Audit Log events will be retained. Valid values are `1_MONTH` through `11_MONTHS` in one-month increments and `1_YEAR` through `10_YEARS` in one-year increments. Mutually exclusive with `retention_period_in_days`.
+	RetentionPeriod UpdateAuditLogsRetentionWithRetentionPeriodRetentionPeriod `json:"retention_period"`
+}
+
+// UpdateAuditLogsRetentionWithRetentionPeriodInDays represents an update audit logs retention with retention period in days.
+type UpdateAuditLogsRetentionWithRetentionPeriodInDays struct {
+	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` through `330` in 30-day increments and `365` through `3650` in 365-day increments. Deprecated: use `retention_period` instead. Mutually exclusive with `retention_period`.
+	//
+	// Deprecated: use `retention_period` instead.
+	RetentionPeriodInDays int `json:"retention_period_in_days"`
 }
 
 // AuditLogSchemaActorInput is an alias for AuditLogSchemaActor.
@@ -341,6 +357,18 @@ type UpdateCustomProviderDefinition struct {
 	TokenBodyContentType *string `json:"token_body_content_type,omitempty"`
 	// AuthenticateVia is how client credentials are sent when exchanging authorization codes and refreshing tokens.
 	AuthenticateVia *UpdateCustomProviderDefinitionAuthenticateVia `json:"authenticate_via,omitempty"`
+}
+
+// UpdateUserOrganizationMembershipWithRoleSlug represents an update user organization membership with role slug.
+type UpdateUserOrganizationMembershipWithRoleSlug struct {
+	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
+	RoleSlug string `json:"role_slug"`
+}
+
+// UpdateUserOrganizationMembershipWithRoleSlugs represents an update user organization membership with role slugs.
+type UpdateUserOrganizationMembershipWithRoleSlugs struct {
+	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
+	RoleSlugs []string `json:"role_slugs"`
 }
 
 // Actor the user or API key that performed an action.
@@ -668,6 +696,8 @@ type ConnectApplication struct {
 	ApplicationType *string `json:"application_type,omitempty"`
 	// RedirectURIs is the redirect URIs configured for this application.
 	RedirectURIs []*ConnectApplicationRedirectURI `json:"redirect_uris,omitempty"`
+	// CORSOrigins is the CORS origins allowed to call the OAuth token endpoint for this application from a browser.
+	CORSOrigins []string `json:"cors_origins,omitempty"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether the application is a first-party application.
@@ -700,6 +730,8 @@ type ConnectApplicationOAuth struct {
 	ApplicationType string `json:"application_type"`
 	// RedirectURIs is the redirect URIs configured for this application.
 	RedirectURIs []*ConnectApplicationOAuthRedirectURIs `json:"redirect_uris"`
+	// CORSOrigins is the CORS origins allowed to call the OAuth token endpoint for this application from a browser.
+	CORSOrigins []string `json:"cors_origins"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
 	UsesPKCE bool `json:"uses_pkce"`
 	// IsFirstParty is whether the application is a first-party application.
@@ -2217,13 +2249,24 @@ type AuthenticationMagicAuthFailedData struct {
 
 // The following types are structurally identical to AuthenticationEmailVerificationFailedDataError.
 type (
-	AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
-	AuthenticationMFAFailedDataError       = AuthenticationEmailVerificationFailedDataError
-	AuthenticationOAuthFailedDataError     = AuthenticationEmailVerificationFailedDataError
-	AuthenticationPasskeyFailedDataError   = AuthenticationEmailVerificationFailedDataError
-	AuthenticationPasswordFailedDataError  = AuthenticationEmailVerificationFailedDataError
-	AuthenticationSSOFailedDataError       = AuthenticationEmailVerificationFailedDataError
-	AuthenticationSSOTimedOutDataError     = AuthenticationEmailVerificationFailedDataError
+	AuthenticationMagicAuthFailedDataError                                                        = AuthenticationEmailVerificationFailedDataError
+	AuthenticationMFAFailedDataError                                                              = AuthenticationEmailVerificationFailedDataError
+	AuthenticationOAuthFailedDataError                                                            = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasskeyFailedDataError                                                          = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasswordFailedDataError                                                         = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOFailedDataError                                                              = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOTimedOutDataError                                                            = AuthenticationEmailVerificationFailedDataError
+	AuditLogEventsCreateError429                                                                  = AuthenticationEmailVerificationFailedDataError
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError422WithErrorsError         = AuthenticationEmailVerificationFailedDataError
+	DataIntegrationsOrganizationUpdateOrganizationDataInstallationError422Error                   = AuthenticationEmailVerificationFailedDataError
+	UserResetPasswordError400Error                                                                = AuthenticationEmailVerificationFailedDataError
+	UserCreateError400Error                                                                       = AuthenticationEmailVerificationFailedDataError
+	UserCreationErrorUserCreateError400Error                                                      = AuthenticationEmailVerificationFailedDataError
+	UserUpdateError400Error                                                                       = AuthenticationEmailVerificationFailedDataError
+	DataIntegrationsUserManagementCreateUserDataInstallationError422WithErrorsError               = AuthenticationEmailVerificationFailedDataError
+	InvalidRequestParametersDataIntegrationsUserManagementUpdateUserDataInstallationError422Error = AuthenticationEmailVerificationFailedDataError
+	InvalidRequestParametersWebhookEndpointsCreateError422Error                                   = AuthenticationEmailVerificationFailedDataError
+	InvalidRequestParametersWebhookEndpointsUpdateError422Error                                   = AuthenticationEmailVerificationFailedDataError
 )
 
 // AuthenticationMagicAuthSucceeded represents an authentication magic auth succeeded.
@@ -3463,8 +3506,14 @@ type FlagRuleUpdatedContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextConfiguredTargetOrganization is an alias for Actor.
-type FlagRuleUpdatedContextConfiguredTargetOrganization = Actor
+// The following types are structurally identical to Actor.
+type (
+	FlagRuleUpdatedContextConfiguredTargetOrganization                         = Actor
+	FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = Actor
+	ClaimViewResponseOrganization                                              = Actor
+	AgentAdminLinkClaimAttemptToExternalUserError409Organization               = Actor
+	UserRoleAssignmentSourceGroup                                              = Actor
+)
 
 // FlagRuleUpdatedContextConfiguredTargetUser represents a flag rule updated context configured target user.
 type FlagRuleUpdatedContextConfiguredTargetUser struct {
@@ -3505,9 +3554,6 @@ type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget struct {
 	// Users is the users targeted by the flag rule.
 	Users []*FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser `json:"users"`
 }
-
-// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for Actor.
-type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = Actor
 
 // FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser is an alias for FlagRuleUpdatedContextConfiguredTargetUser.
 type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser = FlagRuleUpdatedContextConfiguredTargetUser
@@ -5619,126 +5665,6 @@ type DataIntegration struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DataIntegrationAuthorizeURLResponse represents a data integration authorize url response.
-type DataIntegrationAuthorizeURLResponse struct {
-	// URL is the OAuth authorization URL to redirect the user to.
-	URL string `json:"url"`
-}
-
-// AuthMethodMismatchError represents an auth method mismatch error.
-type AuthMethodMismatchError struct {
-	// Code is error code indicating the endpoint does not match the installation auth method.
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the mismatch.
-	Message string `json:"message"`
-}
-
-// DataIntegrationAccessTokenResponse represents a data integration access token response.
-type DataIntegrationAccessTokenResponse struct {
-	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
-	Active *bool `json:"active,omitempty"`
-	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
-	AccessToken *DataIntegrationAccessTokenResponseAccessToken `json:"access_token,omitempty"`
-	// Error is - `"not_installed"`: The user does not have the integration installed.
-	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
-	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
-}
-
-// AccountSelectionRequiredError represents an account selection required error.
-type AccountSelectionRequiredError struct {
-	// Code indicates that several connected accounts match and the request must name one.
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the ambiguity.
-	Message string `json:"message"`
-}
-
-// DataIntegrationVendedCredential represents a data integration vended credential.
-type DataIntegrationVendedCredential struct {
-	// Object distinguishes the credential object.
-	Object *string `json:"object,omitempty"`
-	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
-	AuthMethod *string `json:"auth_method,omitempty"`
-	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
-	Value *string `json:"value,omitempty"`
-	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	ExpiresAt *string `json:"expires_at,omitempty"`
-	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	Scopes []string `json:"scopes,omitempty"`
-	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	MissingScopes []string `json:"missing_scopes,omitempty"`
-	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
-	Config map[string]string `json:"config,omitempty"`
-	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Only present for `client_credentials` credentials.
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-}
-
-// DataIntegrationCredentialsResponse represents a data integration credentials response.
-type DataIntegrationCredentialsResponse struct {
-	// Active indicates credentials are available.
-	Active *bool `json:"active,omitempty"`
-	// Credential is the credential object containing the vended secret.
-	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
-	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
-	// - `"not_installed"`: The user does not have the integration installed.
-	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
-	Error *DataIntegrationCredentialsResponseError `json:"error,omitempty"`
-}
-
-// ConnectedAccountWriteResponse represents a connected account write response.
-type ConnectedAccountWriteResponse struct {
-	// Object distinguishes the connected account object.
-	Object string `json:"object"`
-	// ID is the unique identifier of the connected account.
-	ID string `json:"id"`
-	// ConnectionRole is whether this row is the compatibility connection visible to undeclared clients or a standard peer for plural-aware clients. The role does not indicate preference or creation order.
-	ConnectionRole ConnectedAccountWriteResponseConnectionRole `json:"connection_role"`
-	// AccountIdentifier is a best-effort identifier for the provider account this connection points at. It is correlation metadata, not the connection identifier or a selector.
-	AccountIdentifier *string `json:"account_identifier"`
-	// AccountDisplayName is a mutable, non-unique display name for the provider account connection.
-	AccountDisplayName *string `json:"account_display_name"`
-	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier associated with this connection.
-	UserID *string `json:"user_id"`
-	// OrganizationID is the [Organization](https://workos.com/docs/reference/organization) identifier associated with this connection, or `null` if not scoped to an organization.
-	OrganizationID *string `json:"organization_id"`
-	// Scopes is the OAuth scopes granted for this connection.
-	Scopes []string `json:"scopes"`
-	// AuthMethod is the authentication method used for this connection (`oauth`, `api_key`, or `client_credentials`). Defaults to `oauth` if absent.
-	AuthMethod *ConnectedAccountWriteResponseAuthMethod `json:"auth_method,omitempty"`
-	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
-	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
-	// ClientID is the client ID supplied for this connection. Only present when `auth_method` is `client_credentials`.
-	ClientID *string `json:"client_id,omitempty"`
-	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
-	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
-	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding secret and undeclared fields. Returned for every authentication method; empty when no stored values can be disclosed.
-	Config map[string]string `json:"config,omitempty"`
-	// State is the state of the connected account:
-	// - `connected`: The connection is active and tokens are valid.
-	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
-	// - `disconnected`: The connection has been disconnected.
-	State ConnectedAccountWriteResponseState `json:"state"`
-	// EstablishedByUserID is the [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`.
-	EstablishedByUserID *string `json:"established_by_user_id,omitempty"`
-	// StateReason is why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
-	// - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
-	// Additional values may be added; treat an unrecognized value as an unknown reason.
-	StateReason *string `json:"state_reason,omitempty"`
-	// CreatedAt is the timestamp when the connection was created.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is the timestamp when the connection was last updated.
-	UpdatedAt string `json:"updated_at"`
-	// Warnings is non-blocking warnings about an explicitly supplied label, omitted when no duplicate exists. Reads do not include this field.
-	Warnings []*ConnectedAccountWriteResponseWarning `json:"warnings,omitempty"`
-}
-
-// DataIntegrationsListResponse represents a data integrations list response.
-type DataIntegrationsListResponse struct {
-	// Object indicates this is a list response.
-	Object string `json:"object"`
-	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
-	Data []*DataIntegrationsListResponseData `json:"data"`
-}
-
 // ConnectedAccount represents a connected account.
 type ConnectedAccount struct {
 	// Object distinguishes the connected account object.
@@ -5782,6 +5708,179 @@ type ConnectedAccount struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the connection was last updated.
 	UpdatedAt string `json:"updated_at"`
+	// Warnings is non-blocking warnings about an explicitly supplied label. Only writes return it, and only when another connection already uses the label; reads omit it.
+	Warnings []*ConnectedAccountWarning `json:"warnings,omitempty"`
+}
+
+// DataIntegrationFinishConnectionResponse represents a data integration finish connection response.
+type DataIntegrationFinishConnectionResponse struct {
+	// ConnectedAccount is the connected account that was saved.
+	ConnectedAccount *ConnectedAccount `json:"connected_account"`
+}
+
+// DataIntegrationAuthorizeURLResponse represents a data integration authorize url response.
+type DataIntegrationAuthorizeURLResponse struct {
+	// URL is the OAuth authorization URL to redirect the user to.
+	URL string `json:"url"`
+	// Completion is `finish_required` when the request included `code_challenge`: the connection will be held until your app finishes it. Omitted otherwise. If you sent `code_challenge` and this is missing, don't redirect the user.
+	Completion *string `json:"completion,omitempty"`
+}
+
+// AuthMethodMismatchError represents an auth method mismatch error.
+type AuthMethodMismatchError struct {
+	// Code is error code indicating the endpoint does not match the installation auth method.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the mismatch.
+	Message string `json:"message"`
+}
+
+// DataIntegrationAccessTokenResponse represents a data integration access token response.
+type DataIntegrationAccessTokenResponse struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active *bool `json:"active,omitempty"`
+	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
+	AccessToken *DataIntegrationAccessTokenResponseAccessToken `json:"access_token,omitempty"`
+	// Error is - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
+}
+
+// DataIntegrationAccessTokenResponseWithAccessToken represents a data integration access token response with access token.
+type DataIntegrationAccessTokenResponseWithAccessToken struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active bool `json:"active"`
+	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
+	AccessToken *DataIntegrationAccessTokenResponseWithAccessTokenAccessToken `json:"access_token"`
+}
+
+// DataIntegrationAccessTokenResponseWithAccessTokenAccessToken is an alias for DataIntegrationAccessTokenResponseAccessToken.
+type DataIntegrationAccessTokenResponseWithAccessTokenAccessToken = DataIntegrationAccessTokenResponseAccessToken
+
+// DataIntegrationAccessTokenResponseWithError represents a data integration access token response with error.
+type DataIntegrationAccessTokenResponseWithError struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active bool `json:"active"`
+	// Error is - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error DataIntegrationAccessTokenResponseWithErrorError `json:"error"`
+}
+
+// AccountSelectionRequiredError represents an account selection required error.
+type AccountSelectionRequiredError struct {
+	// Code indicates that several connected accounts match and the request must name one.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the ambiguity.
+	Message string `json:"message"`
+}
+
+// DataIntegrationVendedCredential represents a data integration vended credential.
+type DataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object *string `json:"object,omitempty"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod *string `json:"auth_method,omitempty"`
+	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
+	Value *string `json:"value,omitempty"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Scopes []string `json:"scopes,omitempty"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	MissingScopes []string `json:"missing_scopes,omitempty"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config,omitempty"`
+}
+
+// OAuthDataIntegrationVendedCredential represents an OAuth data integration vended credential.
+type OAuthDataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	MissingScopes []string `json:"missing_scopes"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Metadata map[string]interface{} `json:"metadata"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// APIKeyDataIntegrationVendedCredential represents an api key data integration vended credential.
+type APIKeyDataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the API key secret.
+	Value string `json:"value"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// ClientCredentialsDataIntegrationVendedCredential represents a client credentials data integration vended credential.
+type ClientCredentialsDataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the client-credentials access token.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. The scopes granted to a client-credentials token are governed by the connected organization's client application, so the integration's configured scopes are requests or defaults rather than guarantees.
+	MissingScopes []string `json:"missing_scopes"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Metadata map[string]interface{} `json:"metadata"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// DataIntegrationCredentialsResponse represents a data integration credentials response.
+type DataIntegrationCredentialsResponse struct {
+	// Active indicates credentials are available.
+	Active *bool `json:"active,omitempty"`
+	// Credential is the credential object containing the vended secret.
+	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
+	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
+	// - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error *DataIntegrationCredentialsResponseError `json:"error,omitempty"`
+}
+
+// DataIntegrationCredentialsResponseWithCredential represents a data integration credentials response with credential.
+type DataIntegrationCredentialsResponseWithCredential struct {
+	// Active indicates credentials are available.
+	Active bool `json:"active"`
+	// Credential is the credential object containing the vended secret.
+	Credential *DataIntegrationVendedCredential `json:"credential"`
+}
+
+// DataIntegrationCredentialsResponseWithError represents a data integration credentials response with error.
+type DataIntegrationCredentialsResponseWithError struct {
+	// Active indicates credentials are not available.
+	Active bool `json:"active"`
+	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
+	// - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error DataIntegrationCredentialsResponseWithErrorError `json:"error"`
+}
+
+// DataIntegrationsListResponse represents a data integrations list response.
+type DataIntegrationsListResponse struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
+	Data []*DataIntegrationsListResponseData `json:"data"`
 }
 
 // PortalLinkResponse represents a portal link response.
@@ -6449,13 +6548,6 @@ type DataIntegrationsListResponseData struct {
 	ConnectedAccounts []*DataIntegrationsListResponseDataConnectedAccount `json:"connected_accounts"`
 }
 
-// ConnectedAccountWriteResponseWarning represents a connected account write response warning.
-type ConnectedAccountWriteResponseWarning struct {
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the non-blocking warning.
-	Message string `json:"message"`
-}
-
 // DataIntegrationAccessTokenResponseAccessToken the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
 type DataIntegrationAccessTokenResponseAccessToken struct {
 	// Object distinguishes the access token object.
@@ -6470,7 +6562,14 @@ type DataIntegrationAccessTokenResponseAccessToken struct {
 	MissingScopes []string `json:"missing_scopes"`
 }
 
-// DataIntegrationCredential represents a data integration credential.
+// ConnectedAccountWarning represents a connected account warning.
+type ConnectedAccountWarning struct {
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the non-blocking warning.
+	Message string `json:"message"`
+}
+
+// DataIntegrationCredential the integration-level OAuth app credentials. `null` for `api_key` and `client_credentials` integrations, which hold no integration-level credentials (secrets are installed per-tenant).
 type DataIntegrationCredential struct {
 	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (so `client_id`/`redacted_client_secret` are null on the integration itself).
 	Type DataIntegrationCredentialType `json:"type"`
@@ -6480,7 +6579,7 @@ type DataIntegrationCredential struct {
 	RedactedClientSecret *string `json:"redacted_client_secret"`
 }
 
-// DataIntegrationInstallation represents a data integration installation.
+// DataIntegrationInstallation the tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
 type DataIntegrationInstallation struct {
 	// ID is unique identifier of the installation.
 	ID string `json:"id"`
@@ -6498,7 +6597,7 @@ type DataIntegrationInstallation struct {
 	APIKeyLast4 *string `json:"api_key_last_4"`
 }
 
-// DataIntegrationCustomProvider represents a data integration custom provider.
+// DataIntegrationCustomProvider the OAuth definition when this is a custom provider; `null` for built-in providers.
 type DataIntegrationCustomProvider struct {
 	// Name is a descriptive name for the custom provider.
 	Name string `json:"name"`
@@ -6741,9 +6840,6 @@ type AgentBlueprintSessionSetting struct {
 	RefreshTokenTtlSeconds int `json:"refresh_token_ttl_seconds"`
 }
 
-// ClaimViewResponseOrganization is an alias for Actor.
-type ClaimViewResponseOrganization = Actor
-
 // AgentRegistrationAgentIdentity the agent identity associated with this registration.
 type AgentRegistrationAgentIdentity struct {
 	// ID is unique identifier of the agent identity.
@@ -6756,7 +6852,7 @@ type AgentRegistrationAgentIdentity struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AgentRegistrationClaim represents an agent registration claim.
+// AgentRegistrationClaim the claim associated with this registration, or `null` if the registration has no claim.
 type AgentRegistrationClaim struct {
 	// ID is unique identifier of the claim.
 	ID string `json:"id"`
@@ -6841,180 +6937,6 @@ type ApplicationCredentialsListItem struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DataIntegrationsUpsertAPIKeyRequest represents a data integrations upsert api key request.
-type DataIntegrationsUpsertAPIKeyRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// Secret is the API key secret to store for this integration.
-	Secret string `json:"secret"`
-}
-
-// ReauthorizeDataIntegrationsUpsertAPIKeyRequest represents a reauthorize data integrations upsert api key request.
-type ReauthorizeDataIntegrationsUpsertAPIKeyRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// Secret is the API key secret to store for this integration.
-	Secret string `json:"secret"`
-	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
-	ConnectionIntent string `json:"connection_intent"`
-	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsUpsertAPIKeyRequest2 represents a data integrations upsert api key request2.
-type DataIntegrationsUpsertAPIKeyRequest2 struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner `json:"connection_owner,omitempty"`
-	// Secret is the API key secret to store for this integration.
-	Secret string `json:"secret"`
-	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a data integrations get data integration authorize url request.
-type DataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
-	ConnectionOwner *DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
-	Config map[string]string `json:"config,omitempty"`
-}
-
-// AddDataIntegrationsGetDataIntegrationAuthorizeURLRequest represents an add data integrations get data integration authorize url request.
-type AddDataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
-	ConnectionOwner *AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectionIntent is create another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`. Omit `connection_intent` to use the compatibility connection, or send `reauthorize` with `connected_account_id` to reauthorize one exact connection.
-	ConnectionIntent string `json:"connection_intent"`
-}
-
-// ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a reauthorize data integrations get data integration authorize url request.
-type ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
-	ConnectionOwner *ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
-	ConnectionIntent string `json:"connection_intent"`
-	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsUpsertClientCredentialsRequest represents a data integrations upsert client credentials request.
-type DataIntegrationsUpsertClientCredentialsRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ClientID is the OAuth client ID to store for this integration.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the OAuth client secret to store for this integration.
-	ClientSecret string `json:"client_secret"`
-	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
-	Config map[string]string `json:"config,omitempty"`
-}
-
-// ReauthorizeDataIntegrationsUpsertClientCredentialsRequest represents a reauthorize data integrations upsert client credentials request.
-type ReauthorizeDataIntegrationsUpsertClientCredentialsRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ClientID is the OAuth client ID to store for this integration.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the OAuth client secret to store for this integration.
-	ClientSecret string `json:"client_secret"`
-	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
-	ConnectionIntent string `json:"connection_intent"`
-	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsUpsertClientCredentialsRequest2 represents a data integrations upsert client credentials request2.
-type DataIntegrationsUpsertClientCredentialsRequest2 struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner `json:"connection_owner,omitempty"`
-	// ClientID is the OAuth client ID to store for this integration.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the OAuth client secret to store for this integration.
-	ClientSecret string `json:"client_secret"`
-	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
 // FeatureFlag represents a feature flag.
 type FeatureFlag struct {
 	// Object distinguishes the Feature Flag object.
@@ -7041,7 +6963,7 @@ type FeatureFlag struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// FeatureFlagOwner represents a feature flag owner.
+// FeatureFlagOwner the owner of the Feature Flag.
 type FeatureFlagOwner struct {
 	// Email is the email address of the flag owner.
 	Email string `json:"email"`
@@ -7483,7 +7405,2668 @@ type UserSessionsListItem struct {
 // UserSessionsImpersonator is an alias for AuthenticateResponseImpersonator.
 type UserSessionsImpersonator = AuthenticateResponseImpersonator
 
-// AgentRegistrationClaimClaimCompletion represents an agent registration claim claim completion.
+// WaitlistListResponse represents a waitlist list response.
+type WaitlistListResponse struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is the list of records for the current page.
+	Data []*Waitlist `json:"data"`
+	// ListMetadata is pagination cursors for navigating between pages of results.
+	ListMetadata *WaitlistListResponseListMetadata `json:"list_metadata"`
+}
+
+// WaitlistListResponseListMetadata is an alias for ItContactListListMetadata.
+type WaitlistListResponseListMetadata = ItContactListListMetadata
+
+// The following types are structurally identical to RadarListEntryAlreadyPresentResponse.
+type (
+	AgentBlueprintsListError401                                             = RadarListEntryAlreadyPresentResponse
+	AgentBlueprintsGetError404                                              = RadarListEntryAlreadyPresentResponse
+	AgentBlueprintsUpdateError404                                           = RadarListEntryAlreadyPresentResponse
+	AgentBlueprintsDeleteError404                                           = RadarListEntryAlreadyPresentResponse
+	AgentBlueprintsTokenMintTokenError404                                   = RadarListEntryAlreadyPresentResponse
+	AgentBlueprintsTokenValidateTokenError404                               = RadarListEntryAlreadyPresentResponse
+	AgentInstancesListError401                                              = RadarListEntryAlreadyPresentResponse
+	AgentInstancesGetError404                                               = RadarListEntryAlreadyPresentResponse
+	AgentInstancesDeleteError404                                            = RadarListEntryAlreadyPresentResponse
+	AgentAdminGetRegistrationError404                                       = RadarListEntryAlreadyPresentResponse
+	AgentAdminRevokeRegistrationError404                                    = RadarListEntryAlreadyPresentResponse
+	AgentInstanceSessionsListError401                                       = RadarListEntryAlreadyPresentResponse
+	AgentInstanceSessionsGetError404                                        = RadarListEntryAlreadyPresentResponse
+	AgentInstanceSessionsRevokeError404                                     = RadarListEntryAlreadyPresentResponse
+	APIKeysValidateAPIKeyError422                                           = RadarListEntryAlreadyPresentResponse
+	APIKeysDeleteError404                                                   = RadarListEntryAlreadyPresentResponse
+	APIKeysExpireError404                                                   = RadarListEntryAlreadyPresentResponse
+	APIKeysExpireError422                                                   = RadarListEntryAlreadyPresentResponse
+	AuditLogValidatorsListError404                                          = RadarListEntryAlreadyPresentResponse
+	AuditLogValidatorsListError422                                          = RadarListEntryAlreadyPresentResponse
+	AuditLogValidatorVersionsSchemasError404                                = RadarListEntryAlreadyPresentResponse
+	AuditLogValidatorVersionsSchemasError422                                = RadarListEntryAlreadyPresentResponse
+	AuditLogValidatorVersionsCreateError422                                 = RadarListEntryAlreadyPresentResponse
+	AuditLogEventsCreateError4002                                           = RadarListEntryAlreadyPresentResponse
+	AuditLogEventsCreateError404                                            = RadarListEntryAlreadyPresentResponse
+	AuditLogExportsExportsError400                                          = RadarListEntryAlreadyPresentResponse
+	AuditLogExportsExportError404                                           = RadarListEntryAlreadyPresentResponse
+	AuthenticationChallengesVerifyError404                                  = RadarListEntryAlreadyPresentResponse
+	AuthenticationChallengesVerifyError422                                  = RadarListEntryAlreadyPresentResponse
+	AuthenticationFactorsCreateError422                                     = RadarListEntryAlreadyPresentResponse
+	AuthenticationFactorsGetError404                                        = RadarListEntryAlreadyPresentResponse
+	AuthenticationFactorsDeleteError404                                     = RadarListEntryAlreadyPresentResponse
+	AuthenticationFactorsChallengeError404                                  = RadarListEntryAlreadyPresentResponse
+	AuthenticationFactorsChallengeError422                                  = RadarListEntryAlreadyPresentResponse
+	ExternalAuthCompleteLoginError404                                       = RadarListEntryAlreadyPresentResponse
+	ExternalAuthCompleteLoginError422                                       = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsListError403                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsListError404                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsCreateError403                         = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsCreateError404                         = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsCreateError422                         = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsReplaceGroupRoleAssignmentsError403    = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsReplaceGroupRoleAssignmentsError404    = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsReplaceGroupRoleAssignmentsError422    = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsPatchGroupRoleAssignmentsError403      = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsPatchGroupRoleAssignmentsError404      = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsPatchGroupRoleAssignmentsError422      = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsRemoveGroupRoleAssignmentsError403     = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsRemoveGroupRoleAssignmentsError404     = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsRemoveGroupRoleAssignmentsError422     = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsGetError403                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsGetError404                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsRemoveGroupRoleAssignmentError403      = RadarListEntryAlreadyPresentResponse
+	AuthorizationGroupRoleAssignmentsRemoveGroupRoleAssignmentError404      = RadarListEntryAlreadyPresentResponse
+	AuthorizationCheckError403                                              = RadarListEntryAlreadyPresentResponse
+	AuthorizationCheckError404                                              = RadarListEntryAlreadyPresentResponse
+	AuthorizationCheckError422                                              = RadarListEntryAlreadyPresentResponse
+	AuthorizationListResourcesForMembershipError403                         = RadarListEntryAlreadyPresentResponse
+	AuthorizationListResourcesForMembershipError404                         = RadarListEntryAlreadyPresentResponse
+	AuthorizationListResourcesForMembershipError422                         = RadarListEntryAlreadyPresentResponse
+	AuthorizationListEffectivePermissionsError403                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationListEffectivePermissionsError404                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationListEffectivePermissionsError422                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsListRoleAssignmentsError403                 = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsListRoleAssignmentsError404                 = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsAssignRoleError403                          = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsAssignRoleError404                          = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsAssignRoleError422                          = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsRemoveRoleByCriteriaError403                = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsRemoveRoleByCriteriaError404                = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsRemoveRoleByCriteriaError422                = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsRemoveRoleByIDError403                      = RadarListEntryAlreadyPresentResponse
+	AuthorizationRoleAssignmentsRemoveRoleByIDError404                      = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesListError403                              = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesListError404                              = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesCreateError403                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesCreateError404                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesCreateError422                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesGetError403                               = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesGetError404                               = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesUpdateError403                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesUpdateError404                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesUpdateError422                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesDeleteError403                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolesDeleteError404                            = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsAddPermissionError403           = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsAddPermissionError404           = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsAddPermissionError422           = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsSetPermissionsError403          = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsSetPermissionsError404          = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsSetPermissionsError422          = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsRemovePermissionError403        = RadarListEntryAlreadyPresentResponse
+	AuthorizationOrganizationRolePermissionsRemovePermissionError404        = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesGetError403                                       = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesGetError404                                       = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesUpdateError403                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesUpdateError404                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesUpdateError422                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesDeleteError403                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesDeleteError404                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesListOrganizationMembershipsError403               = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesListOrganizationMembershipsError404               = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesListOrganizationMembershipsError422               = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsListError404                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsCreateError404                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsCreateError422                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsFindError404                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsUpdateError403                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsUpdateError404                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsUpdateError422                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsDeleteError403                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationPermissionsDeleteError404                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesListError403                                      = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesListError422                                      = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesCreateError403                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesCreateError404                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesCreateError422                                    = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesFindByIDError403                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesFindByIDError404                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationResourcesFindByIDError422                                  = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesListError403                                          = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesCreateError403                                        = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesCreateError404                                        = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesCreateError422                                        = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesGetError403                                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesGetError404                                           = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesUpdateError403                                        = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesUpdateError404                                        = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolesUpdateError422                                        = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolePermissionsAddPermissionError403                       = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolePermissionsAddPermissionError404                       = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolePermissionsAddPermissionError422                       = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolePermissionsSetPermissionsError403                      = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolePermissionsSetPermissionsError404                      = RadarListEntryAlreadyPresentResponse
+	AuthorizationRolePermissionsSetPermissionsError422                      = RadarListEntryAlreadyPresentResponse
+	ClientAPITokenIssueClientAPITokenError400                               = RadarListEntryAlreadyPresentResponse
+	ClientAPITokenIssueClientAPITokenError404                               = RadarListEntryAlreadyPresentResponse
+	ClientAPITokenIssueClientAPITokenError422                               = RadarListEntryAlreadyPresentResponse
+	ApplicationListError422                                                 = RadarListEntryAlreadyPresentResponse
+	ApplicationCreateError404                                               = RadarListEntryAlreadyPresentResponse
+	ApplicationCreateError422                                               = RadarListEntryAlreadyPresentResponse
+	ApplicationFindError404                                                 = RadarListEntryAlreadyPresentResponse
+	ApplicationUpdateError404                                               = RadarListEntryAlreadyPresentResponse
+	ApplicationUpdateError422                                               = RadarListEntryAlreadyPresentResponse
+	ApplicationDeleteError404                                               = RadarListEntryAlreadyPresentResponse
+	ApplicationCredentialsListError404                                      = RadarListEntryAlreadyPresentResponse
+	ApplicationCredentialsCreateError404                                    = RadarListEntryAlreadyPresentResponse
+	ApplicationCredentialsCreateError422                                    = RadarListEntryAlreadyPresentResponse
+	ApplicationCredentialsDeleteError404                                    = RadarListEntryAlreadyPresentResponse
+	ConnectionListError403                                                  = RadarListEntryAlreadyPresentResponse
+	ConnectionListError422                                                  = RadarListEntryAlreadyPresentResponse
+	ConnectionCreateError403                                                = RadarListEntryAlreadyPresentResponse
+	ConnectionCreateError404                                                = RadarListEntryAlreadyPresentResponse
+	ConnectionCreateError422                                                = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesListError403                                  = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesListError404                                  = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesCreateError403                                = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesCreateError404                                = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesCreateError422                                = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesDeleteError403                                = RadarListEntryAlreadyPresentResponse
+	SAMLIdpSigningCertificatesDeleteError404                                = RadarListEntryAlreadyPresentResponse
+	SAMLSpEncryptionCertificatesListError403                                = RadarListEntryAlreadyPresentResponse
+	SAMLSpEncryptionCertificatesListError404                                = RadarListEntryAlreadyPresentResponse
+	SAMLSpEncryptionCertificatesCreateError403                              = RadarListEntryAlreadyPresentResponse
+	SAMLSpEncryptionCertificatesCreateError404                              = RadarListEntryAlreadyPresentResponse
+	SAMLSpEncryptionCertificatesDeleteError403                              = RadarListEntryAlreadyPresentResponse
+	SAMLSpEncryptionCertificatesDeleteError404                              = RadarListEntryAlreadyPresentResponse
+	SAMLSpSigningCertificatesGetError403                                    = RadarListEntryAlreadyPresentResponse
+	SAMLSpSigningCertificatesGetError404                                    = RadarListEntryAlreadyPresentResponse
+	SAMLSpSigningCertificatesCreateError403                                 = RadarListEntryAlreadyPresentResponse
+	SAMLSpSigningCertificatesCreateError404                                 = RadarListEntryAlreadyPresentResponse
+	SAMLSpSigningCertificatesDeleteError403                                 = RadarListEntryAlreadyPresentResponse
+	SAMLSpSigningCertificatesDeleteError404                                 = RadarListEntryAlreadyPresentResponse
+	ConnectionFindError403                                                  = RadarListEntryAlreadyPresentResponse
+	ConnectionFindError404                                                  = RadarListEntryAlreadyPresentResponse
+	ConnectionPatchError403                                                 = RadarListEntryAlreadyPresentResponse
+	ConnectionPatchError404                                                 = RadarListEntryAlreadyPresentResponse
+	ConnectionPatchError422                                                 = RadarListEntryAlreadyPresentResponse
+	ConnectionDeleteError403                                                = RadarListEntryAlreadyPresentResponse
+	ConnectionDeleteError404                                                = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementListDataIntegrationsError404                  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementListDataIntegrationsError422                  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementCreateDataIntegrationError400                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementCreateDataIntegrationError403                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementCreateDataIntegrationError404                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementCreateDataIntegrationError409                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementCreateDataIntegrationError422                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsFinishConnectionError403                                = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementGetDataIntegrationError404                    = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateDataIntegrationError400                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateDataIntegrationError403                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateDataIntegrationError404                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateDataIntegrationError409                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateDataIntegrationError422                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementDeleteDataIntegrationError404                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsCreateAPIKeyConnectionError403                          = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsCreateAPIKeyConnectionError4042                         = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsCreateAPIKeyConnectionError4092                         = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUpsertAPIKeyError403                                    = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUpsertAPIKeyError4042                                   = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsGetDataIntegrationAuthorizeURLError403                  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsGetDataIntegrationAuthorizeURLError4042                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsGetDataIntegrationAuthorizeURLError4092                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsCreateClientCredentialsConnectionError403               = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsCreateClientCredentialsConnectionError4042              = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsCreateClientCredentialsConnectionError4092              = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUpsertClientCredentialsError403                         = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUpsertClientCredentialsError4042                        = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsVendCredentialsError400                                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsVendCredentialsError403                                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsVendCredentialsError404                                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsVendCredentialsError422                                 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementGetOrganizationDataIntegrationError404        = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateOrganizationDataIntegrationError400     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateOrganizationDataIntegrationError403     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateOrganizationDataIntegrationError404     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateOrganizationDataIntegrationError409     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementUpdateOrganizationDataIntegrationError422     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsManagementDeleteOrganizationDataIntegrationError404     = RadarListEntryAlreadyPresentResponse
+	DirectoryListError403                                                   = RadarListEntryAlreadyPresentResponse
+	DirectoryListError422                                                   = RadarListEntryAlreadyPresentResponse
+	DirectoryFindError403                                                   = RadarListEntryAlreadyPresentResponse
+	DirectoryFindError404                                                   = RadarListEntryAlreadyPresentResponse
+	DirectoryDeleteDirectoryError403                                        = RadarListEntryAlreadyPresentResponse
+	DirectorySyncDirectoryError403                                          = RadarListEntryAlreadyPresentResponse
+	DirectorySyncDirectoryError404                                          = RadarListEntryAlreadyPresentResponse
+	DirectoryGroupsListError403                                             = RadarListEntryAlreadyPresentResponse
+	DirectoryGroupsListError404                                             = RadarListEntryAlreadyPresentResponse
+	DirectoryGroupsListError422                                             = RadarListEntryAlreadyPresentResponse
+	DirectoryGroupsFindError403                                             = RadarListEntryAlreadyPresentResponse
+	DirectoryGroupsFindError404                                             = RadarListEntryAlreadyPresentResponse
+	DirectoryUsersListError403                                              = RadarListEntryAlreadyPresentResponse
+	DirectoryUsersListError404                                              = RadarListEntryAlreadyPresentResponse
+	DirectoryUsersListError422                                              = RadarListEntryAlreadyPresentResponse
+	DirectoryUsersFindError403                                              = RadarListEntryAlreadyPresentResponse
+	DirectoryUsersFindError404                                              = RadarListEntryAlreadyPresentResponse
+	EventListError400                                                       = RadarListEntryAlreadyPresentResponse
+	FeatureFlagsListError404                                                = RadarListEntryAlreadyPresentResponse
+	FeatureFlagsListError422                                                = RadarListEntryAlreadyPresentResponse
+	FeatureFlagsFindBySlugError404                                          = RadarListEntryAlreadyPresentResponse
+	FeatureFlagsDisableFlagError404                                         = RadarListEntryAlreadyPresentResponse
+	FeatureFlagsEnableFlagError404                                          = RadarListEntryAlreadyPresentResponse
+	FlagTargetsCreateTargetError403                                         = RadarListEntryAlreadyPresentResponse
+	FlagTargetsCreateTargetError404                                         = RadarListEntryAlreadyPresentResponse
+	FlagTargetsDeleteTargetError403                                         = RadarListEntryAlreadyPresentResponse
+	FlagTargetsDeleteTargetError404                                         = RadarListEntryAlreadyPresentResponse
+	OrganizationDomainsGetError404                                          = RadarListEntryAlreadyPresentResponse
+	OrganizationDomainsDeleteError404                                       = RadarListEntryAlreadyPresentResponse
+	OrganizationListError422                                                = RadarListEntryAlreadyPresentResponse
+	OrganizationCreateError409                                              = RadarListEntryAlreadyPresentResponse
+	OrganizationCreateError422                                              = RadarListEntryAlreadyPresentResponse
+	OrganizationGetError404                                                 = RadarListEntryAlreadyPresentResponse
+	OrganizationFindError404                                                = RadarListEntryAlreadyPresentResponse
+	OrganizationUpdateOrganizationError403                                  = RadarListEntryAlreadyPresentResponse
+	OrganizationUpdateOrganizationError404                                  = RadarListEntryAlreadyPresentResponse
+	OrganizationUpdateOrganizationError409                                  = RadarListEntryAlreadyPresentResponse
+	OrganizationUpdateOrganizationError422                                  = RadarListEntryAlreadyPresentResponse
+	OrganizationDeleteOrganizationError403                                  = RadarListEntryAlreadyPresentResponse
+	OrganizationGetAuditLogConfigurationError404                            = RadarListEntryAlreadyPresentResponse
+	AuditLogsRetentionAuditLogsRetentionError404                            = RadarListEntryAlreadyPresentResponse
+	AuditLogsRetentionUpdateAuditLogsRetentionError404                      = RadarListEntryAlreadyPresentResponse
+	AuditLogsRetentionUpdateAuditLogsRetentionError422                      = RadarListEntryAlreadyPresentResponse
+	OrganizationAPIKeysListError404                                         = RadarListEntryAlreadyPresentResponse
+	OrganizationAPIKeysCreateError404                                       = RadarListEntryAlreadyPresentResponse
+	ProviderListForOrganizationError404                                     = RadarListEntryAlreadyPresentResponse
+	ProviderConfigureError400                                               = RadarListEntryAlreadyPresentResponse
+	ProviderConfigureError404                                               = RadarListEntryAlreadyPresentResponse
+	ProviderConfigureError422                                               = RadarListEntryAlreadyPresentResponse
+	OrganizationFeatureFlagsListError404                                    = RadarListEntryAlreadyPresentResponse
+	GroupListError403                                                       = RadarListEntryAlreadyPresentResponse
+	GroupListError404                                                       = RadarListEntryAlreadyPresentResponse
+	GroupCreateError403                                                     = RadarListEntryAlreadyPresentResponse
+	GroupCreateError404                                                     = RadarListEntryAlreadyPresentResponse
+	GroupCreateError422                                                     = RadarListEntryAlreadyPresentResponse
+	GroupGetError403                                                        = RadarListEntryAlreadyPresentResponse
+	GroupGetError404                                                        = RadarListEntryAlreadyPresentResponse
+	GroupUpdateError403                                                     = RadarListEntryAlreadyPresentResponse
+	GroupUpdateError404                                                     = RadarListEntryAlreadyPresentResponse
+	GroupUpdateError422                                                     = RadarListEntryAlreadyPresentResponse
+	GroupDeleteError403                                                     = RadarListEntryAlreadyPresentResponse
+	GroupDeleteError404                                                     = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsListMembersError403                                     = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsListMembersError404                                     = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsAddMemberError403                                       = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsAddMemberError404                                       = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsAddMemberError422                                       = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsRemoveMemberError403                                    = RadarListEntryAlreadyPresentResponse
+	GroupMembershipsRemoveMemberError404                                    = RadarListEntryAlreadyPresentResponse
+	OrganizationAuthorizedApplicationsListError404                          = RadarListEntryAlreadyPresentResponse
+	OrganizationAuthorizedApplicationsListError422                          = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationGetOrganizationDataInstallationError400     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationGetOrganizationDataInstallationError404     = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError403  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError4042 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError4092 = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationUpdateOrganizationDataInstallationError400  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationUpdateOrganizationDataInstallationError403  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationUpdateOrganizationDataInstallationError404  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationDeleteOrganizationDataInstallationError400  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationDeleteOrganizationDataInstallationError404  = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsOrganizationGetOrganizationDataIntegrationsError404     = RadarListEntryAlreadyPresentResponse
+	ItContactsListError403                                                  = RadarListEntryAlreadyPresentResponse
+	ItContactsListError404                                                  = RadarListEntryAlreadyPresentResponse
+	ItContactsCreateError403                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsCreateError404                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsCreateError422                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsDeleteError403                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsDeleteError404                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsInviteError403                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsInviteError404                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsInviteError422                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsRevokeError403                                                = RadarListEntryAlreadyPresentResponse
+	ItContactsRevokeError404                                                = RadarListEntryAlreadyPresentResponse
+	TeamCreateTeamError422                                                  = RadarListEntryAlreadyPresentResponse
+	PortalSessionsCreateError400                                            = RadarListEntryAlreadyPresentResponse
+	PortalSessionsCreateError403                                            = RadarListEntryAlreadyPresentResponse
+	PortalSessionsCreateError404                                            = RadarListEntryAlreadyPresentResponse
+	PortalSessionsCreateError422                                            = RadarListEntryAlreadyPresentResponse
+	PortalSessionsRevokeLinkError404                                        = RadarListEntryAlreadyPresentResponse
+	PortalSessionsRevokeLinkError422                                        = RadarListEntryAlreadyPresentResponse
+	RadarStandaloneAssessError400                                           = RadarListEntryAlreadyPresentResponse
+	RadarStandaloneUpdateRadarAttemptError400                               = RadarListEntryAlreadyPresentResponse
+	RadarStandaloneUpdateRadarAttemptError404                               = RadarListEntryAlreadyPresentResponse
+	RadarStandaloneUpdateRadarListError400                                  = RadarListEntryAlreadyPresentResponse
+	RadarStandaloneDeleteRadarListEntryError400                             = RadarListEntryAlreadyPresentResponse
+	RadarStandaloneDeleteRadarListEntryError404                             = RadarListEntryAlreadyPresentResponse
+	SSOJSONWebKeySetError404                                                = RadarListEntryAlreadyPresentResponse
+	SSOLogoutError404                                                       = RadarListEntryAlreadyPresentResponse
+	SSOLogoutAuthorizeError404                                              = RadarListEntryAlreadyPresentResponse
+	SSOGetProfileError404                                                   = RadarListEntryAlreadyPresentResponse
+	SSOTokenError404                                                        = RadarListEntryAlreadyPresentResponse
+	SSOTokenError422                                                        = RadarListEntryAlreadyPresentResponse
+	SessionAuthenticateError404                                             = RadarListEntryAlreadyPresentResponse
+	AuthkitOAuthResourcesListError401                                       = RadarListEntryAlreadyPresentResponse
+	AuthkitOAuthResourcesCreateError401                                     = RadarListEntryAlreadyPresentResponse
+	AuthkitOAuthResourcesCreateError422                                     = RadarListEntryAlreadyPresentResponse
+	AuthkitOAuthResourcesDeleteError401                                     = RadarListEntryAlreadyPresentResponse
+	AuthkitOAuthResourcesDeleteError404                                     = RadarListEntryAlreadyPresentResponse
+	CORSOriginsListError401                                                 = RadarListEntryAlreadyPresentResponse
+	UserGetEmailVerificationError404                                        = RadarListEntryAlreadyPresentResponse
+	UserInvitesCreateError404                                               = RadarListEntryAlreadyPresentResponse
+	UserInvitesGetByTokenError404                                           = RadarListEntryAlreadyPresentResponse
+	UserInvitesGetError404                                                  = RadarListEntryAlreadyPresentResponse
+	UserInvitesAcceptError404                                               = RadarListEntryAlreadyPresentResponse
+	UserInvitesResendError404                                               = RadarListEntryAlreadyPresentResponse
+	JWTTemplatesGetJWTTemplateError404                                      = RadarListEntryAlreadyPresentResponse
+	MagicAuthSendMagicAuthCodeAndReturnError422                             = RadarListEntryAlreadyPresentResponse
+	MagicAuthGetError404                                                    = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsListError404                                 = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsListError422                                 = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsCreateError404                               = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsGetError404                                  = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsUpdateError404                               = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsDeleteError404                               = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsDeactivateError404                           = RadarListEntryAlreadyPresentResponse
+	UserOrganizationMembershipsReactivateError404                           = RadarListEntryAlreadyPresentResponse
+	OrganizationMembershipGroupsListGroupsError404                          = RadarListEntryAlreadyPresentResponse
+	UserCreatePasswordResetTokenError404                                    = RadarListEntryAlreadyPresentResponse
+	UserResetPasswordError404                                               = RadarListEntryAlreadyPresentResponse
+	UserGetPasswordResetError404                                            = RadarListEntryAlreadyPresentResponse
+	PublicRadarChallengesGetError404                                        = RadarListEntryAlreadyPresentResponse
+	RedirectURIsListError401                                                = RadarListEntryAlreadyPresentResponse
+	RedirectURIsCreateError400                                              = RadarListEntryAlreadyPresentResponse
+	RedirectURIsCreateError401                                              = RadarListEntryAlreadyPresentResponse
+	RedirectURIsCreateError422                                              = RadarListEntryAlreadyPresentResponse
+	RedirectURIsDeleteError401                                              = RadarListEntryAlreadyPresentResponse
+	RedirectURIsDeleteError404                                              = RadarListEntryAlreadyPresentResponse
+	RedirectURIsDeleteError409                                              = RadarListEntryAlreadyPresentResponse
+	SessionLogoutError422                                                   = RadarListEntryAlreadyPresentResponse
+	SessionRevokeSessionError400                                            = RadarListEntryAlreadyPresentResponse
+	UserListError422                                                        = RadarListEntryAlreadyPresentResponse
+	UserCreateError404                                                      = RadarListEntryAlreadyPresentResponse
+	UserGetError404                                                         = RadarListEntryAlreadyPresentResponse
+	UserDeleteError404                                                      = RadarListEntryAlreadyPresentResponse
+	UserConfirmEmailChangeError404                                          = RadarListEntryAlreadyPresentResponse
+	UserSendEmailChangeError404                                             = RadarListEntryAlreadyPresentResponse
+	UserEmailVerificationError404                                           = RadarListEntryAlreadyPresentResponse
+	UserSendVerificationEmailError404                                       = RadarListEntryAlreadyPresentResponse
+	UserIdentitiesGetError404                                               = RadarListEntryAlreadyPresentResponse
+	UserSessionsListError404                                                = RadarListEntryAlreadyPresentResponse
+	UserAPIKeysListError404                                                 = RadarListEntryAlreadyPresentResponse
+	UserAPIKeysCreateError404                                               = RadarListEntryAlreadyPresentResponse
+	UserAPIKeysCreateError422                                               = RadarListEntryAlreadyPresentResponse
+	UserFeatureFlagsListError404                                            = RadarListEntryAlreadyPresentResponse
+	AuthorizedApplicationsListError404                                      = RadarListEntryAlreadyPresentResponse
+	AuthorizedApplicationsListError422                                      = RadarListEntryAlreadyPresentResponse
+	AuthorizedApplicationsDeleteError404                                    = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementGetUserDataInstallationError400           = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementGetUserDataInstallationError404           = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementCreateUserDataInstallationError4042       = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementCreateUserDataInstallationError4092       = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementUpdateUserDataInstallationError400        = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementUpdateUserDataInstallationError404        = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementDeleteUserDataInstallationError400        = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementDeleteUserDataInstallationError404        = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsUserManagementGetUserDataIntegrationsError404           = RadarListEntryAlreadyPresentResponse
+	UserAuthenticationFactorsListError422                                   = RadarListEntryAlreadyPresentResponse
+	UserAuthenticationFactorsCreateError422                                 = RadarListEntryAlreadyPresentResponse
+	WaitlistEntriesDeleteError404                                           = RadarListEntryAlreadyPresentResponse
+	WaitlistEntriesApproveError404                                          = RadarListEntryAlreadyPresentResponse
+	WaitlistEntriesDenyError404                                             = RadarListEntryAlreadyPresentResponse
+	WaitlistFindError404                                                    = RadarListEntryAlreadyPresentResponse
+	WaitlistListEntriesError404                                             = RadarListEntryAlreadyPresentResponse
+	WaitlistCreateEntryError404                                             = RadarListEntryAlreadyPresentResponse
+	WidgetPublicIssueWidgetSessionTokenError400                             = RadarListEntryAlreadyPresentResponse
+	WidgetPublicIssueWidgetSessionTokenError404                             = RadarListEntryAlreadyPresentResponse
+	WidgetPublicIssueWidgetSessionTokenError422                             = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsGetUserTokenError400                                    = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsGetUserTokenError403                                    = RadarListEntryAlreadyPresentResponse
+	DataIntegrationsGetUserTokenError404                                    = RadarListEntryAlreadyPresentResponse
+)
+
+// The following types are structurally identical to AgentAdminLinkClaimAttemptToExternalUserError400.
+type (
+	AgentBlueprintsCreateError400             = AgentAdminLinkClaimAttemptToExternalUserError400
+	AgentBlueprintsUpdateError400             = AgentAdminLinkClaimAttemptToExternalUserError400
+	AgentBlueprintsTokenMintTokenError400     = AgentAdminLinkClaimAttemptToExternalUserError400
+	AgentBlueprintsTokenValidateTokenError400 = AgentAdminLinkClaimAttemptToExternalUserError400
+	AgentAdminValidateCredentialError400      = AgentAdminLinkClaimAttemptToExternalUserError400
+)
+
+// AgentBlueprintsCreateError409 represents an agent blueprints create error409.
+type AgentBlueprintsCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentBlueprintsCreateError422 represents an agent blueprints create error422.
+type AgentBlueprintsCreateError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RoleNotFoundAgentBlueprintsCreateError422 represents a role not found agent blueprints create error422.
+type RoleNotFoundAgentBlueprintsCreateError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationNotFoundAgentBlueprintsCreateError422 represents an organization not found agent blueprints create error422.
+type OrganizationNotFoundAgentBlueprintsCreateError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentBlueprintsUpdateError409 is an alias for AgentBlueprintsCreateError409.
+type AgentBlueprintsUpdateError409 = AgentBlueprintsCreateError409
+
+// AgentBlueprintsUpdateError422 is an alias for AgentBlueprintsCreateError422.
+type AgentBlueprintsUpdateError422 = AgentBlueprintsCreateError422
+
+// RoleNotFoundAgentBlueprintsUpdateError422 is an alias for RoleNotFoundAgentBlueprintsCreateError422.
+type RoleNotFoundAgentBlueprintsUpdateError422 = RoleNotFoundAgentBlueprintsCreateError422
+
+// OrganizationNotFoundAgentBlueprintsUpdateError422 is an alias for OrganizationNotFoundAgentBlueprintsCreateError422.
+type OrganizationNotFoundAgentBlueprintsUpdateError422 = OrganizationNotFoundAgentBlueprintsCreateError422
+
+// InvalidUserAccessTokenAgentBlueprintsTokenMintTokenError400 represents an invalid user access token agent blueprints token mint token error400.
+type InvalidUserAccessTokenAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidAgentAccessTokenAgentBlueprintsTokenMintTokenError400 represents an invalid agent access token agent blueprints token mint token error400.
+type InvalidAgentAccessTokenAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRefreshTokenAgentBlueprintsTokenMintTokenError400 is an alias for DataIntegrationsUserManagementUpdateUserDataInstallationError422.
+type InvalidRefreshTokenAgentBlueprintsTokenMintTokenError400 = DataIntegrationsUserManagementUpdateUserDataInstallationError422
+
+// SessionRevokedAgentBlueprintsTokenMintTokenError400 represents a session revoked agent blueprints token mint token error400.
+type SessionRevokedAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionExpiredAgentBlueprintsTokenMintTokenError400 represents a session expired agent blueprints token mint token error400.
+type SessionExpiredAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserSessionEndedAgentBlueprintsTokenMintTokenError400 represents a user session ended agent blueprints token mint token error400.
+type UserSessionEndedAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// MaxAgeExceededAgentBlueprintsTokenMintTokenError400 represents a max age exceeded agent blueprints token mint token error400.
+type MaxAgeExceededAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionSettingsNotFoundAgentBlueprintsTokenMintTokenError400 represents a session settings not found agent blueprints token mint token error400.
+type SessionSettingsNotFoundAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ChainDepthExceededAgentBlueprintsTokenMintTokenError400 represents a chain depth exceeded agent blueprints token mint token error400.
+type ChainDepthExceededAgentBlueprintsTokenMintTokenError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentBlueprintsTokenMintTokenError403 represents an agent blueprints token mint token error403.
+type AgentBlueprintsTokenMintTokenError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationNotInvocableAgentBlueprintsTokenMintTokenError403 represents an organization not invocable agent blueprints token mint token error403.
+type OrganizationNotInvocableAgentBlueprintsTokenMintTokenError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UnsupportedInvocationTypeAgentBlueprintsTokenMintTokenError403 represents an unsupported invocation type agent blueprints token mint token error403.
+type UnsupportedInvocationTypeAgentBlueprintsTokenMintTokenError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RoleNotInvocableAgentBlueprintsTokenMintTokenError403 represents a role not invocable agent blueprints token mint token error403.
+type RoleNotInvocableAgentBlueprintsTokenMintTokenError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidAgentAccessTokenAgentBlueprintsTokenValidateTokenError400 is an alias for InvalidAgentAccessTokenAgentBlueprintsTokenMintTokenError400.
+type InvalidAgentAccessTokenAgentBlueprintsTokenValidateTokenError400 = InvalidAgentAccessTokenAgentBlueprintsTokenMintTokenError400
+
+// SessionRevokedAgentBlueprintsTokenValidateTokenError400 is an alias for SessionRevokedAgentBlueprintsTokenMintTokenError400.
+type SessionRevokedAgentBlueprintsTokenValidateTokenError400 = SessionRevokedAgentBlueprintsTokenMintTokenError400
+
+// SessionExpiredAgentBlueprintsTokenValidateTokenError400 is an alias for SessionExpiredAgentBlueprintsTokenMintTokenError400.
+type SessionExpiredAgentBlueprintsTokenValidateTokenError400 = SessionExpiredAgentBlueprintsTokenMintTokenError400
+
+// UserSessionEndedAgentBlueprintsTokenValidateTokenError400 is an alias for UserSessionEndedAgentBlueprintsTokenMintTokenError400.
+type UserSessionEndedAgentBlueprintsTokenValidateTokenError400 = UserSessionEndedAgentBlueprintsTokenMintTokenError400
+
+// AgentAdminLinkClaimAttemptToExternalUserError400 represents an agent admin link claim attempt to external user error400.
+type AgentAdminLinkClaimAttemptToExternalUserError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidClaimAgentAdminLinkClaimAttemptToExternalUserError400 represents an invalid claim agent admin link claim attempt to external user error400.
+type InvalidClaimAgentAdminLinkClaimAttemptToExternalUserError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidOrganizationAgentAdminLinkClaimAttemptToExternalUserError400 represents an invalid organization agent admin link claim attempt to external user error400.
+type InvalidOrganizationAgentAdminLinkClaimAttemptToExternalUserError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailMismatchAgentAdminLinkClaimAttemptToExternalUserError400 represents an email mismatch agent admin link claim attempt to external user error400.
+type EmailMismatchAgentAdminLinkClaimAttemptToExternalUserError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// WrongAccountAgentAdminLinkClaimAttemptToExternalUserError400 represents a wrong account agent admin link claim attempt to external user error400.
+type WrongAccountAgentAdminLinkClaimAttemptToExternalUserError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentAdminLinkClaimAttemptToExternalUserError403 represents an agent admin link claim attempt to external user error403.
+type AgentAdminLinkClaimAttemptToExternalUserError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthMethodDisabledAgentAdminLinkClaimAttemptToExternalUserError403 represents an auth method disabled agent admin link claim attempt to external user error403.
+type AuthMethodDisabledAgentAdminLinkClaimAttemptToExternalUserError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentAdminLinkClaimAttemptToExternalUserError409 represents an agent admin link claim attempt to external user error409.
+type AgentAdminLinkClaimAttemptToExternalUserError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Organizations is organizations the user belongs to. Pick one and retry with organization_id.
+	Organizations []*AgentAdminLinkClaimAttemptToExternalUserError409Organization `json:"organizations"`
+}
+
+// EmailAlreadyInUseAgentAdminLinkClaimAttemptToExternalUserError409 represents an email already in use agent admin link claim attempt to external user error409.
+type EmailAlreadyInUseAgentAdminLinkClaimAttemptToExternalUserError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AlreadyClaimedAgentAdminLinkClaimAttemptToExternalUserError409 represents an already claimed agent admin link claim attempt to external user error409.
+type AlreadyClaimedAgentAdminLinkClaimAttemptToExternalUserError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentAdminLinkClaimAttemptToExternalUserError410 represents an agent admin link claim attempt to external user error410.
+type AgentAdminLinkClaimAttemptToExternalUserError410 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserCodeExpiredAgentAdminLinkClaimAttemptToExternalUserError410 represents a user code expired agent admin link claim attempt to external user error410.
+type UserCodeExpiredAgentAdminLinkClaimAttemptToExternalUserError410 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AgentInstanceSessionsListError422 represents an agent instance sessions list error422.
+type AgentInstanceSessionsListError422 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*AgentInstanceSessionsListError422Error `json:"errors"`
+}
+
+// AgentInstanceSessionsListError422Error represents an agent instance sessions list error422error.
+type AgentInstanceSessionsListError422Error struct {
+	// Code is the validation error code.
+	Code string `json:"code"`
+	// Field is the field that failed validation.
+	Field string `json:"field"`
+}
+
+// APIKeysExpireError409 represents an api keys expire error409.
+type APIKeysExpireError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// The following types are structurally identical to AuditLogEventsCreateError402.
+type (
+	AuditLogValidatorsListError402                                       = AuditLogEventsCreateError402
+	AuditLogValidatorVersionsSchemasError402                             = AuditLogEventsCreateError402
+	AuditLogValidatorVersionsCreateError402                              = AuditLogEventsCreateError402
+	AuditLogExportsExportsError402                                       = AuditLogEventsCreateError402
+	AuditLogExportsExportError402                                        = AuditLogEventsCreateError402
+	AuthorizationGroupRoleAssignmentsListError402                        = AuditLogEventsCreateError402
+	AuthorizationGroupRoleAssignmentsCreateError402                      = AuditLogEventsCreateError402
+	AuthorizationGroupRoleAssignmentsReplaceGroupRoleAssignmentsError402 = AuditLogEventsCreateError402
+	AuthorizationGroupRoleAssignmentsPatchGroupRoleAssignmentsError402   = AuditLogEventsCreateError402
+	AuthorizationGroupRoleAssignmentsGetError402                         = AuditLogEventsCreateError402
+	AuthorizationCheckError402                                           = AuditLogEventsCreateError402
+	AuthorizationListResourcesForMembershipError402                      = AuditLogEventsCreateError402
+	AuthorizationListEffectivePermissionsError402                        = AuditLogEventsCreateError402
+	AuthorizationRoleAssignmentsListRoleAssignmentsError402              = AuditLogEventsCreateError402
+	AuthorizationRoleAssignmentsAssignRoleError402                       = AuditLogEventsCreateError402
+	AuthorizationResourcesGetError402                                    = AuditLogEventsCreateError402
+	AuthorizationResourcesUpdateError402                                 = AuditLogEventsCreateError402
+	AuthorizationResourcesListOrganizationMembershipsError402            = AuditLogEventsCreateError402
+	AuthorizationResourcesListError402                                   = AuditLogEventsCreateError402
+	AuthorizationResourcesCreateError402                                 = AuditLogEventsCreateError402
+	AuthorizationResourcesFindByIDError402                               = AuditLogEventsCreateError402
+	AuditLogsRetentionAuditLogsRetentionError402                         = AuditLogEventsCreateError402
+	AuditLogsRetentionUpdateAuditLogsRetentionError402                   = AuditLogEventsCreateError402
+	ItContactsInviteError402                                             = AuditLogEventsCreateError402
+	PortalSessionsCreateError402                                         = AuditLogEventsCreateError402
+	RadarStandaloneAssessError402                                        = AuditLogEventsCreateError402
+	RadarStandaloneUpdateRadarAttemptError402                            = AuditLogEventsCreateError402
+	RadarStandaloneUpdateRadarListError402                               = AuditLogEventsCreateError402
+)
+
+// AuditLogEventsCreateError400 represents an audit log events create error400.
+type AuditLogEventsCreateError400 struct {
+	// Errors is the list of validation errors.
+	Errors []*AuditLogEventsCreateError400Error `json:"errors"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+}
+
+// AuditLogEventsCreateError400Error represents an audit log events create error400error.
+type AuditLogEventsCreateError400Error struct {
+	// InstancePath is the JSON path to the invalid field in the event payload.
+	InstancePath string `json:"instancePath"`
+}
+
+// AuditLogEventsCreateError402 represents an audit log events create error402.
+type AuditLogEventsCreateError402 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuditLogEventsCreateError422 represents an audit log events create error422.
+type AuditLogEventsCreateError422 struct {
+	// Errors is the list of validation errors.
+	Errors []*AuditLogEventsCreateError422Error `json:"errors"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuditLogEventsCreateError422Error is an alias for AgentInstanceSessionsListError422Error.
+type AuditLogEventsCreateError422Error = AgentInstanceSessionsListError422Error
+
+// AuditLogExportsExportsError400WithError represents an audit log exports exports error400with error.
+type AuditLogExportsExportsError400WithError struct {
+	// Message is a list of human-readable error messages describing the validation failures.
+	Message []string `json:"message"`
+	// Error is the error type.
+	Error string `json:"error"`
+}
+
+// AuthenticationChallengesVerifyError400 represents an authentication challenges verify error400.
+type AuthenticationChallengesVerifyError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthenticationFactorsChallengeError429 represents an authentication factors challenge error429.
+type AuthenticationFactorsChallengeError429 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// RetryAfter is seconds to wait before retrying.
+	RetryAfter float64 `json:"retry_after"`
+}
+
+// SmsChallengeRateLimitedAuthenticationFactorsChallengeError429 represents a sms challenge rate limited authentication factors challenge error429.
+type SmsChallengeRateLimitedAuthenticationFactorsChallengeError429 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SmsChallengeQuotaReachedAuthenticationFactorsChallengeError429 represents a sms challenge quota reached authentication factors challenge error429.
+type SmsChallengeQuotaReachedAuthenticationFactorsChallengeError429 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ExternalAuthCompleteLoginError400 represents an external auth complete login error400.
+type ExternalAuthCompleteLoginError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ExternalAuthCompleteLoginError4002 represents an external auth complete login error4002.
+type ExternalAuthCompleteLoginError4002 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ExternalAuthCompleteLoginError4003 is an alias for EmailChangeNotAllowedUserConfirmEmailChangeError409.
+type ExternalAuthCompleteLoginError4003 = EmailChangeNotAllowedUserConfirmEmailChangeError409
+
+// ExternalAuthCompleteLoginError4004 is an alias for EmailNotAvailableUserConfirmEmailChangeError409.
+type ExternalAuthCompleteLoginError4004 = EmailNotAvailableUserConfirmEmailChangeError409
+
+// ExternalAuthCompleteLoginError4005 represents an external auth complete login error4005.
+type ExternalAuthCompleteLoginError4005 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ExternalAuthCompleteLoginError400WithError represents an external auth complete login error400with error.
+type ExternalAuthCompleteLoginError400WithError struct {
+	// Error is the HTTP error type.
+	Error string `json:"error"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationGroupRoleAssignmentsCreateError409 represents an authorization group role assignments create error409.
+type AuthorizationGroupRoleAssignmentsCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationGroupRoleAssignmentsPatchGroupRoleAssignmentsError400 represents an authorization group role assignments patch group role assignments error400.
+type AuthorizationGroupRoleAssignmentsPatchGroupRoleAssignmentsError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationListResourcesForMembershipError400 represents an authorization list resources for membership error400.
+type AuthorizationListResourcesForMembershipError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// The following types are structurally identical to AuthorizationListResourcesForMembershipError400.
+type (
+	AuthorizationOrganizationRolesCreateError400                  = AuthorizationListResourcesForMembershipError400
+	AuthorizationOrganizationRolesUpdateError400                  = AuthorizationListResourcesForMembershipError400
+	AuthorizationOrganizationRolesDeleteError400                  = AuthorizationListResourcesForMembershipError400
+	AuthorizationOrganizationRolePermissionsAddPermissionError400 = AuthorizationListResourcesForMembershipError400
+	AuthorizationResourcesListOrganizationMembershipsError400     = AuthorizationListResourcesForMembershipError400
+	AuthorizationPermissionsCreateError400                        = AuthorizationListResourcesForMembershipError400
+	AuthorizationResourcesCreateError400                          = AuthorizationListResourcesForMembershipError400
+	AuthorizationRolesCreateError400                              = AuthorizationListResourcesForMembershipError400
+	AuthorizationRolesUpdateError400                              = AuthorizationListResourcesForMembershipError400
+	AuthorizationRolePermissionsAddPermissionError400             = AuthorizationListResourcesForMembershipError400
+	AuthorizationRolePermissionsSetPermissionsError400            = AuthorizationListResourcesForMembershipError400
+	GroupCreateError400                                           = AuthorizationListResourcesForMembershipError400
+	GroupUpdateError400                                           = AuthorizationListResourcesForMembershipError400
+)
+
+// AuthorizationOrganizationRolesCreateError409 represents an authorization organization roles create error409.
+type AuthorizationOrganizationRolesCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationOrganizationRolesDeleteError409 represents an authorization organization roles delete error409.
+type AuthorizationOrganizationRolesDeleteError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RoleHasGroupRoleMappingsAuthorizationOrganizationRolesDeleteError409 represents a role has group role mappings authorization organization roles delete error409.
+type RoleHasGroupRoleMappingsAuthorizationOrganizationRolesDeleteError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationResourcesUpdateError400 is an alias for AuthorizationResourcesDeleteError400.
+type AuthorizationResourcesUpdateError400 = AuthorizationResourcesDeleteError400
+
+// AuthorizationResourcesUpdateError409 represents an authorization resources update error409.
+type AuthorizationResourcesUpdateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationResourcesDeleteError400 represents an authorization resources delete error400.
+type AuthorizationResourcesDeleteError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationResourcesDeleteError409 represents an authorization resources delete error409.
+type AuthorizationResourcesDeleteError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ResourceTypeUpdateInProgressAuthorizationResourcesDeleteError409 is an alias for AuthorizationResourcesUpdateError409.
+type ResourceTypeUpdateInProgressAuthorizationResourcesDeleteError409 = AuthorizationResourcesUpdateError409
+
+// AuthorizationPermissionsCreateError409 represents an authorization permissions create error409.
+type AuthorizationPermissionsCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationResourcesListError400 represents an authorization resources list error400.
+type AuthorizationResourcesListError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// LockTimeoutAuthorizationResourcesCreateError400 is an alias for AuthorizationResourcesDeleteError400.
+type LockTimeoutAuthorizationResourcesCreateError400 = AuthorizationResourcesDeleteError400
+
+// AuthorizationResourcesCreateError409 represents an authorization resources create error409.
+type AuthorizationResourcesCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ResourceTypeUpdateInProgressAuthorizationResourcesCreateError409 is an alias for AuthorizationResourcesUpdateError409.
+type ResourceTypeUpdateInProgressAuthorizationResourcesCreateError409 = AuthorizationResourcesUpdateError409
+
+// AuthorizationRolesCreateError409 represents an authorization roles create error409.
+type AuthorizationRolesCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionCreateError400 represents a connection create error400.
+type ConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionTypeNotSupportedConnectionCreateError400 represents a connection type not supported connection create error400.
+type ConnectionTypeNotSupportedConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionTypeOrOptionsRequiredConnectionCreateError400 represents a connection type or options required connection create error400.
+type ConnectionTypeOrOptionsRequiredConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionTypeConflictsWithOptionsConnectionCreateError400 represents a connection type conflicts with options connection create error400.
+type ConnectionTypeConflictsWithOptionsConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// BothSAMLAndOIDCOptionsProvidedConnectionCreateError400 represents a both SAML and oidc options provided connection create error400.
+type BothSAMLAndOIDCOptionsProvidedConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AmbiguousSAMLOptionsConnectionCreateError400 represents an ambiguous SAML options connection create error400.
+type AmbiguousSAMLOptionsConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// IncompleteSAMLOptionsConnectionCreateError400 represents an incomplete SAML options connection create error400.
+type IncompleteSAMLOptionsConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SAMLOptionsRequiredConnectionCreateError400 represents a SAML options required connection create error400.
+type SAMLOptionsRequiredConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OIDCOptionsRequiredConnectionCreateError400 represents an oidc options required connection create error400.
+type OIDCOptionsRequiredConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidCertificateConnectionCreateError400 represents an invalid certificate connection create error400.
+type InvalidCertificateConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ClientSecretRequiredConnectionCreateError400 represents a client secret required connection create error400.
+type ClientSecretRequiredConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ClientSecretNotAcceptedConnectionCreateError400 represents a client secret not accepted connection create error400.
+type ClientSecretNotAcceptedConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// KeyPairNotAcceptedConnectionCreateError400 represents a key pair not accepted connection create error400.
+type KeyPairNotAcceptedConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DiscoveryEndpointMustUseHttpsConnectionCreateError400 represents a discovery endpoint must use https connection create error400.
+type DiscoveryEndpointMustUseHttpsConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// TokenAuthenticationMethodNotSupportedConnectionCreateError400 represents a token authentication method not supported connection create error400.
+type TokenAuthenticationMethodNotSupportedConnectionCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionCreateError409 represents a connection create error409.
+type ConnectionCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ResourceLimitExceededConnectionCreateError409 represents a resource limit exceeded connection create error409.
+type ResourceLimitExceededConnectionCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// TooManySpEncryptionCertsConnectionCreateError409 is an alias for SAMLSpEncryptionCertificatesCreateError409.
+type TooManySpEncryptionCertsConnectionCreateError409 = SAMLSpEncryptionCertificatesCreateError409
+
+// ConnectionCreateError4222 represents a connection create error4222.
+type ConnectionCreateError4222 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionCreateError4223 represents a connection create error4223.
+type ConnectionCreateError4223 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionCreateError4224 represents a connection create error4224.
+type ConnectionCreateError4224 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// The following types are structurally identical to SAMLIdpSigningCertificatesCreateError400.
+type (
+	SAMLIdpSigningCertificatesListError400     = SAMLIdpSigningCertificatesCreateError400
+	SAMLSpEncryptionCertificatesListError400   = SAMLIdpSigningCertificatesCreateError400
+	SAMLSpEncryptionCertificatesCreateError400 = SAMLIdpSigningCertificatesCreateError400
+	SAMLSpSigningCertificatesGetError400       = SAMLIdpSigningCertificatesCreateError400
+	SAMLSpSigningCertificatesCreateError400    = SAMLIdpSigningCertificatesCreateError400
+)
+
+// SAMLIdpSigningCertificatesCreateError400 represents a SAML idp signing certificates create error400.
+type SAMLIdpSigningCertificatesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidCertificateSAMLIdpSigningCertificatesCreateError400 is an alias for InvalidCertificateConnectionCreateError400.
+type InvalidCertificateSAMLIdpSigningCertificatesCreateError400 = InvalidCertificateConnectionCreateError400
+
+// CertificateExpiredSAMLIdpSigningCertificatesCreateError400 represents a certificate expired SAML idp signing certificates create error400.
+type CertificateExpiredSAMLIdpSigningCertificatesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SAMLIdpSigningCertificatesDeleteError400 represents a SAML idp signing certificates delete error400.
+type SAMLIdpSigningCertificatesDeleteError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// KeyPairNotAcceptedSAMLSpEncryptionCertificatesCreateError400 is an alias for KeyPairNotAcceptedConnectionCreateError400.
+type KeyPairNotAcceptedSAMLSpEncryptionCertificatesCreateError400 = KeyPairNotAcceptedConnectionCreateError400
+
+// SAMLSpEncryptionCertificatesCreateError409 represents a SAML sp encryption certificates create error409.
+type SAMLSpEncryptionCertificatesCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// The following types are structurally identical to DataIntegrationsCreateAPIKeyConnectionError503.
+type (
+	SAMLSpEncryptionCertificatesCreateError503                             = DataIntegrationsCreateAPIKeyConnectionError503
+	SAMLSpSigningCertificatesCreateError503                                = DataIntegrationsCreateAPIKeyConnectionError503
+	DataIntegrationsCreateClientCredentialsConnectionError503              = DataIntegrationsCreateAPIKeyConnectionError503
+	DataIntegrationsOrganizationCreateOrganizationDataInstallationError503 = DataIntegrationsCreateAPIKeyConnectionError503
+	DataIntegrationsOrganizationDeleteOrganizationDataInstallationError503 = DataIntegrationsCreateAPIKeyConnectionError503
+	ItContactsCreateError503                                               = DataIntegrationsCreateAPIKeyConnectionError503
+	ItContactsDeleteError503                                               = DataIntegrationsCreateAPIKeyConnectionError503
+	ItContactsInviteError503                                               = DataIntegrationsCreateAPIKeyConnectionError503
+	ItContactsRevokeError503                                               = DataIntegrationsCreateAPIKeyConnectionError503
+	UserUpdateError503                                                     = DataIntegrationsCreateAPIKeyConnectionError503
+	DataIntegrationsUserManagementCreateUserDataInstallationError503       = DataIntegrationsCreateAPIKeyConnectionError503
+	DataIntegrationsUserManagementUpdateUserDataInstallationError503       = DataIntegrationsCreateAPIKeyConnectionError503
+	DataIntegrationsUserManagementDeleteUserDataInstallationError503       = DataIntegrationsCreateAPIKeyConnectionError503
+)
+
+// KeyPairNotAcceptedSAMLSpSigningCertificatesCreateError400 is an alias for KeyPairNotAcceptedConnectionCreateError400.
+type KeyPairNotAcceptedSAMLSpSigningCertificatesCreateError400 = KeyPairNotAcceptedConnectionCreateError400
+
+// ConnectionTypeNotSupportedSAMLSpSigningCertificatesCreateError400 is an alias for ConnectionTypeNotSupportedConnectionCreateError400.
+type ConnectionTypeNotSupportedSAMLSpSigningCertificatesCreateError400 = ConnectionTypeNotSupportedConnectionCreateError400
+
+// SAMLRequestBindingUnsupportedForSigningSAMLSpSigningCertificatesCreateError400 represents a SAML request binding unsupported for signing SAML sp signing certificates create error400.
+type SAMLRequestBindingUnsupportedForSigningSAMLSpSigningCertificatesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SAMLSpSigningCertificatesCreateError409 represents a SAML sp signing certificates create error409.
+type SAMLSpSigningCertificatesCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionPatchError400 is an alias for ConnectionCreateError400.
+type ConnectionPatchError400 = ConnectionCreateError400
+
+// ConnectionTypeNotSupportedConnectionPatchError400 is an alias for ConnectionTypeNotSupportedConnectionCreateError400.
+type ConnectionTypeNotSupportedConnectionPatchError400 = ConnectionTypeNotSupportedConnectionCreateError400
+
+// ConnectionTypeConflictsWithOptionsConnectionPatchError400 is an alias for ConnectionTypeConflictsWithOptionsConnectionCreateError400.
+type ConnectionTypeConflictsWithOptionsConnectionPatchError400 = ConnectionTypeConflictsWithOptionsConnectionCreateError400
+
+// BothSAMLAndOIDCOptionsProvidedConnectionPatchError400 is an alias for BothSAMLAndOIDCOptionsProvidedConnectionCreateError400.
+type BothSAMLAndOIDCOptionsProvidedConnectionPatchError400 = BothSAMLAndOIDCOptionsProvidedConnectionCreateError400
+
+// AmbiguousSAMLOptionsConnectionPatchError400 is an alias for AmbiguousSAMLOptionsConnectionCreateError400.
+type AmbiguousSAMLOptionsConnectionPatchError400 = AmbiguousSAMLOptionsConnectionCreateError400
+
+// TokenAuthenticationMethodNotSupportedConnectionPatchError400 is an alias for TokenAuthenticationMethodNotSupportedConnectionCreateError400.
+type TokenAuthenticationMethodNotSupportedConnectionPatchError400 = TokenAuthenticationMethodNotSupportedConnectionCreateError400
+
+// IDTokenSignatureAlgorithmNotSupportedConnectionPatchError400 represents an id token signature algorithm not supported connection patch error400.
+type IDTokenSignatureAlgorithmNotSupportedConnectionPatchError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ClientSecretRequiredConnectionPatchError400 is an alias for ClientSecretRequiredConnectionCreateError400.
+type ClientSecretRequiredConnectionPatchError400 = ClientSecretRequiredConnectionCreateError400
+
+// ClientSecretNotAcceptedConnectionPatchError400 is an alias for ClientSecretNotAcceptedConnectionCreateError400.
+type ClientSecretNotAcceptedConnectionPatchError400 = ClientSecretNotAcceptedConnectionCreateError400
+
+// DiscoveryEndpointMustUseHttpsConnectionPatchError400 is an alias for DiscoveryEndpointMustUseHttpsConnectionCreateError400.
+type DiscoveryEndpointMustUseHttpsConnectionPatchError400 = DiscoveryEndpointMustUseHttpsConnectionCreateError400
+
+// ConnectionPatchError409 is an alias for ConnectionCreateError409.
+type ConnectionPatchError409 = ConnectionCreateError409
+
+// ConnectionPatchError4222 represents a connection patch error4222.
+type ConnectionPatchError4222 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionPatchError4223 is an alias for ConnectionCreateError4222.
+type ConnectionPatchError4223 = ConnectionCreateError4222
+
+// ConnectionPatchError4224 is an alias for ConnectionCreateError4223.
+type ConnectionPatchError4224 = ConnectionCreateError4223
+
+// DataIntegrationsFinishConnectionError400 represents a data integrations finish connection error400.
+type DataIntegrationsFinishConnectionError400 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsFinishConnectionError400Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// The following types are structurally identical to DataIntegrationsCreateAPIKeyConnectionError400.
+type (
+	DataIntegrationsFinishConnectionError4002                 = DataIntegrationsCreateAPIKeyConnectionError400
+	DataIntegrationsUpsertAPIKeyError400                      = DataIntegrationsCreateAPIKeyConnectionError400
+	DataIntegrationsGetDataIntegrationAuthorizeURLError4002   = DataIntegrationsCreateAPIKeyConnectionError400
+	DataIntegrationsCreateClientCredentialsConnectionError400 = DataIntegrationsCreateAPIKeyConnectionError400
+	DataIntegrationsUpsertClientCredentialsError400           = DataIntegrationsCreateAPIKeyConnectionError400
+)
+
+// DataIntegrationsCreateAPIKeyConnectionError400 represents a data integrations create api key connection error400.
+type DataIntegrationsCreateAPIKeyConnectionError400 struct {
+	Message interface{} `json:"message"`
+}
+
+// DataIntegrationsCreateAPIKeyConnectionError404 represents a data integrations create api key connection error404.
+type DataIntegrationsCreateAPIKeyConnectionError404 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsCreateAPIKeyConnectionError404Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsCreateAPIKeyConnectionError409 represents a data integrations create api key connection error409.
+type DataIntegrationsCreateAPIKeyConnectionError409 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsCreateAPIKeyConnectionError409Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsCreateAPIKeyConnectionError503 represents a data integrations create api key connection error503.
+type DataIntegrationsCreateAPIKeyConnectionError503 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsUpsertAPIKeyError404 represents a data integrations upsert api key error404.
+type DataIntegrationsUpsertAPIKeyError404 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLError400 represents a data integrations get data integration authorize url error400.
+type DataIntegrationsGetDataIntegrationAuthorizeURLError400 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsGetDataIntegrationAuthorizeURLError400Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLError404 represents a data integrations get data integration authorize url error404.
+type DataIntegrationsGetDataIntegrationAuthorizeURLError404 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsGetDataIntegrationAuthorizeURLError404Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsGetDataIntegrationAuthorizeURLError409 represents a data integrations get data integration authorize url error409.
+type DataIntegrationsGetDataIntegrationAuthorizeURLError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsCreateClientCredentialsConnectionError404 represents a data integrations create client credentials connection error404.
+type DataIntegrationsCreateClientCredentialsConnectionError404 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsCreateClientCredentialsConnectionError404Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsCreateClientCredentialsConnectionError409 represents a data integrations create client credentials connection error409.
+type DataIntegrationsCreateClientCredentialsConnectionError409 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsCreateClientCredentialsConnectionError409Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsUpsertClientCredentialsError404 is an alias for DataIntegrationsUpsertAPIKeyError404.
+type DataIntegrationsUpsertClientCredentialsError404 = DataIntegrationsUpsertAPIKeyError404
+
+// DirectorySyncDirectoryError409 represents a directory sync directory error409.
+type DirectorySyncDirectoryError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DirectorySyncDirectoryError422 represents a directory sync directory error422.
+type DirectorySyncDirectoryError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DirectorySyncDirectoryError503 represents a directory sync directory error503.
+type DirectorySyncDirectoryError503 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EventListError422 represents an event list error422.
+type EventListError422 struct {
+	// Errors is the list of validation errors.
+	Errors []*EventListError422Error `json:"errors"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EventListError422Error is an alias for AgentInstanceSessionsListError422Error.
+type EventListError422Error = AgentInstanceSessionsListError422Error
+
+// FeatureFlagsListError400 represents a feature flags list error400.
+type FeatureFlagsListError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// FeatureFlagsDisableFlagError409 represents a feature flags disable flag error409.
+type FeatureFlagsDisableFlagError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// FeatureFlagsEnableFlagError409 is an alias for FeatureFlagsDisableFlagError409.
+type FeatureFlagsEnableFlagError409 = FeatureFlagsDisableFlagError409
+
+// FlagTargetsCreateTargetError400 represents a flag targets create target error400.
+type FlagTargetsCreateTargetError400 struct {
+	// Message is a human-readable description of the error.
+	Message *string `json:"message,omitempty"`
+	// Code is the error code identifying the type of error.
+	Code *string `json:"code,omitempty"`
+	// StatusCode is the HTTP status code.
+	StatusCode *float64 `json:"statusCode,omitempty"`
+}
+
+// FlagTargetsDeleteTargetError400 is an alias for FlagTargetsCreateTargetError400.
+type FlagTargetsDeleteTargetError400 = FlagTargetsCreateTargetError400
+
+// OrganizationDomainsCreateError409 represents an organization domains create error409.
+type OrganizationDomainsCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationDomainsVerifyError400 represents an organization domains verify error400.
+type OrganizationDomainsVerifyError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationCreateError400 is an alias for InvalidMetadataUserCreateError400.
+type OrganizationCreateError400 = InvalidMetadataUserCreateError400
+
+// ExternalIDAlreadyUsedOrganizationCreateError400 represents an external id already used organization create error400.
+type ExternalIDAlreadyUsedOrganizationCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationUpdateOrganizationError400 is an alias for InvalidMetadataUserCreateError400.
+type OrganizationUpdateOrganizationError400 = InvalidMetadataUserCreateError400
+
+// ExternalIDAlreadyUsedOrganizationUpdateOrganizationError400 is an alias for ExternalIDAlreadyUsedOrganizationCreateError400.
+type ExternalIDAlreadyUsedOrganizationUpdateOrganizationError400 = ExternalIDAlreadyUsedOrganizationCreateError400
+
+// StripeCustomerIDAlreadyUsedOrganizationUpdateOrganizationError400 represents a stripe customer id already used organization update organization error400.
+type StripeCustomerIDAlreadyUsedOrganizationUpdateOrganizationError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationAPIKeysCreateError422 represents an organization api keys create error422.
+type OrganizationAPIKeysCreateError422 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*OrganizationAPIKeysCreateError422Error `json:"errors"`
+}
+
+// OrganizationAPIKeysCreateError422Error is an alias for AgentInstanceSessionsListError422Error.
+type OrganizationAPIKeysCreateError422Error = AgentInstanceSessionsListError422Error
+
+// GroupMembershipsAddMemberError400 represents a group memberships add member error400.
+type GroupMembershipsAddMemberError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError404 represents a data integrations organization create organization data installation error404.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError404 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsOrganizationCreateOrganizationDataInstallationError404Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError409 represents a data integrations organization create organization data installation error409.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError409 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsOrganizationCreateOrganizationDataInstallationError409Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError422 represents a data integrations organization create organization data installation error422.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError422 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsOrganizationCreateOrganizationDataInstallationError422Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsOrganizationCreateOrganizationDataInstallationError422WithErrors represents a data integrations organization create organization data installation error422with errors.
+type DataIntegrationsOrganizationCreateOrganizationDataInstallationError422WithErrors struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*DataIntegrationsOrganizationCreateOrganizationDataInstallationError422WithErrorsError `json:"errors"`
+}
+
+// DataIntegrationsOrganizationUpdateOrganizationDataInstallationError422 represents a data integrations organization update organization data installation error422.
+type DataIntegrationsOrganizationUpdateOrganizationDataInstallationError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*DataIntegrationsOrganizationUpdateOrganizationDataInstallationError422Error `json:"errors"`
+}
+
+// ItContactsCreateError409 represents an it contacts create error409.
+type ItContactsCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ItContactsInviteError409 represents an it contacts invite error409.
+type ItContactsInviteError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ItContactsInviteError429 represents an it contacts invite error429.
+type ItContactsInviteError429 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// TeamCreateTeamError409 represents a team create team error409.
+type TeamCreateTeamError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// TeamGetTeamError404 represents a team get team error404.
+type TeamGetTeamError404 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SSOLogoutAuthorizeError400 represents a SSO logout authorize error400.
+type SSOLogoutAuthorizeError400 struct {
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SSOGetProfileError401 represents a SSO get profile error401.
+type SSOGetProfileError401 struct {
+	Error string `json:"error"`
+}
+
+// SSOTokenError400 represents a SSO token error400.
+type SSOTokenError400 struct {
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// UnauthorizedClientSSOTokenError400 is an alias for SessionAuthenticateError40013.
+type UnauthorizedClientSSOTokenError400 = SessionAuthenticateError40013
+
+// InvalidGrantSSOTokenError400 represents an invalid grant SSO token error400.
+type InvalidGrantSSOTokenError400 struct {
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// UnsupportedGrantTypeSSOTokenError400 represents an unsupported grant type SSO token error400.
+type UnsupportedGrantTypeSSOTokenError400 struct {
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError400 represents a session authenticate error400.
+type SessionAuthenticateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4002 represents a session authenticate error4002.
+type SessionAuthenticateError4002 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4003 represents a session authenticate error4003.
+type SessionAuthenticateError4003 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4004 represents a session authenticate error4004.
+type SessionAuthenticateError4004 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4005 represents a session authenticate error4005.
+type SessionAuthenticateError4005 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4006 represents a session authenticate error4006.
+type SessionAuthenticateError4006 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4007 is an alias for AuthenticationChallengesVerifyError400.
+type SessionAuthenticateError4007 = AuthenticationChallengesVerifyError400
+
+// SessionAuthenticateError4008 represents a session authenticate error4008.
+type SessionAuthenticateError4008 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError4009 represents a session authenticate error4009.
+type SessionAuthenticateError4009 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError40010 represents a session authenticate error40010.
+type SessionAuthenticateError40010 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError40011 represents a session authenticate error40011.
+type SessionAuthenticateError40011 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError40012 is an alias for SSOTokenError400.
+type SessionAuthenticateError40012 = SSOTokenError400
+
+// SessionAuthenticateError40013 represents a session authenticate error40013.
+type SessionAuthenticateError40013 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40014 represents a session authenticate error40014.
+type SessionAuthenticateError40014 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40015 is an alias for MagicAuthSendMagicAuthCodeAndReturnError400.
+type SessionAuthenticateError40015 = MagicAuthSendMagicAuthCodeAndReturnError400
+
+// SessionAuthenticateError40016 represents a session authenticate error40016.
+type SessionAuthenticateError40016 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40017 is an alias for MagicAuthSendMagicAuthCodeAndReturnError4002.
+type SessionAuthenticateError40017 = MagicAuthSendMagicAuthCodeAndReturnError4002
+
+// SessionAuthenticateError40018 represents a session authenticate error40018.
+type SessionAuthenticateError40018 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40019 is an alias for MagicAuthSendMagicAuthCodeAndReturnError4003.
+type SessionAuthenticateError40019 = MagicAuthSendMagicAuthCodeAndReturnError4003
+
+// SessionAuthenticateError40020 represents a session authenticate error40020.
+type SessionAuthenticateError40020 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40021 represents a session authenticate error40021.
+type SessionAuthenticateError40021 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40022 represents a session authenticate error40022.
+type SessionAuthenticateError40022 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40023 represents a session authenticate error40023.
+type SessionAuthenticateError40023 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40024 represents a session authenticate error40024.
+type SessionAuthenticateError40024 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40025 represents a session authenticate error40025.
+type SessionAuthenticateError40025 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40026 represents a session authenticate error40026.
+type SessionAuthenticateError40026 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40027 represents a session authenticate error40027.
+type SessionAuthenticateError40027 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError40028 represents a session authenticate error40028.
+type SessionAuthenticateError40028 struct {
+	Message string `json:"message"`
+}
+
+// SessionAuthenticateError400Variant29 is an alias for InvalidGrantSSOTokenError400.
+type SessionAuthenticateError400Variant29 = InvalidGrantSSOTokenError400
+
+// InvalidRequestSessionAuthenticateError400Variant29 represents an invalid request session authenticate error400variant29.
+type InvalidRequestSessionAuthenticateError400Variant29 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// OrganizationNotFoundSessionAuthenticateError400Variant29 represents an organization not found session authenticate error400variant29.
+type OrganizationNotFoundSessionAuthenticateError400Variant29 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// OrganizationMembershipNotFoundSessionAuthenticateError400Variant29 represents an organization membership not found session authenticate error400variant29.
+type OrganizationMembershipNotFoundSessionAuthenticateError400Variant29 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MFAEnrollmentSessionAuthenticateError400Variant29 represents a mfa enrollment session authenticate error400variant29.
+type MFAEnrollmentSessionAuthenticateError400Variant29 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// TokenTooBigSessionAuthenticateError400Variant29 represents a token too big session authenticate error400variant29.
+type TokenTooBigSessionAuthenticateError400Variant29 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SessionAuthenticateError400Variant29Variant7 represents a session authenticate error400variant29variant7.
+type SessionAuthenticateError400Variant29Variant7 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+	// ConnectionIDs is the IDs of the SSO connections the user must authenticate through.
+	ConnectionIDs []string `json:"connection_ids"`
+	// Email is the email address of the user that must authenticate via SSO.
+	Email string `json:"email"`
+	// PendingAuthenticationToken is a token that links the subsequent SSO authentication back to the pending authentication so the authorization session can be completed.
+	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
+}
+
+// SessionAuthenticateError403 represents a session authenticate error403.
+type SessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// MFAChallengeSessionAuthenticateError403 represents a mfa challenge session authenticate error403.
+type MFAChallengeSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthenticationMethodNotAllowedSessionAuthenticateError403 represents an authentication method not allowed session authenticate error403.
+type AuthenticationMethodNotAllowedSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailCompletionRequiredSessionAuthenticateError403 represents an email completion required session authenticate error403.
+type EmailCompletionRequiredSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// EmailCompletionToken is pass this to the `email-completion` grant, with the address the user supplies, to finish authenticating.
+	EmailCompletionToken string `json:"email_completion_token"`
+}
+
+// EmailVerificationRequiredSessionAuthenticateError403 represents an email verification required session authenticate error403.
+type EmailVerificationRequiredSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailPasswordAuthDisabledSessionAuthenticateError403 represents an email password auth disabled session authenticate error403.
+type EmailPasswordAuthDisabledSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationSelectionRequiredSessionAuthenticateError403 represents an organization selection required session authenticate error403.
+type OrganizationSelectionRequiredSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasskeyProgressiveEnrollmentSessionAuthenticateError403 represents a passkey progressive enrollment session authenticate error403.
+type PasskeyProgressiveEnrollmentSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RadarChallengeSessionAuthenticateError403 represents a radar challenge session authenticate error403.
+type RadarChallengeSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RadarSignUpChallengeSessionAuthenticateError403 represents a radar sign up challenge session authenticate error403.
+type RadarSignUpChallengeSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RadarSmsSignInChallengeSessionAuthenticateError403 represents a radar sms sign in challenge session authenticate error403.
+type RadarSmsSignInChallengeSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ApplicationConsentRequiredSessionAuthenticateError403 represents an application consent required session authenticate error403.
+type ApplicationConsentRequiredSessionAuthenticateError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PolicyDeniedSessionAuthenticateError403 is an alias for MagicAuthSendMagicAuthCodeAndReturnError403.
+type PolicyDeniedSessionAuthenticateError403 = MagicAuthSendMagicAuthCodeAndReturnError403
+
+// The following types are structurally identical to FeatureFlagsListError400.
+type (
+	SessionAuthenticateError422                         = FeatureFlagsListError400
+	UserInvitesListError422                             = FeatureFlagsListError400
+	UserInvitesCreateError422                           = FeatureFlagsListError400
+	UserInvitesResendError422                           = FeatureFlagsListError400
+	JWTTemplatesUpdateJWTTemplateError422               = FeatureFlagsListError400
+	UserOrganizationMembershipsListError400             = FeatureFlagsListError400
+	UserOrganizationMembershipsCreateError422           = FeatureFlagsListError400
+	UserOrganizationMembershipsUpdateError422           = FeatureFlagsListError400
+	UserOrganizationMembershipsDeactivateError422       = FeatureFlagsListError400
+	UserOrganizationMembershipsReactivateError422       = FeatureFlagsListError400
+	UserCreatePasswordResetTokenError422                = FeatureFlagsListError400
+	UserResetPasswordError422                           = FeatureFlagsListError400
+	UserCreateError422                                  = FeatureFlagsListError400
+	UserUpdateError422                                  = FeatureFlagsListError400
+	UserConfirmEmailChangeError422                      = FeatureFlagsListError400
+	UserSendEmailChangeError422                         = FeatureFlagsListError400
+	UserEmailVerificationError422                       = FeatureFlagsListError400
+	UserSendVerificationEmailError422                   = FeatureFlagsListError400
+	UserSessionsListError422                            = FeatureFlagsListError400
+	WaitlistListEntriesError422                         = FeatureFlagsListError400
+	InvalidRequestParametersWaitlistCreateEntryError422 = FeatureFlagsListError400
+)
+
+// The following types are structurally identical to ItContactsInviteError429.
+type (
+	SessionAuthenticateError429                 = ItContactsInviteError429
+	MagicAuthSendMagicAuthCodeAndReturnError429 = ItContactsInviteError429
+	UserCreatePasswordResetTokenError429        = ItContactsInviteError429
+	UserSendEmailChangeError429                 = ItContactsInviteError429
+	UserSendVerificationEmailError429           = ItContactsInviteError429
+)
+
+// SessionAuthenticateError429WithError represents a session authenticate error429with error.
+type SessionAuthenticateError429WithError struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SSODeviceAuthorizationError400 represents a SSO device authorization error400.
+type SSODeviceAuthorizationError400 struct {
+	// Error is error code.
+	Error string `json:"error"`
+	// ErrorDescription is human-readable error description.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SSODeviceAuthorizationError403 is an alias for SSODeviceAuthorizationError400.
+type SSODeviceAuthorizationError403 = SSODeviceAuthorizationError400
+
+// CORSOriginsCreateCORSOriginError409 represents a cors origins create cors origin error409.
+type CORSOriginsCreateCORSOriginError409 struct {
+	// Code is the error code.
+	Code *string `json:"code,omitempty"`
+	// Message is a human-readable error message.
+	Message *string `json:"message,omitempty"`
+}
+
+// CORSOriginsCreateCORSOriginError422 represents a cors origins create cors origin error422.
+type CORSOriginsCreateCORSOriginError422 struct {
+	// Message is a human-readable error message.
+	Message *string `json:"message,omitempty"`
+	// Errors is the list of validation errors.
+	Errors []*CORSOriginsCreateCORSOriginError422Error `json:"errors,omitempty"`
+}
+
+// CORSOriginsCreateCORSOriginError422Error represents a cors origins create cors origin error422error.
+type CORSOriginsCreateCORSOriginError422Error struct {
+	// Property is the property that failed validation.
+	Property    *string                `json:"property,omitempty"`
+	Constraints map[string]interface{} `json:"constraints,omitempty"`
+}
+
+// UserInvitesCreateError400 represents a user invites create error400.
+type UserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserAlreadyOrganizationMemberUserInvitesCreateError400 represents a user already organization member user invites create error400.
+type UserAlreadyOrganizationMemberUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailAlreadyInvitedUserInvitesCreateError400 represents an email already invited user invites create error400.
+type EmailAlreadyInvitedUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserAlreadyExistsUserInvitesCreateError400 is an alias for TeamCreateTeamError409.
+type UserAlreadyExistsUserInvitesCreateError400 = TeamCreateTeamError409
+
+// ExpiresInDaysTooShortUserInvitesCreateError400 represents an expires in days too short user invites create error400.
+type ExpiresInDaysTooShortUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ExpiresInDaysTooLongUserInvitesCreateError400 represents an expires in days too long user invites create error400.
+type ExpiresInDaysTooLongUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRoleUserInvitesCreateError400 represents an invalid role user invites create error400.
+type InvalidRoleUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationBlockedFromSendingInvitesUserInvitesCreateError400 represents an organization blocked from sending invites user invites create error400.
+type OrganizationBlockedFromSendingInvitesUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailDomainNotDeliverableUserInvitesCreateError400 represents an email domain not deliverable user invites create error400.
+type EmailDomainNotDeliverableUserInvitesCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserInvitesAcceptError400 represents a user invites accept error400.
+type UserInvitesAcceptError400 struct {
+	Code UserInvitesAcceptError400Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserInvitesResendError400 represents a user invites resend error400.
+type UserInvitesResendError400 struct {
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InviteRevokedUserInvitesResendError400 represents an invite revoked user invites resend error400.
+type InviteRevokedUserInvitesResendError400 struct {
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InviteAcceptedUserInvitesResendError400 represents an invite accepted user invites resend error400.
+type InviteAcceptedUserInvitesResendError400 struct {
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailDomainNotDeliverableUserInvitesResendError400 is an alias for EmailDomainNotDeliverableUserInvitesCreateError400.
+type EmailDomainNotDeliverableUserInvitesResendError400 = EmailDomainNotDeliverableUserInvitesCreateError400
+
+// UserInvitesRevokeError400 represents a user invites revoke error400.
+type UserInvitesRevokeError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// MagicAuthSendMagicAuthCodeAndReturnError400 represents a magic auth send magic auth code and return error400.
+type MagicAuthSendMagicAuthCodeAndReturnError400 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MagicAuthSendMagicAuthCodeAndReturnError4002 represents a magic auth send magic auth code and return error4002.
+type MagicAuthSendMagicAuthCodeAndReturnError4002 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MagicAuthSendMagicAuthCodeAndReturnError4003 represents a magic auth send magic auth code and return error4003.
+type MagicAuthSendMagicAuthCodeAndReturnError4003 struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MagicAuthSendMagicAuthCodeAndReturnError400WithCode is an alias for EmailDomainNotDeliverableUserInvitesCreateError400.
+type MagicAuthSendMagicAuthCodeAndReturnError400WithCode = EmailDomainNotDeliverableUserInvitesCreateError400
+
+// MagicAuthSendMagicAuthCodeAndReturnError403 represents a magic auth send magic auth code and return error403.
+type MagicAuthSendMagicAuthCodeAndReturnError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// MissingUserIDOrOrganizationIDUserOrganizationMembershipsListError400 represents a missing user id or organization id user organization memberships list error400.
+type MissingUserIDOrOrganizationIDUserOrganizationMembershipsListError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserOrganizationMembershipsCreateError400 represents a user organization memberships create error400.
+type UserOrganizationMembershipsCreateError400 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+}
+
+// InvalidRoleUserOrganizationMembershipsCreateError422 is an alias for InvalidRoleUserInvitesCreateError400.
+type InvalidRoleUserOrganizationMembershipsCreateError422 = InvalidRoleUserInvitesCreateError400
+
+// MultipleRolesNotEnabledUserOrganizationMembershipsCreateError422 represents a multiple roles not enabled user organization memberships create error422.
+type MultipleRolesNotEnabledUserOrganizationMembershipsCreateError422 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+}
+
+// SubResourceScopedRoleNotAllowedUserOrganizationMembershipsCreateError422 represents a sub resource scoped role not allowed user organization memberships create error422.
+type SubResourceScopedRoleNotAllowedUserOrganizationMembershipsCreateError422 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// RoleSlug is the slug of the role that is not allowed.
+	RoleSlug string `json:"role_slug"`
+}
+
+// InvalidRoleUserOrganizationMembershipsUpdateError422 is an alias for InvalidRoleUserInvitesCreateError400.
+type InvalidRoleUserOrganizationMembershipsUpdateError422 = InvalidRoleUserInvitesCreateError400
+
+// MultipleRolesNotEnabledUserOrganizationMembershipsUpdateError422 is an alias for MultipleRolesNotEnabledUserOrganizationMembershipsCreateError422.
+type MultipleRolesNotEnabledUserOrganizationMembershipsUpdateError422 = MultipleRolesNotEnabledUserOrganizationMembershipsCreateError422
+
+// SubResourceScopedRoleNotAllowedUserOrganizationMembershipsUpdateError422 is an alias for SubResourceScopedRoleNotAllowedUserOrganizationMembershipsCreateError422.
+type SubResourceScopedRoleNotAllowedUserOrganizationMembershipsUpdateError422 = SubResourceScopedRoleNotAllowedUserOrganizationMembershipsCreateError422
+
+// UserOrganizationMembershipsDeleteError422 represents a user organization memberships delete error422.
+type UserOrganizationMembershipsDeleteError422 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+}
+
+// UserOrganizationMembershipsDeactivateError400 represents a user organization memberships deactivate error400.
+type UserOrganizationMembershipsDeactivateError400 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+}
+
+// UserOrganizationMembershipsReactivateError400 is an alias for UserOrganizationMembershipsCreateError400.
+type UserOrganizationMembershipsReactivateError400 = UserOrganizationMembershipsCreateError400
+
+// UserCreatePasswordResetTokenError403 is an alias for EmailPasswordAuthDisabledSessionAuthenticateError403.
+type UserCreatePasswordResetTokenError403 = EmailPasswordAuthDisabledSessionAuthenticateError403
+
+// PasswordResetNotAllowedUserCreatePasswordResetTokenError403 represents a password reset not allowed user create password reset token error403.
+type PasswordResetNotAllowedUserCreatePasswordResetTokenError403 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserResetPasswordError400 represents a user reset password error400.
+type UserResetPasswordError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*UserResetPasswordError400Error `json:"errors"`
+}
+
+// UserResetPasswordError403 is an alias for EmailPasswordAuthDisabledSessionAuthenticateError403.
+type UserResetPasswordError403 = EmailPasswordAuthDisabledSessionAuthenticateError403
+
+// UserCreateError400 represents a user create error400.
+type UserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*UserCreateError400Error `json:"errors"`
+}
+
+// UserCreationErrorUserCreateError400 represents a user creation error user create error400.
+type UserCreationErrorUserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*UserCreationErrorUserCreateError400Error `json:"errors"`
+}
+
+// InvalidPasswordHashUserCreateError400 represents an invalid password hash user create error400.
+type InvalidPasswordHashUserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordAndPasswordHashProvidedUserCreateError400 represents a password and password hash provided user create error400.
+type PasswordAndPasswordHashProvidedUserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordAndPasswordHashTypeProvidedUserCreateError400 represents a password and password hash type provided user create error400.
+type PasswordAndPasswordHashTypeProvidedUserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordSaltPositionRequiresPasswordHashUserCreateError400 represents a password salt position requires password hash user create error400.
+type PasswordSaltPositionRequiresPasswordHashUserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidMetadataUserCreateError400 represents an invalid metadata user create error400.
+type InvalidMetadataUserCreateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserCreateError403 is an alias for MagicAuthSendMagicAuthCodeAndReturnError403.
+type UserCreateError403 = MagicAuthSendMagicAuthCodeAndReturnError403
+
+// UserUpdateError400 represents a user update error400.
+type UserUpdateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*UserUpdateError400Error `json:"errors"`
+}
+
+// InvalidPasswordHashUserUpdateError400 is an alias for InvalidPasswordHashUserCreateError400.
+type InvalidPasswordHashUserUpdateError400 = InvalidPasswordHashUserCreateError400
+
+// PasswordAndPasswordHashProvidedUserUpdateError400 is an alias for PasswordAndPasswordHashProvidedUserCreateError400.
+type PasswordAndPasswordHashProvidedUserUpdateError400 = PasswordAndPasswordHashProvidedUserCreateError400
+
+// PasswordAndPasswordHashTypeProvidedUserUpdateError400 is an alias for PasswordAndPasswordHashTypeProvidedUserCreateError400.
+type PasswordAndPasswordHashTypeProvidedUserUpdateError400 = PasswordAndPasswordHashTypeProvidedUserCreateError400
+
+// PasswordSaltPositionRequiresPasswordHashUserUpdateError400 is an alias for PasswordSaltPositionRequiresPasswordHashUserCreateError400.
+type PasswordSaltPositionRequiresPasswordHashUserUpdateError400 = PasswordSaltPositionRequiresPasswordHashUserCreateError400
+
+// EmailAlreadyVerifiedUserUpdateError400 represents an email already verified user update error400.
+type EmailAlreadyVerifiedUserUpdateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidMetadataUserUpdateError400 is an alias for InvalidMetadataUserCreateError400.
+type InvalidMetadataUserUpdateError400 = InvalidMetadataUserCreateError400
+
+// ExternalIDAlreadyUsedUserUpdateError400 is an alias for ExternalIDAlreadyUsedOrganizationCreateError400.
+type ExternalIDAlreadyUsedUserUpdateError400 = ExternalIDAlreadyUsedOrganizationCreateError400
+
+// EmailChangeNotAllowedUserUpdateError400 is an alias for EmailChangeNotAllowedUserConfirmEmailChangeError409.
+type EmailChangeNotAllowedUserUpdateError400 = EmailChangeNotAllowedUserConfirmEmailChangeError409
+
+// EmailNotAvailableUserUpdateError400 is an alias for EmailNotAvailableUserConfirmEmailChangeError409.
+type EmailNotAvailableUserUpdateError400 = EmailNotAvailableUserConfirmEmailChangeError409
+
+// InvalidEmailUserUpdateError400 is an alias for ExternalAuthCompleteLoginError4005.
+type InvalidEmailUserUpdateError400 = ExternalAuthCompleteLoginError4005
+
+// InvalidLocaleUserUpdateError400 represents an invalid locale user update error400.
+type InvalidLocaleUserUpdateError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserConfirmEmailChangeError400 represents a user confirm email change error400.
+type UserConfirmEmailChangeError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailChangeCodeIncorrectUserConfirmEmailChangeError400 represents an email change code incorrect user confirm email change error400.
+type EmailChangeCodeIncorrectUserConfirmEmailChangeError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserConfirmEmailChangeError409 represents a user confirm email change error409.
+type UserConfirmEmailChangeError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailChangeCodePreviouslyUsedUserConfirmEmailChangeError409 represents an email change code previously used user confirm email change error409.
+type EmailChangeCodePreviouslyUsedUserConfirmEmailChangeError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailNotAvailableUserConfirmEmailChangeError409 represents an email not available user confirm email change error409.
+type EmailNotAvailableUserConfirmEmailChangeError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailChangeNotAllowedUserConfirmEmailChangeError409 represents an email change not allowed user confirm email change error409.
+type EmailChangeNotAllowedUserConfirmEmailChangeError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidEmailUserConfirmEmailChangeError422 is an alias for ExternalAuthCompleteLoginError4005.
+type InvalidEmailUserConfirmEmailChangeError422 = ExternalAuthCompleteLoginError4005
+
+// UserConfirmEmailChangeError429 represents a user confirm email change error429.
+type UserConfirmEmailChangeError429 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserSendEmailChangeError409 represents a user send email change error409.
+type UserSendEmailChangeError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailNotAvailableUserSendEmailChangeError409 is an alias for EmailNotAvailableUserConfirmEmailChangeError409.
+type EmailNotAvailableUserSendEmailChangeError409 = EmailNotAvailableUserConfirmEmailChangeError409
+
+// EmailChangeNotAllowedUserSendEmailChangeError409 is an alias for EmailChangeNotAllowedUserConfirmEmailChangeError409.
+type EmailChangeNotAllowedUserSendEmailChangeError409 = EmailChangeNotAllowedUserConfirmEmailChangeError409
+
+// InvalidEmailUserSendEmailChangeError422 is an alias for ExternalAuthCompleteLoginError4005.
+type InvalidEmailUserSendEmailChangeError422 = ExternalAuthCompleteLoginError4005
+
+// UserEmailVerificationError400 represents a user email verification error400.
+type UserEmailVerificationError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailVerificationCodePreviouslyUsedUserEmailVerificationError400 represents an email verification code previously used user email verification error400.
+type EmailVerificationCodePreviouslyUsedUserEmailVerificationError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailVerificationCodeExpiredUserEmailVerificationError400 represents an email verification code expired user email verification error400.
+type EmailVerificationCodeExpiredUserEmailVerificationError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailVerificationCodeIncorrectUserEmailVerificationError400 represents an email verification code incorrect user email verification error400.
+type EmailVerificationCodeIncorrectUserEmailVerificationError400 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserSendVerificationEmailError400 is an alias for EmailAlreadyVerifiedUserUpdateError400.
+type UserSendVerificationEmailError400 = EmailAlreadyVerifiedUserUpdateError400
+
+// UserAPIKeysCreateError400 represents a user api keys create error400.
+type UserAPIKeysCreateError400 struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*UserAPIKeysCreateError400Error `json:"errors"`
+}
+
+// UserAPIKeysCreateError400Error is an alias for AgentInstanceSessionsListError422Error.
+type UserAPIKeysCreateError400Error = AgentInstanceSessionsListError422Error
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError404 represents a data integrations user management create user data installation error404.
+type DataIntegrationsUserManagementCreateUserDataInstallationError404 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsUserManagementCreateUserDataInstallationError404Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError409 represents a data integrations user management create user data installation error409.
+type DataIntegrationsUserManagementCreateUserDataInstallationError409 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsUserManagementCreateUserDataInstallationError409Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError422 represents a data integrations user management create user data installation error422.
+type DataIntegrationsUserManagementCreateUserDataInstallationError422 struct {
+	// Code is the error code identifying the type of error.
+	Code DataIntegrationsUserManagementCreateUserDataInstallationError422Code `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DataIntegrationsUserManagementCreateUserDataInstallationError422WithErrors represents a data integrations user management create user data installation error422with errors.
+type DataIntegrationsUserManagementCreateUserDataInstallationError422WithErrors struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*DataIntegrationsUserManagementCreateUserDataInstallationError422WithErrorsError `json:"errors"`
+}
+
+// DataIntegrationsUserManagementUpdateUserDataInstallationError422 represents a data integrations user management update user data installation error422.
+type DataIntegrationsUserManagementUpdateUserDataInstallationError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRequestParametersDataIntegrationsUserManagementUpdateUserDataInstallationError422 represents an invalid request parameters data integrations user management update user data installation error422.
+type InvalidRequestParametersDataIntegrationsUserManagementUpdateUserDataInstallationError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*InvalidRequestParametersDataIntegrationsUserManagementUpdateUserDataInstallationError422Error `json:"errors"`
+}
+
+// WaitlistEntriesApproveError422 represents a waitlist entries approve error422.
+type WaitlistEntriesApproveError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvitationEmailNotSentWaitlistEntriesApproveError422 represents an invitation email not sent waitlist entries approve error422.
+type InvitationEmailNotSentWaitlistEntriesApproveError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// WaitlistEntriesDenyError422 is an alias for WaitlistEntriesApproveError422.
+type WaitlistEntriesDenyError422 = WaitlistEntriesApproveError422
+
+// WaitlistCreateEntryError422 is an alias for TeamCreateTeamError409.
+type WaitlistCreateEntryError422 = TeamCreateTeamError409
+
+// WebhookEndpointsCreateError409 represents a webhook endpoints create error409.
+type WebhookEndpointsCreateError409 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// WebhookEndpointsCreateError422 represents a webhook endpoints create error422.
+type WebhookEndpointsCreateError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRequestParametersWebhookEndpointsCreateError422 represents an invalid request parameters webhook endpoints create error422.
+type InvalidRequestParametersWebhookEndpointsCreateError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*InvalidRequestParametersWebhookEndpointsCreateError422Error `json:"errors"`
+}
+
+// WebhookEndpointsUpdateError404 is an alias for DataIntegrationsUpsertAPIKeyError404.
+type WebhookEndpointsUpdateError404 = DataIntegrationsUpsertAPIKeyError404
+
+// WebhookEndpointsUpdateError409 is an alias for WebhookEndpointsCreateError409.
+type WebhookEndpointsUpdateError409 = WebhookEndpointsCreateError409
+
+// WebhookEndpointsUpdateError422 is an alias for WebhookEndpointsCreateError422.
+type WebhookEndpointsUpdateError422 = WebhookEndpointsCreateError422
+
+// InvalidRequestParametersWebhookEndpointsUpdateError422 represents an invalid request parameters webhook endpoints update error422.
+type InvalidRequestParametersWebhookEndpointsUpdateError422 struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*InvalidRequestParametersWebhookEndpointsUpdateError422Error `json:"errors"`
+}
+
+// WebhookEndpointsDeleteError404 is an alias for DataIntegrationsUpsertAPIKeyError404.
+type WebhookEndpointsDeleteError404 = DataIntegrationsUpsertAPIKeyError404
+
+// WidgetPublicIssueWidgetSessionTokenError400WithError is an alias for AuditLogExportsExportsError400WithError.
+type WidgetPublicIssueWidgetSessionTokenError400WithError = AuditLogExportsExportsError400WithError
+
+// AgentRegistrationClaimClaimCompletion the completion record for the claim, or `null` if the claim has not been completed.
 type AgentRegistrationClaimClaimCompletion struct {
 	// ID is unique identifier of the claim completion.
 	ID string `json:"id"`
@@ -7497,9 +10080,6 @@ type AgentRegistrationClaimClaimCompletion struct {
 	ClaimedAt string `json:"claimed_at"`
 }
 
-// UserRoleAssignmentSourceGroup is an alias for Actor.
-type UserRoleAssignmentSourceGroup = Actor
-
 // DirectoryMetadataUser counts of active and inactive directory users.
 type DirectoryMetadataUser struct {
 	// Active is count of active directory users.
@@ -7508,7 +10088,7 @@ type DirectoryMetadataUser struct {
 	Inactive int `json:"inactive"`
 }
 
-// DataIntegrationsListResponseDataConnectedAccount represents a data integrations list response data connected account.
+// DataIntegrationsListResponseDataConnectedAccount the user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection.
 type DataIntegrationsListResponseDataConnectedAccount struct {
 	// Object distinguishes the connected account object.
 	Object string `json:"object"`
@@ -7551,11 +10131,16 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the connection was last updated.
 	UpdatedAt string `json:"updated_at"`
+	// Warnings is non-blocking warnings about an explicitly supplied label. Only writes return it, and only when another connection already uses the label; reads omit it.
+	Warnings []*DataIntegrationsListResponseDataConnectedAccountWarning `json:"warnings,omitempty"`
 	// UserlandUserID is use `user_id` instead.
 	//
 	// Deprecated: Use `user_id` instead.
 	UserlandUserID *string `json:"userlandUserId"`
 }
+
+// DataIntegrationsListResponseDataConnectedAccountWarning is an alias for ConnectedAccountWarning.
+type DataIntegrationsListResponseDataConnectedAccountWarning = ConnectedAccountWarning
 
 // ConnectApplicationRedirectURI represents a connect application_redirect_uri.
 type ConnectApplicationRedirectURI struct {

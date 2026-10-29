@@ -16,9 +16,9 @@ type EventsListParams struct {
 	PaginationParams
 	// Events is filter events by one or more event types (e.g. `dsync.user.created`).
 	Events []string `url:"events" json:"-"`
-	// RangeStart is iso-8601 date string to filter events created after this date.
+	// RangeStart is iso 8601 UTC timestamp with a `Z` suffix to filter events created after this date. Timezone offsets such as `+00:00` are not accepted.
 	RangeStart *string `url:"range_start,omitempty" json:"-"`
-	// RangeEnd is iso-8601 date string to filter events created before this date.
+	// RangeEnd is iso 8601 UTC timestamp with a `Z` suffix to filter events created before this date. Timezone offsets such as `+00:00` are not accepted.
 	RangeEnd *string `url:"range_end,omitempty" json:"-"`
 	// OrganizationID is filter events by the [Organization](https://workos.com/docs/reference/organization) that the event is associated with.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`

@@ -164,6 +164,8 @@ type ConnectUpdateApplicationParams struct {
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// RedirectURIs is updated redirect URIs for the application. OAuth applications only.
 	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty" url:"-"`
+	// CORSOrigins is updated origins allowed to call the OAuth token endpoint for this application from a browser. Replaces the existing list. OAuth applications only.
+	CORSOrigins []string `json:"cors_origins,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
 	NullFields []string `json:"-" url:"-"`
@@ -187,6 +189,7 @@ func (p ConnectUpdateApplicationParams) MarshalJSON() ([]byte, error) {
 		"description":   true,
 		"scopes":        true,
 		"redirect_uris": true,
+		"cors_origins":  true,
 	}
 	for _, f := range p.NullFields {
 		if !nullable[f] {
