@@ -92,6 +92,27 @@ func (s *PipeService) CreateDataIntegration(ctx context.Context, params *PipesCr
 	return &result, nil
 }
 
+// PipesCreateFinishParams contains the parameters for CreateFinish.
+type PipesCreateFinishParams struct {
+	// ConnectCode is the `connect_code` WorkOS added to `return_to` when the user finished authorizing. It can be used once and expires 90 seconds after the redirect.
+	ConnectCode string `json:"connect_code" url:"-"`
+	// CodeVerifier is the code verifier `code_challenge` was derived from: 43 to 128 characters from `A-Z`, `a-z`, `0-9`, `-`, `.`, `_` and `~`. A wrong verifier uses up the `connect_code`, and the user has to connect again.
+	CodeVerifier string `json:"code_verifier" url:"-"`
+	// State is the `state` WorkOS added to `return_to` alongside `connect_code`. Optional; it is only used to correlate the request in logs.
+	State *string `json:"state,omitempty" url:"-"`
+}
+
+// CreateFinish finish connection
+// Saves a connection that was started with `code_challenge`. After the user authorizes, WorkOS redirects them to `return_to` with a `connect_code` and `state`. Call this endpoint from your server with that `connect_code` and the `code_verifier` behind the challenge to save the connected account.
+func (s *PipeService) CreateFinish(ctx context.Context, params *PipesCreateFinishParams, opts ...RequestOption) (*DataIntegrationFinishConnectionResponse, error) {
+	var result DataIntegrationFinishConnectionResponse
+	_, err := s.client.request(ctx, "POST", "/data-integrations/finish", nil, params, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // GetDataIntegration get a data integration
 // Retrieves the user-owned data integration by its slug.
 func (s *PipeService) GetDataIntegration(ctx context.Context, slug string, opts ...RequestOption) (*DataIntegration, error) {
@@ -181,7 +202,7 @@ type PipesCreateDataIntegrationAPIKeyParams struct {
 	ConnectionOwner *DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
 	// Secret is the API key secret to store for this integration.
 	Secret string `json:"secret" url:"-"`
-	// ConnectionIntent is must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`.
+	// ConnectionIntent is must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard.
 	ConnectionIntent string `json:"connection_intent" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
@@ -216,9 +237,9 @@ func (p PipesCreateDataIntegrationAPIKeyParams) MarshalJSON() ([]byte, error) {
 }
 
 // CreateDataIntegrationAPIKey create another API key connected account
-// Creates another API key-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
-func (s *PipeService) CreateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesCreateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
+// Creates another API key-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection.
+func (s *PipeService) CreateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesCreateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -228,14 +249,59 @@ func (s *PipeService) CreateDataIntegrationAPIKey(ctx context.Context, slug stri
 
 // PipesUpdateDataIntegrationAPIKeyParams contains the parameters for UpdateDataIntegrationAPIKey.
 type PipesUpdateDataIntegrationAPIKeyParams struct {
-	Body interface{} `json:"-"`
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty" url:"-"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	// Secret is the API key secret to store for this integration.
+	Secret string `json:"secret" url:"-"`
+	// ConnectionIntent is send `reauthorize` with `connected_account_id` to reauthorize one exact connection. Omit it to use the compatibility connection; creating another connection lives on the POST route.
+	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`; it may also be sent on its own to reauthorize that connection.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesUpdateDataIntegrationAPIKeyParams.
+func (p PipesUpdateDataIntegrationAPIKeyParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesUpdateDataIntegrationAPIKeyParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"account_display_name": true,
+		"account_identifier":   true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesUpdateDataIntegrationAPIKeyParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateDataIntegrationAPIKey upsert an API key for a connected account
 // Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value. To create another connection, use POST.
-func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesUpdateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params.Body, &result, opts)
+func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug string, params *PipesUpdateDataIntegrationAPIKeyParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/api-key", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -244,14 +310,62 @@ func (s *PipeService) UpdateDataIntegrationAPIKey(ctx context.Context, slug stri
 
 // PipesAuthorizeDataIntegrationParams contains the parameters for AuthorizeDataIntegration.
 type PipesAuthorizeDataIntegrationParams struct {
-	Body interface{} `json:"-"`
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
+	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
+	UserID string `json:"user_id" url:"-"`
+	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
+	ConnectionOwner *DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	// ReturnTo is the URL to redirect the user to after authorization. Required with `code_challenge`, and must then exactly match a redirect URI registered on one of the environment's applications. Loopback URLs match on any port; wildcard redirect URIs are not honored, and a `return_to` with a query string or fragment never matches.
+	ReturnTo *string `json:"return_to,omitempty" url:"-"`
+	// CodeChallenge is a PKCE-style code challenge: the base64url-encoded SHA-256 of a `code_verifier` your app keeps. When set, the connection isn't saved when the user finishes authorizing. Instead, the user is redirected to `return_to` with a `connect_code` and `state`, and your app must call [Finish connection](https://workos.com/docs/reference/pipes/connected-account/finish-connection) with the `connect_code` and `code_verifier` within 90 seconds to save it.
+	CodeChallenge *string `json:"code_challenge,omitempty" url:"-"`
+	// CodeChallengeMethod is the method used to derive `code_challenge`. Only `S256` is supported, and it is the default. Requires `code_challenge`.
+	CodeChallengeMethod *string `json:"code_challenge_method,omitempty" url:"-"`
+	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
+	Config map[string]string `json:"config,omitempty" url:"-"`
+	// ConnectionIntent is which connection the request targets. Omit it to use the compatibility connection. Send `add` to create another connection: the first connection for an owner shape fills the compatibility slot, and later connections are standard. Send `reauthorize` with `connected_account_id` to reauthorize one exact connection.
+	ConnectionIntent *DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent `json:"connection_intent,omitempty" url:"-"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize` and not accepted otherwise.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesAuthorizeDataIntegrationParams.
+func (p PipesAuthorizeDataIntegrationParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesAuthorizeDataIntegrationParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"account_display_name": true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesAuthorizeDataIntegrationParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // AuthorizeDataIntegration get authorization URL
 // Generates an OAuth authorization URL to initiate the connection flow for a user. Redirect the user to the returned URL to begin the OAuth flow with the third-party provider.
 func (s *PipeService) AuthorizeDataIntegration(ctx context.Context, slug string, params *PipesAuthorizeDataIntegrationParams, opts ...RequestOption) (*DataIntegrationAuthorizeURLResponse, error) {
 	var result DataIntegrationAuthorizeURLResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/authorize", url.PathEscape(slug)), nil, params.Body, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/authorize", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +390,7 @@ type PipesCreateDataIntegrationClientCredentialParams struct {
 	ClientSecret string `json:"client_secret" url:"-"`
 	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
 	Config map[string]string `json:"config,omitempty" url:"-"`
-	// ConnectionIntent is must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`.
+	// ConnectionIntent is must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard.
 	ConnectionIntent string `json:"connection_intent" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
@@ -311,9 +425,9 @@ func (p PipesCreateDataIntegrationClientCredentialParams) MarshalJSON() ([]byte,
 }
 
 // CreateDataIntegrationClientCredential create another client credentials connected account
-// Creates another client credentials-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
-func (s *PipeService) CreateDataIntegrationClientCredential(ctx context.Context, slug string, params *PipesCreateDataIntegrationClientCredentialParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
+// Creates another client credentials-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection.
+func (s *PipeService) CreateDataIntegrationClientCredential(ctx context.Context, slug string, params *PipesCreateDataIntegrationClientCredentialParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -323,14 +437,63 @@ func (s *PipeService) CreateDataIntegrationClientCredential(ctx context.Context,
 
 // PipesUpdateDataIntegrationClientCredentialsParams contains the parameters for UpdateDataIntegrationClientCredentials.
 type PipesUpdateDataIntegrationClientCredentialsParams struct {
-	Body interface{} `json:"-"`
+	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
+	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+	AccountIdentifier *string `json:"account_identifier,omitempty" url:"-"`
+	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
+	UserID string `json:"user_id" url:"-"`
+	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
+	OrganizationID *string `json:"organization_id,omitempty" url:"-"`
+	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty" url:"-"`
+	// ClientID is the OAuth client ID to store for this integration.
+	ClientID string `json:"client_id" url:"-"`
+	// ClientSecret is the OAuth client secret to store for this integration.
+	ClientSecret string `json:"client_secret" url:"-"`
+	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
+	Config map[string]string `json:"config,omitempty" url:"-"`
+	// ConnectionIntent is send `reauthorize` with `connected_account_id` to reauthorize one exact connection. Omit it to use the compatibility connection; creating another connection lives on the POST route.
+	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
+	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`; it may also be sent on its own to reauthorize that connection.
+	ConnectedAccountID *string `json:"connected_account_id,omitempty" url:"-"`
+	// NullFields lists JSON field names to send as an explicit null,
+	// clearing the corresponding value (e.g. []string{"external_id"}).
+	NullFields []string `json:"-" url:"-"`
+}
+
+// MarshalJSON implements json.Marshaler for PipesUpdateDataIntegrationClientCredentialsParams.
+func (p PipesUpdateDataIntegrationClientCredentialsParams) MarshalJSON() ([]byte, error) {
+	type Alias PipesUpdateDataIntegrationClientCredentialsParams
+	data, err := json.Marshal(Alias(p))
+	if err != nil {
+		return nil, err
+	}
+	if len(p.NullFields) == 0 {
+		return data, nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	nullable := map[string]bool{
+		"account_display_name": true,
+		"account_identifier":   true,
+	}
+	for _, f := range p.NullFields {
+		if !nullable[f] {
+			return nil, fmt.Errorf("PipesUpdateDataIntegrationClientCredentialsParams: %q is not a nullable field", f)
+		}
+		m[f] = nil
+	}
+	return json.Marshal(m)
 }
 
 // UpdateDataIntegrationClientCredentials upsert client credentials for a connected account
 // Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values. To create another connection, use POST.
-func (s *PipeService) UpdateDataIntegrationClientCredentials(ctx context.Context, slug string, params *PipesUpdateDataIntegrationClientCredentialsParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params.Body, &result, opts)
+func (s *PipeService) UpdateDataIntegrationClientCredentials(ctx context.Context, slug string, params *PipesUpdateDataIntegrationClientCredentialsParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/data-integrations/%s/client-credentials", url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -528,7 +691,7 @@ type PipesCreateOrganizationConnectedAccountParams struct {
 	State *CreateOrganizationConnectedAccountState `json:"state,omitempty" url:"-"`
 	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization.
 	UserID string `json:"user_id" url:"-"`
-	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
 	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
@@ -564,8 +727,8 @@ func (p PipesCreateOrganizationConnectedAccountParams) MarshalJSON() ([]byte, er
 
 // CreateOrganizationConnectedAccount import an organization connected account
 // Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Omit `connection_intent` to create only the compatibility connection, or set it to `add` to explicitly create another connection. This creation-only endpoint does not accept `connected_account_id` or reauthorization intent.
-func (s *PipeService) CreateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesCreateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
+func (s *PipeService) CreateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesCreateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -631,8 +794,8 @@ func (p PipesUpdateOrganizationConnectedAccountParams) MarshalJSON() ([]byte, er
 
 // UpdateOrganizationConnectedAccount update an organization connected account
 // Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
-func (s *PipeService) UpdateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesUpdateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
+func (s *PipeService) UpdateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesUpdateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), params, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -709,7 +872,7 @@ type PipesCreateUserConnectedAccountParams struct {
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
 	State *CreateConnectedAccountState `json:"state,omitempty" url:"-"`
-	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
 	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
@@ -747,8 +910,8 @@ func (p PipesCreateUserConnectedAccountParams) MarshalJSON() ([]byte, error) {
 
 // CreateUserConnectedAccount import a connected account
 // Imports a [connected account](https://workos.com/docs/reference/pipes/connected-account) for a user by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
-func (s *PipeService) CreateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesCreateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
+func (s *PipeService) CreateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesCreateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, params, &result, opts)
 	if err != nil {
 		return nil, err
@@ -814,8 +977,8 @@ func (p PipesUpdateUserConnectedAccountParams) MarshalJSON() ([]byte, error) {
 
 // UpdateUserConnectedAccount update a connected account
 // Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
-func (s *PipeService) UpdateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesUpdateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccountWriteResponse, error) {
-	var result ConnectedAccountWriteResponse
+func (s *PipeService) UpdateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesUpdateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
+	var result ConnectedAccount
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, params, &result, opts)
 	if err != nil {
 		return nil, err

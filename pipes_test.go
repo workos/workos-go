@@ -79,6 +79,29 @@ func TestPipes_CreateDataIntegration(t *testing.T) {
 	require.Equal(t, "github", result.IntegrationType)
 }
 
+func TestPipes_CreateFinish(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "POST", r.Method)
+		require.Equal(t, "/data-integrations/finish", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/data_integration_finish_connection_response.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Pipes().CreateFinish(context.Background(), &workos.PipesCreateFinishParams{})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+}
+
 func TestPipes_GetDataIntegration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)
@@ -150,7 +173,7 @@ func TestPipes_CreateDataIntegrationAPIKey(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -171,9 +194,12 @@ func TestPipes_UpdateDataIntegrationAPIKey(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/data-integrations/test_slug/api-key", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -194,6 +220,9 @@ func TestPipes_AuthorizeDataIntegration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/data-integrations/test_slug/authorize", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/data_integration_authorize_url_response.json")
@@ -220,7 +249,7 @@ func TestPipes_CreateDataIntegrationClientCredential(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -241,9 +270,12 @@ func TestPipes_UpdateDataIntegrationClientCredentials(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PUT", r.Method)
 		require.Equal(t, "/data-integrations/test_slug/client-credentials", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -400,7 +432,7 @@ func TestPipes_CreateOrganizationConnectedAccount(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -426,7 +458,7 @@ func TestPipes_UpdateOrganizationConnectedAccount(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -508,7 +540,7 @@ func TestPipes_CreateUserConnectedAccount(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -534,7 +566,7 @@ func TestPipes_UpdateUserConnectedAccount(t *testing.T) {
 		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/connected_account_write_response.json")
+		fixture, err := os.ReadFile("testdata/connected_account.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
