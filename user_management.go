@@ -806,6 +806,8 @@ func (s *UserManagementService) GetEmailVerification(ctx context.Context, id str
 type UserManagementResetPasswordParams struct {
 	// Email is the email address of the user requesting a password reset.
 	Email string `json:"email" url:"-"`
+	// Locale is the locale to use when rendering the password reset email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+	Locale *CreatePasswordResetTokenLocale `json:"locale,omitempty" url:"-"`
 }
 
 // ResetPassword create a password reset token
@@ -1061,6 +1063,8 @@ func (s *UserManagementService) ConfirmEmailChange(ctx context.Context, id strin
 type UserManagementSendEmailChangeParams struct {
 	// NewEmail is the new email address to change to.
 	NewEmail string `json:"new_email" url:"-"`
+	// Locale is the locale to use when rendering the email change email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+	Locale *SendEmailChangeLocale `json:"locale,omitempty" url:"-"`
 }
 
 // SendEmailChange code
@@ -1091,11 +1095,17 @@ func (s *UserManagementService) VerifyEmail(ctx context.Context, id string, para
 	return &result, nil
 }
 
+// UserManagementSendVerificationEmailParams contains the parameters for SendVerificationEmail.
+type UserManagementSendVerificationEmailParams struct {
+	// Locale is the locale to use when rendering the verification email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+	Locale *SendVerificationEmailLocale `json:"locale,omitempty" url:"-"`
+}
+
 // SendVerificationEmail
 // Sends an email that contains a one-time code used to verify a user's email address.
-func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id string, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
+func (s *UserManagementService) SendVerificationEmail(ctx context.Context, id string, params *UserManagementSendVerificationEmailParams, opts ...RequestOption) (*SendVerificationEmailResponse, error) {
 	var result SendVerificationEmailResponse
-	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", url.PathEscape(id)), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/user_management/users/%s/email_verification/send", url.PathEscape(id)), nil, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1151,7 +1161,7 @@ type UserManagementSendInvitationParams struct {
 	ExpiresInDays *int `json:"expires_in_days,omitempty" url:"-"`
 	// InviterUserID is the ID of the [user](https://workos.com/docs/reference/authkit/user) who invites the recipient. The invitation email will mention the name of this user.
 	InviterUserID *string `json:"inviter_user_id,omitempty" url:"-"`
-	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
+	// Locale is the locale to use when rendering the invitation email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
 	Locale *CreateUserInviteOptionsLocale `json:"locale,omitempty" url:"-"`
 }
 
@@ -1201,7 +1211,7 @@ func (s *UserManagementService) AcceptInvitation(ctx context.Context, id string,
 
 // UserManagementResendInvitationParams contains the parameters for ResendInvitation.
 type UserManagementResendInvitationParams struct {
-	// Locale is the locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
+	// Locale is the locale to use when rendering the invitation email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
 	Locale *ResendUserInviteOptionsLocale `json:"locale,omitempty" url:"-"`
 }
 
@@ -1269,6 +1279,8 @@ type UserManagementCreateMagicAuthParams struct {
 	RadarAuthAttemptID *string `json:"radar_auth_attempt_id,omitempty" url:"-"`
 	// SignalsID is an optional Radar signals ID to correlate client-side signals with this request.
 	SignalsID *string `json:"signals_id,omitempty" url:"-"`
+	// Locale is the locale to use when rendering the Magic Auth email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+	Locale *CreateMagicCodeAndReturnLocale `json:"locale,omitempty" url:"-"`
 }
 
 // CreateMagicAuth create a Magic Auth code
@@ -1380,8 +1392,13 @@ func (s *UserManagementService) CreateWaitlistEntryDeny(ctx context.Context, id 
 
 // ListWaitlists
 // Get a list of the waitlists in the environment. All waitlists are returned in a single response — this endpoint is not paginated, so the `list_metadata` cursors are always `null`.
-func (s *UserManagementService) ListWaitlists(ctx context.Context, opts ...RequestOption) *Iterator[Waitlist] {
-	return newIterator[Waitlist](ctx, s.client, "GET", "/user_management/waitlists", nil, "after", "data", opts, nil)
+func (s *UserManagementService) ListWaitlists(ctx context.Context, opts ...RequestOption) (*WaitlistListResponse, error) {
+	var result WaitlistListResponse
+	_, err := s.client.request(ctx, "GET", "/user_management/waitlists", nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 // GetWaitlist get a waitlist

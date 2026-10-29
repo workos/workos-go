@@ -595,6 +595,9 @@ func TestUserManagement_SendVerificationEmail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "/user_management/users/test_id/email_verification/send", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		var bodyMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(body, &bodyMap))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fixture, err := os.ReadFile("testdata/verify_email_response.json")
@@ -606,7 +609,7 @@ func TestUserManagement_SendVerificationEmail(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.UserManagement().SendVerificationEmail(context.Background(), "test_id")
+	result, err := client.UserManagement().SendVerificationEmail(context.Background(), "test_id", &workos.UserManagementSendVerificationEmailParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -1140,7 +1143,7 @@ func TestUserManagement_ListWaitlists(t *testing.T) {
 		require.Equal(t, "/user_management/waitlists", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fixture, err := os.ReadFile("testdata/list_waitlist.json")
+		fixture, err := os.ReadFile("testdata/waitlist_list_response.json")
 		if err != nil {
 			t.Fatalf("failed to read fixture: %v", err)
 		}
@@ -1149,26 +1152,9 @@ func TestUserManagement_ListWaitlists(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListWaitlists(context.Background())
-	require.NotNil(t, iter)
-	require.True(t, iter.Next())
-	require.NoError(t, iter.Err())
-	item := iter.Current()
-	require.NotNil(t, item)
-}
-
-func TestUserManagement_ListWaitlists_Empty(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data":[],"list_metadata":{"before":null,"after":null}}`))
-	}))
-	defer server.Close()
-
-	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.UserManagement().ListWaitlists(context.Background())
-	require.False(t, iter.Next())
-	require.NoError(t, iter.Err())
+	result, err := client.UserManagement().ListWaitlists(context.Background())
+	require.NoError(t, err)
+	require.NotNil(t, result)
 }
 
 func TestUserManagement_GetWaitlist(t *testing.T) {
