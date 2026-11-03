@@ -99,8 +99,8 @@ type AuditLogEventContext struct {
 type AuditLogEvent struct {
 	// Action is identifier of what happened.
 	Action string `json:"action"`
-	// OccurredAt is iso-8601 value of when the action occurred.
-	OccurredAt string `json:"occurred_at"`
+	// OccurredAt is iso-8601 value of when the action occurred. When omitted, defaults to the time WorkOS accepts the event.
+	OccurredAt string `json:"occurred_at,omitempty"`
 	// Actor is the entity that performed the action.
 	Actor *AuditLogEventActor `json:"actor"`
 	// Targets is the resources affected by the action.
