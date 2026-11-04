@@ -169,6 +169,21 @@ func (s *GroupService) CreateOrganizationMembership(ctx context.Context, organiz
 	return &result, nil
 }
 
+// GroupsUpdateOrganizationMembershipsParams contains the parameters for UpdateOrganizationMemberships.
+type GroupsUpdateOrganizationMembershipsParams struct {
+	// Add is the IDs of the organization memberships to add to the group. Adding a membership that's already in the group has no effect.
+	Add []string `json:"add,omitempty" url:"-"`
+	// Remove is the IDs of the organization memberships to remove from the group. Removing a membership that isn't in the group has no effect.
+	Remove []string `json:"remove,omitempty" url:"-"`
+}
+
+// UpdateOrganizationMemberships update Group members
+// Adds and removes organization memberships for a group in a single atomic operation. Organization memberships not listed in `add` or `remove` are left unchanged. Adding a member that is already in the group or removing a member that isn't in the group has no effect. A membership listed in both `add` and `remove` is rejected. `add` and `remove` must contain between 1 and 100 entries combined.
+func (s *GroupService) UpdateOrganizationMemberships(ctx context.Context, organizationID string, groupID string, params *GroupsUpdateOrganizationMembershipsParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/organizations/%s/groups/%s/organization-memberships", url.PathEscape(organizationID), url.PathEscape(groupID)), nil, params, nil, opts)
+	return err
+}
+
 // DeleteOrganizationMembership remove a member from a Group
 // Remove an organization membership from a group.
 func (s *GroupService) DeleteOrganizationMembership(ctx context.Context, organizationID string, groupID string, omID string, opts ...RequestOption) error {

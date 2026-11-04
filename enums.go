@@ -11,6 +11,184 @@ const (
 	PaginationOrderAsc    PaginationOrder = "asc"
 )
 
+// ErrorBodyCode represents error body code values.
+type ErrorBodyCode string
+
+const (
+	ErrorBodyCodeAccountSelectionRequired                      ErrorBodyCode = "account_selection_required"
+	ErrorBodyCodeActionDenied                                  ErrorBodyCode = "action_denied"
+	ErrorBodyCodeAlreadyClaimed                                ErrorBodyCode = "already_claimed"
+	ErrorBodyCodeAmbiguousSAMLOptions                          ErrorBodyCode = "ambiguous_saml_options"
+	ErrorBodyCodeAPIKeyAlreadyExpired                          ErrorBodyCode = "api_key_already_expired"
+	ErrorBodyCodeApplicationConsentRequired                    ErrorBodyCode = "application_consent_required"
+	ErrorBodyCodeAuthMethodDisabled                            ErrorBodyCode = "auth_method_disabled"
+	ErrorBodyCodeAuthMethodMismatch                            ErrorBodyCode = "auth_method_mismatch"
+	ErrorBodyCodeAuthenticationMethodNotAllowed                ErrorBodyCode = "authentication_method_not_allowed"
+	ErrorBodyCodeAuthorizationResourceExternalIDConflict       ErrorBodyCode = "authorization_resource_external_id_conflict"
+	ErrorBodyCodeBadRequest                                    ErrorBodyCode = "bad_request"
+	ErrorBodyCodeBothSAMLAndOIDCOptionsProvided                ErrorBodyCode = "both_saml_and_oidc_options_provided"
+	ErrorBodyCodeCannotDeactivatePendingOrganizationMembership ErrorBodyCode = "cannot_deactivate_pending_organization_membership"
+	ErrorBodyCodeCannotDeleteLastCertificate                   ErrorBodyCode = "cannot_delete_last_certificate"
+	ErrorBodyCodeCannotReactivatePendingOrganizationMembership ErrorBodyCode = "cannot_reactivate_pending_organization_membership"
+	ErrorBodyCodeCertificateExpired                            ErrorBodyCode = "certificate_expired"
+	ErrorBodyCodeChainDepthExceeded                            ErrorBodyCode = "chain_depth_exceeded"
+	ErrorBodyCodeClaimDenied                                   ErrorBodyCode = "claim_denied"
+	ErrorBodyCodeClaimExpired                                  ErrorBodyCode = "claim_expired"
+	ErrorBodyCodeClientSecretNotAccepted                       ErrorBodyCode = "client_secret_not_accepted"
+	ErrorBodyCodeClientSecretRequired                          ErrorBodyCode = "client_secret_required"
+	ErrorBodyCodeCodeChallengeNotFound                         ErrorBodyCode = "code_challenge_not_found"
+	ErrorBodyCodeConcurrentFlagTargetUpdate                    ErrorBodyCode = "concurrent_flag_target_update"
+	ErrorBodyCodeConcurrentRequest                             ErrorBodyCode = "concurrent_request"
+	ErrorBodyCodeConnectedAccountLimitReached                  ErrorBodyCode = "connected_account_limit_reached"
+	ErrorBodyCodeConnectionCouldNotBeVerified                  ErrorBodyCode = "connection_could_not_be_verified"
+	ErrorBodyCodeConnectionDeletionInProgress                  ErrorBodyCode = "connection_deletion_in_progress"
+	ErrorBodyCodeConnectionIsNotSAML                           ErrorBodyCode = "connection_is_not_saml"
+	ErrorBodyCodeConnectionTypeConflictsWithOptions            ErrorBodyCode = "connection_type_conflicts_with_options"
+	ErrorBodyCodeConnectionTypeNotSupported                    ErrorBodyCode = "connection_type_not_supported"
+	ErrorBodyCodeConnectionTypeNotUpdatable                    ErrorBodyCode = "connection_type_not_updatable"
+	ErrorBodyCodeConnectionTypeOrOptionsRequired               ErrorBodyCode = "connection_type_or_options_required"
+	ErrorBodyCodeDailyQuotaExceeded                            ErrorBodyCode = "daily_quota_exceeded"
+	ErrorBodyCodeDirectorySyncDisabled                         ErrorBodyCode = "directory_sync_disabled"
+	ErrorBodyCodeDirectorySyncInProgress                       ErrorBodyCode = "directory_sync_in_progress"
+	ErrorBodyCodeDirectorySyncRateLimited                      ErrorBodyCode = "directory_sync_rate_limited"
+	ErrorBodyCodeDirectorySyncUnsupported                      ErrorBodyCode = "directory_sync_unsupported"
+	ErrorBodyCodeDiscoveryEndpointMustUseHttps                 ErrorBodyCode = "discovery_endpoint_must_use_https"
+	ErrorBodyCodeDomainAlreadyExists                           ErrorBodyCode = "domain_already_exists"
+	ErrorBodyCodeDomainAlreadyVerified                         ErrorBodyCode = "domain_already_verified"
+	ErrorBodyCodeDuplicateEndpoint                             ErrorBodyCode = "duplicate_endpoint"
+	ErrorBodyCodeDuplicateGroupRoleAssignment                  ErrorBodyCode = "duplicate_group_role_assignment"
+	ErrorBodyCodeEmailAlreadyInUse                             ErrorBodyCode = "email_already_in_use"
+	ErrorBodyCodeEmailAlreadyInvited                           ErrorBodyCode = "email_already_invited"
+	ErrorBodyCodeEmailAlreadyInvitedToOrganization             ErrorBodyCode = "email_already_invited_to_organization"
+	ErrorBodyCodeEmailAlreadyVerified                          ErrorBodyCode = "email_already_verified"
+	ErrorBodyCodeEmailChangeCodeExpired                        ErrorBodyCode = "email_change_code_expired"
+	ErrorBodyCodeEmailChangeCodeIncorrect                      ErrorBodyCode = "email_change_code_incorrect"
+	ErrorBodyCodeEmailChangeCodePreviouslyUsed                 ErrorBodyCode = "email_change_code_previously_used"
+	ErrorBodyCodeEmailChangeNotAllowed                         ErrorBodyCode = "email_change_not_allowed"
+	ErrorBodyCodeEmailChangeNotNeeded                          ErrorBodyCode = "email_change_not_needed"
+	ErrorBodyCodeEmailChangeTooManyAttempts                    ErrorBodyCode = "email_change_too_many_attempts"
+	ErrorBodyCodeEmailCompletionRequired                       ErrorBodyCode = "email_completion_required"
+	ErrorBodyCodeEmailDomainNotDeliverable                     ErrorBodyCode = "email_domain_not_deliverable"
+	ErrorBodyCodeEmailMismatch                                 ErrorBodyCode = "email_mismatch"
+	ErrorBodyCodeEmailNotAvailable                             ErrorBodyCode = "email_not_available"
+	ErrorBodyCodeEmailPasswordAuthDisabled                     ErrorBodyCode = "email_password_auth_disabled"
+	ErrorBodyCodeEmailPreviouslyVerified                       ErrorBodyCode = "email_previously_verified"
+	ErrorBodyCodeEmailVerificationCodeExpired                  ErrorBodyCode = "email_verification_code_expired"
+	ErrorBodyCodeEmailVerificationCodeIncorrect                ErrorBodyCode = "email_verification_code_incorrect"
+	ErrorBodyCodeEmailVerificationCodePreviouslyUsed           ErrorBodyCode = "email_verification_code_previously_used"
+	ErrorBodyCodeEmailVerificationRequired                     ErrorBodyCode = "email_verification_required"
+	ErrorBodyCodeEntityNotFound                                ErrorBodyCode = "entity_not_found"
+	ErrorBodyCodeExpiresInDaysTooLong                          ErrorBodyCode = "expires_in_days_too_long"
+	ErrorBodyCodeExpiresInDaysTooShort                         ErrorBodyCode = "expires_in_days_too_short"
+	ErrorBodyCodeExternalAuthSessionAlreadyCompleted           ErrorBodyCode = "external_auth_session_already_completed"
+	ErrorBodyCodeExternalIDAlreadyInUse                        ErrorBodyCode = "external_id_already_in_use"
+	ErrorBodyCodeExternalIDAlreadyUsed                         ErrorBodyCode = "external_id_already_used"
+	ErrorBodyCodeGroupMembershipLimitExceeded                  ErrorBodyCode = "group_membership_limit_exceeded"
+	ErrorBodyCodeGroupMembershipUpdateOverlap                  ErrorBodyCode = "group_membership_update_overlap"
+	ErrorBodyCodeGroupRoleAssignmentUpdateOverlap              ErrorBodyCode = "group_role_assignment_update_overlap"
+	ErrorBodyCodeIDTokenSignatureAlgorithmNotSupported         ErrorBodyCode = "id_token_signature_algorithm_not_supported"
+	ErrorBodyCodeIdpMetadataFetchFailed                        ErrorBodyCode = "idp_metadata_fetch_failed"
+	ErrorBodyCodeIncompleteSAMLOptions                         ErrorBodyCode = "incomplete_saml_options"
+	ErrorBodyCodeInvalidAgentAccessToken                       ErrorBodyCode = "invalid_agent_access_token"
+	ErrorBodyCodeInvalidCertificate                            ErrorBodyCode = "invalid_certificate"
+	ErrorBodyCodeInvalidClaim                                  ErrorBodyCode = "invalid_claim"
+	ErrorBodyCodeInvalidCredentials                            ErrorBodyCode = "invalid_credentials"
+	ErrorBodyCodeInvalidEmail                                  ErrorBodyCode = "invalid_email"
+	ErrorBodyCodeInvalidIdpSSOURL                              ErrorBodyCode = "invalid_idp_sso_url"
+	ErrorBodyCodeInvalidInvite                                 ErrorBodyCode = "invalid_invite"
+	ErrorBodyCodeInvalidLocale                                 ErrorBodyCode = "invalid_locale"
+	ErrorBodyCodeInvalidMetadata                               ErrorBodyCode = "invalid_metadata"
+	ErrorBodyCodeInvalidOneTimeCode                            ErrorBodyCode = "invalid_one_time_code"
+	ErrorBodyCodeInvalidOrganization                           ErrorBodyCode = "invalid_organization"
+	ErrorBodyCodeInvalidOrganizationID                         ErrorBodyCode = "invalid_organization_id"
+	ErrorBodyCodeInvalidPasswordHash                           ErrorBodyCode = "invalid_password_hash"
+	ErrorBodyCodeInvalidPendingAuthenticationToken             ErrorBodyCode = "invalid_pending_authentication_token"
+	ErrorBodyCodeInvalidRefreshToken                           ErrorBodyCode = "invalid_refresh_token"
+	ErrorBodyCodeInvalidRequest                                ErrorBodyCode = "invalid_request"
+	ErrorBodyCodeInvalidRequestParameters                      ErrorBodyCode = "invalid_request_parameters"
+	ErrorBodyCodeInvalidRole                                   ErrorBodyCode = "invalid_role"
+	ErrorBodyCodeInvalidState                                  ErrorBodyCode = "invalid_state"
+	ErrorBodyCodeInvalidURL                                    ErrorBodyCode = "invalid_url"
+	ErrorBodyCodeInvalidUserAccessToken                        ErrorBodyCode = "invalid_user_access_token"
+	ErrorBodyCodeInvitationEmailNotSent                        ErrorBodyCode = "invitation_email_not_sent"
+	ErrorBodyCodeInviteAccepted                                ErrorBodyCode = "invite_accepted"
+	ErrorBodyCodeInviteExpired                                 ErrorBodyCode = "invite_expired"
+	ErrorBodyCodeInviteHasAcceptedUserID                       ErrorBodyCode = "invite_has_accepted_user_id"
+	ErrorBodyCodeInviteNotPending                              ErrorBodyCode = "invite_not_pending"
+	ErrorBodyCodeInviteRevoked                                 ErrorBodyCode = "invite_revoked"
+	ErrorBodyCodeIPAddressRequired                             ErrorBodyCode = "ip_address_required"
+	ErrorBodyCodeItContactAlreadyExists                        ErrorBodyCode = "it_contact_already_exists"
+	ErrorBodyCodeItContactInvitationAlreadyActive              ErrorBodyCode = "it_contact_invitation_already_active"
+	ErrorBodyCodeKeyPairNotAccepted                            ErrorBodyCode = "key_pair_not_accepted"
+	ErrorBodyCodeLockTimeout                                   ErrorBodyCode = "lock_timeout"
+	ErrorBodyCodeMaxAgeExceeded                                ErrorBodyCode = "max_age_exceeded"
+	ErrorBodyCodeMFAChallenge                                  ErrorBodyCode = "mfa_challenge"
+	ErrorBodyCodeMFAEnrollment                                 ErrorBodyCode = "mfa_enrollment"
+	ErrorBodyCodeMissingOrganizationIDOrResourceTypeSlug       ErrorBodyCode = "missing_organization_id_or_resource_type_slug"
+	ErrorBodyCodeMissingUserIDOrOrganizationID                 ErrorBodyCode = "missing_user_id_or_organization_id"
+	ErrorBodyCodeMultipleRolesNotEnabled                       ErrorBodyCode = "multiple_roles_not_enabled"
+	ErrorBodyCodeNameAlreadyInUse                              ErrorBodyCode = "name_already_in_use"
+	ErrorBodyCodeNoPendingEmailChange                          ErrorBodyCode = "no_pending_email_change"
+	ErrorBodyCodeOIDCOptionsRequired                           ErrorBodyCode = "oidc_options_required"
+	ErrorBodyCodeOneTimeCodeExpired                            ErrorBodyCode = "one_time_code_expired"
+	ErrorBodyCodeOneTimeCodePreviouslyUsed                     ErrorBodyCode = "one_time_code_previously_used"
+	ErrorBodyCodeOneTimeCodeTooManyAttempts                    ErrorBodyCode = "one_time_code_too_many_attempts"
+	ErrorBodyCodeOrganizationBlockedFromSendingInvites         ErrorBodyCode = "organization_blocked_from_sending_invites"
+	ErrorBodyCodeOrganizationMembershipDirectoryManaged        ErrorBodyCode = "organization_membership_directory_managed"
+	ErrorBodyCodeOrganizationNotFound                          ErrorBodyCode = "organization_not_found"
+	ErrorBodyCodeOrganizationNotInvocable                      ErrorBodyCode = "organization_not_invocable"
+	ErrorBodyCodeOrganizationRoleSlugConflict                  ErrorBodyCode = "organization_role_slug_conflict"
+	ErrorBodyCodeOrganizationSelectionRequired                 ErrorBodyCode = "organization_selection_required"
+	ErrorBodyCodePasskeyProgressiveEnrollment                  ErrorBodyCode = "passkey_progressive_enrollment"
+	ErrorBodyCodePasswordAndPasswordHashProvided               ErrorBodyCode = "password_and_password_hash_provided"
+	ErrorBodyCodePasswordAndPasswordHashTypeProvided           ErrorBodyCode = "password_and_password_hash_type_provided"
+	ErrorBodyCodePasswordResetError                            ErrorBodyCode = "password_reset_error"
+	ErrorBodyCodePasswordResetNotAllowed                       ErrorBodyCode = "password_reset_not_allowed"
+	ErrorBodyCodePasswordSaltPositionRequiresPasswordHash      ErrorBodyCode = "password_salt_position_requires_password_hash"
+	ErrorBodyCodePasswordStrengthError                         ErrorBodyCode = "password_strength_error"
+	ErrorBodyCodePermissionNotFound                            ErrorBodyCode = "permission_not_found"
+	ErrorBodyCodePermissionSlugConflict                        ErrorBodyCode = "permission_slug_conflict"
+	ErrorBodyCodePhoneNumberRequired                           ErrorBodyCode = "phone_number_required"
+	ErrorBodyCodePolicyDenied                                  ErrorBodyCode = "policy_denied"
+	ErrorBodyCodeProductionFeatureRequiresBilling              ErrorBodyCode = "production_feature_requires_billing"
+	ErrorBodyCodeRadarChallenge                                ErrorBodyCode = "radar_challenge"
+	ErrorBodyCodeRadarSignUpChallenge                          ErrorBodyCode = "radar_sign_up_challenge"
+	ErrorBodyCodeRadarSmsSignInChallenge                       ErrorBodyCode = "radar_sms_sign_in_challenge"
+	ErrorBodyCodeRateLimitExceeded                             ErrorBodyCode = "rate_limit_exceeded"
+	ErrorBodyCodeResourceHasDependents                         ErrorBodyCode = "resource_has_dependents"
+	ErrorBodyCodeResourceLimitExceeded                         ErrorBodyCode = "resource_limit_exceeded"
+	ErrorBodyCodeResourceTypeUpdateInProgress                  ErrorBodyCode = "resource_type_update_in_progress"
+	ErrorBodyCodeRoleHasAssignments                            ErrorBodyCode = "role_has_assignments"
+	ErrorBodyCodeRoleHasGroupRoleMappings                      ErrorBodyCode = "role_has_group_role_mappings"
+	ErrorBodyCodeRoleNotFound                                  ErrorBodyCode = "role_not_found"
+	ErrorBodyCodeRoleNotInvocable                              ErrorBodyCode = "role_not_invocable"
+	ErrorBodyCodeRoleSlugConflict                              ErrorBodyCode = "role_slug_conflict"
+	ErrorBodyCodeSAMLOptionsRequired                           ErrorBodyCode = "saml_options_required"
+	ErrorBodyCodeSessionExpired                                ErrorBodyCode = "session_expired"
+	ErrorBodyCodeSessionRevoked                                ErrorBodyCode = "session_revoked"
+	ErrorBodyCodeSessionSettingsNotFound                       ErrorBodyCode = "session_settings_not_found"
+	ErrorBodyCodeSmsChallengeQuotaReached                      ErrorBodyCode = "sms_challenge_quota_reached"
+	ErrorBodyCodeSmsChallengeRateLimited                       ErrorBodyCode = "sms_challenge_rate_limited"
+	ErrorBodyCodeSpSigningCertAlreadyExists                    ErrorBodyCode = "sp_signing_cert_already_exists"
+	ErrorBodyCodeStripeCustomerIDAlreadyUsed                   ErrorBodyCode = "stripe_customer_id_already_used"
+	ErrorBodyCodeSubResourceScopedRoleNotAllowed               ErrorBodyCode = "sub_resource_scoped_role_not_allowed"
+	ErrorBodyCodeTeamNotFound                                  ErrorBodyCode = "team_not_found"
+	ErrorBodyCodeTokenAuthenticationMethodNotSupported         ErrorBodyCode = "token_authentication_method_not_supported"
+	ErrorBodyCodeTooManyFailedVerificationAttempts             ErrorBodyCode = "too_many_failed_verification_attempts"
+	ErrorBodyCodeTooManySpEncryptionCerts                      ErrorBodyCode = "too_many_sp_encryption_certs"
+	ErrorBodyCodeUnsupportedInvocationType                     ErrorBodyCode = "unsupported_invocation_type"
+	ErrorBodyCodeUserAlreadyExists                             ErrorBodyCode = "user_already_exists"
+	ErrorBodyCodeUserAlreadyOrganizationMember                 ErrorBodyCode = "user_already_organization_member"
+	ErrorBodyCodeUserCodeExpired                               ErrorBodyCode = "user_code_expired"
+	ErrorBodyCodeUserConsentOptionsNotSupported                ErrorBodyCode = "user_consent_options_not_supported"
+	ErrorBodyCodeUserCreationError                             ErrorBodyCode = "user_creation_error"
+	ErrorBodyCodeUserMismatch                                  ErrorBodyCode = "user_mismatch"
+	ErrorBodyCodeUserNotMemberOfOrganization                   ErrorBodyCode = "user_not_member_of_organization"
+	ErrorBodyCodeUserSessionEnded                              ErrorBodyCode = "user_session_ended"
+	ErrorBodyCodeVerificationIDRequired                        ErrorBodyCode = "verification_id_required"
+	ErrorBodyCodeWrongAccount                                  ErrorBodyCode = "wrong_account"
+)
+
 // VaultByokKeyProvider represents vault byok key provider values.
 type VaultByokKeyProvider string
 
@@ -46,6 +224,9 @@ const (
 	UpdateAuditLogsRetentionRetentionPeriod9Years   UpdateAuditLogsRetentionRetentionPeriod = "9_YEARS"
 	UpdateAuditLogsRetentionRetentionPeriod10Years  UpdateAuditLogsRetentionRetentionPeriod = "10_YEARS"
 )
+
+// UpdateAuditLogsRetentionWithRetentionPeriodRetentionPeriod is an alias for UpdateAuditLogsRetentionRetentionPeriod.
+type UpdateAuditLogsRetentionWithRetentionPeriodRetentionPeriod = UpdateAuditLogsRetentionRetentionPeriod
 
 // CreateConnectionOIDCOptionsTokenAuthenticationMethod represents create connection oidc options token authentication method values.
 type CreateConnectionOIDCOptionsTokenAuthenticationMethod string
@@ -111,8 +292,13 @@ const (
 	CustomProviderDefinitionAuthenticateViaBasicAuthHeader CustomProviderDefinitionAuthenticateVia = "basic_auth_header"
 )
 
-// CreateDataIntegrationOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type CreateDataIntegrationOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// CreateDataIntegrationOwnership represents create data integration ownership values.
+type CreateDataIntegrationOwnership string
+
+const (
+	CreateDataIntegrationOwnershipUser         CreateDataIntegrationOwnership = "user"
+	CreateDataIntegrationOwnershipOrganization CreateDataIntegrationOwnership = "organization"
+)
 
 // CreateDataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
 type CreateDataIntegrationAuthMethods = ConnectedAccountAuthMethod
@@ -150,104 +336,107 @@ const (
 	GenerateLinkIntentBringYourOwnKey    GenerateLinkIntent = "bring_your_own_key"
 )
 
-// CreateUserInviteOptionsLocale represents create user invite options locale values.
-type CreateUserInviteOptionsLocale string
+// CreateMagicCodeAndReturnLocale represents create magic code and return locale values.
+type CreateMagicCodeAndReturnLocale string
 
 const (
-	CreateUserInviteOptionsLocaleAf    CreateUserInviteOptionsLocale = "af"
-	CreateUserInviteOptionsLocaleAm    CreateUserInviteOptionsLocale = "am"
-	CreateUserInviteOptionsLocaleAr    CreateUserInviteOptionsLocale = "ar"
-	CreateUserInviteOptionsLocaleBg    CreateUserInviteOptionsLocale = "bg"
-	CreateUserInviteOptionsLocaleBn    CreateUserInviteOptionsLocale = "bn"
-	CreateUserInviteOptionsLocaleBs    CreateUserInviteOptionsLocale = "bs"
-	CreateUserInviteOptionsLocaleCa    CreateUserInviteOptionsLocale = "ca"
-	CreateUserInviteOptionsLocaleCs    CreateUserInviteOptionsLocale = "cs"
-	CreateUserInviteOptionsLocaleDa    CreateUserInviteOptionsLocale = "da"
-	CreateUserInviteOptionsLocaleDe    CreateUserInviteOptionsLocale = "de"
-	CreateUserInviteOptionsLocaleDeDe  CreateUserInviteOptionsLocale = "de-DE"
-	CreateUserInviteOptionsLocaleEl    CreateUserInviteOptionsLocale = "el"
-	CreateUserInviteOptionsLocaleEn    CreateUserInviteOptionsLocale = "en"
-	CreateUserInviteOptionsLocaleEnAu  CreateUserInviteOptionsLocale = "en-AU"
-	CreateUserInviteOptionsLocaleEnCa  CreateUserInviteOptionsLocale = "en-CA"
-	CreateUserInviteOptionsLocaleEnGb  CreateUserInviteOptionsLocale = "en-GB"
-	CreateUserInviteOptionsLocaleEnUs  CreateUserInviteOptionsLocale = "en-US"
-	CreateUserInviteOptionsLocaleEs    CreateUserInviteOptionsLocale = "es"
-	CreateUserInviteOptionsLocaleEs419 CreateUserInviteOptionsLocale = "es-419"
-	CreateUserInviteOptionsLocaleEsEs  CreateUserInviteOptionsLocale = "es-ES"
-	CreateUserInviteOptionsLocaleEsUs  CreateUserInviteOptionsLocale = "es-US"
-	CreateUserInviteOptionsLocaleEt    CreateUserInviteOptionsLocale = "et"
-	CreateUserInviteOptionsLocaleFa    CreateUserInviteOptionsLocale = "fa"
-	CreateUserInviteOptionsLocaleFi    CreateUserInviteOptionsLocale = "fi"
-	CreateUserInviteOptionsLocaleFil   CreateUserInviteOptionsLocale = "fil"
-	CreateUserInviteOptionsLocaleFr    CreateUserInviteOptionsLocale = "fr"
-	CreateUserInviteOptionsLocaleFrBe  CreateUserInviteOptionsLocale = "fr-BE"
-	CreateUserInviteOptionsLocaleFrCa  CreateUserInviteOptionsLocale = "fr-CA"
-	CreateUserInviteOptionsLocaleFrFr  CreateUserInviteOptionsLocale = "fr-FR"
-	CreateUserInviteOptionsLocaleFy    CreateUserInviteOptionsLocale = "fy"
-	CreateUserInviteOptionsLocaleGl    CreateUserInviteOptionsLocale = "gl"
-	CreateUserInviteOptionsLocaleGu    CreateUserInviteOptionsLocale = "gu"
-	CreateUserInviteOptionsLocaleHa    CreateUserInviteOptionsLocale = "ha"
-	CreateUserInviteOptionsLocaleHe    CreateUserInviteOptionsLocale = "he"
-	CreateUserInviteOptionsLocaleHi    CreateUserInviteOptionsLocale = "hi"
-	CreateUserInviteOptionsLocaleHr    CreateUserInviteOptionsLocale = "hr"
-	CreateUserInviteOptionsLocaleHu    CreateUserInviteOptionsLocale = "hu"
-	CreateUserInviteOptionsLocaleHy    CreateUserInviteOptionsLocale = "hy"
-	CreateUserInviteOptionsLocaleID    CreateUserInviteOptionsLocale = "id"
-	CreateUserInviteOptionsLocaleIs    CreateUserInviteOptionsLocale = "is"
-	CreateUserInviteOptionsLocaleIt    CreateUserInviteOptionsLocale = "it"
-	CreateUserInviteOptionsLocaleItIt  CreateUserInviteOptionsLocale = "it-IT"
-	CreateUserInviteOptionsLocaleJa    CreateUserInviteOptionsLocale = "ja"
-	CreateUserInviteOptionsLocaleJv    CreateUserInviteOptionsLocale = "jv"
-	CreateUserInviteOptionsLocaleKa    CreateUserInviteOptionsLocale = "ka"
-	CreateUserInviteOptionsLocaleKk    CreateUserInviteOptionsLocale = "kk"
-	CreateUserInviteOptionsLocaleKm    CreateUserInviteOptionsLocale = "km"
-	CreateUserInviteOptionsLocaleKn    CreateUserInviteOptionsLocale = "kn"
-	CreateUserInviteOptionsLocaleKo    CreateUserInviteOptionsLocale = "ko"
-	CreateUserInviteOptionsLocaleLt    CreateUserInviteOptionsLocale = "lt"
-	CreateUserInviteOptionsLocaleLv    CreateUserInviteOptionsLocale = "lv"
-	CreateUserInviteOptionsLocaleMk    CreateUserInviteOptionsLocale = "mk"
-	CreateUserInviteOptionsLocaleMl    CreateUserInviteOptionsLocale = "ml"
-	CreateUserInviteOptionsLocaleMn    CreateUserInviteOptionsLocale = "mn"
-	CreateUserInviteOptionsLocaleMr    CreateUserInviteOptionsLocale = "mr"
-	CreateUserInviteOptionsLocaleMs    CreateUserInviteOptionsLocale = "ms"
-	CreateUserInviteOptionsLocaleMy    CreateUserInviteOptionsLocale = "my"
-	CreateUserInviteOptionsLocaleNb    CreateUserInviteOptionsLocale = "nb"
-	CreateUserInviteOptionsLocaleNe    CreateUserInviteOptionsLocale = "ne"
-	CreateUserInviteOptionsLocaleNl    CreateUserInviteOptionsLocale = "nl"
-	CreateUserInviteOptionsLocaleNlBe  CreateUserInviteOptionsLocale = "nl-BE"
-	CreateUserInviteOptionsLocaleNlNl  CreateUserInviteOptionsLocale = "nl-NL"
-	CreateUserInviteOptionsLocaleNn    CreateUserInviteOptionsLocale = "nn"
-	CreateUserInviteOptionsLocaleNo    CreateUserInviteOptionsLocale = "no"
-	CreateUserInviteOptionsLocalePa    CreateUserInviteOptionsLocale = "pa"
-	CreateUserInviteOptionsLocalePl    CreateUserInviteOptionsLocale = "pl"
-	CreateUserInviteOptionsLocalePt    CreateUserInviteOptionsLocale = "pt"
-	CreateUserInviteOptionsLocalePtBr  CreateUserInviteOptionsLocale = "pt-BR"
-	CreateUserInviteOptionsLocalePtPt  CreateUserInviteOptionsLocale = "pt-PT"
-	CreateUserInviteOptionsLocaleRo    CreateUserInviteOptionsLocale = "ro"
-	CreateUserInviteOptionsLocaleRu    CreateUserInviteOptionsLocale = "ru"
-	CreateUserInviteOptionsLocaleSk    CreateUserInviteOptionsLocale = "sk"
-	CreateUserInviteOptionsLocaleSl    CreateUserInviteOptionsLocale = "sl"
-	CreateUserInviteOptionsLocaleSq    CreateUserInviteOptionsLocale = "sq"
-	CreateUserInviteOptionsLocaleSr    CreateUserInviteOptionsLocale = "sr"
-	CreateUserInviteOptionsLocaleSv    CreateUserInviteOptionsLocale = "sv"
-	CreateUserInviteOptionsLocaleSw    CreateUserInviteOptionsLocale = "sw"
-	CreateUserInviteOptionsLocaleTa    CreateUserInviteOptionsLocale = "ta"
-	CreateUserInviteOptionsLocaleTe    CreateUserInviteOptionsLocale = "te"
-	CreateUserInviteOptionsLocaleTh    CreateUserInviteOptionsLocale = "th"
-	CreateUserInviteOptionsLocaleTr    CreateUserInviteOptionsLocale = "tr"
-	CreateUserInviteOptionsLocaleUk    CreateUserInviteOptionsLocale = "uk"
-	CreateUserInviteOptionsLocaleUr    CreateUserInviteOptionsLocale = "ur"
-	CreateUserInviteOptionsLocaleUz    CreateUserInviteOptionsLocale = "uz"
-	CreateUserInviteOptionsLocaleVi    CreateUserInviteOptionsLocale = "vi"
-	CreateUserInviteOptionsLocaleZh    CreateUserInviteOptionsLocale = "zh"
-	CreateUserInviteOptionsLocaleZhCn  CreateUserInviteOptionsLocale = "zh-CN"
-	CreateUserInviteOptionsLocaleZhHk  CreateUserInviteOptionsLocale = "zh-HK"
-	CreateUserInviteOptionsLocaleZhTw  CreateUserInviteOptionsLocale = "zh-TW"
-	CreateUserInviteOptionsLocaleZu    CreateUserInviteOptionsLocale = "zu"
+	CreateMagicCodeAndReturnLocaleAf    CreateMagicCodeAndReturnLocale = "af"
+	CreateMagicCodeAndReturnLocaleAm    CreateMagicCodeAndReturnLocale = "am"
+	CreateMagicCodeAndReturnLocaleAr    CreateMagicCodeAndReturnLocale = "ar"
+	CreateMagicCodeAndReturnLocaleBg    CreateMagicCodeAndReturnLocale = "bg"
+	CreateMagicCodeAndReturnLocaleBn    CreateMagicCodeAndReturnLocale = "bn"
+	CreateMagicCodeAndReturnLocaleBs    CreateMagicCodeAndReturnLocale = "bs"
+	CreateMagicCodeAndReturnLocaleCa    CreateMagicCodeAndReturnLocale = "ca"
+	CreateMagicCodeAndReturnLocaleCs    CreateMagicCodeAndReturnLocale = "cs"
+	CreateMagicCodeAndReturnLocaleDa    CreateMagicCodeAndReturnLocale = "da"
+	CreateMagicCodeAndReturnLocaleDe    CreateMagicCodeAndReturnLocale = "de"
+	CreateMagicCodeAndReturnLocaleDeDe  CreateMagicCodeAndReturnLocale = "de-DE"
+	CreateMagicCodeAndReturnLocaleEl    CreateMagicCodeAndReturnLocale = "el"
+	CreateMagicCodeAndReturnLocaleEn    CreateMagicCodeAndReturnLocale = "en"
+	CreateMagicCodeAndReturnLocaleEnAu  CreateMagicCodeAndReturnLocale = "en-AU"
+	CreateMagicCodeAndReturnLocaleEnCa  CreateMagicCodeAndReturnLocale = "en-CA"
+	CreateMagicCodeAndReturnLocaleEnGb  CreateMagicCodeAndReturnLocale = "en-GB"
+	CreateMagicCodeAndReturnLocaleEnUs  CreateMagicCodeAndReturnLocale = "en-US"
+	CreateMagicCodeAndReturnLocaleEs    CreateMagicCodeAndReturnLocale = "es"
+	CreateMagicCodeAndReturnLocaleEs419 CreateMagicCodeAndReturnLocale = "es-419"
+	CreateMagicCodeAndReturnLocaleEsEs  CreateMagicCodeAndReturnLocale = "es-ES"
+	CreateMagicCodeAndReturnLocaleEsUs  CreateMagicCodeAndReturnLocale = "es-US"
+	CreateMagicCodeAndReturnLocaleEt    CreateMagicCodeAndReturnLocale = "et"
+	CreateMagicCodeAndReturnLocaleFa    CreateMagicCodeAndReturnLocale = "fa"
+	CreateMagicCodeAndReturnLocaleFi    CreateMagicCodeAndReturnLocale = "fi"
+	CreateMagicCodeAndReturnLocaleFil   CreateMagicCodeAndReturnLocale = "fil"
+	CreateMagicCodeAndReturnLocaleFr    CreateMagicCodeAndReturnLocale = "fr"
+	CreateMagicCodeAndReturnLocaleFrBe  CreateMagicCodeAndReturnLocale = "fr-BE"
+	CreateMagicCodeAndReturnLocaleFrCa  CreateMagicCodeAndReturnLocale = "fr-CA"
+	CreateMagicCodeAndReturnLocaleFrFr  CreateMagicCodeAndReturnLocale = "fr-FR"
+	CreateMagicCodeAndReturnLocaleFy    CreateMagicCodeAndReturnLocale = "fy"
+	CreateMagicCodeAndReturnLocaleGl    CreateMagicCodeAndReturnLocale = "gl"
+	CreateMagicCodeAndReturnLocaleGu    CreateMagicCodeAndReturnLocale = "gu"
+	CreateMagicCodeAndReturnLocaleHa    CreateMagicCodeAndReturnLocale = "ha"
+	CreateMagicCodeAndReturnLocaleHe    CreateMagicCodeAndReturnLocale = "he"
+	CreateMagicCodeAndReturnLocaleHi    CreateMagicCodeAndReturnLocale = "hi"
+	CreateMagicCodeAndReturnLocaleHr    CreateMagicCodeAndReturnLocale = "hr"
+	CreateMagicCodeAndReturnLocaleHu    CreateMagicCodeAndReturnLocale = "hu"
+	CreateMagicCodeAndReturnLocaleHy    CreateMagicCodeAndReturnLocale = "hy"
+	CreateMagicCodeAndReturnLocaleID    CreateMagicCodeAndReturnLocale = "id"
+	CreateMagicCodeAndReturnLocaleIs    CreateMagicCodeAndReturnLocale = "is"
+	CreateMagicCodeAndReturnLocaleIt    CreateMagicCodeAndReturnLocale = "it"
+	CreateMagicCodeAndReturnLocaleItIt  CreateMagicCodeAndReturnLocale = "it-IT"
+	CreateMagicCodeAndReturnLocaleJa    CreateMagicCodeAndReturnLocale = "ja"
+	CreateMagicCodeAndReturnLocaleJv    CreateMagicCodeAndReturnLocale = "jv"
+	CreateMagicCodeAndReturnLocaleKa    CreateMagicCodeAndReturnLocale = "ka"
+	CreateMagicCodeAndReturnLocaleKk    CreateMagicCodeAndReturnLocale = "kk"
+	CreateMagicCodeAndReturnLocaleKm    CreateMagicCodeAndReturnLocale = "km"
+	CreateMagicCodeAndReturnLocaleKn    CreateMagicCodeAndReturnLocale = "kn"
+	CreateMagicCodeAndReturnLocaleKo    CreateMagicCodeAndReturnLocale = "ko"
+	CreateMagicCodeAndReturnLocaleLt    CreateMagicCodeAndReturnLocale = "lt"
+	CreateMagicCodeAndReturnLocaleLv    CreateMagicCodeAndReturnLocale = "lv"
+	CreateMagicCodeAndReturnLocaleMk    CreateMagicCodeAndReturnLocale = "mk"
+	CreateMagicCodeAndReturnLocaleMl    CreateMagicCodeAndReturnLocale = "ml"
+	CreateMagicCodeAndReturnLocaleMn    CreateMagicCodeAndReturnLocale = "mn"
+	CreateMagicCodeAndReturnLocaleMr    CreateMagicCodeAndReturnLocale = "mr"
+	CreateMagicCodeAndReturnLocaleMs    CreateMagicCodeAndReturnLocale = "ms"
+	CreateMagicCodeAndReturnLocaleMy    CreateMagicCodeAndReturnLocale = "my"
+	CreateMagicCodeAndReturnLocaleNb    CreateMagicCodeAndReturnLocale = "nb"
+	CreateMagicCodeAndReturnLocaleNe    CreateMagicCodeAndReturnLocale = "ne"
+	CreateMagicCodeAndReturnLocaleNl    CreateMagicCodeAndReturnLocale = "nl"
+	CreateMagicCodeAndReturnLocaleNlBe  CreateMagicCodeAndReturnLocale = "nl-BE"
+	CreateMagicCodeAndReturnLocaleNlNl  CreateMagicCodeAndReturnLocale = "nl-NL"
+	CreateMagicCodeAndReturnLocaleNn    CreateMagicCodeAndReturnLocale = "nn"
+	CreateMagicCodeAndReturnLocaleNo    CreateMagicCodeAndReturnLocale = "no"
+	CreateMagicCodeAndReturnLocalePa    CreateMagicCodeAndReturnLocale = "pa"
+	CreateMagicCodeAndReturnLocalePl    CreateMagicCodeAndReturnLocale = "pl"
+	CreateMagicCodeAndReturnLocalePt    CreateMagicCodeAndReturnLocale = "pt"
+	CreateMagicCodeAndReturnLocalePtBr  CreateMagicCodeAndReturnLocale = "pt-BR"
+	CreateMagicCodeAndReturnLocalePtPt  CreateMagicCodeAndReturnLocale = "pt-PT"
+	CreateMagicCodeAndReturnLocaleRo    CreateMagicCodeAndReturnLocale = "ro"
+	CreateMagicCodeAndReturnLocaleRu    CreateMagicCodeAndReturnLocale = "ru"
+	CreateMagicCodeAndReturnLocaleSk    CreateMagicCodeAndReturnLocale = "sk"
+	CreateMagicCodeAndReturnLocaleSl    CreateMagicCodeAndReturnLocale = "sl"
+	CreateMagicCodeAndReturnLocaleSq    CreateMagicCodeAndReturnLocale = "sq"
+	CreateMagicCodeAndReturnLocaleSr    CreateMagicCodeAndReturnLocale = "sr"
+	CreateMagicCodeAndReturnLocaleSv    CreateMagicCodeAndReturnLocale = "sv"
+	CreateMagicCodeAndReturnLocaleSw    CreateMagicCodeAndReturnLocale = "sw"
+	CreateMagicCodeAndReturnLocaleTa    CreateMagicCodeAndReturnLocale = "ta"
+	CreateMagicCodeAndReturnLocaleTe    CreateMagicCodeAndReturnLocale = "te"
+	CreateMagicCodeAndReturnLocaleTh    CreateMagicCodeAndReturnLocale = "th"
+	CreateMagicCodeAndReturnLocaleTr    CreateMagicCodeAndReturnLocale = "tr"
+	CreateMagicCodeAndReturnLocaleUk    CreateMagicCodeAndReturnLocale = "uk"
+	CreateMagicCodeAndReturnLocaleUr    CreateMagicCodeAndReturnLocale = "ur"
+	CreateMagicCodeAndReturnLocaleUz    CreateMagicCodeAndReturnLocale = "uz"
+	CreateMagicCodeAndReturnLocaleVi    CreateMagicCodeAndReturnLocale = "vi"
+	CreateMagicCodeAndReturnLocaleZh    CreateMagicCodeAndReturnLocale = "zh"
+	CreateMagicCodeAndReturnLocaleZhCn  CreateMagicCodeAndReturnLocale = "zh-CN"
+	CreateMagicCodeAndReturnLocaleZhHk  CreateMagicCodeAndReturnLocale = "zh-HK"
+	CreateMagicCodeAndReturnLocaleZhTw  CreateMagicCodeAndReturnLocale = "zh-TW"
+	CreateMagicCodeAndReturnLocaleZu    CreateMagicCodeAndReturnLocale = "zu"
 )
 
-// ResendUserInviteOptionsLocale is an alias for CreateUserInviteOptionsLocale.
-type ResendUserInviteOptionsLocale = CreateUserInviteOptionsLocale
+// CreateUserInviteOptionsLocale is an alias for CreateMagicCodeAndReturnLocale.
+type CreateUserInviteOptionsLocale = CreateMagicCodeAndReturnLocale
+
+// ResendUserInviteOptionsLocale is an alias for CreateMagicCodeAndReturnLocale.
+type ResendUserInviteOptionsLocale = CreateMagicCodeAndReturnLocale
 
 // CreateUserPasswordHashType represents create user password hash type values.
 type CreateUserPasswordHashType string
@@ -275,6 +464,15 @@ type UpdateUserPasswordHashType = CreateUserPasswordHashType
 
 // UpdateUserPasswordSaltPosition is an alias for CreateUserPasswordSaltPosition.
 type UpdateUserPasswordSaltPosition = CreateUserPasswordSaltPosition
+
+// SendVerificationEmailLocale is an alias for CreateMagicCodeAndReturnLocale.
+type SendVerificationEmailLocale = CreateMagicCodeAndReturnLocale
+
+// CreatePasswordResetTokenLocale is an alias for CreateMagicCodeAndReturnLocale.
+type CreatePasswordResetTokenLocale = CreateMagicCodeAndReturnLocale
+
+// SendEmailChangeLocale is an alias for CreateMagicCodeAndReturnLocale.
+type SendEmailChangeLocale = CreateMagicCodeAndReturnLocale
 
 // CreateWebhookEndpointEvents represents create webhook endpoint events values.
 type CreateWebhookEndpointEvents string
@@ -341,6 +539,14 @@ const (
 	CreateWebhookEndpointEventsFlagDeleted                                 CreateWebhookEndpointEvents = "flag.deleted"
 	CreateWebhookEndpointEventsFlagUpdated                                 CreateWebhookEndpointEvents = "flag.updated"
 	CreateWebhookEndpointEventsFlagRuleUpdated                             CreateWebhookEndpointEvents = "flag.rule_updated"
+	CreateWebhookEndpointEventsFeatureFlagsFlagCreated                     CreateWebhookEndpointEvents = "feature_flags.flag.created"
+	CreateWebhookEndpointEventsFeatureFlagsFlagUpdated                     CreateWebhookEndpointEvents = "feature_flags.flag.updated"
+	CreateWebhookEndpointEventsFeatureFlagsFlagDeleted                     CreateWebhookEndpointEvents = "feature_flags.flag.deleted"
+	CreateWebhookEndpointEventsFeatureFlagsFlagRuleCreated                 CreateWebhookEndpointEvents = "feature_flags.flag_rule.created"
+	CreateWebhookEndpointEventsFeatureFlagsFlagRuleUpdated                 CreateWebhookEndpointEvents = "feature_flags.flag_rule.updated"
+	CreateWebhookEndpointEventsFeatureFlagsFlagTargetCreated               CreateWebhookEndpointEvents = "feature_flags.flag_target.created"
+	CreateWebhookEndpointEventsFeatureFlagsFlagRuleDeleted                 CreateWebhookEndpointEvents = "feature_flags.flag_rule.deleted"
+	CreateWebhookEndpointEventsFeatureFlagsFlagTargetDeleted               CreateWebhookEndpointEvents = "feature_flags.flag_target.deleted"
 	CreateWebhookEndpointEventsInvitationAccepted                          CreateWebhookEndpointEvents = "invitation.accepted"
 	CreateWebhookEndpointEventsInvitationCreated                           CreateWebhookEndpointEvents = "invitation.created"
 	CreateWebhookEndpointEventsInvitationResent                            CreateWebhookEndpointEvents = "invitation.resent"
@@ -403,6 +609,8 @@ type WidgetSessionTokenScopes string
 
 const (
 	WidgetSessionTokenScopesWidgetsUsersTableManage         WidgetSessionTokenScopes = "widgets:users-table:manage"
+	WidgetSessionTokenScopesWidgetsUserAPIKeysManageSelf    WidgetSessionTokenScopes = "widgets:user-api-keys:manage-self"
+	WidgetSessionTokenScopesWidgetsUserAPIKeysManageAll     WidgetSessionTokenScopes = "widgets:user-api-keys:manage-all"
 	WidgetSessionTokenScopesWidgetsDomainVerificationManage WidgetSessionTokenScopes = "widgets:domain-verification:manage"
 	WidgetSessionTokenScopesWidgetsSSOManage                WidgetSessionTokenScopes = "widgets:sso:manage"
 	WidgetSessionTokenScopesWidgetsAPIKeysManage            WidgetSessionTokenScopes = "widgets:api-keys:manage"
@@ -413,6 +621,83 @@ const (
 
 // TokenQueryGrantType is an alias for SSOGrantType.
 type TokenQueryGrantType = SSOGrantType
+
+// ConnectionFinishErrorBodyCode represents connection finish error body code values.
+type ConnectionFinishErrorBodyCode string
+
+const (
+	ConnectionFinishErrorBodyCodeInvalidConnectCode             ConnectionFinishErrorBodyCode = "invalid_connect_code"
+	ConnectionFinishErrorBodyCodeAuthorizationCodeExchangeError ConnectionFinishErrorBodyCode = "authorization_code_exchange_error"
+	ConnectionFinishErrorBodyCodeAuthorizationStateExpired      ConnectionFinishErrorBodyCode = "authorization_state_expired"
+	ConnectionFinishErrorBodyCodeAuthMethodMismatch             ConnectionFinishErrorBodyCode = "auth_method_mismatch"
+	ConnectionFinishErrorBodyCodeConcurrentRequest              ConnectionFinishErrorBodyCode = "concurrent_request"
+	ConnectionFinishErrorBodyCodeConnectedAccountLimitReached   ConnectionFinishErrorBodyCode = "connected_account_limit_reached"
+	ConnectionFinishErrorBodyCodeConnectedAccountNotFound       ConnectionFinishErrorBodyCode = "connected_account_not_found"
+	ConnectionFinishErrorBodyCodeInstallationFailed             ConnectionFinishErrorBodyCode = "installation_failed"
+	ConnectionFinishErrorBodyCodeInvalidAuthorizationURL        ConnectionFinishErrorBodyCode = "invalid_authorization_url"
+	ConnectionFinishErrorBodyCodeInvalidClientID                ConnectionFinishErrorBodyCode = "invalid_client_id"
+	ConnectionFinishErrorBodyCodeInvalidDataIntegration         ConnectionFinishErrorBodyCode = "invalid_data_integration"
+	ConnectionFinishErrorBodyCodeMissingAccessToken             ConnectionFinishErrorBodyCode = "missing_access_token"
+	ConnectionFinishErrorBodyCodeMissingCode                    ConnectionFinishErrorBodyCode = "missing_code"
+	ConnectionFinishErrorBodyCodeMultipleConnectionsUnavailable ConnectionFinishErrorBodyCode = "multiple_connections_unavailable"
+	ConnectionFinishErrorBodyCodeProviderError                  ConnectionFinishErrorBodyCode = "provider_error"
+	ConnectionFinishErrorBodyCodeReauthorizationNeeded          ConnectionFinishErrorBodyCode = "reauthorization_needed"
+	ConnectionFinishErrorBodyCodeTargetDeleted                  ConnectionFinishErrorBodyCode = "target_deleted"
+	ConnectionFinishErrorBodyCodeUnexpectedResponseFormat       ConnectionFinishErrorBodyCode = "unexpected_response_format"
+)
+
+// AuthorizationURLRequestErrorBodyCode represents authorization url request error body code values.
+type AuthorizationURLRequestErrorBodyCode string
+
+const (
+	AuthorizationURLRequestErrorBodyCodeInvalidReturnTo            AuthorizationURLRequestErrorBodyCode = "invalid_return_to"
+	AuthorizationURLRequestErrorBodyCodeReturnToRequiresExactMatch AuthorizationURLRequestErrorBodyCode = "return_to_requires_exact_match"
+	AuthorizationURLRequestErrorBodyCodeConnectFinishUnavailable   AuthorizationURLRequestErrorBodyCode = "connect_finish_unavailable"
+)
+
+// AuthorizationURLNotFoundErrorBodyCode represents authorization url not found error body code values.
+type AuthorizationURLNotFoundErrorBodyCode string
+
+const (
+	AuthorizationURLNotFoundErrorBodyCodeMultipleConnectionsUnavailable AuthorizationURLNotFoundErrorBodyCode = "multiple_connections_unavailable"
+	AuthorizationURLNotFoundErrorBodyCodeConnectedAccountNotFound       AuthorizationURLNotFoundErrorBodyCode = "connected_account_not_found"
+	AuthorizationURLNotFoundErrorBodyCodeEntityNotFound                 AuthorizationURLNotFoundErrorBodyCode = "entity_not_found"
+)
+
+// ConnectionCreationNotFoundErrorBodyCode represents connection creation not found error body code values.
+type ConnectionCreationNotFoundErrorBodyCode string
+
+const (
+	ConnectionCreationNotFoundErrorBodyCodeMultipleConnectionsUnavailable ConnectionCreationNotFoundErrorBodyCode = "multiple_connections_unavailable"
+	ConnectionCreationNotFoundErrorBodyCodeEntityNotFound                 ConnectionCreationNotFoundErrorBodyCode = "entity_not_found"
+)
+
+// ConnectionCreationConflictErrorBodyCode represents connection creation conflict error body code values.
+type ConnectionCreationConflictErrorBodyCode string
+
+const (
+	ConnectionCreationConflictErrorBodyCodeConnectedAccountLimitReached ConnectionCreationConflictErrorBodyCode = "connected_account_limit_reached"
+	ConnectionCreationConflictErrorBodyCodeIdempotencyKeyConflict       ConnectionCreationConflictErrorBodyCode = "idempotency_key_conflict"
+)
+
+// OrganizationConnectedAccountImportErrorBodyCode represents organization connected account import error body code values.
+type OrganizationConnectedAccountImportErrorBodyCode string
+
+const (
+	OrganizationConnectedAccountImportErrorBodyCodeInvalidTokenCombination        OrganizationConnectedAccountImportErrorBodyCode = "invalid_token_combination"
+	OrganizationConnectedAccountImportErrorBodyCodeInvalidDataIntegrationState    OrganizationConnectedAccountImportErrorBodyCode = "invalid_data_integration_state"
+	OrganizationConnectedAccountImportErrorBodyCodeClientCredentialsNotConfigured OrganizationConnectedAccountImportErrorBodyCode = "client_credentials_not_configured"
+)
+
+// UserConnectedAccountImportErrorBodyCode represents user connected account import error body code values.
+type UserConnectedAccountImportErrorBodyCode string
+
+const (
+	UserConnectedAccountImportErrorBodyCodeInvalidRefreshToken            UserConnectedAccountImportErrorBodyCode = "invalid_refresh_token"
+	UserConnectedAccountImportErrorBodyCodeInvalidTokenCombination        UserConnectedAccountImportErrorBodyCode = "invalid_token_combination"
+	UserConnectedAccountImportErrorBodyCodeInvalidDataIntegrationState    UserConnectedAccountImportErrorBodyCode = "invalid_data_integration_state"
+	UserConnectedAccountImportErrorBodyCodeClientCredentialsNotConfigured UserConnectedAccountImportErrorBodyCode = "client_credentials_not_configured"
+)
 
 // AgentRegistrationStatus is an alias for AgentRegistrationCreatedDataStatus.
 type AgentRegistrationStatus = AgentRegistrationCreatedDataStatus
@@ -812,6 +1097,24 @@ type DsyncDeletedDataState = DsyncActivatedDataState
 // DsyncUserUpdatedDataState is an alias for DirectoryUserState.
 type DsyncUserUpdatedDataState = DirectoryUserState
 
+// FeatureFlagsFlagCreatedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagCreatedContextActorSource = EventContextActorSource
+
+// FeatureFlagsFlagDeletedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagDeletedContextActorSource = EventContextActorSource
+
+// FeatureFlagsFlagRuleCreatedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagRuleCreatedContextActorSource = EventContextActorSource
+
+// FeatureFlagsFlagRuleDeletedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagRuleDeletedContextActorSource = EventContextActorSource
+
+// FeatureFlagsFlagRuleUpdatedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagRuleUpdatedContextActorSource = EventContextActorSource
+
+// FeatureFlagsFlagUpdatedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagUpdatedContextActorSource = EventContextActorSource
+
 // FlagCreatedContextActorSource is an alias for EventContextActorSource.
 type FlagCreatedContextActorSource = EventContextActorSource
 
@@ -832,6 +1135,12 @@ type FlagRuleUpdatedContextActorSource = EventContextActorSource
 
 // FlagRuleUpdatedContextPreviousAttributeContextAccessType is an alias for FlagRuleUpdatedContextAccessType.
 type FlagRuleUpdatedContextPreviousAttributeContextAccessType = FlagRuleUpdatedContextAccessType
+
+// FeatureFlagsFlagTargetCreatedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagTargetCreatedContextActorSource = EventContextActorSource
+
+// FeatureFlagsFlagTargetDeletedContextActorSource is an alias for EventContextActorSource.
+type FeatureFlagsFlagTargetDeletedContextActorSource = EventContextActorSource
 
 // FlagUpdatedContextActorSource is an alias for EventContextActorSource.
 type FlagUpdatedContextActorSource = EventContextActorSource
@@ -943,14 +1252,16 @@ type OrganizationUpdatedDataDomainVerificationStrategy = OrganizationCreatedData
 type ResourceExportCompletedDataResourceType string
 
 const (
-	ResourceExportCompletedDataResourceTypeUsers          ResourceExportCompletedDataResourceType = "users"
-	ResourceExportCompletedDataResourceTypeOrganizations  ResourceExportCompletedDataResourceType = "organizations"
-	ResourceExportCompletedDataResourceTypeEvents         ResourceExportCompletedDataResourceType = "events"
-	ResourceExportCompletedDataResourceTypeSessions       ResourceExportCompletedDataResourceType = "sessions"
-	ResourceExportCompletedDataResourceTypeAuditLogEvents ResourceExportCompletedDataResourceType = "auditLogEvents"
-	ResourceExportCompletedDataResourceTypeConnections    ResourceExportCompletedDataResourceType = "connections"
-	ResourceExportCompletedDataResourceTypeDirectoryUsers ResourceExportCompletedDataResourceType = "directoryUsers"
-	ResourceExportCompletedDataResourceTypeSCIMLogs       ResourceExportCompletedDataResourceType = "scimLogs"
+	ResourceExportCompletedDataResourceTypeUsers                 ResourceExportCompletedDataResourceType = "users"
+	ResourceExportCompletedDataResourceTypeOrganizations         ResourceExportCompletedDataResourceType = "organizations"
+	ResourceExportCompletedDataResourceTypeEvents                ResourceExportCompletedDataResourceType = "events"
+	ResourceExportCompletedDataResourceTypeSessions              ResourceExportCompletedDataResourceType = "sessions"
+	ResourceExportCompletedDataResourceTypeAuditLogEvents        ResourceExportCompletedDataResourceType = "auditLogEvents"
+	ResourceExportCompletedDataResourceTypeConnections           ResourceExportCompletedDataResourceType = "connections"
+	ResourceExportCompletedDataResourceTypeDirectoryUsers        ResourceExportCompletedDataResourceType = "directoryUsers"
+	ResourceExportCompletedDataResourceTypeSCIMLogs              ResourceExportCompletedDataResourceType = "scimLogs"
+	ResourceExportCompletedDataResourceTypeRadarDetections       ResourceExportCompletedDataResourceType = "radarDetections"
+	ResourceExportCompletedDataResourceTypeTeamActivityLogEvents ResourceExportCompletedDataResourceType = "teamActivityLogEvents"
 )
 
 // ResourceExportCreatedDataResourceType is an alias for ResourceExportCompletedDataResourceType.
@@ -1043,8 +1354,8 @@ const (
 	DataIntegrationCredentialsCredentialsTypeOrganization DataIntegrationCredentialsCredentialsType = "organization"
 )
 
-// DataIntegrationOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationOwnership is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationOwnership = CreateDataIntegrationOwnership
 
 // DataIntegrationState represents data integration state values.
 type DataIntegrationState string
@@ -1057,26 +1368,6 @@ const (
 
 // DataIntegrationAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationAuthMethods = ConnectedAccountAuthMethod
-
-// DataIntegrationAccessTokenResponseError represents data integration access token response error values.
-type DataIntegrationAccessTokenResponseError string
-
-const (
-	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
-	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
-)
-
-// DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
-type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
-
-// ConnectedAccountWriteResponseConnectionRole is an alias for ConnectedAccountConnectionRole.
-type ConnectedAccountWriteResponseConnectionRole = ConnectedAccountConnectionRole
-
-// ConnectedAccountWriteResponseAuthMethod is an alias for ConnectedAccountAuthMethod.
-type ConnectedAccountWriteResponseAuthMethod = ConnectedAccountAuthMethod
-
-// ConnectedAccountWriteResponseState is an alias for ConnectedAccountState.
-type ConnectedAccountWriteResponseState = ConnectedAccountState
 
 // ConnectedAccountConnectionRole represents connected account connection role values.
 type ConnectedAccountConnectionRole string
@@ -1103,6 +1394,23 @@ const (
 	ConnectedAccountStateNeedsReauthorization ConnectedAccountState = "needs_reauthorization"
 	ConnectedAccountStateDisconnected         ConnectedAccountState = "disconnected"
 )
+
+// DataIntegrationAccessTokenResponseError represents data integration access token response error values.
+type DataIntegrationAccessTokenResponseError string
+
+const (
+	DataIntegrationAccessTokenResponseErrorNotInstalled         DataIntegrationAccessTokenResponseError = "not_installed"
+	DataIntegrationAccessTokenResponseErrorNeedsReauthorization DataIntegrationAccessTokenResponseError = "needs_reauthorization"
+)
+
+// DataIntegrationAccessTokenResponseWithErrorError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationAccessTokenResponseWithErrorError = DataIntegrationAccessTokenResponseError
+
+// DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
+
+// DataIntegrationCredentialsResponseWithErrorError is an alias for DataIntegrationAccessTokenResponseError.
+type DataIntegrationCredentialsResponseWithErrorError = DataIntegrationAccessTokenResponseError
 
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
 type RadarStandaloneResponseVerdict string
@@ -1190,8 +1498,8 @@ type OrganizationDomainVerificationStrategy = OrganizationCreatedDataDomainVerif
 // DataIntegrationsListResponseDataAuthMethods is an alias for ConnectedAccountAuthMethod.
 type DataIntegrationsListResponseDataAuthMethods = ConnectedAccountAuthMethod
 
-// DataIntegrationsListResponseDataConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsListResponseDataConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsListResponseDataConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsListResponseDataConnectionOwner = CreateDataIntegrationOwnership
 
 // DataIntegrationsListResponseDataOwnership represents data integrations list response data ownership values.
 type DataIntegrationsListResponseDataOwnership string
@@ -1285,46 +1593,31 @@ const (
 	AuthenticationFactorsCreateRequestTypeTOTP       AuthenticationFactorsCreateRequestType = "totp"
 )
 
-// DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsCreateAPIKeyConnectionRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertAPIKeyRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner represents add data integrations get data integration authorize url request connection owner values.
-type AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner string
+// DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent represents data integrations get data integration authorize url request connection intent values.
+type DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent string
 
 const (
-	AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwnerUser         AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = "user"
-	AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwnerOrganization AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = "organization"
+	DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntentAdd         DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent = "add"
+	DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntentReauthorize DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionIntent = "reauthorize"
 )
 
-// ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsCreateClientCredentialsConnectionRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
 
-// DataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertClientCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
-
-// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsVendCredentialsRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsVendCredentialsRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsVendCredentialsRequestConnectionOwner = CreateDataIntegrationOwnership
 
 // RadarStandaloneAssessRequestAuthMethod represents radar standalone assess request auth method values.
 type RadarStandaloneAssessRequestAuthMethod string
@@ -1379,8 +1672,8 @@ type UserSessionsAuthMethod = SessionCreatedDataAuthMethod
 // UserSessionsStatus is an alias for AgentInstanceSessionStatus.
 type UserSessionsStatus = AgentInstanceSessionStatus
 
-// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type DataIntegrationsGetUserTokenRequestConnectionOwner = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// DataIntegrationsGetUserTokenRequestConnectionOwner is an alias for CreateDataIntegrationOwnership.
+type DataIntegrationsGetUserTokenRequestConnectionOwner = CreateDataIntegrationOwnership
 
 // DataIntegrationsListResponseDataConnectedAccountConnectionRole is an alias for ConnectedAccountConnectionRole.
 type DataIntegrationsListResponseDataConnectedAccountConnectionRole = ConnectedAccountConnectionRole
@@ -1460,8 +1753,8 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
-// PipesOwnership is an alias for AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner.
-type PipesOwnership = AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner
+// PipesOwnership is an alias for CreateDataIntegrationOwnership.
+type PipesOwnership = CreateDataIntegrationOwnership
 
 // RadarListType represents radar list type values.
 type RadarListType string

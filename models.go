@@ -50,6 +50,8 @@ type CreateOAuthApplication struct {
 	Scopes []string `json:"scopes,omitempty"`
 	// RedirectURIs is redirect URIs for the application.
 	RedirectURIs []*RedirectURIInput `json:"redirect_uris,omitempty"`
+	// CORSOrigins is origins allowed to call the OAuth token endpoint for this application from a browser.
+	CORSOrigins []string `json:"cors_origins,omitempty"`
 	// UsesPKCE is whether the application uses PKCE (Proof Key for Code Exchange).
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether this is a first-party application. Third-party applications require an organization_id.
@@ -111,6 +113,20 @@ type AuditLogEvent struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Version is what schema version the event is associated with.
 	Version *int `json:"version,omitempty"`
+}
+
+// UpdateAuditLogsRetentionWithRetentionPeriod represents an update audit logs retention with retention period.
+type UpdateAuditLogsRetentionWithRetentionPeriod struct {
+	// RetentionPeriod is the period Audit Log events will be retained. Valid values are `1_MONTH` through `11_MONTHS` in one-month increments and `1_YEAR` through `10_YEARS` in one-year increments. Mutually exclusive with `retention_period_in_days`.
+	RetentionPeriod UpdateAuditLogsRetentionWithRetentionPeriodRetentionPeriod `json:"retention_period"`
+}
+
+// UpdateAuditLogsRetentionWithRetentionPeriodInDays represents an update audit logs retention with retention period in days.
+type UpdateAuditLogsRetentionWithRetentionPeriodInDays struct {
+	// RetentionPeriodInDays is the number of days Audit Log events will be retained. Valid values are `30` through `330` in 30-day increments and `365` through `3650` in 365-day increments. Deprecated: use `retention_period` instead. Mutually exclusive with `retention_period`.
+	//
+	// Deprecated: use `retention_period` instead.
+	RetentionPeriodInDays int `json:"retention_period_in_days"`
 }
 
 // AuditLogSchemaActorInput is an alias for AuditLogSchemaActor.
@@ -341,6 +357,905 @@ type UpdateCustomProviderDefinition struct {
 	TokenBodyContentType *string `json:"token_body_content_type,omitempty"`
 	// AuthenticateVia is how client credentials are sent when exchanging authorization codes and refreshing tokens.
 	AuthenticateVia *UpdateCustomProviderDefinitionAuthenticateVia `json:"authenticate_via,omitempty"`
+}
+
+// UpdateUserOrganizationMembershipWithRoleSlug represents an update user organization membership with role slug.
+type UpdateUserOrganizationMembershipWithRoleSlug struct {
+	// RoleSlug is a single role identifier. Defaults to `member` or the explicit default role. Mutually exclusive with `role_slugs`.
+	RoleSlug string `json:"role_slug"`
+}
+
+// UpdateUserOrganizationMembershipWithRoleSlugs represents an update user organization membership with role slugs.
+type UpdateUserOrganizationMembershipWithRoleSlugs struct {
+	// RoleSlugs is an array of role identifiers. Limited to one role when Multiple Roles is disabled. Mutually exclusive with `role_slug`.
+	RoleSlugs []string `json:"role_slugs"`
+}
+
+// The following types are structurally identical to AuthenticationEmailVerificationFailedDataError.
+type (
+	ErrorBodyWithCode                      = AuthenticationEmailVerificationFailedDataError
+	AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
+	AuthenticationMFAFailedDataError       = AuthenticationEmailVerificationFailedDataError
+	AuthenticationOAuthFailedDataError     = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasskeyFailedDataError   = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasswordFailedDataError  = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOFailedDataError       = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOTimedOutDataError     = AuthenticationEmailVerificationFailedDataError
+)
+
+// ErrorBodyWithError represents an error body with error.
+type ErrorBodyWithError struct {
+	// Error is the HTTP error type.
+	Error string `json:"error"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ErrorBody is an alias for RadarListEntryAlreadyPresentResponse.
+type ErrorBody = RadarListEntryAlreadyPresentResponse
+
+// OrganizationSelectionRequiredErrorBodyWithOrganizations represents an organization selection required error body with organizations.
+type OrganizationSelectionRequiredErrorBodyWithOrganizations struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Organizations is organizations the user belongs to. Pick one and retry with organization_id.
+	Organizations []*OrganizationSelectionRequiredErrorBodyWithOrganization `json:"organizations"`
+}
+
+// The following types are structurally identical to Actor.
+type (
+	OrganizationSelectionRequiredErrorBodyWithOrganization                     = Actor
+	FlagRuleUpdatedContextConfiguredTargetOrganization                         = Actor
+	FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = Actor
+	ClaimViewResponseOrganization                                              = Actor
+	UserRoleAssignmentSourceGroup                                              = Actor
+)
+
+// ErrorBodyWithCodeFieldErrors represents an error body with code field errors.
+type ErrorBodyWithCodeFieldErrors struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCodeFieldError `json:"errors"`
+}
+
+// ErrorBodyWithCodeFieldError represents an error body with code field error.
+type ErrorBodyWithCodeFieldError struct {
+	// Code is the validation error code.
+	Code string `json:"code"`
+	// Field is the field that failed validation.
+	Field string `json:"field"`
+}
+
+// ErrorBodyWithCodeInstancePathErrors represents an error body with code instance path errors.
+type ErrorBodyWithCodeInstancePathErrors struct {
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCodeInstancePathError `json:"errors"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+}
+
+// ErrorBodyWithCodeInstancePathError represents an error body with code instance path error.
+type ErrorBodyWithCodeInstancePathError struct {
+	// InstancePath is the JSON path to the invalid field in the event payload.
+	InstancePath string `json:"instancePath"`
+}
+
+// ErrorBodyWithErrorMessageList represents an error body with error message list.
+type ErrorBodyWithErrorMessageList struct {
+	// Message is a list of human-readable error messages describing the validation failures.
+	Message []string `json:"message"`
+	// Error is the error type.
+	Error string `json:"error"`
+}
+
+// TooManyFailedVerificationAttemptsErrorBodyWithRetryAfter represents a too many failed verification attempts error body with retry after.
+type TooManyFailedVerificationAttemptsErrorBodyWithRetryAfter struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// RetryAfter is how many seconds to wait before verification can be retried.
+	RetryAfter int `json:"retry_after"`
+}
+
+// RateLimitExceededErrorBodyWithRetryAfter represents a rate limit exceeded error body with retry after.
+type RateLimitExceededErrorBodyWithRetryAfter struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// RetryAfter is seconds to wait before retrying.
+	RetryAfter float64 `json:"retry_after"`
+}
+
+// ErrorBodyWithConstraintsPropertyErrors represents an error body with constraints property errors.
+type ErrorBodyWithConstraintsPropertyErrors struct {
+	// Message is a human-readable error message.
+	Message *string `json:"message,omitempty"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithConstraintsPropertyError `json:"errors,omitempty"`
+}
+
+// ErrorBodyWithConstraintsPropertyError represents an error body with constraints property error.
+type ErrorBodyWithConstraintsPropertyError struct {
+	// Property is the property that failed validation.
+	Property    *string                `json:"property,omitempty"`
+	Constraints map[string]interface{} `json:"constraints,omitempty"`
+}
+
+// ErrorBodyWithCodeStatusCode represents an error body with code status code.
+type ErrorBodyWithCodeStatusCode struct {
+	// Message is a human-readable description of the error.
+	Message *string `json:"message,omitempty"`
+	// Code is the error code identifying the type of error.
+	Code *string `json:"code,omitempty"`
+	// StatusCode is the HTTP status code.
+	StatusCode *float64 `json:"statusCode,omitempty"`
+}
+
+// ConnectionFinishErrorBody represents a connection finish error body.
+type ConnectionFinishErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code ConnectionFinishErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ErrorBodyWithMessageOrMessageList represents an error body with message or message list.
+type ErrorBodyWithMessageOrMessageList struct {
+	Message interface{} `json:"message"`
+}
+
+// AuthorizationURLRequestErrorBody represents an authorization url request error body.
+type AuthorizationURLRequestErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code AuthorizationURLRequestErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthorizationURLNotFoundErrorBody represents an authorization url not found error body.
+type AuthorizationURLNotFoundErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code AuthorizationURLNotFoundErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthMethodMismatchErrorBody is an alias for AuthMethodMismatchError.
+type AuthMethodMismatchErrorBody = AuthMethodMismatchError
+
+// AccountSelectionRequiredErrorBody is an alias for AccountSelectionRequiredError.
+type AccountSelectionRequiredErrorBody = AccountSelectionRequiredError
+
+// ConnectionCreationNotFoundErrorBody represents a connection creation not found error body.
+type ConnectionCreationNotFoundErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code ConnectionCreationNotFoundErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionCreationConflictErrorBody represents a connection creation conflict error body.
+type ConnectionCreationConflictErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code ConnectionCreationConflictErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ErrorBodyWithCodeErrors represents an error body with code errors.
+type ErrorBodyWithCodeErrors struct {
+	Code ErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCode `json:"errors"`
+}
+
+// OrganizationConnectedAccountImportErrorBody represents an organization connected account import error body.
+type OrganizationConnectedAccountImportErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code OrganizationConnectedAccountImportErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserConnectedAccountImportErrorBody represents a user connected account import error body.
+type UserConnectedAccountImportErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code UserConnectedAccountImportErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OAuthErrorBody represents an OAuth error body.
+type OAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SubResourceScopedRoleNotAllowedErrorBodyWithRoleSlug represents a sub resource scoped role not allowed error body with role slug.
+type SubResourceScopedRoleNotAllowedErrorBodyWithRoleSlug struct {
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// RoleSlug is the slug of the role that is not allowed.
+	RoleSlug string `json:"role_slug"`
+}
+
+// EmailCompletionRequiredErrorBodyWithEmailCompletionToken represents an email completion required error body with email completion token.
+type EmailCompletionRequiredErrorBodyWithEmailCompletionToken struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// EmailCompletionToken is pass this to the `email-completion` grant, with the address the user supplies, to finish authenticating.
+	EmailCompletionToken string `json:"email_completion_token"`
+}
+
+// UnauthorizedErrorBody represents an unauthorized error body.
+type UnauthorizedErrorBody struct {
+	Error string `json:"error"`
+}
+
+// ExternalAuthSessionAlreadyCompletedErrorBody represents an external auth session already completed error body.
+type ExternalAuthSessionAlreadyCompletedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserConsentOptionsNotSupportedErrorBody represents a user consent options not supported error body.
+type UserConsentOptionsNotSupportedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailChangeNotAllowedErrorBody represents an email change not allowed error body.
+type EmailChangeNotAllowedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailNotAvailableErrorBody represents an email not available error body.
+type EmailNotAvailableErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidEmailErrorBody represents an invalid email error body.
+type InvalidEmailErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailAlreadyInUseErrorBody represents an email already in use error body.
+type EmailAlreadyInUseErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AlreadyClaimedErrorBody represents an already claimed error body.
+type AlreadyClaimedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SmsChallengeRateLimitedErrorBody represents a sms challenge rate limited error body.
+type SmsChallengeRateLimitedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// SmsChallengeQuotaReachedErrorBody represents a sms challenge quota reached error body.
+type SmsChallengeQuotaReachedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// IdpMetadataFetchFailedErrorBody represents an idp metadata fetch failed error body.
+type IdpMetadataFetchFailedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionCouldNotBeVerifiedErrorBody represents a connection could not be verified error body.
+type ConnectionCouldNotBeVerifiedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidIdpSSOURLErrorBody represents an invalid idp SSO url error body.
+type InvalidIdpSSOURLErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectionTypeNotUpdatableErrorBody represents a connection type not updatable error body.
+type ConnectionTypeNotUpdatableErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ConnectedAccountLimitReachedErrorBody represents a connected account limit reached error body.
+type ConnectedAccountLimitReachedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EntityNotFoundErrorBody represents an entity not found error body.
+type EntityNotFoundErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRequestParametersErrorBodyWithErrors represents an invalid request parameters error body with errors.
+type InvalidRequestParametersErrorBodyWithErrors struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCode `json:"errors"`
+}
+
+// InvalidRefreshTokenErrorBody represents an invalid refresh token error body.
+type InvalidRefreshTokenErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvitationInvalidOAuthErrorBody represents an invitation invalid OAuth error body.
+type InvitationInvalidOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// AuthenticationMethodNotAllowedOAuthErrorBody represents an authentication method not allowed OAuth error body.
+type AuthenticationMethodNotAllowedOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SignUpNotAllowedOAuthErrorBody represents a sign up not allowed OAuth error body.
+type SignUpNotAllowedOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// EmailDomainNotDeliverableErrorBody represents an email domain not deliverable error body.
+type EmailDomainNotDeliverableErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRequestParametersErrorBody represents an invalid request parameters error body.
+type InvalidRequestParametersErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidRoleErrorBody represents an invalid role error body.
+type InvalidRoleErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// MultipleRolesNotEnabledErrorBody represents a multiple roles not enabled error body.
+type MultipleRolesNotEnabledErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordStrengthErrorErrorBodyWithErrors represents a password strength error error body with errors.
+type PasswordStrengthErrorErrorBodyWithErrors struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCode `json:"errors"`
+}
+
+// UserCreationErrorErrorBodyWithErrors represents a user creation error error body with errors.
+type UserCreationErrorErrorBodyWithErrors struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCode `json:"errors"`
+}
+
+// InvalidPasswordHashErrorBody represents an invalid password hash error body.
+type InvalidPasswordHashErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordAndPasswordHashProvidedErrorBody represents a password and password hash provided error body.
+type PasswordAndPasswordHashProvidedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordAndPasswordHashTypeProvidedErrorBody represents a password and password hash type provided error body.
+type PasswordAndPasswordHashTypeProvidedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasswordSaltPositionRequiresPasswordHashErrorBody represents a password salt position requires password hash error body.
+type PasswordSaltPositionRequiresPasswordHashErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidMetadataErrorBody represents an invalid metadata error body.
+type InvalidMetadataErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailAlreadyVerifiedErrorBody represents an email already verified error body.
+type EmailAlreadyVerifiedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ExternalIDAlreadyUsedErrorBody represents an external id already used error body.
+type ExternalIDAlreadyUsedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidLocaleErrorBody represents an invalid locale error body.
+type InvalidLocaleErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidOrganizationIDErrorBody represents an invalid organization id error body.
+type InvalidOrganizationIDErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// CodeChallengeNotFoundErrorBody represents a code challenge not found error body.
+type CodeChallengeNotFoundErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidCredentialsErrorBody represents an invalid credentials error body.
+type InvalidCredentialsErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidOneTimeCodeErrorBody represents an invalid one time code error body.
+type InvalidOneTimeCodeErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OneTimeCodePreviouslyUsedErrorBody represents a one time code previously used error body.
+type OneTimeCodePreviouslyUsedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OneTimeCodeExpiredErrorBody represents a one time code expired error body.
+type OneTimeCodeExpiredErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OneTimeCodeTooManyAttemptsErrorBody represents a one time code too many attempts error body.
+type OneTimeCodeTooManyAttemptsErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidPendingAuthenticationTokenErrorBody represents an invalid pending authentication token error body.
+type InvalidPendingAuthenticationTokenErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// UserMismatchErrorBody represents a user mismatch error body.
+type UserMismatchErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PhoneNumberRequiredErrorBody represents a phone number required error body.
+type PhoneNumberRequiredErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// VerificationIDRequiredErrorBody represents a verification id required error body.
+type VerificationIDRequiredErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// InvalidClientOAuthErrorBody represents an invalid client OAuth error body.
+type InvalidClientOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// UnauthorizedClientOAuthErrorBody represents an unauthorized client OAuth error body.
+type UnauthorizedClientOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// InvalidProfileOAuthErrorBody represents an invalid profile OAuth error body.
+type InvalidProfileOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// InvitationCannotBeUsedForEmailOAuthErrorBody represents an invitation cannot be used for email OAuth error body.
+type InvitationCannotBeUsedForEmailOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// InvalidConnectionOAuthErrorBody represents an invalid connection OAuth error body.
+type InvalidConnectionOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// OrganizationAuthenticationMethodsRequiredOAuthErrorBody represents an organization authentication methods required OAuth error body.
+type OrganizationAuthenticationMethodsRequiredOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// InvalidLinkAuthorizationCodeOAuthErrorBody represents an invalid link authorization code OAuth error body.
+type InvalidLinkAuthorizationCodeOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// ExtraAttributesRequiredOAuthErrorBody represents an extra attributes required OAuth error body.
+type ExtraAttributesRequiredOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// PKCENotSupportedOAuthErrorBody represents a pkce not supported OAuth error body.
+type PKCENotSupportedOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// ExpiredTokenOAuthErrorBody represents an expired token OAuth error body.
+type ExpiredTokenOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// AuthorizationPendingOAuthErrorBody represents an authorization pending OAuth error body.
+type AuthorizationPendingOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// AccessDeniedOAuthErrorBody represents an access denied OAuth error body.
+type AccessDeniedOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// SlowDownOAuthErrorBody represents a slow down OAuth error body.
+type SlowDownOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MustUseSSOForSelectedOrganizationMessageErrorBody represents a must use SSO for selected organization message error body.
+type MustUseSSOForSelectedOrganizationMessageErrorBody struct {
+	Message string `json:"message"`
+}
+
+// InvalidGrantOAuthErrorBody represents an invalid grant OAuth error body.
+type InvalidGrantOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// InvalidRequestOAuthErrorBody represents an invalid request OAuth error body.
+type InvalidRequestOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// OrganizationNotFoundOAuthErrorBody represents an organization not found OAuth error body.
+type OrganizationNotFoundOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// OrganizationMembershipNotFoundOAuthErrorBody represents an organization membership not found OAuth error body.
+type OrganizationMembershipNotFoundOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MFAEnrollmentOAuthErrorBody represents a mfa enrollment OAuth error body.
+type MFAEnrollmentOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// TokenTooBigOAuthErrorBody represents a token too big OAuth error body.
+type TokenTooBigOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// MFAEnrollmentErrorBody represents a mfa enrollment error body.
+type MFAEnrollmentErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// MFAChallengeErrorBody represents a mfa challenge error body.
+type MFAChallengeErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// AuthenticationMethodNotAllowedErrorBody represents an authentication method not allowed error body.
+type AuthenticationMethodNotAllowedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailVerificationRequiredErrorBody represents an email verification required error body.
+type EmailVerificationRequiredErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// EmailPasswordAuthDisabledErrorBody represents an email password auth disabled error body.
+type EmailPasswordAuthDisabledErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// OrganizationSelectionRequiredErrorBody represents an organization selection required error body.
+type OrganizationSelectionRequiredErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PasskeyProgressiveEnrollmentErrorBody represents a passkey progressive enrollment error body.
+type PasskeyProgressiveEnrollmentErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RadarChallengeErrorBody represents a radar challenge error body.
+type RadarChallengeErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RadarSignUpChallengeErrorBody represents a radar sign up challenge error body.
+type RadarSignUpChallengeErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RadarSmsSignInChallengeErrorBody represents a radar sms sign in challenge error body.
+type RadarSmsSignInChallengeErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ApplicationConsentRequiredErrorBody represents an application consent required error body.
+type ApplicationConsentRequiredErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// PolicyDeniedErrorBody represents a policy denied error body.
+type PolicyDeniedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ActionDeniedErrorBody represents an action denied error body.
+type ActionDeniedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// DailyQuotaExceededErrorBody represents a daily quota exceeded error body.
+type DailyQuotaExceededErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// TooManyRequestsOAuthErrorBody represents a too many requests OAuth error body.
+type TooManyRequestsOAuthErrorBody struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// InvalidURLErrorBody represents an invalid url error body.
+type InvalidURLErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
 }
 
 // Actor the user or API key that performed an action.
@@ -668,6 +1583,8 @@ type ConnectApplication struct {
 	ApplicationType *string `json:"application_type,omitempty"`
 	// RedirectURIs is the redirect URIs configured for this application.
 	RedirectURIs []*ConnectApplicationRedirectURI `json:"redirect_uris,omitempty"`
+	// CORSOrigins is the CORS origins allowed to call the OAuth token endpoint for this application from a browser.
+	CORSOrigins []string `json:"cors_origins,omitempty"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
 	UsesPKCE *bool `json:"uses_pkce,omitempty"`
 	// IsFirstParty is whether the application is a first-party application.
@@ -700,6 +1617,8 @@ type ConnectApplicationOAuth struct {
 	ApplicationType string `json:"application_type"`
 	// RedirectURIs is the redirect URIs configured for this application.
 	RedirectURIs []*ConnectApplicationOAuthRedirectURIs `json:"redirect_uris"`
+	// CORSOrigins is the CORS origins allowed to call the OAuth token endpoint for this application from a browser.
+	CORSOrigins []string `json:"cors_origins"`
 	// UsesPKCE is whether the application uses PKCE for authorization.
 	UsesPKCE bool `json:"uses_pkce"`
 	// IsFirstParty is whether the application is a first-party application.
@@ -1266,6 +2185,108 @@ type DirectoryUser struct {
 	Role             *SlimRole              `json:"role,omitempty"`
 	// Roles is all roles assigned to the user.
 	Roles []*SlimRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FlagRule represents a flag rule.
+type FlagRule struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Flag Rule.
+	ID string `json:"id"`
+	// FlagID is the ID of the Feature Flag the rule belongs to.
+	FlagID string `json:"flag_id"`
+	// FlagSlug is the slug of the Feature Flag the rule belongs to.
+	FlagSlug string `json:"flag_slug"`
+	// EnvironmentID is the ID of the environment the Flag Rule belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// TargetType is the target type slug, if the rule targets a specific type.
+	TargetType *string `json:"target_type"`
+	// Position is the zero-based position of the rule in evaluation order.
+	Position  int    `json:"position"`
+	ValueType string `json:"value_type"`
+	// Value is the value the Feature Flag evaluates to when the rule matches.
+	Value bool `json:"value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FlagTarget represents a flag target.
+type FlagTarget struct {
+	// Object distinguishes the Flag Target object.
+	Object *string `json:"object,omitempty"`
+	// ID is unique identifier of the Flag Target.
+	ID *string `json:"id,omitempty"`
+	// FlagID is the ID of the Feature Flag the target belongs to.
+	FlagID *string `json:"flag_id,omitempty"`
+	// FlagSlug is the slug of the Feature Flag the target belongs to, which is how the Feature Flag endpoints address it.
+	FlagSlug *string `json:"flag_slug,omitempty"`
+	// EnvironmentID is the ID of the environment the Flag Target belongs to.
+	EnvironmentID *string `json:"environment_id,omitempty"`
+	// TargetType is the type of the target: `organization`, `user`, or a custom target type slug.
+	TargetType *string `json:"target_type,omitempty"`
+	// TargetID is the ID of the targeted entity.
+	TargetID *string `json:"target_id,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt *string `json:"created_at,omitempty"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	// RuleID is the ID of the rule this target belongs to.
+	RuleID *string `json:"rule_id,omitempty"`
+	// ValueType is the type of `value`. Only `boolean` is supported today; additional types are reserved for future multivariate Feature Flags.
+	ValueType *string `json:"value_type,omitempty"`
+	// Value is the value the Feature Flag evaluates to for this target.
+	Value *bool `json:"value,omitempty"`
+}
+
+// FlagTargetWithRuleID represents a flag target with rule id.
+type FlagTargetWithRuleID struct {
+	// Object distinguishes the Flag Target object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Flag Target.
+	ID string `json:"id"`
+	// FlagID is the ID of the Feature Flag the target belongs to.
+	FlagID string `json:"flag_id"`
+	// FlagSlug is the slug of the Feature Flag the target belongs to, which is how the Feature Flag endpoints address it.
+	FlagSlug string `json:"flag_slug"`
+	// EnvironmentID is the ID of the environment the Flag Target belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// TargetType is the type of the target: `organization`, `user`, or a custom target type slug.
+	TargetType string `json:"target_type"`
+	// TargetID is the ID of the targeted entity.
+	TargetID string `json:"target_id"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// RuleID is the ID of the rule this target belongs to.
+	RuleID string `json:"rule_id"`
+}
+
+// FlagTargetWithValueType represents a flag target with value type.
+type FlagTargetWithValueType struct {
+	// Object distinguishes the Flag Target object.
+	Object string `json:"object"`
+	// ID is unique identifier of the Flag Target.
+	ID string `json:"id"`
+	// FlagID is the ID of the Feature Flag the target belongs to.
+	FlagID string `json:"flag_id"`
+	// FlagSlug is the slug of the Feature Flag the target belongs to, which is how the Feature Flag endpoints address it.
+	FlagSlug string `json:"flag_slug"`
+	// EnvironmentID is the ID of the environment the Flag Target belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// TargetType is the type of the target: `organization`, `user`, or a custom target type slug.
+	TargetType string `json:"target_type"`
+	// TargetID is the ID of the targeted entity.
+	TargetID string `json:"target_id"`
+	// ValueType is the type of `value`. Only `boolean` is supported today; additional types are reserved for future multivariate Feature Flags.
+	ValueType string `json:"value_type"`
+	// Value is the value the Feature Flag evaluates to for this target.
+	Value bool `json:"value"`
 	// CreatedAt is an ISO 8601 timestamp.
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
@@ -2214,17 +3235,6 @@ type AuthenticationMagicAuthFailedData struct {
 	// Error is details about the authentication error.
 	Error *AuthenticationMagicAuthFailedDataError `json:"error"`
 }
-
-// The following types are structurally identical to AuthenticationEmailVerificationFailedDataError.
-type (
-	AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
-	AuthenticationMFAFailedDataError       = AuthenticationEmailVerificationFailedDataError
-	AuthenticationOAuthFailedDataError     = AuthenticationEmailVerificationFailedDataError
-	AuthenticationPasskeyFailedDataError   = AuthenticationEmailVerificationFailedDataError
-	AuthenticationPasswordFailedDataError  = AuthenticationEmailVerificationFailedDataError
-	AuthenticationSSOFailedDataError       = AuthenticationEmailVerificationFailedDataError
-	AuthenticationSSOTimedOutDataError     = AuthenticationEmailVerificationFailedDataError
-)
 
 // AuthenticationMagicAuthSucceeded represents an authentication magic auth succeeded.
 type AuthenticationMagicAuthSucceeded struct {
@@ -3260,6 +4270,337 @@ type EmailVerificationCreatedData struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// FeatureFlagsFlagCreated represents a feature flags flag created.
+type FeatureFlagsFlagCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FeatureFlagsFlagCreatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagCreatedContext `json:"context"`
+}
+
+// FeatureFlagsFlagCreatedData the event payload.
+type FeatureFlagsFlagCreatedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FeatureFlagsFlagCreatedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// The following types are structurally identical to FeatureFlagOwner.
+type (
+	FeatureFlagsFlagCreatedDataOwner                         = FeatureFlagOwner
+	FeatureFlagsFlagDeletedDataOwner                         = FeatureFlagOwner
+	FeatureFlagsFlagUpdatedDataOwner                         = FeatureFlagOwner
+	FeatureFlagsFlagUpdatedContextPreviousAttributeDataOwner = FeatureFlagOwner
+	FlagCreatedDataOwner                                     = FeatureFlagOwner
+	FlagDeletedDataOwner                                     = FeatureFlagOwner
+	FlagRuleUpdatedDataOwner                                 = FeatureFlagOwner
+	FlagUpdatedDataOwner                                     = FeatureFlagOwner
+	FlagUpdatedContextPreviousAttributeDataOwner             = FeatureFlagOwner
+	FlagOwner                                                = FeatureFlagOwner
+)
+
+// FeatureFlagsFlagCreatedContext additional context about the event.
+type FeatureFlagsFlagCreatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagCreatedContextActor `json:"actor"`
+}
+
+// FeatureFlagsFlagCreatedContextActor the actor who performed the action.
+type FeatureFlagsFlagCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagDeleted represents a feature flags flag deleted.
+type FeatureFlagsFlagDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FeatureFlagsFlagDeletedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagDeletedContext `json:"context"`
+}
+
+// FeatureFlagsFlagDeletedData the event payload.
+type FeatureFlagsFlagDeletedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FeatureFlagsFlagDeletedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FeatureFlagsFlagDeletedContext additional context about the event.
+type FeatureFlagsFlagDeletedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagDeletedContextActor `json:"actor"`
+}
+
+// FeatureFlagsFlagDeletedContextActor the actor who performed the action.
+type FeatureFlagsFlagDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagRuleCreated represents a feature flags flag rule created.
+type FeatureFlagsFlagRuleCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagRule `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagRuleCreatedContext `json:"context"`
+}
+
+// FeatureFlagsFlagRuleCreatedContext additional context about the event.
+type FeatureFlagsFlagRuleCreatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagRuleCreatedContextActor `json:"actor,omitempty"`
+}
+
+// FeatureFlagsFlagRuleCreatedContextActor the actor who performed the action.
+type FeatureFlagsFlagRuleCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagRuleCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagRuleDeleted represents a feature flags flag rule deleted.
+type FeatureFlagsFlagRuleDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagRule `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagRuleDeletedContext `json:"context"`
+}
+
+// FeatureFlagsFlagRuleDeletedContext additional context about the event.
+type FeatureFlagsFlagRuleDeletedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagRuleDeletedContextActor `json:"actor,omitempty"`
+}
+
+// FeatureFlagsFlagRuleDeletedContextActor the actor who performed the action.
+type FeatureFlagsFlagRuleDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagRuleDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagRuleUpdated represents a feature flags flag rule updated.
+type FeatureFlagsFlagRuleUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagRule `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagRuleUpdatedContext `json:"context"`
+}
+
+// FeatureFlagsFlagRuleUpdatedContext additional context about the event.
+type FeatureFlagsFlagRuleUpdatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagRuleUpdatedContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes *FeatureFlagsFlagRuleUpdatedContextPreviousAttribute `json:"previous_attributes,omitempty"`
+}
+
+// FeatureFlagsFlagRuleUpdatedContextActor the actor who performed the action.
+type FeatureFlagsFlagRuleUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagRuleUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagRuleUpdatedContextPreviousAttribute attributes that changed from their previous values.
+type FeatureFlagsFlagRuleUpdatedContextPreviousAttribute struct {
+	// Data is the previous data attributes of the flag rule.
+	Data *FeatureFlagsFlagRuleUpdatedContextPreviousAttributeData `json:"data,omitempty"`
+}
+
+// FeatureFlagsFlagRuleUpdatedContextPreviousAttributeData the previous data attributes of the flag rule.
+type FeatureFlagsFlagRuleUpdatedContextPreviousAttributeData struct {
+	// Value is the value the rule served before the update.
+	Value *bool `json:"value,omitempty"`
+}
+
+// FeatureFlagsFlagUpdated represents a feature flags flag updated.
+type FeatureFlagsFlagUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FeatureFlagsFlagUpdatedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagUpdatedContext `json:"context"`
+}
+
+// FeatureFlagsFlagUpdatedData the event payload.
+type FeatureFlagsFlagUpdatedData struct {
+	Object string `json:"object"`
+	// ID is unique identifier of the Feature Flag.
+	ID string `json:"id"`
+	// EnvironmentID is the ID of the environment the Feature Flag belongs to.
+	EnvironmentID string `json:"environment_id"`
+	// Slug is a unique key to reference the Feature Flag.
+	Slug string `json:"slug"`
+	// Name is a descriptive name for the Feature Flag.
+	Name string `json:"name"`
+	// Description is a description for the Feature Flag.
+	Description *string `json:"description"`
+	// Owner is the owner of the Feature Flag.
+	Owner *FeatureFlagsFlagUpdatedDataOwner `json:"owner"`
+	// Tags is labels assigned to the Feature Flag for categorizing and filtering.
+	Tags []string `json:"tags"`
+	// Enabled specifies whether the Feature Flag is active for the current environment.
+	Enabled bool `json:"enabled"`
+	// DefaultValue is the value returned for users and organizations who don't match any configured targeting rules.
+	DefaultValue bool `json:"default_value"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// FeatureFlagsFlagUpdatedContext additional context about the event.
+type FeatureFlagsFlagUpdatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagUpdatedContextActor `json:"actor"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes *FeatureFlagsFlagUpdatedContextPreviousAttribute `json:"previous_attributes,omitempty"`
+}
+
+// FeatureFlagsFlagUpdatedContextActor the actor who performed the action.
+type FeatureFlagsFlagUpdatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagUpdatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagUpdatedContextPreviousAttribute attributes that changed from their previous values.
+type FeatureFlagsFlagUpdatedContextPreviousAttribute struct {
+	// Data is the previous data attributes of the flag.
+	Data *FeatureFlagsFlagUpdatedContextPreviousAttributeData `json:"data,omitempty"`
+}
+
+// FeatureFlagsFlagUpdatedContextPreviousAttributeData the previous data attributes of the flag.
+type FeatureFlagsFlagUpdatedContextPreviousAttributeData struct {
+	// Name is the previous name of the flag.
+	Name *string `json:"name,omitempty"`
+	// Description is the previous description of the flag.
+	Description *string `json:"description,omitempty"`
+	// Tags is the previous tags of the flag.
+	Tags []string `json:"tags,omitempty"`
+	// Owner is the previous owner of the flag, or `null` if it had none.
+	Owner *FeatureFlagsFlagUpdatedContextPreviousAttributeDataOwner `json:"owner,omitempty"`
+	// Enabled is whether the flag was previously enabled.
+	Enabled *bool `json:"enabled,omitempty"`
+	// DefaultValue is the previous default value of the flag.
+	DefaultValue *bool `json:"default_value,omitempty"`
+}
+
 // FlagCreated represents a flag created.
 type FlagCreated struct {
 	// Object distinguishes the Event object.
@@ -3301,16 +4642,6 @@ type FlagCreatedData struct {
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
 }
-
-// The following types are structurally identical to FeatureFlagOwner.
-type (
-	FlagCreatedDataOwner                         = FeatureFlagOwner
-	FlagDeletedDataOwner                         = FeatureFlagOwner
-	FlagRuleUpdatedDataOwner                     = FeatureFlagOwner
-	FlagUpdatedDataOwner                         = FeatureFlagOwner
-	FlagUpdatedContextPreviousAttributeDataOwner = FeatureFlagOwner
-	FlagOwner                                    = FeatureFlagOwner
-)
 
 // FlagCreatedContext additional context about the event.
 type FlagCreatedContext struct {
@@ -3463,9 +4794,6 @@ type FlagRuleUpdatedContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextConfiguredTargetOrganization is an alias for Actor.
-type FlagRuleUpdatedContextConfiguredTargetOrganization = Actor
-
 // FlagRuleUpdatedContextConfiguredTargetUser represents a flag rule updated context configured target user.
 type FlagRuleUpdatedContextConfiguredTargetUser struct {
 	// ID is the ID of the user.
@@ -3506,11 +4834,74 @@ type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTarget struct {
 	Users []*FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser `json:"users"`
 }
 
-// FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization is an alias for Actor.
-type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetOrganization = Actor
-
 // FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser is an alias for FlagRuleUpdatedContextConfiguredTargetUser.
 type FlagRuleUpdatedContextPreviousAttributeContextConfiguredTargetUser = FlagRuleUpdatedContextConfiguredTargetUser
+
+// FeatureFlagsFlagTargetCreated represents a feature flags flag target created.
+type FeatureFlagsFlagTargetCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagTarget `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagTargetCreatedContext `json:"context"`
+}
+
+// FeatureFlagsFlagTargetCreatedContext additional context about the event.
+type FeatureFlagsFlagTargetCreatedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagTargetCreatedContextActor `json:"actor"`
+}
+
+// FeatureFlagsFlagTargetCreatedContextActor the actor who performed the action.
+type FeatureFlagsFlagTargetCreatedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagTargetCreatedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// FeatureFlagsFlagTargetDeleted represents a feature flags flag target deleted.
+type FeatureFlagsFlagTargetDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *FlagTarget `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// Context is additional context about the event.
+	Context *FeatureFlagsFlagTargetDeletedContext `json:"context"`
+}
+
+// FeatureFlagsFlagTargetDeletedContext additional context about the event.
+type FeatureFlagsFlagTargetDeletedContext struct {
+	// ClientID is the client ID associated with the flag event.
+	ClientID string `json:"client_id"`
+	// Actor is the actor who performed the action.
+	Actor *FeatureFlagsFlagTargetDeletedContextActor `json:"actor"`
+}
+
+// FeatureFlagsFlagTargetDeletedContextActor the actor who performed the action.
+type FeatureFlagsFlagTargetDeletedContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source FeatureFlagsFlagTargetDeletedContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
 
 // FlagUpdated represents a flag updated.
 type FlagUpdated struct {
@@ -5619,126 +7010,6 @@ type DataIntegration struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DataIntegrationAuthorizeURLResponse represents a data integration authorize url response.
-type DataIntegrationAuthorizeURLResponse struct {
-	// URL is the OAuth authorization URL to redirect the user to.
-	URL string `json:"url"`
-}
-
-// AuthMethodMismatchError represents an auth method mismatch error.
-type AuthMethodMismatchError struct {
-	// Code is error code indicating the endpoint does not match the installation auth method.
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the mismatch.
-	Message string `json:"message"`
-}
-
-// DataIntegrationAccessTokenResponse represents a data integration access token response.
-type DataIntegrationAccessTokenResponse struct {
-	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
-	Active *bool `json:"active,omitempty"`
-	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
-	AccessToken *DataIntegrationAccessTokenResponseAccessToken `json:"access_token,omitempty"`
-	// Error is - `"not_installed"`: The user does not have the integration installed.
-	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
-	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
-}
-
-// AccountSelectionRequiredError represents an account selection required error.
-type AccountSelectionRequiredError struct {
-	// Code indicates that several connected accounts match and the request must name one.
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the ambiguity.
-	Message string `json:"message"`
-}
-
-// DataIntegrationVendedCredential represents a data integration vended credential.
-type DataIntegrationVendedCredential struct {
-	// Object distinguishes the credential object.
-	Object *string `json:"object,omitempty"`
-	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
-	AuthMethod *string `json:"auth_method,omitempty"`
-	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
-	Value *string `json:"value,omitempty"`
-	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	ExpiresAt *string `json:"expires_at,omitempty"`
-	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	Scopes []string `json:"scopes,omitempty"`
-	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	MissingScopes []string `json:"missing_scopes,omitempty"`
-	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
-	Config map[string]string `json:"config,omitempty"`
-	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Only present for `client_credentials` credentials.
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-}
-
-// DataIntegrationCredentialsResponse represents a data integration credentials response.
-type DataIntegrationCredentialsResponse struct {
-	// Active indicates credentials are available.
-	Active *bool `json:"active,omitempty"`
-	// Credential is the credential object containing the vended secret.
-	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
-	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
-	// - `"not_installed"`: The user does not have the integration installed.
-	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
-	Error *DataIntegrationCredentialsResponseError `json:"error,omitempty"`
-}
-
-// ConnectedAccountWriteResponse represents a connected account write response.
-type ConnectedAccountWriteResponse struct {
-	// Object distinguishes the connected account object.
-	Object string `json:"object"`
-	// ID is the unique identifier of the connected account.
-	ID string `json:"id"`
-	// ConnectionRole is whether this row is the compatibility connection visible to undeclared clients or a standard peer for plural-aware clients. The role does not indicate preference or creation order.
-	ConnectionRole ConnectedAccountWriteResponseConnectionRole `json:"connection_role"`
-	// AccountIdentifier is a best-effort identifier for the provider account this connection points at. It is correlation metadata, not the connection identifier or a selector.
-	AccountIdentifier *string `json:"account_identifier"`
-	// AccountDisplayName is a mutable, non-unique display name for the provider account connection.
-	AccountDisplayName *string `json:"account_display_name"`
-	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier associated with this connection.
-	UserID *string `json:"user_id"`
-	// OrganizationID is the [Organization](https://workos.com/docs/reference/organization) identifier associated with this connection, or `null` if not scoped to an organization.
-	OrganizationID *string `json:"organization_id"`
-	// Scopes is the OAuth scopes granted for this connection.
-	Scopes []string `json:"scopes"`
-	// AuthMethod is the authentication method used for this connection (`oauth`, `api_key`, or `client_credentials`). Defaults to `oauth` if absent.
-	AuthMethod *ConnectedAccountWriteResponseAuthMethod `json:"auth_method,omitempty"`
-	// APIKeyLast4 is the last four characters of the API key, or `null` for OAuth connections.
-	APIKeyLast4 *string `json:"api_key_last_4,omitempty"`
-	// ClientID is the client ID supplied for this connection. Only present when `auth_method` is `client_credentials`.
-	ClientID *string `json:"client_id,omitempty"`
-	// ClientSecretLast4 is the last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
-	ClientSecretLast4 *string `json:"client_secret_last_4,omitempty"`
-	// Config is the connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding secret and undeclared fields. Returned for every authentication method; empty when no stored values can be disclosed.
-	Config map[string]string `json:"config,omitempty"`
-	// State is the state of the connected account:
-	// - `connected`: The connection is active and tokens are valid.
-	// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
-	// - `disconnected`: The connection has been disconnected.
-	State ConnectedAccountWriteResponseState `json:"state"`
-	// EstablishedByUserID is the [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`.
-	EstablishedByUserID *string `json:"established_by_user_id,omitempty"`
-	// StateReason is why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
-	// - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
-	// Additional values may be added; treat an unrecognized value as an unknown reason.
-	StateReason *string `json:"state_reason,omitempty"`
-	// CreatedAt is the timestamp when the connection was created.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is the timestamp when the connection was last updated.
-	UpdatedAt string `json:"updated_at"`
-	// Warnings is non-blocking warnings about an explicitly supplied label, omitted when no duplicate exists. Reads do not include this field.
-	Warnings []*ConnectedAccountWriteResponseWarning `json:"warnings,omitempty"`
-}
-
-// DataIntegrationsListResponse represents a data integrations list response.
-type DataIntegrationsListResponse struct {
-	// Object indicates this is a list response.
-	Object string `json:"object"`
-	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
-	Data []*DataIntegrationsListResponseData `json:"data"`
-}
-
 // ConnectedAccount represents a connected account.
 type ConnectedAccount struct {
 	// Object distinguishes the connected account object.
@@ -5782,6 +7053,181 @@ type ConnectedAccount struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the connection was last updated.
 	UpdatedAt string `json:"updated_at"`
+	// Warnings is non-blocking warnings about an explicitly supplied label. Only writes return it, and only when another connection already uses the label; reads omit it.
+	Warnings []*ConnectedAccountWarning `json:"warnings,omitempty"`
+}
+
+// DataIntegrationFinishConnectionResponse represents a data integration finish connection response.
+type DataIntegrationFinishConnectionResponse struct {
+	// ConnectedAccount is the connected account that was saved.
+	ConnectedAccount *ConnectedAccount `json:"connected_account"`
+}
+
+// DataIntegrationAuthorizeURLResponse represents a data integration authorize url response.
+type DataIntegrationAuthorizeURLResponse struct {
+	// URL is the OAuth authorization URL to redirect the user to.
+	URL string `json:"url"`
+	// State identifies this authorization. WorkOS adds it to `return_to` alongside `connect_code` or `error`. Store it in the user's session with the `code_verifier` and compare it when the user returns.
+	State string `json:"state"`
+	// Completion is `finish_required` when the request included `code_challenge`: the connection will be held until your app finishes it. Omitted otherwise. If you sent `code_challenge` and this is missing, don't redirect the user.
+	Completion *string `json:"completion,omitempty"`
+}
+
+// AuthMethodMismatchError represents an auth method mismatch error.
+type AuthMethodMismatchError struct {
+	// Code is error code indicating the endpoint does not match the installation auth method.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the mismatch.
+	Message string `json:"message"`
+}
+
+// DataIntegrationAccessTokenResponse represents a data integration access token response.
+type DataIntegrationAccessTokenResponse struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active *bool `json:"active,omitempty"`
+	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
+	AccessToken *DataIntegrationAccessTokenResponseAccessToken `json:"access_token,omitempty"`
+	// Error is - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error *DataIntegrationAccessTokenResponseError `json:"error,omitempty"`
+}
+
+// DataIntegrationAccessTokenResponseWithAccessToken represents a data integration access token response with access token.
+type DataIntegrationAccessTokenResponseWithAccessToken struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active bool `json:"active"`
+	// AccessToken is the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
+	AccessToken *DataIntegrationAccessTokenResponseWithAccessTokenAccessToken `json:"access_token"`
+}
+
+// DataIntegrationAccessTokenResponseWithAccessTokenAccessToken is an alias for DataIntegrationAccessTokenResponseAccessToken.
+type DataIntegrationAccessTokenResponseWithAccessTokenAccessToken = DataIntegrationAccessTokenResponseAccessToken
+
+// DataIntegrationAccessTokenResponseWithError represents a data integration access token response with error.
+type DataIntegrationAccessTokenResponseWithError struct {
+	// Active indicates whether the access token is valid and ready for use, or if reauthorization is required.
+	Active bool `json:"active"`
+	// Error is - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error DataIntegrationAccessTokenResponseWithErrorError `json:"error"`
+}
+
+// AccountSelectionRequiredError represents an account selection required error.
+type AccountSelectionRequiredError struct {
+	// Code indicates that several connected accounts match and the request must name one.
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the ambiguity.
+	Message string `json:"message"`
+}
+
+// DataIntegrationVendedCredential represents a data integration vended credential.
+type DataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Scopes []string `json:"scopes,omitempty"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	MissingScopes []string `json:"missing_scopes,omitempty"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// OAuthDataIntegrationVendedCredential represents an OAuth data integration vended credential.
+type OAuthDataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	MissingScopes []string `json:"missing_scopes"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Metadata map[string]interface{} `json:"metadata"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// APIKeyDataIntegrationVendedCredential represents an api key data integration vended credential.
+type APIKeyDataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the API key secret.
+	Value string `json:"value"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// ClientCredentialsDataIntegrationVendedCredential represents a client credentials data integration vended credential.
+type ClientCredentialsDataIntegrationVendedCredential struct {
+	// Object distinguishes the credential object.
+	Object string `json:"object"`
+	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
+	AuthMethod string `json:"auth_method"`
+	// Value is the client-credentials access token.
+	Value string `json:"value"`
+	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires.
+	ExpiresAt *string `json:"expires_at"`
+	// Scopes is the scopes granted to the access token.
+	Scopes []string `json:"scopes"`
+	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. The scopes granted to a client-credentials token are governed by the connected organization's client application, so the integration's configured scopes are requests or defaults rather than guarantees.
+	MissingScopes []string `json:"missing_scopes"`
+	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+	Metadata map[string]interface{} `json:"metadata"`
+	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
+	Config map[string]string `json:"config"`
+}
+
+// DataIntegrationCredentialsResponse represents a data integration credentials response.
+type DataIntegrationCredentialsResponse struct {
+	// Active indicates credentials are available.
+	Active *bool `json:"active,omitempty"`
+	// Credential is the credential object containing the vended secret.
+	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
+	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
+	// - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error *DataIntegrationCredentialsResponseError `json:"error,omitempty"`
+}
+
+// DataIntegrationCredentialsResponseWithCredential represents a data integration credentials response with credential.
+type DataIntegrationCredentialsResponseWithCredential struct {
+	// Active indicates credentials are available.
+	Active bool `json:"active"`
+	// Credential is the credential object containing the vended secret.
+	Credential *DataIntegrationVendedCredential `json:"credential"`
+}
+
+// DataIntegrationCredentialsResponseWithError represents a data integration credentials response with error.
+type DataIntegrationCredentialsResponseWithError struct {
+	// Active indicates credentials are not available.
+	Active bool `json:"active"`
+	// Error is the reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
+	// - `"not_installed"`: The user does not have the integration installed.
+	// - `"needs_reauthorization"`: The user needs to reauthorize the integration.
+	Error DataIntegrationCredentialsResponseWithErrorError `json:"error"`
+}
+
+// DataIntegrationsListResponse represents a data integrations list response.
+type DataIntegrationsListResponse struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is a list of [providers](https://workos.com/docs/reference/pipes/provider), each including the legacy `connected_account` field and the additive `connected_accounts` collection.
+	Data []*DataIntegrationsListResponseData `json:"data"`
 }
 
 // PortalLinkResponse represents a portal link response.
@@ -6449,13 +7895,6 @@ type DataIntegrationsListResponseData struct {
 	ConnectedAccounts []*DataIntegrationsListResponseDataConnectedAccount `json:"connected_accounts"`
 }
 
-// ConnectedAccountWriteResponseWarning represents a connected account write response warning.
-type ConnectedAccountWriteResponseWarning struct {
-	Code string `json:"code"`
-	// Message is a human-readable explanation of the non-blocking warning.
-	Message string `json:"message"`
-}
-
 // DataIntegrationAccessTokenResponseAccessToken the [access token](https://workos.com/docs/reference/pipes/access-token) object, present when `active` is `true`.
 type DataIntegrationAccessTokenResponseAccessToken struct {
 	// Object distinguishes the access token object.
@@ -6470,7 +7909,14 @@ type DataIntegrationAccessTokenResponseAccessToken struct {
 	MissingScopes []string `json:"missing_scopes"`
 }
 
-// DataIntegrationCredential represents a data integration credential.
+// ConnectedAccountWarning represents a connected account warning.
+type ConnectedAccountWarning struct {
+	Code string `json:"code"`
+	// Message is a human-readable explanation of the non-blocking warning.
+	Message string `json:"message"`
+}
+
+// DataIntegrationCredential the integration-level OAuth app credentials. `null` for `api_key` and `client_credentials` integrations, which hold no integration-level credentials (secrets are installed per-tenant).
 type DataIntegrationCredential struct {
 	// Type is the credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (so `client_id`/`redacted_client_secret` are null on the integration itself).
 	Type DataIntegrationCredentialType `json:"type"`
@@ -6480,7 +7926,7 @@ type DataIntegrationCredential struct {
 	RedactedClientSecret *string `json:"redacted_client_secret"`
 }
 
-// DataIntegrationInstallation represents a data integration installation.
+// DataIntegrationInstallation the tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
 type DataIntegrationInstallation struct {
 	// ID is unique identifier of the installation.
 	ID string `json:"id"`
@@ -6498,7 +7944,7 @@ type DataIntegrationInstallation struct {
 	APIKeyLast4 *string `json:"api_key_last_4"`
 }
 
-// DataIntegrationCustomProvider represents a data integration custom provider.
+// DataIntegrationCustomProvider the OAuth definition when this is a custom provider; `null` for built-in providers.
 type DataIntegrationCustomProvider struct {
 	// Name is a descriptive name for the custom provider.
 	Name string `json:"name"`
@@ -6741,9 +8187,6 @@ type AgentBlueprintSessionSetting struct {
 	RefreshTokenTtlSeconds int `json:"refresh_token_ttl_seconds"`
 }
 
-// ClaimViewResponseOrganization is an alias for Actor.
-type ClaimViewResponseOrganization = Actor
-
 // AgentRegistrationAgentIdentity the agent identity associated with this registration.
 type AgentRegistrationAgentIdentity struct {
 	// ID is unique identifier of the agent identity.
@@ -6756,7 +8199,7 @@ type AgentRegistrationAgentIdentity struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// AgentRegistrationClaim represents an agent registration claim.
+// AgentRegistrationClaim the claim associated with this registration, or `null` if the registration has no claim.
 type AgentRegistrationClaim struct {
 	// ID is unique identifier of the claim.
 	ID string `json:"id"`
@@ -6841,180 +8284,6 @@ type ApplicationCredentialsListItem struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DataIntegrationsUpsertAPIKeyRequest represents a data integrations upsert api key request.
-type DataIntegrationsUpsertAPIKeyRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// Secret is the API key secret to store for this integration.
-	Secret string `json:"secret"`
-}
-
-// ReauthorizeDataIntegrationsUpsertAPIKeyRequest represents a reauthorize data integrations upsert api key request.
-type ReauthorizeDataIntegrationsUpsertAPIKeyRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *ReauthorizeDataIntegrationsUpsertAPIKeyRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// Secret is the API key secret to store for this integration.
-	Secret string `json:"secret"`
-	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
-	ConnectionIntent string `json:"connection_intent"`
-	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsUpsertAPIKeyRequest2 represents a data integrations upsert api key request2.
-type DataIntegrationsUpsertAPIKeyRequest2 struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertAPIKeyRequest2ConnectionOwner `json:"connection_owner,omitempty"`
-	// Secret is the API key secret to store for this integration.
-	Secret string `json:"secret"`
-	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a data integrations get data integration authorize url request.
-type DataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
-	ConnectionOwner *DataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
-	Config map[string]string `json:"config,omitempty"`
-}
-
-// AddDataIntegrationsGetDataIntegrationAuthorizeURLRequest represents an add data integrations get data integration authorize url request.
-type AddDataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
-	ConnectionOwner *AddDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectionIntent is create another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`. Omit `connection_intent` to use the compatibility connection, or send `reauthorize` with `connected_account_id` to reauthorize one exact connection.
-	ConnectionIntent string `json:"connection_intent"`
-}
-
-// ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequest represents a reauthorize data integrations get data integration authorize url request.
-type ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// UserID is the ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
-	UserID string `json:"user_id"`
-	// OrganizationID is an organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is who will own the connected account. `user` (the default) connects the user's own account. `organization` connects the organization's shared account and requires `organization_id`.
-	ConnectionOwner *ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeURLRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ReturnTo is the URL to redirect the user to after authorization.
-	ReturnTo *string `json:"return_to,omitempty"`
-	// Config is connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
-	ConnectionIntent string `json:"connection_intent"`
-	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsUpsertClientCredentialsRequest represents a data integrations upsert client credentials request.
-type DataIntegrationsUpsertClientCredentialsRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ClientID is the OAuth client ID to store for this integration.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the OAuth client secret to store for this integration.
-	ClientSecret string `json:"client_secret"`
-	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
-	Config map[string]string `json:"config,omitempty"`
-}
-
-// ReauthorizeDataIntegrationsUpsertClientCredentialsRequest represents a reauthorize data integrations upsert client credentials request.
-type ReauthorizeDataIntegrationsUpsertClientCredentialsRequest struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner `json:"connection_owner,omitempty"`
-	// ClientID is the OAuth client ID to store for this integration.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the OAuth client secret to store for this integration.
-	ClientSecret string `json:"client_secret"`
-	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectionIntent is reauthorize exactly the connection named by `connected_account_id`.
-	ConnectionIntent string `json:"connection_intent"`
-	// ConnectedAccountID is the exact connected account to reauthorize. Required with `connection_intent: reauthorize`.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
-// DataIntegrationsUpsertClientCredentialsRequest2 represents a data integrations upsert client credentials request2.
-type DataIntegrationsUpsertClientCredentialsRequest2 struct {
-	// AccountDisplayName is a mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
-	AccountDisplayName *string `json:"account_display_name,omitempty"`
-	// AccountIdentifier is a developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
-	AccountIdentifier *string `json:"account_identifier,omitempty"`
-	// UserID is a [User](https://workos.com/docs/reference/authkit/user) identifier.
-	UserID string `json:"user_id"`
-	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
-	OrganizationID *string `json:"organization_id,omitempty"`
-	// ConnectionOwner is whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
-	ConnectionOwner *DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner `json:"connection_owner,omitempty"`
-	// ClientID is the OAuth client ID to store for this integration.
-	ClientID string `json:"client_id"`
-	// ClientSecret is the OAuth client secret to store for this integration.
-	ClientSecret string `json:"client_secret"`
-	// Config is provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
-	Config map[string]string `json:"config,omitempty"`
-	// ConnectedAccountID is the exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
-	ConnectedAccountID string `json:"connected_account_id"`
-}
-
 // FeatureFlag represents a feature flag.
 type FeatureFlag struct {
 	// Object distinguishes the Feature Flag object.
@@ -7041,7 +8310,7 @@ type FeatureFlag struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// FeatureFlagOwner represents a feature flag owner.
+// FeatureFlagOwner the owner of the Feature Flag.
 type FeatureFlagOwner struct {
 	// Email is the email address of the flag owner.
 	Email string `json:"email"`
@@ -7064,7 +8333,7 @@ type AuthorizationCodeSessionAuthenticateRequest struct {
 	CodeVerifier *string `json:"code_verifier,omitempty"`
 	// InvitationToken is an invitation token to accept during authentication.
 	InvitationToken *string `json:"invitation_token,omitempty"`
-	// IPAddress is the IP address of the user's request.
+	// IPAddress is the IP address of the user's request. Required when Radar is in Decision mode.
 	IPAddress *string `json:"ip_address,omitempty"`
 	// DeviceID is a unique identifier for the device.
 	DeviceID *string `json:"device_id,omitempty"`
@@ -7087,7 +8356,7 @@ type PasswordSessionAuthenticateRequest struct {
 	Password string `json:"password"`
 	// InvitationToken is an invitation token to accept during authentication.
 	InvitationToken *string `json:"invitation_token,omitempty"`
-	// IPAddress is the IP address of the user's request.
+	// IPAddress is the IP address of the user's request. Required when Radar is in Decision mode.
 	IPAddress *string `json:"ip_address,omitempty"`
 	// DeviceID is a unique identifier for the device.
 	DeviceID *string `json:"device_id,omitempty"`
@@ -7192,7 +8461,7 @@ type EmailCompletionSessionAuthenticateRequest struct {
 	EmailCompletionToken string `json:"email_completion_token"`
 	// Email is the email address the user supplied for a profile the identity provider left without one.
 	Email string `json:"email"`
-	// IPAddress is the IP address of the user's request.
+	// IPAddress is the IP address of the user's request. Required when Radar is in Decision mode.
 	IPAddress *string `json:"ip_address,omitempty"`
 	// DeviceID is a unique identifier for the device.
 	DeviceID *string `json:"device_id,omitempty"`
@@ -7483,7 +8752,20 @@ type UserSessionsListItem struct {
 // UserSessionsImpersonator is an alias for AuthenticateResponseImpersonator.
 type UserSessionsImpersonator = AuthenticateResponseImpersonator
 
-// AgentRegistrationClaimClaimCompletion represents an agent registration claim claim completion.
+// WaitlistListResponse represents a waitlist list response.
+type WaitlistListResponse struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is the list of records for the current page.
+	Data []*Waitlist `json:"data"`
+	// ListMetadata is pagination cursors for navigating between pages of results.
+	ListMetadata *WaitlistListResponseListMetadata `json:"list_metadata"`
+}
+
+// WaitlistListResponseListMetadata is an alias for ItContactListListMetadata.
+type WaitlistListResponseListMetadata = ItContactListListMetadata
+
+// AgentRegistrationClaimClaimCompletion the completion record for the claim, or `null` if the claim has not been completed.
 type AgentRegistrationClaimClaimCompletion struct {
 	// ID is unique identifier of the claim completion.
 	ID string `json:"id"`
@@ -7497,9 +8779,6 @@ type AgentRegistrationClaimClaimCompletion struct {
 	ClaimedAt string `json:"claimed_at"`
 }
 
-// UserRoleAssignmentSourceGroup is an alias for Actor.
-type UserRoleAssignmentSourceGroup = Actor
-
 // DirectoryMetadataUser counts of active and inactive directory users.
 type DirectoryMetadataUser struct {
 	// Active is count of active directory users.
@@ -7508,7 +8787,7 @@ type DirectoryMetadataUser struct {
 	Inactive int `json:"inactive"`
 }
 
-// DataIntegrationsListResponseDataConnectedAccount represents a data integrations list response data connected account.
+// DataIntegrationsListResponseDataConnectedAccount the user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection.
 type DataIntegrationsListResponseDataConnectedAccount struct {
 	// Object distinguishes the connected account object.
 	Object string `json:"object"`
@@ -7551,10 +8830,29 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the connection was last updated.
 	UpdatedAt string `json:"updated_at"`
+	// Warnings is non-blocking warnings about an explicitly supplied label. Only writes return it, and only when another connection already uses the label; reads omit it.
+	Warnings []*DataIntegrationsListResponseDataConnectedAccountWarning `json:"warnings,omitempty"`
 	// UserlandUserID is use `user_id` instead.
 	//
 	// Deprecated: Use `user_id` instead.
 	UserlandUserID *string `json:"userlandUserId"`
+}
+
+// DataIntegrationsListResponseDataConnectedAccountWarning is an alias for ConnectedAccountWarning.
+type DataIntegrationsListResponseDataConnectedAccountWarning = ConnectedAccountWarning
+
+// SSORequiredOAuthErrorBodyWithConnectionIDsListEmailPendingAuthenticationToken represents a SSO required OAuth error body with connection ids list email pending authentication token.
+type SSORequiredOAuthErrorBodyWithConnectionIDsListEmailPendingAuthenticationToken struct {
+	// Error is the OAuth error code.
+	Error string `json:"error"`
+	// ErrorDescription is a human-readable description of the error.
+	ErrorDescription string `json:"error_description"`
+	// ConnectionIDs is the IDs of the SSO connections the user must authenticate through.
+	ConnectionIDs []string `json:"connection_ids"`
+	// Email is the email address of the user that must authenticate via SSO.
+	Email string `json:"email"`
+	// PendingAuthenticationToken is a token that links the subsequent SSO authentication back to the pending authentication so the authorization session can be completed.
+	PendingAuthenticationToken *string `json:"pending_authentication_token,omitempty"`
 }
 
 // ConnectApplicationRedirectURI represents a connect application_redirect_uri.
