@@ -29,7 +29,7 @@ func TestEvents_List(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().List(context.Background(), &workos.EventsListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Events().List(context.Background(), &workos.EventsListParams{Limit: ptrInt(10)})
 	require.NotNil(t, iter)
 	require.True(t, iter.Next())
 	require.NoError(t, iter.Err())
@@ -46,7 +46,7 @@ func TestEvents_List_Empty(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	iter := client.Events().List(context.Background(), &workos.EventsListParams{PaginationParams: workos.PaginationParams{Limit: ptrInt(10)}})
+	iter := client.Events().List(context.Background(), &workos.EventsListParams{Limit: ptrInt(10)})
 	require.False(t, iter.Next())
 	require.NoError(t, iter.Err())
 }

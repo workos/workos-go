@@ -157,6 +157,21 @@ func (s *AuthorizationService) UpdateGroupRoleAssignments(ctx context.Context, g
 	return &result, nil
 }
 
+// AuthorizationPatchGroupRoleAssignmentsParams contains the parameters for PatchGroupRoleAssignments.
+type AuthorizationPatchGroupRoleAssignmentsParams struct {
+	// Add is role assignments to add to the group. Assignments that already exist are skipped.
+	Add []*ReplaceGroupRoleAssignmentEntry `json:"add,omitempty" url:"-"`
+	// Remove is role assignments to remove from the group. Entries that match no assignment are skipped.
+	Remove []*ReplaceGroupRoleAssignmentEntry `json:"remove,omitempty" url:"-"`
+}
+
+// PatchGroupRoleAssignments update role assignments for a group
+// Add and remove role assignments for a group in a single atomic operation. Additions that already exist and removals that match no assignment are skipped. An assignment in both lists is rejected. `add` and `remove` must contain between 1 and 100 entries combined.
+func (s *AuthorizationService) PatchGroupRoleAssignments(ctx context.Context, groupID string, params *AuthorizationPatchGroupRoleAssignmentsParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/groups/%s/role_assignments", url.PathEscape(groupID)), nil, params, nil, opts)
+	return err
+}
+
 // AuthorizationDeleteGroupRoleAssignmentsParams contains the parameters for DeleteGroupRoleAssignments.
 type AuthorizationDeleteGroupRoleAssignmentsParams struct {
 	// RoleSlug is the slug of the role to remove assignments for.

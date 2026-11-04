@@ -205,6 +205,19 @@ func TestGroups_CreateOrganizationMembership(t *testing.T) {
 	require.Equal(t, "Engineering", result.Name)
 }
 
+func TestGroups_UpdateOrganizationMemberships(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/organizations/test_organizationId/groups/test_groupId/organization-memberships", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Groups().UpdateOrganizationMemberships(context.Background(), "test_organizationId", "test_groupId", &workos.GroupsUpdateOrganizationMembershipsParams{})
+	require.NoError(t, err)
+}
+
 func TestGroups_DeleteOrganizationMembership(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
