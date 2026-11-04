@@ -1,5 +1,22 @@
 # Changelog
 
+## [10.7.0](https://github.com/workos/workos-go/compare/v10.6.0...v10.7.0) (2026-11-04)
+
+
+### Features
+
+* **events:** SDK surface change: Symbol "EventsListParams.PaginationParams" was removed ([#643](https://github.com/workos/workos-go/issues/643)) ([8110f7d](https://github.com/workos/workos-go/commit/8110f7d8a155512abc08088767a483376ec0b91c))
+* **feature_flags:** Add feature flag API surface ([#643](https://github.com/workos/workos-go/issues/643)) ([8110f7d](https://github.com/workos/workos-go/commit/8110f7d8a155512abc08088767a483376ec0b91c))
+* **pipes:** Change Pipes API surface ([#643](https://github.com/workos/workos-go/issues/643)) ([8110f7d](https://github.com/workos/workos-go/commit/8110f7d8a155512abc08088767a483376ec0b91c))
+* **user_management:** Change user management API surface ([#643](https://github.com/workos/workos-go/issues/643)) ([8110f7d](https://github.com/workos/workos-go/commit/8110f7d8a155512abc08088767a483376ec0b91c))
+* **webhooks:** Add webhook API surface ([#643](https://github.com/workos/workos-go/issues/643)) ([8110f7d](https://github.com/workos/workos-go/commit/8110f7d8a155512abc08088767a483376ec0b91c))
+
+
+### Bug Fixes
+
+* **events:** Updated model `EventSchema` ([#643](https://github.com/workos/workos-go/issues/643)) ([8110f7d](https://github.com/workos/workos-go/commit/8110f7d8a155512abc08088767a483376ec0b91c))
+* **sso:** send `connection` and `organization` selectors from GetSSOAuthorizationURL ([#640](https://github.com/workos/workos-go/issues/640)) ([94fea54](https://github.com/workos/workos-go/commit/94fea54606fe00f4b7b82bcb0e90c2ae9bad996b))
+
 ## [10.6.0](https://github.com/workos/workos-go/compare/v10.5.0...v10.6.0) (2026-10-19)
 
 ### Bug Fixes
