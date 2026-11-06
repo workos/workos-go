@@ -253,12 +253,21 @@ func (s *Session) verifyAccessToken(ctx context.Context, token string, fetch boo
 	}
 	var payload struct {
 		JWTClaims
-		Issuer    string          `json:"iss"`
-		Audience  json.RawMessage `json:"aud"`
-		NotBefore int64           `json:"nbf"`
+		Issuer     string          `json:"iss"`
+		Audience   json.RawMessage `json:"aud"`
+		NotBefore  int64           `json:"nbf"`
+		AuthTime   *float64        `json:"auth_time"`
+		SubProfile *string         `json:"sub_profile"`
+		SubType    json.RawMessage `json:"sub_type"`
 	}
 	if err := json.Unmarshal(decoded, &payload); err != nil {
 		return nil, err
+	}
+	// Other token types signed by the same environment key (agent and widget
+	// tokens) must not authenticate a session cookie.
+	if payload.SessionID == "" || payload.AuthTime == nil ||
+		(payload.SubProfile != nil && *payload.SubProfile != "user") || len(payload.SubType) != 0 {
+		return nil, errors.New("workos: JWT is not a user access token")
 	}
 	if strings.TrimRight(s.issuer, "/") == "" || strings.TrimRight(payload.Issuer, "/") != strings.TrimRight(s.issuer, "/") {
 		return nil, errors.New("workos: invalid JWT issuer")

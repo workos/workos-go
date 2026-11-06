@@ -359,6 +359,7 @@ func sessionTestClaims() map[string]any {
 		"iss": "https://api.workos.com/", "sub": "user_123", "sid": "sess_123",
 		"org_id": "org_456", "role": "admin", "permissions": []string{"read", "write"},
 		"entitlements": []string{"feature_a"}, "exp": time.Now().Add(time.Hour).Unix(),
+		"auth_time": time.Now().Unix(),
 	}
 }
 
@@ -431,6 +432,13 @@ func TestSessionJWTVerification(t *testing.T) {
 		{name: "expired forged token", key: attackerKey, change: func(h, c map[string]any) { c["exp"] = 1 }},
 		{name: "expired wrong issuer", change: func(h, c map[string]any) { c["exp"] = 1; c["iss"] = "https://attacker.example" }},
 		{name: "malformed exp", change: func(h, c map[string]any) { c["exp"] = "tomorrow" }},
+		{name: "user sub_profile", change: func(h, c map[string]any) { c["sub_profile"] = "user" }, authenticated: true},
+		{name: "agent sub_profile", change: func(h, c map[string]any) { c["sub_profile"] = "ai_agent" }},
+		{name: "widget sub_type", change: func(h, c map[string]any) { c["sub_type"] = "authkit" }},
+		{name: "missing auth_time", change: func(h, c map[string]any) { delete(c, "auth_time") }},
+		{name: "string auth_time", change: func(h, c map[string]any) { c["auth_time"] = "1700000000" }},
+		{name: "missing sid", change: func(h, c map[string]any) { delete(c, "sid") }},
+		{name: "numeric sid", change: func(h, c map[string]any) { c["sid"] = 123 }},
 		{name: "tampered authorization claims", mutate: func(token string) string {
 			parts := strings.Split(token, ".")
 			payload, _ := base64.RawURLEncoding.DecodeString(parts[1])
