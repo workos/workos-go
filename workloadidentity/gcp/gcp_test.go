@@ -149,7 +149,7 @@ func TestEmptyAudienceIsAnError(t *testing.T) {
 	}
 }
 
-func TestTheRequestNeverUsesAProxy(t *testing.T) {
+func TestWIF_GCP_03_TheRequestNeverUsesAProxy(t *testing.T) {
 	// A proxy from the environment cannot be tested through the mock: Go never
 	// sends a request for a loopback address to it. So check the transport
 	// itself. An http.Transport uses a proxy only when Proxy is set, and the
