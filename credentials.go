@@ -13,7 +13,9 @@ import (
 //
 // WorkloadIdentityCredentials is the implementation the SDK ships. A client
 // built with NewClientWithCredentials calls Resolve before every attempt,
-// including retries, and calls Invalidate when the API answers 401.
+// including retries. When the API answers 401 to a snapshot that is
+// Recoverable, the client calls Invalidate, resolves again and repeats the
+// request once.
 type Credentials interface {
 	// Resolve returns the headers for one HTTP attempt. It may block while a
 	// credential is fetched and must honor ctx. An error that is a
@@ -29,9 +31,16 @@ type CredentialSnapshot struct {
 	// Headers are set on the request, replacing any header of the same name:
 	// Authorization and x-url-environment-id for workload identity.
 	Headers http.Header
-	// Generation identifies the credential the headers came from. A 401 is
-	// reported back with it through Credentials.Invalidate.
+	// Generation identifies the credential the headers came from. A 401 to a
+	// Recoverable snapshot is reported back with it through
+	// Credentials.Invalidate.
 	Generation uint64
+	// Recoverable reports whether a 401 answer to these headers is worth one
+	// more attempt with newly resolved credentials. Set it when Resolve can
+	// return a different credential after Invalidate, as workload identity
+	// credentials do. Credentials that never change, such as a fixed key,
+	// leave it false, and the 401 goes to the caller.
+	Recoverable bool
 }
 
 // NewClientWithCredentials creates a client that authenticates with
@@ -45,9 +54,10 @@ type CredentialSnapshot struct {
 //	}
 //	client := workos.NewClientWithCredentials(creds)
 //
-// The client holds no API key and never sends one. When the API answers 401,
-// the client discards the credential it sent, resolves a new one and repeats
-// the request once.
+// The client holds no API key and never sends one. When the API answers 401
+// to recoverable credentials, as workload identity credentials are, the
+// client discards the credential it sent, resolves a new one and repeats the
+// request once.
 //
 // Requests that authenticate with the API key as a client secret, such as
 // the UserManagement().AuthenticateWith... methods and
@@ -127,6 +137,9 @@ func (t *credentialsTransport) RoundTrip(req *http.Request) (*http.Response, err
 	// The API rejected this credential. Discard it, resolve a new one and
 	// send the same request once more. Without that chance, the 401 goes to
 	// the caller as it is.
+	if !snapshot.Recoverable {
+		return resp, nil // resolving again would return the same credential
+	}
 	hasBody := req.Body != nil && req.Body != http.NoBody
 	if hasBody && req.GetBody == nil {
 		return resp, nil // the body cannot be replayed

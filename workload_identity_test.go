@@ -1097,6 +1097,70 @@ func TestWIFExtra_TransportRecoversOnceWithoutRequestState(t *testing.T) {
 	require.Empty(t, req.Header.Values("Authorization"), "the caller's request must not be modified")
 }
 
+// fixedCredentials is a caller's own Credentials. It returns the same headers
+// every time and records how it was called.
+type fixedCredentials struct {
+	recoverable bool
+
+	mu          sync.Mutex
+	resolves    int
+	invalidated []uint64
+}
+
+func (c *fixedCredentials) Resolve(context.Context) (CredentialSnapshot, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.resolves++
+	headers := make(http.Header, 1)
+	headers.Set("Authorization", "Bearer fixed-key")
+	return CredentialSnapshot{Headers: headers, Generation: 7, Recoverable: c.recoverable}, nil
+}
+
+func (c *fixedCredentials) Invalidate(generation uint64) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.invalidated = append(c.invalidated, generation)
+}
+
+func (c *fixedCredentials) calls() (resolves int, invalidated []uint64) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.resolves, c.invalidated
+}
+
+// Only a snapshot marked Recoverable earns the second attempt. For
+// credentials that cannot change, resolving again would send the same
+// rejected headers.
+func TestWIFExtra_OnlyRecoverableSnapshotsAreRetriedAfterA401(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		recoverable bool
+		attempts    int
+		resolves    int
+		invalidated []uint64
+	}{
+		{name: "not recoverable", recoverable: false, attempts: 1, resolves: 1},
+		{name: "recoverable", recoverable: true, attempts: 2, resolves: 2, invalidated: []uint64{7}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			api := newAPIMock(t, func(_ int, w http.ResponseWriter, _ *http.Request) {
+				writeUnauthorized(w)
+			})
+			creds := &fixedCredentials{recoverable: tc.recoverable}
+
+			err := getOrganization(newWIFClient(creds, api))
+
+			var authErr *AuthenticationError
+			require.ErrorAs(t, err, &authErr)
+			require.Equal(t, http.StatusUnauthorized, authErr.StatusCode)
+			require.Equal(t, tc.attempts, api.count(), "API attempts")
+			resolves, invalidated := creds.calls()
+			require.Equal(t, tc.resolves, resolves, "Resolve calls")
+			require.Equal(t, tc.invalidated, invalidated, "Invalidate calls")
+		})
+	}
+}
+
 func TestWIFExtra_CredentialsStayOnTheOriginTheyWereSentTo(t *testing.T) {
 	endpoint := newTokenEndpoint(t, nil)
 	var api *apiMock

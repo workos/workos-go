@@ -223,7 +223,9 @@ func (c *WorkloadIdentityCredentials) snapshot(token string, generation uint64) 
 	headers := make(http.Header, 2)
 	headers.Set("Authorization", "Bearer "+token)
 	headers.Set(environmentIDHeader, c.environmentID)
-	return CredentialSnapshot{Headers: headers, Generation: generation}
+	// A rejected token can be replaced by a new exchange, so a 401 is worth
+	// one more attempt.
+	return CredentialSnapshot{Headers: headers, Generation: generation, Recoverable: true}
 }
 
 // runExchange runs the shared exchange on its own deadline rather than on any
