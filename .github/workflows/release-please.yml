@@ -1,4 +1,10 @@
 # Nested-module tagging is unrehearsed; see release-checklist.md.
+#
+# Do not force a version with an empty "Release-As:" commit. release-please
+# gives a commit with no files to every workloadidentity module and, because
+# the SDK's entry has exclude-paths, not to the SDK. Set "release-as" on the
+# package in release-please-config.json, or put the footer on a commit that
+# changes one of that package's files.
 name: Release Please
 
 on:

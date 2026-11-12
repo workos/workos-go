@@ -10,6 +10,9 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         "version.go"
+      ],
+      "exclude-paths": [
+        "workloadidentity"
       ]
     },
     "workloadidentity/githubactions": {
