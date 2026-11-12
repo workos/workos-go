@@ -13,6 +13,9 @@
 // This module does not depend on the WorkOS SDK. The provider is a plain
 // function, makes one HTTP request per call, and does no caching or retries;
 // the SDK retries it as part of the token exchange.
+//
+// The request to the metadata server never goes through a proxy, even when
+// HTTP_PROXY is set.
 package gcp
 
 import (
@@ -31,16 +34,28 @@ const (
 
 	requestTimeout = 10 * time.Second
 	responseLimit  = 1 << 20
+
+	// idleConnTimeout is the default transport's value. The client's own
+	// transport would otherwise keep an idle connection open forever.
+	idleConnTimeout = 90 * time.Second
 )
 
 // metadataBaseURL is the metadata server. Tests point it at a mock; it is
 // not a public option and is not read from the environment.
 var metadataBaseURL = "http://metadata.google.internal"
 
-// httpClient never follows a redirect. Its timeout keeps a workload that is
-// not on Google Cloud, where the metadata host does not answer, from hanging.
+// httpClient never follows a redirect and never uses a proxy. Its timeout
+// keeps a workload that is not on Google Cloud, where the metadata host does
+// not answer, from hanging.
+//
+// The metadata server is an address inside the workload's own VM or
+// container. A proxy is another machine: it cannot reach that server, and it
+// could answer with its own identity. The default transport takes a proxy
+// from HTTP_PROXY, so the client has a transport of its own, whose Proxy is
+// left unset: an http.Transport uses a proxy only when Proxy is set.
 var httpClient = &http.Client{
-	Timeout: requestTimeout,
+	Timeout:   requestTimeout,
+	Transport: &http.Transport{IdleConnTimeout: idleConnTimeout},
 	CheckRedirect: func(*http.Request, []*http.Request) error {
 		return http.ErrUseLastResponse
 	},

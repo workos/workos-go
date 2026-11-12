@@ -148,3 +148,29 @@ func TestEmptyAudienceIsAnError(t *testing.T) {
 		t.Errorf("the mock received %d requests, want none", got)
 	}
 }
+
+func TestTheRequestNeverUsesAProxy(t *testing.T) {
+	// A proxy from the environment cannot be tested through the mock: Go never
+	// sends a request for a loopback address to it. So check the transport
+	// itself. An http.Transport uses a proxy only when Proxy is set, and the
+	// default transport, which a client without a transport falls back to,
+	// sets it to http.ProxyFromEnvironment.
+	transport, ok := httpClient.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("the client's transport is %T, want a *http.Transport of its own", httpClient.Transport)
+	}
+	if transport.Proxy != nil {
+		t.Fatal("the client's transport has a Proxy function; the metadata request must always go direct")
+	}
+
+	// The transport still reaches the metadata server.
+	server := newMetadataServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("gcp-jwt"))
+	})
+	if token, err := New(testAudience)(context.Background()); err != nil || token != "gcp-jwt" {
+		t.Fatalf("token = %q, err = %v; want gcp-jwt and no error", token, err)
+	}
+	if got := server.requests.Load(); got != 1 {
+		t.Errorf("the mock received %d requests, want 1", got)
+	}
+}
