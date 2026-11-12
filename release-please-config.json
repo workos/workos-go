@@ -1,6 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "include-component-in-tag": false,
+  "tag-separator": "/",
+  "separate-pull-requests": true,
   "bootstrap-sha": "1935b54dd4f0bf0652125846efaaac1d99e5b829",
   "packages": {
     ".": {
@@ -9,6 +11,24 @@
       "extra-files": [
         "version.go"
       ]
+    },
+    "workloadidentity/githubactions": {
+      "release-type": "go",
+      "component": "workloadidentity/githubactions",
+      "include-component-in-tag": true,
+      "initial-version": "0.1.0"
+    },
+    "workloadidentity/gcp": {
+      "release-type": "go",
+      "component": "workloadidentity/gcp",
+      "include-component-in-tag": true,
+      "initial-version": "0.1.0"
+    },
+    "workloadidentity/aws": {
+      "release-type": "go",
+      "component": "workloadidentity/aws",
+      "include-component-in-tag": true,
+      "initial-version": "0.1.0"
     }
   }
 }

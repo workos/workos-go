@@ -1,3 +1,4 @@
+# Nested-module tagging is unrehearsed; see release-checklist.md.
 name: Release Please
 
 on:
@@ -45,19 +46,42 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           skip-github-release: true
 
-      - name: Checkout release PR branch
-        if: steps.release.outputs.pr
+      # With separate-pull-requests, one run can open or update several
+      # release PRs: one for the SDK (package ".") and one for each nested
+      # module under workloadidentity/. The steps below rewrite the SDK's
+      # module path and the SDK's CHANGELOG.md, so they run only for the
+      # SDK's release PR. Its branch is the one release branch that names no
+      # component.
+      - name: Find the SDK release PR
+        id: sdk-pr
+        if: steps.release.outputs.prs
+        env:
+          PRS_JSON: ${{ steps.release.outputs.prs }}
+        run: |
+          set -euo pipefail
+          HEAD_BRANCH=$(jq -r '[ .[] | .headBranchName | select(contains("--components--") | not) ] | first // ""' <<<"$PRS_JSON")
+          if [ -n "$HEAD_BRANCH" ]; then
+            echo "SDK release PR branch: $HEAD_BRANCH"
+          else
+            echo "No SDK release PR in this run; only nested-module release PRs changed."
+          fi
+          echo "head-branch=$HEAD_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the SDK release PR branch
+        if: steps.sdk-pr.outputs.head-branch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
-          ref: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+          ref: ${{ steps.sdk-pr.outputs.head-branch }}
           token: ${{ steps.app-token.outputs.token }}
 
       # Go modules require the module path and all import statements to
       # include the major version (e.g. /v7). release-please doesn't handle
       # this, so when a release PR bumps the major version we automatically
       # rewrite go.mod, imports, and READMEs on the release PR branch.
+      # The nested modules under workloadidentity/ version on their own and
+      # their paths carry no SDK major version, so they are left alone.
       - name: Migrate Go module path for major version bump
-        if: steps.release.outputs.pr
+        if: steps.sdk-pr.outputs.head-branch
         run: |
           CURRENT_MAJOR=$(grep -oP 'module github\.com/workos/workos-go/v\K[0-9]+' go.mod)
           NEW_VERSION=$(jq -r '."."' .release-please-manifest.json)
@@ -71,9 +95,9 @@ jobs:
           echo "Major version bump detected: v$CURRENT_MAJOR → v$NEW_MAJOR"
 
           sed -i "s|module github.com/workos/workos-go/v${CURRENT_MAJOR}|module github.com/workos/workos-go/v${NEW_MAJOR}|" go.mod
-          find . -name '*.go' -not -path './.git/*' -type f \
+          find . -name '*.go' -not -path './.git/*' -not -path './workloadidentity/*' -type f \
             -exec sed -i "s|github.com/workos/workos-go/v${CURRENT_MAJOR}|github.com/workos/workos-go/v${NEW_MAJOR}|g" {} +
-          find . -name 'README.md' -not -path './.git/*' -type f \
+          find . -name 'README.md' -not -path './.git/*' -not -path './workloadidentity/*' -type f \
             -exec sed -i "s|workos-go/v${CURRENT_MAJOR}|workos-go/v${NEW_MAJOR}|g" {} +
 
           git config user.name "workos-sdk-automation[bot]"
@@ -93,10 +117,10 @@ jobs:
       # without a fragment (typical for human-authored PRs), keep what
       # release-please wrote. Fragments are deleted in the same commit.
       # Idempotent: if no fragments exist, skip silently.
+      # Fragments describe the SDK, so a nested module's release PR skips
+      # this, and the version is the root package's in the manifest.
       - name: Inline rich changelog fragments
-        if: steps.release.outputs.pr
-        env:
-          PR_JSON: ${{ steps.release.outputs.pr }}
+        if: steps.sdk-pr.outputs.head-branch
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -106,7 +130,7 @@ jobs:
             exit 0
           fi
 
-          VERSION=$(echo "$PR_JSON" | jq -r '.title' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          VERSION=$(jq -r '."."' .release-please-manifest.json)
           export VERSION
 
           python3 - <<'PY'
@@ -180,6 +204,14 @@ jobs:
   # is the rich CHANGELOG.md section (after the inline step above) as of
   # the merge commit.
   #
+  # Each package has its own release PR, tag and changelog:
+  #   the SDK (package ".")      chore(main): release X.Y.Z              vX.Y.Z              CHANGELOG.md
+  #   a nested module at <path>  chore(main): release <path> X.Y.Z       <path>/vX.Y.Z       <path>/CHANGELOG.md
+  # A nested module is its own Go module, and Go resolves it only from a
+  # tag prefixed with its directory. Tagging one "vX.Y.Z" would release
+  # the SDK instead, so the package comes from the PR title and is checked
+  # against release-please-config.json before anything is tagged.
+  #
   # This runs on every push to main and on manual dispatch, and it is
   # idempotent: it looks at merged PRs, not at the commit that triggered
   # the run. So if the run for a release merge is ever lost (GitHub
@@ -215,23 +247,26 @@ jobs:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           set -euo pipefail
-          # release-please's default release PR title:
-          #   chore(main): release X.Y.Z
+          # release-please's default release PR titles:
+          #   chore(main): release X.Y.Z               the SDK
+          #   chore(main): release <component> X.Y.Z   a nested module
+          # A nested module's component is its path. Titles that match
+          # neither form are not release PRs and are left alone.
           gh pr list --state merged --base main --label "autorelease: pending" \
             --json number,title,mergeCommit \
             --jq '[ .[]
-                    | select(.title | test("^chore\\(.*\\): release [0-9]+\\.[0-9]+\\.[0-9]+$"))
-                    | { number,
-                        sha: .mergeCommit.oid,
-                        version: (.title | capture("release (?<v>[0-9]+\\.[0-9]+\\.[0-9]+)").v) } ]
-                  | sort_by(.version | split(".") | map(tonumber))' \
+                    | { number, sha: .mergeCommit.oid }
+                      + ( .title
+                          | capture("^chore\\([^)]*\\): release( (?<component>[^ ]+))? (?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$")
+                          | { version, package: (.component // ".") } ) ]
+                  | sort_by(.package, (.version | split(".") | map(tonumber)))' \
             > /tmp/pending.json
           COUNT=$(jq length /tmp/pending.json)
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           if [ "$COUNT" -eq 0 ]; then
             echo "No merged release PRs awaiting a tag."
           else
-            jq -r '.[] | "PR #\(.number): v\(.version) at \(.sha)"' /tmp/pending.json
+            jq -r '.[] | "PR #\(.number): package \(.package) \(.version) at \(.sha)"' /tmp/pending.json
           fi
 
       - name: Tag, create GitHub Release, and mark PR as tagged
@@ -244,23 +279,40 @@ jobs:
           git config user.name "workos-sdk-automation[bot]"
           git config user.email "255426317+workos-sdk-automation[bot]@users.noreply.github.com"
 
-          while IFS=$'\t' read -r NUMBER SHA VERSION; do
-            TAG="v$VERSION"
+          while IFS=$'\t' read -r NUMBER SHA VERSION PACKAGE; do
+            if [ "$PACKAGE" = "." ]; then
+              TAG="v$VERSION"
+              CHANGELOG="CHANGELOG.md"
+            else
+              TAG="$PACKAGE/v$VERSION"
+              CHANGELOG="$PACKAGE/CHANGELOG.md"
+            fi
             echo "::group::Publishing $TAG from PR #$NUMBER ($SHA)"
 
-            # Read CHANGELOG.md as of the merge commit so that healing an
+            # Never tag for a package release-please does not manage, or for
+            # a nested path that is not a Go module.
+            if ! git show "$SHA:release-please-config.json" | jq -e --arg p "$PACKAGE" '.packages[$p]' >/dev/null; then
+              echo "::error::PR #$NUMBER releases \"$PACKAGE\", which is not a package in release-please-config.json at $SHA"
+              exit 1
+            fi
+            if [ "$PACKAGE" != "." ] && ! git cat-file -e "$SHA:$PACKAGE/go.mod" 2>/dev/null; then
+              echo "::error::PR #$NUMBER releases \"$PACKAGE\", which has no go.mod at $SHA"
+              exit 1
+            fi
+
+            # Read the changelog as of the merge commit so that healing an
             # older release still gets that release's notes. The heading is
             # "## [X.Y.Z](compare link) (date)", or "## X.Y.Z (date)" for a
             # package's first release, which has no earlier tag to compare
             # with. awk reads to the end of the file so git never writes to
             # a closed pipe.
-            git show "$SHA:CHANGELOG.md" | awk -v v="$VERSION" '
+            git show "$SHA:$CHANGELOG" | awk -v v="$VERSION" '
               state == 0 && (index($0, "## [" v "]") == 1 || index($0, "## " v " ") == 1 || $0 == "## " v) { state = 1; next }
               state == 1 && index($0, "## ") == 1 { state = 2 }
               state == 1
             ' > /tmp/release-notes.md
             if [ ! -s /tmp/release-notes.md ]; then
-              echo "::error::CHANGELOG.md at $SHA has no body for $TAG"
+              echo "::error::$CHANGELOG at $SHA has no body for $TAG"
               exit 1
             fi
 
@@ -271,13 +323,20 @@ jobs:
               git push origin "$TAG"
             fi
 
+            # Only an SDK release may become the repository's "Latest"
+            # release; a nested module's must not displace it.
+            LATEST=()
+            if [ "$PACKAGE" != "." ]; then
+              LATEST=(--latest=false)
+            fi
             if gh release view "$TAG" >/dev/null 2>&1; then
               echo "Release $TAG already exists; skipping release."
             else
               gh release create "$TAG" \
                 --title "$TAG" \
                 --target "$SHA" \
-                --notes-file /tmp/release-notes.md
+                --notes-file /tmp/release-notes.md \
+                "${LATEST[@]}"
             fi
 
             gh pr edit "$NUMBER" \
@@ -286,6 +345,6 @@ jobs:
 
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
             echo "::endgroup::"
-          done < <(jq -r '.[] | [.number, .sha, .version] | @tsv' /tmp/pending.json)
+          done < <(jq -r '.[] | [.number, .sha, .version, .package] | @tsv' /tmp/pending.json)
 
           echo "is-release=true" >> "$GITHUB_OUTPUT"

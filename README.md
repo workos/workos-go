@@ -41,6 +41,122 @@ func main() {
 }
 ```
 
+## Workload identity
+
+A workload that already has an identity on its platform, such as a GitHub Actions job, a Google Cloud service account or an AWS IAM role, can call the WorkOS API without a stored API key. The SDK exchanges the platform's identity token for a short-lived WorkOS access token and sends that instead.
+
+Build the credentials, then build the client from them:
+
+```go
+creds, err := workos.NewWorkloadIdentityCredentials(workos.WorkloadIdentityConfig{
+	ClientID:              "<WORKOS_CLIENT_ID>",
+	TokenURL:              "<WORKOS_WIF_TOKEN_URL>",
+	EnvironmentID:         "<WORKOS_ENVIRONMENT_ID>",
+	IdentityTokenProvider: provider, // see below
+})
+if err != nil {
+	log.Fatal(err)
+}
+
+client := workos.NewClientWithCredentials(creds)
+```
+
+| Field                   | Environment variable    | Required | Description                                                     |
+| ----------------------- | ----------------------- | -------- | --------------------------------------------------------------- |
+| `ClientID`              | `WORKOS_CLIENT_ID`      | yes      | The M2M application's client ID                                 |
+| `TokenURL`              | `WORKOS_WIF_TOKEN_URL`  | yes      | The token endpoint; there is no built-in default                |
+| `EnvironmentID`         | `WORKOS_ENVIRONMENT_ID` | yes      | The environment the requests are for                            |
+| `IdentityTokenProvider` | -                       | yes      | Returns the workload's identity token                           |
+| `Resource`              | -                       | no       | Defaults to `https://api.workos.com`                            |
+| `Scope`                 | `WORKOS_WIF_SCOPE`      | no       | Left out of the exchange when empty                             |
+| `HTTPClient`            | -                       | no       | Sends the exchange request; redirects are never followed        |
+
+A field left empty is read from its environment variable, and a required setting that is still missing is an error from `NewWorkloadIdentityCredentials`. The environment variables only fill in credentials you construct: nothing switches workload identity on by itself, and a client built with credentials never falls back to an API key.
+
+### Identity token providers
+
+A provider is a function that returns the workload's identity token. Each platform's provider is its own Go module, so the SDK takes on no new dependencies; install only the one you use. The audience must match the audience of the trust rule in WorkOS.
+
+**GitHub Actions**
+
+```bash
+go get github.com/workos/workos-go/workloadidentity/githubactions
+```
+
+```go
+provider := githubactions.New("https://api.workos.com")
+```
+
+The workflow or job must grant the token permission:
+
+```yaml
+permissions:
+  id-token: write
+```
+
+**Google Cloud**
+
+```bash
+go get github.com/workos/workos-go/workloadidentity/gcp
+```
+
+```go
+provider := gcp.New("https://api.workos.com")
+```
+
+The token comes from the metadata server, for the default service account of the Compute Engine, GKE, Cloud Run or Cloud Functions workload.
+
+**AWS**
+
+```bash
+go get github.com/workos/workos-go/workloadidentity/aws
+```
+
+```go
+import workosaws "github.com/workos/workos-go/workloadidentity/aws"
+
+provider, err := workosaws.New(ctx, workosaws.Options{
+	Audience: "https://api.workos.com",
+	Region:   "us-east-1", // optional when the AWS SDK can resolve a region
+})
+```
+
+The token comes from STS `GetWebIdentityToken`, so the IAM identity needs the `sts:GetWebIdentityToken` permission. This is the only module that depends on the AWS SDK.
+
+**Anything else**
+
+```go
+// A file the platform rotates, such as a Kubernetes projected service account token.
+provider := workos.TokenFileProvider("/var/run/secrets/tokens/workos")
+
+// An environment variable.
+provider = workos.TokenEnvProvider("MY_IDENTITY_TOKEN")
+
+// Any function with this signature.
+provider = func(ctx context.Context) (string, error) {
+	return fetchIdentityToken(ctx)
+}
+```
+
+### How it behaves
+
+- The access token is cached in memory on the credentials value and exchanged again shortly before it expires. Concurrent requests share one exchange. Reuse one credentials value, and one client, for the life of the process.
+- If the API answers 401, the client discards that token, exchanges again and repeats the request once.
+- The exchange is retried on network failures, 429 and 5xx, and the provider is called again for each attempt.
+- A failure to get a token is a `*workos.WorkloadIdentityError`. Its `Code` is the OAuth error code from the token endpoint (`invalid_grant`, `invalid_client`, ...) or one of `exchange_failed`, `invalid_response`, `provider_failed` and `invalid_configuration`; its `Hint` says what to check.
+
+```go
+_, err := client.Organizations().Get(ctx, "org_123")
+
+var wifErr *workos.WorkloadIdentityError
+if errors.As(err, &wifErr) {
+	log.Printf("workload identity failed (%s): %s", wifErr.Code, wifErr.Hint)
+}
+```
+
+> [!NOTE]
+> A client built with `NewClientWithCredentials` holds no API key. The methods that send the API key as a client secret, `UserManagement().AuthenticateWith...` and `SSO().GetProfileAndToken`, need a client built with `NewClient`.
+
 ## Services
 
 All API resources are accessed through service accessors on the `Client`:
