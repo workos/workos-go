@@ -24,12 +24,10 @@ jobs:
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: ${{ matrix.go }}
+          # The workload identity provider modules have their own go.sum.
+          cache-dependency-path: '**/go.sum'
 
-      - name: Build
-        run: |
-          go mod download
-          go build ./...
-
-      - name: Run Tests
-        run: |
-          go test -v ./...
+      # Builds, vets and tests the SDK, then vets and tests each workload
+      # identity provider module, which ./... at the root does not enter.
+      - name: Build, vet and test
+        run: ./script/ci
