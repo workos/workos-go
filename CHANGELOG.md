@@ -1,5 +1,20 @@
 # Changelog
 
+## [10.8.0](https://github.com/workos/workos-go/compare/v10.7.0...v10.8.0) (2026-11-13)
+
+
+### Features
+
+* **directory_sync:** Change directory sync API surface ([#645](https://github.com/workos/workos-go/issues/645)) ([325c46a](https://github.com/workos/workos-go/commit/325c46a9243159a2900488ce929a3f6f73b21393))
+* **pipes:** Change Pipes API surface ([#645](https://github.com/workos/workos-go/issues/645)) ([325c46a](https://github.com/workos/workos-go/commit/325c46a9243159a2900488ce929a3f6f73b21393))
+* **pipes:** Update Pipes API surface ([#645](https://github.com/workos/workos-go/issues/645)) ([325c46a](https://github.com/workos/workos-go/commit/325c46a9243159a2900488ce929a3f6f73b21393))
+* **sso:** Update SSO API surface ([#646](https://github.com/workos/workos-go/issues/646)) ([38ad04e](https://github.com/workos/workos-go/commit/38ad04e6978cc043aa133c61e2befbe0506fc27b))
+
+
+### Bug Fixes
+
+* **session:** Reject non-user access tokens in session cookies ([#644](https://github.com/workos/workos-go/issues/644)) ([295518e](https://github.com/workos/workos-go/commit/295518eddd1839798b737d1aa00e7a7f22fa7a12))
+
 ## [10.7.0](https://github.com/workos/workos-go/compare/v10.6.0...v10.7.0) (2026-11-04)
 
 ### Bug Fixes
