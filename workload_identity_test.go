@@ -345,22 +345,56 @@ func TestWIF_01_ExchangeRequest(t *testing.T) {
 	})
 
 	t.Run("with a scope", func(t *testing.T) {
-		post := exchange(t, "organizations:write")
-		require.Equal(t, []string{"organizations:write"}, post.form["scope"])
+		post := exchange(t, "orgs:write")
+		require.Equal(t, []string{"orgs:write"}, post.form["scope"])
 	})
 }
 
 func TestWIF_02_APIRequestCarriesTokenAndEnvironment(t *testing.T) {
-	endpoint := newTokenEndpoint(t, nil)
-	api := newAPIMock(t, nil)
-	creds := newTestCredentials(t, endpoint, assertion("assertion-1", nil))
+	t.Run("with an environment ID", func(t *testing.T) {
+		endpoint := newTokenEndpoint(t, nil)
+		api := newAPIMock(t, nil)
+		creds := newTestCredentials(t, endpoint, assertion("assertion-1", nil))
 
-	require.NoError(t, getOrganization(newWIFClient(creds, api)))
+		require.NoError(t, getOrganization(newWIFClient(creds, api)))
 
-	require.Equal(t, 1, api.count())
-	header := api.request(1).header
-	require.Equal(t, []string{"Bearer access-1"}, header.Values("Authorization"))
-	require.Equal(t, []string{"environment_wif_test"}, header.Values("x-url-environment-id"))
+		require.Equal(t, 1, api.count())
+		header := api.request(1).header
+		require.Equal(t, []string{"Bearer access-1"}, header.Values("Authorization"))
+		require.Equal(t, []string{"environment_wif_test"}, header.Values("x-url-environment-id"))
+	})
+
+	// An environment ID is optional. With none in the configuration and none
+	// in the environment, the header is left off the request, not sent empty.
+	for _, tc := range []struct {
+		name  string
+		unset bool
+	}{
+		{"without an environment ID", true},
+		{"with an empty WORKOS_ENVIRONMENT_ID", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			endpoint := newTokenEndpoint(t, nil)
+			api := newAPIMock(t, nil)
+			clearWIFEnv(t) // sets each variable to "" and restores it when the test ends
+			if tc.unset {
+				require.NoError(t, os.Unsetenv("WORKOS_ENVIRONMENT_ID"))
+			}
+
+			creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+				ClientID:              wifClientID,
+				TokenURL:              endpoint.url(),
+				IdentityTokenProvider: assertion("assertion-1", nil),
+			})
+			require.NoError(t, err, "credentials with no environment ID must be accepted")
+			require.NoError(t, getOrganization(newWIFClient(creds, api)))
+
+			require.Equal(t, 1, api.count())
+			header := api.request(1).header
+			require.Equal(t, []string{"Bearer access-1"}, header.Values("Authorization"))
+			require.NotContains(t, header, http.CanonicalHeaderKey("x-url-environment-id"), "the header must not be sent at all")
+		})
+	}
 }
 
 func TestWIF_03_SecondRequestReusesCachedToken(t *testing.T) {
@@ -1381,7 +1415,6 @@ func TestWIFExtra_ConfigurationIsValidatedAtConstruction(t *testing.T) {
 	}{
 		{"no client ID", func(cfg *WorkloadIdentityConfig) { cfg.ClientID = "" }, "ClientID is required (or set WORKOS_CLIENT_ID)"},
 		{"no token URL", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "" }, "TokenURL is required (or set WORKOS_WIF_TOKEN_URL)"},
-		{"no environment ID", func(cfg *WorkloadIdentityConfig) { cfg.EnvironmentID = "" }, "EnvironmentID is required (or set WORKOS_ENVIRONMENT_ID)"},
 		{"no provider", func(cfg *WorkloadIdentityConfig) { cfg.IdentityTokenProvider = nil }, "IdentityTokenProvider is required"},
 		{"a token URL with no scheme", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "auth.example.com/oauth2/token" }, "TokenURL must be an absolute http or https URL"},
 	}

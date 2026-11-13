@@ -29,7 +29,8 @@ type Credentials interface {
 // CredentialSnapshot is the authorization for one HTTP attempt.
 type CredentialSnapshot struct {
 	// Headers are set on the request, replacing any header of the same name:
-	// Authorization and x-url-environment-id for workload identity.
+	// Authorization and, when an environment ID is set, x-url-environment-id
+	// for workload identity.
 	Headers http.Header
 	// Generation identifies the credential the headers came from. A 401 to a
 	// Recoverable snapshot is reported back with it through

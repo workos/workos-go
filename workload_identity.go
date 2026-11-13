@@ -19,7 +19,7 @@ import (
 
 const (
 	// environmentIDHeader names the environment on every API request made
-	// with workload identity credentials.
+	// with workload identity credentials that have an environment ID.
 	environmentIDHeader = "x-url-environment-id"
 
 	workloadIdentityGrantType       = "urn:ietf:params:oauth:grant-type:jwt-bearer"
@@ -54,8 +54,15 @@ type WorkloadIdentityConfig struct {
 	// Required; defaults to WORKOS_WIF_TOKEN_URL. There is no built-in
 	// default.
 	TokenURL string
-	// EnvironmentID is the WorkOS environment the requests are for. Required;
-	// defaults to WORKOS_ENVIRONMENT_ID.
+	// EnvironmentID is the WorkOS environment the requests are expected to be
+	// for. Optional; defaults to WORKOS_ENVIRONMENT_ID. When it is set, every
+	// API request carries it in the x-url-environment-id header; when it is
+	// empty, the header is not sent.
+	//
+	// The server binds a workload identity client to exactly one environment
+	// and takes the environment from that binding, so the header selects
+	// nothing. Setting it is a safety check: a value that names a different
+	// environment is refused with 403 environment_mismatch.
 	EnvironmentID string
 	// Resource is the resource the access token is requested for. Defaults
 	// to "https://api.workos.com".
@@ -136,8 +143,6 @@ func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdenti
 		return nil, invalidWorkloadIdentityConfiguration("ClientID is required (or set WORKOS_CLIENT_ID)")
 	case c.tokenURL == "":
 		return nil, invalidWorkloadIdentityConfiguration("TokenURL is required (or set WORKOS_WIF_TOKEN_URL)")
-	case c.environmentID == "":
-		return nil, invalidWorkloadIdentityConfiguration("EnvironmentID is required (or set WORKOS_ENVIRONMENT_ID)")
 	case c.provider == nil:
 		return nil, invalidWorkloadIdentityConfiguration("IdentityTokenProvider is required")
 	}
@@ -160,10 +165,10 @@ func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdenti
 }
 
 // Resolve returns the headers that authorize one HTTP attempt: the access
-// token and the environment ID. It reuses the cached token while it is fresh;
-// otherwise it waits for a new one, starting an exchange unless one is
-// already running. When ctx ends first, Resolve returns its error and the
-// exchange carries on for the other callers.
+// token and, when one is set, the environment ID. It reuses the cached token
+// while it is fresh; otherwise it waits for a new one, starting an exchange
+// unless one is already running. When ctx ends first, Resolve returns its
+// error and the exchange carries on for the other callers.
 func (c *WorkloadIdentityCredentials) Resolve(ctx context.Context) (CredentialSnapshot, error) {
 	if c == nil || c.provider == nil {
 		return CredentialSnapshot{}, invalidWorkloadIdentityConfiguration("the credentials were not built by NewWorkloadIdentityCredentials; check the error it returned")
@@ -222,7 +227,9 @@ func (c *WorkloadIdentityCredentials) fresh() bool {
 func (c *WorkloadIdentityCredentials) snapshot(token string, generation uint64) CredentialSnapshot {
 	headers := make(http.Header, 2)
 	headers.Set("Authorization", "Bearer "+token)
-	headers.Set(environmentIDHeader, c.environmentID)
+	if c.environmentID != "" {
+		headers.Set(environmentIDHeader, c.environmentID)
+	}
 	// A rejected token can be replaced by a new exchange, so a 401 is worth
 	// one more attempt.
 	return CredentialSnapshot{Headers: headers, Generation: generation, Recoverable: true}
