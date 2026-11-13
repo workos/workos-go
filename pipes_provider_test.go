@@ -30,7 +30,7 @@ func TestPipesProvider_ListOrganizationDataIntegrationConfigurations(t *testing.
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	result, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId")
+	result, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId", &workos.PipesProviderListOrganizationDataIntegrationConfigurationsParams{})
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
@@ -70,7 +70,7 @@ func TestPipesProvider_Error401(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId")
+	_, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId", &workos.PipesProviderListOrganizationDataIntegrationConfigurationsParams{})
 	require.IsType(t, &workos.AuthenticationError{}, err)
 }
 
@@ -83,7 +83,7 @@ func TestPipesProvider_Error404(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId")
+	_, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId", &workos.PipesProviderListOrganizationDataIntegrationConfigurationsParams{})
 	require.IsType(t, &workos.NotFoundError{}, err)
 }
 
@@ -96,6 +96,6 @@ func TestPipesProvider_Error422(t *testing.T) {
 	defer server.Close()
 
 	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
-	_, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId")
+	_, err := client.PipesProvider().ListOrganizationDataIntegrationConfigurations(context.Background(), "test_organizationId", &workos.PipesProviderListOrganizationDataIntegrationConfigurationsParams{})
 	require.IsType(t, &workos.UnprocessableEntityError{}, err)
 }

@@ -14,11 +14,18 @@ type PipesProviderService struct {
 	client *Client
 }
 
+// PipesProviderListOrganizationDataIntegrationConfigurationsParams contains the parameters for ListOrganizationDataIntegrationConfigurations.
+type PipesProviderListOrganizationDataIntegrationConfigurationsParams struct {
+	// Ownership is select the provider configuration for `user` connections or `organization` shared connections. Defaults to `user`; never falls back to the other ownership.
+	// Defaults to "user".
+	Ownership *PipesProviderOwnership `url:"ownership,omitempty" json:"-"`
+}
+
 // ListOrganizationDataIntegrationConfigurations list providers for an organization
 // Returns a list of all providers available to the specified organization, along with any configured custom OAuth scopes, enabled state, and organization-managed credentials where applicable.
-func (s *PipesProviderService) ListOrganizationDataIntegrationConfigurations(ctx context.Context, organizationID string, opts ...RequestOption) (*DataIntegrationConfigurationListResponse, error) {
+func (s *PipesProviderService) ListOrganizationDataIntegrationConfigurations(ctx context.Context, organizationID string, params *PipesProviderListOrganizationDataIntegrationConfigurationsParams, opts ...RequestOption) (*DataIntegrationConfigurationListResponse, error) {
 	var result DataIntegrationConfigurationListResponse
-	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/data_integration_configurations", url.PathEscape(organizationID)), nil, nil, &result, opts)
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/organizations/%s/data_integration_configurations", url.PathEscape(organizationID)), params, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +44,9 @@ type PipesProviderUpdateOrganizationDataIntegrationConfigurationParams struct {
 	ClientSecret *string `json:"client_secret,omitempty" url:"-"`
 	// Config is provider-specific config values to set for the organization, keyed by config field. Only fields the provider declares are accepted, and each value must match that field's pattern. Accepted only for providers whose credentials are organization-managed; for shared or custom credential providers, config belongs on the integration itself (via the data-integrations API) and supplying it here is rejected.
 	Config map[string]string `json:"config,omitempty" url:"-"`
+	// Ownership is select the provider configuration for `user` connections or `organization` shared connections. Defaults to `user`; never falls back to the other ownership.
+	// Defaults to "user".
+	Ownership *PipesProviderOwnership `url:"ownership,omitempty" json:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
 	// clearing the corresponding value (e.g. []string{"external_id"}).
 	NullFields []string `json:"-" url:"-"`
@@ -72,7 +82,7 @@ func (p PipesProviderUpdateOrganizationDataIntegrationConfigurationParams) Marsh
 // Creates or updates an organization's provider configuration. Use this endpoint to enable or disable a provider, set custom OAuth scopes, or supply organization-managed OAuth credentials.
 func (s *PipesProviderService) UpdateOrganizationDataIntegrationConfiguration(ctx context.Context, organizationID string, slug string, params *PipesProviderUpdateOrganizationDataIntegrationConfigurationParams, opts ...RequestOption) (*DataIntegrationConfigurationResponse, error) {
 	var result DataIntegrationConfigurationResponse
-	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/data_integration_configurations/%s", url.PathEscape(organizationID), url.PathEscape(slug)), nil, params, &result, opts)
+	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/data_integration_configurations/%s", url.PathEscape(organizationID), url.PathEscape(slug)), params, params, &result, opts)
 	if err != nil {
 		return nil, err
 	}
