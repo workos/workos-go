@@ -13,14 +13,14 @@ type ClientAPIService struct {
 
 // ClientAPICreateTokenParams contains the parameters for CreateToken.
 type ClientAPICreateTokenParams struct {
-	// OrganizationID is the ID of the organization to scope the Client API token to.
+	// OrganizationID is the ID of the organization to scope the Widgets API token to.
 	OrganizationID string `json:"organization_id" url:"-"`
-	// UserID is the ID of the user to issue the Client API token for.
+	// UserID is the ID of the user to issue the Widgets API token for.
 	UserID string `json:"user_id" url:"-"`
 }
 
-// CreateToken generate a Client API token
-// Generate a short-lived, session-bound token for the Client GraphQL API, scoped to an organization and user.
+// CreateToken generate a Widgets API token
+// Generate a short-lived, session-bound token for the Widgets API, scoped to an organization and user.
 func (s *ClientAPIService) CreateToken(ctx context.Context, params *ClientAPICreateTokenParams, opts ...RequestOption) (*ClientAPITokenResponse, error) {
 	var result ClientAPITokenResponse
 	_, err := s.client.request(ctx, "POST", "/client/token", nil, params, &result, opts)

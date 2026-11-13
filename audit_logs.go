@@ -156,9 +156,9 @@ func (s *AuditLogService) CreateEvent(ctx context.Context, params *AuditLogsCrea
 type AuditLogsCreateExportParams struct {
 	// OrganizationID is the unique ID of the Organization.
 	OrganizationID string `json:"organization_id" url:"-"`
-	// RangeStart is iso-8601 value for start of the export range.
+	// RangeStart is iso-8601 value for start of the export range. The range must span no more than 31 days.
 	RangeStart string `json:"range_start" url:"-"`
-	// RangeEnd is iso-8601 value for end of the export range.
+	// RangeEnd is iso-8601 value for end of the export range. Must be no more than 31 days after the start.
 	RangeEnd string `json:"range_end" url:"-"`
 	// Actions is list of actions to filter against.
 	Actions []string `json:"actions,omitempty" url:"-"`

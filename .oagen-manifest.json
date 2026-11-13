@@ -494,6 +494,7 @@
     "testdata/list_data_integration.json",
     "testdata/list_directory.json",
     "testdata/list_directory_group.json",
+    "testdata/list_directory_user.json",
     "testdata/list_directory_user_with_groups.json",
     "testdata/list_event_schema.json",
     "testdata/list_flag.json",
@@ -665,7 +666,7 @@
     "testdata/sso_device_authorization_request.json",
     "testdata/sso_logout_authorize_request.json",
     "testdata/sso_logout_authorize_response.json",
-    "testdata/sso_required_oauth_error_body_with_connection_ids_list_email_pending_authentication_token.json",
+    "testdata/sso_required_oauth_error_body_with_connection_ids_list_email.json",
     "testdata/sso_token_response.json",
     "testdata/sso_token_response_oauth_token.json",
     "testdata/sub_resource_scoped_role_not_allowed_error_body_with_role_slug.json",
@@ -1224,19 +1225,19 @@
       "sdkMethod": "Create",
       "service": "directory_sync"
     },
-    "GET /directory_groups": {
+    "GET /directories/{directoryId}/groups": {
       "sdkMethod": "ListGroups",
       "service": "directory_sync"
     },
-    "GET /directory_groups/{id}": {
+    "GET /directories/{directoryId}/groups/{groupId}": {
       "sdkMethod": "GetGroup",
       "service": "directory_sync"
     },
-    "GET /directory_users": {
+    "GET /directories/{directoryId}/users": {
       "sdkMethod": "ListUsers",
       "service": "directory_sync"
     },
-    "GET /directory_users/{id}": {
+    "GET /directories/{directoryId}/users/{userId}": {
       "sdkMethod": "GetUser",
       "service": "directory_sync"
     },
@@ -1851,6 +1852,22 @@
     "GET /audit_logs/exports/{auditLogExportId}": {
       "sdkMethod": "GetExport",
       "service": "audit_logs"
+    },
+    "GET /directory_groups": {
+      "sdkMethod": "ListGroups",
+      "service": "directory_sync"
+    },
+    "GET /directory_groups/{id}": {
+      "sdkMethod": "GetGroup",
+      "service": "directory_sync"
+    },
+    "GET /directory_users": {
+      "sdkMethod": "ListUsers",
+      "service": "directory_sync"
+    },
+    "GET /directory_users/{id}": {
+      "sdkMethod": "GetUser",
+      "service": "directory_sync"
     }
   }
 }

@@ -149,7 +149,6 @@ const (
 	ErrorBodyCodePermissionNotFound                            ErrorBodyCode = "permission_not_found"
 	ErrorBodyCodePermissionSlugConflict                        ErrorBodyCode = "permission_slug_conflict"
 	ErrorBodyCodePhoneNumberRequired                           ErrorBodyCode = "phone_number_required"
-	ErrorBodyCodePolicyDenied                                  ErrorBodyCode = "policy_denied"
 	ErrorBodyCodeProductionFeatureRequiresBilling              ErrorBodyCode = "production_feature_requires_billing"
 	ErrorBodyCodeRadarChallenge                                ErrorBodyCode = "radar_challenge"
 	ErrorBodyCodeRadarSignUpChallenge                          ErrorBodyCode = "radar_sign_up_challenge"
@@ -860,6 +859,15 @@ const (
 	DirectoryStateDeleting           DirectoryState = "deleting"
 )
 
+// DirectoryUserState represents directory user state values.
+type DirectoryUserState string
+
+const (
+	DirectoryUserStateActive    DirectoryUserState = "active"
+	DirectoryUserStateSuspended DirectoryUserState = "suspended"
+	DirectoryUserStateInactive  DirectoryUserState = "inactive"
+)
+
 // DirectoryUserWithGroupsState is an alias for DirectoryUserState.
 type DirectoryUserWithGroupsState = DirectoryUserState
 
@@ -871,15 +879,6 @@ const (
 	EventContextActorSourceDashboard   EventContextActorSource = "dashboard"
 	EventContextActorSourceAdminPortal EventContextActorSource = "admin_portal"
 	EventContextActorSourceSystem      EventContextActorSource = "system"
-)
-
-// DirectoryUserState represents directory user state values.
-type DirectoryUserState string
-
-const (
-	DirectoryUserStateActive    DirectoryUserState = "active"
-	DirectoryUserStateSuspended DirectoryUserState = "suspended"
-	DirectoryUserStateInactive  DirectoryUserState = "inactive"
 )
 
 // PipeConnectedAccountConnectionRole is an alias for ConnectedAccountConnectionRole.
@@ -1406,6 +1405,9 @@ const (
 // DataIntegrationAccessTokenResponseWithErrorError is an alias for DataIntegrationAccessTokenResponseError.
 type DataIntegrationAccessTokenResponseWithErrorError = DataIntegrationAccessTokenResponseError
 
+// DataIntegrationVendedCredentialAuthMethod is an alias for ConnectedAccountAuthMethod.
+type DataIntegrationVendedCredentialAuthMethod = ConnectedAccountAuthMethod
+
 // DataIntegrationCredentialsResponseError is an alias for DataIntegrationAccessTokenResponseError.
 type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenResponseError
 
@@ -1570,17 +1572,23 @@ type AgentBlueprintsUpdateRequestInvocableAsInstanceTypes = AgentBlueprintCreate
 type AgentBlueprintsTokenMintTokenRequestType string
 
 const (
-	AgentBlueprintsTokenMintTokenRequestTypeUserDelegated  AgentBlueprintsTokenMintTokenRequestType = "user_delegated"
-	AgentBlueprintsTokenMintTokenRequestTypeAutonomous     AgentBlueprintsTokenMintTokenRequestType = "autonomous"
+	// AgentBlueprintsTokenMintTokenRequestTypeUserDelegated is How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`..
+	AgentBlueprintsTokenMintTokenRequestTypeUserDelegated AgentBlueprintsTokenMintTokenRequestType = "user_delegated"
+	// AgentBlueprintsTokenMintTokenRequestTypeAutonomous is How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`..
+	AgentBlueprintsTokenMintTokenRequestTypeAutonomous AgentBlueprintsTokenMintTokenRequestType = "autonomous"
+	// AgentBlueprintsTokenMintTokenRequestTypeAgentDelegated is How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`..
 	AgentBlueprintsTokenMintTokenRequestTypeAgentDelegated AgentBlueprintsTokenMintTokenRequestType = "agent_delegated"
-	AgentBlueprintsTokenMintTokenRequestTypeRefresh        AgentBlueprintsTokenMintTokenRequestType = "refresh"
+	// AgentBlueprintsTokenMintTokenRequestTypeRefresh is How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`..
+	AgentBlueprintsTokenMintTokenRequestTypeRefresh AgentBlueprintsTokenMintTokenRequestType = "refresh"
 )
 
 // AgentAdminValidateCredentialRequestType represents agent admin validate credential request type values.
 type AgentAdminValidateCredentialRequestType string
 
 const (
-	AgentAdminValidateCredentialRequestTypeAPIKey      AgentAdminValidateCredentialRequestType = "api_key"
+	// AgentAdminValidateCredentialRequestTypeAPIKey is The kind of credential being validated — an agent API key or an agent access token..
+	AgentAdminValidateCredentialRequestTypeAPIKey AgentAdminValidateCredentialRequestType = "api_key"
+	// AgentAdminValidateCredentialRequestTypeAccessToken is The kind of credential being validated — an agent API key or an agent access token..
 	AgentAdminValidateCredentialRequestTypeAccessToken AgentAdminValidateCredentialRequestType = "access_token"
 )
 
@@ -1755,6 +1763,9 @@ const (
 
 // PipesOwnership is an alias for CreateDataIntegrationOwnership.
 type PipesOwnership = CreateDataIntegrationOwnership
+
+// PipesProviderOwnership is an alias for CreateDataIntegrationOwnership.
+type PipesProviderOwnership = CreateDataIntegrationOwnership
 
 // RadarListType represents radar list type values.
 type RadarListType string
