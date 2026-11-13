@@ -78,6 +78,8 @@ type SSOListConnectionsParams struct {
 	OrganizationID *string `url:"organization_id,omitempty" json:"-"`
 	// Search is searchable text to match against Connection names.
 	Search *string `url:"search,omitempty" json:"-"`
+	// State is filter Connections by their state.
+	State *ConnectionsState `url:"state,omitempty" json:"-"`
 }
 
 // ListConnections
