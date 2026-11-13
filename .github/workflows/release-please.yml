@@ -249,11 +249,15 @@ jobs:
             echo "::group::Publishing $TAG from PR #$NUMBER ($SHA)"
 
             # Read CHANGELOG.md as of the merge commit so that healing an
-            # older release still gets that release's notes.
+            # older release still gets that release's notes. The heading is
+            # "## [X.Y.Z](compare link) (date)", or "## X.Y.Z (date)" for a
+            # package's first release, which has no earlier tag to compare
+            # with. awk reads to the end of the file so git never writes to
+            # a closed pipe.
             git show "$SHA:CHANGELOG.md" | awk -v v="$VERSION" '
-              $0 ~ ("^## \\[" v "\\]") { found=1; next }
-              found && /^## \[/ { exit }
-              found
+              state == 0 && (index($0, "## [" v "]") == 1 || index($0, "## " v " ") == 1 || $0 == "## " v) { state = 1; next }
+              state == 1 && index($0, "## ") == 1 { state = 2 }
+              state == 1
             ' > /tmp/release-notes.md
             if [ ! -s /tmp/release-notes.md ]; then
               echo "::error::CHANGELOG.md at $SHA has no body for $TAG"
