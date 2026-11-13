@@ -1761,6 +1761,15 @@ const (
 	ConnectionsConnectionTypeXeroOAuth              ConnectionsConnectionType = "XeroOAuth"
 )
 
+// ConnectionsState represents connections state values.
+type ConnectionsState string
+
+const (
+	ConnectionsStateActive     ConnectionsState = "active"
+	ConnectionsStateInactive   ConnectionsState = "inactive"
+	ConnectionsStateValidating ConnectionsState = "validating"
+)
+
 // PipesOwnership is an alias for CreateDataIntegrationOwnership.
 type PipesOwnership = CreateDataIntegrationOwnership
 
