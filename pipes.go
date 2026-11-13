@@ -679,6 +679,8 @@ type PipesCreateOrganizationConnectedAccountParams struct {
 	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
 	// AccountIdentifier is a developer-attested account identifier; null clears it.
 	AccountIdentifier *string `json:"account_identifier,omitempty" url:"-"`
+	// Config is installation-scoped provider configuration for this connection, such as Salesforce salesforce_host. Imports apply supplied values over installation-scoped integration pins and inherit other config from the credential source. Credential-bearing imports must satisfy required configuration even when config is omitted or {}. On update, a supplied object replaces installation-scoped values; omitted config preserves the stored snapshot. Stored integration-scoped values remain bound to the OAuth client and cannot be overridden or replaced with current integration pins. Replacements must satisfy required configuration; {} and empty-string values clear installation-scoped values only when the result is valid. Provider defaults count toward completeness but are resolved at read time, not stored. Only tokenless needs_reauthorization placeholders may remain incomplete; attaching their first tokens validates configuration even when config is omitted. Unrelated updates do not revalidate unchanged configuration. Clearing salesforce_host falls back to login.salesforce.com, which may not work for sandbox or My Domain-only connections.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 	// AccessToken is the OAuth access token for the connected account.
 	AccessToken *string `json:"access_token,omitempty" url:"-"`
 	// RefreshToken is the OAuth refresh token for the connected account.
@@ -691,6 +693,8 @@ type PipesCreateOrganizationConnectedAccountParams struct {
 	State *CreateOrganizationConnectedAccountState `json:"state,omitempty" url:"-"`
 	// UserID is the [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization.
 	UserID string `json:"user_id" url:"-"`
+	// Metadata is provider token-response metadata to preserve during import, such as Salesforce instance_url. Only allowlisted, non-sensitive scalar fields from this provider are accepted, including nested fields. Provider refresh responses can update these values. Not accepted on update.
+	Metadata map[string]interface{} `json:"metadata,omitempty" url:"-"`
 	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
 	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
 	// NullFields lists JSON field names to send as an explicit null,
@@ -742,6 +746,8 @@ type PipesUpdateOrganizationConnectedAccountParams struct {
 	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
 	// AccountIdentifier is a developer-attested account identifier; null clears it.
 	AccountIdentifier *string `json:"account_identifier,omitempty" url:"-"`
+	// Config is installation-scoped provider configuration for this connection, such as Salesforce salesforce_host. Imports apply supplied values over installation-scoped integration pins and inherit other config from the credential source. Credential-bearing imports must satisfy required configuration even when config is omitted or {}. On update, a supplied object replaces installation-scoped values; omitted config preserves the stored snapshot. Stored integration-scoped values remain bound to the OAuth client and cannot be overridden or replaced with current integration pins. Replacements must satisfy required configuration; {} and empty-string values clear installation-scoped values only when the result is valid. Provider defaults count toward completeness but are resolved at read time, not stored. Only tokenless needs_reauthorization placeholders may remain incomplete; attaching their first tokens validates configuration even when config is omitted. Unrelated updates do not revalidate unchanged configuration. Clearing salesforce_host falls back to login.salesforce.com, which may not work for sandbox or My Domain-only connections.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 	// AccessToken is the OAuth access token for the connected account.
 	AccessToken *string `json:"access_token,omitempty" url:"-"`
 	// RefreshToken is the OAuth refresh token for the connected account.
@@ -793,7 +799,7 @@ func (p PipesUpdateOrganizationConnectedAccountParams) MarshalJSON() ([]byte, er
 }
 
 // UpdateOrganizationConnectedAccount update an organization connected account
-// Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+// Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, state, or provider configuration for a specific provider.
 func (s *PipeService) UpdateOrganizationConnectedAccount(ctx context.Context, organizationID string, slug string, params *PipesUpdateOrganizationConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/organizations/%s/connected_accounts/%s", url.PathEscape(organizationID), url.PathEscape(slug)), params, params, &result, opts)
@@ -862,6 +868,8 @@ type PipesCreateUserConnectedAccountParams struct {
 	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
 	// AccountIdentifier is a developer-attested account identifier; null clears it.
 	AccountIdentifier *string `json:"account_identifier,omitempty" url:"-"`
+	// Config is installation-scoped provider configuration for this connection, such as Salesforce salesforce_host. Imports apply supplied values over installation-scoped integration pins and inherit other config from the credential source. Credential-bearing imports must satisfy required configuration even when config is omitted or {}. On update, a supplied object replaces installation-scoped values; omitted config preserves the stored snapshot. Stored integration-scoped values remain bound to the OAuth client and cannot be overridden or replaced with current integration pins. Replacements must satisfy required configuration; {} and empty-string values clear installation-scoped values only when the result is valid. Provider defaults count toward completeness but are resolved at read time, not stored. Only tokenless needs_reauthorization placeholders may remain incomplete; attaching their first tokens validates configuration even when config is omitted. Unrelated updates do not revalidate unchanged configuration. Clearing salesforce_host falls back to login.salesforce.com, which may not work for sandbox or My Domain-only connections.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 	// AccessToken is the OAuth access token for the connected account.
 	AccessToken *string `json:"access_token,omitempty" url:"-"`
 	// RefreshToken is the OAuth refresh token for the connected account.
@@ -872,6 +880,8 @@ type PipesCreateUserConnectedAccountParams struct {
 	Scopes []string `json:"scopes,omitempty" url:"-"`
 	// State is explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
 	State *CreateConnectedAccountState `json:"state,omitempty" url:"-"`
+	// Metadata is provider token-response metadata to preserve during import, such as Salesforce instance_url. Only allowlisted, non-sensitive scalar fields from this provider are accepted, including nested fields. Provider refresh responses can update these values. Not accepted on update.
+	Metadata map[string]interface{} `json:"metadata,omitempty" url:"-"`
 	// ConnectionIntent is set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
 	ConnectionIntent *string `json:"connection_intent,omitempty" url:"-"`
 	// OrganizationID is an [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
@@ -925,6 +935,8 @@ type PipesUpdateUserConnectedAccountParams struct {
 	AccountDisplayName *string `json:"account_display_name,omitempty" url:"-"`
 	// AccountIdentifier is a developer-attested account identifier; null clears it.
 	AccountIdentifier *string `json:"account_identifier,omitempty" url:"-"`
+	// Config is installation-scoped provider configuration for this connection, such as Salesforce salesforce_host. Imports apply supplied values over installation-scoped integration pins and inherit other config from the credential source. Credential-bearing imports must satisfy required configuration even when config is omitted or {}. On update, a supplied object replaces installation-scoped values; omitted config preserves the stored snapshot. Stored integration-scoped values remain bound to the OAuth client and cannot be overridden or replaced with current integration pins. Replacements must satisfy required configuration; {} and empty-string values clear installation-scoped values only when the result is valid. Provider defaults count toward completeness but are resolved at read time, not stored. Only tokenless needs_reauthorization placeholders may remain incomplete; attaching their first tokens validates configuration even when config is omitted. Unrelated updates do not revalidate unchanged configuration. Clearing salesforce_host falls back to login.salesforce.com, which may not work for sandbox or My Domain-only connections.
+	Config map[string]string `json:"config,omitempty" url:"-"`
 	// AccessToken is the OAuth access token for the connected account.
 	AccessToken *string `json:"access_token,omitempty" url:"-"`
 	// RefreshToken is the OAuth refresh token for the connected account.
@@ -976,7 +988,7 @@ func (p PipesUpdateUserConnectedAccountParams) MarshalJSON() ([]byte, error) {
 }
 
 // UpdateUserConnectedAccount update a connected account
-// Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+// Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, state, or provider configuration for a specific provider.
 func (s *PipeService) UpdateUserConnectedAccount(ctx context.Context, userID string, slug string, params *PipesUpdateUserConnectedAccountParams, opts ...RequestOption) (*ConnectedAccount, error) {
 	var result ConnectedAccount
 	_, err := s.client.request(ctx, "PUT", fmt.Sprintf("/user_management/users/%s/connected_accounts/%s", url.PathEscape(userID), url.PathEscape(slug)), params, params, &result, opts)

@@ -371,17 +371,13 @@ type UpdateUserOrganizationMembershipWithRoleSlugs struct {
 	RoleSlugs []string `json:"role_slugs"`
 }
 
-// The following types are structurally identical to AuthenticationEmailVerificationFailedDataError.
-type (
-	ErrorBodyWithCode                      = AuthenticationEmailVerificationFailedDataError
-	AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
-	AuthenticationMFAFailedDataError       = AuthenticationEmailVerificationFailedDataError
-	AuthenticationOAuthFailedDataError     = AuthenticationEmailVerificationFailedDataError
-	AuthenticationPasskeyFailedDataError   = AuthenticationEmailVerificationFailedDataError
-	AuthenticationPasswordFailedDataError  = AuthenticationEmailVerificationFailedDataError
-	AuthenticationSSOFailedDataError       = AuthenticationEmailVerificationFailedDataError
-	AuthenticationSSOTimedOutDataError     = AuthenticationEmailVerificationFailedDataError
-)
+// ErrorBodyWithCode represents an error body with code.
+type ErrorBodyWithCode struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
 
 // ErrorBodyWithError represents an error body with error.
 type ErrorBodyWithError struct {
@@ -580,6 +576,16 @@ type OAuthErrorBody struct {
 	Error string `json:"error"`
 	// ErrorDescription is a human-readable description of the error.
 	ErrorDescription string `json:"error_description"`
+}
+
+// PolicyDeniedErrorBody represents a policy denied error body.
+type PolicyDeniedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// RadarDetectionID is the ID of the Radar detection that blocked the request. Only set when Radar blocked it.
+	RadarDetectionID *string `json:"radar_detection_id,omitempty"`
 }
 
 // SubResourceScopedRoleNotAllowedErrorBodyWithRoleSlug represents a sub resource scoped role not allowed error body with role slug.
@@ -1212,14 +1218,6 @@ type RadarSmsSignInChallengeErrorBody struct {
 
 // ApplicationConsentRequiredErrorBody represents an application consent required error body.
 type ApplicationConsentRequiredErrorBody struct {
-	// Code is the error code identifying the type of error.
-	Code string `json:"code"`
-	// Message is a human-readable description of the error.
-	Message string `json:"message"`
-}
-
-// PolicyDeniedErrorBody represents a policy denied error body.
-type PolicyDeniedErrorBody struct {
 	// Code is the error code identifying the type of error.
 	Code string `json:"code"`
 	// Message is a human-readable description of the error.
@@ -2046,102 +2044,6 @@ type DirectoryGroup struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// DirectoryUserWithGroups represents a directory user with groups.
-type DirectoryUserWithGroups struct {
-	// Object distinguishes the Directory User object.
-	Object string `json:"object"`
-	// ID is unique identifier for the Directory User.
-	ID string `json:"id"`
-	// DirectoryID is the identifier of the Directory the Directory User belongs to.
-	DirectoryID string `json:"directory_id"`
-	// OrganizationID is the identifier for the Organization in which the Directory resides.
-	OrganizationID string `json:"organization_id"`
-	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
-	IdpID string `json:"idp_id"`
-	// Email is the email address of the user.
-	Email *string `json:"email"`
-	// FirstName is the first name of the user.
-	FirstName *string `json:"first_name,omitempty"`
-	// LastName is the last name of the user.
-	LastName *string `json:"last_name,omitempty"`
-	// Name is the full name of the user.
-	Name *string `json:"name,omitempty"`
-	// Emails is a list of email addresses for the user.
-	//
-	// Deprecated: this field is deprecated.
-	Emails []*DirectoryUserWithGroupsEmail `json:"emails,omitempty"`
-	// JobTitle is the job title of the user.
-	//
-	// Deprecated: this field is deprecated.
-	JobTitle *string `json:"job_title,omitempty"`
-	// Username is the username of the user.
-	//
-	// Deprecated: this field is deprecated.
-	Username *string `json:"username,omitempty"`
-	// State is the state of the user.
-	State DirectoryUserWithGroupsState `json:"state"`
-	// RawAttributes is the raw attributes received from the directory provider.
-	//
-	// Deprecated: this field is deprecated.
-	RawAttributes map[string]interface{} `json:"raw_attributes"`
-	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
-	CustomAttributes map[string]interface{} `json:"custom_attributes"`
-	Role             *SlimRole              `json:"role,omitempty"`
-	// Roles is all roles assigned to the user.
-	Roles []*SlimRole `json:"roles,omitempty"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-	// Groups is the directory groups the user belongs to. Deprecated: starting May 1, 2026, this field returns an empty array by default for newly created teams. Existing teams currently depending on this field should migrate to the new access pattern for better throughput performance — the field is unbounded by user, so users with many group memberships produce large, slow response payloads. Use the List Directory Groups endpoint with a `user` filter to fetch a user's group memberships.
-	//
-	// Deprecated: migrate to the new access pattern.
-	Groups []*DirectoryGroup `json:"groups"`
-}
-
-// Group represents a group.
-type Group struct {
-	// Object is the Group object.
-	Object string `json:"object"`
-	// ID is the unique ID of the Group.
-	ID string `json:"id"`
-	// OrganizationID is the ID of the Organization the Group belongs to.
-	OrganizationID string `json:"organization_id"`
-	// Name is the name of the Group.
-	Name string `json:"name"`
-	// Description is an optional description of the Group.
-	Description *string `json:"description"`
-	// CreatedAt is an ISO 8601 timestamp.
-	CreatedAt string `json:"created_at"`
-	// UpdatedAt is an ISO 8601 timestamp.
-	UpdatedAt string `json:"updated_at"`
-}
-
-// EventContextActor the actor who performed the action.
-type EventContextActor struct {
-	// ID is unique identifier of the actor.
-	ID string `json:"id"`
-	// Source is the source of the actor that performed the action.
-	Source EventContextActorSource `json:"source"`
-	// Name is the name of the actor.
-	Name *string `json:"name"`
-}
-
-// EventContext additional context about the event.
-type EventContext struct {
-	// GoogleAnalyticsClientID is the Google Analytics client ID.
-	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
-	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
-	GoogleAnalyticsSessions []*EventContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
-	// AjsAnonymousID is the anonymous ID from analytics.
-	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
-	// ClientID is the client ID associated with the event.
-	ClientID *string            `json:"client_id,omitempty"`
-	Actor    *EventContextActor `json:"actor,omitempty"`
-	// PreviousAttributes is attributes that changed from their previous values.
-	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
-}
-
 // DirectoryUser represents a directory user.
 type DirectoryUser struct {
 	// Object distinguishes the Directory User object.
@@ -2189,6 +2091,102 @@ type DirectoryUser struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// DirectoryUserWithGroups represents a directory user with groups.
+type DirectoryUserWithGroups struct {
+	// Object distinguishes the Directory User object.
+	Object string `json:"object"`
+	// ID is unique identifier for the Directory User.
+	ID string `json:"id"`
+	// DirectoryID is the identifier of the Directory the Directory User belongs to.
+	DirectoryID string `json:"directory_id"`
+	// OrganizationID is the identifier for the Organization in which the Directory resides.
+	OrganizationID string `json:"organization_id"`
+	// IdpID is unique identifier for the user, assigned by the Directory Provider. Different Directory Providers use different ID formats.
+	IdpID string `json:"idp_id"`
+	// Email is the email address of the user.
+	Email *string `json:"email"`
+	// FirstName is the first name of the user.
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user.
+	LastName *string `json:"last_name,omitempty"`
+	// Name is the full name of the user.
+	Name *string `json:"name,omitempty"`
+	// Emails is a list of email addresses for the user.
+	//
+	// Deprecated: this field is deprecated.
+	Emails []*DirectoryUserWithGroupsEmail `json:"emails,omitempty"`
+	// JobTitle is the job title of the user.
+	//
+	// Deprecated: this field is deprecated.
+	JobTitle *string `json:"job_title,omitempty"`
+	// Username is the username of the user.
+	//
+	// Deprecated: this field is deprecated.
+	Username *string `json:"username,omitempty"`
+	// State is the state of the user.
+	State DirectoryUserWithGroupsState `json:"state"`
+	// RawAttributes is the raw attributes received from the directory provider.
+	//
+	// Deprecated: this field is deprecated.
+	RawAttributes map[string]interface{} `json:"raw_attributes"`
+	// CustomAttributes is an object containing the custom attribute mapping for the Directory Provider.
+	CustomAttributes map[string]interface{} `json:"custom_attributes"`
+	Role             *SlimRole              `json:"role,omitempty"`
+	// Roles is all roles assigned to the user.
+	Roles []*SlimRole `json:"roles,omitempty"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// Groups is the directory groups the user belongs to. Deprecated: use `GET /directories/{directoryId}/groups?user={userId}` instead.
+	//
+	// Deprecated: use `GET /directories/{directoryId}/groups?user={userId}` instead.
+	Groups []*DirectoryGroup `json:"groups"`
+}
+
+// Group represents a group.
+type Group struct {
+	// Object is the Group object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Group.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the Organization the Group belongs to.
+	OrganizationID string `json:"organization_id"`
+	// Name is the name of the Group.
+	Name string `json:"name"`
+	// Description is an optional description of the Group.
+	Description *string `json:"description"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// EventContextActor the actor who performed the action.
+type EventContextActor struct {
+	// ID is unique identifier of the actor.
+	ID string `json:"id"`
+	// Source is the source of the actor that performed the action.
+	Source EventContextActorSource `json:"source"`
+	// Name is the name of the actor.
+	Name *string `json:"name"`
+}
+
+// EventContext additional context about the event.
+type EventContext struct {
+	// GoogleAnalyticsClientID is the Google Analytics client ID.
+	GoogleAnalyticsClientID *string `json:"google_analytics_client_id,omitempty"`
+	// GoogleAnalyticsSessions is the Google Analytics sessions associated with the event.
+	GoogleAnalyticsSessions []*EventContextGoogleAnalyticsSession `json:"google_analytics_sessions,omitempty"`
+	// AjsAnonymousID is the anonymous ID from analytics.
+	AjsAnonymousID *string `json:"ajs_anonymous_id,omitempty"`
+	// ClientID is the client ID associated with the event.
+	ClientID *string            `json:"client_id,omitempty"`
+	Actor    *EventContextActor `json:"actor,omitempty"`
+	// PreviousAttributes is attributes that changed from their previous values.
+	PreviousAttributes map[string]interface{} `json:"previous_attributes,omitempty"`
 }
 
 // FlagRule represents a flag rule.
@@ -2773,6 +2771,8 @@ type AgentRegistrationClaimCompletedData struct {
 	ID string `json:"id"`
 	// AgentRegistrationID is the ID of the agent registration.
 	AgentRegistrationID string `json:"agent_registration_id"`
+	// OrganizationID is the ID of the organization the registration belongs to.
+	OrganizationID *string `json:"organization_id,omitempty"`
 	// CompletedByAttemptID is the ID of the claim attempt that completed the claim.
 	CompletedByAttemptID string `json:"completed_by_attempt_id"`
 	// ClaimedBy is the user who completed the claim.
@@ -3176,6 +3176,8 @@ type AuthenticationEmailVerificationFailedDataError struct {
 	Code string `json:"code"`
 	// Message is a human-readable error message.
 	Message string `json:"message"`
+	// RadarDetectionID is the ID of the Radar detection that blocked the authentication. Only set on `policy_denied` errors.
+	RadarDetectionID *string `json:"radar_detection_id,omitempty"`
 }
 
 // AuthenticationEmailVerificationSucceeded represents an authentication email verification succeeded.
@@ -3235,6 +3237,17 @@ type AuthenticationMagicAuthFailedData struct {
 	// Error is details about the authentication error.
 	Error *AuthenticationMagicAuthFailedDataError `json:"error"`
 }
+
+// The following types are structurally identical to AuthenticationEmailVerificationFailedDataError.
+type (
+	AuthenticationMagicAuthFailedDataError = AuthenticationEmailVerificationFailedDataError
+	AuthenticationMFAFailedDataError       = AuthenticationEmailVerificationFailedDataError
+	AuthenticationOAuthFailedDataError     = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasskeyFailedDataError   = AuthenticationEmailVerificationFailedDataError
+	AuthenticationPasswordFailedDataError  = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOFailedDataError       = AuthenticationEmailVerificationFailedDataError
+	AuthenticationSSOTimedOutDataError     = AuthenticationEmailVerificationFailedDataError
+)
 
 // AuthenticationMagicAuthSucceeded represents an authentication magic auth succeeded.
 type AuthenticationMagicAuthSucceeded struct {
@@ -3531,6 +3544,8 @@ type AuthenticationRadarRiskDetectedData struct {
 	UserID string `json:"user_id"`
 	// Email is the email address of the user.
 	Email string `json:"email"`
+	// RadarDetectionID is the ID of the Radar detection that challenged the authentication.
+	RadarDetectionID *string `json:"radar_detection_id,omitempty"`
 }
 
 // AuthenticationReauthenticationSucceeded represents an authentication reauthentication succeeded.
@@ -7125,15 +7140,11 @@ type DataIntegrationVendedCredential struct {
 	// Object distinguishes the credential object.
 	Object string `json:"object"`
 	// AuthMethod is the authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
-	AuthMethod string `json:"auth_method"`
-	// Value is the vended secret. An OAuth access token when `auth_method` is `oauth`, the API key when `api_key`, or the client-credentials access token when `client_credentials`.
-	Value string `json:"value"`
-	// ExpiresAt is the ISO-8601 formatted timestamp indicating when the credential expires, or `null` if it does not expire. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	ExpiresAt *string `json:"expires_at,omitempty"`
-	// Scopes is the scopes granted to the access token. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	Scopes []string `json:"scopes,omitempty"`
-	// MissingScopes is if the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
-	MissingScopes []string `json:"missing_scopes,omitempty"`
+	AuthMethod    DataIntegrationVendedCredentialAuthMethod `json:"auth_method"`
+	Value         string                                    `json:"value"`
+	ExpiresAt     *string                                   `json:"expires_at,omitempty"`
+	Scopes        []string                                  `json:"scopes,omitempty"`
+	MissingScopes []string                                  `json:"missing_scopes,omitempty"`
 	// Metadata is non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Config is provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
@@ -7194,7 +7205,6 @@ type ClientCredentialsDataIntegrationVendedCredential struct {
 
 // DataIntegrationCredentialsResponse represents a data integration credentials response.
 type DataIntegrationCredentialsResponse struct {
-	// Active indicates credentials are available.
 	Active *bool `json:"active,omitempty"`
 	// Credential is the credential object containing the vended secret.
 	Credential *DataIntegrationVendedCredential `json:"credential,omitempty"`
@@ -7700,7 +7710,7 @@ type WidgetSessionTokenResponse = ClientAPITokenResponse
 
 // ClientAPITokenResponse represents a client api token response.
 type ClientAPITokenResponse struct {
-	// Token is the Client API token.
+	// Token is the Widgets API token.
 	Token string `json:"token"`
 }
 
@@ -8009,16 +8019,6 @@ type EventListListMetadata struct {
 	After *string `json:"after"`
 }
 
-// DirectoryUserEmail represents a directory user email.
-type DirectoryUserEmail struct {
-	// Primary is whether this is the primary email address.
-	Primary *bool `json:"primary,omitempty"`
-	// Type is the type of email address.
-	Type *string `json:"type,omitempty"`
-	// Value is the email address value.
-	Value *string `json:"value,omitempty"`
-}
-
 // EventContextGoogleAnalyticsSession represents an event context google analytics session.
 type EventContextGoogleAnalyticsSession struct {
 	// ContainerID is the Google Analytics container ID.
@@ -8057,6 +8057,16 @@ type UserOrganizationMembershipBaseListData struct {
 
 // DirectoryUserWithGroupsEmail is an alias for DirectoryUserEmail.
 type DirectoryUserWithGroupsEmail = DirectoryUserEmail
+
+// DirectoryUserEmail represents a directory user email.
+type DirectoryUserEmail struct {
+	// Primary is whether this is the primary email address.
+	Primary *bool `json:"primary,omitempty"`
+	// Type is the type of email address.
+	Type *string `json:"type,omitempty"`
+	// Value is the email address value.
+	Value *string `json:"value,omitempty"`
+}
 
 // DirectoryMetadata aggregate counts of directory users and groups synced from the provider.
 type DirectoryMetadata struct {
@@ -8235,8 +8245,15 @@ type AgentBlueprintsCreateRequestInvocableAs struct {
 	InstanceTypes []AgentBlueprintsCreateRequestInvocableAsInstanceTypes `json:"instance_types,omitempty"`
 }
 
-// AgentBlueprintsCreateRequestSessionSetting is an alias for AgentBlueprintSessionSetting.
-type AgentBlueprintsCreateRequestSessionSetting = AgentBlueprintSessionSetting
+// AgentBlueprintsCreateRequestSessionSetting token and session lifetimes for sessions minted from this blueprint.
+type AgentBlueprintsCreateRequestSessionSetting struct {
+	// MaxAgeSeconds is maximum lifetime of a session in seconds; refreshes never extend a session past this. At most 31,536,000 (365 days).
+	MaxAgeSeconds int `json:"max_age_seconds"`
+	// AccessTokenTtlSeconds is lifetime of each minted access token in seconds. At most 3,600 (1 hour).
+	AccessTokenTtlSeconds int `json:"access_token_ttl_seconds"`
+	// RefreshTokenTtlSeconds is lifetime of each rotated refresh token in seconds. At most 5,184,000 (60 days).
+	RefreshTokenTtlSeconds int `json:"refresh_token_ttl_seconds"`
+}
 
 // AgentBlueprintsUpdateRequestInvocableBy is an alias for AgentBlueprintsCreateRequestInvocableBy.
 type AgentBlueprintsUpdateRequestInvocableBy = AgentBlueprintsCreateRequestInvocableBy
@@ -8841,8 +8858,8 @@ type DataIntegrationsListResponseDataConnectedAccount struct {
 // DataIntegrationsListResponseDataConnectedAccountWarning is an alias for ConnectedAccountWarning.
 type DataIntegrationsListResponseDataConnectedAccountWarning = ConnectedAccountWarning
 
-// SSORequiredOAuthErrorBodyWithConnectionIDsListEmailPendingAuthenticationToken represents a SSO required OAuth error body with connection ids list email pending authentication token.
-type SSORequiredOAuthErrorBodyWithConnectionIDsListEmailPendingAuthenticationToken struct {
+// SSORequiredOAuthErrorBodyWithConnectionIDsListEmail represents a SSO required OAuth error body with connection ids list email.
+type SSORequiredOAuthErrorBodyWithConnectionIDsListEmail struct {
 	// Error is the OAuth error code.
 	Error string `json:"error"`
 	// ErrorDescription is a human-readable description of the error.
