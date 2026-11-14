@@ -5,6 +5,7 @@
 // to the WorkOS SDK as the identity token provider:
 //
 //	creds, err := workos.NewWorkloadIdentityCredentials(workos.WorkloadIdentityConfig{
+//		ClientID:              "client_01...",
 //		TokenURL:              "https://auth.example.com/oauth2/token",
 //		IdentityTokenProvider: githubactions.New("https://api.workos.com"),
 //	})
