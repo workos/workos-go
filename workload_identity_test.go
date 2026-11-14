@@ -195,7 +195,7 @@ func writeUnauthorized(w http.ResponseWriter) {
 // clearWIFEnv keeps the developer's environment out of a test.
 func clearWIFEnv(t *testing.T) {
 	t.Helper()
-	for _, name := range []string{"WORKOS_CLIENT_ID", "WORKOS_WIF_TOKEN_URL", "WORKOS_WIF_SCOPE", "WORKOS_ENVIRONMENT_ID"} {
+	for _, name := range []string{"WORKOS_CLIENT_ID", "WORKOS_WIF_TOKEN_URL", "WORKOS_WIF_SCOPE"} {
 		t.Setenv(name, "")
 	}
 }
@@ -364,37 +364,28 @@ func TestWIF_02_APIRequestCarriesTokenAndEnvironment(t *testing.T) {
 		require.Equal(t, []string{"environment_wif_test"}, header.Values("x-url-environment-id"))
 	})
 
-	// An environment ID is optional. With none in the configuration and none
-	// in the environment, the header is left off the request, not sent empty.
-	for _, tc := range []struct {
-		name  string
-		unset bool
-	}{
-		{"without an environment ID", true},
-		{"with an empty WORKOS_ENVIRONMENT_ID", false},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			endpoint := newTokenEndpoint(t, nil)
-			api := newAPIMock(t, nil)
-			clearWIFEnv(t) // sets each variable to "" and restores it when the test ends
-			if tc.unset {
-				require.NoError(t, os.Unsetenv("WORKOS_ENVIRONMENT_ID"))
-			}
+	// An environment ID is optional and comes only from the configuration.
+	// The SDK does not read the environment variable, so with none in the
+	// configuration the header is left off the request.
+	t.Run("without an environment ID", func(t *testing.T) {
+		endpoint := newTokenEndpoint(t, nil)
+		api := newAPIMock(t, nil)
+		clearWIFEnv(t)
+		t.Setenv("WORKOS_ENVIRONMENT_ID", "environment_env")
 
-			creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
-				ClientID:              wifClientID,
-				TokenURL:              endpoint.url(),
-				IdentityTokenProvider: assertion("assertion-1", nil),
-			})
-			require.NoError(t, err, "credentials with no environment ID must be accepted")
-			require.NoError(t, getOrganization(newWIFClient(creds, api)))
-
-			require.Equal(t, 1, api.count())
-			header := api.request(1).header
-			require.Equal(t, []string{"Bearer access-1"}, header.Values("Authorization"))
-			require.NotContains(t, header, http.CanonicalHeaderKey("x-url-environment-id"), "the header must not be sent at all")
+		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+			ClientID:              wifClientID,
+			TokenURL:              endpoint.url(),
+			IdentityTokenProvider: assertion("assertion-1", nil),
 		})
-	}
+		require.NoError(t, err, "credentials with no environment ID must be accepted")
+		require.NoError(t, getOrganization(newWIFClient(creds, api)))
+
+		require.Equal(t, 1, api.count())
+		header := api.request(1).header
+		require.Equal(t, []string{"Bearer access-1"}, header.Values("Authorization"))
+		require.NotContains(t, header, http.CanonicalHeaderKey("x-url-environment-id"), "the header must not be sent at all")
+	})
 }
 
 func TestWIF_03_SecondRequestReusesCachedToken(t *testing.T) {
@@ -985,45 +976,39 @@ func TestWIF_22_ProvidersAndEnvironmentDefaults(t *testing.T) {
 		t.Setenv("WORKOS_CLIENT_ID", "client_env")
 		t.Setenv("WORKOS_WIF_TOKEN_URL", endpoint.url())
 		t.Setenv("WORKOS_WIF_SCOPE", "scope_env")
-		t.Setenv("WORKOS_ENVIRONMENT_ID", "environment_env")
 	}
 
 	t.Run("omitted fields default from the environment", func(t *testing.T) {
 		endpoint := newTokenEndpoint(t, nil)
-		api := newAPIMock(t, nil)
 		setEnvironment(t, endpoint)
 
 		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
 			IdentityTokenProvider: assertion("assertion-1", nil),
 		})
 		require.NoError(t, err)
-		require.NoError(t, getOrganization(newWIFClient(creds, api)))
+		require.NoError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))))
 
 		require.Equal(t, 1, endpoint.count(), "the POST must go to WORKOS_WIF_TOKEN_URL")
 		form := endpoint.exchange(1).form
 		require.Equal(t, "client_env", form.Get("client_id"))
 		require.Equal(t, "scope_env", form.Get("scope"))
-		require.Equal(t, "environment_env", api.request(1).header.Get("x-url-environment-id"))
 	})
 
 	t.Run("explicit values win over the environment", func(t *testing.T) {
 		endpoint := newTokenEndpoint(t, nil)
-		api := newAPIMock(t, nil)
 		setEnvironment(t, endpoint)
 
 		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
 			ClientID:              "client_explicit",
 			Scope:                 "scope_explicit",
-			EnvironmentID:         "environment_explicit",
 			IdentityTokenProvider: assertion("assertion-1", nil),
 		})
 		require.NoError(t, err)
-		require.NoError(t, getOrganization(newWIFClient(creds, api)))
+		require.NoError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))))
 
 		form := endpoint.exchange(1).form
 		require.Equal(t, "client_explicit", form.Get("client_id"))
 		require.Equal(t, "scope_explicit", form.Get("scope"))
-		require.Equal(t, "environment_explicit", api.request(1).header.Get("x-url-environment-id"))
 	})
 }
 

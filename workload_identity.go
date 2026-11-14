@@ -55,9 +55,9 @@ type WorkloadIdentityConfig struct {
 	// default.
 	TokenURL string
 	// EnvironmentID is the WorkOS environment the requests are expected to be
-	// for. Optional; defaults to WORKOS_ENVIRONMENT_ID. When it is set, every
-	// API request carries it in the x-url-environment-id header; when it is
-	// empty, the header is not sent.
+	// for. Optional, and set only here: no environment variable is read for
+	// it. When it is set, every API request carries it in the
+	// x-url-environment-id header; when it is empty, the header is not sent.
 	//
 	// The server binds a workload identity client to exactly one environment
 	// and takes the environment from that binding, so the header selects
@@ -119,17 +119,17 @@ type workloadIdentityExchange struct {
 }
 
 // NewWorkloadIdentityCredentials validates cfg and returns credentials for
-// NewClientWithCredentials. Fields left empty are filled from the
-// environment; a required setting that is still missing is an error here, not
-// on the first request. The error is a *WorkloadIdentityError with the code
-// "invalid_configuration".
+// NewClientWithCredentials. A field left empty is filled from its environment
+// variable, where it has one; a required setting that is still missing is an
+// error here, not on the first request. The error is a *WorkloadIdentityError
+// with the code "invalid_configuration".
 //
 // The configuration cannot be changed afterwards; build a new value instead.
 func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdentityCredentials, error) {
 	c := &WorkloadIdentityCredentials{
 		clientID:      firstNonEmpty(cfg.ClientID, os.Getenv("WORKOS_CLIENT_ID")),
 		tokenURL:      firstNonEmpty(cfg.TokenURL, os.Getenv("WORKOS_WIF_TOKEN_URL")),
-		environmentID: firstNonEmpty(cfg.EnvironmentID, os.Getenv("WORKOS_ENVIRONMENT_ID")),
+		environmentID: cfg.EnvironmentID,
 		resource:      firstNonEmpty(cfg.Resource, workloadIdentityDefaultResource),
 		scope:         firstNonEmpty(cfg.Scope, os.Getenv("WORKOS_WIF_SCOPE")),
 		provider:      cfg.IdentityTokenProvider,

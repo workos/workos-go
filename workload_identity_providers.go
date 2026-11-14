@@ -26,9 +26,10 @@ import (
 type IdentityTokenProvider func(ctx context.Context) (string, error)
 
 // TokenFileProvider returns a provider that reads the identity token from a
-// file, such as a projected service account token. The file is read again on
-// every call, so a rotated token is picked up, and surrounding whitespace is
-// trimmed. A missing or empty file is an error.
+// file that another process writes, such as a sidecar or an earlier CI step
+// that fetches a new token. The file is read again on every call, so a new
+// token is picked up, and surrounding whitespace is trimmed. A missing or
+// empty file is an error.
 func TokenFileProvider(path string) IdentityTokenProvider {
 	return func(context.Context) (string, error) {
 		data, err := os.ReadFile(path)
