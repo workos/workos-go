@@ -50,7 +50,7 @@ Build the credentials, then build the client from them:
 ```go
 creds, err := workos.NewWorkloadIdentityCredentials(workos.WorkloadIdentityConfig{
 	ClientID:              "<WORKOS_CLIENT_ID>",
-	TokenURL:              "<WORKOS_WIF_TOKEN_URL>",
+	TokenURL:              "https://auth.example.com/oauth2/token",
 	EnvironmentID:         "environment_01...", // optional
 	IdentityTokenProvider: provider,            // see below
 })
@@ -64,14 +64,14 @@ client := workos.NewClientWithCredentials(creds)
 | Field                   | Environment variable    | Required | Description                                                     |
 | ----------------------- | ----------------------- | -------- | --------------------------------------------------------------- |
 | `ClientID`              | `WORKOS_CLIENT_ID`      | yes      | The M2M application's client ID                                 |
-| `TokenURL`              | `WORKOS_WIF_TOKEN_URL`  | yes      | The token endpoint; there is no built-in default                |
+| `TokenURL`              | -                       | yes      | The token endpoint; there is no built-in default                |
 | `IdentityTokenProvider` | -                       | yes      | Returns the workload's identity token                           |
 | `EnvironmentID`         | -                       | no       | A safety check on the environment, set in code; see below       |
 | `Resource`              | -                       | no       | Defaults to `https://api.workos.com`                            |
-| `Scope`                 | `WORKOS_WIF_SCOPE`      | no       | Left out of the exchange when empty                             |
+| `Scope`                 | -                       | no       | Left out of the exchange when empty                             |
 | `HTTPClient`            | -                       | no       | Sends the exchange request; redirects are never followed        |
 
-A field left empty is read from its environment variable, where the table lists one, and a required setting that is still missing is an error from `NewWorkloadIdentityCredentials`. The environment variables only fill in credentials you construct: nothing switches workload identity on by itself, and a client built with credentials never falls back to an API key.
+`WORKOS_CLIENT_ID` is the only environment variable the credentials read: it fills in `ClientID` when the field is left empty. Every other field, the token URL included, is set in code. A required setting that is still missing is an error from `NewWorkloadIdentityCredentials`. The variable only fills in credentials you construct: nothing switches workload identity on by itself, and a client built with credentials never falls back to an API key.
 
 `EnvironmentID` is optional and is set in code: the SDK reads no environment variable for it. WorkOS binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. Setting the field is a safety check: the SDK then sends the header on every API request, and the API refuses a request whose header names a different environment with `403 environment_mismatch`. When the field is empty, the header is not sent.
 

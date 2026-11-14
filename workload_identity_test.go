@@ -192,12 +192,11 @@ func writeUnauthorized(w http.ResponseWriter) {
 	writeJSON(w, http.StatusUnauthorized, `{"message":"Unauthorized"}`)
 }
 
-// clearWIFEnv keeps the developer's environment out of a test.
+// clearWIFEnv keeps the developer's environment out of a test. The client ID
+// is the only setting the credentials read from the environment.
 func clearWIFEnv(t *testing.T) {
 	t.Helper()
-	for _, name := range []string{"WORKOS_CLIENT_ID", "WORKOS_WIF_TOKEN_URL", "WORKOS_WIF_SCOPE"} {
-		t.Setenv(name, "")
-	}
+	t.Setenv("WORKOS_CLIENT_ID", "")
 }
 
 // newTestCredentials builds credentials for the mock token endpoint with the
@@ -911,7 +910,7 @@ func TestWIF_20_CredentialsNeverFallBackToEnvironmentKey(t *testing.T) {
 
 		require.Nil(t, creds)
 		wifErr := requireWIFError(t, err, "invalid_configuration")
-		require.Contains(t, wifErr.Description, "WORKOS_WIF_TOKEN_URL")
+		require.Equal(t, "TokenURL is required", wifErr.Description)
 	})
 
 	t.Run("a failed exchange is an error", func(t *testing.T) {
@@ -971,44 +970,57 @@ func TestWIF_22_ProvidersAndEnvironmentDefaults(t *testing.T) {
 		require.Equal(t, "assertion-cb", endpoint.exchange(1).form.Get("assertion"))
 	})
 
-	setEnvironment := func(t *testing.T, endpoint *tokenEndpoint) {
+	// The client ID is the only setting read from the environment. The token
+	// URL and scope variables are set to show that they are ignored.
+	setEnvironment := func(t *testing.T) {
 		t.Helper()
 		t.Setenv("WORKOS_CLIENT_ID", "client_env")
-		t.Setenv("WORKOS_WIF_TOKEN_URL", endpoint.url())
+		t.Setenv("WORKOS_WIF_TOKEN_URL", "https://ignored.example.test/oauth2/token")
 		t.Setenv("WORKOS_WIF_SCOPE", "scope_env")
 	}
 
-	t.Run("omitted fields default from the environment", func(t *testing.T) {
+	t.Run("only the client ID defaults from the environment", func(t *testing.T) {
 		endpoint := newTokenEndpoint(t, nil)
-		setEnvironment(t, endpoint)
+		setEnvironment(t)
 
 		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+			TokenURL:              endpoint.url(),
 			IdentityTokenProvider: assertion("assertion-1", nil),
 		})
 		require.NoError(t, err)
 		require.NoError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))))
 
-		require.Equal(t, 1, endpoint.count(), "the POST must go to WORKOS_WIF_TOKEN_URL")
+		require.Equal(t, 1, endpoint.count(), "the POST must go to the token URL in the configuration")
 		form := endpoint.exchange(1).form
 		require.Equal(t, "client_env", form.Get("client_id"))
-		require.Equal(t, "scope_env", form.Get("scope"))
+		require.False(t, form.Has("scope"), "the scope variable must not be read")
 	})
 
-	t.Run("explicit values win over the environment", func(t *testing.T) {
+	t.Run("an explicit client ID wins over the environment", func(t *testing.T) {
 		endpoint := newTokenEndpoint(t, nil)
-		setEnvironment(t, endpoint)
+		setEnvironment(t)
 
 		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
 			ClientID:              "client_explicit",
-			Scope:                 "scope_explicit",
+			TokenURL:              endpoint.url(),
 			IdentityTokenProvider: assertion("assertion-1", nil),
 		})
 		require.NoError(t, err)
 		require.NoError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))))
 
-		form := endpoint.exchange(1).form
-		require.Equal(t, "client_explicit", form.Get("client_id"))
-		require.Equal(t, "scope_explicit", form.Get("scope"))
+		require.Equal(t, "client_explicit", endpoint.exchange(1).form.Get("client_id"))
+	})
+
+	t.Run("the token URL does not default from the environment", func(t *testing.T) {
+		setEnvironment(t)
+
+		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+			IdentityTokenProvider: assertion("assertion-1", nil),
+		})
+
+		require.Nil(t, creds)
+		wifErr := requireWIFError(t, err, "invalid_configuration")
+		require.Equal(t, "TokenURL is required", wifErr.Description)
 	})
 }
 
@@ -1399,7 +1411,7 @@ func TestWIFExtra_ConfigurationIsValidatedAtConstruction(t *testing.T) {
 		description string
 	}{
 		{"no client ID", func(cfg *WorkloadIdentityConfig) { cfg.ClientID = "" }, "ClientID is required (or set WORKOS_CLIENT_ID)"},
-		{"no token URL", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "" }, "TokenURL is required (or set WORKOS_WIF_TOKEN_URL)"},
+		{"no token URL", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "" }, "TokenURL is required"},
 		{"no provider", func(cfg *WorkloadIdentityConfig) { cfg.IdentityTokenProvider = nil }, "IdentityTokenProvider is required"},
 		{"a token URL with no scheme", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "auth.example.com/oauth2/token" }, "TokenURL must be an absolute http or https URL"},
 	}

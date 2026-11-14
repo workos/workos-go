@@ -48,6 +48,7 @@ type CredentialSnapshot struct {
 // short-lived credentials instead of an API key.
 //
 //	creds, err := workos.NewWorkloadIdentityCredentials(workos.WorkloadIdentityConfig{
+//		TokenURL:              "https://auth.example.com/oauth2/token",
 //		IdentityTokenProvider: workos.TokenFileProvider("/run/workos/identity-token"),
 //	})
 //	if err != nil {

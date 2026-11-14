@@ -10,6 +10,7 @@
 //		log.Fatal(err)
 //	}
 //	creds, err := workos.NewWorkloadIdentityCredentials(workos.WorkloadIdentityConfig{
+//		TokenURL:              "https://auth.example.com/oauth2/token",
 //		IdentityTokenProvider: provider,
 //	})
 //

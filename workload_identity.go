@@ -44,15 +44,16 @@ const (
 	workloadIdentityResponseLimit = 1 << 20
 )
 
-// WorkloadIdentityConfig configures NewWorkloadIdentityCredentials. An
-// explicit value always wins over its environment variable.
+// WorkloadIdentityConfig configures NewWorkloadIdentityCredentials. ClientID
+// is the only field with an environment default, and an explicit value always
+// wins over it. Every other field is set only here.
 type WorkloadIdentityConfig struct {
 	// ClientID is the M2M application's client ID. Required; defaults to
 	// WORKOS_CLIENT_ID.
 	ClientID string
 	// TokenURL is the token endpoint the identity token is exchanged at.
-	// Required; defaults to WORKOS_WIF_TOKEN_URL. There is no built-in
-	// default.
+	// Required. There is no built-in default and no environment variable is
+	// read for it.
 	TokenURL string
 	// EnvironmentID is the WorkOS environment the requests are expected to be
 	// for. Optional, and set only here: no environment variable is read for
@@ -67,8 +68,8 @@ type WorkloadIdentityConfig struct {
 	// Resource is the resource the access token is requested for. Defaults
 	// to "https://api.workos.com".
 	Resource string
-	// Scope is the scope requested for the access token. Defaults to
-	// WORKOS_WIF_SCOPE; when empty, no scope is requested.
+	// Scope is the scope requested for the access token. Optional; no
+	// environment variable is read for it. When empty, no scope is requested.
 	Scope string
 	// IdentityTokenProvider returns the workload's identity token. Required.
 	IdentityTokenProvider IdentityTokenProvider
@@ -119,19 +120,19 @@ type workloadIdentityExchange struct {
 }
 
 // NewWorkloadIdentityCredentials validates cfg and returns credentials for
-// NewClientWithCredentials. A field left empty is filled from its environment
-// variable, where it has one; a required setting that is still missing is an
-// error here, not on the first request. The error is a *WorkloadIdentityError
-// with the code "invalid_configuration".
+// NewClientWithCredentials. An empty ClientID is filled from WORKOS_CLIENT_ID,
+// the only environment variable read; a required setting that is still
+// missing is an error here, not on the first request. The error is a
+// *WorkloadIdentityError with the code "invalid_configuration".
 //
 // The configuration cannot be changed afterwards; build a new value instead.
 func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdentityCredentials, error) {
 	c := &WorkloadIdentityCredentials{
 		clientID:      firstNonEmpty(cfg.ClientID, os.Getenv("WORKOS_CLIENT_ID")),
-		tokenURL:      firstNonEmpty(cfg.TokenURL, os.Getenv("WORKOS_WIF_TOKEN_URL")),
+		tokenURL:      cfg.TokenURL,
 		environmentID: cfg.EnvironmentID,
 		resource:      firstNonEmpty(cfg.Resource, workloadIdentityDefaultResource),
-		scope:         firstNonEmpty(cfg.Scope, os.Getenv("WORKOS_WIF_SCOPE")),
+		scope:         cfg.Scope,
 		provider:      cfg.IdentityTokenProvider,
 		now:           time.Now,
 		sleep:         sleepContext,
@@ -142,7 +143,7 @@ func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdenti
 	case c.clientID == "":
 		return nil, invalidWorkloadIdentityConfiguration("ClientID is required (or set WORKOS_CLIENT_ID)")
 	case c.tokenURL == "":
-		return nil, invalidWorkloadIdentityConfiguration("TokenURL is required (or set WORKOS_WIF_TOKEN_URL)")
+		return nil, invalidWorkloadIdentityConfiguration("TokenURL is required")
 	case c.provider == nil:
 		return nil, invalidWorkloadIdentityConfiguration("IdentityTokenProvider is required")
 	}

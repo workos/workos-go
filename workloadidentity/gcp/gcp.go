@@ -7,6 +7,7 @@
 // App Engine. Pass it to the WorkOS SDK as the identity token provider:
 //
 //	creds, err := workos.NewWorkloadIdentityCredentials(workos.WorkloadIdentityConfig{
+//		TokenURL:              "https://auth.example.com/oauth2/token",
 //		IdentityTokenProvider: gcp.New("https://api.workos.com"),
 //	})
 //
