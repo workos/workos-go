@@ -25,7 +25,9 @@ import (
 // The conformance cases for workload identity federation. Each TestWIF_NN
 // function covers the case with that ID in conformance-cases.md; the tests
 // named TestWIFExtra cover behavior the cases leave out. Everything runs
-// against local mocks of the token endpoint and the API.
+// against local mocks of the token endpoint and the API. The mock token
+// endpoint is served over TLS, because the credentials accept only an https
+// token URL and have no switch that relaxes that for tests.
 
 const (
 	wifClientID      = "client_wif_test"
@@ -41,7 +43,7 @@ type exchangeRecord struct {
 	form   url.Values
 }
 
-// tokenEndpoint is a mock of the token endpoint.
+// tokenEndpoint is a mock of the token endpoint, served over TLS.
 type tokenEndpoint struct {
 	server *httptest.Server
 
@@ -55,7 +57,7 @@ type tokenEndpoint struct {
 func newTokenEndpoint(t *testing.T, respond func(e *tokenEndpoint, n int, w http.ResponseWriter)) *tokenEndpoint {
 	t.Helper()
 	e := &tokenEndpoint{}
-	e.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	e.server = httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		form, _ := url.ParseQuery(string(body))
 		e.mu.Lock()
@@ -77,7 +79,12 @@ func newTokenEndpoint(t *testing.T, respond func(e *tokenEndpoint, n int, w http
 	return e
 }
 
+// url is the mock's token URL. Its scheme is https.
 func (e *tokenEndpoint) url() string { return e.server.URL + "/oauth2/token" }
+
+// client returns an HTTP client that trusts the mock's certificate. Tests
+// pass it as the configuration's HTTPClient.
+func (e *tokenEndpoint) client() *http.Client { return e.server.Client() }
 
 // count is the exchange count: the number of POSTs received.
 func (e *tokenEndpoint) count() int {
@@ -193,7 +200,8 @@ func writeUnauthorized(w http.ResponseWriter) {
 }
 
 // newTestCredentials builds credentials for the mock token endpoint with the
-// fixture client and environment IDs. Exchange retries do not sleep.
+// fixture client and environment IDs, and an HTTP client that trusts the
+// mock's certificate. Exchange retries do not sleep.
 func newTestCredentials(t *testing.T, e *tokenEndpoint, provider IdentityTokenProvider, configure ...func(*WorkloadIdentityConfig)) *WorkloadIdentityCredentials {
 	t.Helper()
 	cfg := WorkloadIdentityConfig{
@@ -201,6 +209,7 @@ func newTestCredentials(t *testing.T, e *tokenEndpoint, provider IdentityTokenPr
 		TokenURL:              e.url(),
 		EnvironmentID:         wifEnvironmentID,
 		IdentityTokenProvider: provider,
+		HTTPClient:            e.client(),
 	}
 	for _, fn := range configure {
 		fn(&cfg)
@@ -367,6 +376,7 @@ func TestWIF_02_APIRequestCarriesTokenAndEnvironment(t *testing.T) {
 			ClientID:              wifClientID,
 			TokenURL:              endpoint.url(),
 			IdentityTokenProvider: assertion("assertion-1", nil),
+			HTTPClient:            endpoint.client(),
 		})
 		require.NoError(t, err, "credentials with no environment ID must be accepted")
 		require.NoError(t, getOrganization(newWIFClient(creds, api)))
@@ -656,7 +666,7 @@ func TestWIF_14_ExchangeRetries(t *testing.T) {
 		api := newAPIMock(t, nil)
 		var providerCalls atomic.Int32
 		creds := newTestCredentials(t, endpoint, assertion("assertion-1", &providerCalls), func(cfg *WorkloadIdentityConfig) {
-			cfg.HTTPClient = &http.Client{Transport: &failingOnce{base: http.DefaultTransport}}
+			cfg.HTTPClient = &http.Client{Transport: &failingOnce{base: endpoint.client().Transport}}
 		})
 
 		require.NoError(t, getOrganization(newWIFClient(creds, api)))
@@ -976,6 +986,7 @@ func TestWIF_22_ProvidersAndNoEnvironmentDefaults(t *testing.T) {
 			ClientID:              "client_explicit",
 			TokenURL:              endpoint.url(),
 			IdentityTokenProvider: assertion("assertion-1", nil),
+			HTTPClient:            endpoint.client(),
 		})
 		require.NoError(t, err)
 		require.NoError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))))
@@ -1403,7 +1414,6 @@ func TestWIFExtra_ConfigurationIsValidatedAtConstruction(t *testing.T) {
 		{"no client ID", func(cfg *WorkloadIdentityConfig) { cfg.ClientID = "" }, "ClientID is required"},
 		{"no token URL", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "" }, "TokenURL is required"},
 		{"no provider", func(cfg *WorkloadIdentityConfig) { cfg.IdentityTokenProvider = nil }, "IdentityTokenProvider is required"},
-		{"a token URL with no scheme", func(cfg *WorkloadIdentityConfig) { cfg.TokenURL = "auth.example.com/oauth2/token" }, "TokenURL must be an absolute http or https URL"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -1417,6 +1427,120 @@ func TestWIFExtra_ConfigurationIsValidatedAtConstruction(t *testing.T) {
 			require.Equal(t, tc.description, wifErr.Description)
 		})
 	}
+}
+
+// The exchange POST carries the workload's identity token and the response
+// carries the access token, so the token URL must be https. There is no
+// exception for localhost or a loopback address.
+func TestWIFExtra_TokenURLMustBeAbsoluteHTTPS(t *testing.T) {
+	rejected := []struct {
+		name     string
+		tokenURL string
+	}{
+		{"http", "http://example.com/oauth2/token"},
+		{"http on localhost", "http://localhost:8080/oauth2/token"},
+		{"http on a loopback address", "http://127.0.0.1/oauth2/token"},
+		{"http on an IPv6 loopback address", "http://[::1]:8080/oauth2/token"},
+		{"http in upper case", "HTTP://example.com/oauth2/token"},
+		{"no host", "https:///oauth2/token"},
+		{"a port but no host", "https://:8443/oauth2/token"},
+		{"no scheme", "auth.example.com/oauth2/token"},
+		{"no scheme, two slashes", "//auth.example.com/oauth2/token"},
+		{"https with no slashes", "https:auth.example.com/oauth2/token"},
+		{"another scheme", "ftp://auth.example.com/oauth2/token"},
+		{"a path", "/oauth2/token"},
+		{"not a URL", "https://auth.example.com/%zz"},
+	}
+	for _, tc := range rejected {
+		t.Run("rejects "+tc.name, func(t *testing.T) {
+			var providerCalls atomic.Int32
+
+			creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+				ClientID:              wifClientID,
+				TokenURL:              tc.tokenURL,
+				IdentityTokenProvider: assertion("assertion-1", &providerCalls),
+			})
+
+			require.Nil(t, creds)
+			wifErr := requireWIFError(t, err, "invalid_configuration")
+			require.Equal(t, "TokenURL must be an absolute https URL", wifErr.Description)
+			require.Zero(t, providerCalls.Load(), "the identity token must not be read for a rejected token URL")
+		})
+	}
+
+	// A plain-HTTP endpoint that is listening is still refused, and nothing
+	// is sent to it.
+	t.Run("rejects a plain-HTTP endpoint that is listening", func(t *testing.T) {
+		var received atomic.Int32
+		plain := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			received.Add(1)
+			writeJSON(w, http.StatusOK, `{"access_token":"access-over-http","token_type":"Bearer","expires_in":300}`)
+		}))
+		t.Cleanup(plain.Close)
+		require.True(t, strings.HasPrefix(plain.URL, "http://"))
+
+		creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+			ClientID:              wifClientID,
+			TokenURL:              plain.URL + "/oauth2/token",
+			IdentityTokenProvider: assertion("assertion-1", nil),
+		})
+
+		require.Nil(t, creds)
+		wifErr := requireWIFError(t, err, "invalid_configuration")
+		require.Equal(t, "TokenURL must be an absolute https URL", wifErr.Description)
+		// Even a caller that ignores the error has nothing to send with.
+		requireWIFError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))), "invalid_configuration")
+		require.Zero(t, received.Load(), "the plain-HTTP endpoint must receive no request")
+	})
+
+	// The scheme is not case-sensitive, and an accepted URL is the one the
+	// exchange is sent to.
+	t.Run("accepts HTTPS in upper case", func(t *testing.T) {
+		endpoint := newTokenEndpoint(t, nil)
+		tokenURL := "HTTPS://" + strings.TrimPrefix(endpoint.url(), "https://")
+		require.NotEqual(t, endpoint.url(), tokenURL)
+
+		creds := newTestCredentials(t, endpoint, assertion("assertion-1", nil), func(cfg *WorkloadIdentityConfig) {
+			cfg.TokenURL = tokenURL
+		})
+		require.NoError(t, getOrganization(newWIFClient(creds, newAPIMock(t, nil))))
+
+		require.Equal(t, 1, endpoint.count(), "exchange count")
+		require.Equal(t, "/oauth2/token", endpoint.exchange(1).path)
+	})
+
+	t.Run("accepts https with a port, an IPv6 host, a path and a query", func(t *testing.T) {
+		for _, tokenURL := range []string{
+			"https://auth.example.com/oauth2/token",
+			"https://auth.example.com:8443/oauth2/token",
+			"https://[::1]:8443/oauth2/token",
+			"https://auth.example.com/oauth2/token?tenant=acme",
+			"Https://auth.example.com/oauth2/token",
+		} {
+			_, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+				ClientID:              wifClientID,
+				TokenURL:              tokenURL,
+				IdentityTokenProvider: assertion("assertion-1", nil),
+			})
+			require.NoError(t, err, tokenURL)
+		}
+	})
+}
+
+// Every exchange in these tests goes through a client that trusts the mock
+// token endpoint's certificate. This covers the client the credentials build
+// when the configuration has none.
+func TestWIFExtra_DefaultExchangeClientHasATimeoutAndFollowsNoRedirect(t *testing.T) {
+	creds, err := NewWorkloadIdentityCredentials(WorkloadIdentityConfig{
+		ClientID:              wifClientID,
+		TokenURL:              "https://auth.example.com/oauth2/token",
+		IdentityTokenProvider: assertion("assertion-1", nil),
+	})
+	require.NoError(t, err)
+
+	require.Equal(t, defaultTimeout, creds.httpClient.Timeout)
+	require.Nil(t, creds.httpClient.Transport, "the default transport, which verifies certificates")
+	require.ErrorIs(t, creds.httpClient.CheckRedirect(nil, nil), http.ErrUseLastResponse)
 }
 
 func TestWIFExtra_TokenProvidersRejectMissingTokens(t *testing.T) {

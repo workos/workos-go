@@ -51,7 +51,10 @@ type WorkloadIdentityConfig struct {
 	// variable is read for it.
 	ClientID string
 	// TokenURL is the token endpoint the identity token is exchanged at.
-	// Required. There is no built-in default and no environment variable is
+	// Required. It must be an absolute https URL: the request carries the
+	// workload's identity token and the response carries the access token, so
+	// an http URL is rejected, including one for localhost or a loopback
+	// address. There is no built-in default and no environment variable is
 	// read for it.
 	TokenURL string
 	// EnvironmentID is the WorkOS environment the requests are expected to be
@@ -121,8 +124,8 @@ type workloadIdentityExchange struct {
 // NewWorkloadIdentityCredentials validates cfg and returns credentials for
 // NewClientWithCredentials. No setting is read from the environment; a
 // required setting that is missing is an error here, not on the first
-// request. The error is a *WorkloadIdentityError with the code
-// "invalid_configuration".
+// request, and so is a TokenURL that is not an absolute https URL. The error
+// is a *WorkloadIdentityError with the code "invalid_configuration".
 //
 // The configuration cannot be changed afterwards; build a new value instead.
 func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdentityCredentials, error) {
@@ -146,8 +149,10 @@ func NewWorkloadIdentityCredentials(cfg WorkloadIdentityConfig) (*WorkloadIdenti
 	case c.provider == nil:
 		return nil, invalidWorkloadIdentityConfiguration("IdentityTokenProvider is required")
 	}
-	if u, err := url.Parse(c.tokenURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-		return nil, invalidWorkloadIdentityConfiguration("TokenURL must be an absolute http or https URL")
+	// https only, with no exception for localhost: the POST carries the
+	// workload's identity token and the response carries the access token.
+	if u, err := url.Parse(c.tokenURL); err != nil || !strings.EqualFold(u.Scheme, "https") || u.Hostname() == "" {
+		return nil, invalidWorkloadIdentityConfiguration("TokenURL must be an absolute https URL")
 	}
 
 	// The exchange never follows a redirect: the identity token must not be

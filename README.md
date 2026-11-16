@@ -64,7 +64,7 @@ client := workos.NewClientWithCredentials(creds)
 | Field                   | Required | Description                                                     |
 | ----------------------- | -------- | --------------------------------------------------------------- |
 | `ClientID`              | yes      | The M2M application's client ID                                 |
-| `TokenURL`              | yes      | The token endpoint; there is no built-in default                |
+| `TokenURL`              | yes      | The token endpoint, an `https` URL; it has no built-in default  |
 | `IdentityTokenProvider` | yes      | Returns the workload's identity token                           |
 | `EnvironmentID`         | no       | A safety check on the environment; see below                    |
 | `Resource`              | no       | Defaults to `https://api.workos.com`                            |
@@ -72,6 +72,8 @@ client := workos.NewClientWithCredentials(creds)
 | `HTTPClient`            | no       | Sends the exchange request; redirects are never followed        |
 
 The credentials read no environment variable for these settings: every field is set in code. A required setting that is missing is an error from `NewWorkloadIdentityCredentials`. Nothing in the environment switches workload identity on, and a client built with credentials never falls back to an API key.
+
+`TokenURL` must be an absolute `https` URL. The exchange sends the workload's identity token and receives the access token, so `NewWorkloadIdentityCredentials` returns an error for any other URL, including an `http` URL for `localhost` or a loopback address. No option or environment variable turns this off.
 
 `EnvironmentID` is optional. WorkOS binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. Setting the field is a safety check: the SDK then sends the header on every API request, and the API refuses a request whose header names a different environment with `403 environment_mismatch`. When the field is empty, the header is not sent.
 
