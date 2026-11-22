@@ -124,3 +124,39 @@ func TestParseWebhookSignatureHeader_MissingTimestamp(t *testing.T) {
 	_, _, err := workos.ParseWebhookSignatureHeader("v1=abcdef")
 	require.ErrorIs(t, err, workos.ErrWebhookInvalidHeader)
 }
+
+func TestVerifyPayload_MultipleV1Signatures(t *testing.T) {
+	body := `{"id":"event_01","object":"event","event":"user.created","data":{"id":"user_123"}}`
+	now := time.Now()
+	timestamp := strconv.FormatInt(now.UnixMilli(), 10)
+	validSig := workos.ComputeWebhookSignature(testWebhookSecret, timestamp, body)
+	otherSig := workos.ComputeWebhookSignature("whsec_rotated_key", timestamp, body)
+
+	verifier := workos.NewWebhookVerifier(testWebhookSecret, workos.WithWebhookTolerance(5*time.Minute))
+
+	t.Run("matches first v1 during rotation", func(t *testing.T) {
+		sigHeader := fmt.Sprintf("t=%s, v1=%s, v1=%s", timestamp, validSig, otherSig)
+		res, err := verifier.VerifyPayload(sigHeader, body)
+		require.NoError(t, err)
+		require.Equal(t, body, res)
+	})
+
+	t.Run("matches later v1 during rotation", func(t *testing.T) {
+		sigHeader := fmt.Sprintf("t=%s, v1=%s, v1=%s", timestamp, otherSig, validSig)
+		res, err := verifier.VerifyPayload(sigHeader, body)
+		require.NoError(t, err)
+		require.Equal(t, body, res)
+	})
+}
+
+func TestConstructEvent_RejectsNullAndIncompletePayloads(t *testing.T) {
+	verifier := workos.NewWebhookVerifier(testWebhookSecret, workos.WithWebhookTolerance(5*time.Minute))
+	now := time.Now()
+
+	for _, body := range []string{"null", "{}"} {
+		sigHeader := buildWebhookSigHeader(testWebhookSecret, body, now)
+		event, err := verifier.ConstructEvent(sigHeader, body)
+		require.Error(t, err)
+		require.Nil(t, event)
+	}
+}
