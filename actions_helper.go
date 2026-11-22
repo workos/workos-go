@@ -47,7 +47,7 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 		return ErrWebhookNotSigned
 	}
 
-	timestamp, signature, err := ParseWebhookSignatureHeader(sigHeader)
+	timestamp, signatures, err := parseWebhookSignatureHeader(sigHeader)
 	if err != nil {
 		return err
 	}
@@ -67,12 +67,14 @@ func (a *ActionsHelper) VerifyHeader(payload string, sigHeader string, secret st
 	// Compute the expected signature.
 	expected := ComputeWebhookSignature(secret, timestamp, payload)
 
-	// Constant-time comparison.
-	if subtle.ConstantTimeCompare([]byte(expected), []byte(signature)) != 1 {
-		return ErrWebhookNoValidSignature
+	// Constant-time comparison against any v1 signature in the header.
+	for _, sig := range signatures {
+		if subtle.ConstantTimeCompare([]byte(expected), []byte(sig)) == 1 {
+			return nil
+		}
 	}
 
-	return nil
+	return ErrWebhookNoValidSignature
 }
 
 // ActionContext is the context sent to an Actions endpoint.

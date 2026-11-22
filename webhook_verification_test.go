@@ -110,6 +110,13 @@ func TestParseWebhookSignatureHeader(t *testing.T) {
 	require.Equal(t, "abcdef0123456789", sig)
 }
 
+func TestParseWebhookSignatureHeader_MultipleV1(t *testing.T) {
+	ts, sig, err := workos.ParseWebhookSignatureHeader("t=1234567890, v1=first, v1=last")
+	require.NoError(t, err)
+	require.Equal(t, "1234567890", ts)
+	require.Equal(t, "last", sig)
+}
+
 func TestParseWebhookSignatureHeader_Empty(t *testing.T) {
 	_, _, err := workos.ParseWebhookSignatureHeader("")
 	require.ErrorIs(t, err, workos.ErrWebhookNotSigned)

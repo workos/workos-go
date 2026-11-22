@@ -81,6 +81,25 @@ func TestActionsHelper_VerifyHeader_ExpiredTimestamp(t *testing.T) {
 	require.ErrorIs(t, err, workos.ErrWebhookOutsideTolerance)
 }
 
+func TestActionsHelper_VerifyHeader_MultipleV1Signatures(t *testing.T) {
+	payload := `{"type":"authentication","action_id":"action_123"}`
+	timestamp := strconv.FormatInt(time.Now().UnixMilli(), 10)
+	validSig := computeTestActionSignature(testActionSecret, timestamp, payload)
+	oldSig := computeTestActionSignature("rotated_old_secret", timestamp, payload)
+
+	helper := workos.NewActionsHelper()
+
+	t.Run("accepts active signature when last", func(t *testing.T) {
+		sigHeader := fmt.Sprintf("t=%s,v1=%s,v1=%s", timestamp, oldSig, validSig)
+		require.NoError(t, helper.VerifyHeader(payload, sigHeader, testActionSecret))
+	})
+
+	t.Run("accepts active signature when first", func(t *testing.T) {
+		sigHeader := fmt.Sprintf("t=%s,v1=%s,v1=%s", timestamp, validSig, oldSig)
+		require.NoError(t, helper.VerifyHeader(payload, sigHeader, testActionSecret))
+	})
+}
+
 func TestActionsHelper_ConstructAuthenticationAction(t *testing.T) {
 	payload := `{"object":"authentication_action_context","id":"action_01","authentication_method":"Password","user":{"object":"user","id":"user_01","email":"test@example.com"},"organization":{"object":"organization","id":"org_01","name":"Example","domains":[],"metadata":{},"created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"203.0.113.1","user_agent":"Mozilla/5.0","device_fingerprint":"fingerprint","issuer":"client_01"}`
 	sigHeader := buildActionSigHeader(testActionSecret, payload, time.Now())

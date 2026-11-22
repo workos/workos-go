@@ -133,7 +133,7 @@ func ParseWebhookSignatureHeader(header string) (timestamp string, signature str
 	if err != nil {
 		return "", "", err
 	}
-	return timestamp, signatures[0], nil
+	return timestamp, signatures[len(signatures)-1], nil
 }
 
 func parseWebhookSignatureHeader(header string) (timestamp string, signatures []string, err error) {
