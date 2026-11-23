@@ -161,7 +161,7 @@ if errors.As(err, &wifErr) {
 ```
 
 > [!NOTE]
-> A client built with `NewClientWithCredentials` holds no API key. The methods that send the API key as a client secret, `UserManagement().AuthenticateWith...` and `SSO().GetProfileAndToken`, need a client built with `NewClient`.
+> A client built with `NewClientWithCredentials` holds no API key. The calls that send the API key as a client secret still need a client built with `NewClient`: `UserManagement().AuthenticateWith...`, `SSO().GetProfileAndToken`, `AuthKitPKCECodeExchange`, `SSOPKCECodeExchange` and a session refresh.
 
 ## Services
 
