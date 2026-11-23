@@ -791,6 +791,14 @@ func TestWIF_17_TokensNeverAppearInErrorsOrLogs(t *testing.T) {
 	}
 	secretProvider := assertion(secretAssertion, nil)
 
+	// A token endpoint may repeat the assertion it was sent.
+	const (
+		repeated        = "an invalid_grant that repeats the assertion"
+		repeatedRetried = "a 503 that repeats the assertion until the retries run out"
+		repeatedBody    = `{"error":"invalid_grant","error_description":"JWT ` + secretAssertion + ` failed validation"}`
+	)
+	var repeatedRetries atomic.Int32
+
 	failures := map[string]error{
 		"an invalid_grant exchange": fail(secretProvider, func(_ *tokenEndpoint, _ int, w http.ResponseWriter) {
 			writeOAuthError(w, "invalid_grant", "No trust rule matched.")
@@ -806,6 +814,21 @@ func TestWIF_17_TokensNeverAppearInErrorsOrLogs(t *testing.T) {
 		}, func(_ int, w http.ResponseWriter, _ *http.Request) {
 			writeUnauthorized(w)
 		}),
+		repeated: fail(secretProvider, func(_ *tokenEndpoint, _ int, w http.ResponseWriter) {
+			writeJSON(w, http.StatusBadRequest, repeatedBody)
+		}, nil),
+		repeatedRetried: fail(secretProvider, func(_ *tokenEndpoint, _ int, w http.ResponseWriter) {
+			repeatedRetries.Add(1)
+			writeJSON(w, http.StatusServiceUnavailable, repeatedBody)
+		}, nil),
+	}
+
+	// The server's text is kept with the assertion taken out of it, for the
+	// terminal error and for the last failure of a retried exchange alike.
+	require.Equal(t, int32(defaultMaxRetries+1), repeatedRetries.Load(), "the 503 is retried until the retries run out")
+	for _, name := range []string{repeated, repeatedRetried} {
+		wifErr := requireWIFError(t, failures[name], "invalid_grant")
+		require.Equal(t, "JWT [redacted] failed validation", wifErr.Description, name)
 	}
 
 	requireNoSecret := func(where, text string) {
@@ -1349,6 +1372,20 @@ func TestWIFExtra_DescriptionIsCutAndNeverEchoesTheAssertion(t *testing.T) {
 	require.Equal(t, 500, len([]rune(wifErr.Description)), "the description is cut to 500 characters")
 	require.True(t, strings.HasPrefix(wifErr.Description, "rejected [redacted] é"))
 	require.NotContains(t, err.Error(), secretAssertion)
+}
+
+// The assertion is taken out of the error code as well as the description,
+// and nothing is replaced when there is no assertion to look for.
+func TestWIFExtra_AssertionIsRedactedFromTheOAuthError(t *testing.T) {
+	fields := decodeJSONObject([]byte(`{"error":"rejected_SECRET-ASSERTION-VALUE","error_description":"SECRET-ASSERTION-VALUE and SECRET-ASSERTION-VALUE"}`))
+
+	redacted := oauthError(fields, "SECRET-ASSERTION-VALUE")
+	require.Equal(t, "rejected_[redacted]", redacted.Code)
+	require.Equal(t, "[redacted] and [redacted]", redacted.Description)
+
+	untouched := oauthError(fields, "")
+	require.Equal(t, "rejected_SECRET-ASSERTION-VALUE", untouched.Code)
+	require.Equal(t, "SECRET-ASSERTION-VALUE and SECRET-ASSERTION-VALUE", untouched.Description)
 }
 
 func TestWIFExtra_ProviderFailuresLeaveNothingBehind(t *testing.T) {

@@ -418,14 +418,24 @@ func isRetryableExchangeStatus(status int) bool {
 }
 
 // oauthError returns the OAuth error carried by a token endpoint response, or
-// nil when the body has no string "error" field. The assertion is removed
-// from the server's text in case the endpoint echoes it.
+// nil when the body has no string "error" field.
+//
+// A token endpoint may repeat the assertion it was sent. Every occurrence in
+// the server's text is replaced with "[redacted]" before the error keeps it,
+// and before the description is cut to its limit, so a cut cannot leave the
+// start of a token behind. assertion is the one sent in the request that
+// fields answers.
 func oauthError(fields map[string]json.RawMessage, assertion string) *WorkloadIdentityError {
 	code := jsonString(fields, "error")
 	if code == "" {
 		return nil
 	}
-	redact := func(s string) string { return strings.ReplaceAll(s, assertion, "[redacted]") }
+	redact := func(s string) string {
+		if assertion == "" {
+			return s // nothing to look for; an empty match would hit everywhere
+		}
+		return strings.ReplaceAll(s, assertion, "[redacted]")
+	}
 	return newWorkloadIdentityError(redact(code), redact(jsonString(fields, "error_description")), nil)
 }
 
