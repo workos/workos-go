@@ -3,15 +3,19 @@ package aws
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
@@ -53,6 +57,7 @@ func isolateAWSEnvironment(t *testing.T) {
 	for _, name := range []string{
 		"AWS_REGION", "AWS_DEFAULT_REGION", "AWS_PROFILE", "AWS_DEFAULT_PROFILE",
 		"AWS_ENDPOINT_URL", "AWS_ENDPOINT_URL_STS", "AWS_USE_FIPS_ENDPOINT", "AWS_USE_DUALSTACK_ENDPOINT",
+		"AWS_MAX_ATTEMPTS", "AWS_RETRY_MODE", "AWS_DEFAULTS_MODE",
 	} {
 		t.Setenv(name, "") // registers the restore
 		if err := os.Unsetenv(name); err != nil {
@@ -65,21 +70,30 @@ func isolateAWSEnvironment(t *testing.T) {
 }
 
 // recordingHTTPClient stands in for the network under a real STS client. It
-// records where each request was sent and answers with an STS error.
+// records where each request was sent and answers each one the same way: with
+// failure when it is set, else with the STS error response of status and
+// code, which default to 403 AccessDenied.
 type recordingHTTPClient struct {
+	status  int
+	code    string
+	failure error
+
 	mu     sync.Mutex
 	hosts  []string
 	bodies []string
 }
 
-const accessDeniedResponse = `<ErrorResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+// stsErrorResponse is the body STS sends for an error with the code.
+func stsErrorResponse(code string) string {
+	return fmt.Sprintf(`<ErrorResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
   <Error>
     <Type>Sender</Type>
-    <Code>AccessDenied</Code>
+    <Code>%s</Code>
     <Message>not authorized</Message>
   </Error>
   <RequestId>request-1</RequestId>
-</ErrorResponse>`
+</ErrorResponse>`, code)
+}
 
 func (c *recordingHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	var body []byte
@@ -91,30 +105,48 @@ func (c *recordingHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	c.hosts = append(c.hosts, req.URL.Host)
 	c.bodies = append(c.bodies, string(body))
 	c.mu.Unlock()
+	if c.failure != nil {
+		return nil, c.failure
+	}
+	status, code := c.status, c.code
+	if status == 0 {
+		status, code = http.StatusForbidden, "AccessDenied"
+	}
 	return &http.Response{
-		StatusCode: http.StatusForbidden,
+		StatusCode: status,
 		Header:     http.Header{"Content-Type": {"text/xml"}},
-		Body:       io.NopCloser(strings.NewReader(accessDeniedResponse)),
+		Body:       io.NopCloser(strings.NewReader(stsErrorResponse(code))),
 		Request:    req,
 	}, nil
 }
 
+// requests is the number of requests the STS client sent.
+func (c *recordingHTTPClient) requests() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.hosts)
+}
+
+// withStaticCredentials makes New load its AWS configuration with fixed
+// credentials and the extra options, so that no test reads the machine's.
+func withStaticCredentials(t *testing.T, extra ...func(*config.LoadOptions) error) {
+	t.Helper()
+	original := loadConfig
+	loadConfig = func(ctx context.Context, optFns ...func(*config.LoadOptions) error) (awssdk.Config, error) {
+		optFns = append(optFns, config.WithCredentialsProvider(awssdk.CredentialsProviderFunc(func(context.Context) (awssdk.Credentials, error) {
+			return awssdk.Credentials{AccessKeyID: "test-access-key-id", SecretAccessKey: "test-secret-access-key"}, nil
+		})))
+		return original(ctx, append(optFns, extra...)...)
+	}
+	t.Cleanup(func() { loadConfig = original })
+}
+
 // useRecordingHTTPClient makes New build a real STS client that sends its
-// requests to the recorder, with static credentials and no retries.
+// requests to the recorder. Retries are left as New sets them.
 func useRecordingHTTPClient(t *testing.T) *recordingHTTPClient {
 	t.Helper()
 	recorder := &recordingHTTPClient{}
-	original := loadConfig
-	loadConfig = func(ctx context.Context, optFns ...func(*config.LoadOptions) error) (awssdk.Config, error) {
-		return original(ctx, append(optFns,
-			config.WithHTTPClient(recorder),
-			config.WithCredentialsProvider(awssdk.CredentialsProviderFunc(func(context.Context) (awssdk.Credentials, error) {
-				return awssdk.Credentials{AccessKeyID: "test-access-key-id", SecretAccessKey: "test-secret-access-key"}, nil
-			})),
-			config.WithRetryMaxAttempts(1),
-		)...)
-	}
-	t.Cleanup(func() { loadConfig = original })
+	withStaticCredentials(t, config.WithHTTPClient(recorder))
 	return recorder
 }
 
@@ -297,5 +329,193 @@ func TestProviderRejectsAnEmptyToken(t *testing.T) {
 
 	if _, err := provider(context.Background()); err == nil {
 		t.Fatal("the provider returned an empty token without an error")
+	}
+}
+
+// The exchange calls the provider again when it retries, so one provider call
+// is one STS request, whatever STS answers and whatever the AWS configuration
+// says about retries.
+func TestProviderSendsOneRequestWhenSTSFails(t *testing.T) {
+	ctx := context.Background()
+	cases := []struct {
+		name     string
+		status   int
+		code     string
+		failure  error
+		setenv   map[string]string
+		wantText string
+	}{
+		{name: "a throttling error", status: http.StatusBadRequest, code: "Throttling", wantText: "Throttling"},
+		{name: "a 500", status: http.StatusInternalServerError, code: "InternalFailure", wantText: "InternalFailure"},
+		{name: "a 503", status: http.StatusServiceUnavailable, code: "ServiceUnavailable", wantText: "ServiceUnavailable"},
+		{
+			name:     "a connection that cannot be opened",
+			failure:  &net.OpError{Op: "dial", Net: "tcp", Err: errors.New("connection refused")},
+			wantText: "connection refused",
+		},
+		{
+			name: "a throttling error when the AWS configuration asks for retries", status: http.StatusBadRequest, code: "Throttling",
+			setenv:   map[string]string{"AWS_MAX_ATTEMPTS": "5", "AWS_RETRY_MODE": "standard"},
+			wantText: "Throttling",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			isolateAWSEnvironment(t)
+			for name, value := range tc.setenv {
+				t.Setenv(name, value)
+			}
+			recorder := useRecordingHTTPClient(t)
+			recorder.status, recorder.code, recorder.failure = tc.status, tc.code, tc.failure
+			provider, err := New(ctx, Options{Audience: testAudience, Region: "us-east-1"})
+			if err != nil {
+				t.Fatalf("New failed: %v", err)
+			}
+
+			_, err = provider(ctx)
+
+			if err == nil {
+				t.Fatal("the provider succeeded")
+			}
+			for _, want := range []string{"sts:GetWebIdentityToken", tc.wantText} {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("error %q does not contain %q", err, want)
+				}
+			}
+			if got := recorder.requests(); got != 1 {
+				t.Errorf("one provider call sent %d STS requests, want 1", got)
+			}
+		})
+	}
+}
+
+// builtSTSClient returns the STS client that New builds.
+func builtSTSClient(t *testing.T) *sts.Client {
+	t.Helper()
+	var built tokenIssuer
+	original := newTokenIssuer
+	newTokenIssuer = func(cfg awssdk.Config) tokenIssuer {
+		built = original(cfg)
+		return built
+	}
+	t.Cleanup(func() { newTokenIssuer = original })
+	withStaticCredentials(t)
+
+	if _, err := New(context.Background(), Options{Audience: testAudience, Region: "us-east-1"}); err != nil {
+		t.Fatalf("New failed: %v", err)
+	}
+	client, ok := built.(*sts.Client)
+	if !ok {
+		t.Fatalf("New built a %T, want an STS client", built)
+	}
+	return client
+}
+
+// The STS client gives up on connecting, and on the request as a whole, after
+// the same 10 seconds as the GitHub Actions and Google Cloud providers. A
+// shorter limit on connecting that the AWS configuration chose is kept.
+func TestSTSClientLimitsConnectingAndTheRequest(t *testing.T) {
+	if requestTimeout != 10*time.Second {
+		t.Fatalf("requestTimeout = %s, want 10s", requestTimeout)
+	}
+	// AWS_DEFAULTS_MODE selects the AWS SDK's own limit on connecting: none
+	// in legacy mode, a short one in standard mode, 30 seconds in mobile mode.
+	for _, mode := range []string{"legacy", "standard", "mobile"} {
+		t.Run(mode+" defaults mode", func(t *testing.T) {
+			isolateAWSEnvironment(t)
+			t.Setenv("AWS_DEFAULTS_MODE", mode)
+
+			options := builtSTSClient(t).Options()
+
+			client, ok := options.HTTPClient.(*awshttp.BuildableClient)
+			if !ok {
+				t.Fatalf("the STS client sends requests with a %T, want the AWS SDK's HTTP client", options.HTTPClient)
+			}
+			if got := client.GetTimeout(); got != requestTimeout {
+				t.Errorf("the limit on the whole request is %s, want %s", got, requestTimeout)
+			}
+			wantConnect := requestTimeout
+			cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion("us-east-1"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			unchanged := sts.NewFromConfig(cfg).Options().HTTPClient.(*awshttp.BuildableClient).GetDialer().Timeout
+			if unchanged > 0 && unchanged < wantConnect {
+				wantConnect = unchanged
+			}
+			if got := client.GetDialer().Timeout; got != wantConnect {
+				t.Errorf("the limit on connecting is %s, want %s (the AWS SDK alone sets %s)", got, wantConnect, unchanged)
+			}
+			if got := options.Retryer.MaxAttempts(); got != 1 {
+				t.Errorf("the STS client makes up to %d attempts, want 1", got)
+			}
+		})
+	}
+}
+
+// A stalled STS holds the provider for no longer than the limit, and the
+// request that timed out is not sent again.
+func TestProviderGivesUpOnAStalledSTSAfterOneRequest(t *testing.T) {
+	isolateAWSEnvironment(t)
+
+	// A server that accepts connections and never answers.
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var (
+		mu          sync.Mutex
+		connections []net.Conn
+	)
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			mu.Lock()
+			connections = append(connections, conn)
+			mu.Unlock()
+		}
+	}()
+	t.Cleanup(func() {
+		listener.Close()
+		mu.Lock()
+		defer mu.Unlock()
+		for _, conn := range connections {
+			conn.Close()
+		}
+	})
+
+	withStaticCredentials(t, config.WithBaseEndpoint("http://"+listener.Addr().String()))
+	const limit = 250 * time.Millisecond
+	original := newTokenIssuer
+	newTokenIssuer = func(cfg awssdk.Config) tokenIssuer { return sts.NewFromConfig(cfg, oneRequestWithin(limit)) }
+	t.Cleanup(func() { newTokenIssuer = original })
+
+	// The context only ends the test if the client has no limit of its own.
+	ctx, cancel := context.WithTimeout(context.Background(), 20*limit)
+	defer cancel()
+	provider, err := New(ctx, Options{Audience: testAudience, Region: "us-east-1"})
+	if err != nil {
+		t.Fatalf("New failed: %v", err)
+	}
+	start := time.Now()
+	_, err = provider(ctx)
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatal("the provider succeeded against a server that never answers")
+	}
+	if !strings.Contains(err.Error(), "sts:GetWebIdentityToken") {
+		t.Errorf("error %q does not name the call", err)
+	}
+	if elapsed < limit || elapsed > 10*limit {
+		t.Errorf("the provider returned after %s, want about %s", elapsed, limit)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if len(connections) != 1 {
+		t.Errorf("the STS client opened %d connections, want 1", len(connections))
 	}
 }

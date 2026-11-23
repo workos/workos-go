@@ -18,16 +18,21 @@
 // The workload's IAM identity needs the sts:GetWebIdentityToken permission.
 //
 // This module does not depend on the WorkOS SDK, and it is the only place the
-// AWS SDK is needed. The provider is a plain function and does no caching;
-// the WorkOS SDK calls it again when it retries the token exchange.
+// AWS SDK is needed. The provider is a plain function and does no caching.
+// Each call sends one STS request and gives up on it after 10 seconds: the
+// AWS SDK's own retries are turned off for the provider's STS client, because
+// the WorkOS SDK calls the provider again when it retries the token exchange.
 package aws
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+	"time"
 
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
@@ -39,6 +44,10 @@ const signingAlgorithm = "RS256"
 // globalRegion is the pseudo-region that selects the global STS endpoint,
 // which does not serve GetWebIdentityToken.
 const globalRegion = "aws-global"
+
+// requestTimeout limits one STS request twice: connecting, and the request as
+// a whole. It is the limit the GitHub Actions and Google Cloud providers use.
+const requestTimeout = 10 * time.Second
 
 // Options configures New.
 type Options struct {
@@ -60,8 +69,43 @@ type tokenIssuer interface {
 // Tests replace these to stub the AWS SDK. Nothing else changes them.
 var (
 	loadConfig     = config.LoadDefaultConfig
-	newTokenIssuer = func(cfg awssdk.Config) tokenIssuer { return sts.NewFromConfig(cfg) }
+	newTokenIssuer = func(cfg awssdk.Config) tokenIssuer {
+		return sts.NewFromConfig(cfg, oneRequestWithin(requestTimeout))
+	}
 )
+
+// oneRequestWithin makes an STS client send each call as one request and give
+// up on it after limit.
+//
+// The AWS SDK retries a throttled or failed request by default, and sets no
+// limit on the request as a whole. The WorkOS SDK already calls the provider
+// again when it retries the token exchange, within a deadline of its own, so
+// a provider that also retried would multiply the requests and could outlast
+// that deadline.
+//
+// Only this client changes. The AWS configuration it was built from, and with
+// it the credential chain, keep the retry settings and the HTTP client they
+// have.
+func oneRequestWithin(limit time.Duration) func(*sts.Options) {
+	return func(o *sts.Options) {
+		// Both are set: the STS client adds error codes of its own to the
+		// retryer, and the attempt limit holds for those too.
+		o.Retryer = awssdk.NopRetryer{}
+		o.RetryMaxAttempts = 1
+
+		// The AWS SDK's HTTP client is copied with the limits. Its other
+		// settings stay, such as a CA bundle from the AWS configuration.
+		if client, ok := o.HTTPClient.(*awshttp.BuildableClient); ok {
+			o.HTTPClient = client.WithTimeout(limit).WithDialerOptions(func(d *net.Dialer) {
+				// AWS_DEFAULTS_MODE can already set a shorter limit on
+				// connecting. Keep it.
+				if d.Timeout <= 0 || d.Timeout > limit {
+					d.Timeout = limit
+				}
+			})
+		}
+	}
+}
 
 // New loads the AWS configuration from the SDK's default chain and returns a
 // provider of STS web identity tokens for opts.Audience. The STS client is

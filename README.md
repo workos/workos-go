@@ -127,6 +127,8 @@ provider, err := workosaws.New(ctx, workosaws.Options{
 
 The token comes from STS `GetWebIdentityToken`, so the IAM identity needs the `sts:GetWebIdentityToken` permission. This is the only module that depends on the AWS SDK.
 
+Each call of the provider sends one STS request and gives up on it after 10 seconds. The AWS SDK's own retries are turned off for the provider's STS client, whatever `AWS_MAX_ATTEMPTS` says, because the exchange already calls the provider again when it retries.
+
 **Anything else**
 
 ```go
