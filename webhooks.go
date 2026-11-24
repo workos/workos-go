@@ -43,6 +43,17 @@ func (s *WebhookService) CreateEndpoint(ctx context.Context, params *WebhooksCre
 	return &result, nil
 }
 
+// GetEndpoint get a Webhook Endpoint
+// Get the details of an existing webhook endpoint.
+func (s *WebhookService) GetEndpoint(ctx context.Context, id string, opts ...RequestOption) (*WebhookEndpoint, error) {
+	var result WebhookEndpoint
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/webhook_endpoints/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // WebhooksUpdateEndpointParams contains the parameters for UpdateEndpoint.
 type WebhooksUpdateEndpointParams struct {
 	// EndpointURL is the HTTPS URL where webhooks will be sent.
