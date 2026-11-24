@@ -31,8 +31,8 @@ type AgentsCreateBlueprintParams struct {
 	Name string `json:"name" url:"-"`
 	// Description is human-readable description of the agent blueprint.
 	Description *string `json:"description,omitempty" url:"-"`
-	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment.
-	Permissions []string `json:"permissions,omitempty" url:"-"`
+	// Permissions is permissions forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment and may appear once.
+	Permissions []interface{} `json:"permissions,omitempty" url:"-"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintsCreateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
 	// InvocableAs is how sessions may be minted from this blueprint.
@@ -69,8 +69,8 @@ type AgentsUpdateBlueprintParams struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// Description is human-readable description of the agent blueprint. Pass `null` to clear it.
 	Description *string `json:"description,omitempty" url:"-"`
-	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment.
-	Permissions []string `json:"permissions,omitempty" url:"-"`
+	// Permissions is permissions forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment and may appear once.
+	Permissions []interface{} `json:"permissions,omitempty" url:"-"`
 	// InvocableBy is who may mint sessions from this blueprint. Omitted lists are left unchanged.
 	InvocableBy *AgentBlueprintsUpdateRequestInvocableBy `json:"invocable_by,omitempty" url:"-"`
 	// InvocableAs is how sessions may be minted from this blueprint. Omitted lists are left unchanged.

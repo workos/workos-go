@@ -101,8 +101,8 @@ type AuditLogEventContext struct {
 type AuditLogEvent struct {
 	// Action is identifier of what happened.
 	Action string `json:"action"`
-	// OccurredAt is iso-8601 value of when the action occurred.
-	OccurredAt string `json:"occurred_at"`
+	// OccurredAt is iso-8601 timestamp of when the action occurred. When omitted, defaults to the time WorkOS receives the event. Explicit JSON null is rejected.
+	OccurredAt *string `json:"occurred_at,omitempty"`
 	// Actor is the entity that performed the action.
 	Actor *AuditLogEventActor `json:"actor"`
 	// Targets is the resources affected by the action.
@@ -135,15 +135,18 @@ type AuditLogSchemaActorInput = AuditLogSchemaActor
 // AuditLogSchemaTargetInput is an alias for AuditLogSchemaTarget.
 type AuditLogSchemaTargetInput = AuditLogSchemaTarget
 
-// ReplaceGroupRoleAssignmentEntry represents a replace group role assignment entry.
-type ReplaceGroupRoleAssignmentEntry struct {
-	// RoleSlug is the slug of the role to assign to the group.
+// ReplaceGroupRoleAssignmentEntry is an alias for PatchRoleAssignmentEntry.
+type ReplaceGroupRoleAssignmentEntry = PatchRoleAssignmentEntry
+
+// PatchRoleAssignmentEntry represents a patch role assignment entry.
+type PatchRoleAssignmentEntry struct {
+	// RoleSlug is the slug of the role.
 	RoleSlug string `json:"role_slug"`
-	// ResourceID is the ID of the resource. Omit along with the external-id fields to target the organization itself.
+	// ResourceID is the ID of the resource. Mutually exclusive with `resource_external_id` and `resource_type_slug`.
 	ResourceID *string `json:"resource_id,omitempty"`
-	// ResourceExternalID is the external ID of the resource.
+	// ResourceExternalID is the external ID of the resource. Required with `resource_type_slug`. Mutually exclusive with `resource_id`.
 	ResourceExternalID *string `json:"resource_external_id,omitempty"`
-	// ResourceTypeSlug is the resource type slug.
+	// ResourceTypeSlug is the resource type slug. Required with `resource_external_id`. Mutually exclusive with `resource_id`.
 	ResourceTypeSlug *string `json:"resource_type_slug,omitempty"`
 }
 
@@ -371,13 +374,8 @@ type UpdateUserOrganizationMembershipWithRoleSlugs struct {
 	RoleSlugs []string `json:"role_slugs"`
 }
 
-// ErrorBodyWithCode represents an error body with code.
-type ErrorBodyWithCode struct {
-	// Code is the error code identifying the type of error.
-	Code string `json:"code"`
-	// Message is a human-readable description of the error.
-	Message string `json:"message"`
-}
+// ErrorBodyWithCode is an alias for ApplicationTokenExchangeFailedDataError.
+type ErrorBodyWithCode = ApplicationTokenExchangeFailedDataError
 
 // ErrorBodyWithError represents an error body with error.
 type ErrorBodyWithError struct {
@@ -494,6 +492,15 @@ type ErrorBodyWithCodeStatusCode struct {
 	StatusCode *float64 `json:"statusCode,omitempty"`
 }
 
+// ErrorBodyWithCodeErrors represents an error body with code errors.
+type ErrorBodyWithCodeErrors struct {
+	Code ErrorBodyCode `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// Errors is the list of validation errors.
+	Errors []*ErrorBodyWithCode `json:"errors"`
+}
+
 // ConnectionFinishErrorBody represents a connection finish error body.
 type ConnectionFinishErrorBody struct {
 	// Code is the error code identifying the type of error.
@@ -545,15 +552,6 @@ type ConnectionCreationConflictErrorBody struct {
 	Message string `json:"message"`
 }
 
-// ErrorBodyWithCodeErrors represents an error body with code errors.
-type ErrorBodyWithCodeErrors struct {
-	Code ErrorBodyCode `json:"code"`
-	// Message is a human-readable description of the error.
-	Message string `json:"message"`
-	// Errors is the list of validation errors.
-	Errors []*ErrorBodyWithCode `json:"errors"`
-}
-
 // OrganizationConnectedAccountImportErrorBody represents an organization connected account import error body.
 type OrganizationConnectedAccountImportErrorBody struct {
 	// Code is the error code identifying the type of error.
@@ -596,6 +594,26 @@ type SubResourceScopedRoleNotAllowedErrorBodyWithRoleSlug struct {
 	Code string `json:"code"`
 	// RoleSlug is the slug of the role that is not allowed.
 	RoleSlug string `json:"role_slug"`
+}
+
+// EntityNotFoundErrorBodyWithIDsList represents an entity not found error body with ids list.
+type EntityNotFoundErrorBodyWithIDsList struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// IDs is the requested user and organization IDs, in that order.
+	IDs []string `json:"ids"`
+}
+
+// EntityNotFoundErrorBodyWithEntityID represents an entity not found error body with entity id.
+type EntityNotFoundErrorBodyWithEntityID struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+	// EntityID is the ID of the organization that was not found.
+	EntityID string `json:"entity_id"`
 }
 
 // EmailCompletionRequiredErrorBodyWithEmailCompletionToken represents an email completion required error body with email completion token.
@@ -679,6 +697,14 @@ type SmsChallengeRateLimitedErrorBody struct {
 
 // SmsChallengeQuotaReachedErrorBody represents a sms challenge quota reached error body.
 type SmsChallengeQuotaReachedErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// RoleAssignmentUpdateOverlapErrorBody represents a role assignment update overlap error body.
+type RoleAssignmentUpdateOverlapErrorBody struct {
 	// Code is the error code identifying the type of error.
 	Code string `json:"code"`
 	// Message is a human-readable description of the error.
@@ -1208,6 +1234,14 @@ type RadarSignUpChallengeErrorBody struct {
 	Message string `json:"message"`
 }
 
+// RadarSmsChallengeErrorBody represents a radar sms challenge error body.
+type RadarSmsChallengeErrorBody struct {
+	// Code is the error code identifying the type of error.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
 // RadarSmsSignInChallengeErrorBody represents a radar sms sign in challenge error body.
 type RadarSmsSignInChallengeErrorBody struct {
 	// Code is the error code identifying the type of error.
@@ -1434,8 +1468,12 @@ type AgentBlueprint struct {
 	Name string `json:"name"`
 	// Description is human-readable description of the agent blueprint.
 	Description *string `json:"description"`
-	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+	// Permissions is deprecated: use `scoped_permissions`. Slugs of every permission in the ceiling, across all instance types.
+	//
+	// Deprecated: this field is deprecated.
 	Permissions []string `json:"permissions"`
+	// ScopedPermissions is permissions forming the ceiling on what sessions minted from this blueprint may do, with the instance types that receive each one.
+	ScopedPermissions []*AgentBlueprintScopedPermission `json:"scoped_permissions"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintInvocableBy `json:"invocable_by"`
 	// InvocableAs is how sessions may be minted from this blueprint.
@@ -2291,6 +2329,26 @@ type FlagTargetWithValueType struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// IssuerTrust represents an issuer trust.
+type IssuerTrust struct {
+	// Object is the Issuer Trust object.
+	Object string `json:"object"`
+	// ID is the unique ID of the Issuer Trust.
+	ID string `json:"id"`
+	// OrganizationID is the ID of the Organization that trusts the issuer.
+	OrganizationID string `json:"organization_id"`
+	// Type is the type of issuer, which identifies who operates it.
+	Type string `json:"type"`
+	// Issuer is the issuer URL. ID-JAGs whose `iss` claim equals this URL are exchanged for access tokens scoped to the Organization.
+	Issuer string `json:"issuer"`
+	// Enabled is whether ID-JAGs from the issuer are accepted. A trust is created disabled.
+	Enabled bool `json:"enabled"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
 // PipeConnectedAccount represents a pipe connected account.
 type PipeConnectedAccount struct {
 	// Object is the connected account object.
@@ -2461,8 +2519,12 @@ type AgentBlueprintCreatedData struct {
 	Name string `json:"name"`
 	// Description is human-readable description of the agent blueprint.
 	Description *string `json:"description"`
-	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+	// Permissions is deprecated: use `scoped_permissions`. Slugs of every permission in the ceiling, across all instance types.
+	//
+	// Deprecated: this field is deprecated.
 	Permissions []string `json:"permissions"`
+	// ScopedPermissions is permissions forming the ceiling on what sessions minted from this blueprint may do, with the instance types that receive each one. Absent from events emitted before this field was added.
+	ScopedPermissions []*AgentBlueprintCreatedDataScopedPermission `json:"scoped_permissions,omitempty"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintCreatedDataInvocableBy `json:"invocable_by"`
 	// InvocableAs is how sessions may be minted from this blueprint.
@@ -2473,6 +2535,14 @@ type AgentBlueprintCreatedData struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the agent blueprint was last updated.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentBlueprintCreatedDataScopedPermission represents an agent blueprint created data scoped permission.
+type AgentBlueprintCreatedDataScopedPermission struct {
+	// Slug is slug of the permission.
+	Slug string `json:"slug"`
+	// InstanceTypes is instance types whose sessions receive the permission: `delegated`, `autonomous`, or both.
+	InstanceTypes []AgentBlueprintCreatedDataScopedPermissionInstanceTypes `json:"instance_types"`
 }
 
 // AgentBlueprintCreatedDataInvocableBy who may mint sessions from this blueprint.
@@ -2551,8 +2621,12 @@ type AgentBlueprintUpdatedData struct {
 	Name string `json:"name"`
 	// Description is human-readable description of the agent blueprint.
 	Description *string `json:"description"`
-	// Permissions is permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+	// Permissions is deprecated: use `scoped_permissions`. Slugs of every permission in the ceiling, across all instance types.
+	//
+	// Deprecated: this field is deprecated.
 	Permissions []string `json:"permissions"`
+	// ScopedPermissions is permissions forming the ceiling on what sessions minted from this blueprint may do, with the instance types that receive each one. Absent from events emitted before this field was added.
+	ScopedPermissions []*AgentBlueprintUpdatedDataScopedPermission `json:"scoped_permissions,omitempty"`
 	// InvocableBy is who may mint sessions from this blueprint.
 	InvocableBy *AgentBlueprintUpdatedDataInvocableBy `json:"invocable_by"`
 	// InvocableAs is how sessions may be minted from this blueprint.
@@ -2563,6 +2637,14 @@ type AgentBlueprintUpdatedData struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is the timestamp when the agent blueprint was last updated.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// AgentBlueprintUpdatedDataScopedPermission represents an agent blueprint updated data scoped permission.
+type AgentBlueprintUpdatedDataScopedPermission struct {
+	// Slug is slug of the permission.
+	Slug string `json:"slug"`
+	// InstanceTypes is instance types whose sessions receive the permission: `delegated`, `autonomous`, or both.
+	InstanceTypes []AgentBlueprintUpdatedDataScopedPermissionInstanceTypes `json:"instance_types"`
 }
 
 // AgentBlueprintUpdatedDataInvocableBy is an alias for AgentBlueprintCreatedDataInvocableBy.
@@ -3140,6 +3222,74 @@ type APIKeyUpdatedDataPreviousAttribute struct {
 	ExpiresAt *string `json:"expires_at"`
 }
 
+// ApplicationTokenExchangeFailed represents an application token exchange failed.
+type ApplicationTokenExchangeFailed struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ApplicationTokenExchangeFailedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ApplicationTokenExchangeFailedData the event payload.
+type ApplicationTokenExchangeFailedData struct {
+	// GrantType is the OAuth grant type of the token request that presented the token to exchange.
+	GrantType string `json:"grant_type"`
+	// ClientID is the client ID of the application that made the token request.
+	ClientID string `json:"client_id"`
+	// Issuer is the issuer the presented token claims. It is not verified, and is `null` when the token could not be read.
+	Issuer *string `json:"issuer"`
+	// Error is why the token exchange failed.
+	Error *ApplicationTokenExchangeFailedDataError `json:"error"`
+}
+
+// ApplicationTokenExchangeFailedDataError why the token exchange failed.
+type ApplicationTokenExchangeFailedDataError struct {
+	// Code is the OAuth error code returned to the application.
+	Code string `json:"code"`
+	// Message is a human-readable description of the error.
+	Message string `json:"message"`
+}
+
+// ApplicationTokenExchangeSucceeded represents an application token exchange succeeded.
+type ApplicationTokenExchangeSucceeded struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ApplicationTokenExchangeSucceededData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ApplicationTokenExchangeSucceededData the event payload.
+type ApplicationTokenExchangeSucceededData struct {
+	// GrantType is the OAuth grant type of the token request that presented the token to exchange.
+	GrantType string `json:"grant_type"`
+	// ClientID is the client ID of the application that made the token request.
+	ClientID string `json:"client_id"`
+	// UserID is the ID of the user the access token was issued for.
+	UserID string `json:"user_id"`
+	// Email is the email address of the user.
+	Email string `json:"email"`
+	// OrganizationID is the ID of the organization the access token is scoped to.
+	OrganizationID *string `json:"organization_id"`
+	// Issuer is the issuer of the token that was exchanged.
+	Issuer string `json:"issuer"`
+	// ConnectionID is the ID of the SSO connection whose identity provider issued the exchanged token. `null` when the AI client issued it.
+	ConnectionID *string `json:"connection_id"`
+	// Jti is the `jti` claim of the access token that was issued.
+	Jti string `json:"jti"`
+}
+
 // AuthenticationEmailVerificationFailed represents an authentication email verification failed.
 type AuthenticationEmailVerificationFailed struct {
 	// Object distinguishes the Event object.
@@ -3176,7 +3326,7 @@ type AuthenticationEmailVerificationFailedDataError struct {
 	Code string `json:"code"`
 	// Message is a human-readable error message.
 	Message string `json:"message"`
-	// RadarDetectionID is the ID of the Radar detection that blocked the authentication. Only set on `policy_denied` errors.
+	// RadarDetectionID is the ID of the Radar detection that blocked the authentication. Retrieve the detection with `GET /radar/detections/:id` to see why Radar acted. Only set on `policy_denied` errors that a Radar detection caused.
 	RadarDetectionID *string `json:"radar_detection_id,omitempty"`
 }
 
@@ -3532,7 +3682,7 @@ type AuthenticationRadarRiskDetectedData struct {
 	// AuthMethod is the authentication method used.
 	AuthMethod string                                    `json:"auth_method"`
 	Action     AuthenticationRadarRiskDetectedDataAction `json:"action"`
-	// Control is the control action taken for the detected risk.
+	// Control is the Radar control that detected the risk.
 	Control *string `json:"control"`
 	// BlocklistType is the type of blocklist that triggered the risk detection.
 	BlocklistType *string `json:"blocklist_type"`
@@ -3544,7 +3694,7 @@ type AuthenticationRadarRiskDetectedData struct {
 	UserID string `json:"user_id"`
 	// Email is the email address of the user.
 	Email string `json:"email"`
-	// RadarDetectionID is the ID of the Radar detection that challenged the authentication.
+	// RadarDetectionID is the ID of the Radar detection that challenged the authentication. Retrieve the detection with `GET /radar/detections/:id` to see why Radar acted.
 	RadarDetectionID *string `json:"radar_detection_id,omitempty"`
 }
 
@@ -3921,6 +4071,43 @@ type ConnectionSAMLCertificateRenewedDataCertificate struct {
 	CertificateType ConnectionSAMLCertificateRenewedDataCertificateCertificateType `json:"certificate_type"`
 	// ExpiryDate is an ISO 8601 timestamp.
 	ExpiryDate string `json:"expiry_date"`
+}
+
+// ConnectionSAMLCertificateReplaced represents a connection SAML certificate replaced.
+type ConnectionSAMLCertificateReplaced struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *ConnectionSAMLCertificateReplacedData `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// ConnectionSAMLCertificateReplacedData the event payload.
+type ConnectionSAMLCertificateReplacedData struct {
+	// Connection is the connection with the replaced certificate.
+	Connection *ConnectionSAMLCertificateReplacedDataConnection `json:"connection"`
+	// Certificate is the new SAML certificate details.
+	Certificate *ConnectionSAMLCertificateReplacedDataCertificate `json:"certificate"`
+	// ReplacedAt is an ISO 8601 timestamp.
+	ReplacedAt string `json:"replaced_at"`
+}
+
+// ConnectionSAMLCertificateReplacedDataConnection is an alias for ConnectionSAMLCertificateRenewalRequiredDataConnection.
+type ConnectionSAMLCertificateReplacedDataConnection = ConnectionSAMLCertificateRenewalRequiredDataConnection
+
+// ConnectionSAMLCertificateReplacedDataCertificate the new SAML certificate details.
+type ConnectionSAMLCertificateReplacedDataCertificate struct {
+	// CertificateType is the type of the SAML certificate.
+	CertificateType ConnectionSAMLCertificateReplacedDataCertificateCertificateType `json:"certificate_type"`
+	// ExpiryDate is an ISO 8601 timestamp.
+	ExpiryDate string `json:"expiry_date"`
+	// PreviousExpiryDate is the expiry date of the certificate that was replaced. Absent when the connection had no certificate of this type.
+	PreviousExpiryDate *string `json:"previous_expiry_date,omitempty"`
 }
 
 // DsyncActivated represents a dsync activated.
@@ -5257,6 +5444,48 @@ type InvitationRevokedData struct {
 	CreatedAt string `json:"created_at"`
 	// UpdatedAt is an ISO 8601 timestamp.
 	UpdatedAt string `json:"updated_at"`
+}
+
+// IssuerTrustCreated represents an issuer trust created.
+type IssuerTrustCreated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *IssuerTrust `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// IssuerTrustDeleted represents an issuer trust deleted.
+type IssuerTrustDeleted struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *IssuerTrust `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
+}
+
+// IssuerTrustUpdated represents an issuer trust updated.
+type IssuerTrustUpdated struct {
+	// Object distinguishes the Event object.
+	Object string `json:"object"`
+	// ID is unique identifier for the event.
+	ID    string `json:"id"`
+	Event string `json:"event"`
+	// Data is the event payload.
+	Data *IssuerTrust `json:"data"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string        `json:"created_at"`
+	Context   *EventContext `json:"context,omitempty"`
 }
 
 // MagicAuthCreated represents a magic auth created.
@@ -6878,6 +7107,16 @@ type OrganizationAPIKeyWithValue struct {
 	Value string `json:"value"`
 }
 
+// IssuerTrustList represents an issuer trust list.
+type IssuerTrustList struct {
+	// Object indicates this is a list response.
+	Object string `json:"object"`
+	// Data is the list of records for the current page.
+	Data []*IssuerTrust `json:"data"`
+	// ListMetadata is pagination cursors for navigating between pages of results.
+	ListMetadata *IssuerTrustListListMetadata `json:"list_metadata"`
+}
+
 // ItContact represents an it contact.
 type ItContact struct {
 	// Object is the IT Contact object.
@@ -7274,6 +7513,326 @@ type SendRadarSmsChallengeResponse struct {
 	VerificationID string `json:"verification_id"`
 	// PhoneNumber is the phone number the verification code was sent to.
 	PhoneNumber string `json:"phone_number"`
+}
+
+// RadarDetectionList represents a radar detection list.
+type RadarDetectionList struct {
+	// Type is the type of values the list holds.
+	Type RadarDetectionListType `json:"type"`
+	// Action is the action the list applies to matching values. `null` for WorkOS-managed lists.
+	Action *RadarDetectionListAction `json:"action"`
+	// Name is the name of the list.
+	Name *string `json:"name"`
+	// WorkOSManaged is whether WorkOS maintains the list.
+	WorkOSManaged bool `json:"workos_managed"`
+}
+
+// RadarDetectionAllowedBy represents a radar detection allowed by.
+type RadarDetectionAllowedBy struct {
+	// ListID is the ID of the matched list.
+	ListID string `json:"list_id"`
+	// List is the list as it is now. `null` if the list has since been deleted.
+	List *RadarDetectionList `json:"list"`
+	// Entry is the list entry that matched.
+	Entry *string `json:"entry,omitempty"`
+}
+
+// RadarDetectionBotDetectionSignal represents a radar detection bot detection signal.
+type RadarDetectionBotDetectionSignal struct {
+	Signal RadarDetectionBotDetectionSignalSignal `json:"signal"`
+	// Action is the action this signal would take on its own.
+	Action *RadarDetectionBotDetectionSignalAction `json:"action,omitempty"`
+}
+
+// RadarDetectionIPSignUps represents a radar detection ip sign ups.
+type RadarDetectionIPSignUps struct {
+	// Count is the number of sign-ups.
+	Count int `json:"count"`
+	// WindowMinutes is the window the sign-ups were counted in.
+	WindowMinutes int `json:"window_minutes"`
+}
+
+// RadarDetectionDomainSignUps represents a radar detection domain sign ups.
+type RadarDetectionDomainSignUps struct {
+	// RootDomain is the root domain of the email address.
+	RootDomain string `json:"root_domain"`
+	// Count is the number of sign-ups.
+	Count *int `json:"count,omitempty"`
+}
+
+// RadarDetectionBotDetectionDetails represents a radar detection bot detection details.
+type RadarDetectionBotDetectionDetails struct {
+	// Signals is every bot detection signal that fired.
+	Signals []*RadarDetectionBotDetectionSignal `json:"signals"`
+	// DecidedBy is the signal that determined the verdict.
+	DecidedBy *RadarDetectionBotDetectionDetailsDecidedBy `json:"decided_by,omitempty"`
+	// IPRisk is why the IP address is risky.
+	IPRisk []RadarDetectionBotDetectionDetailsIPRisk `json:"ip_risk,omitempty"`
+	// EmailPattern is why the email address looks suspicious.
+	EmailPattern []RadarDetectionBotDetectionDetailsEmailPattern `json:"email_pattern,omitempty"`
+	// BrowserSignals is why the browser looks automated.
+	BrowserSignals []RadarDetectionBotDetectionDetailsBrowserSignals `json:"browser_signals,omitempty"`
+	// IPSignUps is recent sign-ups from this IP address.
+	IPSignUps *RadarDetectionIPSignUps `json:"ip_sign_ups,omitempty"`
+	// DomainSignUps is recent sign-ups from this email domain.
+	DomainSignUps *RadarDetectionDomainSignUps `json:"domain_sign_ups,omitempty"`
+}
+
+// RadarDetectionBruteForceAttackDetails represents a radar detection brute force attack details.
+type RadarDetectionBruteForceAttackDetails struct {
+	// Attempts is the number of sign-in attempts.
+	Attempts int `json:"attempts"`
+	// WindowMinutes is the window the attempts were counted in.
+	WindowMinutes int                                            `json:"window_minutes"`
+	MatchedOn     RadarDetectionBruteForceAttackDetailsMatchedOn `json:"matched_on"`
+}
+
+// RadarDetectionDomainProtectionsDetails represents a radar detection domain protections details.
+type RadarDetectionDomainProtectionsDetails struct {
+	// ListID is the ID of the matched list.
+	ListID string `json:"list_id"`
+	// List is the list as it is now. `null` if the list has since been deleted.
+	List *RadarDetectionList `json:"list"`
+	// AlsoMatchedListIDs is the IDs of other lists the domain is on.
+	AlsoMatchedListIDs []string `json:"also_matched_list_ids,omitempty"`
+	// AlsoMatchedLists is other lists the domain is on.
+	AlsoMatchedLists []*RadarDetectionList `json:"also_matched_lists,omitempty"`
+	// MatchedDomain is the domain that matched the list.
+	MatchedDomain *string `json:"matched_domain,omitempty"`
+}
+
+// RadarDetectionPreviousAttempt represents a radar detection previous attempt.
+type RadarDetectionPreviousAttempt struct {
+	// AttemptID is the ID of the authentication attempt.
+	AttemptID string `json:"attempt_id"`
+	// IPAddress is the IP address of the earlier attempt.
+	IPAddress *string `json:"ip_address,omitempty"`
+	// UserAgent is the user agent of the earlier attempt.
+	UserAgent *string `json:"user_agent,omitempty"`
+	// Location is where the IP address of the earlier attempt is located.
+	Location *RadarDetectionPreviousAttemptLocation `json:"location"`
+	// CreatedAt is when that earlier sign-in happened.
+	CreatedAt string `json:"created_at"`
+}
+
+// RadarDetectionImpossibleTravelDetails represents a radar detection impossible travel details.
+type RadarDetectionImpossibleTravelDetails struct {
+	// Previous is the previous successful sign-in.
+	Previous *RadarDetectionPreviousAttempt `json:"previous"`
+	// DistanceKm is the distance from the previous sign-in, in kilometers.
+	DistanceKm float64 `json:"distance_km"`
+	// SpeedKmPerS is the speed needed to travel that distance, in km per second.
+	SpeedKmPerS float64 `json:"speed_km_per_s"`
+}
+
+// RadarDetectionRepeatSignUpDetails represents a radar detection repeat sign up details.
+type RadarDetectionRepeatSignUpDetails struct {
+}
+
+// RadarDetectionRepeatSignUpDetailsEmail represents a radar detection repeat sign up details email.
+type RadarDetectionRepeatSignUpDetailsEmail struct {
+	MatchedOn string `json:"matched_on"`
+	// PriorSignUps is the number of earlier sign-ups.
+	PriorSignUps int `json:"prior_sign_ups"`
+	// WindowDays is the window the sign-ups were counted in.
+	WindowDays int `json:"window_days"`
+}
+
+// NormalizedEmail represents a normalized email.
+type NormalizedEmail struct {
+	MatchedOn string `json:"matched_on"`
+	// MatchedUserID is the existing user whose email this sign-up is an alias of.
+	MatchedUserID string `json:"matched_user_id"`
+}
+
+// RadarDetectionStaleAccountDetails represents a radar detection stale account details.
+type RadarDetectionStaleAccountDetails struct {
+	// LastActivityAt is when the user was last active. `null` if unknown.
+	LastActivityAt *string `json:"last_activity_at"`
+}
+
+// RadarDetectionUnrecognizedDeviceDetails represents a radar detection unrecognized device details.
+type RadarDetectionUnrecognizedDeviceDetails struct {
+	// PreviousDevice is the device the user last signed in from.
+	PreviousDevice *RadarDetectionPreviousAttempt `json:"previous_device"`
+}
+
+// RadarDetectionRestrictionDetails represents a radar detection restriction details.
+type RadarDetectionRestrictionDetails struct {
+}
+
+// RadarDetectionRestrictionDetailsList represents a radar detection restriction details list.
+type RadarDetectionRestrictionDetailsList struct {
+	Type string `json:"type"`
+	// ListID is the ID of the matched list.
+	ListID string `json:"list_id"`
+	// List is the list as it is now. `null` if the list has since been deleted.
+	List *RadarDetectionList `json:"list"`
+	// Entry is the list entry that matched.
+	Entry *string `json:"entry,omitempty"`
+}
+
+// BlockedTld represents a blocked tld.
+type BlockedTld struct {
+	Type string `json:"type"`
+}
+
+// SignUp represents a sign up.
+type SignUp struct {
+	Type string `json:"type"`
+}
+
+// SmsSignIn represents a sms sign in.
+type SmsSignIn struct {
+	Type string `json:"type"`
+	// Trigger is why SMS sign-in was restricted.
+	Trigger SmsSignInTrigger `json:"trigger"`
+	// PhoneCountry is the country of the phone number. Only when `trigger` is `country_mismatch`.
+	PhoneCountry *string `json:"phone_country,omitempty"`
+	// LineType is the line type of the phone number. Only when `trigger` is `non_mobile_line`.
+	LineType *string `json:"line_type,omitempty"`
+	// MaskedPhoneNumber is the phone number, masked to its last four digits.
+	MaskedPhoneNumber *string `json:"masked_phone_number,omitempty"`
+}
+
+// RadarDetectionEvidence represents a radar detection evidence.
+type RadarDetectionEvidence struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+}
+
+// BotDetection represents a bot detection.
+type BotDetection struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionBotDetectionDetails `json:"details"`
+}
+
+// BruteForceAttack represents a brute force attack.
+type BruteForceAttack struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionBruteForceAttackDetails `json:"details"`
+}
+
+// DomainProtections represents a domain protections.
+type DomainProtections struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionDomainProtectionsDetails `json:"details"`
+}
+
+// ImpossibleTravel represents an impossible travel.
+type ImpossibleTravel struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionImpossibleTravelDetails `json:"details"`
+}
+
+// RepeatSignUp represents a repeat sign up.
+type RepeatSignUp struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionRepeatSignUpDetails `json:"details"`
+}
+
+// StaleAccount represents a stale account.
+type StaleAccount struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionStaleAccountDetails `json:"details"`
+}
+
+// UnrecognizedDevice represents an unrecognized device.
+type UnrecognizedDevice struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionUnrecognizedDeviceDetails `json:"details"`
+}
+
+// RadarDetectionEvidenceRestriction represents a radar detection evidence restriction.
+type RadarDetectionEvidenceRestriction struct {
+	// Summary is a human-readable explanation of why Radar fired.
+	Summary string `json:"summary"`
+	// AllowedBy is the allowlist that overrode the verdict. Only present when an allowlist allowed the attempt.
+	AllowedBy *RadarDetectionAllowedBy `json:"allowed_by,omitempty"`
+	// Control is the control the evidence is for. Always the same as the detection's `control`.
+	Control string `json:"control"`
+	// Details is facts specific to the control. See the [Radar detection object](https://workos.com/docs/reference/radar/detections#evidence-details) for the fields each control reports.
+	Details *RadarDetectionRestrictionDetails `json:"details"`
+}
+
+// RadarDetection represents a radar detection.
+type RadarDetection struct {
+	// Object distinguishes the Radar detection object.
+	Object string `json:"object"`
+	// ID is the unique ID of the detection.
+	ID string `json:"id"`
+	// AttemptID is the ID of the authentication attempt.
+	AttemptID string `json:"attempt_id"`
+	// Control is the Radar control that determined the verdict.
+	Control RadarDetectionControl `json:"control"`
+	// Verdict is the verdict Radar reached for the attempt.
+	Verdict RadarDetectionVerdict `json:"verdict"`
+	// ChallengeType is the challenge Radar issued, if the verdict is `challenge`.
+	ChallengeType *RadarDetectionChallengeType `json:"challenge_type"`
+	// Evidence is why Radar fired. `null` for detections recorded before evidence was captured.
+	Evidence *RadarDetectionEvidence `json:"evidence"`
+	// IPAddress is the IP address of the attempt.
+	IPAddress string `json:"ip_address"`
+	// Location is where the IP address is located.
+	Location *RadarDetectionLocation `json:"location"`
+	// UserAgent is the user agent of the attempt.
+	UserAgent string `json:"user_agent"`
+	// Email is the email address used in the attempt.
+	Email string `json:"email"`
+	// UserID is the ID of the user, if one exists.
+	UserID *string `json:"user_id"`
+	// Action is whether the attempt was a sign-up or a sign-in, as on the `authentication.radar_risk_detected` event. `null` if unknown.
+	Action *RadarDetectionAction `json:"action"`
+	// AuthMethod is the authentication method used for the attempt.
+	AuthMethod *RadarDetectionAuthMethod `json:"auth_method"`
+	// CreatedAt is an ISO 8601 timestamp.
+	CreatedAt string `json:"created_at"`
+	// UpdatedAt is an ISO 8601 timestamp.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // RadarStandaloneResponse represents a radar standalone response.
@@ -7869,6 +8428,17 @@ type UserAPIKeyWithValueOwner = UserAPIKeyCreatedDataOwner
 // UserAPIKeyOwner is an alias for UserAPIKeyCreatedDataOwner.
 type UserAPIKeyOwner = UserAPIKeyCreatedDataOwner
 
+// RadarDetectionLocation where the IP address is located.
+type RadarDetectionLocation struct {
+	// City is the city the IP address is located in.
+	City *string `json:"city"`
+	// Country is iso 3166-1 alpha-2 country code.
+	Country *string `json:"country"`
+}
+
+// RadarDetectionPreviousAttemptLocation is an alias for RadarDetectionLocation.
+type RadarDetectionPreviousAttemptLocation = RadarDetectionLocation
+
 // DataIntegrationsListResponseData represents a data integrations list response data.
 type DataIntegrationsListResponseData struct {
 	// Object distinguishes the data provider object.
@@ -7994,8 +8564,11 @@ type AuditLogConfigurationLogStream struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// ItContactListListMetadata pagination cursors for navigating between pages of results.
-type ItContactListListMetadata struct {
+// ItContactListListMetadata is an alias for IssuerTrustListListMetadata.
+type ItContactListListMetadata = IssuerTrustListListMetadata
+
+// IssuerTrustListListMetadata pagination cursors for navigating between pages of results.
+type IssuerTrustListListMetadata struct {
 	// Before is an object ID that defines your place in the list. When the ID is not present, you are at the start of the list.
 	Before *string `json:"before"`
 	// After is an object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
@@ -8178,6 +8751,14 @@ type AuthorizedConnectApplicationListData struct {
 // APIKeyOwner is an alias for APIKeyCreatedDataOwner.
 type APIKeyOwner = APIKeyCreatedDataOwner
 
+// AgentBlueprintScopedPermission represents an agent blueprint scoped permission.
+type AgentBlueprintScopedPermission struct {
+	// Slug is slug of the permission.
+	Slug string `json:"slug"`
+	// InstanceTypes is instance types whose sessions receive the permission: `delegated`, `autonomous`, or both.
+	InstanceTypes []AgentBlueprintScopedPermissionInstanceTypes `json:"instance_types"`
+}
+
 // AgentBlueprintInvocableBy is an alias for AgentBlueprintCreatedDataInvocableBy.
 type AgentBlueprintInvocableBy = AgentBlueprintCreatedDataInvocableBy
 
@@ -8231,6 +8812,14 @@ type UserConsentOptionChoice struct {
 	Label *string `json:"label,omitempty"`
 }
 
+// AgentBlueprintsCreateRequestPermission a permission in the blueprint ceiling and the sessions it applies to.
+type AgentBlueprintsCreateRequestPermission struct {
+	// Slug is slug of a permission in the environment.
+	Slug string `json:"slug"`
+	// InstanceTypes is instance types whose sessions receive the permission: `delegated`, `autonomous`, or both. Agent-delegated chaining and refreshes use the type of the presenting instance.
+	InstanceTypes []AgentBlueprintsCreateRequestPermissionInstanceTypes `json:"instance_types"`
+}
+
 // AgentBlueprintsCreateRequestInvocableBy who may mint sessions from this blueprint.
 type AgentBlueprintsCreateRequestInvocableBy struct {
 	// RoleSlugs is role slugs whose members may mint user-delegated sessions from this blueprint. An empty list allows any member.
@@ -8253,6 +8842,14 @@ type AgentBlueprintsCreateRequestSessionSetting struct {
 	AccessTokenTtlSeconds int `json:"access_token_ttl_seconds"`
 	// RefreshTokenTtlSeconds is lifetime of each rotated refresh token in seconds. At most 5,184,000 (60 days).
 	RefreshTokenTtlSeconds int `json:"refresh_token_ttl_seconds"`
+}
+
+// AgentBlueprintsUpdateRequestPermission a permission in the blueprint ceiling and the sessions it applies to.
+type AgentBlueprintsUpdateRequestPermission struct {
+	// Slug is slug of a permission in the environment.
+	Slug string `json:"slug"`
+	// InstanceTypes is instance types whose sessions receive the permission: `delegated`, `autonomous`, or both. Agent-delegated chaining and refreshes use the type of the presenting instance.
+	InstanceTypes []AgentBlueprintsUpdateRequestPermissionInstanceTypes `json:"instance_types"`
 }
 
 // AgentBlueprintsUpdateRequestInvocableBy is an alias for AgentBlueprintsCreateRequestInvocableBy.
@@ -8779,8 +9376,8 @@ type WaitlistListResponse struct {
 	ListMetadata *WaitlistListResponseListMetadata `json:"list_metadata"`
 }
 
-// WaitlistListResponseListMetadata is an alias for ItContactListListMetadata.
-type WaitlistListResponseListMetadata = ItContactListListMetadata
+// WaitlistListResponseListMetadata is an alias for IssuerTrustListListMetadata.
+type WaitlistListResponseListMetadata = IssuerTrustListListMetadata
 
 // AgentRegistrationClaimClaimCompletion the completion record for the claim, or `null` if the claim has not been completed.
 type AgentRegistrationClaimClaimCompletion struct {

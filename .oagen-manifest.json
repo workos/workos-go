@@ -34,6 +34,8 @@
     "organization_membership.go",
     "organization_membership_test.go",
     "organizations.go",
+    "organizations_issuer_trusts.go",
+    "organizations_issuer_trusts_test.go",
     "organizations_test.go",
     "pipes.go",
     "pipes_provider.go",
@@ -66,6 +68,7 @@
     "testdata/agent_blueprint_deleted_data.json",
     "testdata/agent_blueprint_invocable_as.json",
     "testdata/agent_blueprint_invocable_by.json",
+    "testdata/agent_blueprint_scoped_permission.json",
     "testdata/agent_blueprint_session_setting.json",
     "testdata/agent_blueprint_updated.json",
     "testdata/agent_blueprints_create_request.json",
@@ -121,6 +124,11 @@
     "testdata/api_key_validation_response.json",
     "testdata/application_consent_required_error_body.json",
     "testdata/application_credentials_list_item.json",
+    "testdata/application_token_exchange_failed.json",
+    "testdata/application_token_exchange_failed_data.json",
+    "testdata/application_token_exchange_failed_data_error.json",
+    "testdata/application_token_exchange_succeeded.json",
+    "testdata/application_token_exchange_succeeded_data.json",
     "testdata/assign_role.json",
     "testdata/audit_log_action.json",
     "testdata/audit_log_configuration.json",
@@ -202,6 +210,9 @@
     "testdata/authorization_url_not_found_error_body.json",
     "testdata/authorization_url_request_error_body.json",
     "testdata/authorized_connect_application_list_data.json",
+    "testdata/blocked_tld.json",
+    "testdata/bot_detection.json",
+    "testdata/brute_force_attack.json",
     "testdata/challenge_authentication_factor.json",
     "testdata/check_authorization.json",
     "testdata/claim_view_response.json",
@@ -236,11 +247,13 @@
     "testdata/connection_saml_certificate_renewal_required.json",
     "testdata/connection_saml_certificate_renewal_required_data.json",
     "testdata/connection_saml_certificate_renewal_required_data_certificate.json",
-    "testdata/connection_saml_certificate_renewal_required_data_connection.json",
     "testdata/connection_saml_certificate_renewed.json",
     "testdata/connection_saml_certificate_renewed_data.json",
     "testdata/connection_saml_certificate_renewed_data_certificate.json",
     "testdata/connection_saml_certificate_renewed_data_connection.json",
+    "testdata/connection_saml_certificate_replaced.json",
+    "testdata/connection_saml_certificate_replaced_data.json",
+    "testdata/connection_saml_certificate_replaced_data_certificate.json",
     "testdata/connection_type_not_updatable_error_body.json",
     "testdata/cors_origin_response.json",
     "testdata/create_application_secret.json",
@@ -328,6 +341,7 @@
     "testdata/directory_user.json",
     "testdata/directory_user_email.json",
     "testdata/directory_user_with_groups.json",
+    "testdata/domain_protections.json",
     "testdata/dsync_activated.json",
     "testdata/dsync_activated_data.json",
     "testdata/dsync_activated_data_domain.json",
@@ -367,6 +381,8 @@
     "testdata/email_verification_required_error_body.json",
     "testdata/enroll_user_authentication_factor.json",
     "testdata/entity_not_found_error_body.json",
+    "testdata/entity_not_found_error_body_with_entity_id.json",
+    "testdata/entity_not_found_error_body_with_ids_list.json",
     "testdata/error_body.json",
     "testdata/error_body_with_code.json",
     "testdata/error_body_with_code_errors.json",
@@ -443,6 +459,7 @@
     "testdata/group_role_assignment_resource.json",
     "testdata/group_updated.json",
     "testdata/idp_metadata_fetch_failed_error_body.json",
+    "testdata/impossible_travel.json",
     "testdata/invalid_client_oauth_error_body.json",
     "testdata/invalid_connection_oauth_error_body.json",
     "testdata/invalid_credentials_error_body.json",
@@ -472,6 +489,14 @@
     "testdata/invitation_resent_data.json",
     "testdata/invitation_revoked.json",
     "testdata/invite_it_contact.json",
+    "testdata/issuer_trust.json",
+    "testdata/issuer_trust_created.json",
+    "testdata/issuer_trust_deleted.json",
+    "testdata/issuer_trust_list.json",
+    "testdata/issuer_trust_list_list_metadata.json",
+    "testdata/issuer_trust_updated.json",
+    "testdata/issuer_trusts_create_request.json",
+    "testdata/issuer_trusts_update_request.json",
     "testdata/it_contact.json",
     "testdata/it_contact_list.json",
     "testdata/it_contact_list_list_metadata.json",
@@ -527,6 +552,7 @@
     "testdata/multiple_roles_not_enabled_error_body.json",
     "testdata/must_use_sso_for_selected_organization_message_error_body.json",
     "testdata/new_connect_application_secret.json",
+    "testdata/normalized_email.json",
     "testdata/oauth_data_integration_vended_credential.json",
     "testdata/oauth_error_body.json",
     "testdata/object_metadata.json",
@@ -588,6 +614,8 @@
     "testdata/patch_connection_standard_attributes.json",
     "testdata/patch_group_memberships.json",
     "testdata/patch_group_role_assignments.json",
+    "testdata/patch_role_assignment_entry.json",
+    "testdata/patch_role_assignments.json",
     "testdata/permission.json",
     "testdata/permission_created.json",
     "testdata/permission_created_data.json",
@@ -613,10 +641,30 @@
     "testdata/radar_challenge_created.json",
     "testdata/radar_challenge_created_data.json",
     "testdata/radar_challenge_error_body.json",
+    "testdata/radar_detection.json",
+    "testdata/radar_detection_allowed_by.json",
+    "testdata/radar_detection_bot_detection_details.json",
+    "testdata/radar_detection_bot_detection_signal.json",
+    "testdata/radar_detection_brute_force_attack_details.json",
+    "testdata/radar_detection_domain_protections_details.json",
+    "testdata/radar_detection_domain_sign_ups.json",
+    "testdata/radar_detection_evidence.json",
+    "testdata/radar_detection_evidence_restriction.json",
+    "testdata/radar_detection_impossible_travel_details.json",
+    "testdata/radar_detection_ip_sign_ups.json",
+    "testdata/radar_detection_list.json",
+    "testdata/radar_detection_location.json",
+    "testdata/radar_detection_previous_attempt.json",
+    "testdata/radar_detection_previous_attempt_location.json",
+    "testdata/radar_detection_repeat_sign_up_details_email.json",
+    "testdata/radar_detection_restriction_details_list.json",
+    "testdata/radar_detection_stale_account_details.json",
+    "testdata/radar_detection_unrecognized_device_details.json",
     "testdata/radar_email_challenge_code_session_authenticate_request.json",
     "testdata/radar_list_entry_already_present_response.json",
     "testdata/radar_sign_up_challenge_error_body.json",
     "testdata/radar_sms_challenge_code_session_authenticate_request.json",
+    "testdata/radar_sms_challenge_error_body.json",
     "testdata/radar_sms_sign_in_challenge_error_body.json",
     "testdata/radar_standalone_assess_request.json",
     "testdata/radar_standalone_delete_radar_list_entry_request.json",
@@ -629,6 +677,7 @@
     "testdata/refresh_token_session_authenticate_request.json",
     "testdata/rekey_request.json",
     "testdata/remove_role.json",
+    "testdata/repeat_sign_up.json",
     "testdata/replace_group_role_assignments.json",
     "testdata/resend_user_invite_options.json",
     "testdata/resource_export_completed.json",
@@ -639,6 +688,7 @@
     "testdata/revoke_link.json",
     "testdata/revoke_session.json",
     "testdata/role.json",
+    "testdata/role_assignment_update_overlap_error_body.json",
     "testdata/role_created.json",
     "testdata/role_created_data.json",
     "testdata/role_deleted.json",
@@ -657,11 +707,13 @@
     "testdata/session_created_data.json",
     "testdata/session_revoked.json",
     "testdata/set_role_permissions.json",
+    "testdata/sign_up.json",
     "testdata/sign_up_not_allowed_oauth_error_body.json",
     "testdata/slim_role.json",
     "testdata/slow_down_oauth_error_body.json",
     "testdata/sms_challenge_quota_reached_error_body.json",
     "testdata/sms_challenge_rate_limited_error_body.json",
+    "testdata/sms_sign_in.json",
     "testdata/sso_authorize_url_response.json",
     "testdata/sso_device_authorization_request.json",
     "testdata/sso_logout_authorize_request.json",
@@ -669,6 +721,7 @@
     "testdata/sso_required_oauth_error_body_with_connection_ids_list_email.json",
     "testdata/sso_token_response.json",
     "testdata/sso_token_response_oauth_token.json",
+    "testdata/stale_account.json",
     "testdata/sub_resource_scoped_role_not_allowed_error_body_with_role_slug.json",
     "testdata/team.json",
     "testdata/token_query.json",
@@ -677,6 +730,7 @@
     "testdata/too_many_requests_oauth_error_body.json",
     "testdata/unauthorized_client_oauth_error_body.json",
     "testdata/unauthorized_error_body.json",
+    "testdata/unrecognized_device.json",
     "testdata/update_audit_logs_retention.json",
     "testdata/update_audit_logs_retention_with_retention_period.json",
     "testdata/update_audit_logs_retention_with_retention_period_in_days.json",
@@ -919,6 +973,10 @@
     },
     "POST /authorization/organization_memberships/{organization_membership_id}/role_assignments": {
       "sdkMethod": "AssignRole",
+      "service": "authorization"
+    },
+    "PATCH /authorization/organization_memberships/{organization_membership_id}/role_assignments": {
+      "sdkMethod": "UpdateRoleAssignments",
       "service": "authorization"
     },
     "DELETE /authorization/organization_memberships/{organization_membership_id}/role_assignments": {
@@ -1226,19 +1284,19 @@
       "service": "directory_sync"
     },
     "GET /directories/{directoryId}/groups": {
-      "sdkMethod": "ListGroups",
+      "sdkMethod": "ListGroupsForDirectory",
       "service": "directory_sync"
     },
     "GET /directories/{directoryId}/groups/{groupId}": {
-      "sdkMethod": "GetGroup",
+      "sdkMethod": "GetGroupForDirectory",
       "service": "directory_sync"
     },
     "GET /directories/{directoryId}/users": {
-      "sdkMethod": "ListUsers",
+      "sdkMethod": "ListUsersForDirectory",
       "service": "directory_sync"
     },
     "GET /directories/{directoryId}/users/{userId}": {
-      "sdkMethod": "GetUser",
+      "sdkMethod": "GetUserForDirectory",
       "service": "directory_sync"
     },
     "GET /events": {
@@ -1401,6 +1459,26 @@
       "sdkMethod": "ListOrganizationDataProviders",
       "service": "pipes"
     },
+    "GET /organizations/{organization_id}/issuer_trusts": {
+      "sdkMethod": "List",
+      "service": "organizations_issuer_trusts"
+    },
+    "POST /organizations/{organization_id}/issuer_trusts": {
+      "sdkMethod": "Create",
+      "service": "organizations_issuer_trusts"
+    },
+    "GET /organizations/{organization_id}/issuer_trusts/{id}": {
+      "sdkMethod": "Get",
+      "service": "organizations_issuer_trusts"
+    },
+    "PATCH /organizations/{organization_id}/issuer_trusts/{id}": {
+      "sdkMethod": "Update",
+      "service": "organizations_issuer_trusts"
+    },
+    "DELETE /organizations/{organization_id}/issuer_trusts/{id}": {
+      "sdkMethod": "Delete",
+      "service": "organizations_issuer_trusts"
+    },
     "GET /organizations/{organization_id}/it_contacts": {
       "sdkMethod": "ListItContacts",
       "service": "organizations"
@@ -1443,6 +1521,10 @@
     },
     "PUT /radar/attempts/{id}": {
       "sdkMethod": "UpdateAttempt",
+      "service": "radar"
+    },
+    "GET /radar/detections/{id}": {
+      "sdkMethod": "GetDetection",
       "service": "radar"
     },
     "POST /radar/lists/{type}/{action}": {
@@ -1523,6 +1605,10 @@
     },
     "POST /user_management/cors_origins": {
       "sdkMethod": "CreateCORSOrigin",
+      "service": "user_management"
+    },
+    "DELETE /user_management/cors_origins/{id}": {
+      "sdkMethod": "DeleteCORSOrigin",
       "service": "user_management"
     },
     "GET /user_management/email_verification/{id}": {
@@ -1795,6 +1881,10 @@
     },
     "POST /webhook_endpoints": {
       "sdkMethod": "CreateEndpoint",
+      "service": "webhooks"
+    },
+    "GET /webhook_endpoints/{id}": {
+      "sdkMethod": "GetEndpoint",
       "service": "webhooks"
     },
     "PATCH /webhook_endpoints/{id}": {
