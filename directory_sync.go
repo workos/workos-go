@@ -61,22 +61,22 @@ func (s *DirectorySyncService) Create(ctx context.Context, id string, opts ...Re
 	return &result, nil
 }
 
-// DirectorySyncListGroupsParams contains the parameters for ListGroups.
-type DirectorySyncListGroupsParams struct {
+// DirectorySyncListGroupsForDirectoryParams contains the parameters for ListGroupsForDirectory.
+type DirectorySyncListGroupsForDirectoryParams struct {
 	PaginationParams
 	// User is filter Directory Groups to those this Directory User belongs to.
 	User *string `url:"user,omitempty" json:"-"`
 }
 
-// ListGroups for a Directory
+// ListGroupsForDirectory list Groups for a Directory
 // Get a list of the Directory Groups in a Directory, optionally filtered to the groups a Directory User belongs to.
-func (s *DirectorySyncService) ListGroups(ctx context.Context, directoryID string, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
+func (s *DirectorySyncService) ListGroupsForDirectory(ctx context.Context, directoryID string, params *DirectorySyncListGroupsForDirectoryParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
 	return newIterator[DirectoryGroup](ctx, s.client, "GET", fmt.Sprintf("/directories/%s/groups", url.PathEscape(directoryID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
-// GetGroup get a Group for a Directory
+// GetGroupForDirectory get a Group for a Directory
 // Get the details of a Directory Group in a Directory.
-func (s *DirectorySyncService) GetGroup(ctx context.Context, directoryID string, groupID string, opts ...RequestOption) (*DirectoryGroup, error) {
+func (s *DirectorySyncService) GetGroupForDirectory(ctx context.Context, directoryID string, groupID string, opts ...RequestOption) (*DirectoryGroup, error) {
 	var result DirectoryGroup
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s/groups/%s", url.PathEscape(directoryID), url.PathEscape(groupID)), nil, nil, &result, opts)
 	if err != nil {
@@ -85,8 +85,8 @@ func (s *DirectorySyncService) GetGroup(ctx context.Context, directoryID string,
 	return &result, nil
 }
 
-// DirectorySyncListUsersParams contains the parameters for ListUsers.
-type DirectorySyncListUsersParams struct {
+// DirectorySyncListUsersForDirectoryParams contains the parameters for ListUsersForDirectory.
+type DirectorySyncListUsersForDirectoryParams struct {
 	PaginationParams
 	// Group is filter Directory Users to the members of this Directory Group.
 	Group *string `url:"group,omitempty" json:"-"`
@@ -96,17 +96,81 @@ type DirectorySyncListUsersParams struct {
 	Email *string `url:"email,omitempty" json:"-"`
 }
 
-// ListUsers for a Directory
+// ListUsersForDirectory list Users for a Directory
 // Get a list of the Directory Users in a Directory, optionally filtered to the members of a Directory Group.
-func (s *DirectorySyncService) ListUsers(ctx context.Context, directoryID string, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUser] {
+func (s *DirectorySyncService) ListUsersForDirectory(ctx context.Context, directoryID string, params *DirectorySyncListUsersForDirectoryParams, opts ...RequestOption) *Iterator[DirectoryUser] {
 	return newIterator[DirectoryUser](ctx, s.client, "GET", fmt.Sprintf("/directories/%s/users", url.PathEscape(directoryID)), params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
 }
 
-// GetUser get a User for a Directory
+// GetUserForDirectory get a User for a Directory
 // Get the details of a Directory User in a Directory.
-func (s *DirectorySyncService) GetUser(ctx context.Context, directoryID string, userID string, opts ...RequestOption) (*DirectoryUser, error) {
+func (s *DirectorySyncService) GetUserForDirectory(ctx context.Context, directoryID string, userID string, opts ...RequestOption) (*DirectoryUser, error) {
 	var result DirectoryUser
 	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directories/%s/users/%s", url.PathEscape(directoryID), url.PathEscape(userID)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DirectorySyncListGroupsParams contains the parameters for ListGroups.
+type DirectorySyncListGroupsParams struct {
+	PaginationParams
+	// Directory is unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
+	Directory *string `url:"directory,omitempty" json:"-"`
+	// User is unique identifier of the WorkOS Directory User. This value can be obtained from the WorkOS API.
+	User *string `url:"user,omitempty" json:"-"`
+}
+
+// ListGroups list Directory Groups
+// Get a list of all of existing directory groups matching the criteria specified. Deprecated: use `GET /directories/{directoryId}/groups` instead.
+//
+// Deprecated: this operation is deprecated.
+func (s *DirectorySyncService) ListGroups(ctx context.Context, params *DirectorySyncListGroupsParams, opts ...RequestOption) *Iterator[DirectoryGroup] {
+	return newIterator[DirectoryGroup](ctx, s.client, "GET", "/directory_groups", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// GetGroup get a Directory Group
+// Get the details of an existing Directory Group. Deprecated: use `GET /directories/{directoryId}/groups/{groupId}` instead.
+//
+// Deprecated: this operation is deprecated.
+func (s *DirectorySyncService) GetGroup(ctx context.Context, id string, opts ...RequestOption) (*DirectoryGroup, error) {
+	var result DirectoryGroup
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_groups/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// DirectorySyncListUsersParams contains the parameters for ListUsers.
+type DirectorySyncListUsersParams struct {
+	PaginationParams
+	// Directory is unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
+	Directory *string `url:"directory,omitempty" json:"-"`
+	// Group is unique identifier of the WorkOS Directory Group. This value can be obtained from the WorkOS API.
+	Group *string `url:"group,omitempty" json:"-"`
+	// IdpID is filter Directory Users by the identity provider's unique identifier (`idp_id`). Requires the `directory` parameter to also be provided.
+	IdpID *string `url:"idp_id,omitempty" json:"-"`
+	// Email is filter Directory Users by their primary email address. Requires the `directory` parameter to also be provided.
+	Email *string `url:"email,omitempty" json:"-"`
+}
+
+// ListUsers list Directory Users
+// Get a list of all of existing Directory Users matching the criteria specified. Deprecated: use `GET /directories/{directoryId}/users` instead.
+//
+// Deprecated: this operation is deprecated.
+func (s *DirectorySyncService) ListUsers(ctx context.Context, params *DirectorySyncListUsersParams, opts ...RequestOption) *Iterator[DirectoryUserWithGroups] {
+	return newIterator[DirectoryUserWithGroups](ctx, s.client, "GET", "/directory_users", params, "after", "data", opts, map[string]string{"limit": "10", "order": "desc"})
+}
+
+// GetUser get a Directory User
+// Get the details of an existing Directory User. Deprecated: use `GET /directories/{directoryId}/users/{userId}` instead.
+//
+// Deprecated: this operation is deprecated.
+func (s *DirectorySyncService) GetUser(ctx context.Context, id string, opts ...RequestOption) (*DirectoryUserWithGroups, error) {
+	var result DirectoryUserWithGroups
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/directory_users/%s", url.PathEscape(id)), nil, nil, &result, opts)
 	if err != nil {
 		return nil, err
 	}
