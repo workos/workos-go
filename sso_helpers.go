@@ -130,7 +130,16 @@ type SSOPKCECodeExchangeParams struct {
 }
 
 // SSOPKCECodeExchange exchanges an SSO authorization code with PKCE.
+//
+// A client with an API key sends it as the client secret, and a client
+// without one leaves the secret out. A client built with
+// NewClientWithCredentials gets an error and sends nothing.
 func (c *Client) SSOPKCECodeExchange(ctx context.Context, params SSOPKCECodeExchangeParams, opts ...RequestOption) (*SSOTokenResponse, error) {
+	clientSecret, err := c.clientSecret("SSOPKCECodeExchange")
+	if err != nil {
+		return nil, err
+	}
+
 	clientID := c.clientID
 	body := map[string]interface{}{
 		"grant_type":    "authorization_code",
@@ -140,12 +149,12 @@ func (c *Client) SSOPKCECodeExchange(ctx context.Context, params SSOPKCECodeExch
 	if clientID != "" {
 		body["client_id"] = clientID
 	}
-	if c.apiKey != "" {
-		body["client_secret"] = c.apiKey
+	if clientSecret != "" {
+		body["client_secret"] = clientSecret
 	}
 
 	var result SSOTokenResponse
-	_, err := c.request(ctx, "POST", "/sso/token", nil, body, &result, opts)
+	_, err = c.request(ctx, "POST", "/sso/token", nil, body, &result, opts)
 	if err != nil {
 		return nil, err
 	}

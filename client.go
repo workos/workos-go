@@ -60,6 +60,11 @@ func (c *Client) request(
 		idempotencyKey = uuid.New().String()
 	}
 
+	// One 401-recovery allowance for the whole logical request. It rides on
+	// the context of every attempt, where the credentials transport of a
+	// NewClientWithCredentials client reads it.
+	ctx = withCredentialRecovery(ctx)
+
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if attempt > 0 {
@@ -105,7 +110,11 @@ func (c *Client) request(
 			return nil, fmt.Errorf("workos: failed to create request: %w", err)
 		}
 
-		req.Header.Set("Authorization", "Bearer "+c.apiKey)
+		// A client built with NewClientWithCredentials has no API key; its
+		// transport sets Authorization. Never send "Bearer " with no token.
+		if c.apiKey != "" {
+			req.Header.Set("Authorization", "Bearer "+c.apiKey)
+		}
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("User-Agent", "workos-go/"+Version)
 		if idempotencyKey != "" {
@@ -132,6 +141,12 @@ func (c *Client) request(
 			lastErr = &NetworkError{Err: err}
 			if c.logger != nil {
 				c.logger.Printf("workos: %s %s error=%v duration=%s", method, path, err, time.Since(reqStart))
+			}
+			// Credentials that cannot produce a token are not a network fault,
+			// and retrying would only repeat the failed exchange.
+			var credentialsErr *WorkloadIdentityError
+			if errors.As(err, &credentialsErr) {
+				return nil, credentialsErr
 			}
 			continue
 		}

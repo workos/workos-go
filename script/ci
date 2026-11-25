@@ -17,3 +17,13 @@ go vet ./...
 
 echo "==> go test ./..."
 go test ./...
+
+# The workload identity providers are separate Go modules, which ./... at the
+# root does not enter.
+for module in workloadidentity/githubactions workloadidentity/gcp workloadidentity/aws; do
+  echo "==> go vet ./... ($module)"
+  (cd "$module" && go vet ./...)
+
+  echo "==> go test ./... ($module)"
+  (cd "$module" && go test ./...)
+done
