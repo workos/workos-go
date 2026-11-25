@@ -276,6 +276,19 @@ func TestUserManagement_CreateCORSOrigin(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
+func TestUserManagement_DeleteCORSOrigin(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "DELETE", r.Method)
+		require.Equal(t, "/user_management/cors_origins/test_id", r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.UserManagement().DeleteCORSOrigin(context.Background(), "test_id")
+	require.NoError(t, err)
+}
+
 func TestUserManagement_GetEmailVerification(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "GET", r.Method)

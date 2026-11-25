@@ -30,6 +30,7 @@ const (
 	ErrorBodyCodeCannotDeactivatePendingOrganizationMembership ErrorBodyCode = "cannot_deactivate_pending_organization_membership"
 	ErrorBodyCodeCannotDeleteLastCertificate                   ErrorBodyCode = "cannot_delete_last_certificate"
 	ErrorBodyCodeCannotReactivatePendingOrganizationMembership ErrorBodyCode = "cannot_reactivate_pending_organization_membership"
+	ErrorBodyCodeCannotRemoveGroupSourcedRole                  ErrorBodyCode = "cannot_remove_group_sourced_role"
 	ErrorBodyCodeCertificateExpired                            ErrorBodyCode = "certificate_expired"
 	ErrorBodyCodeChainDepthExceeded                            ErrorBodyCode = "chain_depth_exceeded"
 	ErrorBodyCodeClaimDenied                                   ErrorBodyCode = "claim_denied"
@@ -53,6 +54,7 @@ const (
 	ErrorBodyCodeDirectorySyncRateLimited                      ErrorBodyCode = "directory_sync_rate_limited"
 	ErrorBodyCodeDirectorySyncUnsupported                      ErrorBodyCode = "directory_sync_unsupported"
 	ErrorBodyCodeDiscoveryEndpointMustUseHttps                 ErrorBodyCode = "discovery_endpoint_must_use_https"
+	ErrorBodyCodeDiscoveryEndpointTenantNotAllowed             ErrorBodyCode = "discovery_endpoint_tenant_not_allowed"
 	ErrorBodyCodeDomainAlreadyExists                           ErrorBodyCode = "domain_already_exists"
 	ErrorBodyCodeDomainAlreadyVerified                         ErrorBodyCode = "domain_already_verified"
 	ErrorBodyCodeDuplicateEndpoint                             ErrorBodyCode = "duplicate_endpoint"
@@ -77,6 +79,7 @@ const (
 	ErrorBodyCodeEmailVerificationCodeIncorrect                ErrorBodyCode = "email_verification_code_incorrect"
 	ErrorBodyCodeEmailVerificationCodePreviouslyUsed           ErrorBodyCode = "email_verification_code_previously_used"
 	ErrorBodyCodeEmailVerificationRequired                     ErrorBodyCode = "email_verification_required"
+	ErrorBodyCodeEntitiesNotFound                              ErrorBodyCode = "entities_not_found"
 	ErrorBodyCodeEntityNotFound                                ErrorBodyCode = "entity_not_found"
 	ErrorBodyCodeExpiresInDaysTooLong                          ErrorBodyCode = "expires_in_days_too_long"
 	ErrorBodyCodeExpiresInDaysTooShort                         ErrorBodyCode = "expires_in_days_too_short"
@@ -96,6 +99,8 @@ const (
 	ErrorBodyCodeInvalidEmail                                  ErrorBodyCode = "invalid_email"
 	ErrorBodyCodeInvalidIdpSSOURL                              ErrorBodyCode = "invalid_idp_sso_url"
 	ErrorBodyCodeInvalidInvite                                 ErrorBodyCode = "invalid_invite"
+	ErrorBodyCodeInvalidIssuerMetadata                         ErrorBodyCode = "invalid_issuer_metadata"
+	ErrorBodyCodeInvalidIssuerURL                              ErrorBodyCode = "invalid_issuer_url"
 	ErrorBodyCodeInvalidLocale                                 ErrorBodyCode = "invalid_locale"
 	ErrorBodyCodeInvalidMetadata                               ErrorBodyCode = "invalid_metadata"
 	ErrorBodyCodeInvalidOneTimeCode                            ErrorBodyCode = "invalid_one_time_code"
@@ -117,6 +122,7 @@ const (
 	ErrorBodyCodeInviteNotPending                              ErrorBodyCode = "invite_not_pending"
 	ErrorBodyCodeInviteRevoked                                 ErrorBodyCode = "invite_revoked"
 	ErrorBodyCodeIPAddressRequired                             ErrorBodyCode = "ip_address_required"
+	ErrorBodyCodeIssuerAlreadyTrusted                          ErrorBodyCode = "issuer_already_trusted"
 	ErrorBodyCodeItContactAlreadyExists                        ErrorBodyCode = "it_contact_already_exists"
 	ErrorBodyCodeItContactInvitationAlreadyActive              ErrorBodyCode = "it_contact_invitation_already_active"
 	ErrorBodyCodeKeyPairNotAccepted                            ErrorBodyCode = "key_pair_not_accepted"
@@ -129,16 +135,20 @@ const (
 	ErrorBodyCodeMultipleRolesNotEnabled                       ErrorBodyCode = "multiple_roles_not_enabled"
 	ErrorBodyCodeNameAlreadyInUse                              ErrorBodyCode = "name_already_in_use"
 	ErrorBodyCodeNoPendingEmailChange                          ErrorBodyCode = "no_pending_email_change"
+	ErrorBodyCodeNotClaudeIssuer                               ErrorBodyCode = "not_claude_issuer"
 	ErrorBodyCodeOIDCOptionsRequired                           ErrorBodyCode = "oidc_options_required"
 	ErrorBodyCodeOneTimeCodeExpired                            ErrorBodyCode = "one_time_code_expired"
 	ErrorBodyCodeOneTimeCodePreviouslyUsed                     ErrorBodyCode = "one_time_code_previously_used"
 	ErrorBodyCodeOneTimeCodeTooManyAttempts                    ErrorBodyCode = "one_time_code_too_many_attempts"
+	ErrorBodyCodeOrganizationAlreadyHasTrust                   ErrorBodyCode = "organization_already_has_trust"
 	ErrorBodyCodeOrganizationBlockedFromSendingInvites         ErrorBodyCode = "organization_blocked_from_sending_invites"
+	ErrorBodyCodeOrganizationHasIdpManagedEma                  ErrorBodyCode = "organization_has_idp_managed_ema"
 	ErrorBodyCodeOrganizationMembershipDirectoryManaged        ErrorBodyCode = "organization_membership_directory_managed"
 	ErrorBodyCodeOrganizationNotFound                          ErrorBodyCode = "organization_not_found"
 	ErrorBodyCodeOrganizationNotInvocable                      ErrorBodyCode = "organization_not_invocable"
 	ErrorBodyCodeOrganizationRoleSlugConflict                  ErrorBodyCode = "organization_role_slug_conflict"
 	ErrorBodyCodeOrganizationSelectionRequired                 ErrorBodyCode = "organization_selection_required"
+	ErrorBodyCodeOrganizationWithoutVerifiedDomain             ErrorBodyCode = "organization_without_verified_domain"
 	ErrorBodyCodePasskeyProgressiveEnrollment                  ErrorBodyCode = "passkey_progressive_enrollment"
 	ErrorBodyCodePasswordAndPasswordHashProvided               ErrorBodyCode = "password_and_password_hash_provided"
 	ErrorBodyCodePasswordAndPasswordHashTypeProvided           ErrorBodyCode = "password_and_password_hash_type_provided"
@@ -152,11 +162,13 @@ const (
 	ErrorBodyCodeProductionFeatureRequiresBilling              ErrorBodyCode = "production_feature_requires_billing"
 	ErrorBodyCodeRadarChallenge                                ErrorBodyCode = "radar_challenge"
 	ErrorBodyCodeRadarSignUpChallenge                          ErrorBodyCode = "radar_sign_up_challenge"
+	ErrorBodyCodeRadarSmsChallenge                             ErrorBodyCode = "radar_sms_challenge"
 	ErrorBodyCodeRadarSmsSignInChallenge                       ErrorBodyCode = "radar_sms_sign_in_challenge"
 	ErrorBodyCodeRateLimitExceeded                             ErrorBodyCode = "rate_limit_exceeded"
 	ErrorBodyCodeResourceHasDependents                         ErrorBodyCode = "resource_has_dependents"
 	ErrorBodyCodeResourceLimitExceeded                         ErrorBodyCode = "resource_limit_exceeded"
 	ErrorBodyCodeResourceTypeUpdateInProgress                  ErrorBodyCode = "resource_type_update_in_progress"
+	ErrorBodyCodeRoleAssignmentUpdateOverlap                   ErrorBodyCode = "role_assignment_update_overlap"
 	ErrorBodyCodeRoleHasAssignments                            ErrorBodyCode = "role_has_assignments"
 	ErrorBodyCodeRoleHasGroupRoleMappings                      ErrorBodyCode = "role_has_group_role_mappings"
 	ErrorBodyCodeRoleNotFound                                  ErrorBodyCode = "role_not_found"
@@ -513,10 +525,13 @@ const (
 	CreateWebhookEndpointEventsAPIKeyCreated                               CreateWebhookEndpointEvents = "api_key.created"
 	CreateWebhookEndpointEventsAPIKeyRevoked                               CreateWebhookEndpointEvents = "api_key.revoked"
 	CreateWebhookEndpointEventsAPIKeyUpdated                               CreateWebhookEndpointEvents = "api_key.updated"
+	CreateWebhookEndpointEventsApplicationTokenExchangeFailed              CreateWebhookEndpointEvents = "application.token_exchange_failed"
+	CreateWebhookEndpointEventsApplicationTokenExchangeSucceeded           CreateWebhookEndpointEvents = "application.token_exchange_succeeded"
 	CreateWebhookEndpointEventsConnectionActivated                         CreateWebhookEndpointEvents = "connection.activated"
 	CreateWebhookEndpointEventsConnectionDeactivated                       CreateWebhookEndpointEvents = "connection.deactivated"
 	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewalRequired    CreateWebhookEndpointEvents = "connection.saml_certificate_renewal_required"
 	CreateWebhookEndpointEventsConnectionSAMLCertificateRenewed            CreateWebhookEndpointEvents = "connection.saml_certificate_renewed"
+	CreateWebhookEndpointEventsConnectionSAMLCertificateReplaced           CreateWebhookEndpointEvents = "connection.saml_certificate_replaced"
 	CreateWebhookEndpointEventsConnectionDeleted                           CreateWebhookEndpointEvents = "connection.deleted"
 	CreateWebhookEndpointEventsDsyncActivated                              CreateWebhookEndpointEvents = "dsync.activated"
 	CreateWebhookEndpointEventsDsyncDeleted                                CreateWebhookEndpointEvents = "dsync.deleted"
@@ -550,6 +565,9 @@ const (
 	CreateWebhookEndpointEventsInvitationCreated                           CreateWebhookEndpointEvents = "invitation.created"
 	CreateWebhookEndpointEventsInvitationResent                            CreateWebhookEndpointEvents = "invitation.resent"
 	CreateWebhookEndpointEventsInvitationRevoked                           CreateWebhookEndpointEvents = "invitation.revoked"
+	CreateWebhookEndpointEventsIssuerTrustCreated                          CreateWebhookEndpointEvents = "issuer_trust.created"
+	CreateWebhookEndpointEventsIssuerTrustDeleted                          CreateWebhookEndpointEvents = "issuer_trust.deleted"
+	CreateWebhookEndpointEventsIssuerTrustUpdated                          CreateWebhookEndpointEvents = "issuer_trust.updated"
 	CreateWebhookEndpointEventsMagicAuthCreated                            CreateWebhookEndpointEvents = "magic_auth.created"
 	CreateWebhookEndpointEventsOrganizationCreated                         CreateWebhookEndpointEvents = "organization.created"
 	CreateWebhookEndpointEventsOrganizationDeleted                         CreateWebhookEndpointEvents = "organization.deleted"
@@ -893,6 +911,9 @@ type PipeConnectedAccountState = ConnectedAccountInputState
 // WaitlistUserState is an alias for UserManagementWaitlistsState.
 type WaitlistUserState = UserManagementWaitlistsState
 
+// AgentBlueprintCreatedDataScopedPermissionInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintCreatedDataScopedPermissionInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
 // AgentBlueprintCreatedDataInvocableAsInstanceTypes represents agent blueprint created data invocable as instance types values.
 type AgentBlueprintCreatedDataInvocableAsInstanceTypes string
 
@@ -900,6 +921,9 @@ const (
 	AgentBlueprintCreatedDataInvocableAsInstanceTypesDelegated  AgentBlueprintCreatedDataInvocableAsInstanceTypes = "delegated"
 	AgentBlueprintCreatedDataInvocableAsInstanceTypesAutonomous AgentBlueprintCreatedDataInvocableAsInstanceTypes = "autonomous"
 )
+
+// AgentBlueprintUpdatedDataScopedPermissionInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintUpdatedDataScopedPermissionInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
 
 // AgentBlueprintUpdatedDataInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
 type AgentBlueprintUpdatedDataInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
@@ -1046,6 +1070,9 @@ const (
 
 // ConnectionSAMLCertificateRenewedDataCertificateCertificateType is an alias for ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType.
 type ConnectionSAMLCertificateRenewedDataCertificateCertificateType = ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType
+
+// ConnectionSAMLCertificateReplacedDataCertificateCertificateType is an alias for ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType.
+type ConnectionSAMLCertificateReplacedDataCertificateCertificateType = ConnectionSAMLCertificateRenewalRequiredDataCertificateCertificateType
 
 // DsyncActivatedDataType represents dsync activated data type values.
 type DsyncActivatedDataType string
@@ -1414,6 +1441,147 @@ type DataIntegrationCredentialsResponseError = DataIntegrationAccessTokenRespons
 // DataIntegrationCredentialsResponseWithErrorError is an alias for DataIntegrationAccessTokenResponseError.
 type DataIntegrationCredentialsResponseWithErrorError = DataIntegrationAccessTokenResponseError
 
+// RadarDetectionListType represents radar detection list type values.
+type RadarDetectionListType string
+
+const (
+	RadarDetectionListTypeIPAddress         RadarDetectionListType = "ip_address"
+	RadarDetectionListTypeDomain            RadarDetectionListType = "domain"
+	RadarDetectionListTypeEmail             RadarDetectionListType = "email"
+	RadarDetectionListTypeDevice            RadarDetectionListType = "device"
+	RadarDetectionListTypeUserAgent         RadarDetectionListType = "user_agent"
+	RadarDetectionListTypeDeviceFingerprint RadarDetectionListType = "device_fingerprint"
+	RadarDetectionListTypeCountry           RadarDetectionListType = "country"
+)
+
+// RadarDetectionListAction represents radar detection list action values.
+type RadarDetectionListAction string
+
+const (
+	RadarDetectionListActionAllow     RadarDetectionListAction = "allow"
+	RadarDetectionListActionBlock     RadarDetectionListAction = "block"
+	RadarDetectionListActionChallenge RadarDetectionListAction = "challenge"
+	RadarDetectionListActionLog       RadarDetectionListAction = "log"
+)
+
+// RadarDetectionBotDetectionSignalSignal is an alias for RadarDetectionBotDetectionDetailsDecidedBy.
+type RadarDetectionBotDetectionSignalSignal = RadarDetectionBotDetectionDetailsDecidedBy
+
+// RadarDetectionBotDetectionSignalAction represents radar detection bot detection signal action values.
+type RadarDetectionBotDetectionSignalAction string
+
+const (
+	RadarDetectionBotDetectionSignalActionBlock     RadarDetectionBotDetectionSignalAction = "block"
+	RadarDetectionBotDetectionSignalActionChallenge RadarDetectionBotDetectionSignalAction = "challenge"
+)
+
+// RadarDetectionBotDetectionDetailsDecidedBy represents radar detection bot detection details decided by values.
+type RadarDetectionBotDetectionDetailsDecidedBy string
+
+const (
+	RadarDetectionBotDetectionDetailsDecidedByRiskyIP                  RadarDetectionBotDetectionDetailsDecidedBy = "risky_ip"
+	RadarDetectionBotDetectionDetailsDecidedByAnomalousIP              RadarDetectionBotDetectionDetailsDecidedBy = "anomalous_ip"
+	RadarDetectionBotDetectionDetailsDecidedByExcessiveDomainSignUps   RadarDetectionBotDetectionDetailsDecidedBy = "excessive_domain_sign_ups"
+	RadarDetectionBotDetectionDetailsDecidedBySuspiciousBrowserSignals RadarDetectionBotDetectionDetailsDecidedBy = "suspicious_browser_signals"
+	RadarDetectionBotDetectionDetailsDecidedByMissingDeviceFingerprint RadarDetectionBotDetectionDetailsDecidedBy = "missing_device_fingerprint"
+	RadarDetectionBotDetectionDetailsDecidedBySuspiciousEmailPattern   RadarDetectionBotDetectionDetailsDecidedBy = "suspicious_email_pattern"
+	RadarDetectionBotDetectionDetailsDecidedByAutomatedClient          RadarDetectionBotDetectionDetailsDecidedBy = "automated_client"
+	RadarDetectionBotDetectionDetailsDecidedByWorkOSRiskModel          RadarDetectionBotDetectionDetailsDecidedBy = "workos_risk_model"
+)
+
+// RadarDetectionBotDetectionDetailsIPRisk represents radar detection bot detection details ip risk values.
+type RadarDetectionBotDetectionDetailsIPRisk string
+
+const (
+	RadarDetectionBotDetectionDetailsIPRiskAbuser    RadarDetectionBotDetectionDetailsIPRisk = "abuser"
+	RadarDetectionBotDetectionDetailsIPRiskAnonymous RadarDetectionBotDetectionDetailsIPRisk = "anonymous"
+	RadarDetectionBotDetectionDetailsIPRiskVpn       RadarDetectionBotDetectionDetailsIPRisk = "vpn"
+	RadarDetectionBotDetectionDetailsIPRiskTor       RadarDetectionBotDetectionDetailsIPRisk = "tor"
+	RadarDetectionBotDetectionDetailsIPRiskProxy     RadarDetectionBotDetectionDetailsIPRisk = "proxy"
+)
+
+// RadarDetectionBotDetectionDetailsEmailPattern represents radar detection bot detection details email pattern values.
+type RadarDetectionBotDetectionDetailsEmailPattern string
+
+const (
+	RadarDetectionBotDetectionDetailsEmailPatternGeneratedLooking RadarDetectionBotDetectionDetailsEmailPattern = "generated_looking"
+	RadarDetectionBotDetectionDetailsEmailPatternRepeatedFormat   RadarDetectionBotDetectionDetailsEmailPattern = "repeated_format"
+	RadarDetectionBotDetectionDetailsEmailPatternSuspiciousDomain RadarDetectionBotDetectionDetailsEmailPattern = "suspicious_domain"
+)
+
+// RadarDetectionBotDetectionDetailsBrowserSignals represents radar detection bot detection details browser signals values.
+type RadarDetectionBotDetectionDetailsBrowserSignals string
+
+const (
+	RadarDetectionBotDetectionDetailsBrowserSignalsAutomationFramework    RadarDetectionBotDetectionDetailsBrowserSignals = "automation_framework"
+	RadarDetectionBotDetectionDetailsBrowserSignalsHeadlessBrowser        RadarDetectionBotDetectionDetailsBrowserSignals = "headless_browser"
+	RadarDetectionBotDetectionDetailsBrowserSignalsTamperedSignals        RadarDetectionBotDetectionDetailsBrowserSignals = "tampered_signals"
+	RadarDetectionBotDetectionDetailsBrowserSignalsInconsistentHardware   RadarDetectionBotDetectionDetailsBrowserSignals = "inconsistent_hardware"
+	RadarDetectionBotDetectionDetailsBrowserSignalsMissingSignals         RadarDetectionBotDetectionDetailsBrowserSignals = "missing_signals"
+	RadarDetectionBotDetectionDetailsBrowserSignalsMissingExpectedSignals RadarDetectionBotDetectionDetailsBrowserSignals = "missing_expected_signals"
+)
+
+// RadarDetectionBruteForceAttackDetailsMatchedOn represents radar detection brute force attack details matched on values.
+type RadarDetectionBruteForceAttackDetailsMatchedOn string
+
+const (
+	RadarDetectionBruteForceAttackDetailsMatchedOnDeviceFingerprintAndEmail RadarDetectionBruteForceAttackDetailsMatchedOn = "device_fingerprint_and_email"
+	RadarDetectionBruteForceAttackDetailsMatchedOnIPAndEmail                RadarDetectionBruteForceAttackDetailsMatchedOn = "ip_and_email"
+)
+
+// SmsSignInTrigger represents sms sign in trigger values.
+type SmsSignInTrigger string
+
+const (
+	SmsSignInTriggerCountryMismatch    SmsSignInTrigger = "country_mismatch"
+	SmsSignInTriggerNonMobileLine      SmsSignInTrigger = "non_mobile_line"
+	SmsSignInTriggerPreviouslySelected SmsSignInTrigger = "previously_selected"
+	SmsSignInTriggerUnknownLineType    SmsSignInTrigger = "unknown_line_type"
+	SmsSignInTriggerMissingSignals     SmsSignInTrigger = "missing_signals"
+)
+
+// RadarDetectionControl represents radar detection control values.
+type RadarDetectionControl string
+
+const (
+	RadarDetectionControlBotDetection       RadarDetectionControl = "bot_detection"
+	RadarDetectionControlBruteForceAttack   RadarDetectionControl = "brute_force_attack"
+	RadarDetectionControlDomainProtections  RadarDetectionControl = "domain_protections"
+	RadarDetectionControlImpossibleTravel   RadarDetectionControl = "impossible_travel"
+	RadarDetectionControlRepeatSignUp       RadarDetectionControl = "repeat_sign_up"
+	RadarDetectionControlStaleAccount       RadarDetectionControl = "stale_account"
+	RadarDetectionControlUnrecognizedDevice RadarDetectionControl = "unrecognized_device"
+	RadarDetectionControlRestriction        RadarDetectionControl = "restriction"
+)
+
+// RadarDetectionVerdict is an alias for RadarDetectionListAction.
+type RadarDetectionVerdict = RadarDetectionListAction
+
+// RadarDetectionChallengeType represents radar detection challenge type values.
+type RadarDetectionChallengeType string
+
+const (
+	RadarDetectionChallengeTypeEmail RadarDetectionChallengeType = "email"
+	RadarDetectionChallengeTypeSms   RadarDetectionChallengeType = "sms"
+)
+
+// RadarDetectionAction is an alias for AuthenticationRadarRiskDetectedDataAction.
+type RadarDetectionAction = AuthenticationRadarRiskDetectedDataAction
+
+// RadarDetectionAuthMethod represents radar detection auth method values.
+type RadarDetectionAuthMethod string
+
+const (
+	RadarDetectionAuthMethodPassword      RadarDetectionAuthMethod = "password"
+	RadarDetectionAuthMethodPasskey       RadarDetectionAuthMethod = "passkey"
+	RadarDetectionAuthMethodMagicAuth     RadarDetectionAuthMethod = "magic_auth"
+	RadarDetectionAuthMethodOAuth         RadarDetectionAuthMethod = "oauth"
+	RadarDetectionAuthMethodSSO           RadarDetectionAuthMethod = "sso"
+	RadarDetectionAuthMethodAuthenticator RadarDetectionAuthMethod = "authenticator"
+	RadarDetectionAuthMethodSmsOtp        RadarDetectionAuthMethod = "sms_otp"
+	RadarDetectionAuthMethodOther         RadarDetectionAuthMethod = "other"
+)
+
 // RadarStandaloneResponseVerdict represents radar standalone response verdict values.
 type RadarStandaloneResponseVerdict string
 
@@ -1436,8 +1604,8 @@ const (
 	RadarStandaloneResponseControlRestriction        RadarStandaloneResponseControl = "restriction"
 )
 
-// RadarStandaloneResponseBlocklistType is an alias for RadarListType.
-type RadarStandaloneResponseBlocklistType = RadarListType
+// RadarStandaloneResponseBlocklistType is an alias for RadarDetectionListType.
+type RadarStandaloneResponseBlocklistType = RadarDetectionListType
 
 // TeamProductionState represents team production state values.
 type TeamProductionState string
@@ -1559,11 +1727,20 @@ const (
 	UserRoleAssignmentSourceTypeGroup  UserRoleAssignmentSourceType = "group"
 )
 
+// AgentBlueprintScopedPermissionInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintScopedPermissionInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
 // AgentBlueprintInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
 type AgentBlueprintInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
 
+// AgentBlueprintsCreateRequestPermissionInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintsCreateRequestPermissionInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
 // AgentBlueprintsCreateRequestInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
 type AgentBlueprintsCreateRequestInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
+
+// AgentBlueprintsUpdateRequestPermissionInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
+type AgentBlueprintsUpdateRequestPermissionInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
 
 // AgentBlueprintsUpdateRequestInvocableAsInstanceTypes is an alias for AgentBlueprintCreatedDataInvocableAsInstanceTypes.
 type AgentBlueprintsUpdateRequestInvocableAsInstanceTypes = AgentBlueprintCreatedDataInvocableAsInstanceTypes
@@ -1776,18 +1953,8 @@ type PipesOwnership = CreateDataIntegrationOwnership
 // PipesProviderOwnership is an alias for CreateDataIntegrationOwnership.
 type PipesProviderOwnership = CreateDataIntegrationOwnership
 
-// RadarListType represents radar list type values.
-type RadarListType string
-
-const (
-	RadarListTypeIPAddress         RadarListType = "ip_address"
-	RadarListTypeDomain            RadarListType = "domain"
-	RadarListTypeEmail             RadarListType = "email"
-	RadarListTypeDevice            RadarListType = "device"
-	RadarListTypeUserAgent         RadarListType = "user_agent"
-	RadarListTypeDeviceFingerprint RadarListType = "device_fingerprint"
-	RadarListTypeCountry           RadarListType = "country"
-)
+// RadarListType is an alias for RadarDetectionListType.
+type RadarListType = RadarDetectionListType
 
 // RadarListAction represents radar list action values.
 type RadarListAction string

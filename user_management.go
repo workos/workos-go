@@ -791,6 +791,13 @@ func (s *UserManagementService) CreateCORSOrigin(ctx context.Context, params *Us
 	return &result, nil
 }
 
+// DeleteCORSOrigin delete a CORS origin
+// Deletes a CORS origin from the API key's application.
+func (s *UserManagementService) DeleteCORSOrigin(ctx context.Context, id string, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "DELETE", fmt.Sprintf("/user_management/cors_origins/%s", url.PathEscape(id)), nil, nil, nil, opts)
+	return err
+}
+
 // GetEmailVerification get an email verification code
 // Get the details of an existing email verification code that can be used to send an email to a user for verification.
 func (s *UserManagementService) GetEmailVerification(ctx context.Context, id string, opts ...RequestOption) (*EmailVerification, error) {

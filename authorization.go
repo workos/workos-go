@@ -349,7 +349,7 @@ func (p AuthorizationAssignRoleParams) MarshalJSON() ([]byte, error) {
 }
 
 // AssignRole assign a role
-// Assign a role to an organization membership on a specific resource.
+// Assign a role to an organization membership on a specific resource. If the role is already assigned to the membership on that resource, the existing role assignment is returned and no changes are made.
 func (s *AuthorizationService) AssignRole(ctx context.Context, organizationMembershipID string, params *AuthorizationAssignRoleParams, opts ...RequestOption) (*UserRoleAssignment, error) {
 	var result UserRoleAssignment
 	_, err := s.client.request(ctx, "POST", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", url.PathEscape(organizationMembershipID)), nil, params, &result, opts)
@@ -357,6 +357,21 @@ func (s *AuthorizationService) AssignRole(ctx context.Context, organizationMembe
 		return nil, err
 	}
 	return &result, nil
+}
+
+// AuthorizationUpdateRoleAssignmentsParams contains the parameters for UpdateRoleAssignments.
+type AuthorizationUpdateRoleAssignmentsParams struct {
+	// Add is role assignments to add to the organization membership. Assignments that already exist are skipped.
+	Add []*PatchRoleAssignmentEntry `json:"add,omitempty" url:"-"`
+	// Remove is role assignments to remove from the organization membership. Entries that match no assignment are skipped. Roles granted through a group cannot be removed.
+	Remove []*PatchRoleAssignmentEntry `json:"remove,omitempty" url:"-"`
+}
+
+// UpdateRoleAssignments for an organization membership
+// Add and remove role assignments for an organization membership in a single atomic operation. Each entry identifies a role and a resource, either by `resource_id` or by `resource_type_slug` and `resource_external_id`; to change an organization-level role, target the organization resource. Additions that already exist and removals that match no assignment are skipped. An assignment in both lists is rejected, as is a removal of a role granted only through a group. `add` and `remove` must contain between 1 and 100 entries combined.
+func (s *AuthorizationService) UpdateRoleAssignments(ctx context.Context, organizationMembershipID string, params *AuthorizationUpdateRoleAssignmentsParams, opts ...RequestOption) error {
+	_, err := s.client.request(ctx, "PATCH", fmt.Sprintf("/authorization/organization_memberships/%s/role_assignments", url.PathEscape(organizationMembershipID)), nil, params, nil, opts)
+	return err
 }
 
 // AuthorizationRemoveRoleParams contains the parameters for RemoveRole.

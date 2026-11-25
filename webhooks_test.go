@@ -79,6 +79,29 @@ func TestWebhooks_CreateEndpoint(t *testing.T) {
 	require.Equal(t, "whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4", result.Secret)
 }
 
+func TestWebhooks_GetEndpoint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/webhook_endpoints/test_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/webhook_endpoint.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Webhooks().GetEndpoint(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "we_0123456789", result.ID)
+	require.Equal(t, "https://example.com/webhooks", result.EndpointURL)
+	require.Equal(t, "whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4", result.Secret)
+}
+
 func TestWebhooks_UpdateEndpoint(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "PATCH", r.Method)

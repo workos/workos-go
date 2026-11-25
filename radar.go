@@ -55,6 +55,17 @@ func (s *RadarService) UpdateAttempt(ctx context.Context, id string, params *Rad
 	return err
 }
 
+// GetDetection get a Radar detection
+// Get a Radar detection from the last 30 days, including the evidence for why Radar fired.
+func (s *RadarService) GetDetection(ctx context.Context, id string, opts ...RequestOption) (*RadarDetection, error) {
+	var result RadarDetection
+	_, err := s.client.request(ctx, "GET", fmt.Sprintf("/radar/detections/%s", url.PathEscape(id)), nil, nil, &result, opts)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // RadarAddListEntryParams contains the parameters for AddListEntry.
 type RadarAddListEntryParams struct {
 	// Entry is the value to add to the list. Must match the format of the list type (e.g. a valid IP address for `ip_address`, a valid email for `email`).

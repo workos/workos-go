@@ -53,6 +53,29 @@ func TestRadar_UpdateAttempt(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestRadar_GetDetection(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/radar/detections/test_id", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fixture, err := os.ReadFile("testdata/radar_detection.json")
+		if err != nil {
+			t.Fatalf("failed to read fixture: %v", err)
+		}
+		w.Write(fixture)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	result, err := client.Radar().GetDetection(context.Background(), "test_id")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "detection_01HZBC6N1EB1ZY7KG32X", result.ID)
+	require.Equal(t, "radar_att_01HZBC6N1EB1ZY7KG32X", result.AttemptID)
+	require.Equal(t, "203.0.113.42", result.IPAddress)
+}
+
 func TestRadar_AddListEntry(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "POST", r.Method)

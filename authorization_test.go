@@ -365,6 +365,19 @@ func TestAuthorization_AssignRole(t *testing.T) {
 	require.Equal(t, "2026-01-15T12:00:00.000Z", result.CreatedAt)
 }
 
+func TestAuthorization_UpdateRoleAssignments(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, "PATCH", r.Method)
+		require.Equal(t, "/authorization/organization_memberships/test_organization_membership_id/role_assignments", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	client := workos.NewClient("sk_test", workos.WithBaseURL(server.URL))
+	err := client.Authorization().UpdateRoleAssignments(context.Background(), "test_organization_membership_id", &workos.AuthorizationUpdateRoleAssignmentsParams{})
+	require.NoError(t, err)
+}
+
 func TestAuthorization_RemoveRole(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "DELETE", r.Method)
