@@ -3,6 +3,7 @@
 package workos
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -64,7 +65,7 @@ func (w *WebhookVerifier) VerifyPayload(sigHeader string, body string) (string, 
 		return "", ErrWebhookNotSigned
 	}
 
-	timestamp, signature, err := ParseWebhookSignatureHeader(sigHeader)
+	timestamp, signatures, err := parseWebhookSignatureHeader(sigHeader)
 	if err != nil {
 		return "", err
 	}
@@ -84,12 +85,14 @@ func (w *WebhookVerifier) VerifyPayload(sigHeader string, body string) (string, 
 	// Compute the expected signature.
 	expected := ComputeWebhookSignature(w.secret, timestamp, body)
 
-	// Constant-time comparison.
-	if subtle.ConstantTimeCompare([]byte(expected), []byte(signature)) != 1 {
-		return "", ErrWebhookNoValidSignature
+	// Constant-time comparison against any v1 signature in the header.
+	for _, sig := range signatures {
+		if subtle.ConstantTimeCompare([]byte(expected), []byte(sig)) == 1 {
+			return body, nil
+		}
 	}
 
-	return body, nil
+	return "", ErrWebhookNoValidSignature
 }
 
 // ConstructEvent verifies the webhook and returns the deserialized event.
@@ -101,9 +104,16 @@ func (w *WebhookVerifier) ConstructEvent(sigHeader string, body string) (*EventS
 		return nil, err
 	}
 
+	if bytes.Equal(bytes.TrimSpace([]byte(verified)), []byte("null")) {
+		return nil, errors.New("workos: invalid webhook event payload")
+	}
+
 	var event EventSchema
 	if err := json.Unmarshal([]byte(verified), &event); err != nil {
 		return nil, fmt.Errorf("workos: failed to parse webhook body: %w", err)
+	}
+	if event.ID == "" || event.Event == "" {
+		return nil, errors.New("workos: webhook event missing required id or event field")
 	}
 	return &event, nil
 }
@@ -119,15 +129,23 @@ func ComputeWebhookSignature(secret string, timestamp string, body string) strin
 
 // ParseWebhookSignatureHeader parses the "t=..., v1=..." header into timestamp and signature.
 func ParseWebhookSignatureHeader(header string) (timestamp string, signature string, err error) {
+	timestamp, signatures, err := parseWebhookSignatureHeader(header)
+	if err != nil {
+		return "", "", err
+	}
+	return timestamp, signatures[len(signatures)-1], nil
+}
+
+func parseWebhookSignatureHeader(header string) (timestamp string, signatures []string, err error) {
 	if header == "" {
-		return "", "", ErrWebhookNotSigned
+		return "", nil, ErrWebhookNotSigned
 	}
 
 	parts := strings.Split(header, ",")
 	for _, part := range parts {
 		kv := strings.SplitN(strings.TrimSpace(part), "=", 2)
 		if len(kv) != 2 {
-			return "", "", ErrWebhookInvalidHeader
+			return "", nil, ErrWebhookInvalidHeader
 		}
 		key := strings.TrimSpace(kv[0])
 		value := strings.TrimSpace(kv[1])
@@ -135,13 +153,15 @@ func ParseWebhookSignatureHeader(header string) (timestamp string, signature str
 		case "t":
 			timestamp = value
 		case "v1":
-			signature = value
+			if value != "" {
+				signatures = append(signatures, value)
+			}
 		}
 	}
 
-	if timestamp == "" || signature == "" {
-		return "", "", ErrWebhookInvalidHeader
+	if timestamp == "" || len(signatures) == 0 {
+		return "", nil, ErrWebhookInvalidHeader
 	}
 
-	return timestamp, signature, nil
+	return timestamp, signatures, nil
 }
