@@ -1,5 +1,19 @@
 # Changelog
 
+## [10.9.0](https://github.com/workos/workos-go/compare/v10.8.0...v10.9.0) (2026-11-25)
+
+
+### Features
+
+* **directory_sync:** Change directory sync API surface ([#652](https://github.com/workos/workos-go/issues/652)) ([6481664](https://github.com/workos/workos-go/commit/6481664e1e2a101bea929a576c7266b06159cc92))
+* **sso:** Add SSO API surface ([#652](https://github.com/workos/workos-go/issues/652)) ([6481664](https://github.com/workos/workos-go/commit/6481664e1e2a101bea929a576c7266b06159cc92))
+* **webhooks:** Add webhook API surface ([#652](https://github.com/workos/workos-go/issues/652)) ([6481664](https://github.com/workos/workos-go/commit/6481664e1e2a101bea929a576c7266b06159cc92))
+
+
+### Bug Fixes
+
+* **events:** Updated model `EventSchema` ([#652](https://github.com/workos/workos-go/issues/652)) ([6481664](https://github.com/workos/workos-go/commit/6481664e1e2a101bea929a576c7266b06159cc92))
+
 ## [10.8.0](https://github.com/workos/workos-go/compare/v10.7.0...v10.8.0) (2026-11-13)
 
 ### Bug Fixes
